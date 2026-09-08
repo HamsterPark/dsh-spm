@@ -107,6 +107,20 @@
 
 16. **web profile 在宿主层禁用全部模型可见工具，由 agent preset 在 agent 平面重挂**（实测，见 §3）。
 
+17. **`dsh plugin add <本地目录>` 用 `link:` 协议，于是开发态与安装态跑的不是同一棵依赖树**（2026-09-08 课时 0.4 实测）。
+    `dsh plugin --profile web add D:\...\packages\bundle\dsh-spm` 之后，profile 的 `package.json` 里是
+    `"dsh-spm": "link:D:/.../packages/bundle/dsh-spm"`（同时它把 `dsh-spm` 追加进了 `dsh.profile.bundles`——
+    它认得我们 package.json 的 `dsh.bundle.patch` 字段）。**`link:` 意味着 pnpm 完全不解析我们的 `dependencies`**：
+    我们写的 `workspace:*` 从没被求值，peerDependencies 也没被执行。
+    探针实测：运行时我们的 compat 把 `@deepseek-ai/dsh-tools` 解析到了**本仓** `node_modules` 里那份，
+    而不是 profile 的那份 ⇒ **一个进程里同时活着两份 dsh-tools 模块实例**（今天两份都是 `0.1.2-rc.1`，所以没出事）。
+    - **为什么现在没炸**：`defineTool` 是纯工厂，返回普通对象，跨实例无所谓；`ctx.tools.register` 收的也是普通对象。
+    - **什么时候会炸**：任何依赖**模块身份**的东西——`instanceof`、模块级单例、**Cordis `Service` 类的类身份**。
+      课时 1.6 要定义 `ctx.instrument` Service（PLAN §7.1），那是第一个真正会撞上这条的地方，届时必须先验。
+    - **发布到 npm 后不是这样**：那条路径上 profile 的 pnpm 会真的解析我们的依赖、执行 peer 精确钉，只剩一份实例。
+      也就是说**我们的开发回路与用户的安装回路走的是两条不同的解析路径**——同 §1 那条「npx 缓存是冻结快照」一个教训：
+      本地跑着没事不代表别人装了没事。⇒ Phase 0 结束前至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟。
+
 ## 7. Phase 0 必须先核实的十条（原 PLAN §15；结论列在课时 0.6 填进 `docs/dsh/spike.md`）
 
 1. `ctx.tools.guard(exec => …)` 的 `exec` 是否含工具名与参数。

@@ -6,7 +6,7 @@
  * tag（2026-09-04 的教训：`alpha` 落后于 `latest`；09-07 又反过来领先一个 minor），
  * 而是所有 tag 里最大的那个——这个判断我每次用眼睛做迟早出错。
  */
-import { execFileSync } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
@@ -15,15 +15,13 @@ const compat = JSON.parse(
 ) as { dependencies: Record<string, string> }
 const locked = compat.dependencies['@deepseek-ai/dsh-tools']!
 
-// Windows 上 npm 是 npm.cmd；直接点名可执行文件，别开 shell——开了 shell 就是把
-// 参数拼进命令行，Node 24 会为此发 DEP0190 弃用警告。
+// 走 npm 而不是直接打 registry HTTP：这样才和 pnpm 用同一份 registry 配置
+// （镜像源、代理、鉴权），否则这里查到的和真正装下来的可能不是一回事。
+// 用 execSync 的单条命令串，不用 execFileSync + args 数组：Windows 上 npm 是
+// npm.cmd，Node 24 拒绝不开 shell 去 spawn .cmd（EINVAL），而开了 shell 再传
+// args 数组又会触发 DEP0190。单条串两头都躲开。
 const tags = JSON.parse(
-  execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', [
-    'view',
-    '@deepseek-ai/dsh',
-    'dist-tags',
-    '--json',
-  ], { encoding: 'utf8' }),
+  execSync('npm view @deepseek-ai/dsh dist-tags --json', { encoding: 'utf8' }),
 ) as Record<string, string>
 
 // prerelease 也要正确排序：1.2.3-alpha.4 拆成 [1,2,3] 与 ['alpha',4]，数字段按数值比。

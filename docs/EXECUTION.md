@@ -23,13 +23,19 @@
 
 ---
 
-## 1. 当前位置（2026-09-07）
+## 1. 当前位置（2026-09-08）
 
-- **课时 0.1 ✅ 完成**（2026-09-02）：pnpm 装好、dsh web profile 在 Windows 跑通、`--dump-config` 导出组合树。
-- **2026-09-07 整理**：仓库确立为 git 路径（`git init` 已做，尚无提交）；研究快照八份移出到 `<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
-- **课时 0.1.5 ✅ 完成**（2026-09-08）：dsh 版本裁决 = **不升 0.1.3-alpha.2，锁留 `0.1.2-rc.1`**；`LICENSE` 落盘（`Copyright (c) 2026 HamsterPark`）。
-- **代码行数：0**。所有包都还不存在。
-- **下一段 = 课时 0.2（仓库骨架）**。
+进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
+· **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）。
+**下一段 = 课时 0.5（第一张设置卡 `mast.instrument`）。**
+
+仓库现状：3 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / `dsh-spm`），8 条测试，`pnpm install --frozen-lockfile`
+/ `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。
+
+Phase 0 完成判据（PLAN §11）还差：spike 十条（0.6，已结清第 5 条）、规格导出（0.7）、覆盖率门禁、设置卡（0.5）。
+
+2026-09-07 的一次性整理：确立 git 路径；研究快照八份移出到
+`<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
 
 ### 阻塞：dsh 0.1.3-alpha.2 装不上本机（2026-09-07 实测）
 
@@ -101,15 +107,19 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 3. **新包 `dsh-http-proxy`：进程级出站代理策略，读 `HTTP_PROXY/HTTPS_PROXY/ALL_PROXY/NO_PROXY` 并装成 undici 全局 dispatcher** ⇒ 真机 profile「不让模型上网」多了一个比 `restrict({deny: web_fetch})` 更硬的闸（进程级，覆盖插件自己发的请求）。Phase 8 的 `mast-rig` profile 评估用 `NO_PROXY`/空代理把出站封死。
 4. **continuable 子 agent 支持消息排队/编辑/删除/steer；Agent Team `send_message` 统一 steer 语义** ⇒ §7.8 supervisor→IC 的追问路径更稳；「插话 = composer `steer()`」的设计得到上游支持。另有 **DeepSeek 流式 tool call 丢 id/name 的修复**——与 §3.2-12「带工具调用一律不流式」同源的坑，上游修了，但我们的纪律不改（Kimi 的截断问题独立存在）。
 
-### 课时 0.2 —— 仓库骨架
+### 课时 0.2 —— 仓库骨架 ✅ 完成（2026-09-08）
 
-| | |
-|---|---|
-| **写** | `package.json`（root，`packageManager: pnpm@11.7.0`）、`pnpm-workspace.yaml`（`packages/*/*`）、`tsconfig.base.json`（strict + `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess` + ESM/NodeNext）、`tsconfig.client.json`、`vitest.workspace.ts`（三 project `unit`/`contract`/`integration`）、`.github/workflows/ci.yml`（`windows-latest` + `ubuntu-latest` × Node 22.19/24，先只跑 install + build） |
-| **讲** | pnpm workspace 与 npm/yarn 的差别；TS `strict` 三个附加开关各拦什么；project references 与 `tsc -b`；为什么目录约定镜像 dsh（`packages/<组>/<包>`） |
-| **验** | `pnpm install` 通过；`pnpm -r build` 空跑通过；CI 在 push 后两个平台都绿 |
-| **顺手结清的开放问题** | PLAN §16：① pnpm `overrides` 能否按 `@deepseek-ai/*` 通配钉版（不能就写脚本从安装树生成逐包表）；② 插件版本号怎么表达「对应哪个 dsh」（候选：`package.json` 加 `dshVersion` 字段 + peer 精确钉） |
-| **停点** | 空仓库能 install、能 build、CI 绿。**此时还没有一行 dsh 代码** |
+落地 6 个文件 154 行：`package.json`（`packageManager: pnpm@11.7.0`）、`pnpm-workspace.yaml`、`tsconfig.base.json`、
+`tsconfig.json`、`vitest.config.ts`（两 project）、`.github/workflows/ci.yml`（Windows + Ubuntu × Node 22.19/24）。
+
+**工具链版本不照 PLAN §5 的 09-01 快照抄**，而是从 GitHub 拉了 dsh 在锁定 tag 上的根 `package.json` 对照：
+继续用 **TypeScript 6 / Vitest 4**，不追已发布的 TS 7.0.2 / Vitest 5——dsh 自己在 `pnpm-workspace.yaml` 里把 peer
+封在 `typescript '>=5 <7'`，而 compat 要吃它发布的 `.d.ts`。宿主侧用 `nodenext` 而非 dsh 全仓的 `bundler`：
+我们的宿主包由 `tsc` 直接编给 Node 跑，`bundler` 会放过缺 `.js` 后缀的相对 import——编得过，运行时找不到模块。
+
+按消融原则删去（218 行 → 154 行）：host/client 两个 tsconfig（第一个客户端包在 1.10，**那时的硬约束已记进 §3**）、
+`typecheck` 脚本（与 `build` 一字不差）、三个 `test:*` 别名、`test:coverage` 与 `@vitest/coverage-v8`（尚无覆盖率门禁）、
+`repository` 字段（仓库尚不存在）、`integration` project（1.4 才有东西可跑）。
 
 ### 课时 0.3 —— `dsh-spm-compat` 防腐层与版本锁 ✅ 完成（2026-09-08）
 
@@ -129,15 +139,20 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 本段钉死的 dsh 事实（已写进 `dsh/facts.md` §7-5）：`defineTool` 的 `parameters` 是**属性表**不是完整 JSON Schema；
 `output: {schema, render}` **必填**；schema DSL 遇到 `minimum` **直接抛错**而非静默丢弃。头两条都是我写契约测试时猜错、被测试当场纠正的——这正是它存在的理由。
 
-### 课时 0.4 —— 总 bundle 与第一个工具 `stm_hello`
+### 课时 0.4 —— 总 bundle 与第一个工具 `stm_hello` ✅ 完成（2026-09-08）
 
-| | |
-|---|---|
-| **写** | `packages/bundle/dsh-spm/` + `cordis.patch.yml`（只 `insert`）+ `stm_hello` 工具（第一次 `defineTool`） |
-| **讲** | 插件三件套 `name/inject/apply`；`ctx.effect()` 的回滚语义；`defineTool` 的 `parameters/output/execute`；工具流水线 `tool/call → pre-execute → execute → post-execute → result` |
-| **验** | `dsh plugin --profile web add ./packages/bundle/dsh-spm`；在聊天里让模型调 `stm_hello` 拿到版本号 |
-| **必须实测的两件事** | ① **我们从宿主 bundle 注册的工具，会不会出现在 agent preset 的目录里**（facts.md §3：web-app 在宿主层把模型可见工具全 `disabled`，由 preset 在 agent 平面重挂——如果我们的工具不自动进去，8 个 preset 的写法要改）；② PLAN §16：`dsh plugin add` 时宿主子包漂到新版而我们的 bundle peer 精确钉旧版，dsh 是**硬失败**还是静默混装（期望硬失败） |
-| **停点** | 会话里真的调到了我们写的工具 |
+落地：`packages/bundle/dsh-spm/`（`src/index.ts` 插件三件套 + `cordis.patch.yml` 一行 `insert` + 单测）、
+`packages/host/compat/src/boundary.test.ts`（防腐层边界）。共 8 条测试。
+
+**在隔离 `DSH_HOME` 里做的真实集成**（没碰你的 `~/.dsh`）：`dsh plugin --profile web add <本仓路径>` 成功，
+dsh 认出 `dsh.bundle.patch` 字段并把 `dsh-spm` 追加进 `dsh.profile.bundles`；`--dump-config` 从 525 行变 528 行，
+末尾出现 `# == dsh-spm` / `id: mast-hello`；`--profile web` 启动干净、stderr 空、端口正常释放。
+**探针实测 `apply()` 在真实运行时里执行了且 `ctx.tools` 是活服务** ——不做这一步的话，`inject` 不满足时 Cordis
+会静默不装载，而我只会看到「启动没报错」这个假绿。
+
+本段结清 B7（问题问错了）、半结清 B6，并新开 **B10**（开发态 `link:` 与安装态是两条解析路径）。
+最重的一条进了 `dsh/facts.md` §6-17：**一个进程里活着两份 `dsh-tools` 模块实例**，今天无害，
+但 1.6 定义 Cordis `Service` 时会撞上模块身份问题，那时必须先验。
 
 ### 课时 0.5 —— 第一张设置卡 `mast.instrument`
 
@@ -209,8 +224,9 @@ dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the
 | B3 | 仓库挂哪、何时公开 | 半定 | 署名与账号都是 **HamsterPark**（本机 `gh` 已登录该账号）。**何时公开仍未定**：建议先私有，Phase 1 联调通过后再公开（用户「一点点重新开源」） |
 | B4 | pnpm `overrides` 能否按 `@deepseek-ai/*` 通配 | **✅ 2026-09-08 实测：不能，而且是静默无效** | 拿 `overrides: {'@types/*': '22.20.0'}` 跑真安装：`@types/semver` 原样停在 7.7.1，**无报错、无警告，pnpm 就是什么都没做**。⇒ 若写 `'@deepseek-ai/*': '<版本>'`，我们会以为钉住了 223 个包，实际钉住 **0 个**。0.3 必须用脚本从安装树生成**逐包** overrides 表；**`check-dsh-pin.ts` 不是冗余保险，它是唯一能抓住这种静默失效的东西** |
 | B5 | 插件版本号怎么表达「对应哪个 dsh」 | **✅ 2026-09-08 定：只用 `peerDependencies`，不加自定义字段** | 查了 dsh 自家包（`dsh-base` / `dsh-web-app` / `dsh-session-persistence-jsonl`）：`package.json` 的 `dsh` 段**只有** `bundle.patch`，没有任何版本声明字段；版本对应关系**全靠 `peerDependencies`**（它们用 `^` 范围，我们按 D11 用精确钉）。再加一个 `dshVersion` 字段就是第二份真源、还没人校验——正是 PLAN §5 记的 MAST「两处双真源」老毛病。peer 到底会不会被硬性执行，由 B7 在 0.4 实测 |
-| B6 | 我们注册的工具是否自动进 agent preset 目录 | 0.4 实测 | 不进 ⇒ 8 个 preset 的写法要改 |
-| B7 | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | 0.4 实测 | 期望硬失败 |
+| B6 | 我们注册的工具是否自动进 agent preset 目录 | **半结清（2026-09-08）** | 已证：插件在真实 dsh 里被装载、`apply` 执行、`inject:['tools']` 得到满足、工具进了**宿主** `tools` 注册表（探针实测 `ctx.tools=object`）。**未证**：模型是否真能看见它——那需要一次真实的模型调用（要 API key 与花钱）。facts.md §3 抄的 preset 注释说「合并后的目录也包含部署全局注册的工具」，倾向于会看见。留到第一次有理由跑真模型时顺带确认 |
+| **B7** | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | **✅ 2026-09-08 实测：问题本身问错了** | `dsh plugin add <本地目录>` 用 **`link:`**，pnpm **完全不解析我们的 dependencies**——`workspace:*` 从没被求值，peer 精确钉也没执行，所以既不硬失败也不混装：**它压根没参与**。探针实测：运行时我们的 compat 解析到的是**本仓**那份 `dsh-tools`，于是一个进程里活着**两份模块实例**。今天两份同版所以没事；`defineTool` 是纯工厂也不在乎。**会出事的是依赖模块身份的东西（`instanceof`、模块级单例、Cordis `Service` 类身份）——课时 1.6 定义 `ctx.instrument` Service 时必须先验**。详见 `dsh/facts.md` §6-17 |
+| **B10** | 开发态（`link:`）与安装态（npm/tarball）走两条不同解析路径 | **新开，Phase 0 结束前** | B7 引出的。发布路径上 profile 的 pnpm 会真的解析依赖、执行 peer 钉，只剩一份实例——和我们每天跑的**不是同一件事**。至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟，否则重演 facts.md §1「npx 缓存是冻结快照」那个教训 |
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |
 | B9 | ONNX 权重放哪（不入仓） | 未定（PLAN §16） | 建议 `E:\dsh-spm-models\` + manifest |
 

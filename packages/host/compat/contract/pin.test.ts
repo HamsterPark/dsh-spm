@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { defineTool } from '../src/index.ts'
+import { defineTool } from '../src/index.js'
 
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 

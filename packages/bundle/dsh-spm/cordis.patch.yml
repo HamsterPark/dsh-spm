@@ -1,0 +1,13 @@
+# dsh-spm 的 bundle patch：以一次 insert 叠在 profile 已有的组合树之上。
+#
+# **只 insert，不改 dsh-base 的行**（PLAN §6.3）。patch 是按 id 整行替换 config、
+# 不做深合并的，所以覆盖别人的行必须把原有的键抄全——抄漏一个就是静默改默认值。
+# 真要覆盖时（默认模型行、approval policy 等）再单独一行一行来。
+#
+# id 一律加 `mast-` 前缀。这不是命名洁癖：0.1.3-alpha.2 把第三方 `file-upload`
+# 插件并进了 base bundle，加载器又把重复 id 从 lint 警告改成致命错误，装了同名
+# 插件的 profile 直接起不来（上游 Discussions #5881）。前缀让我们不会撞上 dsh
+# 将来收编的任何行。
+- insert:
+    - id: mast-hello
+      name: dsh-spm

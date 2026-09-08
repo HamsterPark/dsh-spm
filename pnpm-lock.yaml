@@ -38,6 +38,18 @@ importers:
         specifier: ^4.1.8
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(vite@8.2.2(@types/node@22.20.1))
 
+  packages/bundle/dsh-spm:
+    dependencies:
+      '@deepseek-ai/cordis':
+        specifier: 4.0.2
+        version: 4.0.2
+      '@deepseek-ai/dsh-tools':
+        specifier: 0.1.2-rc.1
+        version: 0.1.2-rc.1(de5e1ff2d608fbe22667925341ad1dfc)
+      dsh-spm-compat:
+        specifier: workspace:*
+        version: link:../../host/compat
+
   packages/host/compat:
     dependencies:
       '@deepseek-ai/cordis':

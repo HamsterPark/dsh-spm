@@ -4,5 +4,8 @@
   // 每加一个包，加一行 { "path": "./packages/<组>/<包>" }。
   "extends": "./tsconfig.base.json",
   "files": [],
-  "references": [{ "path": "./packages/host/compat" }]
+  "references": [
+    { "path": "./packages/host/compat" },
+    { "path": "./packages/bundle/dsh-spm" }
+  ]
 }
