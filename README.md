@@ -13,10 +13,10 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 ## 现在在哪一步
 
 已完成：0.1 ✅ 环境 · 0.1.5 ✅ 版本裁决（不升 0.1.3-alpha.2，见 `docs/dsh/facts.md` §8.0）· 0.2 ✅ 仓库骨架
-· 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/3/5/7，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层。
-**Phase 0 完成**（只差覆盖率门禁）。**Phase 1 进行中，下一步 = 课时 1.2b（Nanonis 类型码表）**。0.5（设置卡）已挪到 1.7。
+· 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/3/5/7，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层 · 1.2b ✅ 类型码表。
+**Phase 0 完成**（只差覆盖率门禁）。**Phase 1 进行中，下一步 = 课时 1.3（协议代码生成）**。0.5（设置卡）已挪到 1.7。
 
-5 个工作区包、186 条测试、golden 已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
+5 个工作区包、232 条测试、golden 已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
 
 ## 文档地图
 
@@ -28,7 +28,7 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 | **`docs/dsh/upgrades.md`** | 升级策略（每课时查新版、一次一版、单独提交、随 dsh 重构）与逐次升级日志 |
 | **`docs/dsh/spike.md`** | spike 十条的结论与「红了改什么」；已结清的钉在 `compat/src/spike.test.ts` 里 |
 | `spec/dsh/` | 每个 dsh 版本的 web profile 组合树导出与包清单，升级时逐行 diff 用 |
-| **`spec/golden/`** | 与 Python 侧对账的**分母**：515 条技能契约 + 146 条 SI 金样 + 15 条线协议字节金样，由 `tools/spec-export/` 从旧仓导出，**重跑逐字节相同**。不要手改 |
+| **`spec/golden/`** | 与 Python 侧对账的**分母**：515 条技能契约 + 146 条 SI 金样 + 51 条线协议字节金样，由 `tools/spec-export/` 从旧仓导出，**重跑逐字节相同**。不要手改 |
 | `LICENSE` | MIT，`Copyright (c) 2026 HamsterPark` |
 
 **给 dsh 报 bug 走 GitHub Discussions，不是 Issues**——该仓 Issues 已关闭，npm 包 `bugs.url` 指向的 `/issues` 是死链。报之前先搜，那里 bug 密度很高。

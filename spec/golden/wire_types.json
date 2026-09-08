@@ -1,0 +1,362 @@
+{
+  "_note": "请求侧字节 = 真实 nanonis_spm 客户端（MAST 打过补丁）；回复侧 = STM-Bench 服务端 codec。base64。不要手改。",
+  "elem_stride_reply_note": "*X/-*X 走 decodeArrayPrepended：步长 8(d) / 否则 4——即使 H/h 只有 2 字节。",
+  "encode_arg": {
+    "H": {
+      "bytes": "//8=",
+      "fmt": "H",
+      "value": 65535
+    },
+    "I": {
+      "bytes": "/////w==",
+      "fmt": "I",
+      "value": 4294967295
+    },
+    "b": {
+      "bytes": "AQ==",
+      "fmt": "b",
+      "value": 1
+    },
+    "d": {
+      "bytes": "P/gAAAAAAAA=",
+      "fmt": "d",
+      "value": 1.5
+    },
+    "empty_list": {
+      "bytes": "",
+      "fmt": "*f",
+      "value": []
+    },
+    "empty_str": {
+      "bytes": "AAAAAA==",
+      "fmt": "+*c",
+      "value": ""
+    },
+    "f": {
+      "bytes": "P8AAAA==",
+      "fmt": "f",
+      "value": 1.5
+    },
+    "f_tiny": {
+      "bytes": "LFMbMg==",
+      "fmt": "f",
+      "value": 3e-12
+    },
+    "h": {
+      "bytes": "gAA=",
+      "fmt": "h",
+      "value": -32768
+    },
+    "i": {
+      "bytes": "AAAAKg==",
+      "fmt": "i",
+      "value": 42
+    },
+    "i_neg": {
+      "bytes": "////+Q==",
+      "fmt": "i",
+      "value": -7
+    },
+    "plus_star_b": {
+      "bytes": "AAAAAgEA",
+      "fmt": "+*b",
+      "value": [
+        1,
+        0
+      ]
+    },
+    "plus_star_c_list": {
+      "bytes": "AAAACAAAAAIAAAABYQAAAAJiYg==",
+      "fmt": "+*c",
+      "value": [
+        "a",
+        "bb"
+      ]
+    },
+    "plus_star_c_str": {
+      "bytes": "AAAABWhlbGxv",
+      "fmt": "+*c",
+      "value": "hello"
+    },
+    "plus_star_i": {
+      "bytes": "AAAAAwAAAAEAAAACAAAAAw==",
+      "fmt": "+*i",
+      "value": [
+        1,
+        2,
+        3
+      ]
+    },
+    "star_I": {
+      "bytes": "AAAABw==",
+      "fmt": "*I",
+      "value": [
+        7
+      ]
+    },
+    "star_f": {
+      "bytes": "P4AAAEAAAABAQAAA",
+      "fmt": "*f",
+      "value": [
+        1.0,
+        2.0,
+        3.0
+      ]
+    },
+    "star_i": {
+      "bytes": "AAAAAQAAAAI=",
+      "fmt": "*i",
+      "value": [
+        1,
+        2
+      ]
+    },
+    "star_plus_c_list": {
+      "bytes": "AAAACAAAAAIAAAABeAAAAAJ5eg==",
+      "fmt": "*+c",
+      "value": [
+        "x",
+        "yz"
+      ]
+    },
+    "star_plus_c_str": {
+      "bytes": "AAAAAmhp",
+      "fmt": "*+c",
+      "value": "hi"
+    },
+    "two_f": {
+      "bytes": "AAAAAgAAAAI/gAAAQAAAAEBAAABAgAAA",
+      "fmt": "2f",
+      "value": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          3.0,
+          4.0
+        ]
+      ]
+    }
+  },
+  "encode_returns": {
+    "empty_star": {
+      "body": "AAAAAA==",
+      "fmts": [
+        "i",
+        "*f"
+      ],
+      "values": [
+        0,
+        []
+      ]
+    },
+    "plus_star_c": {
+      "body": "AAAABHNvbG8=",
+      "fmts": [
+        "+*c"
+      ],
+      "values": [
+        "solo"
+      ]
+    },
+    "plus_star_i": {
+      "body": "AAAAAwAAAAEAAAACAAAAAw==",
+      "fmts": [
+        "+*i"
+      ],
+      "values": [
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "scalars": {
+      "body": "AAAAAT/AAAD//0AEAAAAAAAA",
+      "fmts": [
+        "i",
+        "f",
+        "H",
+        "d"
+      ],
+      "values": [
+        1,
+        1.5,
+        65535,
+        2.5
+      ]
+    },
+    "star_2c": {
+      "body": "AAAAAgAAAAIAAAABYQAAAAFiAAAAAWMAAAABZA==",
+      "fmts": [
+        "i",
+        "i",
+        "*2c"
+      ],
+      "values": [
+        2,
+        2,
+        [
+          [
+            "a",
+            "b"
+          ],
+          [
+            "c",
+            "d"
+          ]
+        ]
+      ]
+    },
+    "star_d": {
+      "body": "AAAAAj/4AAAAAAAAQAQAAAAAAAA=",
+      "fmts": [
+        "i",
+        "*d"
+      ],
+      "values": [
+        2,
+        [
+          1.5,
+          2.5
+        ]
+      ]
+    },
+    "star_f": {
+      "body": "AAAAAz+AAABAAAAAQEAAAA==",
+      "fmts": [
+        "i",
+        "*f"
+      ],
+      "values": [
+        3,
+        [
+          1.0,
+          2.0,
+          3.0
+        ]
+      ]
+    },
+    "star_i": {
+      "body": "AAAAAgAAAAoAAAAU",
+      "fmts": [
+        "i",
+        "*i"
+      ],
+      "values": [
+        2,
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    "star_minus_c": {
+      "body": "AAAABWhlbGxv",
+      "fmts": [
+        "i",
+        "*-c"
+      ],
+      "values": [
+        5,
+        "hello"
+      ]
+    },
+    "star_plus_c": {
+      "body": "AAAADAAAAAIAAAACYWIAAAACY2Q=",
+      "fmts": [
+        "i",
+        "i",
+        "*+c"
+      ],
+      "values": [
+        12,
+        2,
+        [
+          "ab",
+          "cd"
+        ]
+      ]
+    },
+    "star_plus_d": {
+      "body": "AAAAAj/4AAAAAAAAQAQAAAAAAAA=",
+      "fmts": [
+        "i",
+        "*+d"
+      ],
+      "values": [
+        2,
+        [
+          1.5,
+          2.5
+        ]
+      ]
+    },
+    "starstar_I": {
+      "body": "AAAAAgAAAAEAAAAC",
+      "fmts": [
+        "i",
+        "**I"
+      ],
+      "values": [
+        2,
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "starstar_c": {
+      "body": "AAAAAgAAAAJhYgAAAAJjZA==",
+      "fmts": [
+        "i",
+        "**c"
+      ],
+      "values": [
+        2,
+        [
+          "ab",
+          "cd"
+        ]
+      ]
+    },
+    "starstar_f": {
+      "body": "AAAAAj+AAABAAAAA",
+      "fmts": [
+        "i",
+        "**f"
+      ],
+      "values": [
+        2,
+        [
+          1.0,
+          2.0
+        ]
+      ]
+    },
+    "two_f": {
+      "body": "AAAAAgAAAAI/gAAAQAAAAEBAAABAgAAA",
+      "fmts": [
+        "i",
+        "i",
+        "2f"
+      ],
+      "values": [
+        2,
+        2,
+        [
+          [
+            1.0,
+            2.0
+          ],
+          [
+            3.0,
+            4.0
+          ]
+        ]
+      ]
+    }
+  }
+}
