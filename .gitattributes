@@ -1,0 +1,17 @@
+# 全仓强制 LF：CI 跑 windows-latest + ubuntu-latest，行尾漂移会让 golden 文本比对与
+# 「description 逐字相等」的 parity 判据（PLAN §8.5 ②）在两个平台给出不同结果。
+* text=auto eol=lf
+
+# 二进制与金样：绝不做行尾转换，否则字节级断言（PLAN §12「线协议金样」）当场失效
+*.png       binary
+*.npy       binary
+*.onnx      binary
+*.sxm       binary
+*.3ds       binary
+*.bin       binary
+*.f32       binary
+
+# 生成物与大文本：diff 时折叠，但仍进版本控制
+spec/dsh/dump-config.*.yml   linguist-generated=true
+spec/golden/**               linguist-generated=true
+pnpm-lock.yaml               linguist-generated=true -diff

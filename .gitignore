@@ -1,0 +1,44 @@
+# ---- Node / pnpm ----
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+dist/
+lib/
+coverage/
+.vitest/
+
+# ---- 本仓生成物 ----
+# 代码生成的 typed façade 进仓（CI 校验重生成无 diff），故不忽略 generated/
+
+# 差分/集成测试的临时产物
+.tmp/
+tmp/
+*.log
+
+# ---- 绝不入仓（PLAN §13 许可证行、§14 非目标）----
+# 深度视觉权重（DINOv3 许可）
+*.onnx
+models/
+weights/
+# 文献语料
+corpus/
+literature-corpus/
+# Nanonis 手册抽取（CHM 版权）
+**/nanonis_manual*.json
+# 真机 profile：Phase 8 之前不入仓（PLAN §6.3）
+profiles/mast-rig/
+
+# ---- 凭据 ----
+.env
+.env.*
+!.env.example
+*.credentials.yaml
+*.pem
+*.key
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
