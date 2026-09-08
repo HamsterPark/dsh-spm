@@ -27,13 +27,15 @@
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
-· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
-**下一段 = 课时 0.7（规格导出第一版）。**
+· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + 127 SI 用例）。
+**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
+**下一段 = 课时 1.1（`dsh-spm-kernel` 类型 + `si.ts` 移植 + golden 测试）——Phase 1 开始。**
 
 仓库现状：3 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / `dsh-spm`），15 条测试，`pnpm install --frozen-lockfile`
-/ `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。
+/ `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。golden 已入仓（`spec/golden/`，重跑逐字节相同）。
 
-Phase 0 完成判据（PLAN §11）还差：**规格导出**（0.7）、**覆盖率门禁**、spike 剩下五条（各有触发点，见 `dsh/spike.md`）。
+Phase 0 完成判据（PLAN §11）**只差覆盖率门禁**——它要等 1.1 有第一个真正需要 100% 覆盖的包（kernel）时
+一起落，现在全仓只有 3 个导出加一个 hello 工具，配了也只是给空气设门槛。spike 剩下五条各有触发点（见 `dsh/spike.md`）。
 
 2026-09-07 的一次性整理：确立 git 路径；研究快照八份移出到
 `<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
@@ -183,12 +185,29 @@ dsh 认出 `dsh.bundle.patch` 字段并把 `dsh-spm` 追加进 `dsh.profile.bund
 
 顺带查到：`tools.restrict()` **要求 scoped context**，全局调用直接抛 ⇒ IC/conduct preset 的 deny 必须写在 agent 平面。
 
-### 课时 0.7 —— 规格导出第一版
+### 课时 0.7 —— 规格导出第一版 ✅ 完成（2026-09-08）
 
-`tools/spec-export/export_mast_spec.py`（Python 3.13，**用旧仓 venv** `python`，只读旧仓，`MAST2_PROJECT_ROOT` 指向临时目录隔离），先只导 `skills.json` + `si_cases.json`。
-讲 golden 的作用、为什么分母必须从真源取而不是手抄、每个 collector 独立 try/except 并在 `manifest.json` 记成败。
-验：跑一次，看 `spec/golden/skills.json` 里 SetBias 那条。
-**本机没有可用的 `python`**——脚本一律用 venv 里的绝对路径调，别写 `python - <<PY`（会静默什么都不做）。
+`tools/spec-export/export_mast_spec.py`（Python，只读旧仓，用旧仓 venv 的绝对路径跑——本机 PATH 里的
+`python` 是 Microsoft Store 转发桩）导出 `spec/golden/`：**skills.json 515 条**技能作者声明契约、
+**si_cases.json 127 条** SI 行为金样、`manifest.json` 记每个 collector 的成败。
+
+三件已验的事：
+
+1. **只读旧仓**：跑完 `find MAST -newermt '-10 minutes'` 扫全仓返回空，一个字节没动。隔离靠导出前把
+   `MAST2_PROJECT_ROOT` 指向临时目录——旧仓的 config / data_paths / override_store / **models（API key
+   目录解析）** 都认它。运行中确实触发了一次「管理员覆写迁移」，但那是**从旧仓复制到沙箱**（两边 mtime 相同）。
+2. **重跑逐字节相同**（已验两次）。所以「旧仓变了没有」可以用 `git diff` 回答；manifest 因此不记随机沙箱路径。
+3. **分母已经漂了**：PLAN §5 记的 09-01 普查是 498，今天导出 **515**（七天多 17 个）。DANGEROUS 仍恰好 10、
+   WRITE 仍恰好 243，其余都动了。旧仓还在给真机发版，**它会一直长**。⇒ PLAN §5 不再记数字，改指 golden。
+
+**用 `_get_metadata_raw` 不是 `_get_metadata`**：前者是技能作者的声明，后者叠加了 admin 覆盖。旧仓自己的
+注释讲得最清楚——拿叠加后的当基线，一个「调低某技能 safety_level」的管理员覆盖就会变成新标尺，**把审批闸门洗白**。
+
+**报错原文也进金样**：`si_cases.json` 录了异常类型与完整消息，因为模型读到的正是这些句子（§3.2-1、§3.2-16）。
+已经发现 strict 与 loose 对同一个非法输入给的是**两句不同的教学文案**——照行为写 TS 能过，照措辞写才对得上。
+
+按消融原则只导两样，其余（tool_schemas / preconditions / safety / verbs / error_branches / traces …）
+等各自消费者出现再加，理由与时机写在 `spec/golden/README.md`。
 
 ---
 

@@ -1,0 +1,13 @@
+{
+  "collectors": {
+    "si_cases.json": {
+      "entries": 127,
+      "ok": true
+    },
+    "skills.json": {
+      "entries": 515,
+      "ok": true
+    }
+  },
+  "mast_root": "<MAST_ROOT>"
+}
