@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+# 同一分支有新提交时取消上一轮，避免重复占用 CI 额度
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Windows 从 Phase 0 就在矩阵里，不是等到出问题才加（PLAN §13 风险行）：
+    # 真机只有 Windows，而 node:sqlite 可用性、长路径、CRLF、路径含空格
+    # 全是只在 Windows 上才发作的问题。Ubuntu 同时跑，是为了让"只在我机器上行"
+    # 当场变红。
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        node: ['22.19', '24']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 必须在 setup-node 之前：cache: pnpm 要先能找到 pnpm。
+      # 版本由 package.json 的 packageManager 字段决定（pnpm@11.7.0），corepack 照办。
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      # --frozen-lockfile：锁文件与 package.json 对不上就直接失败，不许 CI 自作主张
+      # 改依赖树。这是"整套精确钉"在 CI 侧的落点（PLAN §6.3）。
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      - run: pnpm test

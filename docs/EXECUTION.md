@@ -168,6 +168,13 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 | 1.9 | 看门狗 + `estop()` + `/estop` 命令 | stmsim 撞针场景 4 s 内退针 |
 | 1.10 | U0：SSE hub `/mast/events` + `ui-core` 右栏「仪器状态」卡 | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
 
+**1.10 落第一个客户端包时必须做的一件结构改动**（0.2 按消融原则没有预先搭）：把根 `tsconfig.json`
+拆成 `tsconfig.host.json` + `tsconfig.client.json` 两个解决方案文件，根文件只 `files: []` + 引用这两个。
+**理由不是整洁，是硬约束**：Cordis 靠 declaration merging 往 `Context` 上挂服务，宿主面与客户端面挂的是
+**两组不同的服务**；两张图一旦落进同一个 `ts.Program`，两套 merge 会互相污染——**编译期一切正常，运行期才炸**。
+dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the host/client cordis Context merges never meet"）。
+同时 client 的 `compilerOptions` 要覆盖成 `module: esnext` / `moduleResolution: bundler` / `lib` 加 dom / `jsx: react-jsx`。
+
 **Phase 1 的两处前置**（在 1.4 之前确认，别到时候卡住）：
 - stmsim 要能跑起来 ⇒ `<STMSIM_ROOT>\` 的 Python 环境可用（走旧仓 venv 还是 STM-Bench 自己的，1.4 前定）。
 - **0.1.3 的「subprocess 句柄不再带 PID」与「Windows 本地非终端子进程不再弹控制台窗口」** ⇒ 若 `instrument-stmsim` 决定走 dsh 的 `subprocess` 服务而不是 Node 自己的 `child_process`，1.7 要按新语义写；PLAN §7.1 目前的设计是我们自己 spawn，不受影响。
@@ -191,8 +198,8 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 | **B1** | dsh 升不升 0.1.3-alpha.2（本机装不上，见 §1） | **✅ 2026-09-08 定：不升** | 锁留 `0.1.2-rc.1`，每课时照常查版。社区已多方复现同一问题（Discussions #5929/#5882/#5784/#5751/#5638/#5689），且该版还有另外三处独立的启动崩溃（#5881 重复 loader id、#5753 session v2 迁移拒绝老日志、#5889 rpc owner 未声明）与一处发布物缺依赖（#5913），`latest`/`next` 也仍停在 rc.1。**上游反馈渠道是 GitHub Discussions，不是 Issues（该仓 Issues 已关闭）** |
 | B2 | LICENSE 的版权署名 | **✅ 2026-09-08 定** | `Copyright (c) 2026 HamsterPark`（用户昵称，真名在其 GitHub 主页备注）。`LICENSE` 已落盘；0.2 建包时各 `package.json` 的 `author` 用同一署名 |
 | B3 | 仓库挂哪、何时公开 | 半定 | 署名与账号都是 **HamsterPark**（本机 `gh` 已登录该账号）。**何时公开仍未定**：建议先私有，Phase 1 联调通过后再公开（用户「一点点重新开源」） |
-| B4 | pnpm `overrides` 能否按 `@deepseek-ai/*` 通配 | 0.2 核实 | 不能就脚本生成逐包表 |
-| B5 | 插件版本号怎么表达「对应哪个 dsh」 | 0.2 定 | 候选：`package.json` 加 `dshVersion` + peer 精确钉 |
+| B4 | pnpm `overrides` 能否按 `@deepseek-ai/*` 通配 | **✅ 2026-09-08 实测：不能，而且是静默无效** | 拿 `overrides: {'@types/*': '22.20.0'}` 跑真安装：`@types/semver` 原样停在 7.7.1，**无报错、无警告，pnpm 就是什么都没做**。⇒ 若写 `'@deepseek-ai/*': '<版本>'`，我们会以为钉住了 223 个包，实际钉住 **0 个**。0.3 必须用脚本从安装树生成**逐包** overrides 表；**`check-dsh-pin.ts` 不是冗余保险，它是唯一能抓住这种静默失效的东西** |
+| B5 | 插件版本号怎么表达「对应哪个 dsh」 | **✅ 2026-09-08 定：只用 `peerDependencies`，不加自定义字段** | 查了 dsh 自家包（`dsh-base` / `dsh-web-app` / `dsh-session-persistence-jsonl`）：`package.json` 的 `dsh` 段**只有** `bundle.patch`，没有任何版本声明字段；版本对应关系**全靠 `peerDependencies`**（它们用 `^` 范围，我们按 D11 用精确钉）。再加一个 `dshVersion` 字段就是第二份真源、还没人校验——正是 PLAN §5 记的 MAST「两处双真源」老毛病。peer 到底会不会被硬性执行，由 B7 在 0.4 实测 |
 | B6 | 我们注册的工具是否自动进 agent preset 目录 | 0.4 实测 | 不进 ⇒ 8 个 preset 的写法要改 |
 | B7 | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | 0.4 实测 | 期望硬失败 |
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |

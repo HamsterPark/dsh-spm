@@ -1,0 +1,39 @@
+{
+  // 所有包共享的编译口径。**永远不要往这里加 include / files**——它会漏进每个
+  // 继承它的包，把各包自己的 rootDir 边界撑破。
+  "compilerOptions": {
+    "target": "es2024",
+    "lib": ["es2024"],
+    "types": ["node"],
+
+    // 宿主侧包由 tsc 直接编出来给 Node 跑，所以用 nodenext：它按 Node 的真实规则
+    // 解析，强制相对 import 写 .js 后缀。用 bundler 的话能编过、Node 跑起来却找不到
+    // 模块。client 包走 tsdown 打包，在 tsconfig.client.json 里改回 bundler。
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    // project references 三件套：每个包独立编译、独立缓存、按依赖顺序增量重建。
+    "composite": true,
+    "incremental": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // 只跳过 node_modules 里 .d.ts 的互检；我们自己的代码照常全检。
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+
+    // PLAN §6.3 点名的三条严格开关。前两条是这个项目的实质需求，不是洁癖：
+    // - noUncheckedIndexedAccess: arr[i] 的类型带 undefined。技能参数、通道数组、
+    //   扫描行缓冲全是下标访问，"读不到"必须和"读到 0"在类型上就分开（§3.2-13）。
+    // - exactOptionalPropertyTypes: {x?: number} 不许显式赋 undefined。HardwareState
+    //   的 "None 不覆盖旧值" 语义靠它在类型层兜住（§3.2-6）。
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}

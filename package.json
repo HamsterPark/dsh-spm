@@ -1,0 +1,23 @@
+{
+  "name": "dsh-spm-root",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "HamsterPark",
+  "description": "MAST 的 SPM/STM 领域能力，重写为 DeepSeek Harness (dsh) 插件集",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "tsc -b --clean",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  // 解决方案文件：`tsc -b` 与编辑器 tsserver 的入口。
+  // `files: []` 让它自己不产生 ts.Program，只按 references 调度各包增量重建。
+  // 每加一个包，加一行 { "path": "./packages/<组>/<包>" }。
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": []
+}
