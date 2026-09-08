@@ -11,8 +11,11 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 
 ## 现在在哪一步
 
-课时 0.1 ✅（2026-09-02 环境与 Windows 冒烟）· 课时 0.1.5 ✅（2026-09-08 dsh 版本裁决：**不升 0.1.3-alpha.2**，见 `docs/dsh/facts.md` §8.0）。
-**下一步 = 课时 0.2（仓库骨架）**。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
+**Phase 0 进行中**：0.1 ✅ 环境 · 0.1.5 ✅ 版本裁决（不升 0.1.3-alpha.2，见 `docs/dsh/facts.md` §8.0）· 0.2 ✅ 仓库骨架
+· 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/3/5/7，半结清 6）。
+**下一步 = 课时 0.7（规格导出第一版）**；0.5（设置卡）已挪到 1.7——它要配的仪器端口那时才存在。
+
+3 个工作区包、15 条测试。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
 
 ## 文档地图
 
@@ -22,6 +25,7 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 | **`docs/EXECUTION.md`** | **分段执行计划**：从这里开工。每段写什么、讲什么、你怎么验、停在哪、红了回滚到哪 |
 | **`docs/dsh/facts.md`** | 对照当前锁定 dsh 版本核实的事实：版本节奏、本机环境、组合树、三层机制、能力表、dsh 侧陷阱、spike 十条、逐版本影响 |
 | **`docs/dsh/upgrades.md`** | 升级策略（每课时查新版、一次一版、单独提交、随 dsh 重构）与逐次升级日志 |
+| **`docs/dsh/spike.md`** | spike 十条的结论与「红了改什么」；已结清的钉在 `compat/src/spike.test.ts` 里 |
 | `spec/dsh/` | 每个 dsh 版本的 web profile 组合树导出与包清单，升级时逐行 diff 用 |
 | `LICENSE` | MIT，`Copyright (c) 2026 HamsterPark` |
 

@@ -121,7 +121,10 @@
       也就是说**我们的开发回路与用户的安装回路走的是两条不同的解析路径**——同 §1 那条「npx 缓存是冻结快照」一个教训：
       本地跑着没事不代表别人装了没事。⇒ Phase 0 结束前至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟。
 
-## 7. Phase 0 必须先核实的十条（原 PLAN §15；结论列在课时 0.6 填进 `docs/dsh/spike.md`）
+## 7. Phase 0 必须先核实的十条（原 PLAN §15）
+
+> **结论正本在 `docs/dsh/spike.md`**（2026-09-08 课时 0.6 起）：已结清 1 / 3 / 5 / 7，半结清 6，其余五条各自记了触发点。
+> 有结论的都钉成了 `packages/host/compat/src/spike.test.ts` 的断言，随每次升级重跑。
 
 1. `ctx.tools.guard(exec => …)` 的 `exec` 是否含工具名与参数。
 2. `ctx.systemPrompt.section()` 的动态内容是否逐请求记入 session log。

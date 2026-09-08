@@ -26,13 +26,14 @@
 ## 1. 当前位置（2026-09-08）
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
-· **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）。
-**下一段 = 课时 0.5（第一张设置卡 `mast.instrument`）。**
+· **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
+· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
+**下一段 = 课时 0.7（规格导出第一版）。**
 
-仓库现状：3 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / `dsh-spm`），8 条测试，`pnpm install --frozen-lockfile`
+仓库现状：3 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / `dsh-spm`），15 条测试，`pnpm install --frozen-lockfile`
 / `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。
 
-Phase 0 完成判据（PLAN §11）还差：spike 十条（0.6，已结清第 5 条）、规格导出（0.7）、覆盖率门禁、设置卡（0.5）。
+Phase 0 完成判据（PLAN §11）还差：**规格导出**（0.7）、**覆盖率门禁**、spike 剩下五条（各有触发点，见 `dsh/spike.md`）。
 
 2026-09-07 的一次性整理：确立 git 路径；研究快照八份移出到
 `<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
@@ -154,17 +155,33 @@ dsh 认出 `dsh.bundle.patch` 字段并把 `dsh-spm` 追加进 `dsh.profile.bund
 最重的一条进了 `dsh/facts.md` §6-17：**一个进程里活着两份 `dsh-tools` 模块实例**，今天无害，
 但 1.6 定义 Cordis `Service` 时会撞上模块身份问题，那时必须先验。
 
-### 课时 0.5 —— 第一张设置卡 `mast.instrument`
+### ~~课时 0.5 —— 第一张设置卡 `mast.instrument`~~ → **挪到 1.7**（2026-09-08 决定）
 
-写 host 侧 `ctx.settings.installSection` + client 侧 `settings.plugin.item` slot。
-讲 host/client 双面、slot 系统、`settingsScope.bind`、客户端 bundle 的隐式基线依赖（React/Cordis/`dsh-client-store`/`ui-primitives`/`ui-slots` **不得重复声明**）。
-验：设置页看到卡片，改端口号后重启读回。**注意 0.1.3 统一了设置面板的标签/开关样式**，升级后这段要重看一眼。
+按消融原则推迟。这张卡要配的是「四个端口 / hardware_modules / instrument_profile」，而仪器服务要到
+**1.6/1.7** 才存在——现在做出来配置的是不存在的东西，纯演示，还要拖进一整套客户端机器
+（tsdown、React、client bundle、0.2 刚消融掉的 `tsconfig.client.json`）。
+对照 PLAN §11，**Phase 0 的完成判据里没有设置卡**，有的是「spike 十条各有结论」。
+到 1.7 `instrument-stmsim` 真要配端口时再做，那时 host/client 双面、slot、`settingsScope`
+与客户端 bundle 的隐式基线依赖一起讲，并与 1.10 的 U0 共用同一套客户端机器。
 
-### 课时 0.6 —— dsh spike 十条
+### 课时 0.6 —— dsh spike ✅ 完成（2026-09-08）
 
-把 `facts.md` §7 的十条逐条写成 contract 测试，结论写 `docs/dsh/spike.md`，每条附「红了改什么」（PLAN §13 已给出六条的备选路）。
-**每次升级后重跑**——这十条就是升级清单第 4 步的内容。
-其中第 10 条（子会话能否读到父/根 session id、`ctx.agents.resume` 的 API 名）会被 0.1.3 的 `SessionHandle` 改写，如果那时已升级就直接照新 API 写。
+结论正本 `docs/dsh/spike.md`，可测的钉成 `packages/host/compat/src/spike.test.ts`（随 `pnpm test` 每次跑）。
+**结清 1 / 3 / 5 / 7，半结清 6，其余五条各自记了触发点**——没到用的时候不查，查了也只是纸面结论，
+而且 dsh 一天一版，结论会先于用途过期。
+
+三条改变了设计的：
+
+1. **guard 拿得到工具名与参数**（`ToolExecution.name` / `.arguments`）⇒ D9 把「物理荒谬」挂 guard 成立。
+   与 facts.md §6-2 不矛盾：拿不到参数的是 `ctx.approval.request()`，`ApprovalDigest` 只为审批面存在。
+2. **patch 没有 `remove`/`replace`**，只有 insert + 按 id 逐字段整值覆盖（实现就是 `target[key] = value`）。
+   意外收获：非 insert 的 patch 里 `name` 是**断言**不是覆盖，对不上整条跳过并警告 ⇒ §6.3 那张覆盖表
+   实施时**逐行都写上 `name`**，dsh 换了 id 背后的插件时我们会跳过+警告而不是悄悄作用到别的插件上。
+   陷阱：id 匹配不到只警告不报错，覆盖会静默失效——升级清单第 2 步的逐行 diff 就是防这个。
+3. **`tools/result` 读得到 `value`，但它 "deliberately omitted from durable events"** ⇒ 我们的 SQLite 是
+   唯一能留住它的地方。PLAN §3.1-1 从「保险起见」变成有据可依。
+
+顺带查到：`tools.restrict()` **要求 scoped context**，全局调用直接抛 ⇒ IC/conduct preset 的 deny 必须写在 agent 平面。
 
 ### 课时 0.7 —— 规格导出第一版
 
