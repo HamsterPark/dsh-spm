@@ -113,7 +113,8 @@
 2. `ctx.systemPrompt.section()` 的动态内容是否逐请求记入 session log。
 3. `cordis.patch.yml` 是否有 `remove`/`replace`，还是只能同 id 覆盖。
 4. replay 模式下工具执行是否被短路；`exec` 上有什么标志可判。
-5. `parameters` 是否透传 `minimum/maximum`。
+5. ~~`parameters` 是否透传 `minimum/maximum`。~~ **✅ 2026-09-08 课时 0.3 结清（结论比原设想更强）**：不但不透传，而且**在 `defineTool` 构造期直接抛** `JsonSchemaError: unsupported JSON schema: parameters.n.minimum is not supported by the value schema DSL`。⇒「范围写进 description」不是可选变通而是唯一写法，且写错了当场炸，不会变成「模型永远看不见这个范围」的静默缺陷。契约测试 `packages/host/compat/contract/pin.test.ts` 钉住了它；哪天 dsh 支持了那条会红，届时同步改 PLAN §8.2 的 schema 生成。
+   同段顺带钉住的另外两条 `defineTool` 事实：`parameters` 是**属性表**（dsh 自己补隐式 object 根），不是完整 JSON Schema；`output: {schema, render}` 是**必填**。
 6. `ctx.tools.restrict` 能否放松；被隐藏名字被模型调用时返回什么；同名工具重注册（桩→完整）的语义与 `tools/change` 行为。
 7. `tools/result` 能否读到 `value`；job 内能否 `userQuestions.ask`；`presentResult` 对 `INVALID_ARGS` 能否接管渲染。
 8. `conversation.view` 无 session 时能否显示；`details` 是 single 还是 list；`tool.call.toolview` props 有无待批状态。

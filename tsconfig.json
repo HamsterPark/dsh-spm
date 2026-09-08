@@ -4,5 +4,5 @@
   // 每加一个包，加一行 { "path": "./packages/<组>/<包>" }。
   "extends": "./tsconfig.base.json",
   "files": [],
-  "references": []
+  "references": [{ "path": "./packages/host/compat" }]
 }

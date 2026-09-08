@@ -23,4 +23,26 @@ packages:
 # `'@types/*': '22.20.0'` 对 @types/semver 完全没作用，不报错也不警告）。
 # 所以 0.3 必须用脚本从安装树生成**逐包**的 overrides 表，绝不能写 '@deepseek-ai/*'
 # 然后以为钉住了 223 个包——那样实际一个都没钉住，而且看不出来。
-# check-dsh-pin.ts 就是专门抓这种静默失效的。见 docs/EXECUTION.md 台账 B4。
+# 抓这种静默失效的是 packages/host/compat/contract/pin.test.ts。见 EXECUTION.md 台账 B4。
+#
+# 下面这张表从真实安装树导出（不是手抄）。dsh 系全部同一精确版本；Cordis 系是独立
+# 版本线，各钉各的（facts.md §1）。升级 dsh 时整张表一起换。
+overrides:
+  '@deepseek-ai/cordis': '4.0.2'
+  '@deepseek-ai/cosmokit': '1.8.3'
+  '@deepseek-ai/dsh-agent': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-brand': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-code-runtime': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-invariants': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-llm': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-scope': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-session': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-session-projection': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-system-prompt': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-timeout': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-tools': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-typert-protocol': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-user-approval': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-util-crypto': '0.1.2-rc.1'
+  '@deepseek-ai/dsh-util-values': '0.1.2-rc.1'
+  '@deepseek-ai/schemastery': '3.18.2'

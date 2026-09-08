@@ -7,8 +7,6 @@ import { defineConfig } from 'vitest/config'
 // integration（起真 stmsim、占真端口）等课时 1.4 有东西可跑时再加。
 export default defineConfig({
   test: {
-    // 0.3 落下第一条 contract 测试后删掉，否则「没发现测试」会伪装成「测试全过」。
-    passWithNoTests: true,
     projects: [
       { test: { name: 'unit', include: ['packages/*/*/src/**/*.test.ts'] } },
       { test: { name: 'contract', include: ['packages/*/*/contract/**/*.test.ts'] } },

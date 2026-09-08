@@ -111,14 +111,23 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 | **顺手结清的开放问题** | PLAN §16：① pnpm `overrides` 能否按 `@deepseek-ai/*` 通配钉版（不能就写脚本从安装树生成逐包表）；② 插件版本号怎么表达「对应哪个 dsh」（候选：`package.json` 加 `dshVersion` 字段 + peer 精确钉） |
 | **停点** | 空仓库能 install、能 build、CI 绿。**此时还没有一行 dsh 代码** |
 
-### 课时 0.3 —— `dsh-spm-compat` 防腐层与版本锁
+### 课时 0.3 —— `dsh-spm-compat` 防腐层与版本锁 ✅ 完成（2026-09-08）
 
-| | |
-|---|---|
-| **写** | `packages/host/compat/`：按用途分文件 re-export（`plugin/tools/agent/session/jobs/ui/llm/client`）+ `scripts/check-dsh-surface.ts`（写 `dsh-surface.lock.json`）+ `check-dsh-pin.ts`（断言安装树里 `@deepseek-ai/dsh*` 只有一个版本）+ `check-dsh-latest.ts`（读全部 dist-tag 取 semver 最大值比对）+ 第一条 contract 测试 |
-| **讲** | 为什么全仓只许一个包 import `@deepseek-ai/*`；pnpm `overrides` 把**整套**钉成同一精确版本（只钉 `dsh` 一个包锁不住任何东西）；contract 测试与 unit 测试的分工；升级八步清单怎么走 |
-| **验** | 改一个 re-export 名字 ⇒ surface 检查变红；把 `overrides` 的一项改成 `^` ⇒ `check-dsh-pin` 变红；`pnpm check:dsh-latest` 报出 npm 上的最大版本（当前应报 `0.1.3-alpha.2` 比锁定的新） |
-| **停点** | 三个脚本都能**主动变红**。只会变绿的检查等于没有检查 |
+落地：`packages/host/compat/`（`src/index.ts` 只导出 `defineTool` / `DefineToolOptions` / `Context` 三个名字——**只导出此刻真有调用方的**）、
+`contract/pin.test.ts`（4 条）、`scripts/check-dsh-latest.ts`、`pnpm-workspace.yaml` 的 18 行逐包 overrides 表（从真实安装树导出）。
+安装树：18 个 `@deepseek-ai/*`，15 个 `dsh*` 全为 `0.1.2-rc.1`，Cordis 系独立版本线。
+验收全绿，且**做过变红演练**：把 compat 声明的锁改成 `alpha.5`，钉版测试当场列出 15 个漂移包；还原后回绿。
+
+按消融原则**没有写**的三样，附上它们各自该在什么时候出现：
+
+| 没写 | 为什么现在不需要 | 什么时候写 |
+|---|---|---|
+| `check-dsh-surface.ts` + `dsh-surface.lock.json` | compat 只导出 3 个名字，其中任何一个在 dsh 侧消失，`tsc -b` 当场就编不过；再加一份 lock 文件此刻不承担任何 tsc 没做的事 | 导出面大到「签名变了但仍能编过」成为真实风险时（大约 §7 的接缝铺开、compat 破 30 个导出） |
+| `check-dsh-pin.ts` 独立脚本 | 同一个断言已经是 contract 测试，进 `pnpm test` 也进 CI。两份实现就是两份真源 | 若某天需要在 `pnpm install` 之后、测试之前就拦住（如 CI 分阶段），再抽出来 |
+| compat 按用途拆 8 个文件 | 3 个导出拆 8 个文件，读的人要跳 8 次才知道总共就这么点东西 | 导出面按 `tools/agent/session/jobs/ui/llm/client` 真的各自成块时 |
+
+本段钉死的 dsh 事实（已写进 `dsh/facts.md` §7-5）：`defineTool` 的 `parameters` 是**属性表**不是完整 JSON Schema；
+`output: {schema, render}` **必填**；schema DSL 遇到 `minimum` **直接抛错**而非静默丢弃。头两条都是我写契约测试时猜错、被测试当场纠正的——这正是它存在的理由。
 
 ### 课时 0.4 —— 总 bundle 与第一个工具 `stm_hello`
 
