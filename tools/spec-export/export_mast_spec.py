@@ -156,7 +156,9 @@ def main() -> int:
             print(f"[FAIL] {filename}\n{traceback.format_exc()}", file=sys.stderr)
 
     (OUT_DIR / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     return 0 if all(c["ok"] for c in manifest["collectors"].values()) else 1
 
