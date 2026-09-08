@@ -14,4 +14,6 @@
 # 生成物与大文本：diff 时折叠，但仍进版本控制
 spec/dsh/dump-config.*.yml   linguist-generated=true
 spec/golden/**               linguist-generated=true
-pnpm-lock.yaml               linguist-generated=true -diff
+# 只折叠显示，**不要加 -diff**：这个仓库整套精确钉 @deepseek-ai/*，升级 dsh 时
+# 最需要逐行读的就是锁文件 diff（升级清单第 1 步）。当成二进制就等于把它读瞎了。
+pnpm-lock.yaml               linguist-generated=true
