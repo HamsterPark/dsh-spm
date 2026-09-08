@@ -95,15 +95,23 @@ def collect_si_cases() -> dict:
 
     def rec(fn, *args, **kwargs):
         try:
-            return {"ok": True, "value": fn(*args, **kwargs)}
+            v = fn(*args, **kwargs)
         except Exception as e:  # noqa: BLE001 —— 报错类型与原文都是契约的一部分
             return {"ok": False, "error": f"{type(e).__name__}: {e}"}
+        # inf/nan 不是合法 JSON：Python 的 json.dumps 默认会写出裸 Infinity/NaN，
+        # 任何标准解析器都拒收。显式换成带标签的字符串，别让金样自己成为坏数据。
+        if isinstance(v, float) and (v != v or v in (float("inf"), float("-inf"))):
+            return {"ok": True, "nonfinite": "nan" if v != v else ("inf" if v > 0 else "-inf")}
+        return {"ok": True, "value": v}
 
     prefixes = ["a", "f", "p", "n", "u", "µ", "μ", "m", "k", "M", "G"]
     parse_inputs = (
         [f"3{p}" for p in prefixes]
         + [f"-1.5{p}" for p in prefixes]
-        + ["1.5", "0", "-0", "3 p", " 3p ", "3P", "3", "abc", "", "1e-12", "3p4", None, 1.5, 0]
+        # inf/nan/1_000 是 Python float() 认、而物理参数绝不该认的写法——录下来是为了让
+        # TS 侧「更严」这件事成为**有证据的有意偏差**，而不是没人发现的分歧。
+        + ["1.5", "0", "-0", "3 p", " 3p ", "3P", "3", "abc", "", "1e-12", "3p4", None, 1.5, 0,
+           "inf", "nan", "-inf", "1_000", "0x10"]
     )
 
     return {
@@ -119,7 +127,10 @@ def collect_si_cases() -> dict:
         },
         "format_si": {
             repr(v): rec(si.format_si, v)
-            for v in [0, 1, -1, 3e-12, -1.5e-9, 1.5, 1e4, 1e-15, 123456.0, 0.1]
+            # 后四个是 format_si 的兜底分支（超出 a..G 覆盖范围）与非有限值：
+            # 物理上不该出现，但「不该出现」正是静默 bug 的温床。
+            for v in [0, 1, -1, 3e-12, -1.5e-9, 1.5, 1e4, 1e-15, 123456.0, 0.1,
+                      1e12, 5e-19, float("nan"), float("inf")]
         },
     }
 
@@ -143,7 +154,10 @@ def main() -> int:
         try:
             data = collector()
             (OUT_DIR / filename).write_text(
-                json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True, default=str) + "\n",
+                # allow_nan=False 是护栏：Python 默认会把 inf/nan 写成裸 Infinity/NaN，
+                # 那**不是合法 JSON**，任何标准解析器都拒收。默认值让金样能悄悄变成坏
+                # 数据（2026-09-08 真踩过一次）；关掉它就变成当场报错。
+                json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True, default=str, allow_nan=False) + "\n",
                 encoding="utf-8",
                 newline="\n",  # 显式 LF：仓库 .gitattributes 强制 LF，写 CRLF 会让
                                # 「重跑后 git diff 为空」这个说法失真（磁盘与库里不一致）

@@ -27,15 +27,17 @@
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
-· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + 127 SI 用例）。
-**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
-**下一段 = 课时 1.1（`dsh-spm-kernel` 类型 + `si.ts` 移植 + golden 测试）——Phase 1 开始。**
+· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + SI 金样）。
+**Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
+**Phase 1 开始：1.1 ✅**（`si.ts` 逐字移植 + 146 条金样驱动测试 + `spec/deviations.md`）。
+**下一段 = 课时 1.2（`nanonis-wire` codec）。**
 
-仓库现状：3 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / `dsh-spm`），15 条测试，`pnpm install --frozen-lockfile`
-/ `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。golden 已入仓（`spec/golden/`，重跑逐字节相同）。
+仓库现状：4 个工作区包（`dsh-spm-root` / `dsh-spm-compat` / **`dsh-spm-kernel`** / `dsh-spm`），
+**164 条测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh `0.1.2-rc.1`。
+golden 已入仓（515 技能 + 146 SI 用例，重跑逐字节相同）。
 
-Phase 0 完成判据（PLAN §11）**只差覆盖率门禁**——它要等 1.1 有第一个真正需要 100% 覆盖的包（kernel）时
-一起落，现在全仓只有 3 个导出加一个 hello 工具，配了也只是给空气设门槛。spike 剩下五条各有触发点（见 `dsh/spike.md`）。
+**覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
+可覆盖时一起落——此刻 kernel 只有 `si.ts`，而它已被 146 条金样打满。spike 剩下五条各有触发点（见 `dsh/spike.md`）。
 
 2026-09-07 的一次性整理：确立 git 路径；研究快照八份移出到
 `<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
@@ -208,6 +210,40 @@ dsh 认出 `dsh.bundle.patch` 字段并把 `dsh-spm` 追加进 `dsh.profile.bund
 
 按消融原则只导两样，其余（tool_schemas / preconditions / safety / verbs / error_branches / traces …）
 等各自消费者出现再加，理由与时机写在 `spec/golden/README.md`。
+
+---
+
+### 课时 1.1 —— `si.ts` 逐字移植 ✅ 完成（2026-09-08）
+
+`packages/host/kernel/`（零 dsh、零 I/O）落 `si.ts`：`SI_PREFIXES` / `parseSi` / `needsStrictPrefix` /
+`parseQuantity` / `formatSi`。测试**不手写期望值**，直接跑 `spec/golden/si_cases.json` 的 **146 条**
+（本段把网格从 127 扩到 146，补了 `format_si` 的兜底分支与 `inf`/`nan`/`1_000`/`0x10`）。
+
+**按消融原则只做了 `si.ts`。** 课时表原本还写了 `SkillSpec` / `HardwareState` / `SkillResult` /
+`OperatingMode` 四组类型——它们此刻一个消费者都没有（技能在 Phase 2、`HardwareState` 在 1.8），
+而旧仓还在长（0.7 已证七天多 17 个技能）。没有消费者的类型只会先于用途漂掉，golden 随时能重导。
+
+**四次变红演练**（只会变绿的检查等于没有检查）：
+
+| 演练 | 结果 |
+|---|---|
+| 正则加 `/i`（大小写不敏感） | 3 条红（`'3P'` 该拒绝、`m`/`M` 差九个数量级） |
+| `formatSi` 位数 6 → 4 | 1 条红（`format_si(123456.0)`）——印证旧仓「五位都不够」的注释 |
+| 去掉数字正则，裸 `Number(s)` | **只有 `'0x10'` 红** |
+| （前两次我用 sed 写演练，替换根本没生效，"通过"什么也没证明——含反斜杠/引号的替换一律改用编辑工具） |
+
+第三次演练改写了结论：`'inf'`/`'nan'`/`'1_000'` 的拒绝是 **JS 语义白送的**（`Number()` 对这三个
+本来就返回 `NaN`），不是那条正则挡的；正则真正在承担的是 `Number('0x10') === 16` 这类 JS 认而
+Python 不认的写法。`spec/deviations.md` 按这个真实机制写，没停在"我以为我实现了防线"。
+
+**新建 `spec/deviations.md`**（PLAN §12：未登记的差异 = 缺陷）。四条，每条带测试名。最重要的一条
+D-SI-1：TS 拒绝 `inf`/`nan`，因为 **NaN 会穿过包络检查**——所有与 NaN 的比较都是 false，
+`nan > max` 为假、`nan < min` 也为假，一个"已检查过范围"的参数就这样带着 NaN 到了仪器。
+偏差在测试里是**断言**不是跳过：`DEVIATIONS` 表逐条声明期望，TS 的行为同样被钉住。
+
+**顺手修掉导出脚本一个真 bug**：`parse_quantity_loose('-inf')` 让 Python 的 `json.dumps` 写出了裸
+`-Infinity`，**那不是合法 JSON**，Node 直接拒收——金样一度是坏数据。修法是非有限值显式记成
+`{"ok": true, "nonfinite": "inf"}`，并加 `allow_nan=False` 让这类问题以后当场报错而不是静默产出。
 
 ---
 

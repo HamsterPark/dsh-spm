@@ -64,6 +64,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(@deepseek-ai/cordis-plugin-loader@1.0.3)(@deepseek-ai/cordis@4.0.2)
 
+  packages/host/kernel: {}
+
 packages:
 
   '@babel/helper-string-parser@7.29.7':

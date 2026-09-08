@@ -6,6 +6,7 @@
   "files": [],
   "references": [
     { "path": "./packages/host/compat" },
+    { "path": "./packages/host/kernel" },
     { "path": "./packages/bundle/dsh-spm" }
   ]
 }
