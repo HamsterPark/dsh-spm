@@ -1,0 +1,107 @@
+{
+  "_note": "字节由 STM-Bench stmsim/wire/codec.py 产出；base64 编码。不要手改。",
+  "build_request_frame": {
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA|0|True": {
+      "body": "",
+      "frame": "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQQAAAAAAAQAA",
+      "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "send_response_back": true
+    },
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA|0|True": {
+      "body": "",
+      "frame": "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEAAAAAAAEAAA==",
+      "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "send_response_back": true
+    },
+    "Bias.Get|0|True": {
+      "body": "",
+      "frame": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA==",
+      "name": "Bias.Get",
+      "send_response_back": true
+    },
+    "Bias.Set|4|True": {
+      "body": "P4AAAA==",
+      "frame": "Qmlhcy5TZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAEAAD+AAAA=",
+      "name": "Bias.Set",
+      "send_response_back": true
+    },
+    "Scan.Action|6|False": {
+      "body": "AAEAAAAA",
+      "frame": "U2Nhbi5BY3Rpb24AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAABAAAAAA==",
+      "name": "Scan.Action",
+      "send_response_back": false
+    },
+    "Ünicode.Verb|0|True": {
+      "body": "",
+      "frame": "w5xuaWNvZGUuVmVyYgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAA=",
+      "name": "Ünicode.Verb",
+      "send_response_back": true
+    }
+  },
+  "constants": {
+    "ERROR_HEADER_LEN": 8,
+    "HEADER_LEN": 40,
+    "NAME_LEN": 32
+  },
+  "parse_request_header": {
+    "get": {
+      "body_size": 0,
+      "header": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAA==",
+      "name": "Bias.Get",
+      "raw_name": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "send_response_back": true
+    },
+    "noreply": {
+      "body_size": 6,
+      "header": "U2Nhbi5BY3Rpb24AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAA==",
+      "name": "Scan.Action",
+      "raw_name": "U2Nhbi5BY3Rpb24AAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "send_response_back": false
+    },
+    "set": {
+      "body_size": 4,
+      "header": "Qmlhcy5TZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAEAAA==",
+      "name": "Bias.Set",
+      "raw_name": "Qmlhcy5TZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "send_response_back": true
+    }
+  },
+  "reply_frames": {
+    "err_bad_args": {
+      "body": "AAAAAgAAADBJbnZhbGlkIGFyZ3VtZW50cyBmb3IgJ0JpYXMuU2V0JzogZXhwZWN0ZWQgMSBhcmc=",
+      "body_len": 56,
+      "frame": "Qmlhcy5TZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAIAAAAwSW52YWxpZCBhcmd1bWVudHMgZm9yICdCaWFzLlNldCc6IGV4cGVjdGVkIDEgYXJn",
+      "raw_name": "Qmlhcy5TZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "err_need_module": {
+      "body": "AAAAAQAAAEtOZWVkTW9kdWxlOiBDYW5ub3QgYWNjZXNzIHRoZSAnUExMJyBtb2R1bGUuIFBsZWFzZSBtYWtlIHN1cmUgaXQgaXMgcnVubmluZy4=",
+      "body_len": 83,
+      "frame": "UExMLkdldAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTAAAAAAAAAAEAAABLTmVlZE1vZHVsZTogQ2Fubm90IGFjY2VzcyB0aGUgJ1BMTCcgbW9kdWxlLiBQbGVhc2UgbWFrZSBzdXJlIGl0IGlzIHJ1bm5pbmcu",
+      "raw_name": "UExMLkdldAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "err_no_desc": {
+      "body": "AAAABwAAABZOYW5vbmlzIGVycm9yIHN0YXR1cyA3",
+      "body_len": 30,
+      "frame": "WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAAAAAAAAAAcAAAAWTmFub25pcyBlcnJvciBzdGF0dXMgNw==",
+      "raw_name": "WAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "err_unknown": {
+      "body": "AAAAAQAAACNDb21tYW5kIG5vdCByZWNvZ25pemVkOiAnTm9wZS5WZXJiJw==",
+      "body_len": 43,
+      "frame": "Tm9wZS5WZXJiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArAAAAAAAAAAEAAAAjQ29tbWFuZCBub3QgcmVjb2duaXplZDogJ05vcGUuVmVyYic=",
+      "raw_name": "Tm9wZS5WZXJiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "ok_empty": {
+      "body": "AAAAAAAAAAA=",
+      "body_len": 8,
+      "frame": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAA",
+      "raw_name": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "ok_float": {
+      "body": "P8AAAAAAAAAAAAAA",
+      "body_len": 12,
+      "frame": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAD/AAAAAAAAAAAAAAA==",
+      "raw_name": "Qmlhcy5HZXQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    }
+  }
+}

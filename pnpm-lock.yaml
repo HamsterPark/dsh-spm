@@ -66,6 +66,8 @@ importers:
 
   packages/host/kernel: {}
 
+  packages/instrument/nanonis-wire: {}
+
 packages:
 
   '@babel/helper-string-parser@7.29.7':
