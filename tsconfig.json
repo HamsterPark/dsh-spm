@@ -9,6 +9,7 @@
     { "path": "./packages/host/kernel" },
     { "path": "./packages/instrument/nanonis-wire" },
     { "path": "./packages/instrument/instrument" },
+    { "path": "./packages/instrument/instrument-stmsim" },
     { "path": "./packages/bundle/dsh-spm" }
   ]
 }

@@ -37,5 +37,15 @@ jobs:
       # --frozen-lockfile：锁文件与 package.json 对不上就直接失败，不许 CI 自作主张
       # 改依赖树。这是"整套精确钉"在 CI 侧的落点（PLAN §6.3）。
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -r build
-      - run: pnpm test
+      # `pnpm build`（根的 `tsc -b`），**不是** `pnpm -r build`：`-r` 默认不含工作区根，
+      # 而 build 脚本只有根有 ⇒ 那条命令必然 `ERR_PNPM_RECURSIVE_RUN_NO_SCRIPT` 退出 1。
+      # 本仓是 TS project references 的一棵树，本来也该由根一次 `tsc -b` 全建。
+      # （2026-09-09 发现：本仓还没有远端，因此这个 workflow 尚未实际运行。）
+      - run: pnpm build
+
+      # 只跑 unit + contract。**integration 需要真 stmsim**，而 stmsim 在 STM-Bench 仓库里，
+      # 那个仓库目前**没有远端**（2026-09-09 核实），CI 无法拉取该依赖，当前无法执行集成测试。
+      # 待 STM-Bench 有了可拉取的地址，这里加 setup-python + 钉住 commit
+      # 的 checkout，把 STMSIM_PYTHON / STMSIM_ROOT 喂给 `pnpm test`（台账 B11）。
+      # 本地跑全量：设好那两个变量后 `pnpm test`。
+      - run: pnpm test --project unit --project contract

@@ -23,19 +23,21 @@
 
 ---
 
-## 1. 当前位置（2026-09-08）
+## 1. 当前位置（2026-09-09）
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
 · **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + SI 金样）。
-**Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
+**Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7、09-09 再挪到 1.10**——1.7 实测下来端口用一个
+profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无论如何都要建的那套客户端机器。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
-**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）。
-**下一段 = 课时 1.7（`instrument-stmsim` / `instrument-fake` provider）。**
+**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）
+· **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）。
+**下一段 = 课时 1.8（`instrument-state`：1 Hz 状态缓存、stale/carry-forward、`stm_get_state`）。**
 
-仓库现状：6 个工作区包（root / compat / kernel / nanonis-wire / **instrument** / bundle），
-**283 条单测 + 4 条 stmsim 集成测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+仓库现状：7 个工作区包（root / compat / kernel / nanonis-wire / instrument / **instrument-stmsim** / bundle），
+**296 条测试**（单测 + 契约 + 13 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -168,7 +170,17 @@ dsh 认出 `dsh.bundle.patch` 字段并把 `dsh-spm` 追加进 `dsh.profile.bund
 最重的一条进了 `dsh/facts.md` §6-17：**一个进程里活着两份 `dsh-tools` 模块实例**，今天无害，
 但 1.6 定义 Cordis `Service` 时会撞上模块身份问题，那时必须先验。
 
-### ~~课时 0.5 —— 第一张设置卡 `mast.instrument`~~ → **挪到 1.7**（2026-09-08 决定）
+### ~~课时 0.5 —— 第一张设置卡 `mast.instrument`~~ → 挪到 1.7 → **再挪到 1.10**（2026-09-09 决定）
+
+> **2026-09-09（1.7 做完时）复议**：原来的推迟理由「配置的是不存在的东西」已经不成立——
+> 仪器服务和端口配置现在都真的存在了。但**另一半理由更硬了**：1.7 实测下来，端口是由
+> `profiles/mast-sim/cordis.patch.yml` 配的，一个 YAML 文件就够；设置卡要拖进的是**一整套
+> 客户端机器**（tsdown、React、client bundle），而那套机器 1.10 的 U0 无论如何都要建。
+> 现在建 = 建两次，或者建一次然后闲置三个课时。**跟 U0 合并到 1.10。**
+> 顺带：`dsh/facts.md` 记的上游 Discussion #5999（升级既有 profile 后 client combo 缺新增
+> 模块 ⇒ 全部 client 插件失效）本来就钉在 1.10，两件事撞在一起做正好。
+
+原始理由（2026-09-08）：
 
 按消融原则推迟。这张卡要配的是「四个端口 / hardware_modules / instrument_profile」，而仪器服务要到
 **1.6/1.7** 才存在——现在做出来配置的是不存在的东西，纯演示，还要拖进一整套客户端机器
@@ -501,6 +513,70 @@ const _propsSetShape: PropsSetIsDisambiguated = true
 
 ---
 
+### 课时 1.7 —— `instrument-stmsim` provider ✅ 完成（2026-09-09）
+
+新包 `packages/instrument/instrument-stmsim`：`StmsimProcess`（spawn `python -m stmsim serve`、
+等四个端口真能连上、SIGTERM 收尾）+ `stmsimProvider` 插件对象（起模拟器并提供 `simulated: true`
+的 `ctx.instrument`）。296 条测试。
+
+**stmsim 是靶不是产品**（PLAN §14），所以本包只管生命周期，不移植任何模拟逻辑。
+本机实测：spawn 到四端口就绪约 **3.4 秒** ⇒ 默认等 30 秒；`kill` 后端口立刻释放。
+解释器路径**必须显式给**（构造参数 > `STMSIM_PYTHON` > 抛错），不做「猜一个」的兜底——
+本机 PATH 上的 `python` 是 Microsoft Store 转发桩，猜错的表现是一个语焉不详的 spawn 失败。
+
+#### 顺手还掉 1.4 欠的账：集成测试不再「默认跳过」
+
+`vitest.stmsim-setup.ts` 作 `integration` project 的 globalSetup，整组测试前起一份（16501–16504，
+`--approached` 起手就在隧道状态），跑完停掉。1.4–1.6 那种「没设 `STMSIM_PORT` 就整组 skip」删掉了：
+**跳过的测试等于没有的测试**。仍可不跑，但要**显式**——两个环境变量没给时 globalSetup **抛错并说清怎么配**。
+
+#### 三个坑，都是「静默地成功」
+
+1. **`spawn` 失败走 `'error'` 事件，不是 `'exit'`**。只接了 `exit` 的话，一个配错的解释器路径
+   就是**未捕获异常，直接打挂整轮 vitest**。写测试时真踩到。
+2. **根 `Context` 上没有公开的 `stop`/`dispose`**——第一版卸载测试写 `ctx.stop()`，`TypeError`。
+   **生命周期的粒度是插件，不是上下文**：`ctx.plugin(stmsimProvider, cfg)` 装、
+   `ctx.registry.delete(stmsimProvider)` 卸，`apply` 里 `ctx.effect` 登记的回滚随之自动跑。
+   为此把 `apply` 之外再导出一个插件对象 `stmsimProvider = { name, apply }`。
+   disposer 直接把 `sim.stop()` 的 Promise 交回去，cordis 会等它——「卸载完成」才真的意味着进程已退。
+3. **就绪探测分不清连上的是不是自己的孩子**。上一条测试的 `apply` 内部起了一份模拟器却没人停
+   （cleanup 停的是个从没 `start` 过的空壳），泄漏下来占着端口；下一条 `start()` 于是**秒返回**，
+   `stop()` 停的是刚因端口占用而死掉的子进程，症状是「卸载后端口还在」，查了半天。
+   两处修：① `start()` 前**先查端口有没有人监听**，有就报一句清楚的话；
+   ② 测试的收尾一律走**卸载**，并把「等端口释放」收进 `afterEach`——共用一组端口而释放是异步的，
+   逐条去记就等于埋顺序依赖。
+
+#### ④验：`profiles/mast-sim` 真的把模拟器拉起来了
+
+新增 `profiles/mast-sim/cordis.patch.yml`（本段第一份 profile patch）。分工照 PLAN §6.1：
+**bundle 的 patch 放与 profile 无关的行**，**profile 的 patch 放「接哪台仪器」**——这正是
+sim / offline / rig 三者唯一的区别。解释器与 STM-Bench 路径**不写进仓库**（每台机器不同，
+写了就是一份注定过期的配置），走 `STMSIM_PYTHON` / `STMSIM_ROOT`。
+
+为此 bundle 多了一个子路径导出 `dsh-spm/instrument-stmsim`：profile 的 `node_modules` 里
+**只有 `dsh-spm` 一个包**，而加载器是拿 `name` 直接做动态 import 的 ⇒ 内部包必须经由 bundle
+的子路径才寻址得到。「bundle 是安装单位、profile 是组合单位」第一次落到文件层面。
+
+隔离 `DSH_HOME` 里实测（没碰你的 `~/.dsh`）：`dsh plugin --profile mast-sim add <本仓 bundle>`
+建出 profile（自动带 `dsh-base` + `dsh-spm`）；`--dump-config` 347 行，末尾是我们那两行
+（`mast-hello` 来自 bundle patch、`mast-instrument-stmsim` 来自 profile patch，层叠次序对）；
+`dsh --profile mast-sim` 启动后 **17 秒**四个端口全部 LISTENING 且同属一个 python 进程，
+dsh 一停端口全部释放。**端口起来了就是 `apply()` 真跑过了**——0.4 那条教训（`inject` 不满足时
+Cordis 静默不装载，只看「启动没报错」是假绿）在这里有了不会说谎的证据。
+
+**变红演练 ×2**：摘掉 `ctx.effect` 的回滚 ⇒「插件卸载后模拟器跟着停」红（端口 5 秒后仍在）；
+把端口占用检查的阈值改掉 ⇒「端口已经有人监听」红，报的正是 `promise resolved "undefined" instead of
+rejecting`——**静默地成功**，本段这三个坑共同的形状。
+
+`instrument-fake` **没做**：它此刻一个消费者都没有（要等 Phase 2 的技能测试），有 stmsim 就够了。
+按消融精神留到真需要时再写。
+
+**新开 B11**：集成测试现在**必须**有真 stmsim，而 stmsim 在 STM-Bench 里、那个仓库没有远端 ⇒
+CI 拉不到，`ci.yml` 暂时只跑 `--project unit --project contract`。写清楚比让 CI 挂着一条注定失败的
+步骤好：**「CI 绿」从这一段起不再等于「对着真模拟器绿」**，这个差别得有人记着。
+
+---
+
 ## 3. Phase 1 · 仪器接缝（课时 1.1–1.10）
 
 完成判据（PLAN §11）：535 方法字节金样相等；三类故障行为与 Python 基线一致；`closeAll` 后 stmsim 端口可复用；看门狗在「Z 顶限撞针」场景 4 s 内退针；覆盖率 100%。
@@ -513,7 +589,7 @@ const _propsSetShape: PropsSetIsDisambiguated = true
 | 1.4 | `RoleLink` TCP 客户端（`net.Socket`、单往返、超时、优雅关闭） | 起 `python -m stmsim serve`，`Bias_Get` 读到值；kill 后端口可复用 |
 | 1.5 | `kernel/comms-breaker.ts` 熔断状态机（注入时钟）+ 单测表移植 | fake 时钟走一遍 CLOSED→OPEN→HALF_OPEN→CLOSED |
 | 1.6 | `dsh-spm-instrument` Service | 会话里 `stm_hello` 改成读 `Bias_Get` |
-| 1.7 | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ `instrument-fake` | `profiles/mast-sim` 装上后自动拉起模拟器 |
+| 1.7 ✅ | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ ~~`instrument-fake`~~（无消费者，推迟到 Phase 2） | `profiles/mast-sim` 装上后自动拉起模拟器 |
 | 1.8 | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`）+ 投影 + `stm_get_state` | 会话里问「现在偏压多少」 |
 | 1.9 | 看门狗 + `estop()` + `/estop` 命令 | stmsim 撞针场景 4 s 内退针 |
 | 1.10 | U0：SSE hub `/mast/events` + `ui-core` 右栏「仪器状态」卡 | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
@@ -553,6 +629,7 @@ dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the
 | B6 | 我们注册的工具是否自动进 agent preset 目录 | **半结清（2026-09-08）** | 已证：插件在真实 dsh 里被装载、`apply` 执行、`inject:['tools']` 得到满足、工具进了**宿主** `tools` 注册表（探针实测 `ctx.tools=object`）。**未证**：模型是否真能看见它——那需要一次真实的模型调用（要 API key 与花钱）。facts.md §3 抄的 preset 注释说「合并后的目录也包含部署全局注册的工具」，倾向于会看见。留到第一次有理由跑真模型时顺带确认 |
 | **B7** | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | **✅ 2026-09-08 实测：问题本身问错了** | `dsh plugin add <本地目录>` 用 **`link:`**，pnpm **完全不解析我们的 dependencies**——`workspace:*` 从没被求值，peer 精确钉也没执行，所以既不硬失败也不混装：**它压根没参与**。探针实测：运行时我们的 compat 解析到的是**本仓**那份 `dsh-tools`，于是一个进程里活着**两份模块实例**。今天两份同版所以没事；`defineTool` 是纯工厂也不在乎。**会出事的是依赖模块身份的东西（`instanceof`、模块级单例、Cordis `Service` 类身份）——课时 1.6 定义 `ctx.instrument` Service 时必须先验**。详见 `dsh/facts.md` §6-17 |
 | **B10** | 开发态（`link:`）与安装态（npm/tarball）走两条不同解析路径 | **新开，Phase 0 结束前** | B7 引出的。发布路径上 profile 的 pnpm 会真的解析依赖、执行 peer 钉，只剩一份实例——和我们每天跑的**不是同一件事**。至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟，否则重演 facts.md §1「npx 缓存是冻结快照」那个教训 |
+| **B11** | **CI 跑不了 integration**：它要真 stmsim，而 stmsim 在 STM-Bench 仓库里，那个仓库**没有远端**（09-09 核实 `git remote -v` 为空） | **新开，1.7**。CI 暂时只跑 `--project unit --project contract` | 三条路：① 给 STM-Bench 建个远端（私有也行），CI 加 `setup-python` + 钉住 commit 的 checkout；② 把 stmsim 打成 wheel 发到某处，CI `pip install`；③ 一直只在本地跑 integration。**①最省事也最诚实**——差分测试（B8）迟早也要 CI 上有 STM-Bench。在解决之前，「CI 绿」不等于「对着真模拟器绿」，这个差别必须记着 |
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |
 | B9 | ONNX 权重放哪（不入仓） | 未定（PLAN §16） | 建议 `E:\dsh-spm-models\` + manifest |
 

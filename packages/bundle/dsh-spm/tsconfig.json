@@ -5,6 +5,15 @@
     "outDir": "./lib",
     "declarationDir": "./lib/types"
   },
-  "include": ["src/**/*.ts"],
-  "references": [{ "path": "../../host/compat" }]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../../host/compat"
+    },
+    {
+      "path": "../../instrument/instrument-stmsim"
+    }
+  ]
 }

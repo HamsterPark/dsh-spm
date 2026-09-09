@@ -4,26 +4,17 @@ import { RoleLink, createFacade, decodeReturns, encodeArgs, parseErrorSection } 
 /**
  * 对**真** stmsim 的往返。单测用假服务器造故障，这里证明我们跟真东西说得上话。
  *
- * 起模拟器（本机 PATH 里没有 python，用旧仓 venv 的绝对路径）：
+ * **课时 1.7 起由 globalSetup 自动起停**（`vitest.stmsim-setup.ts`），不再手工设端口。
+ * 跑之前给两个环境变量即可，没给会**明确报错**而不是静默跳过——跳过的测试等于没有的测试：
  *
- *     cd D:\STM-Bench
- *     D:\...\MAST\.venv-v2-py313\Scripts\python.exe -m stmsim serve \
- *         --profile polar-spm --seed 0 --material "Au(111)" \
- *         --ports 16501,16502,16503,16504 --approached
- *
- * 然后 `STMSIM_PORT=16501 pnpm test --project integration`。
- *
- * **没设 `STMSIM_PORT` 就整组跳过**，并打印原因——不是静默跳过。
- * 课时 1.7（`instrument-stmsim` provider）会把「起停模拟器」做成 globalSetup，那时这里改成无条件跑；
- * 在那之前不重复造 spawn 逻辑。
+ *     STMSIM_PYTHON=…\MAST\.venv-v2-py313\Scripts\python.exe
+ *     STMSIM_ROOT=…\STM-Bench
+ *     pnpm test --project integration
  */
-const port = Number(process.env['STMSIM_PORT'] ?? '')
-const enabled = Number.isInteger(port) && port > 0
-if (!enabled) {
-  console.warn('[integration] 未设 STMSIM_PORT，跳过 stmsim 往返测试（见本文件头部注释）')
-}
+// globalSetup 起完模拟器后把端口写进这个变量
+const port = Number(process.env['STMSIM_PORT'])
 
-describe.skipIf(!enabled)('对真 stmsim 的往返', () => {
+describe('对真 stmsim 的往返', () => {
   async function connect(): Promise<RoleLink> {
     const link = new RoleLink({ port })
     await link.connect()

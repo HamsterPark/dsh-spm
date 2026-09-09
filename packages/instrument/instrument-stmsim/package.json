@@ -1,0 +1,14 @@
+{
+  "name": "dsh-spm-instrument-stmsim",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "dependencies": {
+    "dsh-spm-compat": "workspace:*",
+    "dsh-spm-instrument": "workspace:*",
+    "dsh-spm-nanonis-wire": "workspace:*"
+  }
+}

@@ -13,10 +13,10 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 ## 现在在哪一步
 
 已完成：0.1 ✅ 环境 · 课时 0.1.5 ✅ 版本裁决（当时不升 0.1.3-alpha.2）· 0.2 ✅ 仓库骨架
-· 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/3/5/7，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层 · 1.2b ✅ 类型码表 · 1.3 ✅ 协议代码生成 · 1.4 ✅ RoleLink TCP 客户端 · 1.5 ✅ 熔断状态机 · 1.6 ✅ ctx.instrument Service。
-**Phase 0 完成**（只差覆盖率门禁）。**Phase 1 进行中，下一步 = 课时 1.7（stmsim / fake provider）**。2026-09-09 已升 dsh 到 `0.1.5-alpha.1`。0.5（设置卡）已挪到 1.7。
+· 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/3/5/7，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层 · 1.2b ✅ 类型码表 · 1.3 ✅ 协议代码生成 · 1.4 ✅ RoleLink TCP 客户端 · 1.5 ✅ 熔断状态机 · 1.6 ✅ ctx.instrument Service · 1.7 ✅ instrument-stmsim provider + `profiles/mast-sim`。
+**Phase 0 完成**（只差覆盖率门禁）。**Phase 1 进行中，下一步 = 课时 1.8（`instrument-state` 1 Hz 状态缓存）**。2026-09-09 已升 dsh 到 `0.1.5-alpha.1`。0.5（设置卡）挪到 1.7 后再挪到 1.10，与 U0 共用客户端机器。
 
-6 个工作区包、283 条单测 + 4 条 stmsim 集成测试，golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
+7 个工作区包、296 条测试（含 13 条对真 stmsim 的集成测试，模拟器由 vitest globalSetup 自动起停），golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**。
 
 ## 文档地图
 
@@ -63,6 +63,18 @@ npm view @deepseek-ai/dsh dist-tags --json    # 三个 tag 全看，取 semver �
 corepack enable --install-directory $env:APPDATA\npm pnpm   # 直接 corepack enable 在本机 EPERM
 pnpm -v
 ```
+
+**跑测试**：`pnpm test` 里的 `integration` project 会对着**真** stmsim 跑，模拟器由 vitest 的 globalSetup
+自动起停（16501–16504），只要给它两个路径：
+
+```powershell
+$env:STMSIM_PYTHON = "python"
+$env:STMSIM_ROOT   = "<STMSIM_ROOT>"
+pnpm test                    # 全部；只跑单测：pnpm test --project unit
+```
+
+没设这两个变量时 globalSetup **抛错并说清怎么配**，不静默跳过——跳过的测试等于没有的测试。
+（本机 PATH 上的 `python` 是 Microsoft Store 转发桩，不能用，所以路径必须显式给。）
 
 **所有 dsh 命令永远带版本号**（版本取 `docs/dsh/facts.md` 首行）：`latest` 的指向随时会变，而且 prerelease 上的 `^`
 范围在**同一 `x.y.z` 元组内**会跨 alpha→rc 通道（09-04 实测：钉 alpha.4 的全新安装装出 213 个 rc.1 子包）。

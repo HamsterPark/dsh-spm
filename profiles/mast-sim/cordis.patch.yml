@@ -1,0 +1,23 @@
+# profiles/mast-sim —— 对着模拟器跑的 profile。
+#
+# 分工（PLAN §6.1）：**bundle 的 patch 放与 profile 无关的行**（`mast-hello` 等），
+# **profile 的 patch 放「接哪台仪器」**——这正是 sim / offline / rig 三者唯一的区别。
+# 真机那份 `profiles/mast-rig` 在 Phase 8 之前不存在于本仓：真机 0 次是仓库结构，不是纪律。
+#
+# 装法：拷到 `$DSH_HOME/profiles/mast-sim/cordis.patch.yml`，或启动时 `--patch <本文件>`。
+# 配置树的层叠次序是 空根 → 各 bundle 的 patch → profile 的 patch → `$DSH_HOME` → `--patch`。
+- insert:
+    # 装上它就会 spawn 一份 stmsim，并提供 `simulated: true` 的 `ctx.instrument`；
+    # 卸载时 `ctx.effect` 的回滚把进程带走。
+    - id: mast-instrument-stmsim
+      name: dsh-spm/instrument-stmsim
+      config:
+        # 与真机的 6501–6504 岔开一万。撞上的代价是「以为在打模拟器，其实在打真机」。
+        ports: [16501, 16502, 16503, 16504]
+        profile: polar-spm
+        material: Au(111)
+        # 起手就在隧道状态，否则读到的电流没有意义
+        approached: true
+# 解释器与 STM-Bench 路径**不写在这里**：那是每台机器各不相同的东西，写进仓库就是
+# 一份注定过期的配置。给 `STMSIM_PYTHON` / `STMSIM_ROOT` 两个环境变量即可，没给时
+# 插件会报一句说清怎么配的话，而不是一个语焉不详的 spawn 失败。
