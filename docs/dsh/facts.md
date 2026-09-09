@@ -1,7 +1,8 @@
-# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.2-rc.1**（2026-09-04 核实；2026-09-07 复查）
+# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.5-alpha.1**（2026-09-09 升级并核实）
 
-> ⚠️ **`0.1.3-alpha.2` 已于 2026-09-07 发布并按 D11 规则成为追踪目标，但本机装不上**（新增硬依赖 `fs-ext@2.1.1` 要现场编译 C++，本机无 Visual Studio）。
-> 锁定版本暂留 `0.1.2-rc.1`，证据、影响与三条出路见 **§8.0** 与 `docs/EXECUTION.md` §1（决策台账 B1）。
+> **2026-09-09 升级到 `0.1.5-alpha.1`**（跳过装不上的 0.1.3、从未发布的 0.1.4）。`fs-ext` 阻塞已解除；
+> 全部 232 条测试与端到端集成一次通过。逐条影响、已知问题与各自会在哪一课时打到我们，见 **§8.0**。
+> ⚠️ 它是 **alpha**，而 `latest`/`next` 仍停在 `0.1.2-rc.1`。
 >
 > 本文是 dsh-spm 里**唯一**记录 dsh 版本相关事实的地方；每次按 `docs/dsh/upgrades.md` 升级都要重核并改上面的版本号。
 > 每条标注来源：**实测** = 本机跑出来的；**包** = 读 npm 包内文件；**文档** = GitHub 仓库 docs（2026-09-01 抓取，站点是 SPA）；**待核** = 课时 0.6 spike 才有结论。
@@ -18,11 +19,13 @@
 | 0.1.2-alpha.3 | 08-31 | 删除可选 SQLite session 后端 |
 | 0.1.2-alpha.4 | 09-01 | `Session.events` → 按需读 API；`send_message` 替代 `report` |
 | 0.1.2-alpha.5 | 09-02 | **纯修复**：从 `0.1.1-rc.2` 或 `0.1.2-alpha.3` 升级可能启动不了 / 会话标题消失 |
-| **0.1.2-rc.1** | **09-03** | **当前锁定**；0.1.2 全线累积的 roll-up，同时占 `latest` 与 `next`；变更见 §8.1 |
+| 0.1.2-rc.1 | 09-03 | 0.1.2 全线累积的 roll-up，**至今仍占 `latest` 与 `next`**；变更见 §8.1 |
 | 0.1.3-alpha.1 | 09-04 | **npm 上没有这个版本号**（`versions` 从 rc.1 直接跳到 alpha.2），但发布说明有它，内容被 alpha.2 吞进去：session 格式 v2、`SessionHandle`、出站请求认代理环境变量 |
-| 0.1.3-alpha.2 | **09-07** | **追踪目标，但本机装不上**（`fs-ext` 要编译）。session v2 / `SessionHandle` / persona 拆前后段；见 §8.0 |
+| 0.1.3-alpha.2 | 09-07 | **跳过**：本机装不上（`fs-ext` 要现场编译 C++）。persona 拆前后段；见 §8.0-历史 |
+| 0.1.4 | —— | **从未发布**，npm 上不存在 |
+| **0.1.5-alpha.1** | **09-08** | **当前锁定**（09-09 升）。`fs-ext` → `node-addon-system`（阻塞解除）；session **V3**；去掉 `ctx.agent`；`Inbox` 变 type-only；变更与已知问题见 §8.0 |
 
-- **dist-tags（09-07 实测）**：`alpha` = **`0.1.3-alpha.2`**，`latest` = `next` = `0.1.2-rc.1`。**追踪对象不是某个固定 tag，而是所有 dist-tag 里 semver 最大的那个**（PLAN D11、`upgrades.md`）：09-04 时 rc.1 比 alpha.5 新、盯 `alpha` 会落后；09-07 反过来，`alpha` 又领先了 `latest` 一个 minor。按版本号比大小，别信标签名。裸 `npx @deepseek-ai/dsh` 现在会装到 rc.1，但仍然**所有命令必须带版本**。
+- **dist-tags（09-09 实测）**：`alpha` = **`0.1.5-alpha.1`**，`latest` = `next` = `0.1.2-rc.1`（**六天没动**）。**追踪对象不是某个固定 tag，而是所有 dist-tag 里 semver 最大的那个**（PLAN D11、`upgrades.md`）：09-04 时 rc.1 比 alpha.5 新、盯 `alpha` 会落后；09-07 反过来，`alpha` 又领先了 `latest` 一个 minor。按版本号比大小，别信标签名。裸 `npx @deepseek-ai/dsh` 现在会装到 rc.1，但仍然**所有命令必须带版本**。
 - **prerelease 上的 caret 会跨通道，但只在同一 `x.y.z` 元组之内**：启动器 `dsh` 对自己的 `@deepseek-ai/*` 依赖声明 `^0.1.2-<pre>`（`dsh-base` 84 个、`dsh-web-app` 70 个、`dsh-tools` 的 peer 同样是 `^`），而 `^0.1.2-alpha.4` 的语义是 `>=0.1.2-alpha.4 <0.2.0`，**同一 `0.1.2` 元组下 `rc.1` > `alpha.5` > `alpha.4`，所以 alpha 范围会吃进 rc**。09-04 实测：全新 `npm i @deepseek-ai/dsh@0.1.2-alpha.4` 装出 **1 个 alpha.4 启动器 + 213 个 `0.1.2-rc.1` 子包**。
   **但它不会跨到 `0.1.3`**（09-07 实测确认）：semver 规定预发布版本只匹配范围里**元组相同**的比较符，`0.1.3-alpha.2` 的元组 `[0,1,3]` 既不等于 `>=0.1.2-rc.1` 的 `[0,1,2]` 也不等于 `<0.2.0` 的 `[0,2,0]` ⇒ 钉 `0.1.3-alpha.2` 装出的树里 **223 个 `@deepseek-ai/dsh*` 全部恰好是 `0.1.3-alpha.2`，零例外**（`spec/dsh/pkglist.0.1.3-alpha.2.txt`）。**结论不变**：仍然必须整套精确钉（PLAN D11、§6.3），`check-dsh-pin.ts` 断言安装树里 `@deepseek-ai/dsh*` 只有一个版本——minor 之间干净不代表 patch 之内干净，而 dsh 大部分时间都在同一个 patch 元组里滚。
 - **npx 缓存是冻结快照，会掩盖漂移**：09-02 建的 alpha.4 缓存树里 214 个子包都还是 alpha.4，同一天建的 alpha.3 树里 213 个子包是 alpha.4；rc.1 树 214 个全是 rc.1。本地跑着「没事」不代表 CI 或别人装我们的插件时没事——**漂移只在全新安装时发作**。
@@ -41,9 +44,12 @@
 - **遥测**：`session-telemetry-otel` 默认 `DSH_TELEMETRY_MODE=FEEDBACK_ONLY`，上报 `https://harness-telemetry.deepseeksvc.com/v1/logs`；真机 profile 要决定是否 `off`。
 - 关闭启动它的终端/任务不一定杀掉 node 子进程，端口会继续占着（实测 EADDRINUSE）⇒ 重启前 `netstat -ano | findstr :3080` + `taskkill /F /PID`。强杀 dsh 本身无害（它不是 Nanonis）。
 
-## 3. web profile 组合树（实测 `--dump-config`；alpha.3 / alpha.4 / **rc.1 三版逐行相同**）
+## 3. web profile 组合树（实测 `--dump-config`）
 
-- **145 行插件行**，27 行 `disabled: true`；来源三段：`dsh-base`（约 90 行）→ `dsh-base, patched by dsh-web-app`（9 组被 web-app 改写）→ `dsh-web-app`（宿主 API 控制器、webserver、约 45 个 `dsh-client-ui-*` 客户端模块）。导出件已入仓 `spec/dsh/dump-config.<version>.yml`（alpha.3 / alpha.4 / rc.1 三份，逐字节相同；见该目录 README）。
+> **当前锁定的 0.1.5-alpha.1 是 152 行插件行 / 26 disabled**（相对 rc.1 的 30 个 diff 行、八处增删，见 §8.0）。
+> 下面这段描述的分组与结构在 0.1.5 上仍成立，**行数与名单以 `spec/dsh/dump-config.0.1.5-alpha.1.yml` 为准**。
+
+- 0.1.2 三版（alpha.3 / alpha.4 / rc.1）**逐行相同**：**145 行插件行**，27 行 `disabled: true`；来源三段：`dsh-base`（约 90 行）→ `dsh-base, patched by dsh-web-app`（9 组被 web-app 改写）→ `dsh-web-app`（宿主 API 控制器、webserver、约 45 个 `dsh-client-ui-*` 客户端模块）。导出件已入仓 `spec/dsh/dump-config.<version>.yml`（alpha.3 / alpha.4 / rc.1 三份，逐字节相同；见该目录 README）。
 - 分组：LLM（`llm`、`llm-deepseek`、`llm-pi-ai`、`llm-retry`、`agent-default-model` = `deepseek-official/deepseek-v4-flash`）；会话（`session`、`session-log-deepseek`、`session-persistence-jsonl` → `~/.dsh/sessions`、`session-query-sqlite` `:memory:`、`session-projection` + cache、`session-title*`、`session-checkpoint-policy`）；agent（`agent`、`agent-loop`、`agent-presets` default `standard`、`agent-instructions`、`system-prompt` persona）；工具（`tools` 注册表、`tool-*` 行、`timeout-policy`、`repeat-tool-reminder`、`spill-*` 50 KB 内联上限）；沙箱与审批（`sandbox-policy` `workspace-write`、`bash-sandbox` win32 禁用 / `pwsh-sandbox` 非 win32 禁用、`approval` policy `ask`（`DSH_PERMISSION_MODE=danger-full-access` ⇒ `never`）、`permission` 三预设）；`jobs`（local）、`subagent` + spawn/fork provider、`storage`（json → `~/.dsh/storages`）+ `storage-domain`、`credentials`、`settings`（file）、`skill` 注册表、`commands`、`goal` + round driver、`token-meter`、`web`（DeepSeek 搜索 + http fetch）、`subprocess`、`shell-env`、`code-runtime`、`workspace`、`message-feedback`、`session-log-export`、遥测。
 - **关键结构（实测）**：`dsh-web-app` 在宿主层把全部模型可见工具行设为 `disabled`（`tool-bash/pwsh/fs/fs-search/jobs/skill/goal/subagent*/workflow/todo/web/str-replace-editor/ralph`、`compaction-basic`、`tool-result-pruner`、`plan-mode`、`agent-instructions`），由 **agent preset 在 agent 平面重新挂载**：`@deepseek-ai/dsh-agent-presets/presets/<name>/agent.cordis.yml`（自带 `cordis / minimal / ptc / standard`，`preset.yml` 只有 name/description/order）。preset 文件注释里的规则：工具行注册进宿主 `tools` 注册表、不 provide 服务 ⇒ 不需要 realm；**任何 provide 服务的行必须放在带 `isolate` 的 `cordis:group` 里**（否则进根 realm、跨 preset 撞名，`dsh-agent-presets` 挂载时拒绝）；`tokenMeter`/`subagents` 注册表/`shell-env`/`fs` policy 留在宿主平面；「合并后的目录也包含部署全局注册的工具」。
 - `standard` 内容：persona、agent-instructions、tool-bash/pwsh（按平台）、tool-fs、tool-fs-search、tool-jobs、skill-filesystem、tool-skill、command-goal、tool-goal、`planning` 组（isolate planMode）、`compaction` 组（isolate compaction+toolResultPruner）、`delegation` 组（isolate workflowEngine：subagent-control、list-agents、`subagent`（spawn，continuable，modelSelectionSettings）、`subagent_fork`（fork，continuable）、codex/claude-code 行默认 disabled、workflow-worker-thread、tool-workflow、tool-ralph）、tool-ask-user、tool-todo、tool-web。`minimal`：persona `complete: true`、`includeRuntimeContext: false`，持久 shell 组（`dsh-terminal` + bash/pwsh 持久工具）、`filesystem` 组（`fs-local` 遮蔽宿主沙箱 fs + `str-replace-editor`），无 compaction。
@@ -141,7 +147,62 @@
 
 ## 8. 逐版本变更与对本计划的影响
 
-### 8.0 rc.1 → 0.1.3-alpha.2（发布说明 09-04 / 09-07 + 实测 09-07）—— **已发布、已核实、暂未升级**
+### 8.0 rc.1 → 0.1.5-alpha.1（**本次升级**，2026-09-09 实测）
+
+**跳过了 0.1.3 与 0.1.4**：0.1.4 从未发布（npm 上不存在），0.1.3-alpha.2 在本机装不上（见下「为什么当时没升」）。
+升级清单要求「一次一版」，这次只能一步跨过去——因为中间那一版客观上装不上，不是我们图省事。
+
+#### 阻塞解除了：`fs-ext` 换成 `node-addon-system`
+
+0.1.5 的发布说明写着 "Fix the local compilation requirement introduced by fs-ext **on macOS and Linux**"。
+只提了 macOS 与 Linux——而替代品 `@deepseek-ai/node-addon-system@0.1.2` 的 `optionalDependencies` 里
+**只有 darwin-arm64 / darwin-x64 / linux-x64 / linux-arm64 四个平台包，没有 win32**。
+
+**但 Windows 上装得上也跑得起来**（2026-09-09 实测）：平台包是 `optionalDependencies`，npm 装不到就跳过，
+代码有回退路径。全流程绿：238 包、零 node-gyp 编译、`--dump-config` 正常、`--profile web` 启动打印带 token 的 URL、
+stderr 空、端口正常释放。
+上游 Discussion #6003 报的 `Cannot find module …/node-addon-system-<platform>/bin/system.node` 是**源码检出**
+（从 git 跑）的路径，与 npm 安装路径不同——这个区分要记住，别把它当成 npm 路径也坏了。
+
+#### 组合树 diff（rc.1 → 0.1.5-alpha.1）
+
+**145 → 152 行插件行，27 → 26 disabled，30 个 diff 行。** 删 `tool-str-replace-editor`；
+新增 `open-in-app` / `ui-open-in-app` / `workspace-files` / `file-upload` / `resources` /
+**`ui-sidebar-right` / `ui-sidebar-textpreview` / `ui-sidebar-files`**。
+最后三行正是 Discussion #5999 的病灶（升级**既有** profile 时 client combo 缺这些新模块 ⇒ 全部 client 插件失效）。
+我们用全新隔离 home 所以没撞上——**这条对课时 1.10 写客户端包时有直接影响**。
+
+#### 破坏性变更与对本计划的影响
+
+| 变更 | 影响 |
+|---|---|
+| **session 格式 v2 → V3**（历史会话恢复进新日志文件、保留原件；系统提示进消息历史） | 持久真源在我们自己的 SQLite，**零影响**（PLAN §3.1-1 第二次兑现）。新包 `dsh-session-format-v2-to-v3` |
+| **agent 插件 API 去掉 `ctx.agent`**，调用方必须显式传 Agent | 打到 §7.8 的编排（supervisor 派发）。当前代码面未用到，Phase 6 兑现 |
+| **`Inbox` 变成 type-only interface，`hasPending` / `claim` 移出公开 API** | 打到 §5 能力表里的 `agent/inbox/*`。当前未用到 |
+| 新增：**动态系统提示更新不废 KV Cache**（模型需声明支持） | **利好** §7.2「活状态进模型的三条路」之一——我们的 `stm-live-state` 段每轮都在变；spike 第 2 条届时要连这条一起核 |
+| 实验性右侧 Sidebar（tabs / 分栏 / 全屏） | 按 PLAN §14「实验性不进主干」处理，仅记录 |
+
+#### 我们的接触面：零破坏
+
+`tsc -b` 与全部 232 条测试**一次通过**。compat 只导出 `defineTool` / `DefineToolOptions` / `Context`，
+0.1.5 的三条破坏性变更一条都不碰它们；`@deepseek-ai/cordis` 仍是 `^4.0.2`。
+端到端也验了：`dsh plugin --profile web add` 成功、`mast-hello` 进组合树、探针确认 `apply()` 在真实运行时里执行且 `ctx.tools` 是活服务。
+
+#### 已知问题（升级时一并记下，各自标明会在哪一课时打到我们）
+
+| # | 问题 | 何时打到我们 |
+|---|---|---|
+| **6004** | **安全**：`dsh-storage-json` 0.1.5-alpha.1 legacy bootstrap 未校验 record key ⇒ 路径穿越 / 任意文件写入 | 我们的持久真源是自家 SQLite，不用 storage-json 存要紧数据；但**只要跑 dsh，这个洞就在同一进程里**。仅本机开发用，不对外服务 |
+| **5999** | 升级既有 profile 后 client combo 缺新增 bundle 模块（`ui-sidebar-*` 404）⇒ 全部 client 插件失效 | **课时 1.10**（第一个客户端包）。全新 profile 不受影响 |
+| **5983** | 自定义 provider 在 web UI 里被藏起来、加不了（`llm-pi-ai` namespace 未在 `settings/describe` 暴露） | **Phase 3** §7.7 注册 Kimi/Qwen/GLM 时 |
+| 5979 / 5978 | 会话历史冷读失败、v0 迁移校验过度严格 | 我们无历史会话；升级**既有** `~/.dsh` 的人会撞上 |
+| 6012 | preset roster 健康扫描无缓存，一个装不上的 preset 就把一个核吃满 | **Phase 6** 挂 8 个 preset 时 |
+| 5998 | minimal preset 的持久 pwsh 在控制台换行处输入被截断（`Write-Output` → `rite-Output`） | 我们的工具不依赖 shell（§3.1-8），不受影响 |
+
+⇒ `latest` / `next` 至今仍是 `0.1.2-rc.1`（六天没动）。**0.1.5-alpha.1 是 alpha，按它开发要有心理准备**；
+我们能升是因为接触面小，不代表它稳。
+
+### 8.0-历史 · 为什么当时没升 0.1.3-alpha.2（2026-09-07 记录，已被 0.1.5 取代）
 
 #### 阻塞：本机装不上
 

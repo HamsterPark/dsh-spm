@@ -27,6 +27,36 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
 
 ## 日志
 
+### 2026-09-09 · 0.1.2-rc.1 → **0.1.5-alpha.1**（第一次真升级；已有代码与测试）
+
+- **起因**：课时 1.3 开工①查版，`alpha` 已跳到 `0.1.5-alpha.1`（09-08 发布）。纪律要求版本不处理完不开工，于是先做升级。
+- **为什么能升了**：0.1.5 把 `fs-ext` 换成自家的 `@deepseek-ai/node-addon-system`。发布说明只写了修 "on macOS and Linux"，
+  而该包的 `optionalDependencies` **确实没有 win32**——但**平台包是 optional，npm 装不到就跳过，代码有回退**。
+  Windows 实测全绿：238 包、**零 node-gyp 编译**、`--dump-config` 正常、`--profile web` 打印带 token 的 URL、stderr 空、端口正常释放。
+  ⚠️ 上游 #6003 报的 `Cannot find module …node-addon-system-<platform>/bin/system.node` 是**源码检出**路径，与 npm 安装不同，别混为一谈。
+- **跳过 0.1.3 与 0.1.4**：0.1.4 从未发布；0.1.3-alpha.2 客观装不上。清单的「一次一版」这次只能一步跨过去，原因不是图省事。
+- **组合树 diff**：145 → **152** 行插件行，27 → 26 disabled，30 个 diff 行。删 `tool-str-replace-editor`；
+  增 `open-in-app`/`ui-open-in-app`/`workspace-files`/`file-upload`/`resources`/`ui-sidebar-right`/`ui-sidebar-textpreview`/`ui-sidebar-files`。
+  存档 `spec/dsh/dump-config.0.1.5-alpha.1.yml` + `pkglist.0.1.5-alpha.1.txt`（229 个包全是该版本，Cordis 系 5 个独立版本线）。
+- **我们的接触面：零破坏**。`tsc -b` 与 232 条测试**一次通过**。compat 只导出 `defineTool`/`DefineToolOptions`/`Context`，
+  0.1.5 的三条破坏性变更（session V3、去 `ctx.agent`、`Inbox` type-only）一条都不碰；`cordis` 仍 `^4.0.2`。
+  端到端也验了：`dsh plugin add` 成功、`mast-hello` 进组合树、**探针确认 `apply()` 在真实运行时执行且 `ctx.tools` 是活服务**。
+- **顺手修掉钉版测试的一个真缺陷**：它原本遍历 `node_modules/.pnpm` 数版本，而 **pnpm 升级后不修剪虚拟 store**——
+  旧版本的 15 个包原样躺在那里**不可达**，于是红了一次假警报。改成**读锁文件**：锁文件才是「将来会装成什么」的权威，
+  也正是 CI `--frozen-lockfile` 装的东西；而我们要防的「overrides 静默失效」，后果恰恰就是锁文件里出现多个版本。
+  改完做了变红演练（把声明的锁改回 rc.1 ⇒ 当场红）。
+- **新学到的 pnpm 行为**：pnpm 11 有 `minimumReleaseAge` 供应链策略，装「发布不足最小天数」的包时会**自动往
+  `pnpm-workspace.yaml` 写一段 `minimumReleaseAgeExclude` 记录豁免**。0.1.5-alpha.1 昨天才发，所以 15 个包被记了进去。
+  这条以后每次升 alpha 都会发生，**diff 里看到它不是有人乱改**。
+- **未做的一步**：清单第 6 步「拿**既有** `~/.dsh` 冒烟」。全程用隔离 `DSH_HOME`，**没有碰用户真实的 home**——
+  而 0.1.5 恰恰有两个只在升级既有 profile 时才发作的问题（#5999 client combo 缺 `ui-sidebar-*` ⇒ 全部 client 插件失效；
+  #5978/#5979 历史会话冷读失败）。**用户若要把自己的 web profile 升到 0.1.5，先备份 `~/.dsh`。**
+- **已知问题六条**与各自会在哪一课时打到我们，逐条列在 `facts.md` §8.0。最要紧的：#6004 是 `dsh-storage-json` 的
+  **路径穿越/任意文件写入**（我们的真源在自家 SQLite，但只要跑 dsh 这个洞就在同一进程里；仅本机开发用）；
+  #5999 打到 **1.10**；#5983（自定义 provider 加不了）打到 **Phase 3 §7.7**。
+- **适配点**：零领域代码改动。改动全在钉版（`pnpm-workspace.yaml` overrides + compat 依赖 + bundle peer）、
+  钉版测试实现、以及文档。
+
 ### 2026-09-07 · 查到 0.1.3-alpha.2，**核实后暂不升级**（第三次查版；仍无代码）
 
 - **起因**：整理仓库时例行查版。`0.1.3-alpha.2`（09-07 13:11 UTC）占 `alpha` 标签，比 `latest`/`next` 上的 `0.1.2-rc.1` 高一个 minor ⇒ 按「semver 最大值」规则**就是追踪目标**。（npm 上没有 `0.1.3-alpha.1` 这个版本号，但发布说明有它，内容被 alpha.2 吞进去。）

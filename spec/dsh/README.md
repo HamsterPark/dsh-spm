@@ -18,9 +18,11 @@ node node_modules/@deepseek-ai/dsh/lib/bin.js --profile web --dump-config > dump
 |---|---|---|
 | `dump-config.0.1.2-alpha.3.yml` | 2026-09-02 | 145 行插件行，27 行 `disabled: true` |
 | `dump-config.0.1.2-alpha.4.yml` | 2026-09-02 | 与 alpha.3 逐字节相同 |
-| `dump-config.0.1.2-rc.1.yml` | 2026-09-04 | 与前两版逐字节相同；**当前锁定版本** |
+| `dump-config.0.1.2-rc.1.yml` | 2026-09-04 | 与前两版逐字节相同；曾长期锁定，2026-09-09 起被 0.1.5-alpha.1 取代 |
 | `dump-config.0.1.3-alpha.2.yml` | 2026-09-07 | **147 行插件行，26 disabled**。相对 rc.1 只有四处变更，见下 |
 | `pkglist.0.1.2-alpha.4.txt` | 2026-09-02 | npx 安装树里 223 个 `@deepseek-ai/*` 包名清单 |
+| **`dump-config.0.1.5-alpha.1.yml`** | 2026-09-09 | **152 行插件行，26 disabled；当前锁定版本**。相对 rc.1 有 30 个 diff 行、八处增删（见 `docs/dsh/facts.md` §8.0） |
+| **`pkglist.0.1.5-alpha.1.txt`** | 2026-09-09 | 234 行；**229 个 `@deepseek-ai/dsh*` 全是 `0.1.5-alpha.1`**，其余 5 个是独立版本线的 Cordis 系 |
 | `pkglist.0.1.3-alpha.2.txt` | 2026-09-07 | 232 个包名＋版本。**223 个 `@deepseek-ai/dsh*` 全部恰好是 `0.1.3-alpha.2`，零例外**；其余 9 个是独立版本线的 Cordis 系与 `node-addon-landlock-run@0.1.1` |
 
 **0.1.2 的三版组合树逐字节相同**，说明 alpha.3 → rc.1 之间插件名单与默认配置没动过；变的是各包内部实现（见 `docs/dsh/facts.md` §8）。

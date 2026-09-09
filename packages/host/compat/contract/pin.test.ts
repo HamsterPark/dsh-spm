@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -13,23 +13,23 @@ const lockedVersion = (
   }
 ).dependencies['@deepseek-ai/dsh-tools']!
 
-/** 走遍 pnpm 虚拟store，读每个包**自己的** package.json——目录名带哈希且会被截断，不能解析。 */
-function installedDshPackages(): Map<string, Set<string>> {
+/**
+ * 从**锁文件**数版本，不是从 `node_modules/.pnpm` 数。
+ *
+ * 2026-09-09 升级 0.1.2-rc.1 → 0.1.5-alpha.1 时踩到：pnpm 不修剪虚拟 store，旧版本的
+ * 15 个包原样躺在 `.pnpm` 里**不可达**，而遍历目录的旧实现把它们数成了漂移，红了一次
+ * 假警报。锁文件才是「将来会装成什么」的权威，也正是 CI `--frozen-lockfile` 装的东西；
+ * 而我们要防的「overrides 静默失效」，其后果恰恰就是**锁文件里出现多个版本**。
+ *
+ * 键的形状是 `'@deepseek-ai/dsh-tools@0.1.5-alpha.1':`，带 peer 哈希的形如
+ * `'…@0.1.5-alpha.1(239eb…)':`——括号里的部分不是版本，要剥掉。
+ */
+function lockedDshPackages(): Map<string, Set<string>> {
+  const lock = readFileSync(join(repoRoot, 'pnpm-lock.yaml'), 'utf8')
   const out = new Map<string, Set<string>>()
-  const store = join(repoRoot, 'node_modules/.pnpm')
-  for (const entry of readdirSync(store)) {
-    const scope = join(store, entry, 'node_modules/@deepseek-ai')
-    if (!existsSync(scope)) continue
-    for (const pkg of readdirSync(scope)) {
-      const manifest = join(scope, pkg, 'package.json')
-      if (!existsSync(manifest)) continue
-      const { name, version } = JSON.parse(readFileSync(manifest, 'utf8')) as {
-        name: string
-        version: string
-      }
-      if (!name.startsWith('@deepseek-ai/dsh')) continue
-      ;(out.get(name) ?? out.set(name, new Set()).get(name)!).add(version)
-    }
+  for (const m of lock.matchAll(/^ {2}'(@deepseek-ai\/dsh[^@']*)@([^'(]+)(?:\([^']*\))?':$/gm)) {
+    const [, name, version] = m
+    ;(out.get(name!) ?? out.set(name!, new Set()).get(name!)!).add(version!)
   }
   return out
 }
@@ -38,9 +38,9 @@ describe('dsh 版本锁', () => {
   // 这条是整套精确钉的**唯一**执法者。2026-09-08 实测：pnpm 的 overrides 键不支持
   // 通配，写 '@deepseek-ai/*' 会静默无效——不报错、不警告、一个包都没钉住
   // （EXECUTION.md 台账 B4）。所以钉没钉上，只能靠在这里数出来。
-  it('安装树里每个 @deepseek-ai/dsh* 都恰好是锁定版本', () => {
-    const installed = installedDshPackages()
-    expect(installed.size).toBeGreaterThan(0) // 树是空的说明测试自己坏了
+  it('锁文件里每个 @deepseek-ai/dsh* 都恰好是锁定版本', () => {
+    const installed = lockedDshPackages()
+    expect(installed.size).toBeGreaterThan(0) // 一个都没数到说明正则或锁文件格式变了
     const drifted = [...installed].filter(([, vs]) => vs.size !== 1 || !vs.has(lockedVersion))
     expect(drifted.map(([n, vs]) => `${n}: ${[...vs].join(', ')}`)).toEqual([])
   })
