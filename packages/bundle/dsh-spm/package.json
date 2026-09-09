@@ -11,6 +11,10 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
+    "./instrument-state": {
+      "types": "./lib/types/instrument-state.d.ts",
+      "default": "./lib/instrument-state.js"
+    },
     "./instrument-stmsim": {
       "types": "./lib/types/instrument-stmsim.d.ts",
       "default": "./lib/instrument-stmsim.js"
@@ -28,7 +32,8 @@
   },
   "dependencies": {
     "dsh-spm-compat": "workspace:*",
-    "dsh-spm-instrument-stmsim": "workspace:*"
+    "dsh-spm-instrument-stmsim": "workspace:*",
+    "dsh-spm-instrument-state": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "4.0.2",

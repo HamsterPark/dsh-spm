@@ -1,0 +1,3073 @@
+{
+  "coerce": [
+    {
+      "case": "int",
+      "in": 3,
+      "out": 3.0
+    },
+    {
+      "case": "float",
+      "in": 1.5,
+      "out": 1.5
+    },
+    {
+      "case": "negative",
+      "in": -2.5,
+      "out": -2.5
+    },
+    {
+      "case": "zero",
+      "in": 0.0,
+      "out": 0.0
+    },
+    {
+      "case": "bool_true",
+      "in": {
+        "py": "true"
+      },
+      "out": null
+    },
+    {
+      "case": "bool_false",
+      "in": {
+        "py": "false"
+      },
+      "out": null
+    },
+    {
+      "case": "str_number",
+      "in": "1.5",
+      "out": null
+    },
+    {
+      "case": "str_text",
+      "in": "abc",
+      "out": null
+    },
+    {
+      "case": "bytes",
+      "in": {
+        "py": "bytes",
+        "value": "1.5"
+      },
+      "out": null
+    },
+    {
+      "case": "none",
+      "in": null,
+      "out": null
+    },
+    {
+      "case": "nan",
+      "in": {
+        "py": "nan"
+      },
+      "out": null
+    },
+    {
+      "case": "inf",
+      "in": {
+        "py": "inf"
+      },
+      "out": null
+    },
+    {
+      "case": "neg_inf",
+      "in": {
+        "py": "-inf"
+      },
+      "out": null
+    },
+    {
+      "case": "list_empty",
+      "in": [],
+      "out": null
+    },
+    {
+      "case": "list_one",
+      "in": [
+        1.5
+      ],
+      "out": 1.5
+    },
+    {
+      "case": "tuple_one",
+      "in": {
+        "py": "tuple",
+        "value": [
+          1.5
+        ]
+      },
+      "out": 1.5
+    },
+    {
+      "case": "nested_one",
+      "in": {
+        "py": "tuple",
+        "value": [
+          {
+            "py": "tuple",
+            "value": [
+              1.5
+            ]
+          }
+        ]
+      },
+      "out": 1.5
+    },
+    {
+      "case": "list_two",
+      "in": [
+        1.5,
+        2.5
+      ],
+      "out": null
+    },
+    {
+      "case": "list_one_str",
+      "in": [
+        "1.5"
+      ],
+      "out": null
+    },
+    {
+      "case": "list_one_none",
+      "in": [
+        null
+      ],
+      "out": null
+    },
+    {
+      "case": "dict",
+      "in": {
+        "py": "dict",
+        "value": {
+          "v": 1.5
+        }
+      },
+      "out": null
+    }
+  ],
+  "spec": {
+    "core_fields": [
+      "bias_v",
+      "z_controller_on",
+      "current_a",
+      "z_pos_m",
+      "scan_running"
+    ],
+    "default_state": {
+      "bias_v": null,
+      "current_a": null,
+      "extra": {
+        "py": "dict",
+        "value": {}
+      },
+      "lockin_mod_on": null,
+      "scan_angle_deg": null,
+      "scan_center_x_m": null,
+      "scan_center_y_m": null,
+      "scan_height_m": null,
+      "scan_running": null,
+      "scan_width_m": null,
+      "setpoint_a": null,
+      "stale": {
+        "py": "false"
+      },
+      "withdrawn": null,
+      "x_pos_m": null,
+      "y_pos_m": null,
+      "z_controller_index": null,
+      "z_controller_name": null,
+      "z_controller_names": null,
+      "z_controller_on": null,
+      "z_controller_status": null,
+      "z_pos_m": null
+    },
+    "history_channels": [
+      "bias",
+      "current",
+      "z"
+    ],
+    "history_len": 20,
+    "numeric_fields": [
+      "bias_v",
+      "current_a",
+      "scan_angle_deg",
+      "scan_center_x_m",
+      "scan_center_y_m",
+      "scan_height_m",
+      "scan_width_m",
+      "setpoint_a",
+      "x_pos_m",
+      "y_pos_m",
+      "z_pos_m"
+    ],
+    "patchable_fields": [
+      "bias_v",
+      "current_a",
+      "scan_angle_deg",
+      "scan_center_x_m",
+      "scan_center_y_m",
+      "scan_height_m",
+      "scan_running",
+      "scan_width_m",
+      "setpoint_a",
+      "withdrawn",
+      "x_pos_m",
+      "y_pos_m",
+      "z_controller_index",
+      "z_controller_name",
+      "z_controller_names",
+      "z_controller_on",
+      "z_controller_status",
+      "z_pos_m"
+    ],
+    "zctrl_status": {
+      "1": "Off",
+      "2": "On",
+      "3": "Hold",
+      "4": "SwitchingOff",
+      "5": "SafeTip",
+      "6": "Withdrawing"
+    }
+  },
+  "trace": {
+    "bad_shape_raises": [
+      {
+        "history": {
+          "bias": [],
+          "current": [],
+          "z": []
+        },
+        "op": "refresh",
+        "raised": "TypeError",
+        "state": {
+          "bias_v": null,
+          "current_a": null,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": null,
+          "scan_angle_deg": null,
+          "scan_center_x_m": null,
+          "scan_center_y_m": null,
+          "scan_height_m": null,
+          "scan_running": null,
+          "scan_width_m": null,
+          "setpoint_a": null,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": null,
+          "x_pos_m": null,
+          "y_pos_m": null,
+          "z_controller_index": null,
+          "z_controller_name": null,
+          "z_controller_names": null,
+          "z_controller_on": null,
+          "z_controller_status": null,
+          "z_pos_m": null
+        },
+        "timestamp_carried": true,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "carry_forward_partial_miss": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            -1e-08,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "cold_start_all_miss": [
+      {
+        "history": {
+          "bias": [],
+          "current": [],
+          "z": []
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": null,
+          "current_a": null,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": null,
+          "scan_angle_deg": null,
+          "scan_center_x_m": null,
+          "scan_center_y_m": null,
+          "scan_height_m": null,
+          "scan_running": null,
+          "scan_width_m": null,
+          "setpoint_a": null,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": null,
+          "x_pos_m": null,
+          "y_pos_m": null,
+          "z_controller_index": null,
+          "z_controller_name": null,
+          "z_controller_names": null,
+          "z_controller_on": null,
+          "z_controller_status": null,
+          "z_pos_m": null
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "ctrl_list_unrecognised": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": null,
+          "z_controller_name": null,
+          "z_controller_names": null,
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "happy_path": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "lockin_unread_is_not_off": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            -1e-08,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": null,
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "nan_through_refresh": [
+      {
+        "history": {
+          "bias": [
+            {
+              "py": "nan"
+            }
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": {
+            "py": "nan"
+          },
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "patch_numeric_gate": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 9.9e-11,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 9.9e-11,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 9.9e-11,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 9.9e-11,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      }
+    ],
+    "patch_semantics": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "false"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "false"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "false"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      },
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "patch",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "false"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        }
+      }
+    ],
+    "scan_frame_short": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": null,
+          "scan_center_x_m": null,
+          "scan_center_y_m": null,
+          "scan_height_m": null,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": null,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "stale_when_all_core_miss": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            -1e-08,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": null,
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "true"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": true,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            -1e-08,
+            -1e-08,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "string_through_refresh": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "unknown_status_code": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "false"
+          },
+          "z_controller_status": "Unknown(7)",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ],
+    "withdrawn_logic": [
+      {
+        "history": {
+          "bias": [
+            1.5
+          ],
+          "current": [
+            1.2e-10
+          ],
+          "z": [
+            5e-07
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "true"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "false"
+          },
+          "z_controller_status": "Off",
+          "z_pos_m": 5e-07
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            5e-07,
+            4.9e-07
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "false"
+          },
+          "z_controller_status": "Off",
+          "z_pos_m": 4.9e-07
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            5e-07,
+            4.9e-07,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      },
+      {
+        "history": {
+          "bias": [
+            1.5,
+            1.5,
+            1.5,
+            1.5
+          ],
+          "current": [
+            1.2e-10,
+            1.2e-10,
+            1.2e-10,
+            1.2e-10
+          ],
+          "z": [
+            5e-07,
+            4.9e-07,
+            -1e-08,
+            -1e-08
+          ]
+        },
+        "op": "refresh",
+        "state": {
+          "bias_v": 1.5,
+          "current_a": 1.2e-10,
+          "extra": {
+            "py": "dict",
+            "value": {}
+          },
+          "lockin_mod_on": {
+            "py": "true"
+          },
+          "scan_angle_deg": 30.0,
+          "scan_center_x_m": 0.0,
+          "scan_center_y_m": 0.0,
+          "scan_height_m": 1e-07,
+          "scan_running": {
+            "py": "true"
+          },
+          "scan_width_m": 1e-07,
+          "setpoint_a": 1e-10,
+          "stale": {
+            "py": "false"
+          },
+          "withdrawn": {
+            "py": "false"
+          },
+          "x_pos_m": 1e-07,
+          "y_pos_m": 2e-07,
+          "z_controller_index": 1,
+          "z_controller_name": "log Current",
+          "z_controller_names": [
+            "Current",
+            "log Current",
+            "df"
+          ],
+          "z_controller_on": {
+            "py": "true"
+          },
+          "z_controller_status": "On",
+          "z_pos_m": -1e-08
+        },
+        "timestamp_carried": false,
+        "verbs": [
+          [
+            "Bias_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_CtrlListGet",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_SetpntGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Current_Get",
+            [],
+            "monitor"
+          ],
+          [
+            "ZCtrl_ZPosGet",
+            [],
+            "monitor"
+          ],
+          [
+            "FolMe_XYPosGet",
+            [
+              0
+            ],
+            "monitor"
+          ],
+          [
+            "ZCtrl_LimitsGet",
+            [],
+            "monitor"
+          ],
+          [
+            "Scan_StatusGet",
+            [],
+            "monitor"
+          ],
+          [
+            "LockIn_ModOnOffGet",
+            [
+              1
+            ],
+            "monitor"
+          ],
+          [
+            "Scan_FrameGet",
+            [],
+            "monitor"
+          ]
+        ]
+      }
+    ]
+  }
+}

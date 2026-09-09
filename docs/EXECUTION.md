@@ -33,12 +33,13 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
 **1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）
-· **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）。
-**下一段 = 课时 1.8（`instrument-state`：1 Hz 状态缓存、stale/carry-forward、`stm_get_state`）。**
+· **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）
+· **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1；`stm_get_state`/提示段/投影拆到 1.8b）。
+**下一段 = 课时 1.8b（把状态送进模型的三条路：提示段 `stm-live-state` / 工具 `stm_get_state` / 投影 `mast.instrumentState`）。**
 
-仓库现状：7 个工作区包（root / compat / kernel / nanonis-wire / instrument / **instrument-stmsim** / bundle），
-**296 条测试**（单测 + 契约 + 13 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
-golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹，重跑逐字节相同）；
+仓库现状：8 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / **instrument-state** / bundle），
+**342 条测试**（单测 + 契约 + 16 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
@@ -577,6 +578,70 @@ CI 拉不到，`ci.yml` 暂时只跑 `--project unit --project contract`。写�
 
 ---
 
+### 课时 1.8 —— `ctx.instrumentState` 1 Hz 状态缓存 ✅ 完成（2026-09-09）
+
+新包 `packages/instrument/instrument-state`：`cache.ts`（纯逻辑，零 I/O）+ `plugin.ts`（Cordis Service
+与 1 Hz 循环）；kernel 补上 `HardwareState` 与 `scalarFloat`（1.1 按消融精神推迟的那组类型，现在有消费者了）。
+**342 条测试**。`stm_get_state` / 提示段 / 投影拆到 **1.8b**——那三条是「怎么把状态送进模型」，
+与「缓存本身对不对」是两件事，混在一段里两边都讲不清。
+
+#### 金样第一次驱动**真 Python 对象**跑序列
+
+`tools/spec-export/export_state_spec.py` 拿一个假 pool 喂真 `InstrumentState`，录三节：
+`spec`（**动词序列是观测出来的**，不是手抄——11 个读、`FolMe_XYPosGet(0)`、`LockIn_ModOnOffGet(1)`、
+全在 monitor 角色）、`coerce`（21 条「什么算一个读数」）、`trace`（14 条脚本 29 步）。
+
+为什么非要 trace 不可：**carry-forward 与 stale 只在序列里显形**。单点断言看不出「上一次的真值
+被这一次的读不到覆盖了没有」，而那正是 2026-06-29 真机死循环的形状——写回刚设的
+`z_controller_on=true` 被下一个 tick 抹回 unknown，`StartScan` 的前置条件永远不满足。
+
+#### 一条 deviation：**D-STATE-1，读与写用同一把尺子**
+
+金样把一件事跑了出来：Python 的 `refresh()` 每个字段是**裸 `float(parsed[0])`**，而同一个缓存的另一个
+入口 `apply_patch()` 走 `scalar_float`。于是同一个值从两条路进同一个缓存，结果不同：
+
+| 输入 | Python refresh | Python apply_patch | 我们（两条路都走 `scalarFloat`） |
+|---|---|---|---|
+| `"1.5"` | 收下 → 1.5 | 拒 | 拒 |
+| `NaN` | **收下，还进历史环** | 拒 | 拒 |
+| `[1.5, 2.5]` | **抛 TypeError** | 拒 | 那一个字段 null，其余十个照常 |
+
+第三行是最重的：`self._cache = state` 在 `refresh()` 最后一行，抛在它之前 ⇒ **十一个读全部作废，
+而且 `stale` 不亮**。`stale` 这一位存在的全部理由就是「别把陈值当活值」，这条路径正好绕开了它。
+Python 自己的 `coerce_number` docstring 写着「逐处打补丁只会制造第八份实现」——它把判据收拢到了
+`scalar_float`，只是没把读的那侧接上去。详见 `spec/deviations.md`。
+
+#### 字段名保持 Python 的蛇形
+
+`bias_v` 而不是 `biasV`。不是懒：`applyPatch` 吃的是**技能结果的 `data` 字典**，键名由 515 个待移植
+技能给出，是契约的一部分；改成驼峰等于给每个技能加一次翻译，**515 次犯错机会**换一个大小写习惯。
+
+#### 变红演练四次，两次「没红」比红的更有用
+
+| 演练 | 结果 |
+|---|---|
+| 拆掉 carry-forward | ✅ 3 条红 |
+| 拆掉「stale 时保留旧时间戳」 | ❌ **全绿**——注入的时钟恒返回 `T0`，两种行为在测试里长得一样。stale 有两半，我只测了一半。改成单调时钟并断言金样的 `timestamp_carried` 之后，重做 ⇒ 1 条红 |
+| 让 1 Hz 轮询进熔断记账 | ✅ 1 条红 |
+| 拆掉卸载停机闩 | ❌ **全绿**——`clearTimeout` 单独就挡住了「两次 tick 之间卸载」。而闩防的是**卸载落在一轮刷新中间**（真机 11 个串行往返，这几乎是常态）。探针实测：上下文失活后 `ctx.instrument` **会抛** `cannot get required service "instrument" in inactive context` ⇒ 那是个**没人接的 Promise rejection**，默认会打挂进程。改成测试直接盯 `unhandledRejection` 之后，重做 ⇒ 1 条红，报的正是那句 |
+
+第四条顺带推翻了我自己写在代码注释里的理由（「refresh 永不抛，所以这里不用 try/catch」）——
+前提是错的：`refresh` 不抛，但**读的那一侧会**。修法不是在循环外面包 try/catch（那会把「读不到」
+和「代码写错了」一起吞掉），而是读之前先看停机闩：「正在卸载」本来就该表达成「这一读没落地」，
+而缓存对没落地早有说法。
+
+#### ④验：真 stmsim + 真 dsh
+
+- 3 条集成测试对着 globalSetup 起的真模拟器：11 个读都有回音、值物理上说得通、`z_controller_status`
+  落在六态之内、后台循环自己在跑（历史环在长）。
+- bundle 加子路径导出 `dsh-spm/instrument-state` 与 patch 行 `mast-instrument-state`（**归 bundle 不归
+  profile**：sim/offline/rig 都要它，「接哪台仪器」才是 profile 的事），`inject: ['instrument']` 逐行写全。
+- 隔离 `DSH_HOME` 实测：`--dump-config` 347→351 行，多出来的正好是我们那 4 行，且落在 bundle 层
+  （在 profile patch 之前）；`dsh --profile mast-sim` 启动 **5 秒**后，dsh 进程对 **127.0.0.1:16502**
+  （monitor 角色）有一条 ESTABLISHED 连接——**那个端口只有我们的 1 Hz 缓存会去连**，这是它真在跑的证据。
+
+---
+
 ## 3. Phase 1 · 仪器接缝（课时 1.1–1.10）
 
 完成判据（PLAN §11）：535 方法字节金样相等；三类故障行为与 Python 基线一致；`closeAll` 后 stmsim 端口可复用；看门狗在「Z 顶限撞针」场景 4 s 内退针；覆盖率 100%。
@@ -590,7 +655,8 @@ CI 拉不到，`ci.yml` 暂时只跑 `--project unit --project contract`。写�
 | 1.5 | `kernel/comms-breaker.ts` 熔断状态机（注入时钟）+ 单测表移植 | fake 时钟走一遍 CLOSED→OPEN→HALF_OPEN→CLOSED |
 | 1.6 | `dsh-spm-instrument` Service | 会话里 `stm_hello` 改成读 `Bias_Get` |
 | 1.7 ✅ | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ ~~`instrument-fake`~~（无消费者，推迟到 Phase 2） | `profiles/mast-sim` 装上后自动拉起模拟器 |
-| 1.8 | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`）+ 投影 + `stm_get_state` | 会话里问「现在偏压多少」 |
+| 1.8 ✅ | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`） | monitor 端口上有 1 Hz 轮询 |
+| 1.8b | 投影 `mast.instrumentState` + 提示段 `stm-live-state` + `stm_get_state` | 会话里问「现在偏压多少」 |
 | 1.9 | 看门狗 + `estop()` + `/estop` 命令 | stmsim 撞针场景 4 s 内退针 |
 | 1.10 | U0：SSE hub `/mast/events` + `ui-core` 右栏「仪器状态」卡 | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
 

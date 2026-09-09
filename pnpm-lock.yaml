@@ -50,6 +50,9 @@ importers:
       dsh-spm-compat:
         specifier: workspace:*
         version: link:../../host/compat
+      dsh-spm-instrument-state:
+        specifier: workspace:*
+        version: link:../../instrument/instrument-state
       dsh-spm-instrument-stmsim:
         specifier: workspace:*
         version: link:../../instrument/instrument-stmsim
@@ -84,6 +87,25 @@ importers:
       '@deepseek-ai/cordis':
         specifier: 4.0.2
         version: 4.0.2(@deepseek-ai/cordis-plugin-include@1.0.7)(@deepseek-ai/cordis-plugin-loader@1.0.3)
+
+  packages/instrument/instrument-state:
+    dependencies:
+      dsh-spm-compat:
+        specifier: workspace:*
+        version: link:../../host/compat
+      dsh-spm-instrument:
+        specifier: workspace:*
+        version: link:../instrument
+      dsh-spm-kernel:
+        specifier: workspace:*
+        version: link:../../host/kernel
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: 4.0.2
+        version: 4.0.2(@deepseek-ai/cordis-plugin-include@1.0.7)(@deepseek-ai/cordis-plugin-loader@1.0.3)
+      dsh-spm-instrument-stmsim:
+        specifier: workspace:*
+        version: link:../instrument-stmsim
 
   packages/instrument/instrument-stmsim:
     dependencies:

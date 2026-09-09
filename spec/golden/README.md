@@ -17,6 +17,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 | 文件 | 内容 | 谁消费 |
 |---|---|---|
 | `skills.json` | 515 条技能的**作者声明**契约：category / safety_level / description / 逐参数 ParameterSpec（含 unit、min/max、allowed_values）/ preconditions / capabilities / composition_level / 所在模块与 origin | DoD ①（`skill.spec` 与之 deep-equal）、DoD ②（工具 schema description 逐字相等）、§8.4 分批成员派生 |
+| `state.json` | 状态缓存三节：`spec`（1 Hz 读哪 11 个动词——**观测得到，不是手抄**——加可 patch / 需强转的字段白名单）、`coerce`（21 条「什么算一个读数」）、`trace`（14 条脚本 29 步，驱动真 `InstrumentState`，含 carry-forward 与 stale 的逐步快照） | 课时 1.8 的状态缓存移植与 D-STATE-1 |
 | `si_cases.json` | 127 条 SI 行为金样：`parse_si` / `parse_quantity`（strict 与 loose 各一遍）/ `needs_strict_prefix` / `format_si`，**含报错类型与原文** | 课时 1.1 的 `si.ts` 移植 |
 | `manifest.json` | 每个 collector 的成败与条数 | 一个 collector 坏了不能静默缺一块——缺一块会让分母悄悄变小 |
 
@@ -32,7 +33,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 ## 还没导的
 
-`tool_schemas.json` / `preconditions.json` / `safety.json` / `tool_packs.json` / `state.json` /
+`tool_schemas.json` / `preconditions.json` / `safety.json` / `tool_packs.json` /
 `prompts/` / `traces/` 等（PLAN §8.6 的完整清单）按消融原则等各自的消费者出现再加：
 schema 与 preconditions 在 Phase 2 的内核闸门，`verbs`（AST 抽 `safe_call` 字面量）在 1.3 的协议代码生成，
 `error_branches` 在 DoD ③ 的逐分支单测，`traces/` 在 §12 的差分测试。脚本已经搭好，加一个 collector 就是加一个函数。

@@ -13,6 +13,9 @@
       "path": "../../host/compat"
     },
     {
+      "path": "../../instrument/instrument-state"
+    },
+    {
       "path": "../../instrument/instrument-stmsim"
     }
   ]

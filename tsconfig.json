@@ -10,6 +10,7 @@
     { "path": "./packages/instrument/nanonis-wire" },
     { "path": "./packages/instrument/instrument" },
     { "path": "./packages/instrument/instrument-stmsim" },
+    { "path": "./packages/instrument/instrument-state" },
     { "path": "./packages/bundle/dsh-spm" }
   ]
 }
