@@ -11,9 +11,10 @@
 - insert:
     - id: mast-hello
       name: dsh-spm
-    # 1 Hz 仪器状态缓存。**归 bundle 而不归 profile**：sim / offline / rig 都要它，
+    # 1 Hz 仪器状态缓存 + 实时状态提示块 + stm_get_state 工具。
+    # **归 bundle 而不归 profile**：sim / offline / rig 都要它，
     # 「接哪台仪器」才是 profile 的事。`inject` 逐行写全（PLAN §6.1）——
     # 少了它这一行会在没有仪器服务时装载失败，而不是干脆不装载。
     - id: mast-instrument-state
       name: dsh-spm/instrument-state
-      inject: ['instrument']
+      inject: ['instrument', 'systemPrompt', 'tools']

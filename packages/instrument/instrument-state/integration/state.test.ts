@@ -5,13 +5,34 @@
  * 模拟器由 globalSetup 起在 16501–16504（`vitest.stmsim-setup.ts`），所以这里
  * `spawn: false`——用外面那份，不另起进程。
  */
-import { Context } from 'dsh-spm-compat'
+import { Context, Service, SystemPrompt } from 'dsh-spm-compat'
 import { instrumentStateProvider } from '../src/index.js'
 import { stmsimProvider } from 'dsh-spm-instrument-stmsim'
 import { ZCTRL_STATUS } from 'dsh-spm-kernel'
 import { afterEach, describe, expect, it } from 'vitest'
 
 const PORTS = [16501, 16502, 16503, 16504]
+
+/** 工具注册表的替身。这里要验的是「对真仪器读得对不对」，不是 dsh 的工具运行时。 */
+class FakeTools extends Service {
+  readonly registered: { name: string; execute: (args: unknown) => Promise<unknown> }[] = []
+  constructor(ctx: Context) {
+    super(ctx, 'tools')
+  }
+  register(tool: unknown): () => void {
+    const t = tool as { name: string; execute: (args: unknown) => Promise<unknown> }
+    this.registered.push(t)
+    return () => void this.registered.splice(this.registered.indexOf(t), 1)
+  }
+}
+
+/** 三个装载依赖：仪器来自真 stmsim，另外两个在这里补齐。 */
+function host(ctx: Context): FakeTools {
+  const tools = new FakeTools(ctx)
+  ctx.plugin(SystemPrompt, {})
+  ctx.plugin(stmsimProvider, { spawn: false, ports: PORTS })
+  return tools
+}
 
 const cleanup: (() => void)[] = []
 afterEach(() => {
@@ -33,7 +54,7 @@ describe('对真 stmsim 的 1 Hz 状态缓存', () => {
     const ctx = new Context()
     cleanup.push(() => void ctx.registry.delete(instrumentStateProvider))
     cleanup.push(() => void ctx.registry.delete(stmsimProvider))
-    ctx.plugin(stmsimProvider, { spawn: false, ports: PORTS })
+    host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 200 })
 
     const svc = await stateOf(ctx)
@@ -55,7 +76,7 @@ describe('对真 stmsim 的 1 Hz 状态缓存', () => {
     const ctx = new Context()
     cleanup.push(() => void ctx.registry.delete(instrumentStateProvider))
     cleanup.push(() => void ctx.registry.delete(stmsimProvider))
-    ctx.plugin(stmsimProvider, { spawn: false, ports: PORTS })
+    host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 200 })
     const svc = await stateOf(ctx)
 
@@ -70,7 +91,7 @@ describe('对真 stmsim 的 1 Hz 状态缓存', () => {
     const ctx = new Context()
     cleanup.push(() => void ctx.registry.delete(instrumentStateProvider))
     cleanup.push(() => void ctx.registry.delete(stmsimProvider))
-    ctx.plugin(stmsimProvider, { spawn: false, ports: PORTS })
+    host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
     const svc = await stateOf(ctx)
 
@@ -80,5 +101,24 @@ describe('对真 stmsim 的 1 Hz 状态缓存', () => {
     expect(s.bias_v).not.toBeNull()
     expect(s.current_a).not.toBeNull()
     expect(s.z_pos_m).not.toBeNull()
+  })
+})
+
+describe('stm_get_state 对真 stmsim', () => {
+  it('模型调一次拿到的就是那段实时状态块，数字来自真读取', async () => {
+    const ctx = new Context()
+    cleanup.push(() => void ctx.registry.delete(instrumentStateProvider))
+    cleanup.push(() => void ctx.registry.delete(stmsimProvider))
+    const tools = host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    await stateOf(ctx)
+
+    const tool = tools.registered.find((t) => t.name === 'stm_get_state')
+    expect(tool, 'stm_get_state 没注册').toBeDefined()
+    const out = (await tool!.execute({})) as string
+    expect(out).toContain('## Live instrument state')
+    expect(out).toMatch(/- Bias voltage: -?[\d.]+ V/)
+    // 量级警告是这块的头号功能：扫描框读到了就必须印，模型才有正确的数量级可抄
+    expect(out).toContain('MAGNITUDE CHECK')
   })
 })

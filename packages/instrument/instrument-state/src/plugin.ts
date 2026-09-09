@@ -1,8 +1,9 @@
 /**
  * `ctx.instrumentState` —— 1 Hz 后台刷新的仪器状态缓存。
  *
- * 这一层只做三件接线的事：**从哪读**（`ctx.instrument` 的 monitor 角色）、
- * **多久读一次**（默认 1 s）、**怎么停**（插件卸载时 `ctx.effect` 回滚）。
+ * 这一层做接线：**从哪读**（`ctx.instrument` 的 monitor 角色）、**多久读一次**（默认 1 s）、
+ * **怎么停**（插件卸载时 `ctx.effect` 回滚），以及**怎么送进模型**——每轮请求自带的实时状态块
+ * （`systemPrompt.context`）与按需刷新的 `stm_get_state` 工具。
  * 判据全在 `cache.ts`，那里零 I/O、由金样逐步驱动。
  *
  * 三处刻意的选择：
@@ -10,14 +11,15 @@
  * 1. **`countHealth: false`**。1 Hz 的只读轮询不进熔断记账——四个角色共用一个熔断器，
  *    而 `recordSuccess` 无条件清零连败计数，一个高频后台轮询会把别人的连败一直洗掉，
  *    「连续三次失败」这个条件永远凑不齐（1.5/1.6 定的规则，这里是第一个消费者）。
- * 2. **`inject: ['instrument']` 是装载依赖**。没有仪器服务时这个插件根本不装载，
- *    而不是装上以后每秒报一次「读不到」。
+ * 2. **`inject` 是装载依赖**（`instrument` / `systemPrompt` / `tools`）。缺任何一样这个插件
+ *    根本不装载，而不是装上以后安静地少做一半事。
  * 3. **刷新循环用 `setTimeout` 自排，不用 `setInterval`**。一次刷新是 11 个串行往返，
  *    真机上可能超过一秒；`setInterval` 会把慢刷新排成越堆越长的队，而我们要的语义是
  *    「上一轮结束后再等 1 秒」。
  */
-import { type Context, Service } from 'dsh-spm-compat'
+import { type Context, Service, defineTool } from 'dsh-spm-compat'
 import { HardwareStateCache, REFRESH_VERBS, type HistoryChannel, type StateReader } from './cache.js'
+import { LIVE_STATE_NAME, formatLiveState } from './live-state.js'
 import type { HardwareState } from 'dsh-spm-kernel'
 // 只为把 `dsh-spm-instrument` 对 `Context` 的类型增补拉进来（`ctx.instrument`）。
 // `import type {}` 不产生任何运行时 import——增补是类型层的，运行时靠 Cordis 的服务注册表。
@@ -110,12 +112,60 @@ export class InstrumentStateService extends Service {
   }
 }
 
+/**
+ * 实时状态块在提示里的位置。dsh 自己的 runtime context 占 110/115/120
+ * （sandbox / approval / subagent delegation），我们排在它们之后：
+ * 这块是**最易变**的，放最后离问题最近。
+ */
+const LIVE_STATE_ORDER = 200
+
 export function apply(ctx: Context, config: Config = {}): void {
-  new InstrumentStateService(ctx, config)
+  const svc = new InstrumentStateService(ctx, config)
+
+  // ① 提示段：每次组装提示时现取快照。**`context()` 不是 `section()`**——
+  //    见 compat 里那段说明：前者落成 durable 的 user-role 快照进 model history。
+  ctx.effect(() =>
+    ctx.systemPrompt.context({
+      name: LIVE_STATE_NAME,
+      order: LIVE_STATE_ORDER,
+      // 空快照渲染成空串，dsh 那侧空文本的 context 不贡献任何东西——不用自己判空。
+      text: () => formatLiveState(svc.snapshot()),
+    }),
+  )
+
+  // ② 工具：模型可以主动要一次**新鲜**读数。提示块最多 1 秒旧，写完想立刻确认时不够。
+  ctx.effect(() =>
+    ctx.tools.register(
+      defineTool({
+        name: 'stm_get_state',
+        description:
+          '读取仪器当前状态：立刻跑一轮真实读取（不是返回缓存），再把结果渲染成实时状态块。' +
+          '只读，不改变仪器任何设置。写操作之后想确认是否生效时用它，' +
+          '不必等每轮请求自带的那份（那份最多 1 秒旧）。',
+        parameters: {},
+        output: {
+          schema: { type: 'string' },
+          render: (_args, value) => [{ type: 'text', text: value }],
+        },
+        execute: async () => {
+          const s = await svc.refresh()
+          const block = formatLiveState(s)
+          // 一个字段都读不出来时说清楚是**读不到**，不是「仪器一切正常」。
+          return block === '' ? '仪器没有任何字段读得出来——链路可能断了。' : block
+        },
+      }),
+    ),
+  )
 }
 
-/** `inject` 是**装载依赖**：没有 `ctx.instrument` 就整个不装载，而不是装上以后每秒失败一次。 */
-export const inject = ['instrument']
+/**
+ * `inject` 是**装载依赖**，不是运行时检查（PLAN §6.1-3）：三样缺任何一样，这个插件
+ * **根本不装载**，在插件树上留下明显的一行。
+ *
+ * `systemPrompt` / `tools` 也列进来是有意的：少了它们，缓存照样能转，但**模型再也看不到
+ * 仪器读数**——那是个安静的安全回退，比「插件没装上」难发现得多。宁可整个不装。
+ */
+export const inject = ['instrument', 'systemPrompt', 'tools']
 
 export const instrumentStateProvider = { name, inject, apply }
 

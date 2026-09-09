@@ -216,6 +216,42 @@ def run(ops: list) -> list[dict]:
     return trace
 
 
+# ── live-state 提示块 ────────────────────────────────────────────────────────
+# `format_live_state_block` 是纯函数，而**它印出来的字就是契约**：这块存在的唯一
+# 理由是「给模型一个正确的数照抄」，措辞抄错等于把 2026-07-27 那次坐标事故的成因
+# 放回去。所以录整段文本，不是录字段。
+LIVE_CASES: dict[str, dict] = {
+    "empty": {},
+    "full": {
+        "bias_v": -2.0, "current_a": 1.2e-10, "setpoint_a": 1.0e-10,
+        "z_pos_m": -1.0e-8, "x_pos_m": 5.0e-8, "y_pos_m": -3.0e-8,
+        "z_controller_on": True, "z_controller_status": "On",
+        "z_controller_name": "log Current", "z_controller_index": 1,
+        "z_controller_names": ["Current", "log Current", "df"],
+        "scan_running": False,
+        "scan_center_x_m": 1.0e-8, "scan_center_y_m": -2.0e-8,
+        "scan_width_m": 1.0e-7, "scan_height_m": 5.0e-8, "scan_angle_deg": 30.0,
+    },
+    # 只有 z_controller_on 没有 status ⇒ 走 ON/OFF 那条 elif
+    "status_fallback": {"z_controller_on": False},
+    # 有名字但没下标/没列表 ⇒ 不印 “(index … of …)”
+    "ctrl_name_only": {"z_controller_name": "Current"},
+    # 只有宽没有高 ⇒ 不印 frame size，但**照样印**量级警告（它只看 width）
+    "width_without_height": {"scan_width_m": 2.0e-8},
+    # 偏压是唯一不走 format_si 的：它天然在 1 附近，印成 `-2000m` 正确但没法看
+    "bias_only": {"bias_v": 1.5},
+    "tiny_frame": {"scan_width_m": 1.0e-9, "scan_height_m": 1.0e-9},
+}
+
+
+def live_blocks() -> dict:
+    from mast.agents._shared.live_state_mw import format_live_state_block
+    return {
+        name: format_live_state_block(HardwareState(**fields))
+        for name, fields in LIVE_CASES.items()
+    }
+
+
 def main() -> int:
     out = {
         "spec": {
@@ -235,6 +271,7 @@ def main() -> int:
             for name, v in COERCE_CASES
         ],
         "trace": {name: run(ops) for name, ops in SCRIPTS.items()},
+        "live_state": live_blocks(),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(
@@ -244,7 +281,7 @@ def main() -> int:
     )
     steps = sum(len(v) for v in out["trace"].values())
     print(f"[ok]   state.json: {len(out['trace'])} 条脚本 / {steps} 步 / "
-          f"{len(out['coerce'])} 条 coerce 用例")
+          f"{len(out['coerce'])} 条 coerce 用例 / {len(out['live_state'])} 条提示块")
     return 0
 
 

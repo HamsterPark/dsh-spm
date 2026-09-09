@@ -22,3 +22,19 @@ export { Context } from '@deepseek-ai/cordis'  // 值也导出：我们的包在
  * （facts.md §6-17），但 **Service 注册不受影响**——注册表按字符串名索引，不靠类身份。
  */
 export { Service } from '@deepseek-ai/cordis'
+
+/**
+ * 系统提示注册表。课时 1.8b 的实时状态块是第一个调用方。
+ *
+ * **我们用的是 `context()` 不是 `section()`**，两者不是风格之差：
+ * `section()` 进的是系统提示，`context()` 的文档写得很直白——
+ * "Dynamic model context materialized as a **durable user-role snapshot**"，
+ * 落成一条 `form: 'snapshot'` 的用户角色消息进 model history。旧仓 2026-07-28 那次审计
+ * 是自己撞出同一个结论的：把每轮都变的读数挂在系统消息末尾，prompt cache 的断点正好落在
+ * 易变文本之后 ⇒ 每一轮整段历史都 miss，于是改挂最后一条 human 消息。上游把这条路做成了
+ * 一等公民，我们直接用。
+ *
+ * 值也导出：契约测试要装一份真的 `SystemPrompt` 来验我们那段确实进了 assembly。
+ */
+export { SystemPrompt, renderContextSections, renderContextSnapshot } from '@deepseek-ai/dsh-system-prompt'
+export type { PromptContext, AssembleContext, PromptAssembly } from '@deepseek-ai/dsh-system-prompt'

@@ -148,6 +148,15 @@
       "out": null
     }
   ],
+  "live_state": {
+    "bias_only": "## Live instrument state (refreshed every LLM call)\n- Bias voltage: 1.5 V",
+    "ctrl_name_only": "## Live instrument state (refreshed every LLM call)\n- Active Z controller: 'Current' — this is the LIVE feedback channel; engage/approach act on THIS controller. If feedback won't close, check that the intended controller is the active one (GetZCtrlList to inspect, SetActiveZController to switch) before assuming a hardware fault.",
+    "empty": "",
+    "full": "## Live instrument state (refreshed every LLM call)\n- Bias voltage: -2 V\n- Tunneling current: '120p' A\n- Setpoint: '100p' A\n- Z position: '-10n' m\n- XY position: ('50n', '-30n') m\n- Z controller: On\n- Active Z controller: 'log Current' (index 1 of 3; available: Current, log Current, df) — this is the LIVE feedback channel; engage/approach act on THIS controller. If feedback won't close, check that the intended controller is the active one (GetZCtrlList to inspect, SetActiveZController to switch) before assuming a hardware fault.\n- Scan: STOPPED\n- Scan frame size: '100n' x '50n' m  (= 100.0 x 50.0 nm)\n- Scan frame center: ('10n', '-20n') m  (= 10.0, -20.0 nm)\n- Scan rotation: 30.00°\n- ⚠️ MAGNITUDE CHECK: lengths are METRE quantities, written as STRINGS WITH AN SI PREFIX. The current scan frame is **100.0 nm wide** (= '100n'). Any skill parameter with unit 'm' must be on this order — typically '1n' … '100n'. Never pass `1` for nm (`1` = 1 metre = 10⁹ nm), and do NOT switch to exponent form — on these parameters it is rejected outright.",
+    "status_fallback": "## Live instrument state (refreshed every LLM call)\n- Z controller: OFF",
+    "tiny_frame": "## Live instrument state (refreshed every LLM call)\n- Scan frame size: '1n' x '1n' m  (= 1.0 x 1.0 nm)\n- ⚠️ MAGNITUDE CHECK: lengths are METRE quantities, written as STRINGS WITH AN SI PREFIX. The current scan frame is **1.0 nm wide** (= '1n'). Any skill parameter with unit 'm' must be on this order — typically '1n' … '100n'. Never pass `1` for nm (`1` = 1 metre = 10⁹ nm), and do NOT switch to exponent form — on these parameters it is rejected outright.",
+    "width_without_height": "## Live instrument state (refreshed every LLM call)\n- ⚠️ MAGNITUDE CHECK: lengths are METRE quantities, written as STRINGS WITH AN SI PREFIX. The current scan frame is **20.0 nm wide** (= '20n'). Any skill parameter with unit 'm' must be on this order — typically '1n' … '100n'. Never pass `1` for nm (`1` = 1 metre = 10⁹ nm), and do NOT switch to exponent form — on these parameters it is rejected outright."
+  },
   "spec": {
     "core_fields": [
       "bias_v",

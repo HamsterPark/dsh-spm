@@ -27,18 +27,18 @@
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
-· **0.6 ✅**（spike：结清 1/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + SI 金样）。
+· **0.6 ✅**（spike：结清 1/2/3/5/7，半结清 6）· **0.7 ✅**（规格导出：515 技能 + SI 金样）。
 **Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7、09-09 再挪到 1.10**——1.7 实测下来端口用一个
 profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无论如何都要建的那套客户端机器。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
 **1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）
 · **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）
-· **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1；`stm_get_state`/提示段/投影拆到 1.8b）。
-**下一段 = 课时 1.8b（把状态送进模型的三条路：提示段 `stm-live-state` / 工具 `stm_get_state` / 投影 `mast.instrumentState`）。**
+· **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1）· **1.8b ✅**（提示块 `stm-live-state` + `stm_get_state`；**结清 spike 第 2 条**；投影推迟到 1.10）。
+**下一段 = 课时 1.9（看门狗 + `estop()` + `/estop` 命令）。**
 
 仓库现状：8 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / **instrument-state** / bundle），
-**342 条测试**（单测 + 契约 + 16 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+**356 条测试**（单测 + 契约 + 17 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -642,6 +642,83 @@ Python 自己的 `coerce_number` docstring 写着「逐处打补丁只会制造�
 
 ---
 
+### 课时 1.8b —— 把状态送进模型 ✅ 完成（2026-09-09）
+
+`live-state.ts`（提示块，逐字移植 `live_state_mw.py:format_live_state_block`）+ `stm_get_state` 工具，
+两条都挂在 `mast-instrument-state` 这一行上。**356 条测试**。顺带结清 **spike 第 2 条**——它的触发点
+写的就是这一段。
+
+#### spike 2：问题问偏了半格
+
+原问题是「`systemPrompt.section()` 的动态内容是否逐请求进 session log」。答案是**两条路都进**，
+但 `ctx.systemPrompt` 上有**两个**机制，而我们要的是另一个：
+
+| | `section()` | `context()` |
+|---|---|---|
+| 是什么 | 系统提示的一段 | 文档原话 *"materialized as a **durable user-role snapshot**"* |
+| 落进会话的形状 | `system/message` 事件 | `form: 'snapshot'` 的用户角色消息，带按贡献者分开的 `sections` |
+
+结论不是照文档抄的，是读 `dsh-agent-loop` 里 `SystemPromptProjection` 与
+`createUserMessage({ source: { kind: 'plugin', form: 'snapshot', sections } })` 两段实现得到的。
+
+**最有意思的是两边独立撞到同一个结论**：旧仓 2026-07-28 那次审计发现，把每轮都变的读数追加在
+系统消息末尾，prompt cache 的断点正好打在那个末尾 ⇒ 断点落在**易变文本之后**，整段历史每轮全 miss，
+还要为一个永远不复用的前缀付写入溢价；修法是「系统消息逐字节不变，易变块改挂最后一条 human 消息」。
+上游把这条路做成了一等公民。⇒ **PLAN §3.1-5 备的 `agent/pre-step` 退路不用了**（不是退路不成立，
+是自己注入反而绕开了 `sections` 的贡献者归属）。
+
+#### 提示块：整段文本进金样，因为**措辞就是契约**
+
+`state.json` 多一节 `live_state`，7 条用例录的是真 Python 印出来的**整段文字**。这块存在的唯一
+理由是防量纲错（扫描框 100 nm 而模型要 1 米宽的扫描 = 10⁷ 倍），措辞抄错等于把 2026-07-27 坐标
+事故的成因放回去。满字段时正好 **12 行**，与 PLAN §7.2 的「≤12 行紧凑块」对上。
+
+一个必须逐字保留的例外：**偏压不走 `formatSi`**，走 `%g`。它天然在 1 附近，`formatSi` 会印成
+`-2000m`——正确但没法看。为此把 kernel 的 `formatG` 放出来（第二个消费者到了才导出）。
+
+#### 变红演练 ×3
+
+| 演练 | 结果 |
+|---|---|
+| 偏压改走 `formatSi` | ✅ 4 条红，diff 直接显示 `-2 V` vs `-2000m V` |
+| `context()` 换成 `section()` | ✅ 2 条红（我们那块再也不在 context assembly 里） |
+| 提示块在装载时定死一次，不每轮现取 | ✅ 2 条红 |
+
+另有一条第一次就红的：`ctx.registry.delete` 之后**同一 tick 断言工具已撤销**会失败——
+卸载是异步的（disposer 本身可以是异步的）。测试改成等一下再断言，并把这件事写进注释。
+
+#### `inject` 从一件变三件
+
+`['instrument', 'systemPrompt', 'tools']`。后两件也列进来是有意的：少了它们缓存照样转，
+但**模型再也看不到仪器读数**——那是个安静的安全回退，比「插件没装上」难发现得多。宁可整个不装。
+测试逐个摘掉三件依赖，确认每次都是「整个不装载」。
+
+#### ④验
+
+56 条单测（含对**真** `SystemPrompt` 装配一遍，验我们那块确实进 assembly 且每轮现取）、
+4 条集成测试对真 stmsim（`stm_get_state` 返回的块里有真读数与量级警告）、
+隔离 `DSH_HOME` 里 `dsh --profile mast-sim` 启动 5 秒后 monitor 端口仍有 ESTABLISHED 连接
+——多两个 `inject` 之后插件仍然装得上，这是真风险，所以重验了一次。
+
+#### 三件按消融精神推迟的，各有理由
+
+1. **投影 `mast.instrumentState` → 1.10（U0）**。dsh 的投影是「对已提交 session 事件的纯 fold」，
+   而 fold 折成什么形状（留最新一份？留全部？还是只留几个字段？）**完全取决于读它的那一方**，
+   那一方是 U0 的右栏卡。更关键的是：状态**已经**以带名字的 section 躺在 session 日志里了
+   （上面 spike 2 的结论），投影是读侧的便利，不是「让状态可回放」的机制。现在建等于猜。
+2. **`agent/session-start` 播种一次「仪器档案 + 针尖登记 + 当前模式」→ Phase 2**。那三样东西
+   现在一个都不存在。
+3. **「AUTO 档不注 mode」→ Phase 2**。没有 `OperatingMode` 服务，无档可判。
+
+#### 一个记下来的缺口：`stale` 不进提示块
+
+Python 的块里**没有** `stale`。链路断了的时候，模型看到的是 carry-forward 过来的旧值，
+而块里一个字都不提。这与 `stale` 存在的理由（别把陈值当活值）是矛盾的——但它是**模型可见的
+提示文本**，改动的影响只有评测能量出来，不该在移植段里顺手改。**照原样移植并记在这里**；
+真正该补的位置是 1.9 的看门狗/告警路径（Python 那侧断链也是走告警而不是改提示块）。
+
+---
+
 ## 3. Phase 1 · 仪器接缝（课时 1.1–1.10）
 
 完成判据（PLAN §11）：535 方法字节金样相等；三类故障行为与 Python 基线一致；`closeAll` 后 stmsim 端口可复用；看门狗在「Z 顶限撞针」场景 4 s 内退针；覆盖率 100%。
@@ -656,7 +733,7 @@ Python 自己的 `coerce_number` docstring 写着「逐处打补丁只会制造�
 | 1.6 | `dsh-spm-instrument` Service | 会话里 `stm_hello` 改成读 `Bias_Get` |
 | 1.7 ✅ | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ ~~`instrument-fake`~~（无消费者，推迟到 Phase 2） | `profiles/mast-sim` 装上后自动拉起模拟器 |
 | 1.8 ✅ | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`） | monitor 端口上有 1 Hz 轮询 |
-| 1.8b | 投影 `mast.instrumentState` + 提示段 `stm-live-state` + `stm_get_state` | 会话里问「现在偏压多少」 |
+| 1.8b ✅ | 提示块 `stm-live-state` + `stm_get_state`（投影 `mast.instrumentState` 推迟到 1.10，理由见课时记录） | 提示装配里有实时状态块 |
 | 1.9 | 看门狗 + `estop()` + `/estop` 命令 | stmsim 撞针场景 4 s 内退针 |
 | 1.10 | U0：SSE hub `/mast/events` + `ui-core` 右栏「仪器状态」卡 | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
 

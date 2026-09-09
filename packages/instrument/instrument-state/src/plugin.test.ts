@@ -4,8 +4,9 @@
  * 仪器用一个同名替身（Cordis 的服务注册表按**字符串名**索引，见 facts.md §6-17），
  * 因为这里要验的是「我们怎么调它」，不是它自己对不对。
  */
-import { Context, Service } from 'dsh-spm-compat'
+import { Context, Service, SystemPrompt, renderContextSections } from 'dsh-spm-compat'
 import { describe, expect, it } from 'vitest'
+import { LIVE_STATE_NAME } from './live-state.js'
 import { instrumentStateProvider } from './plugin.js'
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
@@ -38,6 +39,32 @@ class FakeInstrument extends Service {
   }
 }
 
+/** 工具注册表的替身：只记下注册了什么。真的那份要拖进整个 dsh-tools 运行时。 */
+class FakeTools extends Service {
+  readonly registered: { name: string; execute: (args: unknown) => Promise<unknown> }[] = []
+
+  constructor(ctx: Context) {
+    super(ctx, 'tools')
+  }
+
+  register(tool: unknown): () => void {
+    const t = tool as { name: string; execute: (args: unknown) => Promise<unknown> }
+    this.registered.push(t)
+    return () => void this.registered.splice(this.registered.indexOf(t), 1)
+  }
+}
+
+/**
+ * 把三个装载依赖都备齐。`systemPrompt` 用的是**真的那份**——它只是个注册表，没有 I/O，
+ * 而这段要验的正是「我们那块确实进了 assembly」，用替身等于验了个寂寞。
+ */
+function host(ctx: Context): { fake: FakeInstrument; tools: FakeTools } {
+  const fake = new FakeInstrument(ctx)
+  const tools = new FakeTools(ctx)
+  ctx.plugin(SystemPrompt, {})
+  return { fake, tools }
+}
+
 /** 等 `ctx.instrumentState` 挂上来；超时 = 没装载（`inject` 不满足时 Cordis 静默不装）。 */
 function stateOf(ctx: Context, timeoutMs = 2_000): Promise<Context['instrumentState']> {
   return new Promise((resolve, reject) => {
@@ -52,7 +79,7 @@ function stateOf(ctx: Context, timeoutMs = 2_000): Promise<Context['instrumentSt
 describe('ctx.instrumentState 的接线', () => {
   it('1 Hz 循环按周期跑，读到的值进快照', async () => {
     const ctx = new Context()
-    const fake = new FakeInstrument(ctx)
+    const { fake } = host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 20 })
     const svc = await stateOf(ctx)
 
@@ -69,7 +96,7 @@ describe('ctx.instrumentState 的接线', () => {
 
   it('每个读都走 monitor 角色且 countHealth:false —— 高频轮询不许洗掉别人的连败计数', async () => {
     const ctx = new Context()
-    const fake = new FakeInstrument(ctx)
+    const { fake } = host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 0 }) // 关掉自动刷新，手动跑一轮
     const svc = await stateOf(ctx)
 
@@ -84,7 +111,7 @@ describe('ctx.instrumentState 的接线', () => {
 
   it('插件卸载后循环停下——不然卸载完的 profile 还在每秒打仪器', async () => {
     const ctx = new Context()
-    const fake = new FakeInstrument(ctx)
+    const { fake } = host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 20 })
     await stateOf(ctx)
     await sleep(80)
@@ -105,7 +132,7 @@ describe('ctx.instrumentState 的接线', () => {
     process.on('unhandledRejection', onRej)
     try {
       const ctx = new Context()
-      const fake = new FakeInstrument(ctx)
+      const { fake } = host(ctx)
       fake.delayMs = 12
       ctx.plugin(instrumentStateProvider, { intervalMs: 5 })
       await stateOf(ctx)
@@ -124,15 +151,22 @@ describe('ctx.instrumentState 的接线', () => {
     }
   })
 
-  it('没有 ctx.instrument 时整个不装载——inject 是装载依赖，不是运行时检查', async () => {
-    const ctx = new Context()
-    ctx.plugin(instrumentStateProvider, { intervalMs: 20 })
-    await expect(stateOf(ctx, 300)).rejects.toThrow(/没挂上/)
+  it('三个装载依赖缺任何一个都整个不装载——不是装上以后安静地少做一半事', async () => {
+    // 少了 systemPrompt / tools 时缓存照样能转，但**模型再也看不到仪器读数**。
+    // 那是个安静的安全回退，比「插件没装上」难发现得多，所以宁可整个不装。
+    for (const missing of ['instrument', 'systemPrompt', 'tools'] as const) {
+      const ctx = new Context()
+      if (missing !== 'instrument') new FakeInstrument(ctx)
+      if (missing !== 'tools') new FakeTools(ctx)
+      if (missing !== 'systemPrompt') ctx.plugin(SystemPrompt, {})
+      ctx.plugin(instrumentStateProvider, { intervalMs: 20 })
+      await expect(stateOf(ctx, 300), `缺 ${missing} 时`).rejects.toThrow(/没挂上/)
+    }
   })
 
   it('applyPatch 立刻改快照并叫 onChanged——写技能不必等下一个 tick', async () => {
     const ctx = new Context()
-    new FakeInstrument(ctx)
+    host(ctx)
     ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
     const svc = await stateOf(ctx)
 
@@ -147,5 +181,86 @@ describe('ctx.instrumentState 的接线', () => {
     expect(seen).toEqual([true]) // 退订之后不再叫
     expect(svc.snapshot().scan_running).toBe(false) // 但 false 照样写进去了
     ctx.registry.delete(instrumentStateProvider)
+  })
+})
+
+describe('把状态送进模型的两条路', () => {
+  it('实时状态块进 assembly，名字与内容都对得上', async () => {
+    const ctx = new Context()
+    host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    const svc = await stateOf(ctx)
+    await svc.refresh()
+
+    const sections = renderContextSections(await ctx.systemPrompt.assemble())
+    const ours = sections.find((s) => s.name === LIVE_STATE_NAME)
+    expect(ours, `assembly 里没有 ${LIVE_STATE_NAME}`).toBeDefined()
+    expect(ours!.text).toContain('## Live instrument state')
+    expect(ours!.text).toContain('- Bias voltage: 1.5 V')
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
+  it('块的文本每次组装现取——不是装载那一刻定死的', async () => {
+    const ctx = new Context()
+    host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    const svc = await stateOf(ctx)
+
+    const textNow = async (): Promise<string> =>
+      renderContextSections(await ctx.systemPrompt.assemble()).find((s) => s.name === LIVE_STATE_NAME)
+        ?.text ?? ''
+
+    // 还没读过任何东西 ⇒ 空块 ⇒ dsh 那侧空文本的 context 不贡献任何 section
+    expect(await textNow()).toBe('')
+    await svc.refresh()
+    expect(await textNow()).toContain('- Bias voltage: 1.5 V')
+    svc.applyPatch({ bias_v: -0.75 })
+    expect(await textNow()).toContain('- Bias voltage: -0.75 V')
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
+  it('stm_get_state 注册进工具表，跑一次是真去读而不是回缓存', async () => {
+    const ctx = new Context()
+    const { fake, tools } = host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    await stateOf(ctx)
+
+    const tool = tools.registered.find((t) => t.name === 'stm_get_state')
+    expect(tool, '工具没注册').toBeDefined()
+
+    const before = fake.seen.length
+    const out = await tool!.execute({})
+    expect(fake.seen.length - before, '要真跑一轮 11 个读').toBe(11)
+    expect(out).toContain('## Live instrument state')
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
+  it('一个字段都读不出来时说的是「读不到」，不是「一切正常」', async () => {
+    const ctx = new Context()
+    const { fake, tools } = host(ctx)
+    fake.reply = {} // 所有动词都读不到
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    await stateOf(ctx)
+
+    const tool = tools.registered.find((t) => t.name === 'stm_get_state')!
+    expect(await tool.execute({})).toMatch(/读得出来|链路可能断了/)
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
+  it('插件卸载后提示块与工具都跟着撤——ctx.effect 的回滚', async () => {
+    const ctx = new Context()
+    const { tools } = host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    const svc = await stateOf(ctx)
+    await svc.refresh()
+    expect(tools.registered.map((t) => t.name)).toContain('stm_get_state')
+
+    ctx.registry.delete(instrumentStateProvider)
+    // 卸载是**异步**的：`registry.delete` 之后 disposer 排在后面跑（disposer 本身可以是
+    // 异步的）。同一 tick 断言会看到「还挂着」——第一版就这么红了一次。
+    await sleep(50)
+    expect(tools.registered).toHaveLength(0)
+    const sections = renderContextSections(await ctx.systemPrompt.assemble())
+    expect(sections.find((s) => s.name === LIVE_STATE_NAME)).toBeUndefined()
   })
 })

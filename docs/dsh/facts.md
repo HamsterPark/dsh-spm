@@ -142,7 +142,7 @@
 > 有结论的都钉成了 `packages/host/compat/src/spike.test.ts` 的断言，随每次升级重跑。
 
 1. `ctx.tools.guard(exec => …)` 的 `exec` 是否含工具名与参数。
-2. `ctx.systemPrompt.section()` 的动态内容是否逐请求记入 session log。
+2. ~~`ctx.systemPrompt.section()` 的动态内容是否逐请求记入 session log。~~ **✅ 2026-09-09 课时 1.8b 结清（问题问偏了半格）**：两条路都进日志，但易变内容该走的是 **`context()`** 而不是 `section()`——前者的文档原话是 "materialized as a **durable user-role snapshot**"，落成 `form: 'snapshot'` 的用户角色消息并带按贡献者分开的 `sections`。`section()` 走 `system/message` 事件，把每轮都变的读数塞进系统提示会让 prompt cache 的断点落在易变文本之后（旧仓 2026-07-28 审计买过这个教训）。⇒ PLAN §3.1-5 备的 `agent/pre-step` 退路不用了。详见 `spike.md` §2。
 3. `cordis.patch.yml` 是否有 `remove`/`replace`，还是只能同 id 覆盖。
 4. replay 模式下工具执行是否被短路；`exec` 上有什么标志可判。
 5. ~~`parameters` 是否透传 `minimum/maximum`。~~ **✅ 2026-09-08 课时 0.3 结清（结论比原设想更强）**：不但不透传，而且**在 `defineTool` 构造期直接抛** `JsonSchemaError: unsupported JSON schema: parameters.n.minimum is not supported by the value schema DSL`。⇒「范围写进 description」不是可选变通而是唯一写法，且写错了当场炸，不会变成「模型永远看不见这个范围」的静默缺陷。契约测试 `packages/host/compat/contract/pin.test.ts` 钉住了它；哪天 dsh 支持了那条会红，届时同步改 PLAN §8.2 的 schema 生成。

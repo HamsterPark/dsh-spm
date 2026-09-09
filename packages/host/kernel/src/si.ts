@@ -46,8 +46,11 @@ function pyRepr(v: unknown): string {
 }
 
 /** Python 的 `%.{digits}g`。JS 没有等价物：`toPrecision` 留尾零，且切换成指数形式的
- *  阈值也不同（JS 是 exp < -6，Python 是 exp < -4）。 */
-function formatG(v: number, digits: number): string {
+ *  阈值也不同（JS 是 exp < -6，Python 是 exp < -4）。
+ *
+ *  2026-09-09 起对外：课时 1.8b 的实时状态提示块要用 `{bias_v:g}` 印偏压——
+ *  它天然在 1 附近，`formatSi` 会印成 `-2000m`，正确但没法看。 */
+export function formatG(v: number, digits: number): string {
   if (Number.isNaN(v)) return 'nan'
   if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf'
   if (v === 0) return '0'
