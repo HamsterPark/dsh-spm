@@ -31,11 +31,11 @@
 **Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
-**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机，金样逐步对齐）。
-**下一段 = 课时 1.6（`dsh-spm-instrument` Service）。**
+**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）。
+**下一段 = 课时 1.7（`instrument-stmsim` / `instrument-fake` provider）。**
 
-仓库现状：5 个工作区包（root / compat / kernel / **nanonis-wire** / bundle），
-**270 条单测 + 4 条 stmsim 集成测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+仓库现状：6 个工作区包（root / compat / kernel / nanonis-wire / **instrument** / bundle），
+**283 条单测 + 4 条 stmsim 集成测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -455,6 +455,49 @@ const _propsSetShape: PropsSetIsDisambiguated = true
 
 **变红演练**：把连击窗口的 `>` 改成 `>=` ⇒ 1 条红；把冷却的 `>=` 改成 `>` ⇒ **4 条红**。
 两个都是单字符改动，两个都被抓住。
+
+### 课时 1.6 —— `ctx.instrument` Cordis Service ✅ 完成（2026-09-09）
+
+新包 `packages/instrument/instrument`（243 行）：四角色连接池 + **一个共用**熔断器 + 类型化门面。
+本文件只做**接线**——1.4 的 `RoleLink`、1.5 的熔断、1.3 的门面各司其职。283 条测试。
+看门狗与急停在 1.9，stmsim/fake provider 在 1.7（所以本段**没有**把服务接进 bundle）。
+
+#### 前置：`facts.md` §6-17 那条警告到期了，实测**不成立**
+
+开发态 `link:` 下我们与 dsh 各持一份 cordis 模块实例，本来担心 Cordis `Service` 的类身份会被咬到。
+探针（临时给 compat 导出 `Service`、在 bundle 里定义一个 `ProbeService`、装进真 0.1.5 profile 启动）：
+`ctx.plugin` 不抛 · `ctx.inject` 拿得到并能调方法 · `instanceof` 为真 · 进程正常存活。
+
+**真实原因是读源码查出来的，不是我最初猜的那个**：① 服务注册表按**字符串名**索引；
+② **Cordis 自己重写了 `static [Symbol.hasInstance]`**，`instanceof` 走它的自定义判定，本来就不比较类对象。
+仍要小心的是相反方向：拿 **dsh 构造的**对象去 `instanceof` **我们这份**类。目前没有这种用法，将来要判类型用 duck typing。
+
+#### 接线时踩到的三件事，每件都是测试先红
+
+1. **仪器拒绝的回复里没有返回字段**。我原来无条件 `decodeReturns(body, returns)`，而被拒绝的 body
+   **只有错误段**——那样会把错误段的头 4 个字节当成一个 float 读走。
+   1.2 建的长度恒等式正是为这个而存在，却没接对。修法：新增 `errorOnlyBody(body): ErrorSection | null`
+   （不抛，「是不是」是个问题不是异常），**先问它再解返回字段**。
+2. **`ctx.someService` 拿到的是按上下文包的代理，不是原实例**。第一版断言写的 `toBe(svc)`，
+   测试**超时 5 秒才失败**，看着像「服务根本没挂上」。正确的判法是断行为（`name`/方法可调），不是引用相等。
+3. **`declare module '@deepseek-ai/cordis'` 触发了防腐层边界测试**。它是类型层增补、不产生任何运行时
+   import，而那条规则防的是**运行时耦合散落各处** ⇒ 在边界测试里写明这个区分，并给 instrument 包
+   加 cordis 的 peer/dev 依赖（只为让 TS 解析得到被增补的模块）。
+
+#### 熔断记账的三条规则（本段真正的判据）
+
+| 情形 | 记什么 | 为什么 |
+|---|---|---|
+| 仪器回错误段（`NeedModule` 等） | **成功** | 一次完整往返 = 链路是好的（1.5 的 app-error 规则，1.4 已在真 stmsim 上证实过这个形状） |
+| `RoleBusy` | **不记** | 「现在有人在用」不是链路坏了。记了的话**一次并发争抢就能熔断整条链路** |
+| `Timeout` / `EmptyReply` / `WrongEcho` / `SocketError` | 失败 | 真正的 TCP 级故障 |
+
+另外 `countHealth: false`（1 Hz 状态缓存、20 Hz 示波器这类高频只读）整个不进记账。
+
+**急停 `urgentCall` 绕过熔断**：走 `emergency` 角色、只等 2 秒锁。熔断的意义是别对着死链路磕头，
+但退针值得**试一次**——试一次的代价是 5 秒，不试的代价是针还扎在样品上。
+
+**变红演练**：让 `RoleBusy` 也记熔断 ⇒ 1 条红。另外第 1 条（error-only）本身就是测试先红逼出来的。
 
 ---
 

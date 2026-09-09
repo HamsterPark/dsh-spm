@@ -18,8 +18,10 @@ describe('防腐层边界', () => {
   // PLAN §6.1-2、§3.1-1：dsh 一天一版且预告破坏性重构，全仓只许一个包认识
   // @deepseek-ai/*。这条最终要变成 oxlint no-restricted-imports，现在先用测试兜住。
   //
-  // 只匹配**真的 import**，不匹配字符串字面量——bundle 里读
-  // peerDependencies['@deepseek-ai/dsh-tools'] 是合法的，它不制造编译期耦合。
+  // 只匹配**真的 import**，不匹配：
+  //   - 字符串字面量（bundle 读 peerDependencies['@deepseek-ai/dsh-tools']）
+  //   - `declare module '@deepseek-ai/cordis'` 的类型层增补（1.6 的 ctx.instrument 要它）。
+  // 后者不产生任何运行时 import，而这条规则防的是**运行时耦合**散落各处。
   const importsDsh = /(?:^|\n)\s*(?:import|export)[^\n]*?from\s*['"]@deepseek-ai\/|require\(\s*['"]@deepseek-ai\//
   const contractDirs = /[\\/]contract[\\/]/
 

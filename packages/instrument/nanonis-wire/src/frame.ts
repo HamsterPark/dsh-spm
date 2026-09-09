@@ -96,20 +96,36 @@ export interface ErrorSection {
  * MAST 依赖这条）。不用它的话，一个声明多了字段的方法会把自己的解码失败误报成
  * 仪器错误，然后我们去查一台没问题的仪器。
  */
+/**
+ * body 是不是**只有错误段**（仪器拒绝了这条命令，没有任何返回字段）。
+ *
+ * 判据就是长度恒等式 `len === 8 + desc_len`。**调用方必须先问这个再去解返回字段**——
+ * 一条被拒绝的回复里没有声明的返回字段，拿 `returns` 去解它只会把错误段的头 4 个字节
+ * 当成一个 float 读走（2026-09-09 课时 1.6 接线时真踩到，测试当场红）。
+ *
+ * 不是 error-only 就返回 `null`，不抛——「是不是」是个问题，不是个异常。
+ */
+export function errorOnlyBody(body: Uint8Array): ErrorSection | null {
+  if (body.length < ERROR_HEADER_LEN) return null
+  const view = new DataView(body.buffer, body.byteOffset, body.byteLength)
+  const status = view.getInt32(0, false)
+  const descLen = view.getInt32(4, false)
+  if (descLen < 0 || body.length !== ERROR_HEADER_LEN + descLen) return null
+  return {
+    status,
+    description: new TextDecoder().decode(body.subarray(ERROR_HEADER_LEN)),
+    errorOnly: true,
+  }
+}
+
 export function parseErrorSection(body: Uint8Array): ErrorSection {
   if (body.length < ERROR_HEADER_LEN) {
     throw new WireFrameError(`回复 body 只有 ${body.length} 字节，放不下 ${ERROR_HEADER_LEN} 字节的错误段`)
   }
   const view = new DataView(body.buffer, body.byteOffset, body.byteLength)
-  const status = view.getInt32(0, false)
   const descLen = view.getInt32(4, false)
-  if (descLen >= 0 && body.length === ERROR_HEADER_LEN + descLen) {
-    return {
-      status,
-      description: new TextDecoder().decode(body.subarray(ERROR_HEADER_LEN)),
-      errorOnly: true,
-    }
-  }
+  const errOnly = errorOnlyBody(body)
+  if (errOnly !== null) return errOnly
   // 不满足恒等式 ⇒ 前面还有声明的返回字段，错误段贴在 body **末尾**而不是开头。
   // 尾部起点要由类型码表算出（课时 1.2b），帧层拿不到那个信息，所以说清楚而不是猜。
   throw new WireFrameError(

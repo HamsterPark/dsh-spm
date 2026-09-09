@@ -121,8 +121,17 @@
     探针实测：运行时我们的 compat 把 `@deepseek-ai/dsh-tools` 解析到了**本仓** `node_modules` 里那份，
     而不是 profile 的那份 ⇒ **一个进程里同时活着两份 dsh-tools 模块实例**（今天两份都是 `0.1.2-rc.1`，所以没出事）。
     - **为什么现在没炸**：`defineTool` 是纯工厂，返回普通对象，跨实例无所谓；`ctx.tools.register` 收的也是普通对象。
-    - **什么时候会炸**：任何依赖**模块身份**的东西——`instanceof`、模块级单例、**Cordis `Service` 类的类身份**。
-      课时 1.6 要定义 `ctx.instrument` Service（PLAN §7.1），那是第一个真正会撞上这条的地方，届时必须先验。
+    - **~~什么时候会炸~~ ✅ 2026-09-09 课时 1.6 开工前实测：Cordis `Service` 不受影响。**
+      探针（临时给 compat 导出 `Service`、在 bundle 里定义一个 `ProbeService`，装进真 0.1.5 profile 启动）：
+      `ctx.plugin(ProbeService)` 不抛 · `ctx.inject(['stmProbe'], cb)` 拿得到实例并能调方法 ·
+      `instanceof` 我们那份 `Service` **为真** · 进程正常存活。
+      **原因（读 `cordis/lib/types/service.d.ts` 查实，不是我最初猜的「原型链自然对得上」）**：
+      ① 服务注册表按**字符串名**索引，不靠类身份；
+      ② **Cordis 自己重写了 `static [Symbol.hasInstance]`** ——`instanceof` 走的是它的自定义判定，
+      本来就不比较类对象。⇒ 用两份 cordis 实例定义 Service 是安全的。
+    - **仍要小心的方向**（未验，与上面相反）：拿**dsh 构造出来的**对象去 `instanceof` **我们这份**类
+      （或反过来），那才是跨实例真会假的场景。我们目前没有这种用法；将来若要判定 dsh 传进来的对象类型，
+      改用 duck typing 或它自带的 kind 字段，别用 `instanceof`。
     - **发布到 npm 后不是这样**：那条路径上 profile 的 pnpm 会真的解析我们的依赖、执行 peer 精确钉，只剩一份实例。
       也就是说**我们的开发回路与用户的安装回路走的是两条不同的解析路径**——同 §1 那条「npx 缓存是冻结快照」一个教训：
       本地跑着没事不代表别人装了没事。⇒ Phase 0 结束前至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟。
