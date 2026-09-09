@@ -14,6 +14,12 @@ import { ERROR_HEADER_LEN, WireFrameError } from './frame.js'
 const SCALAR_SIZE: Readonly<Record<string, number>> = { H: 2, h: 2, I: 4, i: 4, f: 4, d: 8, b: 1, B: 1 }
 const INT_FMTS = new Set(['H', 'h', 'I', 'i', 'b', 'B'])
 
+/** 一个待编码的请求参数：值 + 它的格式码。生成层与传输层共用这个形状。 */
+export interface ArgValue {
+  readonly value: unknown
+  readonly fmt: string
+}
+
 export class WireTypeError extends Error {
   override readonly name = 'WireTypeError'
 }
@@ -91,7 +97,7 @@ export function encodeArg(value: unknown, fmt: string): Uint8Array {
   return Uint8Array.from(out)
 }
 
-export function encodeArgs(args: readonly { value: unknown; fmt: string }[]): Uint8Array {
+export function encodeArgs(args: readonly ArgValue[]): Uint8Array {
   const parts = args.map((a) => encodeArg(a.value, a.fmt))
   const total = parts.reduce((n, p) => n + p.length, 0)
   const out = new Uint8Array(total)

@@ -31,11 +31,12 @@
 **Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
-**下一段 = 课时 1.3（`gen-nanonis.ts` 代码生成 → `generated/methods.ts`）。**
+**1.3 ✅**（协议代码生成：671 个方法的类型化门面）。**下一段 = 课时 1.4（`RoleLink` TCP 客户端）。**
 
 仓库现状：5 个工作区包（root / compat / kernel / **nanonis-wire** / bundle），
-**232 条测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
-golden 已入仓（515 技能 + 146 SI 用例 + 15 条帧金样 + 36 条类型码金样，重跑逐字节相同）。
+**240 条测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+golden 已入仓（515 技能 + 146 SI 用例 + 15 条帧金样 + 36 条类型码金样，重跑逐字节相同）；
+Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
 可覆盖时一起落——此刻 kernel 只有 `si.ts`，而它已被 146 条金样打满。spike 剩下五条各有触发点（见 `dsh/spike.md`）。
@@ -327,6 +328,53 @@ hand-computes byte totals"）。教训：金样里凡是"由别的字段推导�
 我们直接抛，把"跟客户端还是跟仪器"这个问题留在原地，不替未来的人做错决定。
 
 **变红演练**：`*+c` 的计数来源改成前两个字段 ⇒ 1 条红。
+
+### 课时 1.3 —— 协议代码生成 ✅ 完成（2026-09-09）
+
+`scripts/gen-nanonis.ts`（172 行手写）从 `spec/nanonis/nanonis_commands.json` 生成
+`nanonis-wire/src/generated/methods.ts`（**1391 行，671 个方法**）：规格表 `NANONIS_METHODS`、
+类型化门面 `NanonisFacade`、`createFacade(call)`。240 条测试。
+
+**协议表拷进了 `spec/nanonis/`**（PLAN §6.2 本来就这么规定）。理由不只是自足：生成器要在 CI 上跑
+「重生成无 diff」，而 CI 上没有 STM-Bench；拷进来还让「协议表变了」成为本仓的一次 diff，
+而不是别人机器上的一次静默变化。来源与四条读表须知写在 `spec/nanonis/README.md`。
+
+**读这张表踩到的三个坑**（都写进那份 README 了）：
+
+1. **`params` 不可信，用 `args`**。`Osci1T_TrigGet` 声明 6 个 params 但只有 4 个 args；
+   `Osci2T_ChsSet` 的 params 整个是 `undefined`。STM-Bench 自己的 `wire/spec.py` 也完全不读 params。
+2. **两个 alias**（`Osci2T_ChGet`/`ChSet`）的 `args`/`returns`/`command` 全是 `null`，必须先解引用。
+3. **`c` 的二义不在表里**。消歧表硬编码在 STM-Bench 的 `wire/spec.py::ARRAY_STRING_ARGS`，只有两条，
+   键是 wire 命令名、值是**参数下标**。`Scan.PropsSet` 三个参数格式串都是 `+*c`，只有下标 5
+   （`Modules_names`）是字符串数组，3/4（`Series_name`/`Comment`）是普通字符串。生成器里有一份副本，**改了要两边一起改**。
+
+**本段最有价值的一条来自一次失败的变红演练。**
+
+演练 1（手改生成物）⇒ 红，符合预期。
+**演练 2（把消歧表下标 5 改成 4）⇒ 全绿。** 我的测试没能抓住它。
+
+原因：消歧只改变生成的 **TS 类型**（`Comment: string[]` 而 `Modules_names: string`），
+`args` 的名字、格式串、编码路径一个都没变——**运行期结构完全一样，vitest 看不见**。
+而写错的后果很实在：调用方给 `Comment` 传数组，编出的字节完全不同，服务端解出垃圾。
+
+修法是把断言放到**类型层**，让 `tsc -b` 来抓：
+
+```ts
+type PropsSetIsDisambiguated =
+  NanonisFacade['Scan_PropsSet'] extends
+    (…, series: string, comment: string, modules: string[], …) => Promise<[]> ? true : never
+const _propsSetShape: PropsSetIsDisambiguated = true
+```
+
+重做演练 2 ⇒ `error TS2322: Type 'true' is not assignable to type 'never'`。
+
+**一般化的教训**：凡是「只体现在类型上、运行期看不出差别」的事实（消歧、单位、可空性、字面量联合），
+运行期测试天然抓不住，必须写成类型层断言。这类断言只在 `pnpm build` 里红，**所以验收命令必须包含 build，
+光跑 test 是不够的**——这也是为什么每段的验收一直是 install/build/test 三条而不是一条。
+
+**Result 包装留给上层**：生成的 `NanonisCall` 只声明「命令 + 参数 + 返回格式 → `Promise<unknown[]>`」，
+**不规定失败怎么表达**。抛还是包成 `Result`（PLAN §7.1 的「不抛」约定）是传输层（1.4）与仪器服务（1.6）的策略，
+生成层只负责把类型对上。TS 没有高阶类型，硬要在生成层泛化返回包装只会把 671 个签名弄得没法读。
 
 ---
 
