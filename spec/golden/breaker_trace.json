@@ -1,0 +1,648 @@
+{
+  "app_error_is_success": [
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t1",
+      "op": [
+        "fail",
+        "t1"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t2",
+      "op": [
+        "fail",
+        "t2"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "success"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 0,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "fail",
+        "t3"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t4",
+      "op": [
+        "fail",
+        "t4"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "success"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 0,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "closed",
+      "streak": 0,
+      "t": 0.0,
+      "tripped_total": 0
+    }
+  ],
+  "many_failures_inside_one_cooldown": [
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "1",
+      "op": [
+        "fail",
+        "1"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "2",
+      "op": [
+        "fail",
+        "2"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "3",
+      "op": [
+        "fail",
+        "3"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 0.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 15.0,
+      "last_reason": "3",
+      "op": [
+        "at",
+        5.0
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 5.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "4",
+      "op": [
+        "fail",
+        "4"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 4,
+      "t": 5.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 15.0,
+      "last_reason": "4",
+      "op": [
+        "at",
+        10.0
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 4,
+      "t": 10.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "5",
+      "op": [
+        "fail",
+        "5"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 5,
+      "t": 10.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "5",
+      "op": [
+        "at",
+        31.0
+      ],
+      "result": null,
+      "state": "half_open",
+      "streak": 5,
+      "t": 31.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "5",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "half_open",
+      "streak": 5,
+      "t": 31.0,
+      "tripped_total": 1
+    }
+  ],
+  "probe_fails_rearms_full_cooldown": [
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "a",
+      "op": [
+        "fail",
+        "a"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "b",
+      "op": [
+        "fail",
+        "b"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "c",
+      "op": [
+        "fail",
+        "c"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 0.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "c",
+      "op": [
+        "at",
+        25.0
+      ],
+      "result": null,
+      "state": "half_open",
+      "streak": 3,
+      "t": 25.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "c",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "half_open",
+      "streak": 3,
+      "t": 25.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "still down",
+      "op": [
+        "fail",
+        "still down"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 4,
+      "t": 25.0,
+      "tripped_total": 2
+    },
+    {
+      "cooldown_remaining_s": 15.0,
+      "last_reason": "still down",
+      "op": [
+        "at",
+        30.0
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 4,
+      "t": 30.0,
+      "tripped_total": 2
+    },
+    {
+      "cooldown_remaining_s": 15.0,
+      "last_reason": "still down",
+      "op": [
+        "allow"
+      ],
+      "result": false,
+      "state": "open",
+      "streak": 4,
+      "t": 30.0,
+      "tripped_total": 2
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "still down",
+      "op": [
+        "at",
+        45.0
+      ],
+      "result": null,
+      "state": "half_open",
+      "streak": 4,
+      "t": 45.0,
+      "tripped_total": 2
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "still down",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "half_open",
+      "streak": 4,
+      "t": 45.0,
+      "tripped_total": 2
+    }
+  ],
+  "streak_window_boundary": [
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "x",
+      "op": [
+        "fail",
+        "x"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "y",
+      "op": [
+        "fail",
+        "y"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "y",
+      "op": [
+        "at",
+        30.0
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 30.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "exactly at window",
+      "op": [
+        "fail",
+        "exactly at window"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 30.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "success"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 0,
+      "t": 30.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "x",
+      "op": [
+        "fail",
+        "x"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 30.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "y",
+      "op": [
+        "fail",
+        "y"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 30.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "y",
+      "op": [
+        "at",
+        60.000001
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 60.000001,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "just past window",
+      "op": [
+        "fail",
+        "just past window"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 60.000001,
+      "tripped_total": 1
+    }
+  ],
+  "threshold_one": [
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "boom",
+      "op": [
+        "fail",
+        "boom"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "boom",
+      "op": [
+        "allow"
+      ],
+      "result": false,
+      "state": "open",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "boom",
+      "op": [
+        "at",
+        20.0
+      ],
+      "result": null,
+      "state": "half_open",
+      "streak": 1,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "boom",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "half_open",
+      "streak": 1,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "success"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 0,
+      "t": 20.0,
+      "tripped_total": 1
+    }
+  ],
+  "trip_and_recover": [
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t1",
+      "op": [
+        "fail",
+        "t1"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 1,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t2",
+      "op": [
+        "fail",
+        "t2"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 2,
+      "t": 0.0,
+      "tripped_total": 0
+    },
+    {
+      "cooldown_remaining_s": 20.0,
+      "last_reason": "t3",
+      "op": [
+        "fail",
+        "t3"
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 0.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "at",
+        19.999
+      ],
+      "result": null,
+      "state": "open",
+      "streak": 3,
+      "t": 19.999,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "allow"
+      ],
+      "result": false,
+      "state": "open",
+      "streak": 3,
+      "t": 19.999,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "at",
+        20.0
+      ],
+      "result": null,
+      "state": "half_open",
+      "streak": 3,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "half_open",
+      "streak": 3,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "t3",
+      "op": [
+        "allow"
+      ],
+      "result": false,
+      "state": "half_open",
+      "streak": 3,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "success"
+      ],
+      "result": null,
+      "state": "closed",
+      "streak": 0,
+      "t": 20.0,
+      "tripped_total": 1
+    },
+    {
+      "cooldown_remaining_s": 0.0,
+      "last_reason": "",
+      "op": [
+        "allow"
+      ],
+      "result": true,
+      "state": "closed",
+      "streak": 0,
+      "t": 20.0,
+      "tripped_total": 1
+    }
+  ]
+}

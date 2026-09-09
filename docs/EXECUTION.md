@@ -31,12 +31,12 @@
 **Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7**——它要配的仪器端口那时才存在。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
 **2026-09-09：dsh 升到 `0.1.5-alpha.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
-**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink` TCP 客户端，对真 stmsim 验过）。
-**下一段 = 课时 1.5（`comms-breaker` 熔断状态机）。**
+**1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机，金样逐步对齐）。
+**下一段 = 课时 1.6（`dsh-spm-instrument` Service）。**
 
 仓库现状：5 个工作区包（root / compat / kernel / **nanonis-wire** / bundle），
-**251 条单测 + 4 条 stmsim 集成测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
-golden 已入仓（515 技能 + 146 SI 用例 + 15 条帧金样 + 36 条类型码金样，重跑逐字节相同）；
+**270 条单测 + 4 条 stmsim 集成测试**，`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-alpha.1`**。
+golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
@@ -415,6 +415,46 @@ const _propsSetShape: PropsSetIsDisambiguated = true
 - **类型化门面走通全链**：`typed.Bias_Set(0.25)` → `typed.Bias_Get()` 读回 0.25（float32 往返，`toBeCloseTo`）
 - 优雅关闭后**端口立刻可复用**
 - 模拟器没实现的动词回的是**错误段而非断链**，连接还活着——这条直接决定 1.5 的熔断怎么记账
+
+### 课时 1.5 —— 通信熔断状态机 ✅ 完成（2026-09-09）
+
+`kernel/src/comms-breaker.ts`（162 行）：注入时钟的纯状态机，零 I/O、零 dsh，**四个角色共用一个实例**。
+270 条单测。放 kernel 不放 nanonis-wire——它是判据不是传输（PLAN §6.1-2）。
+
+**为什么存在**（旧仓 docstring 里的现场记录，trace 5305868e s82–130）：链路断掉时每次硬件读写**各自**
+超时 5 秒才放弃。那次追踪里 GetBias → GetCurrent → GetZPosition → SetBias → ZControllerOnOff 逐个抛
+`TimeoutError`——**十九次各约 5 秒的停顿**，约 90 秒里操作员只能看着系统对着一个死 socket 磕头。
+更糟的是反复强连重连会**把脆弱的 Nanonis 端口撞到要重启 Nanonis 才能恢复**。
+
+熔断器**自己从不发命令**，只决定「一次调用能不能被尝试」。链路死了的时候快速失败严格优于每条挂 5 秒
+——停机/退针命令本来也到不了一台不答 TCP 的 Nanonis。
+
+**参数**：3 次连续失败开闸 · 20 秒冷却 · 30 秒连击窗口（超窗的旧失败不算「连续」，慢速滴漏永远不触发）。
+**状态是推导的不是存的**——存一份就多一处可能与 `streak`/`openUntil` 不一致。
+
+**只观察 TCP 级失败**。`recordSuccess` 的含义是「一次往返完成了」，**哪怕 Nanonis 回的是应用错误串**：
+那说明链路是好的，只是仪器说「这个模块没加载」。1.4 的集成测试已经把这条证实过——
+调 stmsim 没实现的动词，回的是错误段而**连接还活着**。所以 1.6 接线时按 `RoleLinkError.kind` 分流：
+`Timeout`/`EmptyReply`/`WrongEcho`/`SocketError` 记失败，仪器自己的错误段记**成功**。
+
+**测试分两层，第二层是本段的关键**：
+
+1. **旧仓 7 条 pytest 断言原样移植**（PLAN §12），同名同顺序，好逐条对。那份文件后半 4 条是
+   `ConnectionPool.safe_call` 接线，属于 1.6。
+2. **金样逐步比对**（`tools/spec-export/export_breaker_trace.py`）：驱动**旧仓真实实现**跑 6 条脚本
+   共 50 步，每步录 `allow()` 结果与完整快照，TS 跑同一条脚本逐步对。
+
+第二层为什么必要：**那 7 条是我手抄的，抄错了没人知道**；而且它们覆盖不到两个差一个等号的边界。
+金样把边界钉死了：
+
+- 连击窗口 **恰好 30 秒仍算连续**（`30 > 30` 为假）；60.000001 才重起
+- 冷却 **恰好 20 秒已是 HALF_OPEN**（`>=` 不是 `>`）
+
+顺带照出一个不显然的细节：t=19.999 时状态还是 OPEN，但快照里的 `cooldownRemainingS` 四舍五入成 **0**
+——读快照的人不能拿它判断是否熔断，要看 `state`。
+
+**变红演练**：把连击窗口的 `>` 改成 `>=` ⇒ 1 条红；把冷却的 `>=` 改成 `>` ⇒ **4 条红**。
+两个都是单字符改动，两个都被抓住。
 
 ---
 
