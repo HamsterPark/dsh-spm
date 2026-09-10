@@ -50,8 +50,17 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 新登记 D-REC-1…4）。
 · **2.14 ✅**（变异框架 17 条闸全红 + `_Probe` 真调度链会话测试；顺带补上 guard 拒绝的留痕）。
 · **2.15 ◐**（轨迹金样 253 条 + `tip_park` 网格金样 26 条 + spec 生成器；**已移植 69/72**，
-新登记 D-SKILL-1…3；变异清单增至 25 条，全红）。
-**下一段 = 2.15 收尾的五个**，每个都卡在一件缺失的支撑件上：
+新登记 D-SKILL-1…3；变异清单增至 27 条，全红；**批 2 的五条 e2e 判据全部落地**）。
+**批 2 的五条完成判据**（PLAN §8.4）已全部写成 `stm-skills/contract/batch2-criteria.test.ts`：
+中止两层 · 锁争用不排队 · 蜜罐 `setpoint_a=1.5` · `ZControllerOnOff(true)` 后立刻 `MoveToXY`
+过前置 · 硬闸七件套对 `llm` 一律拒**且七次都留痕**。
+
+途中修了两处真缺陷：K2 的文案承诺了一个不该在那一层的豁免、并假定是人按的停
+（真机 2026-08-13 的教训）；`stm-safety` 的中止闸把**按动词索引**的
+`ABORT_SAFE_WRITES` 用在了**工具名**上 —— 两套命名空间，于是「有豁免」只是注释里的一句话。
+动词那一层现在在 `gatedSafeCall()`。
+
+**下一段 = 2.15 收尾的三个**，每个都卡在一件缺失的支撑件上：
 
 | 技能 | 缺的是 |
 |---|---|
@@ -67,7 +76,7 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1261 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1275 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 

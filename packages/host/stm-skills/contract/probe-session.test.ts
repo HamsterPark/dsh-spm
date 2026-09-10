@@ -80,7 +80,7 @@ describe('_Probe 在真实调度链上走一趟', () => {
     expect(r.isError).toBe(false)
     const [row] = rows()
     expect(row?.status).toBe('failed')
-    expect(row?.error).toContain('中止已闩上')
+    expect(row?.error).toContain('本次运行处于中止状态')
   })
 
   it('**dsh 侧的 guard 拒绝时，内核根本没被调用** —— 记录只能由拒绝方自己补', async () => {

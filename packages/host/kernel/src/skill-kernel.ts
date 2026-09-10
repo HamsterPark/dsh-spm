@@ -165,6 +165,11 @@ export interface KernelDeps {
   readonly effectiveSpec?: ((spec: SkillSpec) => SkillSpec) | undefined
   /** 中止闩上了吗（K2）。 */
   readonly abortLatched?: (() => boolean) | undefined
+  /**
+   * 为什么中止的。**读不到就是读不到** —— 编一个「用户已中止」出来，
+   * 会把人送去翻自己的操作记录，而真正的原因在服务日志的 CRITICAL 行里。
+   */
+  readonly abortReason?: (() => string | null | undefined) | undefined
   /** 样品闸（K3）：返回拒绝文案或 `null`。 */
   readonly sampleGate?: ((spec: SkillSpec) => string | null) | undefined
   /** 安全闸（K7）：返回拒绝文案或 `null`。 */
@@ -301,12 +306,39 @@ export class SkillKernel {
     }
 
     // ── K2 中止闩 ──
+    //
+    // 这一层**一律拒**，没有豁免。豁免在**动词那一层**（`ABORT_SAFE_WRITES`）：
+    // 闩上之后 `ZCtrl_Withdraw` / `Scan_Action(1,…)` 仍然发得出去，
+    // 但那是给**已经在跑的技能**和**不经模型的急停路径**用的，
+    // 不是给模型再起一个新技能用的。两层管的是两件事：
+    // 这里管「别开新的」，那里管「正在做的收得了尾」。
     if (this.deps.abortLatched?.() === true) {
+      // **不许替它编原因。** 停的来源有四个，**大多数不是人**：急停按钮、
+      // E_STOP 事件钩子、环境告警、会话自己的停止。
+      //
+      // 从前这里对四种一律印「用户已中止本次运行」。真机 2026-08-13：
+      // 环境监控把一次「读不到」判成硬故障、退了针并挂上急停闩，而每一次调用
+      // 都在告诉用户**是他停的** —— 他没有。于是他去翻自己的操作记录，
+      // 而不是去看那一行环境告警。
+      let why = ''
+      try {
+        why = String(this.deps.abortReason?.() ?? '')
+      } catch {
+        why = ''
+      }
+      const who =
+        why !== ''
+          ? `中止原因:${why}`
+          : '**没有留下中止原因** —— 别假定是人停的:急停、E_STOP 事件、' +
+            '环境告警都会置这个状态。去看服务日志里最近的 CRITICAL 行。'
       return finish({
         kind: 'refused',
         code: 'abort_latched',
         signature: 'abort_latched',
-        text: `[${spec.name}] 中止已闩上——只有退针与停扫还能发。要继续请先解闩。`,
+        text:
+          `[${spec.name}] aborted: 本次运行处于中止状态——拒绝执行新的仪器动作。${who}` +
+          ' STOP now: do not retry, do not call another tool; report that' +
+          ' the run was aborted.',
         concludeTurn: true,
       })
     }

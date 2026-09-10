@@ -32,7 +32,6 @@ import {
   approvalDigest,
   isCoarseSampleApproach,
   isProtectionDisable,
-  isAbortSafe,
   isUnguardedLateralCoarseMove,
   modeRefusal,
   physicallyAbsurdViolations,
@@ -141,26 +140,25 @@ export class StmSafetyService extends Service {
       this.recordsSvc = c.stmRecords
     })
 
-    // ①b 中止闩：闩上之后除**中止安全**的动作外一律拒。
+    // ①b 中止闩：闩上之后**一律拒**，没有豁免。
     //
-    // 这一层是**纵深防御**，不是唯一防线——内核 K2 独立地拒同一批调用。
-    // 两层都要的理由：闩上之后，一次「本该被拒」的写有两条到达硬件的路
-    // （模型的工具调用、以及 composite 的子步），而这一层只看得见前者。
+    // ⚠️ 2.15 修：这里原来写的是「除中止安全的动作外一律拒」，判据用的是
+    // `isAbortSafe(exec.name, …)`。而 `ABORT_SAFE_WRITES` 是按 **Nanonis 动词**
+    // 索引的（`ZCtrl_Withdraw` / `Scan_Action`），`exec.name` 是**工具名**
+    // （`WithdrawTip` / `StopScan`）—— 两套命名空间。于是那道闸对每个工具都成立，
+    // 「有豁免」只是注释里的一句话。
     //
-    // 用 `ctx.inject` 而不是把 `stmWatchdog` 写进模块级 `inject`：
-    // 后者会让整个安全件在没有看门狗的 profile 里**根本不装载**，
-    // 而安全件的其它三件事（荒谬值/包络/模式/硬闸、要人审、`/mode`）
-    // 与看门狗无关。装载依赖要匹配「缺了它这个插件就没意义」，不是「缺了它少一件事」——
-    // 而这一件事**内核已经独立保住了**，2.14 的纵深测试钉的就是这一点。
+    // 正确的分层与旧仓一致，两层管两件事：
+    //   **这一层（工具入口）** 管「别开新的」—— 模型不许在中止后再起一个技能；
+    //   **动词那一层（`safeCall`）** 管「正在做的收得了尾」—— 已经在跑的技能
+    //   仍然发得出 `ZCtrl_Withdraw`，急停路径也走那里（它不经模型）。
     ctx.inject(['stmWatchdog'], (c) => {
       c.effect(() =>
-        c.tools.guard((exec) => {
+        c.tools.guard(() => {
           if (!c.stmWatchdog.latched) return undefined
-          const args = asArgs(exec.arguments)
-          if (isAbortSafe(exec.name, Object.values(args))) return undefined
           return (
-            `[safety_gate] abort_latched: 中止已闩上——'${exec.name}' 不在中止安全名单里，拒绝执行。` +
-            `只有退针与停扫还能发。要继续请先解闩（/estop-reset）。`
+            `[safety_gate] abort_latched: 中止已闩上——拒绝执行新的仪器动作。` +
+            `要继续请先解闩（/estop-reset）。退针与停扫由急停路径负责，不经模型。`
           )
         }),
       )

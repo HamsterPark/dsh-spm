@@ -150,7 +150,7 @@ describe('defineSkillTool —— 只做形状翻译', () => {
     const k = new SkillKernel({ snapshot: () => S0, abortLatched: () => true })
     const t = defineSkillTool(probe(), { kernel: k })
     const out = await t.execute({ setpoint_a: '100p' }, exec())
-    expect(String(out)).toContain('中止已闩上')
+    expect(String(out)).toContain('本次运行处于中止状态')
   })
 
   it('中止闩要结束本轮：内核那一位布尔翻译成 dsh 的 concludeTurn()', async () => {

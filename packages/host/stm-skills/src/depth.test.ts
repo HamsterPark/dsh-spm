@@ -52,7 +52,7 @@ describe('中止闩：外层拆掉，内核 K2 仍拒', () => {
     expect(String(await tool.execute({ setpoint_a: '1p' }, exec()))).toContain('ok')
     latched = true
     const after = String(await tool.execute({ setpoint_a: '1p' }, exec()))
-    expect(after).toContain('中止已闩上')
+    expect(after).toContain('本次运行处于中止状态')
   })
 
   it('闩上时内核还会**结束本轮** —— 不让模型接着试下一个技能', async () => {
