@@ -1,0 +1,1635 @@
+{
+  "abort_cases": [
+    {
+      "allowed": true,
+      "args": [],
+      "method": "Bias_Get"
+    },
+    {
+      "allowed": true,
+      "args": [
+        1,
+        -1
+      ],
+      "method": "ZCtrl_Withdraw"
+    },
+    {
+      "allowed": true,
+      "args": [],
+      "method": "Motor_StopMove"
+    },
+    {
+      "allowed": false,
+      "args": [
+        1.0
+      ],
+      "method": "Bias_Set"
+    },
+    {
+      "allowed": true,
+      "args": [
+        1,
+        0
+      ],
+      "method": "Scan_Action"
+    },
+    {
+      "allowed": false,
+      "args": [
+        0,
+        0
+      ],
+      "method": "Scan_Action"
+    },
+    {
+      "allowed": true,
+      "args": [
+        2,
+        0
+      ],
+      "method": "Scan_Action"
+    },
+    {
+      "allowed": true,
+      "args": [
+        0
+      ],
+      "method": "AutoApproach_OnOffSet"
+    },
+    {
+      "allowed": false,
+      "args": [
+        1
+      ],
+      "method": "AutoApproach_OnOffSet"
+    },
+    {
+      "allowed": true,
+      "args": [
+        1,
+        0
+      ],
+      "method": "AtomTrack_CtrlSet"
+    },
+    {
+      "allowed": false,
+      "args": [
+        1,
+        1
+      ],
+      "method": "AtomTrack_CtrlSet"
+    },
+    {
+      "allowed": true,
+      "args": [],
+      "method": "Script_Stop"
+    },
+    {
+      "allowed": false,
+      "args": [
+        0
+      ],
+      "method": "ZCtrl_OnOffSet"
+    },
+    {
+      "allowed": false,
+      "args": [],
+      "method": "Scan_Action"
+    },
+    {
+      "allowed": false,
+      "args": [
+        "x",
+        0
+      ],
+      "method": "Scan_Action"
+    }
+  ],
+  "abort_safe_writes": {
+    "APRFGen_RFOutOnOffSet": [
+      0,
+      [
+        0
+      ]
+    ],
+    "APRFGen_SwpStop": null,
+    "AtomTrack_CtrlSet": [
+      1,
+      [
+        0
+      ]
+    ],
+    "AutoApproach_OnOffSet": [
+      0,
+      [
+        0
+      ]
+    ],
+    "BiasSpectr_Stop": null,
+    "DataLog_Stop": null,
+    "FolMe_Stop": null,
+    "FunGen1Ch_Stop": null,
+    "FunGen2Ch_Stop": null,
+    "GenSwp_Stop": null,
+    "HSSwp_Stop": null,
+    "Laser_OnOffSet": [
+      0,
+      [
+        0
+      ]
+    ],
+    "MProbeScanner_Stop": null,
+    "MProbeZCtrl_Withdraw": null,
+    "Motor_StopMove": null,
+    "PLLFreqSwp_Stop": null,
+    "PLLPhasSwp_Stop": null,
+    "Pattern_ExpPause": [
+      0,
+      [
+        1
+      ]
+    ],
+    "Pattern_ExpStop": null,
+    "Scan_Action": [
+      0,
+      [
+        1,
+        2
+      ]
+    ],
+    "Script_Stop": null,
+    "TCPLog_Stop": null,
+    "ZCtrl_Withdraw": null,
+    "ZSpectr_Stop": null
+  },
+  "absurd_cases": [
+    {
+      "args": {
+        "setpoint_a": 1.5
+      },
+      "case": "setpoint_1p5A",
+      "violations": [
+        "物理荒谬值: 'setpoint_a' = 1.5 A 在物理上不可能(STM 隧道电流约 1 fA–100 µA(典型 1 pA–100 nA))。这不是越界,是量级丢了——请把值写成**带 SI 前缀的字符串**(100 pA→'100p'、1 nA→'1n'、3 pm→'3p';50 mV 这类接近 1 的量写 '0.05' 即可)。切勿重试相同数值,也不要改用 '1e-10' 这种指数写法——量级极小的参数会直接拒绝它。"
+      ]
+    },
+    {
+      "args": {
+        "setpoint_a": 1e-10
+      },
+      "case": "setpoint_100p_ok",
+      "violations": []
+    },
+    {
+      "args": {
+        "setpoint_a": "1.5"
+      },
+      "case": "setpoint_si_string",
+      "violations": [
+        "物理荒谬值: 'setpoint_a' = 1.5 A 在物理上不可能(STM 隧道电流约 1 fA–100 µA(典型 1 pA–100 nA))。这不是越界,是量级丢了——请把值写成**带 SI 前缀的字符串**(100 pA→'100p'、1 nA→'1n'、3 pm→'3p';50 mV 这类接近 1 的量写 '0.05' 即可)。切勿重试相同数值,也不要改用 '1e-10' 这种指数写法——量级极小的参数会直接拒绝它。"
+      ]
+    },
+    {
+      "args": {
+        "setpoint_a": "100p"
+      },
+      "case": "setpoint_si_prefix_ok",
+      "violations": []
+    },
+    {
+      "args": {
+        "bias_v": 1000000.0
+      },
+      "case": "bias_1e6V",
+      "violations": [
+        "物理荒谬值: 'bias_v' = 1000000.0 V 在物理上不可能(STM 偏压约 ±10 V 量级)。这不是越界,是量级丢了——请把值写成**带 SI 前缀的字符串**(100 pA→'100p'、1 nA→'1n'、3 pm→'3p';50 mV 这类接近 1 的量写 '0.05' 即可)。切勿重试相同数值,也不要改用 '1e-10' 这种指数写法——量级极小的参数会直接拒绝它。"
+      ]
+    },
+    {
+      "args": {
+        "bias_v": -3.0
+      },
+      "case": "bias_minus3_ok",
+      "violations": []
+    },
+    {
+      "args": {
+        "p_gain": 3.0
+      },
+      "case": "p_gain_3m",
+      "violations": [
+        "物理荒谬值: 'p_gain' = 3.0 m 在物理上不可能(Z 控制器 P 增益是长度,典型 1e-13–1e-9 m(压电总程仅 ~µm))。这不是越界,是量级丢了——请把值写成**带 SI 前缀的字符串**(100 pA→'100p'、1 nA→'1n'、3 pm→'3p';50 mV 这类接近 1 的量写 '0.05' 即可)。切勿重试相同数值,也不要改用 '1e-10' 这种指数写法——量级极小的参数会直接拒绝它。"
+      ]
+    },
+    {
+      "args": {
+        "p_gain": 3e-12
+      },
+      "case": "p_gain_ok",
+      "violations": []
+    },
+    {
+      "args": {
+        "p_gain": 3.0
+      },
+      "case": "p_gain_dimensionless",
+      "violations": []
+    },
+    {
+      "args": {
+        "i_gain": 5.0
+      },
+      "case": "i_gain_fast",
+      "violations": [
+        "物理荒谬值: 'i_gain' = 5.0 m/s 在物理上不可能(Z 控制器 I 增益是速度,典型 1e-9–1e-5 m/s)。这不是越界,是量级丢了——请把值写成**带 SI 前缀的字符串**(100 pA→'100p'、1 nA→'1n'、3 pm→'3p';50 mV 这类接近 1 的量写 '0.05' 即可)。切勿重试相同数值,也不要改用 '1e-10' 这种指数写法——量级极小的参数会直接拒绝它。"
+      ]
+    },
+    {
+      "args": {
+        "没这个参数": 1000000000.0
+      },
+      "case": "unknown_param",
+      "violations": []
+    },
+    {
+      "args": {
+        "label": "abc"
+      },
+      "case": "non_numeric",
+      "violations": []
+    },
+    {
+      "args": {
+        "flag": true
+      },
+      "case": "bool_not_number",
+      "violations": []
+    }
+  ],
+  "capability_cases": [
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "tip_shaping_cap",
+      "fn": "is_tip_shaping",
+      "params": {},
+      "result": true
+    },
+    {
+      "caps": [],
+      "case": "no_cap",
+      "fn": "is_tip_shaping",
+      "params": {},
+      "result": false
+    },
+    {
+      "caps": [
+        "bias_pulse"
+      ],
+      "case": "pulse_cap",
+      "fn": "is_electrical_pulse",
+      "params": {},
+      "result": true
+    },
+    {
+      "caps": [],
+      "case": "no_cap",
+      "fn": "is_electrical_pulse",
+      "params": {},
+      "result": false
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_change_bias_false_lift_omitted",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "change_bias": false
+      },
+      "result": true
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_lift_zero",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": 0.0,
+        "change_bias": false
+      },
+      "result": false
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_lift_nonzero",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": 3.0,
+        "change_bias": false
+      },
+      "result": true
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_lift_unparseable",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": "一点点",
+        "change_bias": false
+      },
+      "result": true
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_change_bias_true_bias_live",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": 0.0,
+        "bias_v": 2.0,
+        "change_bias": true
+      },
+      "result": true
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_change_bias_true_bias_zero",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": 0.0,
+        "bias_v": 0.0,
+        "change_bias": true
+      },
+      "result": false
+    },
+    {
+      "caps": [
+        "tip_shaping"
+      ],
+      "case": "shaping_bias_omitted",
+      "fn": "is_electrical_pulse",
+      "params": {
+        "bias_lift_v": 0.0,
+        "change_bias": true
+      },
+      "result": true
+    }
+  ],
+  "caps": {
+    "CAP_BIAS_PULSE": "bias_pulse",
+    "CAP_TIP_SHAPING": "tip_shaping",
+    "SEMI_DEPTH_NAME_PATTERNS": [
+      "tip_lift",
+      "lift_height",
+      "depth"
+    ],
+    "SEMI_TIP_LIFT_MAX_M": 5e-09
+  },
+  "global_checks": [
+    [
+      "bias_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "start_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "end_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "lower_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "upper_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "pulse_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "lift_v",
+      "v",
+      "bias_min_v",
+      "bias_max_v"
+    ],
+    [
+      "z_pos",
+      "m",
+      "z_min_m",
+      "z_max_m"
+    ],
+    [
+      "z_offset",
+      "m",
+      "z_offset_min_m",
+      "z_offset_max_m"
+    ],
+    [
+      "tip_lift",
+      "m",
+      "tip_lift_min_m",
+      "tip_lift_max_m"
+    ],
+    [
+      "lift_height",
+      "m",
+      "tip_lift_min_m",
+      "tip_lift_max_m"
+    ],
+    [
+      "deep_depth",
+      "m",
+      "tip_lift_min_m",
+      "tip_lift_max_m"
+    ],
+    [
+      "x_m",
+      "m",
+      "xy_min_m",
+      "xy_max_m"
+    ],
+    [
+      "y_m",
+      "m",
+      "xy_min_m",
+      "xy_max_m"
+    ],
+    [
+      "center_x",
+      "m",
+      "xy_min_m",
+      "xy_max_m"
+    ],
+    [
+      "center_y",
+      "m",
+      "xy_min_m",
+      "xy_max_m"
+    ],
+    [
+      "setpoint",
+      "a",
+      "setpoint_min_a",
+      "setpoint_max_a"
+    ],
+    [
+      "width_m",
+      "m",
+      "scan_size_min_m",
+      "scan_size_max_m"
+    ],
+    [
+      "height_m",
+      "m",
+      "scan_size_min_m",
+      "scan_size_max_m"
+    ]
+  ],
+  "hard_gate_cases": [
+    {
+      "case": "motor_z_approach",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "direction": "z-approach",
+        "steps": 10
+      },
+      "result": true,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "motor_z_approach_underscore",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "direction": "z_approach"
+      },
+      "result": true,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "motor_z_retract",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "direction": "z-retract"
+      },
+      "result": false,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "motor_lateral",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "direction": "X+"
+      },
+      "result": false,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "closed_loop_abs_zero",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "absolute": true,
+        "target_z_m": 0.0
+      },
+      "result": true,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_abs_string",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "absolute": "true",
+        "target_z_m": 0.0
+      },
+      "result": true,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_abs_one",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "absolute": 1,
+        "target_z_m": 0.0
+      },
+      "result": true,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_rel_zero",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "target_z_m": 0.0
+      },
+      "result": false,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_rel_nonzero",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "target_z_m": "-100n"
+      },
+      "result": true,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_unparseable_z",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "target_z_m": "往下一点"
+      },
+      "result": true,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "closed_loop_xy_only",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "target_x_m": 1e-06
+      },
+      "result": false,
+      "skill": "MotorMoveClosedLoop"
+    },
+    {
+      "case": "set_bias",
+      "fn": "is_coarse_sample_approach",
+      "params": {
+        "bias_v": 1.0
+      },
+      "result": false,
+      "skill": "SetBias"
+    },
+    {
+      "case": "set_bias_calibration",
+      "fn": "is_calibration_change",
+      "params": {},
+      "result": true,
+      "skill": "SetBiasCalibration"
+    },
+    {
+      "case": "set_current_calibration",
+      "fn": "is_calibration_change",
+      "params": {},
+      "result": true,
+      "skill": "SetCurrentCalibration"
+    },
+    {
+      "case": "get_bias",
+      "fn": "is_calibration_change",
+      "params": {},
+      "result": false,
+      "skill": "GetBias"
+    },
+    {
+      "case": "set_motor_freq_amp",
+      "fn": "is_coarse_drive_change",
+      "params": {},
+      "result": true,
+      "skill": "SetMotorFreqAmp"
+    },
+    {
+      "case": "set_bias",
+      "fn": "is_coarse_drive_change",
+      "params": {},
+      "result": false,
+      "skill": "SetBias"
+    },
+    {
+      "case": "motor_move_x",
+      "fn": "is_unguarded_lateral_coarse_move",
+      "params": {
+        "direction": "X+",
+        "steps": 10
+      },
+      "result": true,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "motor_move_z",
+      "fn": "is_unguarded_lateral_coarse_move",
+      "params": {
+        "direction": "Z-",
+        "steps": 10
+      },
+      "result": false,
+      "skill": "MotorMove"
+    },
+    {
+      "case": "z_limits_off",
+      "fn": "is_protection_disable",
+      "params": {
+        "enabled": false
+      },
+      "result": true,
+      "skill": "SetZLimitsEnabled"
+    },
+    {
+      "case": "z_limits_on",
+      "fn": "is_protection_disable",
+      "params": {
+        "enabled": true
+      },
+      "result": false,
+      "skill": "SetZLimitsEnabled"
+    },
+    {
+      "case": "safe_tip_off",
+      "fn": "is_protection_disable",
+      "params": {
+        "enable": false
+      },
+      "result": true,
+      "skill": "EnableSafeTip"
+    },
+    {
+      "case": "safe_tip_on",
+      "fn": "is_protection_disable",
+      "params": {
+        "enable": true
+      },
+      "result": false,
+      "skill": "EnableSafeTip"
+    },
+    {
+      "case": "z_limits_off_string",
+      "fn": "is_protection_disable",
+      "params": {
+        "enabled": "false"
+      },
+      "result": true,
+      "skill": "SetZLimitsEnabled"
+    },
+    {
+      "case": "z_limits_off_zero",
+      "fn": "is_protection_disable",
+      "params": {
+        "enabled": 0
+      },
+      "result": true,
+      "skill": "SetZLimitsEnabled"
+    }
+  ],
+  "is_read": {
+    "APRFGen_FreqGet": true,
+    "APRFGen_FreqSet": false,
+    "APRFGen_FreqSwpLimitsGet": true,
+    "APRFGen_FreqSwpLimitsSet": false,
+    "APRFGen_FreqSwpPropsGet": true,
+    "APRFGen_FreqSwpPropsSet": false,
+    "APRFGen_FreqSwpStart": false,
+    "APRFGen_ListSwpPropsGet": true,
+    "APRFGen_ListSwpPropsSet": false,
+    "APRFGen_ListSwpStart": false,
+    "APRFGen_PowerGet": true,
+    "APRFGen_PowerSet": false,
+    "APRFGen_PowerSwpLimitsGet": true,
+    "APRFGen_PowerSwpLimitsSet": false,
+    "APRFGen_PowerSwpPropsGet": true,
+    "APRFGen_PowerSwpPropsSet": false,
+    "APRFGen_PowerSwpStart": false,
+    "APRFGen_RFOutOnOffGet": true,
+    "APRFGen_RFOutOnOffSet": false,
+    "APRFGen_SwpStop": false,
+    "APRFGen_TrigPropsGet": true,
+    "APRFGen_TrigPropsSet": false,
+    "APRFGen_TrigRearm": false,
+    "AtomTrack_CtrlSet": false,
+    "AtomTrack_DriftComp": false,
+    "AtomTrack_PropsGet": true,
+    "AtomTrack_PropsSet": false,
+    "AtomTrack_QuickCompStart": false,
+    "AtomTrack_StatusGet": true,
+    "AutoApproach_OnOffGet": true,
+    "AutoApproach_OnOffSet": false,
+    "AutoApproach_Open": false,
+    "BeamDefl_AutoOffset": false,
+    "BeamDefl_HorConfigGet": true,
+    "BeamDefl_HorConfigSet": false,
+    "BeamDefl_IntConfigGet": true,
+    "BeamDefl_IntConfigSet": false,
+    "BeamDefl_VerConfigGet": true,
+    "BeamDefl_VerConfigSet": false,
+    "BiasSpectr_AdvPropsGet": true,
+    "BiasSpectr_AdvPropsSet": false,
+    "BiasSpectr_AltZCtrlGet": true,
+    "BiasSpectr_AltZCtrlSet": false,
+    "BiasSpectr_ChsGet": true,
+    "BiasSpectr_ChsSet": false,
+    "BiasSpectr_DigSyncGet": true,
+    "BiasSpectr_DigSyncSet": false,
+    "BiasSpectr_LimitsGet": true,
+    "BiasSpectr_LimitsSet": false,
+    "BiasSpectr_MLSLockinPerSegGet": true,
+    "BiasSpectr_MLSLockinPerSegSet": false,
+    "BiasSpectr_MLSModeGet": true,
+    "BiasSpectr_MLSModeSet": false,
+    "BiasSpectr_MLSValsGet": true,
+    "BiasSpectr_MLSValsSet": false,
+    "BiasSpectr_Open": false,
+    "BiasSpectr_PropsGet": true,
+    "BiasSpectr_PropsSet": false,
+    "BiasSpectr_PulseSeqSyncGet": true,
+    "BiasSpectr_PulseSeqSyncSet": false,
+    "BiasSpectr_Start": false,
+    "BiasSpectr_StatusGet": true,
+    "BiasSpectr_Stop": false,
+    "BiasSpectr_TTLSyncGet": true,
+    "BiasSpectr_TTLSyncSet": false,
+    "BiasSpectr_TimingGet": true,
+    "BiasSpectr_TimingSet": false,
+    "BiasSpectr_ZOffRevertGet": true,
+    "BiasSpectr_ZOffRevertSet": false,
+    "BiasSwp_LimitsGet": true,
+    "BiasSwp_LimitsSet": false,
+    "BiasSwp_Open": false,
+    "BiasSwp_PropsSet": false,
+    "BiasSwp_Start": false,
+    "Bias_CalibrGet": true,
+    "Bias_CalibrSet": false,
+    "Bias_Get": true,
+    "Bias_Pulse": false,
+    "Bias_RangeGet": true,
+    "Bias_RangeSet": false,
+    "Bias_Set": false,
+    "CPDComp_Close": false,
+    "CPDComp_DataGet": true,
+    "CPDComp_Open": false,
+    "CPDComp_ParamsGet": true,
+    "CPDComp_ParamsSet": false,
+    "Current_100Get": true,
+    "Current_BEEMGet": true,
+    "Current_CalibrGet": true,
+    "Current_CalibrSet": false,
+    "Current_GainSet": false,
+    "Current_GainsGet": true,
+    "Current_Get": true,
+    "DataLog_ChsGet": true,
+    "DataLog_ChsSet": false,
+    "DataLog_Open": false,
+    "DataLog_PropsGet": true,
+    "DataLog_PropsSet": false,
+    "DataLog_Start": false,
+    "DataLog_StatusGet": true,
+    "DataLog_Stop": false,
+    "DigLines_OutStatusSet": false,
+    "DigLines_PropsSet": false,
+    "DigLines_Pulse": false,
+    "DigLines_TTLValGet": true,
+    "FolMe_OversamplGet": true,
+    "FolMe_OversamplSet": false,
+    "FolMe_PSExpGet": true,
+    "FolMe_PSExpSet": false,
+    "FolMe_PSOnOffGet": true,
+    "FolMe_PSOnOffSet": false,
+    "FolMe_PSPropsGet": true,
+    "FolMe_PSPropsSet": false,
+    "FolMe_SpeedGet": true,
+    "FolMe_SpeedSet": false,
+    "FolMe_Stop": false,
+    "FolMe_XYPosGet": true,
+    "FolMe_XYPosSet": false,
+    "FunGen1Ch_IdleGet": true,
+    "FunGen1Ch_IdleSet": false,
+    "FunGen1Ch_PropsGet": true,
+    "FunGen1Ch_PropsSet": false,
+    "FunGen1Ch_Start": false,
+    "FunGen1Ch_StatusGet": true,
+    "FunGen1Ch_Stop": false,
+    "FunGen2Ch_IdleGet": true,
+    "FunGen2Ch_IdleSet": false,
+    "FunGen2Ch_OnOffGet": true,
+    "FunGen2Ch_OnOffSet": false,
+    "FunGen2Ch_PropsGet": true,
+    "FunGen2Ch_PropsSet": false,
+    "FunGen2Ch_SignalGet": true,
+    "FunGen2Ch_SignalSet": false,
+    "FunGen2Ch_Start": false,
+    "FunGen2Ch_StatusGet": true,
+    "FunGen2Ch_Stop": false,
+    "FunGen2Ch_WaveformGet": true,
+    "FunGen2Ch_WaveformSet": false,
+    "GenPICtrl_AOPropsGet": true,
+    "GenPICtrl_AOPropsSet": false,
+    "GenPICtrl_AOValGet": true,
+    "GenPICtrl_AOValSet": false,
+    "GenPICtrl_DemodChGet": true,
+    "GenPICtrl_DemodChSet": false,
+    "GenPICtrl_ModChGet": true,
+    "GenPICtrl_ModChSet": false,
+    "GenPICtrl_OnOffGet": true,
+    "GenPICtrl_OnOffSet": false,
+    "GenPICtrl_PropsGet": true,
+    "GenPICtrl_PropsSet": false,
+    "GenSwp_AcqChsGet": true,
+    "GenSwp_AcqChsSet": false,
+    "GenSwp_LimitsGet": true,
+    "GenSwp_LimitsSet": false,
+    "GenSwp_Open": false,
+    "GenSwp_PropsGet": true,
+    "GenSwp_PropsSet": false,
+    "GenSwp_Start": false,
+    "GenSwp_Stop": false,
+    "GenSwp_SwpSignalGet": true,
+    "GenSwp_SwpSignalListGet": true,
+    "GenSwp_SwpSignalSet": false,
+    "HSSwp_AcqChsGet": true,
+    "HSSwp_AcqChsSet": false,
+    "HSSwp_AutoReverseGet": true,
+    "HSSwp_AutoReverseSet": false,
+    "HSSwp_EndSettlGet": true,
+    "HSSwp_EndSettlSet": false,
+    "HSSwp_NumSweepsGet": true,
+    "HSSwp_NumSweepsSet": false,
+    "HSSwp_ResetSignalsGet": true,
+    "HSSwp_ResetSignalsSet": false,
+    "HSSwp_SaveBasenameGet": true,
+    "HSSwp_SaveBasenameSet": false,
+    "HSSwp_SaveDataGet": true,
+    "HSSwp_SaveDataSet": false,
+    "HSSwp_SaveOptionsGet": true,
+    "HSSwp_SaveOptionsSet": false,
+    "HSSwp_Start": false,
+    "HSSwp_StatusGet": true,
+    "HSSwp_Stop": false,
+    "HSSwp_SwpChBwdDelayGet": true,
+    "HSSwp_SwpChBwdDelaySet": false,
+    "HSSwp_SwpChBwdSwGet": true,
+    "HSSwp_SwpChBwdSwSet": false,
+    "HSSwp_SwpChLimitsGet": true,
+    "HSSwp_SwpChLimitsSet": false,
+    "HSSwp_SwpChNumPtsGet": true,
+    "HSSwp_SwpChNumPtsSet": false,
+    "HSSwp_SwpChSigListGet": true,
+    "HSSwp_SwpChSignalGet": true,
+    "HSSwp_SwpChSignalSet": false,
+    "HSSwp_SwpChTimingGet": true,
+    "HSSwp_SwpChTimingSet": false,
+    "HSSwp_ZCtrlOffGet": true,
+    "HSSwp_ZCtrlOffSet": false,
+    "Interf_CtrlCalibrOpen": false,
+    "Interf_CtrlNullDefl": false,
+    "Interf_CtrlOnOffGet": true,
+    "Interf_CtrlOnOffSet": false,
+    "Interf_CtrlPropsGet": true,
+    "Interf_CtrlPropsSet": false,
+    "Interf_CtrlReset": false,
+    "Interf_ValGet": true,
+    "Interf_WPiezoGet": true,
+    "Interf_WPiezoSet": false,
+    "KelvinCtrl_AmpGet": true,
+    "KelvinCtrl_BiasLimitsGet": true,
+    "KelvinCtrl_BiasLimitsSet": false,
+    "KelvinCtrl_CtrlOnOffGet": true,
+    "KelvinCtrl_CtrlOnOffSet": false,
+    "KelvinCtrl_CtrlSignalGet": true,
+    "KelvinCtrl_CtrlSignalSet": false,
+    "KelvinCtrl_GainGet": true,
+    "KelvinCtrl_GainSet": false,
+    "KelvinCtrl_ModOnOffGet": true,
+    "KelvinCtrl_ModOnOffSet": false,
+    "KelvinCtrl_ModParamsGet": true,
+    "KelvinCtrl_ModParamsSet": false,
+    "KelvinCtrl_SetpntGet": true,
+    "KelvinCtrl_SetpntSet": false,
+    "Laser_OnOffGet": true,
+    "Laser_OnOffSet": false,
+    "Laser_PowerGet": true,
+    "Laser_PropsGet": true,
+    "Laser_PropsSet": false,
+    "LockInFreqSwp_LimitsGet": true,
+    "LockInFreqSwp_LimitsSet": false,
+    "LockInFreqSwp_Open": false,
+    "LockInFreqSwp_PropsGet": true,
+    "LockInFreqSwp_PropsSet": false,
+    "LockInFreqSwp_SignalGet": true,
+    "LockInFreqSwp_SignalSet": false,
+    "LockInFreqSwp_Start": false,
+    "LockIn_DemodHPFilterGet": true,
+    "LockIn_DemodHPFilterSet": false,
+    "LockIn_DemodHarmonicGet": true,
+    "LockIn_DemodHarmonicSet": false,
+    "LockIn_DemodLPFilterGet": true,
+    "LockIn_DemodLPFilterSet": false,
+    "LockIn_DemodPhasGet": true,
+    "LockIn_DemodPhasRegGet": true,
+    "LockIn_DemodPhasRegSet": false,
+    "LockIn_DemodPhasSet": false,
+    "LockIn_DemodRTSignalsGet": true,
+    "LockIn_DemodRTSignalsSet": false,
+    "LockIn_DemodSignalGet": true,
+    "LockIn_DemodSignalSet": false,
+    "LockIn_DemodSyncFilterGet": true,
+    "LockIn_DemodSyncFilterSet": false,
+    "LockIn_ModAmpGet": true,
+    "LockIn_ModAmpSet": false,
+    "LockIn_ModHarmonicGet": true,
+    "LockIn_ModHarmonicSet": false,
+    "LockIn_ModOnOffGet": true,
+    "LockIn_ModOnOffSet": false,
+    "LockIn_ModPhasFreqGet": true,
+    "LockIn_ModPhasFreqSet": false,
+    "LockIn_ModPhasGet": true,
+    "LockIn_ModPhasRegGet": true,
+    "LockIn_ModPhasRegSet": false,
+    "LockIn_ModPhasSet": false,
+    "LockIn_ModSignalGet": true,
+    "LockIn_ModSignalSet": false,
+    "MCVA5_ContStateUpdateGet": true,
+    "MCVA5_ContStateUpdateSet": false,
+    "MCVA5_ContTempUpdateGet": true,
+    "MCVA5_ContTempUpdateSet": false,
+    "MCVA5_CouplingGet": true,
+    "MCVA5_CouplingSet": false,
+    "MCVA5_GainGet": true,
+    "MCVA5_GainSet": false,
+    "MCVA5_InputModeGet": true,
+    "MCVA5_InputModeSet": false,
+    "MCVA5_SingleStateUpdate": false,
+    "MCVA5_SingleTempUpdate": false,
+    "MCVA5_UserInGet": true,
+    "MCVA5_UserInSet": false,
+    "MPass_Activate": false,
+    "MPass_Load": false,
+    "MPass_Save": false,
+    "MProbeBias_CalibrGet": true,
+    "MProbeBias_CalibrSet": false,
+    "MProbeBias_Get": true,
+    "MProbeBias_Pulse": false,
+    "MProbeBias_RangeGet": true,
+    "MProbeBias_RangeSet": false,
+    "MProbeBias_Set": false,
+    "MProbeCurrent_CalibrGet": true,
+    "MProbeCurrent_CalibrSet": false,
+    "MProbeCurrent_GainSet": false,
+    "MProbeCurrent_GainsGet": true,
+    "MProbeCurrent_Get": true,
+    "MProbeScanner_ActiveScannerGet": true,
+    "MProbeScanner_CalibrGet": true,
+    "MProbeScanner_CalibrSet": false,
+    "MProbeScanner_ScannerSwitch": false,
+    "MProbeScanner_SpeedGet": true,
+    "MProbeScanner_SpeedSet": false,
+    "MProbeScanner_Stop": false,
+    "MProbeScanner_XYPosGet": true,
+    "MProbeScanner_XYPosSet": false,
+    "MProbeZCtrl_GainGet": true,
+    "MProbeZCtrl_GainSet": false,
+    "MProbeZCtrl_Home": false,
+    "MProbeZCtrl_HomePropsGet": true,
+    "MProbeZCtrl_HomePropsSet": false,
+    "MProbeZCtrl_LimitsGet": true,
+    "MProbeZCtrl_LimitsSet": false,
+    "MProbeZCtrl_OnOffGet": true,
+    "MProbeZCtrl_OnOffSet": false,
+    "MProbeZCtrl_SetpntGet": true,
+    "MProbeZCtrl_SetpntSet": false,
+    "MProbeZCtrl_Withdraw": false,
+    "MProbeZCtrl_ZPosGet": true,
+    "MProbeZCtrl_ZPosSet": false,
+    "Marks_LineDraw": false,
+    "Marks_LinesDraw": false,
+    "Marks_LinesErase": false,
+    "Marks_LinesGet": true,
+    "Marks_LinesVisibleSet": false,
+    "Marks_PointDraw": false,
+    "Marks_PointsDraw": false,
+    "Marks_PointsErase": false,
+    "Marks_PointsGet": true,
+    "Marks_PointsVisibleSet": false,
+    "Motor_FreqAmpGet": true,
+    "Motor_FreqAmpSet": false,
+    "Motor_PosGet": true,
+    "Motor_StartClosedLoop": false,
+    "Motor_StartMove": false,
+    "Motor_StepCounterGet": true,
+    "Motor_StopMove": false,
+    "OCSync_AnglesGet": true,
+    "OCSync_AnglesSet": false,
+    "OCSync_LinkAnglesGet": true,
+    "OCSync_LinkAnglesSet": false,
+    "Osci1T_ChGet": true,
+    "Osci1T_ChSet": false,
+    "Osci1T_DataGet": true,
+    "Osci1T_Run": false,
+    "Osci1T_TimebaseGet": true,
+    "Osci1T_TimebaseSet": false,
+    "Osci1T_TrigGet": true,
+    "Osci1T_TrigSet": false,
+    "Osci2T_ChGet": true,
+    "Osci2T_ChSet": false,
+    "Osci2T_ChsGet": true,
+    "Osci2T_ChsSet": false,
+    "Osci2T_DataGet": true,
+    "Osci2T_OversamplGet": true,
+    "Osci2T_OversamplSet": false,
+    "Osci2T_Run": false,
+    "Osci2T_TimebaseGet": true,
+    "Osci2T_TimebaseSet": false,
+    "Osci2T_TrigGet": true,
+    "Osci2T_TrigSet": false,
+    "OsciHR_CalibrModeGet": true,
+    "OsciHR_CalibrModeSet": false,
+    "OsciHR_ChGet": true,
+    "OsciHR_ChSet": false,
+    "OsciHR_OsciDataGet": true,
+    "OsciHR_OversamplGet": true,
+    "OsciHR_OversamplSet": false,
+    "OsciHR_PSDAvrgCountGet": true,
+    "OsciHR_PSDAvrgCountSet": false,
+    "OsciHR_PSDAvrgRestart": false,
+    "OsciHR_PSDAvrgTypeGet": true,
+    "OsciHR_PSDAvrgTypeSet": false,
+    "OsciHR_PSDDataGet": true,
+    "OsciHR_PSDShow": false,
+    "OsciHR_PSDWeightGet": true,
+    "OsciHR_PSDWeightSet": false,
+    "OsciHR_PSDWindowGet": true,
+    "OsciHR_PSDWindowSet": false,
+    "OsciHR_PreTrigGet": true,
+    "OsciHR_PreTrigSet": false,
+    "OsciHR_Run": false,
+    "OsciHR_SamplesGet": true,
+    "OsciHR_SamplesSet": false,
+    "OsciHR_TrigArmModeGet": true,
+    "OsciHR_TrigArmModeSet": false,
+    "OsciHR_TrigDigChGet": true,
+    "OsciHR_TrigDigChSet": false,
+    "OsciHR_TrigDigSlopeGet": true,
+    "OsciHR_TrigDigSlopeSet": false,
+    "OsciHR_TrigLevChGet": true,
+    "OsciHR_TrigLevChSet": false,
+    "OsciHR_TrigLevHystGet": true,
+    "OsciHR_TrigLevHystSet": false,
+    "OsciHR_TrigLevSlopeGet": true,
+    "OsciHR_TrigLevSlopeSet": false,
+    "OsciHR_TrigLevValGet": true,
+    "OsciHR_TrigLevValSet": false,
+    "OsciHR_TrigModeGet": true,
+    "OsciHR_TrigModeSet": false,
+    "OsciHR_TrigRearm": false,
+    "PICtrl_CtrlChGet": true,
+    "PICtrl_CtrlChPropsGet": true,
+    "PICtrl_CtrlChPropsSet": false,
+    "PICtrl_CtrlChSet": false,
+    "PICtrl_InputChGet": true,
+    "PICtrl_InputChSet": false,
+    "PICtrl_OnOffGet": true,
+    "PICtrl_OnOffSet": false,
+    "PICtrl_PropsGet": true,
+    "PICtrl_PropsSet": false,
+    "PLLFreqSwp_Open": false,
+    "PLLFreqSwp_ParamsGet": true,
+    "PLLFreqSwp_ParamsSet": false,
+    "PLLFreqSwp_Start": false,
+    "PLLFreqSwp_Stop": false,
+    "PLLPhasSwp_Start": false,
+    "PLLPhasSwp_Stop": false,
+    "PLLSignalAnlzr_ChGet": true,
+    "PLLSignalAnlzr_ChSet": false,
+    "PLLSignalAnlzr_FFTAvgRestart": false,
+    "PLLSignalAnlzr_FFTDataGet": true,
+    "PLLSignalAnlzr_FFTPropsGet": true,
+    "PLLSignalAnlzr_FFTPropsSet": false,
+    "PLLSignalAnlzr_Open": false,
+    "PLLSignalAnlzr_OsciDataGet": true,
+    "PLLSignalAnlzr_TimebaseGet": true,
+    "PLLSignalAnlzr_TimebaseSet": false,
+    "PLLSignalAnlzr_TrigAuto": false,
+    "PLLSignalAnlzr_TrigGet": true,
+    "PLLSignalAnlzr_TrigRearm": false,
+    "PLLSignalAnlzr_TrigSet": false,
+    "PLLZoomFFT_AvgRestart": false,
+    "PLLZoomFFT_ChGet": true,
+    "PLLZoomFFT_ChSet": false,
+    "PLLZoomFFT_DataGet": true,
+    "PLLZoomFFT_Open": false,
+    "PLLZoomFFT_PropsGet": true,
+    "PLLZoomFFT_PropsSet": false,
+    "PLL_AddOnOffGet": true,
+    "PLL_AddOnOffSet": false,
+    "PLL_AmpCtrlBandwidthGet": true,
+    "PLL_AmpCtrlBandwidthSet": false,
+    "PLL_AmpCtrlGainGet": true,
+    "PLL_AmpCtrlGainSet": false,
+    "PLL_AmpCtrlOnOffGet": true,
+    "PLL_AmpCtrlOnOffSet": false,
+    "PLL_AmpCtrlSetpntGet": true,
+    "PLL_AmpCtrlSetpntSet": false,
+    "PLL_CenterFreqGet": true,
+    "PLL_CenterFreqSet": false,
+    "PLL_DemodFilterGet": true,
+    "PLL_DemodFilterSet": false,
+    "PLL_DemodHarmonicGet": true,
+    "PLL_DemodHarmonicSet": false,
+    "PLL_DemodInputGet": true,
+    "PLL_DemodInputSet": false,
+    "PLL_DemodPhasRefGet": true,
+    "PLL_DemodPhasRefSet": false,
+    "PLL_ExcRangeGet": true,
+    "PLL_ExcRangeSet": false,
+    "PLL_ExcitationGet": true,
+    "PLL_ExcitationSet": false,
+    "PLL_FreqExcOverwriteGet": true,
+    "PLL_FreqExcOverwriteSet": false,
+    "PLL_FreqRangeGet": true,
+    "PLL_FreqRangeSet": false,
+    "PLL_FreqShiftAutoCenter": false,
+    "PLL_FreqShiftGet": true,
+    "PLL_FreqShiftSet": false,
+    "PLL_InpCalibrGet": true,
+    "PLL_InpCalibrSet": false,
+    "PLL_InpPropsGet": true,
+    "PLL_InpPropsSet": false,
+    "PLL_InpRangeGet": true,
+    "PLL_InpRangeSet": false,
+    "PLL_OutOnOffGet": true,
+    "PLL_OutOnOffSet": false,
+    "PLL_PerfectPLLUpdtZTC": false,
+    "PLL_PhasCtrlBandwidthGet": true,
+    "PLL_PhasCtrlBandwidthSet": false,
+    "PLL_PhasCtrlGainGet": true,
+    "PLL_PhasCtrlGainSet": false,
+    "PLL_PhasCtrlOnOffGet": true,
+    "PLL_PhasCtrlOnOffSet": false,
+    "Pattern_CloudGet": true,
+    "Pattern_CloudSet": false,
+    "Pattern_ExpOpen": false,
+    "Pattern_ExpPause": false,
+    "Pattern_ExpStart": false,
+    "Pattern_ExpStatusGet": true,
+    "Pattern_ExpStop": false,
+    "Pattern_GridGet": true,
+    "Pattern_GridSet": false,
+    "Pattern_LineGet": true,
+    "Pattern_LineSet": false,
+    "Pattern_PropsGet": true,
+    "Pattern_PropsSet": false,
+    "Piezo_CalibrGet": true,
+    "Piezo_DriftCompGet": true,
+    "Piezo_DriftCompSet": false,
+    "Piezo_HVAInfoGet": true,
+    "Piezo_HVAStatusLEDGet": true,
+    "Piezo_HystFileLoad": false,
+    "Piezo_HystFileSave": false,
+    "Piezo_HystOnOffGet": true,
+    "Piezo_HystOnOffSet": false,
+    "Piezo_HystValsGet": true,
+    "Piezo_HystValsSet": false,
+    "Piezo_RangeGet": true,
+    "Piezo_RangeSet": false,
+    "Piezo_SensGet": true,
+    "Piezo_SensSet": false,
+    "Piezo_TiltGet": true,
+    "Piezo_TiltSet": false,
+    "Piezo_XYZLimitsGet": true,
+    "Piezo_XYZLimitsSet": false,
+    "SafeTip_OnOffGet": true,
+    "SafeTip_OnOffSet": false,
+    "SafeTip_PropsGet": true,
+    "SafeTip_PropsSet": false,
+    "SafeTip_SignalGet": true,
+    "Scan_Action": false,
+    "Scan_BackgroundDelete": false,
+    "Scan_BackgroundPaste": false,
+    "Scan_BufferGet": true,
+    "Scan_BufferSet": false,
+    "Scan_FrameDataGrab": false,
+    "Scan_FrameGet": true,
+    "Scan_FrameSet": false,
+    "Scan_PropsGet": true,
+    "Scan_PropsSet": false,
+    "Scan_Save": false,
+    "Scan_SpeedGet": true,
+    "Scan_SpeedSet": false,
+    "Scan_StatusGet": true,
+    "Scan_WaitEndOfScan": false,
+    "Scan_XYPosGet": true,
+    "Script_Autosave": false,
+    "Script_ChsGet": true,
+    "Script_ChsSet": false,
+    "Script_DataGet": true,
+    "Script_Deploy": false,
+    "Script_LUTDeploy": false,
+    "Script_LUTLoad": false,
+    "Script_LUTOpen": false,
+    "Script_LUTSave": false,
+    "Script_Load": false,
+    "Script_Open": false,
+    "Script_Run": false,
+    "Script_Save": false,
+    "Script_Stop": false,
+    "Script_Undeploy": false,
+    "SignalChart_ChsGet": true,
+    "SignalChart_ChsSet": false,
+    "SignalChart_Open": false,
+    "Signals_AddRTGet": true,
+    "Signals_AddRTSet": false,
+    "Signals_CalibrGet": true,
+    "Signals_MeasNamesGet": true,
+    "Signals_NamesGet": true,
+    "Signals_RangeGet": true,
+    "Signals_ValGet": true,
+    "Signals_ValsGet": true,
+    "SpectrumAnlzr_ACCouplingGet": true,
+    "SpectrumAnlzr_ACCouplingSet": false,
+    "SpectrumAnlzr_AveragGet": true,
+    "SpectrumAnlzr_AveragSet": false,
+    "SpectrumAnlzr_BandRMSGet": true,
+    "SpectrumAnlzr_ChGet": true,
+    "SpectrumAnlzr_ChSet": false,
+    "SpectrumAnlzr_CursorPosGet": true,
+    "SpectrumAnlzr_CursorPosSet": false,
+    "SpectrumAnlzr_DCGet": true,
+    "SpectrumAnlzr_DataGet": true,
+    "SpectrumAnlzr_FFTWindowGet": true,
+    "SpectrumAnlzr_FFTWindowSet": false,
+    "SpectrumAnlzr_FreqRangeGet": true,
+    "SpectrumAnlzr_FreqRangeSet": false,
+    "SpectrumAnlzr_FreqResGet": true,
+    "SpectrumAnlzr_FreqResSet": false,
+    "SpectrumAnlzr_Run": false,
+    "TCPLog_ChsSet": false,
+    "TCPLog_OversamplSet": false,
+    "TCPLog_Start": false,
+    "TCPLog_StatusGet": true,
+    "TCPLog_Stop": false,
+    "TipRec_BufferClear": false,
+    "TipRec_BufferSizeGet": true,
+    "TipRec_BufferSizeSet": false,
+    "TipRec_DataGet": true,
+    "TipRec_DataSave": false,
+    "TipShaper_PropsGet": true,
+    "TipShaper_PropsSet": false,
+    "TipShaper_Start": false,
+    "UserIn_CalibrSet": false,
+    "UserOut_CalcSignalConfigGet": true,
+    "UserOut_CalcSignalConfigSet": false,
+    "UserOut_CalcSignalNameGet": true,
+    "UserOut_CalcSignalNameSet": false,
+    "UserOut_CalibrSet": false,
+    "UserOut_LimitsGet": true,
+    "UserOut_LimitsSet": false,
+    "UserOut_ModeGet": true,
+    "UserOut_ModeSet": false,
+    "UserOut_MonitorChGet": true,
+    "UserOut_MonitorChSet": false,
+    "UserOut_ValSet": false,
+    "Util_AcqPeriodGet": true,
+    "Util_AcqPeriodSet": false,
+    "Util_LayoutLoad": false,
+    "Util_LayoutSave": false,
+    "Util_Lock": false,
+    "Util_Quit": false,
+    "Util_RTFreqGet": true,
+    "Util_RTFreqSet": false,
+    "Util_RTOversamplGet": true,
+    "Util_RTOversamplSet": false,
+    "Util_SessionPathGet": true,
+    "Util_SessionPathSet": false,
+    "Util_SettingsLoad": false,
+    "Util_SettingsSave": false,
+    "Util_UnLock": false,
+    "Util_VersionGet": true,
+    "ZCtrl_ActiveCtrlSet": false,
+    "ZCtrl_CtrlListGet": true,
+    "ZCtrl_GainGet": true,
+    "ZCtrl_GainSet": false,
+    "ZCtrl_Home": false,
+    "ZCtrl_HomePropsGet": true,
+    "ZCtrl_HomePropsSet": false,
+    "ZCtrl_LimitsEnabledGet": true,
+    "ZCtrl_LimitsEnabledSet": false,
+    "ZCtrl_LimitsGet": true,
+    "ZCtrl_LimitsSet": false,
+    "ZCtrl_OnOffGet": true,
+    "ZCtrl_OnOffSet": false,
+    "ZCtrl_SetpntGet": true,
+    "ZCtrl_SetpntSet": false,
+    "ZCtrl_StatusGet": true,
+    "ZCtrl_SwitchOffDelayGet": true,
+    "ZCtrl_SwitchOffDelaySet": false,
+    "ZCtrl_TipLiftGet": true,
+    "ZCtrl_TipLiftSet": false,
+    "ZCtrl_Withdraw": false,
+    "ZCtrl_WithdrawRateGet": true,
+    "ZCtrl_WithdrawRateSet": false,
+    "ZCtrl_ZPosGet": true,
+    "ZCtrl_ZPosSet": false,
+    "ZSpectr_AdvPropsGet": true,
+    "ZSpectr_AdvPropsSet": false,
+    "ZSpectr_ChsGet": true,
+    "ZSpectr_ChsSet": false,
+    "ZSpectr_DigSyncGet": true,
+    "ZSpectr_DigSyncSet": false,
+    "ZSpectr_Open": false,
+    "ZSpectr_PropsGet": true,
+    "ZSpectr_PropsSet": false,
+    "ZSpectr_PulseSeqSyncGet": true,
+    "ZSpectr_PulseSeqSyncSet": false,
+    "ZSpectr_RangeGet": true,
+    "ZSpectr_RangeSet": false,
+    "ZSpectr_RetractDelayGet": true,
+    "ZSpectr_RetractDelaySet": false,
+    "ZSpectr_RetractGet": true,
+    "ZSpectr_RetractSecondGet": true,
+    "ZSpectr_RetractSecondSet": false,
+    "ZSpectr_RetractSet": false,
+    "ZSpectr_Start": false,
+    "ZSpectr_StatusGet": true,
+    "ZSpectr_Stop": false,
+    "ZSpectr_TTLSyncGet": true,
+    "ZSpectr_TTLSyncSet": false,
+    "ZSpectr_TimingGet": true,
+    "ZSpectr_TimingSet": false
+  },
+  "is_read_summary": {
+    "read": 297,
+    "total": 671
+  },
+  "limits": {
+    "bias_max_v": 10.0,
+    "bias_min_v": -10.0,
+    "scan_size_max_m": 1e-05,
+    "scan_size_min_m": 1e-10,
+    "setpoint_max_a": 1e-07,
+    "setpoint_min_a": 1e-12,
+    "tip_lift_max_m": 1e-07,
+    "tip_lift_min_m": -1e-07,
+    "xy_max_m": 1.5e-06,
+    "xy_min_m": -1.5e-06,
+    "z_max_m": 1.5e-06,
+    "z_min_m": 0.0,
+    "z_offset_max_m": 1.6e-06,
+    "z_offset_min_m": -1.6e-06
+  },
+  "mode_refusal_cases": [
+    {
+      "args": {},
+      "case": "SAFE_pulse",
+      "kind": "pulse",
+      "mode": "SAFE",
+      "refusal": "safe_mode_tip_processing_blocked: 当前是 SAFE 模式，'_Probe' 含电脉冲（能力标签 ['bias_pulse']）—— 拒绝执行。SAFE 的契约是「当前针尖视为良好、专注实验、不修针」，包一层组合技能、换一个入口都不会改变这一点。请直接用当前针尖继续实验，或换一个不动针尖的做法；确实需要修针时请操作员切换模式。不要重试针尖处理。"
+    },
+    {
+      "args": {
+        "tip_lift": 1e-09
+      },
+      "case": "SAFE_shaping_shallow",
+      "kind": "shaping_shallow",
+      "mode": "SAFE",
+      "refusal": "safe_mode_tip_processing_blocked: 当前是 SAFE 模式，'_Probe' 含电脉冲（能力标签 ['tip_shaping']）—— 拒绝执行。SAFE 的契约是「当前针尖视为良好、专注实验、不修针」，包一层组合技能、换一个入口都不会改变这一点。请直接用当前针尖继续实验，或换一个不动针尖的做法；确实需要修针时请操作员切换模式。不要重试针尖处理。"
+    },
+    {
+      "args": {
+        "tip_lift": 5e-08
+      },
+      "case": "SAFE_shaping_deep",
+      "kind": "shaping_deep",
+      "mode": "SAFE",
+      "refusal": "safe_mode_tip_processing_blocked: 当前是 SAFE 模式，'_Probe' 含电脉冲（能力标签 ['tip_shaping']）—— 拒绝执行。SAFE 的契约是「当前针尖视为良好、专注实验、不修针」，包一层组合技能、换一个入口都不会改变这一点。请直接用当前针尖继续实验，或换一个不动针尖的做法；确实需要修针时请操作员切换模式。不要重试针尖处理。"
+    },
+    {
+      "args": {
+        "bias_v": 1.0
+      },
+      "case": "SAFE_plain",
+      "kind": "plain",
+      "mode": "SAFE",
+      "refusal": null
+    },
+    {
+      "args": {},
+      "case": "SEMI_pulse",
+      "kind": "pulse",
+      "mode": "SEMI",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 1e-09
+      },
+      "case": "SEMI_shaping_shallow",
+      "kind": "shaping_shallow",
+      "mode": "SEMI",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 5e-08
+      },
+      "case": "SEMI_shaping_deep",
+      "kind": "shaping_deep",
+      "mode": "SEMI",
+      "refusal": "semi_mode_shallow_only: 半自动模式仅允许浅层机械修针。'tip_lift' = 5e-08 m exceeds the half-auto shallow-plunge cap of 5e-09 m。请减小下压深度后重试。"
+    },
+    {
+      "args": {
+        "bias_v": 1.0
+      },
+      "case": "SEMI_plain",
+      "kind": "plain",
+      "mode": "SEMI",
+      "refusal": null
+    },
+    {
+      "args": {},
+      "case": "AUTO_pulse",
+      "kind": "pulse",
+      "mode": "AUTO",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 1e-09
+      },
+      "case": "AUTO_shaping_shallow",
+      "kind": "shaping_shallow",
+      "mode": "AUTO",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 5e-08
+      },
+      "case": "AUTO_shaping_deep",
+      "kind": "shaping_deep",
+      "mode": "AUTO",
+      "refusal": null
+    },
+    {
+      "args": {
+        "bias_v": 1.0
+      },
+      "case": "AUTO_plain",
+      "kind": "plain",
+      "mode": "AUTO",
+      "refusal": null
+    },
+    {
+      "args": {},
+      "case": "UNKNOWN_pulse",
+      "kind": "pulse",
+      "mode": "UNKNOWN",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 1e-09
+      },
+      "case": "UNKNOWN_shaping_shallow",
+      "kind": "shaping_shallow",
+      "mode": "UNKNOWN",
+      "refusal": null
+    },
+    {
+      "args": {
+        "tip_lift": 5e-08
+      },
+      "case": "UNKNOWN_shaping_deep",
+      "kind": "shaping_deep",
+      "mode": "UNKNOWN",
+      "refusal": null
+    },
+    {
+      "args": {
+        "bias_v": 1.0
+      },
+      "case": "UNKNOWN_plain",
+      "kind": "plain",
+      "mode": "UNKNOWN",
+      "refusal": null
+    }
+  ],
+  "physical_absurd": [
+    [
+      "setpoint",
+      "a",
+      0.001,
+      "STM 隧道电流约 1 fA–100 µA(典型 1 pA–100 nA)"
+    ],
+    [
+      "current",
+      "a",
+      0.001,
+      "STM 隧道电流约 1 fA–100 µA(典型 1 pA–100 nA)"
+    ],
+    [
+      "bias_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "start_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "end_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "lower_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "upper_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "pulse_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "lift_v",
+      "v",
+      10000.0,
+      "STM 偏压约 ±10 V 量级"
+    ],
+    [
+      "p_gain",
+      "m",
+      0.001,
+      "Z 控制器 P 增益是长度,典型 1e-13–1e-9 m(压电总程仅 ~µm)"
+    ],
+    [
+      "i_gain",
+      "m/s",
+      1.0,
+      "Z 控制器 I 增益是速度,典型 1e-9–1e-5 m/s"
+    ]
+  ]
+}
