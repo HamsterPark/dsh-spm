@@ -38,10 +38,11 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 · **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1）· **1.8b ✅**（提示块 `stm-live-state` + `stm_get_state`；**结清 spike 第 2 条**；投影推迟到 1.10）。
 · **1.9 ✅**（看门狗 + 急停 + `/estop`；金样把真 Python 循环的时间换掉让它自己跑）。
 · **1.10 ◐**（SSE hub + 投影 + 结清 spike 9 完成；客户端半边受阻于 B12，见课时记录）。
-**下一段 = Phase 2 课时 2.1（安全金样导出）。**
+**Phase 2：2.1 ✅**（安全金样：表 + 671 动词判定 + 原文逐字）· **2.2–2.5 ✅**（包络 / 物理荒谬 / `_is_read` 与中止安全写 / 五条硬闸 + 模式闸）。
+**下一段 = 课时 2.6（sample gate 四表）。**
 
 仓库现状：10 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / **client/stm-ui** / bundle），
-**416 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**508 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -951,8 +952,8 @@ dsh: warning: dsh-spm-probe-client declares no dsh.bundle
 
 | 段 | 写什么 | 验收 |
 |---|---|---|
-| 2.1 | 安全金样导出：`safety.json`（`SafetyLimits().model_dump()` / `_GLOBAL_CHECKS` / `_PHYSICAL_ABSURD` / `_ENVELOPE_FIELDS` / `_STRICT_BY_DIMENSION` / `_ABORT_SAFE_WRITES` / `_is_read` 对 671 动词的判定表 / 五硬闸用例表 / `mode_refusal` 用例表 / `BYPASS_*` / sample gate 四表 / `_AUDIT_ONLY_KEYS` / `_TOOL_RETURN_CAP`）+ `preconditions.json` + `prompts/` | 重跑逐字节相同；`manifest.json` 记每个 collector 成败 |
-| 2.2 | `kernel/safety.ts` ①：`SafetyLimits` 包络 + `_ENVELOPE_FIELDS` 逐字段检查 | 金样逐条；蜜罐 `setpoint_a=1.5` 被拒 |
+| 2.1 ✅ | 安全金样导出：`safety.json`（包络 14 字段 / `_GLOBAL_CHECKS` 19 行 / `_PHYSICAL_ABSURD` 11 行 / `_ABORT_SAFE_WRITES` 24 条 / `_is_read` 对 **671 动词**的判定表 / 25 条硬闸用例 / 11 条能力用例 / 16 条模式拒绝**原文** / 15 条中止用例）。**sample gate 四表与 `preconditions.json` / `prompts/` 留给 2.6 与 2.9**——那时才有消费者 | 重跑逐字节相同 |
+| 2.2 ✅ | `kernel/safety.ts` ①：`SafetyLimits` 包络 + `_ENVELOPE_FIELDS` 逐字段检查 | 金样逐条；蜜罐 `setpoint_a=1.5` 被拒 |
 | 2.3 | `kernel/safety.ts` ②：物理荒谬 `_PHYSICAL_ABSURD` + 教学文案逐字 | 金样逐条 + **文案逐字相等** |
 | 2.4 | `kernel/safety.ts` ③：`_is_read` 671 动词判定表 + `_ABORT_SAFE_WRITES` | 671 条逐动词对表；中止后 `ZCtrl_Withdraw`/`Scan_Action(1,…)` 仍放行 |
 | 2.5 | `kernel/safety.ts` ④：五条硬闸 + `operating_mode` 拒绝 | 五硬闸在 `approvalSource !== 'human'` 一律拒；SAFE 下 `bias_pulse`/`tip_shaping` 被拒 |
