@@ -89,3 +89,33 @@ export function readVerb(
     return map(rec)
   }
 }
+
+/**
+ * Python 的 `f"{v:.<n>e}"`。
+ *
+ * JS 的 `toExponential(3)` 给 `7.500e-7`，Python 给 `7.500e-07` —— 指数位数不同。
+ * 文案里的坐标必须逐字对得上，因为读它的人要拿去和面板上的数比。
+ */
+export function pyExp(v: number, digits: number): string {
+  const s = v.toExponential(digits)
+  const i = s.indexOf('e')
+  const mant = s.slice(0, i)
+  let exp = s.slice(i + 1)
+  const sign = exp.startsWith('-') ? '-' : '+'
+  if (exp.startsWith('-') || exp.startsWith('+')) exp = exp.slice(1)
+  if (exp.length < 2) exp = `0${exp}`
+  return `${mant}e${sign}${exp}`
+}
+
+/** 回包里的头两个数（顺带剥 1-元素包裹）。轮询与量起点**共用这一份解析**。 */
+export function firstTwoFloats(rec: SkillCallRecord): readonly [number, number] | null {
+  const b = body(rec)
+  const out: number[] = []
+  for (const v of b) {
+    const n = scalarFloat(v)
+    if (n === null) return null
+    out.push(n)
+    if (out.length === 2) break
+  }
+  return out.length >= 2 ? [out[0]!, out[1]!] : null
+}

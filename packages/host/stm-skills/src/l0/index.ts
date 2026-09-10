@@ -11,6 +11,7 @@ import { GetZControllerState } from './zctrl-state.js'
 import { SIMPLE_WRITES } from './writes-simple.js'
 import { VERIFIED_WRITES } from './writes-verified.js'
 import { GATED_WRITES } from './writes-gated.js'
+import { MoveToXY } from './move.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
@@ -19,6 +20,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...SIMPLE_WRITES,
   ...VERIFIED_WRITES,
   ...GATED_WRITES,
+  MoveToXY,
 }
 
 export * from './common.js'
@@ -28,4 +30,5 @@ export * from './zctrl-state.js'
 export * from './writes-simple.js'
 export * from './writes-verified.js'
 export * from './writes-gated.js'
+export * from './move.js'
 export * from './verify.js'
