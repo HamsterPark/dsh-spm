@@ -55,6 +55,14 @@ def _fake_monotonic() -> float:
     return _CLOCK[0]
 
 
+def _fake_time() -> float:
+    """墙钟也要钉住 —— 否则 `read_at` 这类字段每跑一次金样就变一个数，
+    而「重跑逐字节相同」是金样最重要的性质（没有它，`git diff` 回答不了
+    「有没有变」这个问题）。"""
+    return 1_700_000_000.0
+
+
+_time.time = _fake_time            # type: ignore[assignment]
 _time.sleep = _fake_sleep          # type: ignore[assignment]
 _time.monotonic = _fake_monotonic  # type: ignore[assignment]
 _time.perf_counter = _fake_monotonic  # type: ignore[assignment]

@@ -171,6 +171,30 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   },
 }
 
+/**
+ * **时钟派生的字段不比对。**
+ *
+ * `read_at` 是墙钟，`confirm_waited_s` 是「轮询里走过多少时间」。后者看起来像个
+ * 判据，其实不是：要让两侧逐位相同，等于要求 TS 调 `now()` 的**次数**与 Python
+ * 调 `monotonic()` 的次数完全一致 —— 那是实现细节，不是判断。
+ *
+ * 钉的是它们的**形状**（是个数、在预算之内），在下面单独一条测试里。
+ */
+const VOLATILE = new Set(['read_at', 'confirm_waited_s'])
+
+/** 递归剥掉时钟字段。 */
+function stripVolatile(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(stripVolatile)
+  if (v !== null && typeof v === 'object') {
+    return Object.fromEntries(
+      Object.entries(v as Record<string, unknown>)
+        .filter(([k]) => !VOLATILE.has(k))
+        .map(([k, x]) => [k, stripVolatile(x)]),
+    )
+  }
+  return v
+}
+
 const names = Object.keys(IMPLEMENTED).sort()
 
 describe('轨迹金样：批 1/2 逐条对旧仓', () => {
@@ -207,10 +231,10 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
           expect(got.summary ?? '').toBe(want.summary ?? '')
 
           if (dev?.data === undefined) {
-            expect(got.data ?? {}).toEqual(want.data ?? {})
+            expect(stripVolatile(got.data ?? {})).toEqual(stripVolatile(want.data ?? {}))
           } else {
-            expect(got.data ?? {}).toEqual(dev.data)
-            expect(want.data ?? {}).not.toEqual(dev.data)
+            expect(stripVolatile(got.data ?? {})).toEqual(dev.data)
+            expect(stripVolatile(want.data ?? {})).not.toEqual(dev.data)
           }
         })
       }
@@ -228,5 +252,35 @@ describe('D-SKILL-3 · 旧仓会抛 IndexError 的那一格，我们判「读不
     const got = await IMPLEMENTED['GetSafeTipStatus']!.execute(ctx, {})
     expect(got.success).toBe(false)
     expect(got.error).toContain('这**不是**「保护未开」,是没问出来')
+  })
+})
+
+describe('时钟派生字段：不比数值，比形状', () => {
+  it('SafeRetract 的 confirm_waited_s 是个数，且不超过 5 s 的确认预算', async () => {
+    // 预算有界是「轮询不看 abort」那条能成立的前提：退针在 abort 之后也放行，
+    // 而这几秒只读的确认恰恰是在确认那个 abort 想要的动作。
+    const { ctx } = fakeCtx()
+    const got = await IMPLEMENTED['SafeRetract']!.execute(ctx, {})
+    const waited = (got.data as { confirm_waited_s: number }).confirm_waited_s
+    expect(typeof waited).toBe('number')
+    expect(waited).toBeGreaterThan(0)
+    expect(waited).toBeLessThanOrEqual(5.5) // 预算 5 s + 最后一次读的开销
+  })
+
+  it('没声明 z_extend_sign 时**立刻收工**，不耗光预算', async () => {
+    // 「白等」和「超时」是两件事：报成超时会让人去调大预算，
+    // 而该做的是去仪器档案里填那个符号。
+    // 默认脚本里 Z 反馈读回来是**闭合**，那一条读数就把结论定死成 not_parked，
+    // 根本走不到「没声明符号」那一步。要让它现身，得让反馈读失败（err@1）。
+    const { ctx, calls } = fakeCtx({ errorAt: 1 })
+    const got = await IMPLEMENTED['SafeRetract']!.execute(ctx, {})
+    const park = (got.data as { park: { undeclared: string[] } }).park
+    expect(park.undeclared).toEqual(['z_extend_sign'])
+    // 一趟读（1 次 Withdraw + 6 次读）就收工，**没有第二轮**
+    expect(calls.length).toBeLessThanOrEqual(8)
+    // 对照：反馈读得到时它会轮满预算
+    const full = fakeCtx()
+    await IMPLEMENTED['SafeRetract']!.execute(full.ctx, {})
+    expect(full.calls.length).toBeGreaterThan(100)
   })
 })

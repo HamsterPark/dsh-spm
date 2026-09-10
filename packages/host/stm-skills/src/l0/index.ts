@@ -12,6 +12,8 @@ import { SIMPLE_WRITES } from './writes-simple.js'
 import { VERIFIED_WRITES } from './writes-verified.js'
 import { GATED_WRITES } from './writes-gated.js'
 import { MoveToXY } from './move.js'
+import { SafeRetract } from './safe-retract.js'
+import { TryEngageController } from './engage.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
@@ -21,6 +23,8 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...VERIFIED_WRITES,
   ...GATED_WRITES,
   MoveToXY,
+  SafeRetract,
+  TryEngageController,
 }
 
 export * from './common.js'
@@ -31,4 +35,7 @@ export * from './writes-simple.js'
 export * from './writes-verified.js'
 export * from './writes-gated.js'
 export * from './move.js'
+export * from './tip-park-read.js'
+export * from './safe-retract.js'
+export * from './engage.js'
 export * from './verify.js'

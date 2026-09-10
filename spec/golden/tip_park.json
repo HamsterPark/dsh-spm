@@ -1,0 +1,630 @@
+{
+  "constants": {
+    "NOT_PARKED": "not_parked",
+    "PARKED": "parked",
+    "UNREADABLE": "unreadable",
+    "module_status": {
+      "1": "Off",
+      "2": "On",
+      "3": "Hold",
+      "4": "SwitchingOff",
+      "5": "SafeTip",
+      "6": "Withdrawing"
+    },
+    "rail_tol_frac": 0.01
+  },
+  "travel": {
+    "degenerate_equal": {
+      "input": {
+        "piezo_z_full_m": null,
+        "z_limits_enabled": true,
+        "z_limits_m": [
+          5e-08,
+          5e-08
+        ]
+      },
+      "travel": null
+    },
+    "limits_only": {
+      "input": {
+        "piezo_z_full_m": null,
+        "z_limits_enabled": true,
+        "z_limits_m": [
+          -2e-07,
+          1.5e-07
+        ]
+      },
+      "travel": {
+        "hi_m": 1.5e-07,
+        "lo_m": -2e-07,
+        "source": "ZCtrl_LimitsGet (enabled)",
+        "span_m": 3.5e-07
+      }
+    },
+    "none": {
+      "input": {
+        "piezo_z_full_m": null,
+        "z_limits_enabled": null,
+        "z_limits_m": null
+      },
+      "travel": null
+    },
+    "piezo_only": {
+      "input": {
+        "piezo_z_full_m": 7.2e-07,
+        "z_limits_enabled": null,
+        "z_limits_m": null
+      },
+      "travel": {
+        "hi_m": 3.6e-07,
+        "lo_m": -3.6e-07,
+        "source": "Piezo_RangeGet/2",
+        "span_m": 7.2e-07
+      }
+    },
+    "piezo_plus_disabled_limits": {
+      "input": {
+        "piezo_z_full_m": 7.2e-07,
+        "z_limits_enabled": false,
+        "z_limits_m": [
+          -1e-07,
+          1e-07
+        ]
+      },
+      "travel": {
+        "hi_m": 3.6e-07,
+        "lo_m": -3.6e-07,
+        "source": "Piezo_RangeGet/2",
+        "span_m": 7.2e-07
+      }
+    },
+    "piezo_plus_looser_limits": {
+      "input": {
+        "piezo_z_full_m": 7.2e-07,
+        "z_limits_enabled": true,
+        "z_limits_m": [
+          -9e-07,
+          9e-07
+        ]
+      },
+      "travel": {
+        "hi_m": 3.6e-07,
+        "lo_m": -3.6e-07,
+        "source": "Piezo_RangeGet/2",
+        "span_m": 7.2e-07
+      }
+    },
+    "piezo_plus_tighter_limits": {
+      "input": {
+        "piezo_z_full_m": 7.2e-07,
+        "z_limits_enabled": true,
+        "z_limits_m": [
+          -1e-07,
+          1e-07
+        ]
+      },
+      "travel": {
+        "hi_m": 1e-07,
+        "lo_m": -1e-07,
+        "source": "ZCtrl_LimitsGet (enabled)",
+        "span_m": 2e-07
+      }
+    },
+    "piezo_plus_unknown_limits": {
+      "input": {
+        "piezo_z_full_m": 7.2e-07,
+        "z_limits_enabled": null,
+        "z_limits_m": [
+          -1e-07,
+          1e-07
+        ]
+      },
+      "travel": {
+        "hi_m": 3.6e-07,
+        "lo_m": -3.6e-07,
+        "source": "Piezo_RangeGet/2",
+        "span_m": 7.2e-07
+      }
+    },
+    "piezo_zero": {
+      "input": {
+        "piezo_z_full_m": 0.0,
+        "z_limits_enabled": null,
+        "z_limits_m": null
+      },
+      "travel": null
+    }
+  },
+  "verdicts": {
+    "at_extend_end": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = -360.0 nm；收回端 = 360.0 nm；差 720.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 7.2e-07,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": -3.6e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "Z 反馈环已断开,但 Z 没停在收回端 —— 而是顶在**伸长端**(朝样品那一侧)。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": -3.6e-07
+    },
+    "feedback_on_closed": {
+      "evidence": "Z 反馈: 闭合；模块: On",
+      "feedback_on": true,
+      "gap_m": null,
+      "input": {
+        "feedback_on": true,
+        "module_status": "On",
+        "travel": null,
+        "z_extend_sign": null,
+        "z_m": null
+      },
+      "is_parked": false,
+      "module_status": "On",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "Z 反馈环仍然闭合(实时控制器回报 ON)—— 针没有退到静态安全态。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": null,
+      "travel_source": null,
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": null
+    },
+    "just_outside_tolerance": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = 352.0 nm；收回端 = 360.0 nm；差 8.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 8.000000000000019e-09,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.52e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "Z 反馈环已断开,但 Z 没停在收回端 —— 还差 8.0 nm。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.52e-07
+    },
+    "mid_travel": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = 0.0 nm；收回端 = 360.0 nm；差 360.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 3.6e-07,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 0.0
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "Z 反馈环已断开,但 Z 没停在收回端 —— 还差 360.0 nm。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 0.0
+    },
+    "module_withdrawing": {
+      "evidence": "Z 反馈: 断开；模块: Withdrawing",
+      "feedback_on": false,
+      "gap_m": null,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Withdrawing",
+        "travel": null,
+        "z_extend_sign": null,
+        "z_m": null
+      },
+      "is_parked": false,
+      "module_status": "Withdrawing",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "退针正在进行中(模块状态 Withdrawing),还没到位。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": null,
+      "travel_source": null,
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": null
+    },
+    "no_feedback_reading": {
+      "evidence": "Z 反馈: 读不到；模块: Off；Z = -360.0 nm；行程来源: Piezo_RangeGet/2；读不到: feedback_on",
+      "feedback_on": null,
+      "gap_m": null,
+      "input": {
+        "feedback_on": null,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": -3.6e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "判不了退针到位没有:feedback_on 读不到。读不到不等于没退到,也不等于退到了。",
+      "retry_useful": true,
+      "state": "unreadable",
+      "tolerance_m": null,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [
+        "feedback_on"
+      ],
+      "z_m": -3.6e-07
+    },
+    "no_travel": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = -360.0 nm；读不到: z_travel",
+      "feedback_on": false,
+      "gap_m": null,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": null,
+        "z_extend_sign": -1,
+        "z_m": -3.6e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "判不了退针到位没有:z_travel 读不到。读不到不等于没退到,也不等于退到了。",
+      "retry_useful": true,
+      "state": "unreadable",
+      "tolerance_m": null,
+      "travel_source": null,
+      "undeclared": [],
+      "unreadable": [
+        "z_travel"
+      ],
+      "z_m": -3.6e-07
+    },
+    "no_z": {
+      "evidence": "Z 反馈: 断开；模块: Off；行程来源: Piezo_RangeGet/2；读不到: z_m",
+      "feedback_on": false,
+      "gap_m": null,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": null
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "判不了退针到位没有:z_m 读不到。读不到不等于没退到,也不等于退到了。",
+      "retry_useful": true,
+      "state": "unreadable",
+      "tolerance_m": null,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [
+        "z_m"
+      ],
+      "z_m": null
+    },
+    "parked_but_module_hold": {
+      "evidence": "Z 反馈: 断开；模块: Hold；Z = 360.0 nm；收回端 = 360.0 nm；差 0.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 0.0,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Hold",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.6e-07
+      },
+      "is_parked": true,
+      "module_status": "Hold",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端(模块状态 Hold)。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.6e-07
+    },
+    "parked_high_rail": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = 360.0 nm；收回端 = 360.0 nm；差 0.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 0.0,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.6e-07
+      },
+      "is_parked": true,
+      "module_status": "Off",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.6e-07
+    },
+    "parked_module_none": {
+      "evidence": "Z 反馈: 断开；Z = 360.0 nm；收回端 = 360.0 nm；差 0.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 0.0,
+      "input": {
+        "feedback_on": false,
+        "module_status": null,
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.6e-07
+      },
+      "is_parked": true,
+      "module_status": null,
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.6e-07
+    },
+    "parked_module_safetip": {
+      "evidence": "Z 反馈: 断开；模块: SafeTip；Z = 360.0 nm；收回端 = 360.0 nm；差 0.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 0.0,
+      "input": {
+        "feedback_on": false,
+        "module_status": "SafeTip",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.6e-07
+      },
+      "is_parked": true,
+      "module_status": "SafeTip",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端(模块状态 SafeTip)。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.6e-07
+    },
+    "parked_within_tolerance": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = 353.5 nm；收回端 = 360.0 nm；差 6.5 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 6.500000000000012e-09,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": -1,
+        "z_m": 3.535e-07
+      },
+      "is_parked": true,
+      "module_status": "Off",
+      "rail_m": 3.6e-07,
+      "rail_side": "high",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.535e-07
+    },
+    "sign_plus_at_extend": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = 360.0 nm；收回端 = -360.0 nm；差 720.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 7.2e-07,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": 1,
+        "z_m": 3.6e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": -3.6e-07,
+      "rail_side": "low",
+      "reason": "Z 反馈环已断开,但 Z 没停在收回端 —— 而是顶在**伸长端**(朝样品那一侧)。",
+      "retry_useful": true,
+      "state": "not_parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": 3.6e-07
+    },
+    "sign_plus_parked_low": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = -360.0 nm；收回端 = -360.0 nm；差 0.0 nm(容差 7.2 nm)；行程来源: Piezo_RangeGet/2",
+      "feedback_on": false,
+      "gap_m": 0.0,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": 1,
+        "z_m": -3.6e-07
+      },
+      "is_parked": true,
+      "module_status": "Off",
+      "rail_m": -3.6e-07,
+      "rail_side": "low",
+      "reason": "已退到静态安全态:Z 反馈环断开,Z 停在收回端。",
+      "retry_useful": true,
+      "state": "parked",
+      "tolerance_m": 7.2e-09,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [],
+      "unreadable": [],
+      "z_m": -3.6e-07
+    },
+    "undeclared_sign": {
+      "evidence": "Z 反馈: 断开；模块: Off；Z = -360.0 nm；行程来源: Piezo_RangeGet/2；本机未声明: z_extend_sign",
+      "feedback_on": false,
+      "gap_m": null,
+      "input": {
+        "feedback_on": false,
+        "module_status": "Off",
+        "travel": {
+          "hi_m": 3.6e-07,
+          "lo_m": -3.6e-07,
+          "source": "Piezo_RangeGet/2",
+          "span_m": 7.2e-07
+        },
+        "z_extend_sign": null,
+        "z_m": -3.6e-07
+      },
+      "is_parked": false,
+      "module_status": "Off",
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "判不了退针到位没有:本机从没声明过 ``z_extend_sign``(Z 压电伸长朝哪个方向),所以不知道行程的哪一端是收回端。**不猜** —— 猜反了会把停在伸长端(朝样品那一侧)的针判成已退针。请在仪器档案里声明后再判。",
+      "retry_useful": false,
+      "state": "unreadable",
+      "tolerance_m": null,
+      "travel_source": "Piezo_RangeGet/2",
+      "undeclared": [
+        "z_extend_sign"
+      ],
+      "unreadable": [],
+      "z_m": -3.6e-07
+    },
+    "undeclared_sign_beats_unreadable": {
+      "evidence": "Z 反馈: 读不到；读不到: z_m, feedback_on, z_travel；本机未声明: z_extend_sign",
+      "feedback_on": null,
+      "gap_m": null,
+      "input": {
+        "feedback_on": null,
+        "module_status": null,
+        "travel": null,
+        "unreadable": [
+          "z_m"
+        ],
+        "z_extend_sign": null,
+        "z_m": null
+      },
+      "is_parked": false,
+      "module_status": null,
+      "rail_m": null,
+      "rail_side": null,
+      "reason": "判不了退针到位没有:本机从没声明过 ``z_extend_sign``(Z 压电伸长朝哪个方向),所以不知道行程的哪一端是收回端。**不猜** —— 猜反了会把停在伸长端(朝样品那一侧)的针判成已退针。请在仪器档案里声明后再判。",
+      "retry_useful": false,
+      "state": "unreadable",
+      "tolerance_m": null,
+      "travel_source": null,
+      "undeclared": [
+        "z_extend_sign"
+      ],
+      "unreadable": [
+        "z_m",
+        "feedback_on",
+        "z_travel"
+      ],
+      "z_m": null
+    }
+  }
+}
