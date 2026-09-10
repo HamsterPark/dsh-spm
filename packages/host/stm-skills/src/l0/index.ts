@@ -8,14 +8,24 @@ import type { Skill } from 'dsh-spm-kernel'
 import { CORE_READS } from './reads-core.js'
 import { HW_READS } from './reads-hw.js'
 import { GetZControllerState } from './zctrl-state.js'
+import { SIMPLE_WRITES } from './writes-simple.js'
+import { VERIFIED_WRITES } from './writes-verified.js'
+import { GATED_WRITES } from './writes-gated.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
   ...HW_READS,
   GetZControllerState,
+  ...SIMPLE_WRITES,
+  ...VERIFIED_WRITES,
+  ...GATED_WRITES,
 }
 
 export * from './common.js'
 export * from './reads-core.js'
 export * from './reads-hw.js'
 export * from './zctrl-state.js'
+export * from './writes-simple.js'
+export * from './writes-verified.js'
+export * from './writes-gated.js'
+export * from './verify.js'

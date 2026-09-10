@@ -162,3 +162,33 @@ export function formatSi(value: number, digits = 6): string {
   }
   return formatG(value, digits)
 }
+
+/**
+ * Python 的 `repr(float)`。
+ *
+ * 文案里出现的数必须逐字对得上，而 JS 的 `String()` 与 Python 的 `repr()`
+ * 在两处不同：
+ *
+ * | 值 | Python | JS |
+ * |---|---|---|
+ * | `5.0` | `5.0` | `5` |
+ * | `5e-8` | `5e-08` | `5e-8` |
+ *
+ * 前者是整值浮点的小数点，后者是指数位数。两处都会让「请求 5.0」变成
+ * 「请求 5」——一个数看起来像整数还是像浮点，在**量级错**的诊断里是有意义的。
+ */
+export function pyFloatRepr(v: number): string {
+  if (!Number.isFinite(v)) return v > 0 ? 'inf' : Number.isNaN(v) ? 'nan' : '-inf'
+  const s = String(v)
+  const e = s.indexOf('e')
+  if (e < 0) {
+    // 整值浮点：Python 印 `5.0`，JS 印 `5`
+    return Number.isInteger(v) && !s.includes('.') ? `${s}.0` : s
+  }
+  const mant = s.slice(0, e)
+  let exp = s.slice(e + 1)
+  const sign = exp.startsWith('-') ? '-' : '+'
+  if (exp.startsWith('-') || exp.startsWith('+')) exp = exp.slice(1)
+  if (exp.length < 2) exp = `0${exp}`
+  return `${mant}e${sign}${exp}`
+}

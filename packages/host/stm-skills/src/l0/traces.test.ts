@@ -66,11 +66,11 @@ function synthBody(verb: string): unknown[] {
 }
 
 /** 与导出脚本同形的假 context：回显记忆 + 按序号注错 + 空 body。 */
-function fakeCtx(opts: { errorAt?: number; emptyAt?: number } = {}): {
+function fakeCtx(opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean } = {}): {
   ctx: SkillContext
   calls: { verb: string; args: unknown[] }[]
 } {
-  const calls: { verb: string; args: unknown[] }[] = []
+  const calls: { verb: string; args: unknown[]; emergency?: true }[] = []
   const echo = new Map<string, unknown[]>()
   const safeCall = (method: string, ...args: unknown[]): Promise<SkillCallRecord> => {
     const i = calls.length
@@ -84,14 +84,28 @@ function fakeCtx(opts: { errorAt?: number; emptyAt?: number } = {}): {
       echo.set(base, [...args])
       return Promise.resolve({ method, args, values: synthBody(method) })
     }
-    if (method.endsWith('Get') && base !== undefined && echo.has(base)) {
+    if (method.endsWith('Get') && base !== undefined && echo.has(base) && opts.noEcho !== true) {
       return Promise.resolve({ method, args, values: [...echo.get(base)!] })
     }
     return Promise.resolve({ method, args, values: synthBody(method) })
   }
+  // **假钟与导出脚本同规则**：`sleep` 把钟往前拨，不真等。
+  // no-op 的 sleep 会让「预算到了没」永远为假，轮询变死循环 —— 导出那侧
+  // 踩过一次（AutoApproach 在真时间上转 30 分钟）。
+  let clock = 1_000_000
   const ctx: SkillContext = {
     signal: new AbortController().signal,
     safeCall,
+    emergencyCall: (method: string, ...args: unknown[]) => {
+      const p = safeCall(method, ...args)
+      calls[calls.length - 1]!.emergency = true
+      return p
+    },
+    now: () => (clock += 1),
+    sleep: (ms: number) => {
+      clock += ms
+      return Promise.resolve()
+    },
     state: () => S0,
     refreshState: () => Promise.resolve(S0),
     markers: { emit: () => {} },
@@ -104,7 +118,10 @@ function fakeCtx(opts: { errorAt?: number; emptyAt?: number } = {}): {
 }
 
 /** 轨迹名 → 假 context 的开关。 */
-function optsOf(trace: string): { errorAt?: number; emptyAt?: number } {
+function optsOf(trace: string): { errorAt?: number; emptyAt?: number; noEcho?: boolean } {
+  // `mismatch` = 关掉回显：写进去什么、读回来是另一个数。
+  // 这是「写后回读」那一族**最要命**的一条分支 —— 硬件没接受这个值。
+  if (trace === 'mismatch') return { noEcho: true }
   const err = /^err@(\d+)$/.exec(trace)
   if (err !== null) return { errorAt: Number(err[1]) }
   const empty = /^empty@(\d+)$/.exec(trace)
@@ -143,6 +160,7 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'MotorGetPos/empty@0': { data: { raw: [] } },
   'GetMotorStepCounter/empty@0': { data: { raw: [] } },
   'GetSignalRange/empty@0': { data: { signal_index: 63, raw: [] } },
+  'SetScanBuffer/empty@0': { data: { raw: [] } },
   // ── D-SKILL-2：诊断文案里的回包形状 ──
   'GetAutoApproachStatus/empty@0': {
     error:

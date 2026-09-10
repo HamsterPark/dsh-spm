@@ -108,6 +108,23 @@ export interface SkillContext {
    * 与旧仓 `safe_call` 同一约定（抛出去会绕过 `nanonis_calls` 的记账）。
    */
   readonly safeCall: SafeCall
+  /**
+   * 走**应急角色**发一次调用。
+   *
+   * 应急角色有自己的连接与更短的锁超时，它**不排在主角色后面**——
+   * 退针这件事不能等一个卡住的扫描先放锁。写成一个单独命名的入口而不是
+   * `safeCall` 的一个可选参数：这条路谁在走、走了几次，要能一眼 grep 出来。
+   */
+  readonly emergencyCall: SafeCall
+  /**
+   * 单调时钟（毫秒）。轮询类技能靠它算预算。
+   *
+   * **注入而不是直接用 `Date.now()`**：一个「30 分钟内没到位就报失败」的技能，
+   * 测试里不能真等 30 分钟，而把超时改小又等于测了另一个东西。
+   */
+  readonly now: () => number
+  /** 睡一会儿（毫秒）。同上，测试里由假钟接管。 */
+  readonly sleep: (ms: number) => Promise<void>
   readonly state: () => HardwareState
   readonly refreshState: () => Promise<HardwareState>
   readonly markers: { emit: (kind: string, data?: Record<string, unknown>) => void }
@@ -175,6 +192,11 @@ export interface KernelDeps {
   readonly record?: ((rec: KernelRecord) => void) | undefined
   /** 技能发仪器调用的出口（K11）。缺席时技能会拿到一条带 error 的记录。 */
   readonly safeCall?: SafeCall | undefined
+  /** 应急角色的出口。缺省退回 `safeCall`——**降级也要能退针**。 */
+  readonly emergencyCall?: SafeCall | undefined
+  /** 技能侧的单调时钟与睡眠。缺省用真钟。 */
+  readonly monotonic?: (() => number) | undefined
+  readonly sleep?: ((ms: number) => Promise<void>) | undefined
   /** 超长文本落盘（K13），返回引用。 */
   readonly offload?: ((skill: string, full: string) => string) | undefined
   readonly clock?: (() => number) | undefined
@@ -355,6 +377,15 @@ export class SkillKernel {
     const ctx: SkillContext = {
       signal: opts.signal ?? new AbortController().signal,
       state: () => this.deps.snapshot(),
+      emergencyCall:
+        this.deps.emergencyCall ??
+        this.deps.safeCall ??
+        ((method, ...args): Promise<SkillCallRecord> =>
+          Promise.resolve({ method, args, error: 'no_instrument: 这个内核没有接仪器' })),
+      now: this.deps.monotonic ?? ((): number => Date.now()),
+      sleep:
+        this.deps.sleep ??
+        ((ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))),
       // 没接仪器时给一条**带 error 的记录**，而不是抛：技能里所有分支都按
       // `record.error` 判，抛出去会绕过它们、也绕过 `nanonis_calls` 的记账。
       safeCall:

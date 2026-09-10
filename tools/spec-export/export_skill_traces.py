@@ -207,7 +207,8 @@ class _FakeContext:
     """
 
     def __init__(self, table: dict, *, error_at: int | None = None,
-                 empty_at: int | None = None, run_error_at: int | None = None):
+                 empty_at: int | None = None, run_error_at: int | None = None,
+                 no_echo: bool = False):
         self.table = table
         # **写进去什么、读回来就是什么** —— 真仪器就是这样，而常量回包会让每一个
         # 「写后回读」技能都走进「不一致」分支。键是去掉尾部 Set/Get 的动词名，
@@ -216,6 +217,7 @@ class _FakeContext:
         self.error_at = error_at
         self.empty_at = empty_at
         self.run_error_at = run_error_at
+        self.no_echo = no_echo
         self.calls: list[dict] = []
         self.runs: list[dict] = []
         self.state = None
@@ -234,7 +236,7 @@ class _FakeContext:
             if method_name.endswith("Set") and base is not None:
                 self.echo[base] = [_jsonable(a) for a in args]
                 rec.return_value = ("", b"", _synth_body(method_name, self.table))
-            elif method_name.endswith("Get") and base in self.echo:
+            elif method_name.endswith("Get") and base in self.echo and not self.no_echo:
                 rec.return_value = ("", b"", list(self.echo[base]))
             else:
                 rec.return_value = ("", b"", _synth_body(method_name, self.table))
@@ -310,21 +312,30 @@ def main() -> int:
 
         print(f"  … {name}", file=sys.stderr, flush=True)
         traces: dict[str, Any] = {"ok": _trace(skill, params, table)}
-        # **注错点从成功那一趟派生**，但按**动词首次出现**去重：
-        # 一个轮询技能会把同一个动词调几千次，逐序号注错是组合爆炸，
-        # 而第 2000 次和第 1 次走的是同一条 `if record.error:` 分支。
-        seen: set[str] = set()
-        points = []
+        # **注错点从成功那一趟派生**，取每个动词的**首次与末次**出现：
+        #
+        # 只取首次是不够的 —— `SetSetpoint` 的序列是
+        # `SetpntGet → SetpntSet → SetpntGet`，前置读和回读是同一个动词，
+        # 于是「**回读失败**」那条分支一条轨迹都没有。而回读正是这类技能的要害。
+        #
+        # 也不能逐序号取：轮询技能一趟几千次调用，那是组合爆炸，
+        # 而第 2000 次和第 1 次走的是同一条分支。首次 + 末次刚好夹住两端。
+        first: dict[str, int] = {}
+        last: dict[str, int] = {}
         for i, c in enumerate(traces["ok"]["calls"]):
-            if c["verb"] in seen:
-                continue
-            seen.add(c["verb"])
-            points.append(i)
+            first.setdefault(c["verb"], i)
+            last[c["verb"]] = i
+        points = sorted(set(first.values()) | set(last.values()))
         for i in points[:MAX_ERROR_POINTS]:
             traces[f"err@{i}"] = _trace(skill, params, table, error_at=i)
         n_calls = len(traces["ok"]["calls"])
         if n_calls > 0:
             traces["empty@0"] = _trace(skill, params, table, empty_at=0)
+        # **回读回来但对不上**——写后回读这一族最要命的一条分支。
+        # 关掉回显即可：写进去什么，读回来是另一个数，正是硬件没接受这个值的形状。
+        verbs = {c["verb"] for c in traces["ok"]["calls"]}
+        if any(v.endswith("Set") for v in verbs) and any(v.endswith("Get") for v in verbs):
+            traces["mismatch"] = _trace(skill, params, table, no_echo=True)
         n_runs = len(traces["ok"].get("runs") or [])
         for i in range(n_runs):
             traces[f"runerr@{i}"] = _trace(skill, params, table, run_error_at=i)
