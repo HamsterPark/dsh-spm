@@ -54,6 +54,12 @@ const BATCH_2 = [
   'AutoApproach', 'ApproachTip',
 ]
 
+/** 批 3a：扫描主链（PLAN §8.4 批 3 的头六个）。 */
+const BATCH_3A = [
+  'ConfigureScan', 'SetScanSpeed', 'StartScan', 'WaitScanComplete',
+  'SaveScan', 'GrabScanFrameData',
+]
+
 interface GoldenParam {
   name: string
   type: string
@@ -116,7 +122,7 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2]
+  const names = [...BATCH_1, ...BATCH_2, ...BATCH_3A]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 

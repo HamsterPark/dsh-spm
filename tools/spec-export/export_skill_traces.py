@@ -105,6 +105,14 @@ BATCH_2 = [
     "AutoApproach", "ApproachTip",
 ]
 
+#: 批 3a（扫描主链）。`WaitScanComplete` 在计划里单独占一格：它是第一个**长时**
+#: 技能，抱着 abort、超时、五种 outcome，以及那条硬约束 ——
+#: 「dsh 超时也触发 signal，**绝不把仪器留在运动中**」。
+BATCH_3A = [
+    "ConfigureScan", "SetScanSpeed", "StartScan", "WaitScanComplete",
+    "SaveScan", "GrabScanFrameData",
+]
+
 #: **不进轨迹金样**的技能。
 #:
 #: 两个 L1 试点是 GraphExecutor 图技能：它们的「成功」需要一份**会收敛的**物理脚本
@@ -151,6 +159,9 @@ def _param_value(spec: Any) -> Any:
 
 #: 通用规则给不出合法值的几个。**只列真需要的**——每多一条就多一处手写的真源。
 PARAM_OVERRIDES: dict[str, dict] = {
+    # 缺省 -1 = **无限等**。给一个有限值，好让「超时」那条 outcome 被录到 ——
+    # 不给的话录到的是「导出脚本挂住了」。
+    "WaitScanComplete": {"timeout_ms": 5000},
     # 逗号分隔的整数串，不是自由文本
     "GetSignalValues": {"signal_indexes": "0"},
     # 幅度取一个**在任何叠堆上都不会烧**的低值（默认中点 200 V 会撞上「本机上限未声明」）
@@ -170,6 +181,20 @@ def _params_for(name: str, meta: Any) -> dict:
 #: 一个技能最多注几次错。轮询技能的动词种类也可能很多，而超过这个数之后
 #: 每多一条的边际信息接近零。
 MAX_ERROR_POINTS = 12
+
+#: 一趟最多让技能发多少次调用。
+#:
+#: 2026-09-11 踩到：`WaitScanComplete` 的 `timeout_ms` 缺省是 **-1 = 无限**，
+#: 于是导出脚本在它身上转了二十分钟没出来。假钟能让「时间」过去，
+#: 但过不完一个无限的预算。
+#:
+#: 超了就当场停并把它录成一条 `raised` —— **「这个技能在这套脚本下会一直转」
+#: 本身就是一条判据**，比一个挂住的导出有用。
+MAX_CALLS = 4000
+
+
+class _CallBudgetExceeded(RuntimeError):
+    pass
 
 #: 类型码 → 一个形状对的值。**逐位不同**是关键：
 #:
@@ -232,6 +257,10 @@ class _FakeContext:
 
     def safe_call(self, method_name: str, *args, **kwargs) -> NanonisCallRecord:
         i = len(self.calls)
+        if i >= MAX_CALLS:
+            raise _CallBudgetExceeded(
+                f"超过 {MAX_CALLS} 次调用仍未收敛（最后一个动词 {method_name}）"
+            )
         rec = NanonisCallRecord(method=method_name, args=tuple(args), kwargs=dict(kwargs))
         if i == self.error_at:
             rec.error = "模拟故障：连接被对端关闭"
@@ -308,7 +337,7 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2:
+    for name in BATCH_1 + BATCH_2 + BATCH_3A:
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

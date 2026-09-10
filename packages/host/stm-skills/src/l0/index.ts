@@ -14,6 +14,7 @@ import { GATED_WRITES } from './writes-gated.js'
 import { MoveToXY } from './move.js'
 import { SafeRetract } from './safe-retract.js'
 import { TryEngageController } from './engage.js'
+import { SCAN_CHAIN } from './scan.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
@@ -25,6 +26,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   MoveToXY,
   SafeRetract,
   TryEngageController,
+  ...SCAN_CHAIN,
 }
 
 export * from './common.js'
@@ -38,4 +40,5 @@ export * from './move.js'
 export * from './tip-park-read.js'
 export * from './safe-retract.js'
 export * from './engage.js'
+export * from './scan.js'
 export * from './verify.js'

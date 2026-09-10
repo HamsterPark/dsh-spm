@@ -1,4 +1,597 @@
 {
+  "ConfigureScan": {
+    "params": {
+      "center_x_m": 1e-09,
+      "center_y_m": 1e-09,
+      "height_m": 5.0000500000000005e-06,
+      "width_m": 5.0000500000000005e-06
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {},
+        "error": "无法读回当前扫描角度(Scan_FrameGet 失败或回包读不懂),拒绝配置扫描帧 —— 用一个假定的 0° 会**静默地把扫描框转正**,而调用方要的是「保持当前角度」。若确实要 0°,请显式传 angle_deg=0.0。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {},
+        "error": "无法读回当前扫描角度(Scan_FrameGet 失败或回包读不懂),拒绝配置扫描帧 —— 用一个假定的 0° 会**静默地把扫描框转正**,而调用方要的是「保持当前角度」。若确实要 0°,请显式传 angle_deg=0.0。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {
+          "frame_readback": null,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ]
+        },
+        "error": "Scan_FrameSet 发出去了，但**读不回**扫描帧(Scan_FrameGet 失败或回包读不懂) —— 拒绝继续。「读不到」不是「设上了」：仪器可能已经把框夹到量程内，而此后每一张图的坐标都会是假的。",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [
+              1.0000100000000001e-05,
+              1.0000100000000001e-05,
+              0.5,
+              0.5,
+              2,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "angle_deg": 1.25,
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "channels": "Z,Current",
+          "frame_exceeds_piezo_range": null,
+          "frame_verified": true,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "line_time_source": "tier:survey",
+          "linear_speed_m_s": 1.0000100000000001e-05,
+          "piezo_half_x_m": null,
+          "piezo_half_y_m": null,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ],
+          "scan_speed_set": true,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [
+              1.0000100000000001e-05,
+              1.0000100000000001e-05,
+              0.5,
+              0.5,
+              2,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "angle_deg": 1.25,
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "channels": "Z,Current",
+          "frame_exceeds_piezo_range": null,
+          "frame_verified": true,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "line_time_source": "tier:survey",
+          "linear_speed_m_s": 1.0000100000000001e-05,
+          "piezo_half_x_m": 2.5,
+          "piezo_half_y_m": 5.0,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ],
+          "scan_speed_set": true,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [
+              1.0000100000000001e-05,
+              1.0000100000000001e-05,
+              0.5,
+              0.5,
+              2,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "angle_deg": 1.25,
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "channels": "Z,Current",
+          "frame_exceeds_piezo_range": null,
+          "frame_verified": true,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "line_time_source": "tier:survey",
+          "linear_speed_m_s": 1.0000100000000001e-05,
+          "piezo_half_x_m": 0.125,
+          "piezo_half_y_m": 0.5,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ],
+          "scan_speed_set": true,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [
+              1.0000100000000001e-05,
+              1.0000100000000001e-05,
+              0.5,
+              0.5,
+              2,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "angle_deg": 1.25,
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "channels": "Z,Current",
+          "frame_exceeds_piezo_range": null,
+          "frame_verified": true,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "line_time_source": "tier:survey",
+          "linear_speed_m_s": 1.0000100000000001e-05,
+          "piezo_half_x_m": 0.125,
+          "piezo_half_y_m": 0.5,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ],
+          "scan_speed_set": false,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {
+          "frame_mismatch": {
+            "center_x_m": {
+              "delta_m": 0.249999999,
+              "readback": 0.25,
+              "requested": 1e-09
+            },
+            "center_y_m": {
+              "delta_m": 0.499999999,
+              "readback": 0.5,
+              "requested": 1e-09
+            },
+            "height_m": {
+              "delta_m": 0.99999499995,
+              "readback": 1.0,
+              "requested": 5.0000500000000005e-06
+            },
+            "width_m": {
+              "delta_m": 0.74999499995,
+              "readback": 0.75,
+              "requested": 5.0000500000000005e-06
+            }
+          },
+          "frame_readback": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ]
+        },
+        "error": "仪器没有接受这个扫描帧，它把框改了：center_x_m 要 1e-09 实得 0.25, center_y_m 要 1e-09 实得 0.5, width_m 要 5e-06 实得 0.75, height_m 要 5e-06 实得 1。**拒绝，不夹紧** —— 按夹紧后的框扫出来的图，坐标与请求的对不上，而图看着完全正常。把中心挪回量程内，或把 size_m 调小。",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              5.0000500000000005e-06,
+              5.0000500000000005e-06,
+              1.25
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [
+              1.0000100000000001e-05,
+              1.0000100000000001e-05,
+              0.5,
+              0.5,
+              2,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "angle_deg": 1.25,
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "channels": "Z,Current",
+          "frame_exceeds_piezo_range": null,
+          "frame_verified": true,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "line_time_source": "tier:survey",
+          "linear_speed_m_s": 1.0000100000000001e-05,
+          "piezo_half_x_m": 0.125,
+          "piezo_half_y_m": 0.5,
+          "requested_frame": [
+            1e-09,
+            1e-09,
+            5.0000500000000005e-06,
+            5.0000500000000005e-06,
+            1.25
+          ],
+          "scan_speed_set": true,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "CreateZCtrlPreset": {
     "params": {
       "i_gain": "150p",
@@ -3551,6 +4144,70 @@
         ],
         "data": {
           "z_pos_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GrabScanFrameData": {
+    "params": {
+      "channel_index": 0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {},
+        "error": "Scan_FrameDataGrab returned no usable samples",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "frame_path": "<TEMP_ROOT>\\mast-spec-export\\experiments\\frames\\frame_ch0_dir1_cfe56800.npy",
+          "n_samples": 5,
+          "shape": [
+            5
+          ]
         },
         "error": "",
         "success": true,
@@ -14855,6 +15512,112 @@
       }
     }
   },
+  "SaveScan": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Save"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "saved_path": null,
+          "timed_out": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_Save"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Save"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "saved_path": null,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Save"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "saved_path": null,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetBias": {
     "params": {
       "bias_v": 5.0
@@ -15721,6 +16484,93 @@
         "error": "",
         "success": true,
         "summary": "扫描分辨率 5x6 → 2056x2056(回读未确认)"
+      }
+    }
+  },
+  "SetScanSpeed": {
+    "params": {
+      "bwd_line_time": 0.0,
+      "bwd_speed": 0.0,
+      "fwd_line_time": 0.0,
+      "fwd_speed": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "bwd_line_time": 0.0,
+          "bwd_speed": 0.0,
+          "fwd_line_time": 0.0,
+          "fwd_speed": 0.0,
+          "keep_const": 0,
+          "speed_ratio": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_SpeedSet"
+          }
+        ],
+        "data": {
+          "bwd_line_time": 0.0,
+          "bwd_speed": 0.0,
+          "fwd_line_time": 0.0,
+          "fwd_speed": 0.0,
+          "keep_const": 0,
+          "speed_ratio": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
       }
     }
   },
@@ -16607,6 +17457,321 @@
       }
     }
   },
+  "StartScan": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 3,
+          "continuous_scan_before": null,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": "Scan_PropsGet 回包里没有模块名数组",
+          "module_names_source": "unchanged",
+          "saved_modules": [],
+          "scan_props_written": false,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "**读不到** Nanonis 的 Continuous scan 状态,而且这次也没能写(读「保存哪些模块参数」清单失败:Scan_PropsGet 回包里没有模块名数组 —— 而协议里没有「模块名保持原样」这一档,所以整发 Scan_PropsSet 都不敢下,免得清空用户配好的清单)。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=None, 0=关 1=开;模块清单来源=unchanged)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              1,
+              "",
+              "",
+              [
+                "Sig9A",
+                "Sig9B"
+              ],
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 2,
+          "continuous_scan_before": 3,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": null,
+          "module_names_source": "read",
+          "saved_modules": [
+            "Sig9A",
+            "Sig9B"
+          ],
+          "scan_props_written": true,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "下发了 Scan_PropsSet,但**回读不到** Continuous scan 状态(回包里没有这个标志),无法确认它已经关掉。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=3, 0=关 1=开;模块清单来源=read)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              1,
+              "",
+              "",
+              [
+                "Sig9A",
+                "Sig9B"
+              ],
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 3,
+          "continuous_scan_before": 3,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": null,
+          "module_names_source": "read",
+          "saved_modules": [
+            "Sig9A",
+            "Sig9B"
+          ],
+          "scan_props_written": true,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "下发了 Scan_PropsSet,但**回读不到** Continuous scan 状态(回包里没有这个标志),无法确认它已经关掉。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=3, 0=关 1=开;模块清单来源=read)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              1,
+              "",
+              "",
+              [
+                "Sig9A",
+                "Sig9B"
+              ],
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 2,
+          "continuous_scan_before": 3,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": null,
+          "module_names_source": "read",
+          "saved_modules": [
+            "Sig9A",
+            "Sig9B"
+          ],
+          "scan_props_written": true,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "下发了 Scan_PropsSet,但**回读不到** Continuous scan 状态(回包里没有这个标志),无法确认它已经关掉。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=3, 0=关 1=开;模块清单来源=read)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              1,
+              "",
+              "",
+              [
+                "Sig9A",
+                "Sig9B"
+              ],
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 3,
+          "continuous_scan_before": 3,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": null,
+          "module_names_source": "read",
+          "saved_modules": [
+            "Sig9A",
+            "Sig9B"
+          ],
+          "scan_props_written": true,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "下发了 Scan_PropsSet,但**回读不到** Continuous scan 状态(回包里没有这个标志),无法确认它已经关掉。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=3, 0=关 1=开;模块清单来源=read)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              1,
+              "",
+              "",
+              [
+                "Sig9A",
+                "Sig9B"
+              ],
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_PropsGet"
+          }
+        ],
+        "data": {
+          "continuous_readback_error": null,
+          "continuous_scan_after": 2,
+          "continuous_scan_before": 3,
+          "continuous_scan_override_used": false,
+          "continuous_scan_still_on": null,
+          "module_names_count_declared": null,
+          "module_names_read_error": null,
+          "module_names_source": "read",
+          "saved_modules": [
+            "Sig9A",
+            "Sig9B"
+          ],
+          "scan_props_written": true,
+          "scan_running": false,
+          "vision_monitor": false
+        },
+        "error": "下发了 Scan_PropsSet,但**回读不到** Continuous scan 状态(回包里没有这个标志),无法确认它已经关掉。\n**不发起这次扫描** —— 一次 start 就不再等于一帧:扫描会一帧接一帧地跑下去,WaitScanComplete 只能等满超时(outcome=restarted),而 SaveScan / 扫描地图登记拿到的可能是第 N+2 帧。发出去比不发更坏,而且坏在看不见的地方。\n(读回的 GET 值:before=3, 0=关 1=开;模块清单来源=read)\n三条出口:\n  1. **修那次读**。读不到通常本身就是 bug(2026-08-19 那次是 Scan_PropsGet 的 `*+i` 解析崩了),它值得被看见而不是被绕过。\n  2. **在 Nanonis 的 Scan 模块里手动关掉 Continuous scan**。下一次 StartScan 读到「关」就直接放行 —— 根本不需要写,也就不用冒清空「保存哪些模块参数」的险。\n  3. 明确接受风险:`allow_continuous_scan=True`。**这是用户的决定,不是自动重试的开关** —— agent 遇到这条应当把上面两条报给用户,而不是自己把它打开重来一遍(打开之后拿到的那一帧,可能不是你以为的那一帧)。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "StopAutoApproach": {
     "params": {},
     "traces": {
@@ -17470,6 +18635,2145 @@
           "peak_current_a": 0.25,
           "setpoint_a": 0.25,
           "z_controller_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "WaitScanComplete": {
+    "params": {
+      "timeout_ms": 5000
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "poll_11",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [
+              "poll_0"
+            ],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.012000000569969,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 11,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.012000000569969,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 11,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@19": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@22": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@23": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@24": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_Action"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "poll_0",
+              "poll_1",
+              "poll_2",
+              "poll_3",
+              "poll_4",
+              "poll_5",
+              "poll_6",
+              "poll_7",
+              "poll_8",
+              "poll_9",
+              "poll_10",
+              "finalize"
+            ],
+            "composite_name": "WaitScanComplete",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "aborted": false,
+              "budget_s": 5.0,
+              "elapsed_s": 5.011000000522472,
+              "frame_restarted": false,
+              "last_lines_done": null,
+              "lines_verified": false,
+              "outcome": "timed_out",
+              "polls": 10,
+              "scan_done": true,
+              "stopped_early": false,
+              "timed_out": true
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 18
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "budget_s": 5.0,
+          "deadline_s": 5.0,
+          "elapsed_s": 5.011000000522472,
+          "extensions": 0,
+          "frame_restarted": false,
+          "lines_done": null,
+          "lines_total": null,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "timed_out",
+          "polls": 10,
+          "stopped_early": false,
+          "timed_out": true
         },
         "error": "",
         "success": true,

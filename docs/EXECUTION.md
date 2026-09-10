@@ -62,7 +62,10 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 `ABORT_SAFE_WRITES` 用在了**工具名**上 —— 两套命名空间，于是「有豁免」只是注释里的一句话。
 动词那一层现在在 `gatedSafeCall()`。
 
-**下一段 = 2.15 收尾的三个**，每个都卡在一件缺失的支撑件上：
+**下一段 = GraphExecutor**（见 §5 末尾的依赖分析：它同时挡着批 2 的两个 L1 试点、
+批 3a 的 `WaitScanComplete`、批 3b 的 `SetBiasRamp` 和整个批 5）。
+
+2.15 收尾的三个也各卡在一件支撑件上：
 
 | 技能 | 缺的是 |
 |---|---|
@@ -78,7 +81,7 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1307 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1314 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -1080,6 +1083,44 @@ session log 可 replay 重建每次请求；帧内联可见；`stm_selfcheck` �
 **为什么 WaitScanComplete 单独占一格**：它是第一个**长时**技能，抱着 abort、超时、五种 outcome 与
 「dsh 超时也触发 signal，绝不把仪器留在运动中」这条硬约束。`exec.signal` 触发时要发
 `Scan_Action(1,0)` 停扫再返回 aborted——**不是直接返回**。
+
+---
+
+### 批 3a 的依赖分析（2026-09-11）：六个里先做了两个
+
+轨迹金样已覆盖全部六个（`export_skill_traces.py` 的 `BATCH_3A`，288 条轨迹）。
+**已移植 2 个**，其余四个各自卡在一件支撑件上 —— 逐条写下来，免得下次重新查一遍：
+
+| 技能 | 状态 | 卡在哪 |
+|---|---|---|
+| `SetScanSpeed` | ✅ | — |
+| `SaveScan` | ✅ | 目录扫描做成**注入**（`findLatestSxm`），技能本身不碰文件系统 |
+| `ConfigureScan` | ⏳ | `scan_policy.resolve_line_time`（出厂档位表）、`frame_readback_mismatch`、通道名→索引解析、压电半程核对 |
+| `StartScan` | ⏳ | `_read_scan_props` 一族五个解析器（continuous / series name / module count / modules）、`_build_scan_basename`（实验+样品命名） |
+| `WaitScanComplete` | ⏳ | **它是图技能**（`CompositeSkillGraph`，每次轮询是一个 `_phase_poll_<i>` 合成步），要 GraphExecutor |
+| `GrabScanFrameData` | ⏳ | `.npy` 写出（Phase 4 的 `numerics`） |
+
+**为什么不先做半个 `ConfigureScan`**：它的判据里最要紧的两条是「读不回角度就拒绝」
+与「读回的帧对不上就拒绝、**不夹紧**」。一个只实现了前半的版本比没有它更危险 ——
+调用方会以为帧已经被核对过了。
+
+### GraphExecutor 是 Phase 3 的真正瓶颈
+
+它挡着的不止 `WaitScanComplete`：
+
+- 批 2 的两个 L1 试点 `AutoApproach` / `ApproachTip`
+- 批 3b 的 `SetBiasRamp`（`SetBias` 的斜坡在 2026-05-19 被拆出去成图技能）
+- 整个批 5（≈25 个 composite）
+
+而 PLAN §5.1 的原话是「**先用批 3 的 WaitScanComplete/SetBiasRamp 验过 GraphExecutor
+再往下**」—— 也就是说这三者互为对方的验收条件，得一起做。
+
+它本身要的东西（PLAN §8.4 批 5）：async generator plan、sidecar（进度真源）、
+`step_skip` 台账、abort/halt 双检、旁白模板、`_validate_products`、`abort_facts`。
+
+**⚠️ 那条硬约束在这里**：`WaitScanComplete` 的 `exec.signal` 触发时要发
+`Scan_Action(1,0)` **停扫再返回 aborted** —— 不是直接返回。
+「dsh 超时也触发 signal，绝不把仪器留在运动中」。
 
 ---
 
