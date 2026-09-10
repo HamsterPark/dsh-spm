@@ -83,8 +83,31 @@ export interface SkillOutcome {
 }
 
 /** 技能执行时拿到的上下文。**`markers` 必填**——见下面构造期的检查。 */
+/**
+ * 一次仪器调用的记录——**结构化接口，不 import 仪器包**。
+ *
+ * 内核零 dsh 依赖，而 `dsh-spm-instrument` 是个 Cordis Service。所以这里只声明
+ * 内核与技能真正读到的那几个字段，接线时由宿主把真的 `CallRecord` 喂进来。
+ *
+ * `values` 对应 Python 那边三段信封 `(error_string, raw_bytes, body)` 的 **body**。
+ */
+export interface SkillCallRecord {
+  readonly method: string
+  readonly args: readonly unknown[]
+  readonly values?: readonly unknown[] | undefined
+  readonly error?: string | undefined
+}
+
+/** 技能发一次仪器调用。对应旧仓的 `context.safe_call`。 */
+export type SafeCall = (method: string, ...args: unknown[]) => Promise<SkillCallRecord>
+
 export interface SkillContext {
   readonly signal: AbortSignal
+  /**
+   * 发一次仪器调用。**永不抛**——失败表达成 `record.error`，
+   * 与旧仓 `safe_call` 同一约定（抛出去会绕过 `nanonis_calls` 的记账）。
+   */
+  readonly safeCall: SafeCall
   readonly state: () => HardwareState
   readonly refreshState: () => Promise<HardwareState>
   readonly markers: { emit: (kind: string, data?: Record<string, unknown>) => void }
@@ -150,6 +173,8 @@ export interface KernelDeps {
    * 是宿主的事。抛出去也没关系——`finish` 吃掉它。
    */
   readonly record?: ((rec: KernelRecord) => void) | undefined
+  /** 技能发仪器调用的出口（K11）。缺席时技能会拿到一条带 error 的记录。 */
+  readonly safeCall?: SafeCall | undefined
   /** 超长文本落盘（K13），返回引用。 */
   readonly offload?: ((skill: string, full: string) => string) | undefined
   readonly clock?: (() => number) | undefined
@@ -330,6 +355,12 @@ export class SkillKernel {
     const ctx: SkillContext = {
       signal: opts.signal ?? new AbortController().signal,
       state: () => this.deps.snapshot(),
+      // 没接仪器时给一条**带 error 的记录**，而不是抛：技能里所有分支都按
+      // `record.error` 判，抛出去会绕过它们、也绕过 `nanonis_calls` 的记账。
+      safeCall:
+        this.deps.safeCall ??
+        ((method, ...args): Promise<SkillCallRecord> =>
+          Promise.resolve({ method, args, error: 'no_instrument: 这个内核没有接仪器' })),
       refreshState: this.deps.refreshState ?? (async () => this.deps.snapshot()),
       markers,
       depth,
