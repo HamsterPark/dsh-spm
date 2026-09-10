@@ -1631,5 +1631,199 @@
       1.0,
       "Z 控制器 I 增益是速度,典型 1e-9–1e-5 m/s"
     ]
-  ]
+  ],
+  "sample_gate": {
+    "data_names": [
+      "AcquireSTS",
+      "BiasPulse",
+      "BiasSpectroscopy",
+      "GridSpectroscopy",
+      "SaveScan",
+      "ScanOnce",
+      "StartDataLog",
+      "StartScan",
+      "StartTcpLog",
+      "TipPulse",
+      "TipShape"
+    ],
+    "data_tags": [
+      "acquisition",
+      "datalog",
+      "grid",
+      "imaging",
+      "lithography",
+      "manipulation",
+      "pattern",
+      "point_shoot",
+      "record",
+      "scan",
+      "spectroscopy",
+      "spectrum",
+      "sweep"
+    ],
+    "exempt_names": [
+      "AutoApproachClose",
+      "EmergencyRetract",
+      "SafeRetract",
+      "StopAutoApproach",
+      "StopAutoApproachAndWithdraw",
+      "StopFolMe",
+      "StopMotor",
+      "StopSTS",
+      "StopScan",
+      "WithdrawTip"
+    ],
+    "exempt_tags": [
+      "connection",
+      "diagnostic",
+      "emergency",
+      "read",
+      "retract",
+      "safety",
+      "status",
+      "stop",
+      "withdraw"
+    ]
+  },
+  "sample_gate_cases": [
+    {
+      "capabilities": [],
+      "case": "exempt_name_safe_retract",
+      "category": null,
+      "name": "SafeRetract",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "exempt_name_stop_scan",
+      "category": null,
+      "name": "StopScan",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "exempt_tag_read",
+      "category": null,
+      "name": "StartScan",
+      "requires_sample": false,
+      "tags": [
+        "read"
+      ]
+    },
+    {
+      "capabilities": [],
+      "case": "exempt_tag_emergency",
+      "category": null,
+      "name": "SomethingScanny",
+      "requires_sample": false,
+      "tags": [
+        "emergency",
+        "scan"
+      ]
+    },
+    {
+      "capabilities": [],
+      "case": "category_read",
+      "category": "read",
+      "name": "StartScan",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "category_analysis",
+      "category": "SkillCategory.ANALYSIS",
+      "name": "StartScan",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "data_tag_scan",
+      "category": null,
+      "name": "随便什么",
+      "requires_sample": true,
+      "tags": [
+        "scan"
+      ]
+    },
+    {
+      "capabilities": [],
+      "case": "data_tag_spectroscopy",
+      "category": null,
+      "name": "随便什么",
+      "requires_sample": true,
+      "tags": [
+        "spectroscopy"
+      ]
+    },
+    {
+      "capabilities": [],
+      "case": "data_name_start_scan",
+      "category": null,
+      "name": "StartScan",
+      "requires_sample": true,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "data_name_tip_pulse",
+      "category": null,
+      "name": "TipPulse",
+      "requires_sample": true,
+      "tags": []
+    },
+    {
+      "capabilities": [
+        "produces_file"
+      ],
+      "case": "cap_produces_file",
+      "category": null,
+      "name": "随便什么",
+      "requires_sample": true,
+      "tags": []
+    },
+    {
+      "capabilities": [
+        "tip_shaping"
+      ],
+      "case": "cap_tip_shaping",
+      "category": null,
+      "name": "随便什么",
+      "requires_sample": true,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "unknown_fail_open",
+      "category": null,
+      "name": "GetSomething",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "empty_meta_fail_open",
+      "category": null,
+      "name": "",
+      "requires_sample": false,
+      "tags": []
+    },
+    {
+      "capabilities": [],
+      "case": "order_exempt_beats_data",
+      "category": null,
+      "name": "StopScan",
+      "requires_sample": false,
+      "tags": [
+        "scan"
+      ]
+    }
+  ],
+  "sample_gate_messages": {
+    "no_experiment": "[sample_gate] no_active_experiment: 当前没有进行中的实验，'StartScan' 未执行——扫描/谱学产生的数据必须归属到一个实验和样品，否则以后没人能定位这条记录测的是什么。\n出路：(1) 调用 start_experiment(\"实验名\") 开一个实验，再 start_sample(\"样品名\")；(2) 请操作员在右栏「实验 → 样品」里选择。\nDo NOT retry this call unchanged — 在实验和样品选定前它会以完全相同的方式失败。",
+    "no_sample": "[sample_gate] no_active_sample: 当前没有选定样品，'StartScan' 未执行——扫描/谱学产生的数据必须归属到一个样品，否则以后没人能定位这条记录属于哪块样品。\n出路：(1) 调用 start_sample(\"样品名\") 新建一个样品；(2) 请操作员在右栏「实验 → 样品」里选一个已有样品；(3) 若不确定用哪个样品，先问操作员——不要重试本次调用。\nDo NOT retry this call unchanged — 在样品选定前它会以完全相同的方式失败。"
+  }
 }

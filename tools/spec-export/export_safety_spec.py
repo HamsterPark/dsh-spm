@@ -26,6 +26,7 @@ sys.path.insert(0, str(MAST_ROOT))
 from mast.config import SafetyLimits  # noqa: E402
 from mast.core import safety as sf  # noqa: E402
 from mast.core import execution_context as ec  # noqa: E402
+from mast.core import sample_gate as sg  # noqa: E402
 from mast.core.types import OperatingMode, ParameterSpec, SkillMetadata  # noqa: E402
 
 
@@ -181,6 +182,69 @@ ABORT_CASES: list[tuple[str, list]] = [
 ]
 
 
+
+# ── 样品门控（四张表 + 判定顺序 + 两句拒绝文案） ─────────────────────────────
+# **fail-open**，与 instrument_lock 的 fail-closed 刻意相反：
+# 分类不出来时放行，因为它的失败模式是「一条记录没归属到样品」= 记账损失；
+# 而误拦一个安全操作，可能让操作员在针要撞上去的时候按不动按钮。
+
+
+class FakeMeta:
+    """够门控用的最小 meta。"""
+
+    def __init__(self, name="", tags=(), category=None, capabilities=()):
+        self.name = name
+        self.tags = tags
+        self.category = category
+        self.capabilities = capabilities
+
+
+SAMPLE_GATE_CASES: list[dict] = [
+    # 1 名字在豁免表 —— 补救动作，存在的意义就是出事时立刻能跑
+    {"case": "exempt_name_safe_retract", "name": "SafeRetract"},
+    {"case": "exempt_name_stop_scan", "name": "StopScan"},
+    # 2 标签命中豁免 —— 即使名字看起来像产数据
+    {"case": "exempt_tag_read", "name": "StartScan", "tags": ["read"]},
+    {"case": "exempt_tag_emergency", "name": "SomethingScanny", "tags": ["emergency", "scan"]},
+    # 3 category 是 READ / ANALYSIS
+    {"case": "category_read", "name": "StartScan", "category": "read"},
+    {"case": "category_analysis", "name": "StartScan", "category": "SkillCategory.ANALYSIS"},
+    # 4 标签或名字命中产数据集合
+    {"case": "data_tag_scan", "name": "随便什么", "tags": ["scan"]},
+    {"case": "data_tag_spectroscopy", "name": "随便什么", "tags": ["spectroscopy"]},
+    {"case": "data_name_start_scan", "name": "StartScan"},
+    {"case": "data_name_tip_pulse", "name": "TipPulse"},
+    # 4b 能力标签也算产数据
+    {"case": "cap_produces_file", "name": "随便什么", "capabilities": ["produces_file"]},
+    {"case": "cap_tip_shaping", "name": "随便什么", "capabilities": ["tip_shaping"]},
+    # 5 兜底：分类不出来 ⇒ **放行**
+    {"case": "unknown_fail_open", "name": "GetSomething"},
+    {"case": "empty_meta_fail_open", "name": ""},
+    # 顺序要紧：豁免在产数据判断**之前**
+    {"case": "order_exempt_beats_data", "name": "StopScan", "tags": ["scan"]},
+]
+
+
+def sample_gate_rows() -> list[dict]:
+    from mast.core import sample_gate as sg
+
+    rows = []
+    for c in SAMPLE_GATE_CASES:
+        m = FakeMeta(
+            name=c.get("name", ""),
+            tags=tuple(c.get("tags", ())),
+            category=c.get("category"),
+            capabilities=tuple(c.get("capabilities", ())),
+        )
+        rows.append({
+            "case": c["case"],
+            "name": c.get("name", ""),
+            "tags": list(c.get("tags", ())),
+            "category": c.get("category"),
+            "capabilities": list(c.get("capabilities", ())),
+            "requires_sample": sg.requires_sample(m, c.get("name", "")),
+        })
+    return rows
 def jsonable(v):
     if isinstance(v, frozenset):
         return sorted(v)
@@ -250,6 +314,18 @@ def main() -> int:
         })
     out["mode_refusal_cases"] = mode_rows
 
+    out["sample_gate"] = {
+        "exempt_names": sorted(sg.GATE_EXEMPT_NAMES),
+        "exempt_tags": sorted(sg.GATE_EXEMPT_TAGS),
+        "data_tags": sorted(sg.DATA_TAGS),
+        "data_names": sorted(sg.DATA_NAMES),
+    }
+    out["sample_gate_cases"] = sample_gate_rows()
+    out["sample_gate_messages"] = {
+        "no_experiment": sg.sample_gate_message("StartScan", has_experiment=False),
+        "no_sample": sg.sample_gate_message("StartScan", has_experiment=True),
+    }
+
     out["abort_cases"] = [
         {"method": m, "args": list(a), "allowed": ec._is_abort_safe(m, tuple(a))}
         for m, a in ABORT_CASES
@@ -267,6 +343,8 @@ def main() -> int:
     print(f"       absurd {len(out['absurd_cases'])} · hard_gate {len(out['hard_gate_cases'])} · "
           f"capability {len(out['capability_cases'])} · mode {len(out['mode_refusal_cases'])} · "
           f"abort {len(out['abort_cases'])} · abort_safe_writes {len(out['abort_safe_writes'])} 条")
+    print(f"       sample_gate 四表 {sum(len(v) for v in out['sample_gate'].values())} 项 / "
+          f"{len(out['sample_gate_cases'])} 条用例")
     return 0
 
 
