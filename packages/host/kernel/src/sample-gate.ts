@@ -138,7 +138,7 @@ export function sampleGateMessage(skillName: string, hasExperiment: boolean): st
       `'${skillName}' 未执行——扫描/谱学产生的数据必须归属到一个实验和样品，` +
       `否则以后没人能定位这条记录测的是什么。\n` +
       `出路：(1) 调用 start_experiment("实验名") 开一个实验，再 ` +
-      `start_sample("样品名")；(2) 请操作员在右栏「实验 → 样品」里选择。\n` +
+      `start_sample("样品名")；(2) 请用户在右栏「实验 → 样品」里选择。\n` +
       `Do NOT retry this call unchanged — 在实验和样品选定前它会以完全` +
       `相同的方式失败。`
     )
@@ -148,8 +148,8 @@ export function sampleGateMessage(skillName: string, hasExperiment: boolean): st
     `——扫描/谱学产生的数据必须归属到一个样品，否则以后没人能定位这条记录` +
     `属于哪块样品。\n` +
     `出路：(1) 调用 start_sample("样品名") 新建一个样品；` +
-    `(2) 请操作员在右栏「实验 → 样品」里选一个已有样品；` +
-    `(3) 若不确定用哪个样品，先问操作员——不要重试本次调用。\n` +
+    `(2) 请用户在右栏「实验 → 样品」里选一个已有样品；` +
+    `(3) 若不确定用哪个样品，先问用户——不要重试本次调用。\n` +
     `Do NOT retry this call unchanged — 在样品选定前它会以完全相同的方式失败。`
   )
 }

@@ -135,6 +135,40 @@ def collect_si_cases() -> dict:
     }
 
 
+def _spec_source() -> dict:
+    """记下**这份金样是从旧仓的哪个状态导出的**。
+
+    2026-09-10 踩到：重跑导出，skills.json 和 safety.json 无缘无故变了 123+5 行。
+    查了半天才发现旧仓**工作区**当天被改了词（「操作员」→「用户」）。
+
+    关键教训是 **git HEAD 号在这件事上完全没用**：那天旧仓工作区比它最后一次提交
+    超前 1183 个文件 / 25886 行，而 HEAD 一步没挪。金样导的是**工作区**，不是提交。
+    所以真正能回答「规格源动没动」的，只有对导入的那些源文件做内容摘要。
+
+    摘要变了不代表金样一定变（多数改动碰不到我们抽的字段）；但金样变而摘要没变，
+    那就是导出脚本自己不确定——两种情况的处理完全不同，所以两个数都记。
+    """
+    import hashlib
+    import subprocess
+
+    h = hashlib.sha256()
+    n = 0
+    for f in sorted((MAST_ROOT / "mast").rglob("*.py")):
+        h.update(str(f.relative_to(MAST_ROOT)).replace("\\", "/").encode())
+        h.update(f.read_bytes())
+        n += 1
+    head = "?"
+    try:
+        # --no-optional-locks：旧仓是只读的，连它的 index 都不许刷
+        head = subprocess.run(
+            ["git", "--no-optional-locks", "-C", str(MAST_ROOT), "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=30,
+        ).stdout.strip() or "?"
+    except Exception:
+        pass
+    return {"py_files": n, "digest": h.hexdigest()[:16], "near_commit": head}
+
+
 def main() -> int:
     sandbox = _isolate()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -144,7 +178,7 @@ def main() -> int:
     # 于是「已完成比例」凭空变好看（PLAN §8.6）。
     # 不记沙箱路径：它每次跑都不同，会让 golden 的 diff 全是噪声。金样最重要的性质是
     # **重跑产出逐字节相同**，否则「有没有变」这个问题就没法用 diff 回答。
-    manifest: dict[str, dict] = {"mast_root": str(MAST_ROOT), "collectors": {}}
+    manifest: dict = {"mast_root": str(MAST_ROOT), "spec_source": _spec_source(), "collectors": {}}
     # 每个 collector 自报怎么数——skills.json 数技能，si_cases.json 数用例（它是分组
     # 结构，数顶层键会报「5」）。用一个启发式去猜两种形状，只会两边都数错。
     for filename, collector, count in [
@@ -174,6 +208,8 @@ def main() -> int:
         encoding="utf-8",
         newline="\n",
     )
+    src = manifest["spec_source"]
+    print(f'[src]  规格源 {src["py_files"]} 个 .py，摘要 {src["digest"]}，近 {src["near_commit"]}（旧仓工作区，非提交）')
     return 0 if all(c["ok"] for c in manifest["collectors"].values()) else 1
 
 

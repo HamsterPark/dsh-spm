@@ -9,5 +9,10 @@
       "ok": true
     }
   },
-  "mast_root": "<MAST_ROOT>"
+  "mast_root": "<MAST_ROOT>",
+  "spec_source": {
+    "digest": "c14810a39cb0e583",
+    "near_commit": "8f226475",
+    "py_files": 858
+  }
 }

@@ -1,0 +1,306 @@
+{
+  "bool_flag": {
+    "effective_bounds": {
+      "enabled": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "enabled": {
+        "default": true,
+        "description": "开关",
+        "title": "Enabled",
+        "type": "boolean"
+      }
+    },
+    "required": [],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "dim_lenient_bias": {
+    "effective_bounds": {
+      "bias_v": [
+        -10.0,
+        10.0
+      ]
+    },
+    "properties": {
+      "bias_v": {
+        "description": "偏压 (unit: V) 范围 -10 … 10 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Bias V",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bias_v"
+    ],
+    "si_params": {
+      "bias_v": false
+    },
+    "tool_call_id_present": true
+  },
+  "dim_no_bounds": {
+    "effective_bounds": {
+      "angle_deg": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "angle_deg": {
+        "default": null,
+        "description": "角度 (unit: deg) **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Deg",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "si_params": {
+      "angle_deg": false
+    },
+    "tool_call_id_present": true
+  },
+  "dim_only_max": {
+    "effective_bounds": {
+      "tip_lift": [
+        null,
+        1e-07
+      ]
+    },
+    "properties": {
+      "tip_lift": {
+        "default": null,
+        "description": "下压深度 (unit: m) 最大 100n m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Tip Lift",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "si_params": {
+      "tip_lift": true
+    },
+    "tool_call_id_present": true
+  },
+  "dim_only_min": {
+    "effective_bounds": {
+      "dwell_s": [
+        0.001,
+        null
+      ]
+    },
+    "properties": {
+      "dwell_s": {
+        "default": null,
+        "description": "停留 (unit: s) 最小 0.001 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Dwell S",
+        "type": "string"
+      }
+    },
+    "required": [],
+    "si_params": {
+      "dwell_s": false
+    },
+    "tool_call_id_present": true
+  },
+  "dim_strict_current": {
+    "effective_bounds": {
+      "setpoint_a": [
+        1e-12,
+        1e-07
+      ]
+    },
+    "properties": {
+      "setpoint_a": {
+        "description": "隧道电流设定点 (unit: A) 范围 1p … 100n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Setpoint A",
+        "type": "string"
+      }
+    },
+    "required": [
+      "setpoint_a"
+    ],
+    "si_params": {
+      "setpoint_a": true
+    },
+    "tool_call_id_present": true
+  },
+  "dim_strict_length": {
+    "effective_bounds": {
+      "x_m": [
+        -1.5e-06,
+        1.5e-06
+      ]
+    },
+    "properties": {
+      "x_m": {
+        "description": "X 坐标 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "X M",
+        "type": "string"
+      }
+    },
+    "required": [
+      "x_m"
+    ],
+    "si_params": {
+      "x_m": true
+    },
+    "tool_call_id_present": true
+  },
+  "enum_int": {
+    "effective_bounds": {
+      "channel": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "channel": {
+        "description": "通道",
+        "enum": [
+          1,
+          2,
+          3
+        ],
+        "title": "Channel",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "channel"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "enum_str": {
+    "effective_bounds": {
+      "direction": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "direction": {
+        "description": "方向",
+        "enum": [
+          "X+",
+          "X-",
+          "Z+"
+        ],
+        "title": "Direction",
+        "type": "string"
+      }
+    },
+    "required": [
+      "direction"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "float_no_unit": {
+    "effective_bounds": {
+      "ratio": [
+        0.0,
+        1.0
+      ]
+    },
+    "properties": {
+      "ratio": {
+        "description": "比例",
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "title": "Ratio",
+        "type": "number"
+      }
+    },
+    "required": [
+      "ratio"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "int_with_range": {
+    "effective_bounds": {
+      "steps": [
+        1,
+        100
+      ]
+    },
+    "properties": {
+      "steps": {
+        "description": "步数",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Steps",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "steps"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "no_description": {
+    "effective_bounds": {
+      "x_m": [
+        -1e-06,
+        1e-06
+      ]
+    },
+    "properties": {
+      "x_m": {
+        "description": "(unit: m) 范围 -1u … 1u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "X M",
+        "type": "string"
+      }
+    },
+    "required": [
+      "x_m"
+    ],
+    "si_params": {
+      "x_m": true
+    },
+    "tool_call_id_present": true
+  },
+  "plain_int": {
+    "effective_bounds": {
+      "steps": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "steps": {
+        "description": "步数",
+        "title": "Steps",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "steps"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  },
+  "plain_string": {
+    "effective_bounds": {
+      "label": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "label": {
+        "description": "标签",
+        "title": "Label",
+        "type": "string"
+      }
+    },
+    "required": [
+      "label"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true
+  }
+}

@@ -29,6 +29,14 @@ import math
 import sys
 from pathlib import Path
 
+import os
+import tempfile
+
+# ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
+# 2026-09-10 踩到过一次——一个「只读」的导出脚本因为 import 拉起了管理员覆写机制，
+# 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
+os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
+
 MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "state.json"
 
