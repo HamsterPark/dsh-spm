@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "declarationDir": "./lib/types",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../../host/compat" },
+    { "path": "../../instrument/instrument-state" },
+    { "path": "../../instrument/instrument-watchdog" }
+  ]
+}

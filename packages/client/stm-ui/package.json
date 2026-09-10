@@ -1,0 +1,20 @@
+{
+  "name": "dsh-spm-stm-ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "dependencies": {
+    "dsh-spm-compat": "workspace:*",
+    "dsh-spm-instrument-state": "workspace:*",
+    "dsh-spm-instrument-watchdog": "workspace:*"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.2"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.0.2"
+  }
+}

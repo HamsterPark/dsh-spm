@@ -46,3 +46,13 @@ export type { PromptContext, AssembleContext, PromptAssembly } from '@deepseek-a
  * 不是模型的一个选项。命令走 `ctx.commands`，模型看不见。
  */
 export type { CommandDefinition, CommandResult, CommandInvocation } from '@deepseek-ai/dsh-commands'
+
+/**
+ * 浏览器 HTTP 载体。课时 1.10 的 `/mast/events` SSE hub 是第一个调用方。
+ *
+ * 关键事实（读它的 `.d.ts` 得到，spike 第 9 条就此结清）：路由 handler
+ * **"Owns the full response lifecycle (may hold the response open, e.g. SSE)"**
+ * ——SSE 是上游明确支持的用法，不需要 WS upgrade，也不需要退化成轮询。
+ */
+export { WebServer } from '@deepseek-ai/dsh-host-webserver' // 值也导出：测试要起一份真的
+export type { WebRoute, WebRouteKind } from '@deepseek-ai/dsh-host-webserver'

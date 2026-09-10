@@ -20,6 +20,9 @@
     },
     {
       "path": "../../instrument/instrument-watchdog"
+    },
+    {
+      "path": "../../client/stm-ui"
     }
   ]
 }

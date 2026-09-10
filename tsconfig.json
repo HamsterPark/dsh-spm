@@ -12,6 +12,7 @@
     { "path": "./packages/instrument/instrument-stmsim" },
     { "path": "./packages/instrument/instrument-state" },
     { "path": "./packages/instrument/instrument-watchdog" },
+    { "path": "./packages/client/stm-ui" },
     { "path": "./packages/bundle/dsh-spm" }
   ]
 }

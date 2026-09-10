@@ -143,6 +143,7 @@
 > 有结论的都钉成了 `packages/host/compat/src/spike.test.ts` 的断言，随每次升级重跑。
 
 1. `ctx.tools.guard(exec => …)` 的 `exec` 是否含工具名与参数。
+9. ~~`webServer` 是否支持流式 `res.write` / WS upgrade。~~ **✅ 2026-09-10 课时 1.10 结清**：`WebRoute.handler` 的文档写着 *Owns the full response lifecycle (**may hold the response open, e.g. SSE**)*，另有 `registerUpgrade` 提供 WS upgrade。⇒ PLAN §13 备的「退化成轮询」退路用不上。**不是照文档抄**：`packages/client/stm-ui/src/plugin.test.ts` 起一份真 `WebServer`（`port: 0`）+ 真 `http.get` 验过响应头、逐条推送、`Last-Event-ID` 续传、心跳。顺带确认：`EventSource` 断线重连**自动**带 `Last-Event-ID`，所以「重启 5 秒内续传无缺口」不需要客户端记任何东西。
 2. ~~`ctx.systemPrompt.section()` 的动态内容是否逐请求记入 session log。~~ **✅ 2026-09-09 课时 1.8b 结清（问题问偏了半格）**：两条路都进日志，但易变内容该走的是 **`context()`** 而不是 `section()`——前者的文档原话是 "materialized as a **durable user-role snapshot**"，落成 `form: 'snapshot'` 的用户角色消息并带按贡献者分开的 `sections`。`section()` 走 `system/message` 事件，把每轮都变的读数塞进系统提示会让 prompt cache 的断点落在易变文本之后（旧仓 2026-07-28 审计买过这个教训）。⇒ PLAN §3.1-5 备的 `agent/pre-step` 退路不用了。详见 `spike.md` §2。
 3. `cordis.patch.yml` 是否有 `remove`/`replace`，还是只能同 id 覆盖。
 4. replay 模式下工具执行是否被短路；`exec` 上有什么标志可判。

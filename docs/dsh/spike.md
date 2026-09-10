@@ -15,7 +15,7 @@
 | 6 | `restrict` 能否放松；隐藏名被调用返回什么；重注册语义 | ◐ 前两问有答案，重注册未验 |
 | 7 | `tools/result` 能否读到 `value` | ✅ 能读；但 value **不进持久事件** |
 | 8 | `conversation.view` / `details` / `toolview` 的行为 | ⏸ 未查 |
-| 9 | `webServer` 是否支持流式 `res.write` / WS upgrade | ⏸ 未查 |
+| 9 | `webServer` 是否支持流式 `res.write` / WS upgrade | ✅ 1.10 结清：**都支持**，SSE 是上游明写的用法 |
 | 10 | 子会话读父 session id；`agents.resume` API 名；压缩钩子 | ⏸ 未查 |
 
 ## ✅ 1 · guard 拿得到工具名与参数
@@ -114,7 +114,24 @@ interface ToolExecutionSuccess {
 `packages/instrument/instrument-state/src/plugin.test.ts` 里对**真** `SystemPrompt` 装配了一遍，
 把「我们那块确实进 assembly、且每次组装现取」钉住了。
 
-## ⏸ 未查的四条与各自的触发点
+## ✅ 9 · `webServer` 支持流式，SSE 是上游明写的用法
+
+`WebRoute.handler` 的文档原话：
+
+> Owns the full response lifecycle (**may hold the response open, e.g. SSE**).
+
+另外还有 `registerUpgrade({path, handler(req, socket, head)})`——WS upgrade 也有。
+所以 PLAN §13 备的「退化成轮询」退路**用不上**。
+
+**不是照文档抄的**：`packages/client/stm-ui/src/plugin.test.ts` 里起一份**真的 `WebServer`**
+（`port: 0` 让 OS 分配），用真 `http.get` 打它，验了四件事——响应头与首帧、
+逐条推送、`Last-Event-ID` 续传只补没看过的、心跳注释行会来。
+
+**这条顺带确认了一件更要紧的事**：`EventSource` 断线重连会**自动**把上次的 `id:`
+放进 `Last-Event-ID` 请求头。所以「杀宿主重启 5 秒内续传无缺口」这条验收
+**不需要客户端记任何东西**——续传是浏览器内置行为，我们只要把 `id:` 写对。
+
+## ⏸ 未查的三条与各自的触发点
 
 按消融原则，没到用的时候不查——查了也只是纸面结论，而且 dsh 一天一版，结论会先于用途过期。
 
@@ -122,5 +139,4 @@ interface ToolExecutionSuccess {
 |---|---|
 | 4 · replay 是否短路工具执行 | Phase 2 做 dsh replay 测试时（PLAN §12「replay 时工具不得触碰仪器」） |
 | 8 · `conversation.view` / `details` / `toolview` | 课时 1.10（U0 右栏卡）与 U1（审批卡）。需要客户端 bundle 机器，那时一并 |
-| 9 · `webServer` 流式 / WS upgrade | 课时 1.10 的 SSE hub。红了就退化成轮询（PLAN §13 已备好退路） |
 | 10 · 子会话读父 session id / `agents.resume` / 压缩钩子 | Phase 6 的 subagent 编排。**注意**：0.1.3 已把 session 持久化改成 `SessionHandle`、`agentLoop.create()` 变异步（facts.md §8.0），现在查了升级后也要重查 |
