@@ -12,6 +12,26 @@
 // 把 `tools` 挂到 Context 上——所以下面的 Context 类型自带 ctx.tools。
 export { defineTool } from '@deepseek-ai/dsh-tools'
 export type { DefineToolOptions } from '@deepseek-ai/dsh-tools'
+/**
+ * 课时 2.12 的 `defineSkillTool()` 要的四个名字。
+ *
+ * `ParameterSchemaSpec` 是 dsh 自己的参数 DSL，**不是 JSON Schema**——它的关键字
+ * 白名单里没有 `minimum`/`maximum`，而且「不支持的关键字直接拒绝，不是收下但不
+ * 强制」。这一条直接决定了 D-SCHEMA-2（见 `spec/deviations.md`）。
+ */
+export type {
+  ParameterSchemaSpec,
+  ParameterPropertySpec,
+  ToolDefinition,
+  ToolExecution,
+  ToolExecutionResult,
+  ToolRunContext,
+} from '@deepseek-ai/dsh-tools'
+/**
+ * 参数 DSL → 真正发给模型的那份 JSON Schema。测试用它把 D-SCHEMA-2 **验出来**
+ * 而不是只在注释里声称：塞一个 `minimum` 进去会当场抛，折进 description 才过。
+ */
+export { parameterSchemaSpecToJsonSchema } from '@deepseek-ai/dsh-tools'
 
 export { Context } from '@deepseek-ai/cordis'  // 值也导出：我们的包在测试里要构造真 Context
 

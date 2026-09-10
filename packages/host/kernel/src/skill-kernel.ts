@@ -18,7 +18,8 @@
 import { argsHash } from './args-hash.js'
 import type { HardwareState } from './hardware-state.js'
 import { checkStatePreconditions, type ComputedCheck } from './preconditions.js'
-import { SIParseError, needsStrictPrefix, parseQuantity } from './si.js'
+import { SIParseError, parseQuantity } from './si.js'
+import { isStrictParam, siParams } from './tool-schema.js'
 
 // ── 契约类型 ────────────────────────────────────────────────────────────────
 
@@ -109,26 +110,12 @@ export interface SkillResultLike {
 
 // ── K1：哪些参数强制 SI 前缀 ────────────────────────────────────────────────
 
-/**
- * 一个参数要不要**强制**带 SI 前缀。
- *
- * 判据两条，或的关系：
- * 1. 该参数的有效上下界整个远小于 1（量程小到裸数字必然是量级错）——`needsStrictPrefix`
- * 2. 单位是 `m` 或 `A`——**长度与电流是 STM 上最容易掉量级的两个量纲**
- *
- * 这是**唯一**算 strict 的地方：工具 schema 的生成与这里的解析共用它，
- * 否则「schema 说可以裸写、解析却拒绝」这种自相矛盾会直接变成模型的死循环。
- */
-export function isStrictParam(p: ParameterSpec): boolean {
-  const unit = (p.unit ?? '').toLowerCase()
-  if (unit === 'm' || unit === 'a') return true
-  return needsStrictPrefix(p.minValue ?? null, p.maxValue ?? null)
-}
-
-/** 有量纲参数的名单（要走 SI 解析的那些）。 */
-export function siParams(spec: SkillSpec): ParameterSpec[] {
-  return spec.parameters.filter((p) => (p.unit ?? '') !== '')
-}
+// `isStrictParam` / `siParams` **住在 `tool-schema.ts`**，不在这里。
+//
+// 2.10 时这里有过一份自己的实现，而 2.12 把 schema 生成移植过来之后，两份就是两个
+// 答案了——这正是 2026-08-10 那次事故的形状（广告说「前缀不可省略」，解析却放行裸
+// 数字，16 个米制参数受影响）。**一个技能的严格性只能有一个来源**：模型读到的描述
+// 与这里的解析必须由同一个表达式算出。所以内核向 schema 侧要，而不是各算各的。
 
 // ── 内核 ────────────────────────────────────────────────────────────────────
 
@@ -376,11 +363,14 @@ export class SkillKernel {
   /** K1：有量纲参数走 SI 解析，strict 的拒绝裸数字。 */
   private parseSi(spec: SkillSpec, raw: Readonly<Record<string, unknown>>): Record<string, unknown> {
     const out: Record<string, unknown> = { ...raw }
-    for (const p of siParams(spec)) {
-      if (!(p.name in out)) continue
-      const v = out[p.name]
-      if (typeof v === 'number' && !isStrictParam(p)) continue // 宽松档接受裸数字
-      out[p.name] = parseQuantity(v, { strict: isStrictParam(p), what: p.name })
+    // 名单与 strict 都来自 schema 侧的同一个表达式（见上面那段注释）
+    for (const [name, strict] of siParams(spec)) {
+      // 没传、或显式传了 null 的，跳过——缺省值由 K6 的必填检查负责，
+      // 拿 null 去解析只会把「你没填」报成「你写错了」
+      const v = out[name]
+      if (!(name in out) || v === null || v === undefined) continue
+      if (typeof v === 'number' && !strict) continue // 宽松档接受裸数字
+      out[name] = parseQuantity(v, { strict, what: name })
     }
     return out
   }
@@ -390,7 +380,11 @@ export class SkillKernel {
     const out: string[] = []
     for (const p of spec.parameters) {
       const has = p.name in params && params[p.name] !== undefined && params[p.name] !== null
-      if (p.required === true && !has) {
+      // **省略 `required` 就是必填**：Python 的 `ParameterSpec.required: bool = True`
+      // 是 dataclass 缺省，schema 侧与校验侧读到的都是 True。这里原来写 `=== true`，
+      // 于是同一个省略了 required 的参数会被**广告成必填、却不强制** —— 模型漏传时
+      // 一路走到技能里才炸，而错误信息里不会有「你少了一个参数」这句话。
+      if ((p.required ?? true) && !has) {
         out.push(`缺少必填参数 '${p.name}'`)
         continue
       }

@@ -35,6 +35,7 @@ OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas.js
 
 sys.path.insert(0, str(MAST_ROOT))
 from mast.agents._shared import skill_adapter as sa  # noqa: E402
+from mast.skills.base import BaseSkill  # noqa: E402
 from mast.core.types import ParameterSpec, SkillMetadata  # noqa: E402
 
 #: 每条一个生成规则。(用例名, 参数列表)
@@ -67,7 +68,53 @@ CASES: list[tuple[str, list[dict]]] = [
                             min_value=0.0, max_value=1.0, required=True)]),
     # 没有描述
     ("no_description", [dict(name="x_m", type="float", unit="m", min_value=-1e-6, max_value=1e-6, required=True)]),
+    # ── 分支交界：这四条各钉一个「两条规则相遇时谁说了算」 ──
+    # 枚举的 JSON type 是从**字面量的值**推的，还是从 spec.type 抄的？声明冲突时才分得出。
+    ("enum_mixed_type", [dict(name="channel", type="string", description="通道",
+                              allowed_values=[1, 2], required=True)]),
+    # bool 也过 isinstance(v,(str,int,bool)) —— 它走枚举分支吗
+    ("enum_bool", [dict(name="flag", type="boolean", description="旗标",
+                        allowed_values=[True, False], required=True)]),
+    # 含 float 的 allowed_values **不成枚举**（`not isinstance(v,float)` 挡掉），
+    # 于是整条回落到普通处理 —— 回落到哪一条要看有没有单位
+    ("enum_float_rejected", [dict(name="ratio", type="float", description="比例",
+                                  allowed_values=[0.5, 1.0], required=True)]),
+    # 有量纲 + 枚举：字符串通道 vs 枚举通道，谁在前
+    ("dim_enum", [dict(name="bias_v", type="float", unit="V", description="偏压档",
+                       allowed_values=["low", "high"], required=True)]),
+    # 单值枚举：Pydantic 对 Literal["x"] 给 enum 还是 const？形状不同，模型读到的也不同
+    ("enum_single", [dict(name="mode", type="string", description="模式",
+                          allowed_values=["only"], required=True)]),
+    # 混合类型的字面量：还有没有单一的 JSON type 可言
+    ("enum_mixed_values", [dict(name="who", type="string", description="谁",
+                                allowed_values=["auto", 1], required=True)]),
+    # 范围**只**来自安全包络（自己不写 min/max）——描述里会有范围，
+    # 而 `_explain_validation` 那句「允许范围」里没有：它读的是 spec 自己的 min/max。
+    ("envelope_only", [dict(name="center_x_m", type="float", unit="m", description="中心 X",
+                            required=True)]),
 ]
+
+
+def _validation_message(meta: SkillMetadata) -> str:
+    """`_explain_validation` 的产出 —— 参数校验失败时模型读到的那段话。
+
+    它是 `wrap_skill` 里的一个闭包，拿不到独立引用，所以这里真的包一个技能出来再
+    把钩子取回来。它**不看异常内容**，只按 meta 渲染，所以一个用例一条消息就够。
+
+    为什么要录它：dsh 在 `execute` **之前**按 schema 校验参数，校验失败时模型读到的
+    是 dsh 的英文样板（`invalid arguments: missing required property "x"`）。旧仓当年
+    专门挂这个钩子，就是因为 pydantic 的样板话「不能让模型据此改正」。
+    """
+
+    class _Fake(BaseSkill):
+        def metadata(self):  # type: ignore[override]
+            return meta
+
+        def execute(self, ctx, **kwargs):  # type: ignore[override]
+            raise NotImplementedError
+
+    tool = sa.wrap_skill(_Fake, lambda: None)
+    return tool.handle_validation_error(ValueError("x"))
 
 
 def build(name: str, params: list[dict]) -> dict:
@@ -90,6 +137,7 @@ def build(name: str, params: list[dict]) -> dict:
         "effective_bounds": {
             p.name: list(sa.effective_bounds(p)) for p in meta.parameters
         },
+        "validation_error": _validation_message(meta),
     }
 
 

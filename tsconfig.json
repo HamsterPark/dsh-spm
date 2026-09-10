@@ -8,6 +8,7 @@
     { "path": "./packages/host/compat" },
     { "path": "./packages/host/kernel" },
     { "path": "./packages/host/stm-safety" },
+    { "path": "./packages/host/stm-skills" },
     { "path": "./packages/instrument/nanonis-wire" },
     { "path": "./packages/instrument/instrument" },
     { "path": "./packages/instrument/instrument-stmsim" },

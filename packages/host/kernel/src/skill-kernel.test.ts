@@ -13,7 +13,6 @@ import {
   diffState,
   explainValidation,
   explanationSuffix,
-  isStrictParam,
   stripAuditOnly,
   type KernelDeps,
   type Skill,
@@ -29,9 +28,12 @@ function probe(over: Partial<Skill> = {}, result: SkillResultLike = { success: t
       name: '_Probe',
       description: '内核探针',
       parameters: [
-        { name: 'setpoint_a', type: 'string', unit: 'A', required: true },
-        { name: 'mode', type: 'string', allowedValues: ['fast', 'slow'] },
-        { name: 'count', type: 'number', minValue: 1, maxValue: 10 },
+        // 有量纲参数在真技能里一律声明 `float`（509 个全是）——schema 侧才把它渲染成
+        // JSON string。夹具原来写成 'string'，那会让它整个漏出 SI 机制之外。
+        { name: 'setpoint_a', type: 'float', unit: 'A', required: true },
+        // `required: false` 要**显式写**：省略等于必填（Python 的 dataclass 缺省是 True）
+        { name: 'mode', type: 'string', allowedValues: ['fast', 'slow'], required: false },
+        { name: 'count', type: 'number', minValue: 1, maxValue: 10, required: false },
       ],
       preconditions: ['z_controller_on'],
       ...over.spec,
@@ -86,10 +88,65 @@ describe('K1 · SI 解析', () => {
     expect(seen).toBe(1e-10)
   })
 
-  it('单位是 m 或 A 就一定 strict——长度与电流最容易掉量级', () => {
-    expect(isStrictParam({ name: 'x', type: 'string', unit: 'm' })).toBe(true)
-    expect(isStrictParam({ name: 'i', type: 'string', unit: 'A' })).toBe(true)
-    expect(isStrictParam({ name: 'v', type: 'number', unit: 'V' })).toBe(false)
+  it('K6：省略 `required` 的参数没传 ⇒ 拒绝，和 schema 广告的一致', async () => {
+    const o = await new SkillKernel(deps()).run(
+      probe({
+        spec: {
+          name: '_Probe',
+          description: '内核探针',
+          parameters: [{ name: 'q', type: 'string', description: '问' }],
+        },
+      }),
+      {},
+    )
+    expect(o.kind).toBe('refused')
+    expect(o.text).toContain("缺少必填参数 'q'")
+  })
+
+  it('枚举参数**不走** SI 解析——否则一次合法调用会被解析器拒掉', async () => {
+    // Python 的 `_si_params` 跳过带 allowed_values 的参数（枚举本来就精确）。
+    // 内核这一侧曾经只看「有没有单位」，于是会拿 'low' 去 parseQuantity 然后拒掉。
+    let seen: unknown
+    const o = await new SkillKernel(deps()).run(
+      probe({
+        spec: {
+          name: '_Probe',
+          description: '内核探针',
+          parameters: [
+            { name: 'bias_v', type: 'float', unit: 'V', allowedValues: ['low', 'high'], required: true },
+          ],
+        },
+        execute: (_c, p): Promise<SkillResultLike> => {
+          seen = p['bias_v']
+          return Promise.resolve({ success: true, summary: 'ok' })
+        },
+      }),
+      { bias_v: 'low' },
+    )
+    expect(o.kind).toBe('ok')
+    expect(seen).toBe('low')
+  })
+
+  it('非 float 的有量纲参数也不走 SI 解析——单位只是个标签，没有量级可掉', async () => {
+    // 真技能里 17 个这样的参数（px/ms/s 的 int，以及 CreateZCtrlPreset 那三个
+    // **技能自己解析**的 str）。内核越权去解析它们，等于替技能做了它没委托的事。
+    let seen: unknown
+    const o = await new SkillKernel(deps()).run(
+      probe({
+        spec: {
+          name: '_Probe',
+          description: '内核探针',
+          parameters: [{ name: 'pixels', type: 'int', unit: 'px', required: true }],
+        },
+        execute: (_c, p): Promise<SkillResultLike> => {
+          seen = p['pixels']
+          return Promise.resolve({ success: true, summary: 'ok' })
+        },
+      }),
+      { pixels: 512 },
+    )
+    expect(o.kind).toBe('ok')
+    expect(seen).toBe(512)
   })
 })
 

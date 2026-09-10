@@ -16,7 +16,33 @@
     },
     "required": [],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[bool_flag] precondition_failed: 参数超出允许范围。允许范围：见参数说明。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "dim_enum": {
+    "effective_bounds": {
+      "bias_v": [
+        -10.0,
+        10.0
+      ]
+    },
+    "properties": {
+      "bias_v": {
+        "description": "偏压档 (unit: V)",
+        "enum": [
+          "low",
+          "high"
+        ],
+        "title": "Bias V",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bias_v"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[dim_enum] precondition_failed: 参数超出允许范围。允许范围：bias_v ∈ {'low', 'high'}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_lenient_bias": {
     "effective_bounds": {
@@ -38,7 +64,8 @@
     "si_params": {
       "bias_v": false
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_lenient_bias] precondition_failed: 参数超出允许范围。允许范围：bias_v ∈ [-10, 10] V。注意这些有量纲的参数要**写成字符串**：`bias_v`。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_no_bounds": {
     "effective_bounds": {
@@ -59,7 +86,8 @@
     "si_params": {
       "angle_deg": false
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_no_bounds] precondition_failed: 参数超出允许范围。允许范围：见参数说明。注意这些有量纲的参数要**写成字符串**：`angle_deg`。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_only_max": {
     "effective_bounds": {
@@ -80,7 +108,8 @@
     "si_params": {
       "tip_lift": true
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_only_max] precondition_failed: 参数超出允许范围。允许范围：tip_lift ≤ 1e-07 m。注意这些有量纲的参数要**写成字符串**：`tip_lift`。其中 `tip_lift` **必须带 SI 前缀**（如 '3p'、'180n'、'150p'），裸数字会被拒绝。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_only_min": {
     "effective_bounds": {
@@ -101,7 +130,8 @@
     "si_params": {
       "dwell_s": false
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_only_min] precondition_failed: 参数超出允许范围。允许范围：dwell_s ≥ 0.001 s。注意这些有量纲的参数要**写成字符串**：`dwell_s`。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_strict_current": {
     "effective_bounds": {
@@ -123,7 +153,8 @@
     "si_params": {
       "setpoint_a": true
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_strict_current] precondition_failed: 参数超出允许范围。允许范围：setpoint_a ∈ [1e-12, 1e-07] A。注意这些有量纲的参数要**写成字符串**：`setpoint_a`。其中 `setpoint_a` **必须带 SI 前缀**（如 '3p'、'180n'、'150p'），裸数字会被拒绝。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "dim_strict_length": {
     "effective_bounds": {
@@ -145,7 +176,54 @@
     "si_params": {
       "x_m": true
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[dim_strict_length] precondition_failed: 参数超出允许范围。允许范围：x_m ∈ [-1.5e-06, 1.5e-06] m。注意这些有量纲的参数要**写成字符串**：`x_m`。其中 `x_m` **必须带 SI 前缀**（如 '3p'、'180n'、'150p'），裸数字会被拒绝。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "enum_bool": {
+    "effective_bounds": {
+      "flag": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "flag": {
+        "description": "旗标",
+        "enum": [
+          true,
+          false
+        ],
+        "title": "Flag",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "flag"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[enum_bool] precondition_failed: 参数超出允许范围。允许范围：flag ∈ {True, False}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "enum_float_rejected": {
+    "effective_bounds": {
+      "ratio": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "ratio": {
+        "description": "比例",
+        "title": "Ratio",
+        "type": "number"
+      }
+    },
+    "required": [
+      "ratio"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[enum_float_rejected] precondition_failed: 参数超出允许范围。允许范围：ratio ∈ {0.5, 1.0}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "enum_int": {
     "effective_bounds": {
@@ -170,7 +248,79 @@
       "channel"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[enum_int] precondition_failed: 参数超出允许范围。允许范围：channel ∈ {1, 2, 3}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "enum_mixed_type": {
+    "effective_bounds": {
+      "channel": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "channel": {
+        "description": "通道",
+        "enum": [
+          1,
+          2
+        ],
+        "title": "Channel",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "channel"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[enum_mixed_type] precondition_failed: 参数超出允许范围。允许范围：channel ∈ {1, 2}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "enum_mixed_values": {
+    "effective_bounds": {
+      "who": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "who": {
+        "description": "谁",
+        "enum": [
+          "auto",
+          1
+        ],
+        "title": "Who"
+      }
+    },
+    "required": [
+      "who"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[enum_mixed_values] precondition_failed: 参数超出允许范围。允许范围：who ∈ {'auto', 1}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "enum_single": {
+    "effective_bounds": {
+      "mode": [
+        null,
+        null
+      ]
+    },
+    "properties": {
+      "mode": {
+        "const": "only",
+        "description": "模式",
+        "title": "Mode",
+        "type": "string"
+      }
+    },
+    "required": [
+      "mode"
+    ],
+    "si_params": {},
+    "tool_call_id_present": true,
+    "validation_error": "[enum_single] precondition_failed: 参数超出允许范围。允许范围：mode ∈ {'only'}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "enum_str": {
     "effective_bounds": {
@@ -195,7 +345,31 @@
       "direction"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[enum_str] precondition_failed: 参数超出允许范围。允许范围：direction ∈ {'X+', 'X-', 'Z+'}。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
+  },
+  "envelope_only": {
+    "effective_bounds": {
+      "center_x_m": [
+        -1.5e-06,
+        1.5e-06
+      ]
+    },
+    "properties": {
+      "center_x_m": {
+        "description": "中心 X (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Center X M",
+        "type": "string"
+      }
+    },
+    "required": [
+      "center_x_m"
+    ],
+    "si_params": {
+      "center_x_m": true
+    },
+    "tool_call_id_present": true,
+    "validation_error": "[envelope_only] precondition_failed: 参数超出允许范围。允许范围：见参数说明。注意这些有量纲的参数要**写成字符串**：`center_x_m`。其中 `center_x_m` **必须带 SI 前缀**（如 '3p'、'180n'、'150p'），裸数字会被拒绝。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "float_no_unit": {
     "effective_bounds": {
@@ -217,7 +391,8 @@
       "ratio"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[float_no_unit] precondition_failed: 参数超出允许范围。允许范围：ratio ∈ [0, 1]。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "int_with_range": {
     "effective_bounds": {
@@ -239,7 +414,8 @@
       "steps"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[int_with_range] precondition_failed: 参数超出允许范围。允许范围：steps ∈ [1, 100]。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "no_description": {
     "effective_bounds": {
@@ -261,7 +437,8 @@
     "si_params": {
       "x_m": true
     },
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[no_description] precondition_failed: 参数超出允许范围。允许范围：x_m ∈ [-1e-06, 1e-06] m。注意这些有量纲的参数要**写成字符串**：`x_m`。其中 `x_m` **必须带 SI 前缀**（如 '3p'、'180n'、'150p'），裸数字会被拒绝。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "plain_int": {
     "effective_bounds": {
@@ -281,7 +458,8 @@
       "steps"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[plain_int] precondition_failed: 参数超出允许范围。允许范围：见参数说明。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   },
   "plain_string": {
     "effective_bounds": {
@@ -301,6 +479,7 @@
       "label"
     ],
     "si_params": {},
-    "tool_call_id_present": true
+    "tool_call_id_present": true,
+    "validation_error": "[plain_string] precondition_failed: 参数超出允许范围。允许范围：见参数说明。这是**数值/单位**问题，不是硬件故障 —— （100 pA = '100p'，1 nA = '1n'，100 nm = '100n' m）。**不要重复发送同一个值**；若不确定正确量级，说明情况并结束本回合。"
   }
 }
