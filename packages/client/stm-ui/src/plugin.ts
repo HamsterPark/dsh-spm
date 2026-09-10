@@ -13,6 +13,7 @@
 import { type Context, Service } from 'dsh-spm-compat'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { EventRing, formatSse, parseSince, type MastEvent, type MastEventType } from './events.js'
+import { mastInstrumentStateProjection } from './projection.js'
 import type {} from 'dsh-spm-instrument-state'
 import type {} from 'dsh-spm-instrument-watchdog'
 
@@ -70,6 +71,9 @@ export class MastEventsService extends Service {
       for (const c of this.clients) c.res.end()
       this.clients.clear()
     })
+
+    // 投影：回答「模型**当时**看到的是哪一份」。与 SSE 分工——SSE 是「现在怎么样」。
+    ctx.effect(() => ctx.sessionProjections.register(mastInstrumentStateProjection))
 
     this.wireProducers(ctx)
   }
@@ -191,7 +195,7 @@ export function apply(ctx: Context, config: Config = {}): void {
  * `webServer` 是硬依赖（没有它就没有通道）；两个生产者也是——
  * 少了它们这条通道**空转**：连得上、有心跳、永远没数据。那比连不上更难查。
  */
-export const inject = ['webServer', 'instrumentState', 'stmWatchdog']
+export const inject = ['webServer', 'instrumentState', 'stmWatchdog', 'sessionProjections']
 
 export const mastUiHostProvider = { name, inject, apply }
 

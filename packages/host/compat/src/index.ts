@@ -56,3 +56,13 @@ export type { CommandDefinition, CommandResult, CommandInvocation } from '@deeps
  */
 export { WebServer } from '@deepseek-ai/dsh-host-webserver' // 值也导出：测试要起一份真的
 export type { WebRoute, WebRouteKind } from '@deepseek-ai/dsh-host-webserver'
+
+/**
+ * 会话投影。课时 1.10 的 `mast.instrumentState` 是第一个调用方。
+ *
+ * 投影是「对**已提交**会话事件的纯同步 fold」：框架负责订阅、水位缓存与变更通知，
+ * 我们只写 `init` / `apply` / `view`。**必须同步**（异步会撕开消费者的一致性切面），
+ * **状态必须是纯 JSON**（缓存要持久化）。
+ */
+export type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
+export type { SessionProjectionMap, SessionProjectionStateMap } from '@deepseek-ai/dsh-session-projection/types'

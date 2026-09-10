@@ -9,12 +9,15 @@
   "dependencies": {
     "dsh-spm-compat": "workspace:*",
     "dsh-spm-instrument-state": "workspace:*",
-    "dsh-spm-instrument-watchdog": "workspace:*"
+    "dsh-spm-instrument-watchdog": "workspace:*",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "4.0.2"
+    "@deepseek-ai/cordis": "4.0.2",
+    "@deepseek-ai/dsh-session-projection": "0.1.5-rc.1"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.2"
+    "@deepseek-ai/cordis": "4.0.2",
+    "@deepseek-ai/dsh-session-projection": "0.1.5-rc.1"
   }
 }

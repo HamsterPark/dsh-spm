@@ -33,6 +33,19 @@ class FakeState extends Service {
   }
 }
 
+/** 投影注册表的替身——fold 本身在 projection.test.ts 里单独测。 */
+class FakeProjections extends Service {
+  readonly registered: { key: string; stateVersion: number }[] = []
+  constructor(ctx: Context) {
+    super(ctx, 'sessionProjections')
+  }
+  register(def: unknown): () => void {
+    const d = def as { key: string; stateVersion: number }
+    this.registered.push(d)
+    return () => void this.registered.splice(this.registered.indexOf(d), 1)
+  }
+}
+
 class FakeWatchdog extends Service {
   private fns = new Set<(e: unknown) => void>()
   latched = false
@@ -58,6 +71,7 @@ interface Host {
   port: number
   st: FakeState
   wd: FakeWatchdog
+  pj: FakeProjections
   svc: Context['mastEvents']
 }
 
@@ -65,6 +79,7 @@ async function host(): Promise<Host> {
   const ctx = new Context()
   const st = new FakeState(ctx)
   const wd = new FakeWatchdog(ctx)
+  const pj = new FakeProjections(ctx)
   ctx.plugin(WebServer, { host: '127.0.0.1', port: 0 }) // 0 = 让 OS 分配端口
   ctx.plugin(mastUiHostProvider, { heartbeatMs: 50 })
   const svc = await new Promise<Context['mastEvents']>((resolve, reject) => {
@@ -77,7 +92,7 @@ async function host(): Promise<Host> {
   const port = (ctx as unknown as { webServer: { port: number } }).webServer.port
   cleanup.push(() => void ctx.registry.delete(mastUiHostProvider))
   cleanup.push(() => void ctx.registry.delete(WebServer))
-  return { ctx, port, st, wd, svc }
+  return { ctx, port, st, wd, pj, svc }
 }
 
 /** 连上 SSE，收 `ms` 毫秒的原文。返回 (原文, 关闭函数)。 */
@@ -256,10 +271,11 @@ describe('生产者接线', () => {
   })
 
   it('三个装载依赖缺任何一个都整个不装载', async () => {
-    for (const missing of ['webServer', 'instrumentState', 'stmWatchdog'] as const) {
+    for (const missing of ['webServer', 'instrumentState', 'stmWatchdog', 'sessionProjections'] as const) {
       const ctx = new Context()
       if (missing !== 'instrumentState') new FakeState(ctx)
       if (missing !== 'stmWatchdog') new FakeWatchdog(ctx)
+      if (missing !== 'sessionProjections') new FakeProjections(ctx)
       if (missing !== 'webServer') ctx.plugin(WebServer, { host: '127.0.0.1', port: 0 })
       ctx.plugin(mastUiHostProvider, {})
       const got = await new Promise<boolean>((resolve) => {
@@ -273,5 +289,16 @@ describe('生产者接线', () => {
       ctx.registry.delete(mastUiHostProvider)
       ctx.registry.delete(WebServer)
     }
+  })
+})
+
+describe('投影注册', () => {
+  it('mast.instrumentState 注册进 sessionProjections，卸载时撤销', async () => {
+    const h = await host()
+    expect(h.pj.registered.map((d) => d.key)).toEqual(['mast.instrumentState'])
+    expect(h.pj.registered[0]!.stateVersion).toBe(1)
+    h.ctx.registry.delete(mastUiHostProvider)
+    await sleep(50)
+    expect(h.pj.registered).toHaveLength(0)
   })
 })

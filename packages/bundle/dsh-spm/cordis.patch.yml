@@ -28,4 +28,4 @@
     # 而且仪器是一台、会话是 N 个——没有会话的时候状态也在变。
     - id: mast-ui-host
       name: dsh-spm/stm-ui
-      inject: ['webServer', 'instrumentState', 'stmWatchdog']
+      inject: ['webServer', 'instrumentState', 'stmWatchdog', 'sessionProjections']
