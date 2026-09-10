@@ -1,0 +1,864 @@
+{
+  "computed_names": [
+    "vacuum_ok_for_coarse"
+  ],
+  "context_fields": {
+    "z_controller_on": "z_controller_status"
+  },
+  "exact_checks": {
+    "scan_not_running": [
+      "scan_running",
+      false
+    ],
+    "scan_running": [
+      "scan_running",
+      true
+    ],
+    "scan_stopped": [
+      "scan_running",
+      false
+    ],
+    "z_controller_off": [
+      "z_controller_on",
+      false
+    ],
+    "z_controller_on": [
+      "z_controller_on",
+      true
+    ]
+  },
+  "exact_messages": {
+    "scan_running|False": "scan is running",
+    "scan_running|True": "scan is not running",
+    "z_controller_on|False": "Z controller is ON",
+    "z_controller_on|True": "Z controller is OFF"
+  },
+  "grid": [
+    {
+      "fixture": "zctrl_on",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "z_controller_on",
+      "violations": [
+        "Precondition failed: 'z_controller_on' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Off：确实被关掉了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "z_controller_on",
+      "violations": [
+        "Precondition failed: 'z_controller_on' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Hold：被**挂起**(hold)——不是被关掉;挂起它的那一步没有把它放回来）"
+      ]
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "z_controller_on",
+      "violations": [
+        "Precondition failed: 'z_controller_on' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=SwitchingOff：正在关闭中(switch-off delay 未走完)——再等一下可能就好了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "z_controller_on",
+      "violations": [
+        "Precondition failed: 'z_controller_on' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=SafeTip：Nanonis 自己进了 **SafeTip 保护态**——没有人关它,是仪器躲开了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "z_controller_on",
+      "violations": [
+        "Precondition failed: 'z_controller_on' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Withdrawing：正在退针）"
+      ]
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "z_controller_on",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "z_controller_off",
+      "violations": [
+        "Precondition failed: 'z_controller_off' — Z controller is ON（读到 z_controller_on=True，要求 False）（z_controller_status=On）"
+      ]
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "z_controller_off",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "scan_running",
+      "violations": [
+        "Precondition failed: 'scan_running' — scan is not running（读到 scan_running=False，要求 True）"
+      ]
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "scan_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "scan_stopped",
+      "violations": [
+        "Precondition failed: 'scan_stopped' — scan is running（读到 scan_running=True，要求 False）"
+      ]
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "scan_stopped",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "scan_not_running",
+      "violations": [
+        "Precondition failed: 'scan_not_running' — scan is running（读到 scan_running=True，要求 False）"
+      ]
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "scan_not_running",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "bias_nonzero",
+      "violations": [
+        "Precondition failed: 'bias_nonzero' — bias is zero"
+      ]
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "bias_nonzero",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "tip_withdrawn",
+      "violations": [
+        "Precondition failed: 'tip_withdrawn' — tip is not withdrawn (retract the tip before a coarse motor move)"
+      ]
+    },
+    {
+      "fixture": "empty",
+      "precondition": "tip_withdrawn",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "tip_clear",
+      "violations": [
+        "Precondition failed: 'tip_clear' — tip is not withdrawn (retract the tip before a coarse motor move)"
+      ]
+    },
+    {
+      "fixture": "empty",
+      "precondition": "tip_clear",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "完全不认识的前置",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_on",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "zctrl_off",
+      "precondition": "Z_Controller_On",
+      "violations": [
+        "Precondition failed: 'Z_Controller_On' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Off：确实被关掉了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_hold",
+      "precondition": "Z_Controller_On",
+      "violations": [
+        "Precondition failed: 'Z_Controller_On' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Hold：被**挂起**(hold)——不是被关掉;挂起它的那一步没有把它放回来）"
+      ]
+    },
+    {
+      "fixture": "zctrl_switching_off",
+      "precondition": "Z_Controller_On",
+      "violations": [
+        "Precondition failed: 'Z_Controller_On' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=SwitchingOff：正在关闭中(switch-off delay 未走完)——再等一下可能就好了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_safetip",
+      "precondition": "Z_Controller_On",
+      "violations": [
+        "Precondition failed: 'Z_Controller_On' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=SafeTip：Nanonis 自己进了 **SafeTip 保护态**——没有人关它,是仪器躲开了）"
+      ]
+    },
+    {
+      "fixture": "zctrl_withdrawing",
+      "precondition": "Z_Controller_On",
+      "violations": [
+        "Precondition failed: 'Z_Controller_On' — Z controller is OFF（读到 z_controller_on=False，要求 True）（z_controller_status=Withdrawing：正在退针）"
+      ]
+    },
+    {
+      "fixture": "zctrl_unknown",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "scan_running",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "scan_stopped",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "bias_zero",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "bias_live",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "withdrawn",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "not_withdrawn",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    },
+    {
+      "fixture": "empty",
+      "precondition": "Z_Controller_On",
+      "violations": []
+    }
+  ],
+  "recognized": {
+    "Z_Controller_On": true,
+    "bias_nonzero": true,
+    "scan_not_running": true,
+    "scan_running": true,
+    "scan_stopped": true,
+    "tip_clear": true,
+    "tip_withdrawn": true,
+    "z_controller_off": true,
+    "z_controller_on": true,
+    "完全不认识的前置": false
+  },
+  "substring_rules": [
+    [
+      [
+        "z_controller",
+        "off"
+      ],
+      "z_controller_on",
+      true,
+      "{precondition}' — Z controller is ON"
+    ],
+    [
+      [
+        "z_controller",
+        "on"
+      ],
+      "z_controller_on",
+      false,
+      "{precondition}' — Z controller is OFF"
+    ],
+    [
+      [
+        "scan",
+        "not_running"
+      ],
+      "scan_running",
+      true,
+      "{precondition}' — scan is running"
+    ],
+    [
+      [
+        "scan",
+        "stopped"
+      ],
+      "scan_running",
+      true,
+      "{precondition}' — scan is running"
+    ],
+    [
+      [
+        "scan",
+        "running"
+      ],
+      "scan_running",
+      false,
+      "{precondition}' — scan is not running"
+    ],
+    [
+      [
+        "bias",
+        "nonzero"
+      ],
+      "bias_v",
+      0.0,
+      "{precondition}' — bias is zero"
+    ],
+    [
+      [
+        "withdrawn"
+      ],
+      "withdrawn",
+      false,
+      "{precondition}' — tip is not withdrawn (retract the tip before a coarse motor move)"
+    ],
+    [
+      [
+        "tip",
+        "clear"
+      ],
+      "withdrawn",
+      false,
+      "{precondition}' — tip is not withdrawn (retract the tip before a coarse motor move)"
+    ]
+  ],
+  "zctrl_status_hints": {
+    "Hold": "被**挂起**(hold)——不是被关掉;挂起它的那一步没有把它放回来",
+    "Off": "确实被关掉了",
+    "SafeTip": "Nanonis 自己进了 **SafeTip 保护态**——没有人关它,是仪器躲开了",
+    "SwitchingOff": "正在关闭中(switch-off delay 未走完)——再等一下可能就好了",
+    "Withdrawing": "正在退针"
+  }
+}
