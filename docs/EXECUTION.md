@@ -37,10 +37,11 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 · **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）
 · **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1）· **1.8b ✅**（提示块 `stm-live-state` + `stm_get_state`；**结清 spike 第 2 条**；投影推迟到 1.10）。
 · **1.9 ✅**（看门狗 + 急停 + `/estop`；金样把真 Python 循环的时间换掉让它自己跑）。
-**下一段 = 课时 1.10（U0：客户端机器 / SSE hub / 右栏卡 + 设置卡 + 投影）。**
+· **1.10 ◐**（SSE hub + 投影 + 结清 spike 9 完成；客户端半边受阻于 B12，见课时记录）。
+**下一段 = Phase 2 课时 2.1（安全金样导出）。**
 
-仓库现状：9 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / instrument-state / **instrument-watchdog** / bundle），
-**392 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+仓库现状：10 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / **client/stm-ui** / bundle），
+**416 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -737,7 +738,7 @@ Python 的块里**没有** `stale`。链路断了的时候，模型看到的是 
 | 1.8 ✅ | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`） | monitor 端口上有 1 Hz 轮询 |
 | 1.8b ✅ | 提示块 `stm-live-state` + `stm_get_state`（投影 `mast.instrumentState` 推迟到 1.10，理由见课时记录） | 提示装配里有实时状态块 |
 | 1.9 ✅ | 看门狗（monitor 0.5 s × 8 窗口）+ `estop()` + `/estop` 命令 + 断链告警 | 真 stmsim 上退针确认、`viaRole=emergency` |
-| 1.10 | U0：客户端机器 + SSE hub `/mast/events` + 右栏「仪器状态」卡 + 设置卡（0.5 并入）+ 投影 `mast.instrumentState` | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
+| 1.10 ◐ | SSE hub `/mast/events` + 投影 `mast.instrumentState` ✅；客户端机器 + 右栏卡 + 设置卡 **受阻于 B12** | 真 dsh 上 `GET /mast/events` 回 text/event-stream 并推真事件 |
 
 ### 课时 1.9 —— 看门狗 + 急停 ✅ 完成（2026-09-10）
 
@@ -831,48 +832,114 @@ Python 的块里**没有** `stale`。链路断了的时候，模型看到的是 
 看门狗的 `inject` 也就不满足 ⇒ `ctx.stmWatchdog` 永远挂不上。
 **这正是「缺一件就整个不装」在起作用**，只是这次挡的是我自己。
 
-### 课时 1.10 —— U0：第一个客户端包（计划）
+### 课时 1.10 —— U0 ◐ 宿主面完成、客户端半边受阻（2026-09-10）
 
-**这一段是 D11.1 的切换点**：出现第一个 client 包之后，dsh 的追踪策略从「最新 alpha」改为
-**跟稳定通道 `latest`**（客户端面的破坏性变更代价比宿主面高一个量级，见 `dsh/upgrades.md` 判据一节）。
+**做完的（1.10b + 投影）**：`packages/client/stm-ui`（**宿主面**，别被目录名骗了）——
+`/mast/events` SSE hub、`/mast/events/snapshot`、投影 `mast.instrumentState`。
+**416 条测试**。结清 **spike 第 9 条**。
 
-**写什么**（分三小段做，别一次推）
+**没做完的（1.10a + 1.10c）**：tsconfig 宿主/客户端拆分、`ui-core` 右栏卡、设置卡。
+原因见下，**不是没时间，是撞到一个需要先定的结构问题**。
 
-1. **1.10a 客户端机器**：把根 `tsconfig.json` 拆成 `tsconfig.host.json` + `tsconfig.client.json`，
-   根文件只 `files: []` + 引用两个。**理由是硬约束不是整洁**：Cordis 靠 declaration merging 往
-   `Context` 上挂服务，宿主面与客户端面挂的是**两组不同的服务**；两张图落进同一个 `ts.Program`，
-   两套 merge 会互相污染——**编译期一切正常，运行期才炸**。dsh 自己的根 tsconfig 注释写着同一句。
-   client 侧 `compilerOptions` 覆盖成 `module: esnext` / `moduleResolution: bundler` / `lib` 加 dom / `jsx: react-jsx`；
-   打包用 tsdown。**先跑通一个空壳 client 包再往里放东西**。
-2. **1.10b SSE hub**：`webServer.register({kind:'prefix', path:'/mast/events'})`，`text/event-stream`，
-   `Last-Event-ID` 续传（= 旧的 `?since=seq`）、100 条环形重放、15 s `: ping`、队列满发 `dropped`；
-   另加 `/mast/events/snapshot`。事件闭集见 PLAN §9.2。**帧里永远只有指针与标量**——
-   图像与长文本走引用，否则 SSE 通道会被一张图堵死。**客户端遇到未知 type 必须忽略**（前向兼容）。
-   spike 第 9 条（`webServer` 是否支持流式 `res.write`）的触发点就在这里；红了退化成轮询。
-3. **1.10c 右栏卡 + 设置卡 + 投影**：`ui-core` 右栏「仪器状态」卡（读 SSE，1 Hz 跳动）；
-   **0.5 的设置卡 `mast.instrument` 并到这里**（端口 / hardware_modules / instrument_profile）；
-   投影 `mast.instrumentState`（1.8b 推迟的那件，此刻有了读它的一方，fold 折成什么形状才定得下来）。
-   spike 第 8 条（`conversation.view` / `details` / `toolview`）一并结清。
+#### spike 9：`webServer` 支持流式，SSE 是上游明写的用法
 
-**验收**：右栏读数 1 Hz 跳动；**杀宿主重启 5 s 内重连且 `Last-Event-ID` 续传无缺口**（这条是 U0 的核心，
-不是锦上添花——断线重连丢事件的实时面板会让人在错误的画面前做决定）；设置卡改端口后重载 profile 生效。
+`WebRoute.handler` 的文档原话：*Owns the full response lifecycle (**may hold the response
+open, e.g. SSE**)*，另有 `registerUpgrade`。⇒ PLAN §13 备的「退化成轮询」退路用不上。
 
-**已知的坑（上游 Discussion #5999）**：升级**既有** profile 时 client combo 会缺新增的 bundle 模块
-⇒ 全部 client 插件失效。全新 profile 不受影响。做 U0 时先确认本地 profile 是新建的，
-再把这条写进升级清单。
+**不是照文档抄**：测试里起一份**真的 `WebServer`**（`port: 0`）用真 `http.get` 打它，
+验响应头、逐条推送、`Last-Event-ID` 续传只补没看过的、心跳。
 
-**1.10 落第一个客户端包时必须做的一件结构改动**（0.2 按消融原则没有预先搭）：把根 `tsconfig.json`
-拆成 `tsconfig.host.json` + `tsconfig.client.json` 两个解决方案文件，根文件只 `files: []` + 引用这两个。
-**理由不是整洁，是硬约束**：Cordis 靠 declaration merging 往 `Context` 上挂服务，宿主面与客户端面挂的是
-**两组不同的服务**；两张图一旦落进同一个 `ts.Program`，两套 merge 会互相污染——**编译期一切正常，运行期才炸**。
-dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the host/client cordis Context merges never meet"）。
-同时 client 的 `compilerOptions` 要覆盖成 `module: esnext` / `moduleResolution: bundler` / `lib` 加 dom / `jsx: react-jsx`。
+顺带确认一件更要紧的事：**`EventSource` 断线重连会自动带 `Last-Event-ID`**
+⇒「杀宿主重启 5 秒内续传无缺口」不需要客户端记任何东西，我们只要把 `id:` 写对。
 
-**Phase 1 的两处前置**（在 1.4 之前确认，别到时候卡住）：
-- stmsim 要能跑起来 ⇒ `<STMSIM_ROOT>\` 的 Python 环境可用（走旧仓 venv 还是 STM-Bench 自己的，1.4 前定）。
-- **0.1.3 的「subprocess 句柄不再带 PID」与「Windows 本地非终端子进程不再弹控制台窗口」** ⇒ 若 `instrument-stmsim` 决定走 dsh 的 `subprocess` 服务而不是 Node 自己的 `child_process`，1.7 要按新语义写；PLAN §7.1 目前的设计是我们自己 spawn，不受影响。
+#### 三条硬约束，各有它防的东西
 
----
+| 约束 | 防的是 |
+|---|---|
+| **帧里只有指针与标量**（超限 `push` 直接抛） | 一张图内联就能把单向长连接堵死，而堵住了客户端**只会「看起来卡住」**，不报错 |
+| **重放有缺口就明说**（第一条给 `dropped`） | 安静地少给几条，客户端会以为自己看到了全部 |
+| **seq 单调递增不复用** | 客户端拿它当 `Last-Event-ID`，复用过的 seq 让「我看到哪儿了」失去意义 |
+
+#### 投影与 SSE 的分工（D7 的兑现）
+
+SSE 回答「**现在**仪器什么样」——全局、高频、易失、不进会话。
+投影回答「**那一步**模型看到的是什么」——按会话、低频、可回放。
+一个人问「现在偏压多少」，另一个人问「模型做那个决定时以为偏压是多少」。
+
+投影只留最新一份，不留历史——**这不是省事**：投影本来就是「重放到第 N 个事件时的状态」，
+回放到哪儿 fold 就给到哪儿。fold 的两条硬约束都钉成了测试：不关心的事件**返回同一个引用**
+（框架靠引用相等判断有没有变化），`view` 直接把 `state` 交出去不造新对象。
+
+#### 真 dsh 端到端打通
+
+```
+dsh --profile mast-sim --no-open  →  http://127.0.0.1:3080
+GET /mast/events/snapshot  →  200，真的 hardwareState JSON
+GET /mast/events           →  200 text/event-stream，收到 safety 与 hardware_state
+```
+
+整条链活着：stmsim → instrument → 1 Hz 缓存 → 看门狗 → SSE hub → HTTP。
+
+#### 两条 profile 组合的坑，都是「静默不装」
+
+1. **`webServer` 不在 `mast-sim` 的树里。** `dsh plugin add` 建出来的新 profile
+   **只有 `dsh-base`**，而 `webServer` 是 `dsh-web-app` 提供的 ⇒ `mast-ui-host` 那行的
+   `inject` 不满足，**SSE hub 整个不装载而且不报错**。`--dump-config` 里我们的行明明在，
+   但树里根本没有 `webserver`。已写进 `profiles/mast-sim/cordis.patch.yml` 的头注释。
+2. **客户端模块必须经由 bundle 进来**（见下，B12）。
+
+#### 为什么客户端半边停在这里（新开台账 B12）
+
+按 slot 目录（dsh 自己用 `cordis_inspect what:"client"` 喂给模型的那份，从
+`dsh-cordis-client-runner` 的 bundle 里读得到）已经拿到了要用的座位与注册形状：
+
+```js
+// 目录里带的示例，逐字
+return {
+  inject: ['slots'],
+  apply(ctx) {
+    ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register(
+      { name: 'settings.plugins.tab', id: 'my-entry', order: 100, label: 'My entry' },
+      () => React.createElement('div', null, 'hello'),
+    ))
+  },
+}
+```
+
+座位也点清楚了：`settings.section`（设置卡）、`shell.overlay`（急停横幅）、
+`sidebar.right.pane.tab`（右栏）、`sidebar.panellist`。**而且用 `React.createElement`
+就够，不需要 JSX** ——这本来会省掉一整套构建复杂度。
+
+**卡住的是「本地开发时客户端包怎么进 profile」**。实测（建了一个最小探针包，
+只有 `dsh.client` 元数据与一个纯 ESM 的 `./client` 入口）：
+
+```
+dsh: warning: dsh-spm-probe-client declares no dsh.bundle
+     — installed as a plain dependency, not a profile layer
+```
+
+⇒ 客户端模块**必须经由一个 bundle 进来**，而 dev 态 `link:` 下 profile 的 pnpm
+**不解析我们的 workspace 依赖**（台账 B7 那条）——所以 `dsh-spm` bundle 依赖
+`dsh-spm-ui-core` 这条路在开发态是断的。子路径导出（`dsh-spm/instrument-state` 那招）
+也不适用：客户端模块要有**自己的 `package.json` 与 `dsh.client` 元数据**。
+
+**这与 B10 是同一个根**：开发态与安装态是两条解析路径。**先解决 B10，1.10c 才有意义**
+——否则做出来的东西只在「我这台机器的某种摆法」下能跑。
+
+**下一步的三条路**（B12）：
+① 用 `pnpm pack` 出 tarball 走一次安装态，看客户端模块能不能被正常拉进 client combo；
+② 把 `ui-core` 本身也做成一个 bundle（它有 `dsh.bundle` 就成为 profile layer）；
+③ 读 dsh 仓库的 `packages/client/AGENTS.md` —— 上游对这件事应当有明说，
+而我手上只有 npm 包内文件，没有那份文档。
+
+#### 1.10a（tsconfig 宿主/客户端拆分）也一并推迟
+
+它的**唯一理由**是「两组不同的 `Context` declaration merging 不能落进同一个
+`ts.Program`」——而此刻**一个客户端包都还没有**，现在拆等于建一个空的解决方案文件。
+按消融精神：**第一个客户端包落地的同一段里拆**，那时它承担的是真东西。
+
+⚠️ 注意 `packages/client/stm-ui` **是宿主面**（目录名沿用 PLAN §6.2 的分组），
+它进的是宿主解决方案，不是客户端那个。拆的时候别把它归错。
 
 ## 4. Phase 2 · 安全 + 内核 + 批 1/2（课时 2.1–2.15）
 
@@ -1049,6 +1116,7 @@ attended 无人应答时 deny 不挂起；SpecComposite 全模板跑通。
 | **B7** | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | **✅ 2026-09-08 实测：问题本身问错了** | `dsh plugin add <本地目录>` 用 **`link:`**，pnpm **完全不解析我们的 dependencies**——`workspace:*` 从没被求值，peer 精确钉也没执行，所以既不硬失败也不混装：**它压根没参与**。探针实测：运行时我们的 compat 解析到的是**本仓**那份 `dsh-tools`，于是一个进程里活着**两份模块实例**。今天两份同版所以没事；`defineTool` 是纯工厂也不在乎。**会出事的是依赖模块身份的东西（`instanceof`、模块级单例、Cordis `Service` 类身份）——课时 1.6 定义 `ctx.instrument` Service 时必须先验**。详见 `dsh/facts.md` §6-17 |
 | **B10** | 开发态（`link:`）与安装态（npm/tarball）走两条不同解析路径 | **新开，Phase 0 结束前** | B7 引出的。发布路径上 profile 的 pnpm 会真的解析依赖、执行 peer 钉，只剩一份实例——和我们每天跑的**不是同一件事**。至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟，否则重演 facts.md §1「npx 缓存是冻结快照」那个教训 |
 | **B11** | **CI 跑不了 integration**：它要真 stmsim，而 stmsim 在 STM-Bench 仓库里，那个仓库**没有远端**（09-09 核实 `git remote -v` 为空） | **新开，1.7**。CI 暂时只跑 `--project unit --project contract` | 三条路：① 给 STM-Bench 建个远端（私有也行），CI 加 `setup-python` + 钉住 commit 的 checkout；② 把 stmsim 打成 wheel 发到某处，CI `pip install`；③ 一直只在本地跑 integration。**①最省事也最诚实**——差分测试（B8）迟早也要 CI 上有 STM-Bench。在解决之前，「CI 绿」不等于「对着真模拟器绿」，这个差别必须记着 |
+| **B12** | **本地开发时客户端包进不了 profile**：客户端模块必须经由一个 bundle 进来（实测警告 `declares no dsh.bundle — installed as a plain dependency, not a profile layer`），而 dev 态 `link:` 下 profile 的 pnpm 不解析我们的 workspace 依赖（B7）。子路径导出那招也不适用——客户端模块要有自己的 `package.json` 与 `dsh.client` 元数据 | **新开，1.10**。**与 B10 同根**，先解决 B10 | 三条路：① `pnpm pack` 走一次安装态；② 把 `ui-core` 本身做成 bundle；③ 读上游 `packages/client/AGENTS.md`（我手上只有 npm 包内文件）。**在这之前 1.10c 做出来的东西只在「我这台机器的某种摆法」下能跑** |
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |
 | B9 | ONNX 权重放哪（不入仓） | 未定（PLAN §16） | 建议 `E:\dsh-spm-models\` + manifest |
 
