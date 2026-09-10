@@ -6,10 +6,16 @@
  */
 import type { Skill } from 'dsh-spm-kernel'
 import { CORE_READS } from './reads-core.js'
+import { HW_READS } from './reads-hw.js'
+import { GetZControllerState } from './zctrl-state.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
+  ...HW_READS,
+  GetZControllerState,
 }
 
 export * from './common.js'
 export * from './reads-core.js'
+export * from './reads-hw.js'
+export * from './zctrl-state.js'

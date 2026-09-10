@@ -113,21 +113,44 @@ function optsOf(trace: string): { errorAt?: number; emptyAt?: number } {
 }
 
 /**
- * **D-SKILL-1 的逐格登记**：Python 在这些格子里把整个回包信封当成读数交出去
- * （`else parsed` 兜底），我们按 `scalarFloat` 判为「取不出数」。
+ * **逐格登记的偏差**。写成「我们这一侧应该是什么」，而不是「这一格跳过」：
+ * 两侧都钉住之后，**旧仓哪天把它修了，这里会变红**，我们就该回来删掉这一条。
  *
- * 写成 `<技能>/<轨迹> → 我们这一侧的 data`，而不是「跳过这一格」：
- * 两侧都钉住之后，**旧仓哪天把这条修了，这里会变红**，我们就该回来删掉这一条。
- * 一条偏差不该无限期地活着。
+ * - `D-SKILL-1` 旧仓在这些格子里走 `else parsed` 兜底，把**整个回包信封**
+ *   当成读数交出去（`["", "<bytes 0>", []]`）。我们按 `scalarFloat` 判「取不出数」。
+ * - `D-SKILL-2` 旧仓的诊断文案里印了 Python 的回包 repr。我们这一侧信封在
+ *   wire 层就拆掉了，只有 body —— 印我们真有的东西。
  */
-const D_SKILL_1: Readonly<Record<string, Record<string, unknown>>> = {
-  'GetBiasCalibration/empty@0': { calibration: null, offset: 0 },
-  'GetSetpoint/empty@0': { setpoint_a: null },
-  'GetScanFrame/empty@0': { raw: [] },
-  'GetScanSpeed/empty@0': { raw: [] },
-  'GetScanBuffer/empty@0': { raw: [] },
-  'GetTipSpeed/empty@0': { raw: [] },
-  'GetPointShootOnOff/empty@0': { raw: [] },
+interface Deviation {
+  readonly data?: Record<string, unknown>
+  readonly error?: string
+}
+
+const DEVIATIONS: Readonly<Record<string, Deviation>> = {
+  // ── D-SKILL-1：信封不当读数 ──
+  'GetBiasCalibration/empty@0': { data: { calibration: null, offset: 0 } },
+  'GetSetpoint/empty@0': { data: { setpoint_a: null } },
+  'GetScanFrame/empty@0': { data: { raw: [] } },
+  'GetScanSpeed/empty@0': { data: { raw: [] } },
+  'GetScanBuffer/empty@0': { data: { raw: [] } },
+  'GetTipSpeed/empty@0': { data: { raw: [] } },
+  'GetPointShootOnOff/empty@0': { data: { raw: [] } },
+  'GetZCtrlGain/empty@0': { data: { raw: [] } },
+  'GetPiezoTilt/empty@0': { data: { raw: [] } },
+  'GetPiezoSensitivity/empty@0': { data: { raw: [] } },
+  'GetDriftCompensation/empty@0': { data: { raw: [] } },
+  'GetPiezoXYZLimits/empty@0': { data: { raw: [] } },
+  'MotorGetPos/empty@0': { data: { raw: [] } },
+  'GetMotorStepCounter/empty@0': { data: { raw: [] } },
+  'GetSignalRange/empty@0': { data: { signal_index: 63, raw: [] } },
+  // ── D-SKILL-2：诊断文案里的回包形状 ──
+  'GetAutoApproachStatus/empty@0': {
+    error:
+      'AutoApproach_OnOffGet 回来了,但状态位读不懂(values=[])—— 这**不是**「没在进针」,是没问出来。',
+  },
+  'ListSignalChannels/empty@0': {
+    error: 'Could not parse signal names from response: []',
+  },
 }
 
 const names = Object.keys(IMPLEMENTED).sort()
@@ -154,19 +177,38 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
             want.calls.map((c) => [c.verb, c.args]),
           )
           expect(got.success).toBe(want.success === true)
-          expect(got.error ?? '').toBe(want.error ?? '')
+          const dev = DEVIATIONS[`${name}/${traceName}`]
+
+          if (dev?.error === undefined) {
+            expect(got.error ?? '').toBe(want.error ?? '')
+          } else {
+            expect(got.error ?? '').toBe(dev.error)
+            expect(want.error ?? '').not.toBe(dev.error) // 旧仓那一侧也钉住
+          }
+
           expect(got.summary ?? '').toBe(want.summary ?? '')
-          const dev = D_SKILL_1[`${name}/${traceName}`]
-          if (dev === undefined) {
+
+          if (dev?.data === undefined) {
             expect(got.data ?? {}).toEqual(want.data ?? {})
           } else {
-            // 我们这一侧钉住
-            expect(got.data ?? {}).toEqual(dev)
-            // 旧仓那一侧也钉住 —— 它哪天修了，这一行变红
-            expect(want.data ?? {}).not.toEqual(dev)
+            expect(got.data ?? {}).toEqual(dev.data)
+            expect(want.data ?? {}).not.toEqual(dev.data)
           }
         })
       }
     })
   }
+})
+
+describe('D-SKILL-3 · 旧仓会抛 IndexError 的那一格，我们判「读不出」', () => {
+  it('GetSafeTipStatus 收到空 body：失败而不是抛', async () => {
+    // 旧仓这里直接 `parsed[2][0]` —— 空 body 时抛 IndexError，
+    // 于是一个只读技能以一句**看不懂的**异常失败。而「保护未开」和
+    // 「没问出来」是两句必须分开的话：前者可以继续，后者不能。
+    expect(golden['GetSafeTipStatus']!.traces['empty@0']!.raised).toContain('IndexError')
+    const { ctx } = fakeCtx({ emptyAt: 0 })
+    const got = await IMPLEMENTED['GetSafeTipStatus']!.execute(ctx, {})
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('这**不是**「保护未开」,是没问出来')
+  })
 })

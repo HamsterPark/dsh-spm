@@ -236,3 +236,45 @@
 **为什么有意**：路径本身是**仪器机的 Windows 路径**，代码在哪台机器上跑不改变这一点。
 跟着平台走的话，同一条金样在开发机（Windows）和 CI（Linux）上会给出两个答案，
 而这条判据是用来反驳「agent 声称写了一个不存在的文件」的——它不该取决于谁在跑测试。
+
+## D-SKILL-1 · 取不出数就是 `null`，绝不把回包信封当读数
+
+| | |
+|---|---|
+| **Python** | 一族技能仍在走 `val = parsed[2][0] if isinstance(parsed,(list,tuple)) and len(parsed)>2 else parsed` —— 形状判据不成立时**把整个三段信封当成读数交出去** |
+| **证据** | `spec/golden/skill_traces.json` 的 `empty@0` 逐格录着：`GetBiasCalibration` 的 `calibration` 收到的是 `["", "<bytes 0>", []]` |
+| **我们** | 一律 `scalarFloat`：取不出数就是 `null`（与 D-STATE-1 同判据） |
+| **影响面** | 15 格，登记在 `l0/traces.test.ts` 的 `DEVIATIONS` 里 |
+
+**为什么有意**：`reply_scalar` 的 docstring 把后果写死了——2026-08-13 那次锁机，
+抖动中收到一个两段的截断回包 ⇒ `len(parsed) > 2` 为假 ⇒ `('', b'…')` 被当成电流，
+一路裸写进状态缓存，再被环境传感器 `float()` 抛成「硬故障」。旧仓把这一族修到了
+`reply_scalar`，但**没修完**。
+
+**登记方式值得说一句**：写的是「我们这一侧应该是什么」，而且**两侧都钉**——
+测试同时断言旧仓那一侧**不等于**我们这个值。旧仓哪天把某一格修了，那一行会变红，
+我们就该回来删掉它。一条偏差不该无限期地活着。
+
+## D-SKILL-2 · 诊断文案里印的是 body，不是 Python 的回包 repr
+
+| | |
+|---|---|
+| **Python** | `f"…读不懂(return_value={rec.return_value!r})"` —— 印的是三段信封的 Python repr |
+| **我们** | 信封在 `nanonis-wire` 那层就拆掉了，`SkillCallRecord` 只有 `values`。印我们真有的东西 |
+| **影响面** | 2 条（`GetAutoApproachStatus` / `ListSignalChannels` 的 `empty@0`） |
+
+**为什么有意**：不可消除——我们这一侧根本没有那个信封，为了逐字而伪造一个
+Python 元组的字面量，只会让诊断指向一个不存在的数据结构。
+
+## D-SKILL-3 · 旧仓抛 `IndexError` 的那一格，我们判「读不出」
+
+| | |
+|---|---|
+| **Python** | `GetSafeTipStatus` 直接 `parsed[2][0]`，空 body 时抛 `IndexError: list index out of range` |
+| **我们** | 失败，并说清「这**不是**「保护未开」,是没问出来」 |
+| **测试** | `l0/traces.test.ts` → `D-SKILL-3 · 旧仓会抛 IndexError 的那一格` |
+
+**为什么有意**：一个只读技能以一句看不懂的 `IndexError` 失败，等于把
+「保护未开」和「没问出来」交给调用方去猜——而这两者在要不要进针这件事上
+是相反的处境。这正是 `reply_scalar` 那段 docstring 说的第一个毛病，同一族，
+只是这一格没被修到。

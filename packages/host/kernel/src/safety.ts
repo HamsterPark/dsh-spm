@@ -390,3 +390,44 @@ export function isAbortSafe(method: string, args: readonly unknown[]): boolean {
   if (!Number.isInteger(n)) return false
   return stopValues.includes(n)
 }
+
+/**
+ * 读回值的物理合理性——`physicallyAbsurdViolations` 的**读那一侧**，同一张表。
+ *
+ * 写那一侧问的是「模型要写的这个数可能吗」，读这一侧问的是
+ * 「仪器回给我的这个数可能吗」。两个问题的答案由同一张 `PHYSICAL_ABSURD` 给出，
+ * 于是「什么叫量级错」在系统里只有一个定义。
+ *
+ * **返回空不等于「数值正确」**，只等于「这一批里没有物理上不可能的」。
+ *
+ * @param readings `{名字: [值, 单位]}`。单位与表**精确匹配**（与写那侧同规则），
+ *   于是一个同名的无量纲增益不会被误判。
+ */
+export function implausibleReadings(
+  readings: Readonly<Record<string, readonly [number | null | undefined, string]>>,
+): string[] {
+  const notes: string[] = []
+  for (const [name, pair] of Object.entries(readings)) {
+    const [value, unit] = pair
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue
+    const nameL = name.toLowerCase()
+    const unitL = (unit ?? '').toLowerCase()
+    for (const [pat, unitPat, ceiling, hint] of PHYSICAL_ABSURD) {
+      if (nameL.includes(pat) && unitPat === unitL && Math.abs(value) >= ceiling) {
+        notes.push(
+          `⚠ 读回值 '${name}' = ${pyRepr(value)} ${unit ?? ''} 在物理上不可能` +
+            `(${hint})。这个读数**不是浮点精度误差**,它比典型值大若干个` +
+            `数量级 —— 硬件里现在很可能真的是一个错误的量级。` +
+            `不要据此判定「数值正常」,先在 Nanonis 面板上人工核对。`,
+        )
+        break
+      }
+    }
+  }
+  return notes
+}
+
+/** Python `repr(float)`。JS 的 `String()` 在这一段上与它一致（`0.25`、`1e-13`）。 */
+function pyRepr(v: number): string {
+  return String(v)
+}
