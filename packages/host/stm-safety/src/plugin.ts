@@ -16,13 +16,14 @@
  *
  * 样品门控单独一条，**方向相反**（fail-open，见 kernel 的说明），所以不混在这条链里。
  */
-import { type Context, Service } from 'dsh-spm-compat'
+import { type Context, Service, type CommandDefinition } from 'dsh-spm-compat'
 import {
   DEFAULT_SAFETY_LIMITS,
   checkSampleScope,
   envelopeViolations,
   isCalibrationChange,
   isCoarseDriveChange,
+  approvalDigest,
   isCoarseSampleApproach,
   isProtectionDisable,
   isUnguardedLateralCoarseMove,
@@ -119,12 +120,43 @@ export class StmSafetyService extends Service {
     )
 
     // ② 要人审的走 pre-execute（它能回 ask，而 guard 不能）
+    //
+    // **`reason` 里必须带参数摘要**：dsh 的审批请求只有 agent/toolName/callId/reason，
+    // **看不到参数**（spike 第 1 条的边界）。而人要批准的是「这一次、带这些参数的调用」，
+    // 不是「这个工具」。摘要末尾的 `args#xxxxxx` 让审批卡与内核执行**能对上**——
+    // 不等就拒。
     ctx.effect(() =>
       ctx.on('tools/pre-execute', async (exec, next) => {
-        const v = this.decide(exec.name, asArgs(exec.arguments), { approvalSource: 'llm' })
-        if (v.kind === 'ask') return { kind: 'ask', reason: v.reason }
+        const args = asArgs(exec.arguments)
+        const v = this.decide(exec.name, args, { approvalSource: 'llm' })
+        if (v.kind === 'ask') {
+          return { kind: 'ask', reason: `${v.reason}\n${approvalDigest(exec.name, args)}` }
+        }
         return next()
       }),
+    )
+
+    // ③ `/mode` —— 操作员切档。**注册成命令而不是工具**：模式是人的决定，
+    //    不是模型的一个选项。模型能读到当前档（它进提示），但改不了。
+    ctx.effect(() =>
+      ctx.commands.register({
+        name: 'mode',
+        description: '查看或切换操作模式：SAFE（不修针）/ SEMI（只允许浅层机械修针）/ AUTO（放行）。不带参数则只显示当前档。',
+        handler: (inv): { kind: 'success' | 'error'; text: string } => {
+          const want = String((inv as { rawInput?: string }).rawInput ?? '')
+            .trim()
+            .toUpperCase()
+          if (want === '') {
+            return { kind: 'success', text: `当前操作模式：${this.currentMode ?? '未绑定（模式闸放行）'}` }
+          }
+          if (want !== 'SAFE' && want !== 'SEMI' && want !== 'AUTO') {
+            return { kind: 'error', text: `不认识的模式 '${want}'。可用：SAFE / SEMI / AUTO。` }
+          }
+          const before = this.currentMode
+          this.currentMode = want
+          return { kind: 'success', text: `操作模式：${before ?? '未绑定'} → ${want}` }
+        },
+      } satisfies CommandDefinition as CommandDefinition),
     )
   }
 
@@ -222,7 +254,7 @@ export function apply(ctx: Context, config: Config = {}): void {
 }
 
 /** `tools` 是硬依赖：没有工具注册表就没有可以挂闸的地方。 */
-export const inject = ['tools']
+export const inject = ['tools', 'commands']
 
 export const stmSafetyProvider = { name, inject, apply }
 

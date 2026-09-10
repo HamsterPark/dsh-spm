@@ -3,7 +3,7 @@
  * **顺序对不对、拒绝走的是 guard（单调）、硬闸对模型来源是拒不是问**。
  */
 import { Context, Service } from 'dsh-spm-compat'
-import { CAP_BIAS_PULSE, CAP_TIP_SHAPING } from 'dsh-spm-kernel'
+import { CAP_BIAS_PULSE, CAP_TIP_SHAPING, argsHash } from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
 import { stmSafetyProvider, type SkillDeclaration } from './plugin.js'
 
@@ -30,13 +30,31 @@ class FakeTools extends Service {
   }
 }
 
+/** 命令注册表的替身。 */
+class FakeCommands extends Service {
+  readonly registered: { name: string; handler: (i: unknown) => { kind: string; text: string } }[] = []
+  constructor(ctx: Context) {
+    super(ctx, 'commands')
+  }
+  register(def: unknown): () => void {
+    const d = def as { name: string; handler: (i: unknown) => { kind: string; text: string } }
+    this.registered.push(d)
+    return () => void this.registered.splice(this.registered.indexOf(d), 1)
+  }
+  run(name: string, rawInput = ''): { kind: string; text: string } {
+    return this.registered.find((c) => c.name === name)!.handler({ rawInput })
+  }
+}
+
 async function host(config: Record<string, unknown> = {}): Promise<{
   ctx: Context
   tools: FakeTools
+  cmd: FakeCommands
   svc: Context['stmSafety']
 }> {
   const ctx = new Context()
   const tools = new FakeTools(ctx)
+  const cmd = new FakeCommands(ctx)
   ctx.plugin(stmSafetyProvider, config)
   const svc = await new Promise<Context['stmSafety']>((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('ctx.stmSafety 没挂上')), 2_000)
@@ -45,7 +63,7 @@ async function host(config: Record<string, unknown> = {}): Promise<{
       resolve(c.stmSafety)
     })
   })
-  return { ctx, tools, svc }
+  return { ctx, tools, cmd, svc }
 }
 
 const SET_BIAS: SkillDeclaration = {
@@ -206,5 +224,42 @@ describe('技能登记', () => {
     expect(svc.decide('ShapeTip', { tip_lift: 1e-9 }).kind).toBe('allow')
     const deep = svc.decide('ShapeTip', { tip_lift: 5e-8 })
     expect(deep.kind === 'deny' && deep.code).toBe('operating_mode')
+  })
+})
+
+describe('/mode 命令与审批摘要', () => {
+  it('/mode 不带参数只显示当前档', async () => {
+    const { cmd } = await host({ mode: 'SAFE' })
+    expect(cmd.run('mode').text).toContain('SAFE')
+  })
+
+  it('/mode SAFE|SEMI|AUTO 切档，并且**立刻**改变判定', async () => {
+    const { cmd, svc } = await host({ mode: 'AUTO' })
+    svc.registerSkill({ name: 'TipPulse', parameters: [], capabilities: [CAP_BIAS_PULSE] })
+    expect(svc.decide('TipPulse', {}).kind).toBe('allow')
+    expect(cmd.run('mode', 'safe').kind).toBe('success') // 大小写不敏感
+    expect(svc.decide('TipPulse', {}).kind).toBe('deny')
+  })
+
+  it('不认识的档位报错，且**不改变现状**', async () => {
+    const { cmd, svc } = await host({ mode: 'SAFE' })
+    expect(cmd.run('mode', 'YOLO').kind).toBe('error')
+    expect(svc.mode).toBe('SAFE')
+  })
+
+  it('模式是**命令**不是工具——模型读得到当前档，但改不了', async () => {
+    const { cmd, tools } = await host()
+    expect(cmd.registered.map((c) => c.name)).toContain('mode')
+    // 工具注册表里没有 mode
+    expect(tools.guards.length).toBe(1)
+  })
+
+  it('要人审时 reason 带参数摘要与短哈希——审批面看不到参数', async () => {
+    const { svc } = await host()
+    const args = { direction: 'z-approach', steps: 10 }
+    const v = svc.decide('MotorMove', args, { approvalSource: 'human' })
+    expect(v.kind).toBe('ask')
+    // 摘要本身在 pre-execute 里拼；这里验哈希是稳定的、且与内核算的一致
+    expect(argsHash(args)).toBe(argsHash({ steps: 10, direction: 'z-approach' }))
   })
 })

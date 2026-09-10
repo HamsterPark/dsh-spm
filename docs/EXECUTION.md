@@ -41,7 +41,8 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 **Phase 2：2.1 ✅**（安全金样：表 + 671 动词判定 + 原文逐字）· **2.2–2.5 ✅**（包络 / 物理荒谬 / `_is_read` 与中止安全写 / 五条硬闸 + 模式闸）。
 · **2.6 ✅**（sample gate 四表 + fail-open 方向）。
 · **2.7 ✅**（`ctx.stmSafety` + guard/pre-execute 接线）。
-**下一段 = 课时 2.8（`/mode` 命令 + ApprovalDigest）。**
+· **2.8 ✅**（`/mode` 命令 + 参数摘要与短哈希）。
+**下一段 = 课时 2.9（preconditions 移植 + 夹具网格）。**
 
 仓库现状：10 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / **client/stm-ui** / bundle），
 **508 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
@@ -961,7 +962,7 @@ dsh: warning: dsh-spm-probe-client declares no dsh.bundle
 | 2.5 | `kernel/safety.ts` ④：五条硬闸 + `operating_mode` 拒绝 | 五硬闸在 `approvalSource !== 'human'` 一律拒；SAFE 下 `bias_pulse`/`tip_shaping` 被拒 |
 | 2.6 ✅ | `kernel/sample-gate.ts`：sample gate 四表（depth 0 判、子步继承 admission） | 四表逐条；子步不重复判 |
 | 2.7 ✅ | `ctx.stmSafety` Service + dsh 四钩子接线（`tools/pre-execute` guard、approval、digest、`tools/post-execute`） | contract 测试：guard 拿得到工具名与参数（spike 1 已证）；approval reason 透传 |
-| 2.8 | `/mode` `/estop` 命令 + `ApprovalDigest` | `/mode SAFE` 后写技能被拒；digest 里没有参数（spike 1 的边界） |
+| 2.8 ✅ | `/mode`（`/estop` 已在 1.9） 命令 + `ApprovalDigest` | `/mode SAFE` 后写技能被拒；digest 里没有参数（spike 1 的边界） |
 | 2.9 | preconditions 移植 + `HardwareState` 夹具网格 | 金样网格逐条；措辞 `[Name] precondition_failed:` 逐字 |
 | 2.10 | `SkillKernel` 骨架：K0 覆盖 / K1 SI / K5 快照+计时 / K6 validateParams / K11 execute / K12 applyPatch / K13 composeText | `_Probe` 走通这七步；`>2000` 落盘 `textRef` |
 | 2.11 | `SkillKernel` 其余闸：K2 abort 闩 / K3 sample / K7 荒谬+包络+mode+hard_gate / K8 前置（不满足先 `refreshState()` 再判，**两入口都做**）/ K9 `holdForSkill` / K10 调制 preflight / K14–K18 | 每闸至少一条金样；K18 的 `AbortRequested`/`InstrumentBusy` **不回滚** |
