@@ -49,10 +49,16 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 · **2.13 ✅**（`ctx.stmRecords` + RunLedger + 声明交叉核对；建表由金样原样执行，21 张表 124 个对象逐条比；
 新登记 D-REC-1…4）。
 · **2.14 ✅**（变异框架 17 条闸全红 + `_Probe` 真调度链会话测试；顺带补上 guard 拒绝的留痕）。
-**下一段 = 课时 2.15（批 1 只读 L0 ≈38 + 批 2 写 L0 ≈36 + 硬闸七件套 + DANGEROUS 2）。**
+· **2.15 ◐**（轨迹金样 236 条 + spec 生成器；**批 1 完成 35/36**，新登记 D-SKILL-1…3）。
+**下一段 = 批 2（写 L0 26 + 硬闸七件套 + DANGEROUS 2 + L1 试点 2）。**
+
+> 批 1 计划稿点名 38 个，其中 `GetScanStatus` / `GetXYPosition` 在**当前旧仓不存在**
+> （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
+> 所以分母是 36。未做的一个是 `GetLatestScanFile`——它不发仪器调用，
+> 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**965 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1081 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
