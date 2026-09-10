@@ -5,6 +5,7 @@
 import { Context, Service } from 'dsh-spm-compat'
 import { CAP_BIAS_PULSE, CAP_TIP_SHAPING, argsHash } from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
+import * as records from 'dsh-spm-stm-records'
 import { stmSafetyProvider, type SkillDeclaration } from './plugin.js'
 
 /** 工具注册表的替身：只把 guard 收下来，供测试直接调。 */
@@ -261,5 +262,47 @@ describe('/mode 命令与审批摘要', () => {
     expect(v.kind).toBe('ask')
     // 摘要本身在 pre-execute 里拼；这里验哈希是稳定的、且与内核算的一致
     expect(argsHash(args)).toBe(argsHash({ steps: 10, direction: 'z-approach' }))
+  })
+})
+
+describe('guard 拒掉的**自己记一行** —— 内核看不见它们', () => {
+  it('装了记录库：一次被 guard 拒的调用留下一行 refused', async () => {
+    // 2.14 的会话测试把这个洞照出来的：guard 拒在 dispatch **之前**，
+    // 内核根本不会被调用，于是 K16 那个漏斗看不见它 —— 而 guard 拒掉的
+    // 恰恰是最该留痕的一类（硬闸、荒谬值、包络）。
+    const ctx = new Context()
+    const tools = new FakeTools(ctx)
+    new FakeCommands(ctx)
+    ctx.plugin(records, {})
+    ctx.plugin(stmSafetyProvider, {})
+    const svc = await new Promise<Context['stmSafety']>((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('没挂上')), 2_000)
+      ctx.inject(['stmSafety', 'stmRecords'], (c) => {
+        clearTimeout(t)
+        resolve(c.stmSafety)
+      })
+    })
+    svc.registerSkill(SET_SETPOINT)
+
+    // 1.5 A —— 物理荒谬，guard 拒
+    const denial = tools.runGuards('SetSetpoint', { setpoint_a: 1.5 })
+    expect(denial).toBeDefined()
+
+    const rows = ctx.stmRecords.store.db
+      .prepare('SELECT action_type, status, error FROM actions')
+      .all() as { action_type: string; status: string; error: string | null }[]
+    expect(rows).toHaveLength(1)
+    expect(rows[0]?.action_type).toBe('SetSetpoint')
+    expect(rows[0]?.status).toBe('failed')
+    expect(rows[0]?.error).toBe(denial)
+    await ctx.registry.delete(records)
+  })
+
+  it('**没装记录库时安全件照常拦** —— 它不是装载依赖', async () => {
+    // 写成 `inject` 会让没有记录库的 profile 里整个安全件不装载，那更糟：
+    // 「拦得住但没留痕」比「压根不拦」好得多。
+    const { tools, svc } = await host()
+    svc.registerSkill(SET_SETPOINT)
+    expect(tools.runGuards('SetSetpoint', { setpoint_a: 1.5 })).toBeDefined()
   })
 })

@@ -17,6 +17,12 @@
  * 样品门控单独一条，**方向相反**（fail-open，见 kernel 的说明），所以不混在这条链里。
  */
 import { type Context, Service, type CommandDefinition } from 'dsh-spm-compat'
+// 只为把 `ctx.stmWatchdog` 的类型增补拉进来。`import type {}` 不产生运行时 import——
+// 增补是类型层的，运行期靠 Cordis 的服务注册表（按字符串名索引）。
+import type {} from 'dsh-spm-instrument-watchdog'
+// 记录库的类型增补（`ctx.stmRecords`）与它的入参形状。
+import type { ActionInput as RecordInput } from 'dsh-spm-stm-records'
+import type {} from 'dsh-spm-stm-records'
 import {
   DEFAULT_SAFETY_LIMITS,
   checkSampleScope,
@@ -26,6 +32,7 @@ import {
   approvalDigest,
   isCoarseSampleApproach,
   isProtectionDisable,
+  isAbortSafe,
   isUnguardedLateralCoarseMove,
   modeRefusal,
   physicallyAbsurdViolations,
@@ -102,6 +109,8 @@ export interface Config {
 
 export class StmSafetyService extends Service {
   private readonly skills = new Map<string, SkillDeclaration>()
+  /** 记录库。没装就是 `undefined`——安全件不因为它缺席而不装载。 */
+  private recordsSvc: { record: (i: RecordInput) => string | null } | undefined
   private pointers: ExperimentPointers | null = null
   private limits: SafetyLimits
   private currentMode: OperatingMode | null
@@ -114,10 +123,48 @@ export class StmSafetyService extends Service {
     // ① 拒绝走 guard：**单调**，谁都翻不回来
     ctx.effect(() =>
       ctx.tools.guard((exec) => {
-        const v = this.decide(exec.name, asArgs(exec.arguments), { approvalSource: 'llm' })
-        return v.kind === 'deny' ? v.reason : undefined
+        const args = asArgs(exec.arguments)
+        const v = this.decide(exec.name, args, { approvalSource: 'llm' })
+        if (v.kind !== 'deny') return undefined
+        // **这一条要自己记。** guard 拒在 dispatch **之前**，内核根本不会被调用，
+        // 于是 K16 那个漏斗看不见它 —— 而 guard 拒掉的恰恰是最该留痕的一类
+        // （硬闸、荒谬值、包络）。2.14 的会话测试把这个洞照出来了：
+        // 记录层当时是空的，「为什么什么都没发生」在这条路上答不出来。
+        this.noteRefusal(exec.name, args, v.reason)
+        return v.reason
       }),
     )
+
+    // 记录库可有可无：它缺席时安全件照常拦，只是拦下来这件事没人留痕。
+    // 写成 `inject` 会让没有记录库的 profile 里整个安全件不装载——那更糟。
+    ctx.inject(['stmRecords'], (c) => {
+      this.recordsSvc = c.stmRecords
+    })
+
+    // ①b 中止闩：闩上之后除**中止安全**的动作外一律拒。
+    //
+    // 这一层是**纵深防御**，不是唯一防线——内核 K2 独立地拒同一批调用。
+    // 两层都要的理由：闩上之后，一次「本该被拒」的写有两条到达硬件的路
+    // （模型的工具调用、以及 composite 的子步），而这一层只看得见前者。
+    //
+    // 用 `ctx.inject` 而不是把 `stmWatchdog` 写进模块级 `inject`：
+    // 后者会让整个安全件在没有看门狗的 profile 里**根本不装载**，
+    // 而安全件的其它三件事（荒谬值/包络/模式/硬闸、要人审、`/mode`）
+    // 与看门狗无关。装载依赖要匹配「缺了它这个插件就没意义」，不是「缺了它少一件事」——
+    // 而这一件事**内核已经独立保住了**，2.14 的纵深测试钉的就是这一点。
+    ctx.inject(['stmWatchdog'], (c) => {
+      c.effect(() =>
+        c.tools.guard((exec) => {
+          if (!c.stmWatchdog.latched) return undefined
+          const args = asArgs(exec.arguments)
+          if (isAbortSafe(exec.name, Object.values(args))) return undefined
+          return (
+            `[safety_gate] abort_latched: 中止已闩上——'${exec.name}' 不在中止安全名单里，拒绝执行。` +
+            `只有退针与停扫还能发。要继续请先解闩（/estop-reset）。`
+          )
+        }),
+      )
+    })
 
     // ② 要人审的走 pre-execute（它能回 ask，而 guard 不能）
     //
@@ -187,6 +234,15 @@ export class StmSafetyService extends Service {
   /**
    * 一次完整判定。**顺序就是判据**：荒谬 → 包络 → 模式 → 样品 → 硬闸。
    */
+  /**
+   * guard 拒掉的那些**自己记一行**——内核看不见它们。
+   *
+   * `record` 永不抛（记录库那一侧保证），这里也不去接它的返回值：
+   * 记不上是记录层的事，绝不能变成「安全闸因此放行」。
+   */
+  private noteRefusal(tool: string, args: Readonly<Record<string, unknown>>, reason: string): void {
+    this.recordsSvc?.record({ skill: tool, params: args, kind: 'refused', text: reason })
+  }
   decide(
     toolName: string,
     args: Readonly<Record<string, unknown>>,

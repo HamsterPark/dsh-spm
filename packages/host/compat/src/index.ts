@@ -32,6 +32,12 @@ export type {
  * 而不是只在注释里声称：塞一个 `minimum` 进去会当场抛，折进 description 才过。
  */
 export { parameterSchemaSpecToJsonSchema } from '@deepseek-ai/dsh-tools'
+/**
+ * 工具运行时本体。契约测试要装**一份真的**，好让调用走完整条调度链
+ * （guard → pre-execute → 工具体）——替身走不出「一次调用会不会在某个环节整个消失」
+ * 这类问题，而那正是分开测发现不了的一类。
+ */
+export { ToolRuntime } from '@deepseek-ai/dsh-tools'
 
 export { Context } from '@deepseek-ai/cordis'  // 值也导出：我们的包在测试里要构造真 Context
 

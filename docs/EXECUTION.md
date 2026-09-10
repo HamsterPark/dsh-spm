@@ -48,10 +48,11 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 新登记 D-SCHEMA-1/2/3）。
 · **2.13 ✅**（`ctx.stmRecords` + RunLedger + 声明交叉核对；建表由金样原样执行，21 张表 124 个对象逐条比；
 新登记 D-REC-1…4）。
-**下一段 = 课时 2.14（`_Probe` 的 recorded-session 测试 + **变异框架**）。**
+· **2.14 ✅**（变异框架 17 条闸全红 + `_Probe` 真调度链会话测试；顺带补上 guard 拒绝的留痕）。
+**下一段 = 课时 2.15（批 1 只读 L0 ≈38 + 批 2 写 L0 ≈36 + 硬闸七件套 + DANGEROUS 2）。**
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**954 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**965 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -974,8 +975,21 @@ dsh: warning: dsh-spm-probe-client declares no dsh.bundle
 | 2.11 ✅ | `SkillKernel` 其余闸：K2 abort 闩 / K3 sample / K7 荒谬+包络+mode+hard_gate / K8 前置（不满足先 `refreshState()` 再判，**两入口都做**）/ K9 `holdForSkill` / K10 调制 preflight / K14–K18 | 每闸至少一条金样；K18 的 `AbortRequested`/`InstrumentBusy` **不回滚** |
 | 2.12 | schema 生成（复刻 `_schema_from_metadata` + `si_params` + `effective_bounds`）+ `defineSkillTool()` | `tool_schemas.json` 比对：类型/required/**description 逐字相等** |
 | 2.13 | RunLedger + `ctx.stmRecords`（SQLite，`node:sqlite`） | `records_schema.sql` 建表一致；被拒的调用**也记**；`approval_source` 落库 |
-| 2.14 | 假技能 `_Probe` 的 dsh recorded-session 测试 + **变异框架**（`MAST_MUTATE=<gate>` 逐闸换 no-op） | meta 断言：**每闸至少一条变红**（三判据：已应用、落在被测对象、变红）；拔掉 pre-execute 的 abort deny ⇒ 内核 K2 仍拒 |
+| 2.14 | 假技能 `_Probe` 的 dsh recorded-session 测试 + **变异框架**（~~`MAST_MUTATE=<gate>`~~ **改为源码级替换**，见下） | meta 断言：**每闸至少一条变红**（三判据：已应用、落在被测对象、变红）；拔掉 pre-execute 的 abort deny ⇒ 内核 K2 仍拒 |
 | 2.15 | 批 1（只读 L0 ≈38）+ 批 2（写 L0 ≈36 + 硬闸七件套 + DANGEROUS 2 + L1 试点 AutoApproach/ApproachTip） | §8.4 批 1/2 全部判据；`ZControllerOnOff(true)` 后立刻 `MoveToXY` 过前置（钉 2026-08-10 反例） |
+
+### 计划修订（2026-09-10）：变异框架不用 `MAST_MUTATE` 环境变量
+
+原计划是运行期开关：`MAST_MUTATE=<gate>` 把某道闸换成 no-op。做到一半意识到那意味着
+**发布出去的代码里带着一个能关掉安全闸的环境变量**——而这台仪器上「设一次调试用、
+然后忘了取消」是完全现实的事。TS 不做基于 env 的死代码消除，插件是以 JS 形态装进
+profile 的，所以那个开关会一直活在真机的运行时里。
+
+改成**源码级替换**（`tools/mutate/`）：清单里每道闸一条，跑的时候改文件、构建、跑测试、
+还原。三判据一条不少，而**生产代码一个字都不变**。代价是每条要重建一次（全套约 55 秒），
+所以它不进默认套件——`MUTATE=1 pnpm vitest run --project mutation`。
+
+慢是可以接受的：这套东西一天跑一次，而那个环境变量要在真机上活一辈子。
 
 **最容易翻车的三处**
 

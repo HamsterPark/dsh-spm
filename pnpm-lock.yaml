@@ -132,9 +132,15 @@ importers:
       dsh-spm-compat:
         specifier: workspace:*
         version: link:../compat
+      dsh-spm-instrument-watchdog:
+        specifier: workspace:*
+        version: link:../../instrument/instrument-watchdog
       dsh-spm-kernel:
         specifier: workspace:*
         version: link:../kernel
+      dsh-spm-stm-records:
+        specifier: workspace:*
+        version: link:../stm-records
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: 4.0.2
@@ -148,6 +154,9 @@ importers:
       dsh-spm-kernel:
         specifier: workspace:*
         version: link:../kernel
+      dsh-spm-stm-records:
+        specifier: workspace:*
+        version: link:../stm-records
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: 4.0.2

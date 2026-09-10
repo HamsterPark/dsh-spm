@@ -4,11 +4,25 @@
     "rootDir": "./src",
     "outDir": "./lib",
     "declarationDir": "./lib/types",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts"
+  ],
   "references": [
-    { "path": "../compat" },
-    { "path": "../kernel" }
+    {
+      "path": "../compat"
+    },
+    {
+      "path": "../kernel"
+    },
+    {
+      "path": "../../instrument/instrument-watchdog"
+    },
+    {
+      "path": "../stm-records"
+    }
   ]
 }
