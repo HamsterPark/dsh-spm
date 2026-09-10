@@ -38,3 +38,11 @@ export { Service } from '@deepseek-ai/cordis'
  */
 export { SystemPrompt, renderContextSections, renderContextSnapshot } from '@deepseek-ai/dsh-system-prompt'
 export type { PromptContext, AssembleContext, PromptAssembly } from '@deepseek-ai/dsh-system-prompt'
+
+/**
+ * 人按的命令（`/estop`）。课时 1.9 的急停是第一个调用方。
+ *
+ * **注册成命令而不是工具**是有意的：急停不该经过模型——它是操作员的手，
+ * 不是模型的一个选项。命令走 `ctx.commands`，模型看不见。
+ */
+export type { CommandDefinition, CommandResult, CommandInvocation } from '@deepseek-ai/dsh-commands'

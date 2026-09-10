@@ -11,6 +11,7 @@
     { "path": "./packages/instrument/instrument" },
     { "path": "./packages/instrument/instrument-stmsim" },
     { "path": "./packages/instrument/instrument-state" },
+    { "path": "./packages/instrument/instrument-watchdog" },
     { "path": "./packages/bundle/dsh-spm" }
   ]
 }

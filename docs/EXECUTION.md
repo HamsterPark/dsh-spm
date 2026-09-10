@@ -36,10 +36,11 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 **1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）
 · **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）
 · **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1）· **1.8b ✅**（提示块 `stm-live-state` + `stm_get_state`；**结清 spike 第 2 条**；投影推迟到 1.10）。
-**下一段 = 课时 1.9（看门狗 + `estop()` + `/estop` 命令）。**
+· **1.9 ✅**（看门狗 + 急停 + `/estop`；金样把真 Python 循环的时间换掉让它自己跑）。
+**下一段 = 课时 1.10（U0：客户端机器 / SSE hub / 右栏卡 + 设置卡 + 投影）。**
 
-仓库现状：8 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / **instrument-state** / bundle），
-**356 条测试**（单测 + 契约 + 17 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+仓库现状：9 个工作区包（root / compat / kernel / nanonis-wire / instrument / instrument-stmsim / instrument-state / **instrument-watchdog** / bundle），
+**392 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -735,28 +736,100 @@ Python 的块里**没有** `stale`。链路断了的时候，模型看到的是 
 | 1.7 ✅ | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ ~~`instrument-fake`~~（无消费者，推迟到 Phase 2） | `profiles/mast-sim` 装上后自动拉起模拟器 |
 | 1.8 ✅ | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`） | monitor 端口上有 1 Hz 轮询 |
 | 1.8b ✅ | 提示块 `stm-live-state` + `stm_get_state`（投影 `mast.instrumentState` 推迟到 1.10，理由见课时记录） | 提示装配里有实时状态块 |
-| 1.9 | 看门狗（monitor 0.5 s × 8 窗口）+ `estop()` + `/estop` 命令 + 告警路径 | stmsim 撞针场景 4 s 内退针 |
+| 1.9 ✅ | 看门狗（monitor 0.5 s × 8 窗口）+ `estop()` + `/estop` 命令 + 断链告警 | 真 stmsim 上退针确认、`viaRole=emergency` |
 | 1.10 | U0：客户端机器 + SSE hub `/mast/events` + 右栏「仪器状态」卡 + 设置卡（0.5 并入）+ 投影 `mast.instrumentState` | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
 
-### 课时 1.9 —— 看门狗 + 急停（计划）
+### 课时 1.9 —— 看门狗 + 急停 ✅ 完成（2026-09-10）
 
-**写什么**（`packages/instrument/instrument-watchdog`，估 180 行）
+`kernel/watchdog.ts`（`TipWatchdog` 纯 tick 机 + `ThresholdLadder` 五级阈值阶梯）+
+新包 `packages/instrument/instrument-watchdog`（`ctx.stmWatchdog` 0.5 s 轮询、`estop()`、
+`/estop` 命令、断链告警）。**392 条测试**（含 3 条对真 stmsim 的看门狗集成测试）。
 
-- `kernel/watchdog.ts`：纯状态机，**注入时钟与读数源**。移植 `mast/core/watchdog.py` 的判据——
-  monitor 角色 **0.5 s** 采一次，**连续 8 个窗口**都超阈值才动手（不是单点触发）。
-  **阈值每 tick 活读**：读不到阈值 ⇒ **不武装**（宁可不保护，也不拿一个猜的阈值去退针）。
-- `estop()`：走 **emergency 角色**、`ZCtrl_Withdraw(1, -1)`、**绕过熔断**（1.6 已留好 `urgentCall`）。
-- `/estop` 命令（`ctx.commands`）+ 急停闩：闩上之后所有写动词被拒，只放行退针与停扫。
-- 顺手补 **1.8b 记下的缺口**：链路断（`stale`）走**告警**而不是改提示块——与 Python 同构。
+#### 金样这次的做法：把真 Python 循环的时间换掉，让它自己跑
 
-**为什么阈值活读这条要单独讲**：写死阈值的看门狗在换针/换样品后就是错的，而它错的方式是
-「在不该退针的时候退针」或「该退时不退」。两种都比没有看门狗更危险，因为人会信它。
+前几段的金样是「驱动真对象的方法」，这一段更进一步——`SafetyWatchdog` 是个
+`threading.Thread`，循环里全是 `time.sleep`。导出脚本把 `mast.core.watchdog.time`
+**整个换成假时钟**（`monotonic` 读计数器，`sleep` 推进计数器并数 tick），
+然后直接调 `run()`。窗口、贴轨计时、冷却、闩、抑制清窗、人工判定过期——
+六个互相纠缠的状态**全部由真代码算出来**，我们只喂读数、只记结果。
 
-**验收**：stmsim 的「Z 顶限撞针」场景 4 s 内退针；注入时钟走一遍「7 个窗口超阈值 → 第 8 个不超 ⇒ 不动手」；
-急停闩上后 `SetBias` 被拒而 `ZCtrl_Withdraw` 放行；`/estop` 在会话里 1 s 内亮横幅（横幅要 1.10 的 UI，
-本段只做宿主侧事件）。
+12 条脚本比的是**开火的 tick 号**，不是「有没有开火」。因为这些状态的差别全都
+表现为「晚几个 tick 才开火」：抑制清窗 ⇒ 从第 7 tick 推到第 16；读失败保留窗口
+⇒ 推一个 tick；冷却 30 秒 ⇒ 第二次开火在第 67 tick。只比布尔值，这些全看不见。
 
-**变红演练**：把「连续 8 窗口」改成「单点触发」⇒ 抖动用例必须变红；把阈值改成常量 ⇒「读不到阈值不武装」的用例必须变红。
+#### 金样里有一条就是 2026-08-10 事故本身
+
+`threshold_getter_raises`：阈值读不到 ⇒ 退到**出厂默认 90 nA**，而轨在 **10 nA**
+⇒ **fired = 0**。那次真实撞针里看门狗「武装着但打不着火」，成因是同一个物理量在树里
+有两个数——**被标定的那个没握着执行器，没标定的那个握着**。
+
+所以 TS 侧**没有自己的数**：五级阶梯（固定值 → 活值 → 上次的好值 → 出厂默认 → 放弃），
+每一次降级都发一个 `threshold-degraded` 事件。`lookup(name) || DEFAULT` 那个形状
+——名字写错就得到一个**能跑的错版本**——不能再种一次。
+
+#### 急停：每个细节都是事故买来的
+
+| 形状 | 出处 |
+|---|---|
+| **先停粗逼近与马达，再退压电** | 退针只退精调 Z；马达还在朝样品走的话，几步就把这次退针吃掉 |
+| **`ZCtrl_Withdraw` 两个参数都要给** | 旧代码只传一个，真机上抛 `TypeError` 被吞进 `record.error` ⇒ **急停从来没跑过**，最后一道防线是死的（2026-06-10 复查 C1） |
+| **emergency 失败退回 main** | 一个卡住的 main socket 曾经把回退退针整个吞掉（2026-07-28 派发审计） |
+| **只有确认过的退针才上闩** | 否则一次失败的退针把网**整个 session 解除武装**（2026-07-03 复查） |
+| 停粗逼近**失败不许挡住退针** | 尽力而为，留痕就够 |
+
+#### 三条移植时刻意保留的形状
+
+1. **抑制是活谓词，不是配对的 disable/enable。** 配对调用有一个致命形状：某条路径
+   抛异常、提前 return、或者忘了写 finally ⇒ **安全网静默地永久关闭**，而从外面看
+   和武装着一模一样。活谓词不可能卡住：令牌一还，下一 tick 就恢复。
+2. **读不到时绝不往窗口塞 0 占位。** 一个假的 0 永远低于阈值，会冲淡「全部超阈」
+   这个判据，从而延迟甚至掩盖一次真的撞针过流。
+3. **`mastDriving` 缺席 ⇒ 视为在驱动。** 读不清就武装，不是「读不清就闭嘴」。
+
+#### `/estop` 注册成**命令**，不是工具
+
+急停不该经过模型——它是操作员的手，不是模型的一个选项。命令走 `ctx.commands`
+（compat 新增一个导出、`@deepseek-ai/dsh-commands` 新增一个依赖），模型看不见。
+
+#### 顺手补上 1.8b 记下的缺口
+
+链路断（`stale`）现在走 `stale-link` **告警事件**，而不是改提示块——
+与 Python 同构，且提示块的措辞是模型读的契约，不在移植段里顺手改。
+同一个陈时间戳只喊一次，不刷屏。
+
+#### 变红演练 ×7（4 条 kernel + 3 条急停），其中一条「没红」的原因很典型
+
+| 演练 | 结果 |
+|---|---|
+| 窗口判据 `every` → `some`（单点触发） | ✅ 1 条红 |
+| 没确认的退针也上闩 | ✅ 1 条红 |
+| `mastDriving` 缺席视为「不在驱动」 | ✅ 6 条红 |
+| 读不到时塞 0 占位 | ✅ 3 条红 |
+| `ZCtrl_Withdraw` 只传一个参数 | ✅ 1 条红 |
+| emergency 失败后不退回 main | ✅ 2 条红 |
+| 拿掉「先停粗逼近与马达」 | ❌ **第一次全绿** |
+
+最后一条第一次全绿，**但原因不是测试没覆盖，是改动根本没落上**——我 sed 的搜索串
+缩进写成了四个空格，文件里是两个。改用编辑工具、并**先 `grep` 确认改动生效**之后重做
+⇒ 2 条红。
+
+**教训**：变红演练要先证明「我确实把它改坏了」。一个没落上的改动和一个没覆盖的测试，
+在输出里长得一模一样。此后每次演练都先 grep 一遍。
+
+#### ④验
+
+- 392 条单测/契约；3 条对真 stmsim 的集成测试：正常电流下一次不开火；阈值压到
+  电流以下 ⇒ 窗口一满就退针且 **`viaRole = emergency`、`confirmed = true`**
+  （证明退针那三个动词在 stmsim 的 215/671 里都实现了，真机上这条路不是死的）；
+  `/estop` 命令在真模拟器上把针退回去。
+- 隔离 `DSH_HOME`：`--dump-config` 里 `mast-watchdog` 行落在 bundle 层，
+  `inject` 三件写全；`commands` 服务确实在 `dsh-base` 的树里（第 170 行），
+  所以这个 `inject` 是满足得了的。
+
+**写集成测试时被自己的设计绊了一下**（值得记）：第一版三条集成测试全部超时，
+因为 `instrumentState` 自己要 `systemPrompt` / `tools`，我在测试里没给 ⇒ 它不装 ⇒
+看门狗的 `inject` 也就不满足 ⇒ `ctx.stmWatchdog` 永远挂不上。
+**这正是「缺一件就整个不装」在起作用**，只是这次挡的是我自己。
 
 ### 课时 1.10 —— U0：第一个客户端包（计划）
 

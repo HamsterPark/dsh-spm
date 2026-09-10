@@ -7,6 +7,7 @@ minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-agent@0.1.5-rc.1'
   - '@deepseek-ai/dsh-brand@0.1.5-rc.1'
   - '@deepseek-ai/dsh-code-runtime@0.1.5-rc.1'
+  - '@deepseek-ai/dsh-commands@0.1.5-rc.1'
   - '@deepseek-ai/dsh-invariants@0.1.5-rc.1'
   - '@deepseek-ai/dsh-llm@0.1.5-rc.1'
   - '@deepseek-ai/dsh-scope@0.1.5-rc.1'
@@ -19,6 +20,7 @@ minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-user-approval@0.1.5-rc.1'
   - '@deepseek-ai/dsh-util-crypto@0.1.5-rc.1'
   - '@deepseek-ai/dsh-util-values@0.1.5-rc.1'
+  - '@deepseek-ai/dsh-attachment@0.1.5-rc.1'
 
 # pnpm 10+ 默认 strictDepBuilds：**任何依赖带 install/postinstall 脚本，而没有在这里
 # 逐个登记，就是硬安装错误**（不是警告，也不是静默跳过）。默认拒绝、审过才放行。
@@ -51,6 +53,7 @@ overrides:
   '@deepseek-ai/dsh-agent': '0.1.5-rc.1'
   '@deepseek-ai/dsh-brand': '0.1.5-rc.1'
   '@deepseek-ai/dsh-code-runtime': '0.1.5-rc.1'
+  '@deepseek-ai/dsh-commands': '0.1.5-rc.1'
   '@deepseek-ai/dsh-invariants': '0.1.5-rc.1'
   '@deepseek-ai/dsh-llm': '0.1.5-rc.1'
   '@deepseek-ai/dsh-scope': '0.1.5-rc.1'

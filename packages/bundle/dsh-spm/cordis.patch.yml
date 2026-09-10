@@ -18,3 +18,8 @@
     - id: mast-instrument-state
       name: dsh-spm/instrument-state
       inject: ['instrument', 'systemPrompt', 'tools']
+    # 针尖看门狗 + 急停。同样归 bundle：**只在真机上才生效的安全件，等于在模拟器上
+    # 从来没被验过**。sim 上照样武装，只是那里退的是假针。
+    - id: mast-watchdog
+      name: dsh-spm/watchdog
+      inject: ['instrument', 'instrumentState', 'commands']

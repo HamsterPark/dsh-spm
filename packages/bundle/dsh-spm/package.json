@@ -19,6 +19,10 @@
       "types": "./lib/types/instrument-stmsim.d.ts",
       "default": "./lib/instrument-stmsim.js"
     },
+    "./watchdog": {
+      "types": "./lib/types/watchdog.d.ts",
+      "default": "./lib/watchdog.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -32,8 +36,9 @@
   },
   "dependencies": {
     "dsh-spm-compat": "workspace:*",
+    "dsh-spm-instrument-state": "workspace:*",
     "dsh-spm-instrument-stmsim": "workspace:*",
-    "dsh-spm-instrument-state": "workspace:*"
+    "dsh-spm-instrument-watchdog": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "4.0.2",
