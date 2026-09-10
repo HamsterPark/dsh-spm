@@ -48,6 +48,69 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
 
 ## 日志
 
+### 2026-09-10 · 0.1.5-alpha.1 → **0.1.5-rc.1**（第二次真升级；已有 8 个包 356 条测试）
+
+**触发**：课时 1.9 开工查版，`latest` 与 `next` 双双跳到 `0.1.5-rc.1`——**0.1.5 上了稳定通道**，
+而 `alpha` 停在更小的 `0.1.5-alpha.2`。两条追踪规则（semver 最大值 / 跟稳定通道）此刻指向同一个版本。
+
+**判据三条全过**：`pnpm build` ✅ · `pnpm test` 356/356 ✅ · 端到端 `dsh --profile mast-sim`
+启动 23 秒后 monitor 端口有 ESTABLISHED ✅。**领域代码改动 0**——防腐层的第三次真实考核。
+
+| 清单步 | 结果 |
+|---|---|
+| 1 钉版 + `check-dsh-pin` | ✅ 15 个 `dsh-*` 换成 rc.1；Cordis 线（cordis 4.0.2 / cosmokit 1.8.3 / schemastery 3.18.2 / plugin-include 1.0.7）**都没动**，各钉各的 |
+| 2 `--dump-config` 逐行 diff | ✅ 539→539 行，**10 个 diff 行、2 处变更**（见下） |
+| 3 包树 diff | ✅ 238→240 个包，两增一改名 |
+| 4 contract 测试 | ✅ |
+| 5 `pnpm build && pnpm test` + 插件冒烟 | ✅ |
+| 6 **既有 `~/.dsh` 冒烟** | ❌ **没做**，原因见下 |
+| 7 文档 | ✅ `facts.md` §8.-1、首行版本号、本条日志 |
+| 8 不改领域代码 | ✅ 零改动 |
+
+#### 踩到的第一个坑：`minimumReleaseAgeExclude` 的旧条目会让整个仓库拒绝启动
+
+`pnpm install` 成功之后，`pnpm build` 与 `pnpm test` 全都报：
+
+```
+The lockfile contains entries that the active policies reject.
+```
+
+原因是我的 sed 只换了 `overrides` 与 `peerDependencies` 里的版本，
+`minimumReleaseAgeExclude` 那 15 行 **`…@0.1.5-alpha.1`** 留在原地
+（它们的形状是 `'@scope/name@version'`，我的模式匹配不到）。
+pnpm 自己往列表里补了 rc.1 的 15 行，于是列表里**新旧并存**，锁文件与策略对不上。
+删掉旧的 15 行再 `pnpm install` 即恢复。
+
+**教训**：钉版散落在**三处**（`overrides` / `peerDependencies` / `minimumReleaseAgeExclude`），
+而第三处的键形状与前两处不同。升级脚本化时三处一起换，别用一条 sed 图省事。
+
+#### 两处配置树变更，两处都打在我们身上
+
+1. **默认模型改名 `deepseek-v4-flash` → `deepseek-flash`**
+   ⇒ Phase 3 的 preset 若覆盖默认模型行要用新名字。更要紧的是这条提醒：
+   **别把模型名写进代码**，它两周内改过一次。
+2. **client 模块改名 `ui-sidebar-textpreview` → `ui-sidebar-documentpreview`**
+   ⇒ 正是 Discussion #5999 的形状。**课时 1.10 建第一个 client 包时这是活的风险**。
+
+#### 三个包的增减，其中一个直接改变 Phase 3 的设计
+
+- 新增 **`dsh-tool-present`**：*"Scoped tool that declares filesystem deliveries in their owning
+  Session"*，带 `maxFiles` 上限。我们原本打算自己走 `attachments.save` → `imageRefs`
+  （PLAN §8.3）。**Phase 3 做 `stm-frame` 节点前先评估能不能直接用它。**
+- 新增 `dsh-chunked-list`：追加式持久列表（用 `zod`），session 内部件，暂无接触面。
+- 改名 `dsh-client-ui-sidebar-textpreview` → `…-documentpreview`。
+
+#### 第 6 步为什么没做（如实记录，留作待办）
+
+本机**复制不出一份忠实的 `~/.dsh`**：`profiles/node_modules/@deepseek-ai/*` 全是指向 npx 缓存的
+符号链接，而 Windows 上建符号链接要提权/开发者模式——`cp -r`、`cp -a`、`robocopy /E /SL`
+三种都把链接解引用成真目录，副本一启动就被 dsh 挡下（它检查该位置必须是 symlink 或
+dsh 托管的 module proxy，**明确报错并给出处置方法**，没有默默接管——这个检查是好的）。
+
+不直接拿真 `~/.dsh` 试，是因为那会改动用户正在用的环境且不易回退。
+该 home 里 `sessions` 目录是空的，只有 profiles 与 storages，所以**没有会话数据可丢**；
+真要补这一步：开发者模式下 `robocopy /E /SL` 复制一份再启动。
+
 ### 2026-09-09 · 0.1.2-rc.1 → **0.1.5-alpha.1**（第一次真升级；已有代码与测试）
 
 - **起因**：课时 1.3 开工①查版，`alpha` 已跳到 `0.1.5-alpha.1`（09-08 发布）。纪律要求版本不处理完不开工，于是先做升级。

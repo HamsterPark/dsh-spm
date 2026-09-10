@@ -1,8 +1,9 @@
-# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.5-alpha.1**（2026-09-09 升级并核实）
+# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.5-rc.1**（2026-09-10 升级并核实）
 
-> **2026-09-09 升级到 `0.1.5-alpha.1`**（跳过装不上的 0.1.3、从未发布的 0.1.4）。`fs-ext` 阻塞已解除；
-> 全部 232 条测试与端到端集成一次通过。逐条影响、已知问题与各自会在哪一课时打到我们，见 **§8.0**。
-> ⚠️ 它是 **alpha**，而 `latest`/`next` 仍停在 `0.1.2-rc.1`。
+> **2026-09-10 升级到 `0.1.5-rc.1`**：0.1.5 上了稳定通道（`latest` = `next` = rc.1，而 `alpha` 停在
+> 更小的 `0.1.5-alpha.2`）⇒ 「semver 最大值」与「跟稳定通道」此刻**指向同一个版本**。
+> 领域代码改动 **0**，356 条测试一次全绿；组合树 539→539 行、只有 2 处变更，但**两处都打在我们身上**。
+> 逐条影响见 **§8.-1**；上一次（09-09 升 alpha.1）见 §8.0。
 >
 > 本文是 dsh-spm 里**唯一**记录 dsh 版本相关事实的地方；每次按 `docs/dsh/upgrades.md` 升级都要重核并改上面的版本号。
 > 每条标注来源：**实测** = 本机跑出来的；**包** = 读 npm 包内文件；**文档** = GitHub 仓库 docs（2026-09-01 抓取，站点是 SPA）；**待核** = 课时 0.6 spike 才有结论。
@@ -156,7 +157,59 @@
 
 ## 8. 逐版本变更与对本计划的影响
 
-### 8.0 rc.1 → 0.1.5-alpha.1（**本次升级**，2026-09-09 实测）
+### 8.-1 alpha.1 → **0.1.5-rc.1**（**本次升级**，2026-09-10 实测）
+
+**这一版把 0.1.5 推上了稳定通道**：`latest` 与 `next` 都是 `0.1.5-rc.1`，而 `alpha` 停在
+`0.1.5-alpha.2`（比 rc.1 小）。⇒ 「semver 最大值」与「跟稳定通道」这两条规则**此刻指向同一个版本**，
+D11.1 的切换点问题暂时不用回答。
+
+**升级代价：领域代码改动 0，356 条测试一次全绿。** 防腐层的第三次真实考核（前两次是 09-04、09-09）。
+
+| 项 | 结果 |
+|---|---|
+| `pnpm build` | ✅ |
+| `pnpm test`（含 contract 打真包） | ✅ 356/356 |
+| 端到端：`dsh --profile mast-sim` 启动后 monitor 端口有 ESTABLISHED | ✅ 23 秒 |
+| `--dump-config` 与 alpha.1 逐行 diff | **539 行 → 539 行，只有 10 个 diff 行、2 处变更** |
+| 包树 diff | 238 → 240 个包 |
+
+#### 两处配置树变更，**两处都打在我们身上**
+
+1. **默认模型改名：`deepseek-v4-flash` → `deepseek-flash`。**
+   ⇒ Phase 3 的 `instrument-control` preset 若要覆盖默认模型行，写的是这个新名字。
+   更要紧的是：这条提醒我们**别把模型名写进代码**——它在两周内改过一次。
+2. **client 模块改名：`ui-sidebar-textpreview` → `ui-sidebar-documentpreview`。**
+   ⇒ 这正是上游 Discussion #5999 的形状（升级既有 profile 时 client combo 缺模块 ⇒
+   全部 client 插件失效）。**课时 1.10 建第一个 client 包时，这条是活的风险**，不是历史。
+
+#### 三个包的增减
+
+| 变化 | 包 | 对我们 |
+|---|---|---|
+| 新增 | `dsh-tool-present` —— *"Scoped tool that declares **filesystem deliveries** in their owning Session"*，带 `maxFiles` 上限 | **直接打在 PLAN §8.3 的图像交付设计上**：我们原本打算自己走 `attachments.save` → `imageRefs`。Phase 3 做 `stm-frame` 节点前先评估能不能直接用它 |
+| 新增 | `dsh-chunked-list` —— 追加式持久列表 + JSON checkpoint 校验（用 `zod`） | session 内部件，暂无接触面 |
+| 改名 | `dsh-client-ui-sidebar-textpreview` → `…-documentpreview` | 见上 |
+
+#### 升级清单第 6 步（拿既有 `~/.dsh` 冒烟）**没做**，原因如实记录
+
+本机**复制不出一份忠实的 `~/.dsh`**：`profiles/node_modules/@deepseek-ai/*` 全是符号链接
+（指向 npx 缓存 `_npx/2f3a729d991ac520`，即 facts §1 说的「npx 缓存是冻结快照」），
+而 Windows 上创建符号链接需要提权/开发者模式——`cp -r`、`cp -a`、`robocopy /SL` 三种方式
+**都把链接解引用成了真目录**，副本一启动就被 dsh 挡下：
+
+```
+Error: dsh: …/profiles/node_modules/@deepseek-ai/dsh exists and is not a symlink
+or dsh-managed module proxy; remove it so dsh can manage the installation fallback
+```
+
+（顺带：**上游这个检查是好的**——发现该位置不是链接时明确报错并给出处置方法，
+而不是默默接管。）
+
+不拿真 `~/.dsh` 直接试，是因为那会改动你正在用的环境且不易回退。
+**这一步留作待办**：想做时在开了开发者模式的 shell 里 `robocopy /E /SL` 复制一份再启动；
+或者接受风险直接升（该 home 里 `sessions` 是空的，只有 profiles 与 storages）。
+
+### 8.0 rc.1 → 0.1.5-alpha.1（2026-09-09 实测）
 
 **跳过了 0.1.3 与 0.1.4**：0.1.4 从未发布（npm 上不存在），0.1.3-alpha.2 在本机装不上（见下「为什么当时没升」）。
 升级清单要求「一次一版」，这次只能一步跨过去——因为中间那一版客观上装不上，不是我们图省事。
