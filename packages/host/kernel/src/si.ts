@@ -51,6 +51,10 @@ function pyRepr(v: unknown): string {
  *  2026-09-09 起对外：课时 1.8b 的实时状态提示块要用 `{bias_v:g}` 印偏压——
  *  它天然在 1 附近，`formatSi` 会印成 `-2000m`，正确但没法看。 */
 export function formatG(v: number, digits: number): string {
+  // **负零保号**：Python 的 `f"{-0.0:g}"` 是 `-0`，而 JS 的 `String(-0)` 是 `0`。
+  // 一个 `-0` 出现在界或读数里，多半意味着上游做了一次乘负或取反 ——
+  // 把符号擦掉，就把那条线索也擦掉了。
+  if (Object.is(v, -0)) return `-${formatG(0, digits)}`
   if (Number.isNaN(v)) return 'nan'
   if (!Number.isFinite(v)) return v > 0 ? 'inf' : '-inf'
   if (v === 0) return '0'
@@ -179,6 +183,7 @@ export function formatSi(value: number, digits = 6): string {
  */
 export function pyFloatRepr(v: number): string {
   if (!Number.isFinite(v)) return v > 0 ? 'inf' : Number.isNaN(v) ? 'nan' : '-inf'
+  if (Object.is(v, -0)) return '-0.0' // 同 `formatG`：Python 的 `repr(-0.0)`
   const s = String(v)
   const e = s.indexOf('e')
   if (e < 0) {

@@ -17,10 +17,13 @@
     "check:dsh-latest": "node scripts/check-dsh-latest.ts",
     "gen:nanonis": "node scripts/gen-nanonis.ts",
     "gen:records": "node scripts/gen-records-schema.ts",
-    "gen:skills": "node scripts/gen-skill-specs.ts"
+    "gen:skills": "node scripts/gen-skill-specs.ts",
+    "gen:progress": "node scripts/build-progress.ts",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",
+    "@vitest/coverage-v8": "4.1.11",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
   }

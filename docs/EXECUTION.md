@@ -49,8 +49,10 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 · **2.13 ✅**（`ctx.stmRecords` + RunLedger + 声明交叉核对；建表由金样原样执行，21 张表 124 个对象逐条比；
 新登记 D-REC-1…4）。
 · **2.14 ✅**（变异框架 17 条闸全红 + `_Probe` 真调度链会话测试；顺带补上 guard 拒绝的留痕）。
-· **2.15 ◐**（轨迹金样 253 条 + `tip_park` 网格金样 26 条 + spec 生成器；**已移植 69/72**，
-新登记 D-SKILL-1…3；变异清单增至 27 条，全红；**批 2 的五条 e2e 判据全部落地**）。
+· **2.15 ◐**（轨迹金样 253 条 + `tip_park` 网格 26 条 + spec 生成器；**已移植 69/72**，
+新登记 D-SKILL-1…3；变异清单 27 条全红；批 2 的五条 e2e 判据全部落地；
+**`spec/progress.json` 落地**——69 done / 2 partial / 444 todo，模块 7/165；
+**DoD ② 升级为 515 个真技能 / 1642 个参数逐字比**；覆盖率门禁已装）。
 **批 2 的五条完成判据**（PLAN §8.4）已全部写成 `stm-skills/contract/batch2-criteria.test.ts`：
 中止两层 · 锁争用不排队 · 蜜罐 `setpoint_a=1.5` · `ZControllerOnOff(true)` 后立刻 `MoveToXY`
 过前置 · 硬闸七件套对 `llm` 一律拒**且七次都留痕**。
@@ -76,7 +78,7 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1275 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1307 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
@@ -1001,6 +1003,36 @@ dsh: warning: dsh-spm-probe-client declares no dsh.bundle
 | 2.13 | RunLedger + `ctx.stmRecords`（SQLite，`node:sqlite`） | `records_schema.sql` 建表一致；被拒的调用**也记**；`approval_source` 落库 |
 | 2.14 | 假技能 `_Probe` 的 dsh recorded-session 测试 + **变异框架**（~~`MAST_MUTATE=<gate>`~~ **改为源码级替换**，见下） | meta 断言：**每闸至少一条变红**（三判据：已应用、落在被测对象、变红）；拔掉 pre-execute 的 abort deny ⇒ 内核 K2 仍拒 |
 | 2.15 | 批 1（只读 L0 ≈38）+ 批 2（写 L0 ≈36 + 硬闸七件套 + DANGEROUS 2 + L1 试点 AutoApproach/ApproachTip） | §8.4 批 1/2 全部判据；`ZControllerOnOff(true)` 后立刻 `MoveToXY` 过前置（钉 2026-08-10 反例） |
+
+### 覆盖率现状（2026-09-10）：门禁已装，**kernel 的 100% 目标还没到**
+
+`pnpm test:coverage`。分层门槛在 `vitest.config.ts`，数字是**当前实测的地板**——
+它的职责是**防倒退**，不是宣布达标。两者混为一谈就又变成「看起来验过了」。
+
+| 层 | DoD 目标（PLAN §6.3） | 当前 | 差在哪 |
+|---|---|---|---|
+| `kernel` | **逐文件 100%** | 语句 97.4 / 分支 91.7 / 函数 99.2 / 行 98.7 | 见下 |
+| `stm-skills` | 100% 行 | 门槛 90 | 待补 |
+| `stm-records` | — | 门槛 90 | — |
+
+kernel 还差的都是**防御分支**，逐行列出来免得下次要重新查一遍：
+
+- `preconditions.ts:121-124` —— `pyRepr` 的四个类型分支（伴随字段的字面量形状）
+- `safety.ts:107` —— 一条 `return true` 的重复出口
+- `sample-gate.ts` 五条分支 —— 豁免表的短路
+- `si.ts:45` —— `pyRepr` 的非有限值分支
+- `skill-kernel.ts:411,476,535` —— 三处 `??` 兜底
+- `tip-park.ts:114,215` / `tool-schema.ts:71,197,262` —— 各两三条 `??` 与短路
+
+**装门禁途中收了两个真东西**：
+
+1. **工作区包别名到源码**（`vitest.config.ts` 的 `WORKSPACE_ALIAS`）。此前跨包测试
+   走 `lib/`，于是被它们覆盖到的 `src/` 行显示成未覆盖 —— kernel 看起来 91%，
+   实际 96%。顺带把「`mv` 还原后 `tsc -b` 跳过重建、`lib/` 还是变异版」那一类
+   整个消掉了（2026-09-10 的变异演练踩过）。
+2. **负零丢了符号**。Python 的 `f"{-0.0:g}"` 是 `-0`、`repr(-0.0)` 是 `-0.0`，
+   而 JS 的 `String(-0)` 是 `0`。一个 `-0` 出现在界或读数里多半意味着上游做了一次
+   乘负或取反 —— 把符号擦掉就把那条线索也擦掉了。`formatG` 与 `pyFloatRepr` 都已修。
 
 ### 计划修订（2026-09-10）：变异框架不用 `MAST_MUTATE` 环境变量
 

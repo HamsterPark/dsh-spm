@@ -32,9 +32,11 @@ os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-e
 
 MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas.json"
+REAL_OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas_real.json"
 
 sys.path.insert(0, str(MAST_ROOT))
 from mast.agents._shared import skill_adapter as sa  # noqa: E402
+from mast.core.registry import SkillRegistry  # noqa: E402
 from mast.skills.base import BaseSkill  # noqa: E402
 from mast.core.types import ParameterSpec, SkillMetadata  # noqa: E402
 
@@ -141,6 +143,36 @@ def build(name: str, params: list[dict]) -> dict:
     }
 
 
+def collect_real() -> dict:
+    """**全部 515 个真技能**的模型面 schema。
+
+    合成用例钉的是「生成规则」，一条规则一个最小用例；这一份钉的是
+    **那些规则跑在 1642 个真参数上会得到什么**。两者缺一不可：
+    合成用例读得懂但覆盖不到真实组合，真技能覆盖得到但一条失败说不清是哪条规则错了。
+
+    只录 `properties` / `required`：`si_params` 与 `effective_bounds` 已经由
+    合成用例逐规则钉住，在这里重复一遍只是把文件撑大。
+    """
+    reg = SkillRegistry()
+    reg.discover()
+    out: dict = {}
+    for name, by_version in reg.snapshot_names().items():
+        cls = list(by_version.values())[-1]
+        meta = SkillRegistry._get_metadata_raw(cls)
+        try:
+            schema = sa._schema_from_metadata(meta).model_json_schema()
+        except Exception as exc:  # noqa: BLE001 —— 建不出来本身就是一条判据
+            out[name] = {"error": f"{type(exc).__name__}: {exc}"}
+            continue
+        props = dict(schema.get("properties", {}))
+        props.pop("tool_call_id", None)
+        out[name] = {
+            "properties": props,
+            "required": sorted(r for r in schema.get("required", []) if r != "tool_call_id"),
+        }
+    return out
+
+
 def main() -> int:
     out = {name: build(name, params) for name, params in CASES}
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -148,6 +180,15 @@ def main() -> int:
         json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8", newline="\n",
     )
+    real = collect_real()
+    REAL_OUT.write_text(
+        json.dumps(real, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + chr(10),
+        encoding="utf-8", newline=chr(10),
+    )
+    n_params = sum(len(v.get("properties", {})) for v in real.values())
+    n_err = sum(1 for v in real.values() if "error" in v)
+    print(f"[ok]   tool_schemas_real.json: {len(real)} 个真技能 / {n_params} 个参数"
+          + (f"（{n_err} 个建不出 schema）" if n_err else ""))
     print(f"[ok]   tool_schemas.json: {len(out)} 条生成规则")
     for k, v in out.items():
         p = next(iter(v["properties"].values()), {})

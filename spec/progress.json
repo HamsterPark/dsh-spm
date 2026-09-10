@@ -1,0 +1,5990 @@
+{
+  "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
+  "totals": {
+    "skills": 515,
+    "done": 69,
+    "partial": 2,
+    "todo": 444
+  },
+  "modules_complete": 7,
+  "modules_total": 165,
+  "modules": {
+    "builtins.acquire_osci_trace": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.acquire_psd": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.adatom_verify": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.advanced_ops": {
+      "total": 5,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.approach": {
+      "total": 5,
+      "done": 3,
+      "complete": false
+    },
+    "builtins.atom_track": {
+      "total": 4,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.atomic_lattice": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.atomic_lines": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.atomic_multiframe": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.barrier_height": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.barrier_map": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.best_frame": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.bias": {
+      "total": 7,
+      "done": 6,
+      "complete": false
+    },
+    "builtins.bias_pulse": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.bias_pulse_readback": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.bias_series": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.bias_sweep": {
+      "total": 4,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.bias_wiggle": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.calibration_readout": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.capture_signal_buffer": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.chamber": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.characterise_noise": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.clean_spot": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.clean_tip": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.cluster_extract": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.cluster_roundness": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.cluster_select": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.coarse_nudge": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.coarse_selfcheck": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.coarse_step_calib": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.current": {
+      "total": 4,
+      "done": 2,
+      "complete": false
+    },
+    "builtins.current_monitor": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.current_origin": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.datalog": {
+      "total": 6,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.deltaf_curve": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.dispersion_fit": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.domain_assess": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.envelope_reconcile_skill": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.feedback_tracking": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.flat_region": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.folme": {
+      "total": 8,
+      "done": 5,
+      "complete": false
+    },
+    "builtins.force_inversion": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.frame_corrugation": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.frame_drift_skill": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.frame_tilt": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.frame_trust": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.function_generator": {
+      "total": 6,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.hardware_events": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.herringbone_assess": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.history_query": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.imaging": {
+      "total": 7,
+      "done": 2,
+      "complete": false
+    },
+    "builtins.instrument_limits": {
+      "total": 6,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.lattice_cell_skill": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.lockin": {
+      "total": 14,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.lockin_presets_skills": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.marks": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.misc_setters": {
+      "total": 8,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.monitor_current_fft": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.motor": {
+      "total": 7,
+      "done": 7,
+      "complete": true
+    },
+    "builtins.nanonis_script": {
+      "total": 11,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.nanonis_script_files": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.navigation": {
+      "total": 1,
+      "done": 1,
+      "complete": true
+    },
+    "builtins.optics_pump_probe": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_scan": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_stage": {
+      "total": 8,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optional_afm": {
+      "total": 14,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optional_controllers": {
+      "total": 17,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optional_multiprobe": {
+      "total": 11,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optional_scopes": {
+      "total": 7,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optional_sweepers": {
+      "total": 9,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.pattern": {
+      "total": 7,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.piezo": {
+      "total": 13,
+      "done": 7,
+      "complete": false
+    },
+    "builtins.piezo_range_check": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.pll": {
+      "total": 36,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.qplus_amplitude": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.quiet_drift": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.readback": {
+      "total": 7,
+      "done": 1,
+      "complete": false
+    },
+    "builtins.safety_hw": {
+      "total": 4,
+      "done": 4,
+      "complete": true
+    },
+    "builtins.saturation_recovery": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.scan_buffer": {
+      "total": 1,
+      "done": 1,
+      "complete": true
+    },
+    "builtins.scan_extra": {
+      "total": 4,
+      "done": 2,
+      "complete": false
+    },
+    "builtins.scan_frame": {
+      "total": 5,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.scan_intel_selfcheck": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.scan_prep": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.scan_texture": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.scan_utils": {
+      "total": 2,
+      "done": 1,
+      "complete": false
+    },
+    "builtins.scan_watch": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.signals": {
+      "total": 4,
+      "done": 3,
+      "complete": false
+    },
+    "builtins.slow_drift_skill": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.spectral_peaks": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.spectroscopy": {
+      "total": 38,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.spectroscopy_sync": {
+      "total": 6,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.spectrum_analyzer": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.spectrum_assess": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.step_edge": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.step_height": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.sweep": {
+      "total": 11,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.temperature": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.thermal_settle": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tilt_probe": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip": {
+      "total": 2,
+      "done": 2,
+      "complete": true
+    },
+    "builtins.tip_conditioning_selfcheck": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_forge_selfcheck": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_from_spectrum": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_shaper": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_shaper_readback": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_sharpness": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.tip_spectro_assess": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.user_output": {
+      "total": 14,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.util": {
+      "total": 12,
+      "done": 5,
+      "complete": false
+    },
+    "builtins.zcontrol": {
+      "total": 15,
+      "done": 15,
+      "complete": true
+    },
+    "builtins.zctrl_gain": {
+      "total": 2,
+      "done": 2,
+      "complete": true
+    },
+    "builtins.zctrl_presets_skills": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "composite.achieve_atomic": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.angle_series_calibration": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.assess_quality": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.atomic_bias_series": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.auto_tilt": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "composite.batch_regions_scan": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.bias_imaging_series": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.bias_settle": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.condition_tip": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.cross_point_tip_check": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.demo_scan_and_sts": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.drift_track": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.execute_scan_plan": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.forge_au_tip": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.full_scan": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.grid_sts": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.line_sts_across_wall": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.make_special_tip": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "composite.move_atom_to": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.prepare_noble_tip": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "composite.prescan_check": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.publication_frame": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.relocate_coarse_xy": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.retract_for_sample_change": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.scan_at": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.scan_until_atomic": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.search_domain_boundary": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.shape_tip_on_surface": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.spectroscopy_at_positions": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.sts_condition_series": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.survey_surface": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.tip_pulse": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.verify_atomic_resolution": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.atom_jump": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.autonomous": {
+      "total": 7,
+      "done": 0,
+      "complete": false
+    },
+    "paper.background": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.data_processing": {
+      "total": 4,
+      "done": 0,
+      "complete": false
+    },
+    "paper.deconvolution": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.defect_cluster": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.denoise": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.drift_bragg": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.image_filters": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.imspec": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.line_check": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.montage": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.optimization": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "paper.region_analysis": {
+      "total": 4,
+      "done": 0,
+      "complete": false
+    },
+    "paper.scan_crop": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.scan_diff": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.spectral_analysis": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "paper.spectral_unmix": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "paper.tip_assessment": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    }
+  },
+  "skills": {
+    "AchieveAtomicResolution": {
+      "module": "composite.achieve_atomic",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireAngleSeriesForCalibration": {
+      "module": "composite.angle_series_calibration",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireBiasImagingSeries": {
+      "module": "composite.bias_imaging_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireBiasSeries": {
+      "module": "builtins.bias_series",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireBiasSweep": {
+      "module": "builtins.sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireDeltaFCurve": {
+      "module": "builtins.deltaf_curve",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireLockInSweep": {
+      "module": "builtins.sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireOsciTrace": {
+      "module": "builtins.acquire_osci_trace",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquirePLLFreqSweep": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquirePSD": {
+      "module": "builtins.acquire_psd",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireSTS": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireSignalPoint": {
+      "module": "builtins.optics_scan",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AcquireZSpectr": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AdaptiveSTS_GP": {
+      "module": "paper.optimization",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AnalyseAtomicLattice": {
+      "module": "builtins.atomic_lattice",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AnalyseSlowDrift": {
+      "module": "builtins.slow_drift_skill",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AnalyzeFrameTilt": {
+      "module": "builtins.frame_tilt",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AnalyzeScanImage": {
+      "module": "builtins.scan_prep",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ApplyLockInPreset": {
+      "module": "builtins.lockin_presets_skills",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ApplyZCtrlPreset": {
+      "module": "builtins.zctrl_presets_skills",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ApproachTip": {
+      "module": "builtins.approach",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessAtomicConsistency": {
+      "module": "builtins.atomic_multiframe",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessAtomicLines": {
+      "module": "builtins.atomic_lines",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessAtomicPhase": {
+      "module": "builtins.tip_spectro_assess",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessAtomicResolution": {
+      "module": "builtins.atomic_lattice",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessClusterRoundness": {
+      "module": "builtins.cluster_roundness",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessDomainPhase": {
+      "module": "builtins.domain_assess",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessFeedbackTracking": {
+      "module": "builtins.feedback_tracking",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessFrameCorrugation": {
+      "module": "builtins.frame_corrugation",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessFrameTrust": {
+      "module": "builtins.frame_trust",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessHerringbone": {
+      "module": "builtins.herringbone_assess",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessImageQuality": {
+      "module": "composite.assess_quality",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessScanTexture": {
+      "module": "builtins.scan_texture",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessShockleyOnset": {
+      "module": "builtins.tip_spectro_assess",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessSpectrum": {
+      "module": "builtins.spectrum_assess",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessTipFromSpectrum": {
+      "module": "builtins.tip_from_spectrum",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessTipSharpness": {
+      "module": "builtins.tip_sharpness",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessTip_ResNet": {
+      "module": "paper.tip_assessment",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AssessTip_VGG": {
+      "module": "paper.tip_assessment",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AtomManip_SAC": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AtomTrackDriftComp": {
+      "module": "builtins.atom_track",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AtomTrackQuickCompStart": {
+      "module": "builtins.atom_track",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AtomTrackStatusGet": {
+      "module": "builtins.atom_track",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AtomicBiasSeries": {
+      "module": "composite.atomic_bias_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoApproach": {
+      "module": "builtins.approach",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoCrop_UnscannedRegion": {
+      "module": "paper.scan_crop",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoOSS_Dehalogenation": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoPhase": {
+      "module": "builtins.lockin_presets_skills",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoProcessScanBatch": {
+      "module": "builtins.scan_prep",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoTilt": {
+      "module": "composite.auto_tilt",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutoZeroBeamDeflection": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "AutonomousSurvey_Scanbot": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "BatchRegionsScan": {
+      "module": "composite.batch_regions_scan",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "BiasPulse": {
+      "module": "builtins.bias_pulse",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "BiasPulseWithReadback": {
+      "module": "builtins.bias_pulse_readback",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "BiasSettleChange": {
+      "module": "composite.bias_settle",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "BiasWiggle": {
+      "module": "builtins.bias_wiggle",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CalibrateCoarseStep": {
+      "module": "builtins.coarse_step_calib",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CalibratePiezoFromLattice": {
+      "module": "builtins.atomic_lattice",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CalibratePiezoMultiAngle": {
+      "module": "builtins.atomic_multiframe",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CaptureSignalBuffer": {
+      "module": "builtins.capture_signal_buffer",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CharacteriseCurrentNoise": {
+      "module": "builtins.characterise_noise",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CharacteriseQuietDrift": {
+      "module": "builtins.quiet_drift",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CheckLineQuality": {
+      "module": "paper.line_check",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CheckPiezoRange": {
+      "module": "builtins.piezo_range_check",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CheckScanForCrash": {
+      "module": "builtins.scan_frame",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CheckTipCrashByAmplitude": {
+      "module": "builtins.qplus_amplitude",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ClassifyUnexplainedCurrent": {
+      "module": "builtins.current_origin",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CleanTipUntilBarrier": {
+      "module": "builtins.clean_tip",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ClusterDefects_rVAE": {
+      "module": "paper.defect_cluster",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CoarseMotionSelfCheck": {
+      "module": "builtins.coarse_selfcheck",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ComposePanelMontage": {
+      "module": "paper.montage",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ComputeDriftVector": {
+      "module": "builtins.scan_frame",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConditionTip": {
+      "module": "composite.condition_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConditionTip_DQN": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureAtomTrack": {
+      "module": "builtins.atom_track",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureBeamDeflection": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureBiasSweep": {
+      "module": "builtins.sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureCalculatedOutput": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureDigitalLine": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureDualScope": {
+      "module": "builtins.optional_scopes",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureHighResScope": {
+      "module": "builtins.optional_scopes",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureHighSpeedSweep": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureInterferometer": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureKelvinController": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureLockIn": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureLockInDemod": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureLockInSweep": {
+      "module": "builtins.sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureOcSync": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigurePLL": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigurePLLExcitation": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigurePiController": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigurePllSignalAnalyzer": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigurePreamp": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureProbeCurrentGain": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureProbeScanner": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureRfGenerator": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureSTS": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureSTSChannels": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureSTSTiming": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureScan": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureScopeTrigger": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureSignalChart": {
+      "module": "builtins.optional_scopes",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureSpectrumAnalyzer": {
+      "module": "builtins.spectrum_analyzer",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureTipRecorder": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureWaveform": {
+      "module": "builtins.function_generator",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureZSpectr": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ConfigureZSpectrTiming": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ContinuousImaging_Auto": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CorrectDrift_BraggPeak": {
+      "module": "paper.drift_bragg",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CorrectDrift_XCorr": {
+      "module": "paper.data_processing",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CreateZCtrlPreset": {
+      "module": "builtins.zctrl_presets_skills",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": true,
+      "model": true,
+      "traces": 1,
+      "impl": false,
+      "status": "partial"
+    },
+    "CrossPointTipCheck": {
+      "module": "composite.cross_point_tip_check",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DeconvolveTip_RL": {
+      "module": "paper.deconvolution",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DelayLineGetDelay": {
+      "module": "builtins.optics_stage",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DelayLineMoveTo": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DemoScanAndSTS": {
+      "module": "composite.demo_scan_and_sts",
+      "category": "composite",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "Denoise_AE": {
+      "module": "paper.denoise",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DeployNanonisScript": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DeployScriptLUT": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "Destripe_MorphOpen": {
+      "module": "paper.image_filters",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DetectAtomJump": {
+      "module": "paper.atom_jump",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DetectAtoms_FCN": {
+      "module": "paper.region_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DiffScans_ChangeDetect": {
+      "module": "paper.scan_diff",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DrawScanMarker": {
+      "module": "builtins.marks",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "EmergencyRetract": {
+      "module": "builtins.tip",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 5,
+      "impl": true,
+      "status": "done"
+    },
+    "EnableSafeTip": {
+      "module": "builtins.safety_hw",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "EraseScanMarkers": {
+      "module": "builtins.marks",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ExecuteScanPlan": {
+      "module": "composite.execute_scan_plan",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ExtractClusters": {
+      "module": "builtins.cluster_extract",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindCleanSpot": {
+      "module": "builtins.clean_spot",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindEmptySpot": {
+      "module": "paper.data_processing",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindFlatRegion": {
+      "module": "builtins.flat_region",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindGoodRegion_Heuristic": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindGoodRegion_UNet": {
+      "module": "paper.autonomous",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FindSpectralPeaks": {
+      "module": "builtins.spectral_peaks",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FitDispersion": {
+      "module": "builtins.dispersion_fit",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FitFano_Kondo": {
+      "module": "paper.spectral_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FitGap_BCS": {
+      "module": "paper.spectral_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ForgeAuTip": {
+      "module": "composite.forge_au_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "FullScan": {
+      "module": "composite.full_scan",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GenSwpAcqChsGet": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GenSwpPropsGet": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GenSwpStop": {
+      "module": "builtins.sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GenSwpSwpSignalGet": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetAcqPeriod": {
+      "module": "builtins.util",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetAutoApproachStatus": {
+      "module": "builtins.approach",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetBeamDeflection": {
+      "module": "builtins.optional_afm",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetBias": {
+      "module": "builtins.bias",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetBiasCalibration": {
+      "module": "builtins.bias",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetCalculatedOutputConfig": {
+      "module": "builtins.user_output",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetChamberPressure": {
+      "module": "builtins.chamber",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetCpdCompensation": {
+      "module": "builtins.optional_afm",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetCurrent": {
+      "module": "builtins.bias",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetCurrentBEEM": {
+      "module": "builtins.current",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetCurrentGains": {
+      "module": "builtins.current",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDataLogStatus": {
+      "module": "builtins.datalog",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodHPFilter": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodHarmonic": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodLPFilter": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodPhasReg": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodPhase": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDemodSignal": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDigitalLineTTL": {
+      "module": "builtins.user_output",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetDriftCompensation": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetDualScopeData": {
+      "module": "builtins.optional_scopes",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetGenericPiController": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetHighResScopeData": {
+      "module": "builtins.optional_scopes",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetHighResScopeStatus": {
+      "module": "builtins.optional_scopes",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetHighSpeedSweepStatus": {
+      "module": "builtins.optional_sweepers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetHomeProps": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetInterferometer": {
+      "module": "builtins.optional_afm",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetKelvinController": {
+      "module": "builtins.optional_afm",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetLaser": {
+      "module": "builtins.optional_afm",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetLatestScanFile": {
+      "module": "builtins.scan_extra",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": false,
+      "status": "partial"
+    },
+    "GetLockInConfig": {
+      "module": "builtins.lockin",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetLockInSweepLimits": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetLockInSweepProps": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetLockInSweepSignal": {
+      "module": "builtins.sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetMiscInstrumentConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetMotorFreqAmp": {
+      "module": "builtins.motor",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetMotorStepCounter": {
+      "module": "builtins.motor",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetOcSync": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetOsciTimebases": {
+      "module": "builtins.acquire_osci_trace",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLAddOnOff": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLAmpCtrlOnOff": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLDemodFilter": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLDemodHarmonic": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLDemodInput": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLExcRange": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLFreqRange": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLFreqSwpParams": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLInpCalibr": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLInpProps": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLPhasCtrlOnOff": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLSignalAnlzrCh": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLSignalAnlzrFFTProps": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLSignalAnlzrTimebase": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPLLStatus": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPatternCloud": {
+      "module": "builtins.pattern",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPatternProps": {
+      "module": "builtins.pattern",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPiController": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPiezoConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPiezoHVAInfo": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPiezoHVAStatusLED": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPiezoSensitivity": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetPiezoTilt": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetPiezoXYZLimits": {
+      "module": "builtins.piezo",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetPllConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPllSignalAnalyzerData": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPllZoomFftData": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPointShootOnOff": {
+      "module": "builtins.folme",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetPointShootProps": {
+      "module": "builtins.folme",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetPreamp": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetProbeBias": {
+      "module": "builtins.optional_multiprobe",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetProbeCurrent": {
+      "module": "builtins.optional_multiprobe",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetProbeZController": {
+      "module": "builtins.optional_multiprobe",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetRTFreq": {
+      "module": "builtins.util",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetRTOversample": {
+      "module": "builtins.util",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetRfGeneratorStatus": {
+      "module": "builtins.optional_sweepers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSAltZCtrl": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSChannels": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSDigSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSLimits": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSMLSLockinPerSeg": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSPulseSeqSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSSafeCond1": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSTTLSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSTiming": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSTSZOffRevert": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSafeTipProps": {
+      "module": "builtins.safety_hw",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSafeTipSignal": {
+      "module": "builtins.safety_hw",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSafeTipStatus": {
+      "module": "builtins.safety_hw",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetScanBuffer": {
+      "module": "builtins.scan_extra",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetScanFrame": {
+      "module": "builtins.scan_utils",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetScanPatternConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetScanSpeed": {
+      "module": "builtins.scan_extra",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetScanXYPosition": {
+      "module": "builtins.imaging",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetScriptChannels": {
+      "module": "builtins.nanonis_script",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetScriptData": {
+      "module": "builtins.nanonis_script",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSessionPath": {
+      "module": "builtins.util",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSetpoint": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSignalCalibration": {
+      "module": "builtins.bias_sweep",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSignalRange": {
+      "module": "builtins.signals",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSignalValues": {
+      "module": "builtins.signals",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetSignalsAddRT": {
+      "module": "builtins.signals",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSpectroscopyConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSpectroscopyStatus": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetSpectrumAnalyzerData": {
+      "module": "builtins.spectrum_analyzer",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetTcpLogStatus": {
+      "module": "builtins.datalog",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetTemperature": {
+      "module": "builtins.temperature",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetTipLift": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetTipRecorderData": {
+      "module": "builtins.optional_controllers",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetTipShaperConfig": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetTipSpeed": {
+      "module": "builtins.folme",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetUserOutputLimits": {
+      "module": "builtins.user_output",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetUserOutputMode": {
+      "module": "builtins.user_output",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetUserOutputMonitorChannel": {
+      "module": "builtins.user_output",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetWaveformStatus": {
+      "module": "builtins.function_generator",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetWithdrawRate": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZControllerState": {
+      "module": "builtins.readback",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 13,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZCtrlGain": {
+      "module": "builtins.zctrl_gain",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZCtrlList": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZLimitsEnabled": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZPosition": {
+      "module": "builtins.zcontrol",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "GetZSpectrChannels": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrDigSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrPulseSeqSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrRange": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrRetract": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrRetract2nd": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrTTLSync": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GetZSpectrTiming": {
+      "module": "builtins.spectroscopy",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GrabScanFrameData": {
+      "module": "builtins.scan_frame",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "GridSTS": {
+      "module": "composite.grid_sts",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "HomeOpticalStage": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "HomeZController": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "IdentifyTopology_CARP": {
+      "module": "paper.region_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "InvertForceSaderJarvis": {
+      "module": "builtins.force_inversion",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LevelLines_Median": {
+      "module": "paper.data_processing",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LineSTSAcrossWall": {
+      "module": "composite.line_sts_across_wall",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListLockInPresets": {
+      "module": "builtins.lockin_presets_skills",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListNanonisScripts": {
+      "module": "builtins.nanonis_script",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListOpticalDevices": {
+      "module": "builtins.optics_stage",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListScanMarkers": {
+      "module": "builtins.marks",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListSignalChannels": {
+      "module": "builtins.signals",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "ListZCtrlPresets": {
+      "module": "builtins.zctrl_presets_skills",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadLayout": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadMultiPassConfig": {
+      "module": "builtins.advanced_ops",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadNanonisScript": {
+      "module": "builtins.nanonis_script_files",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadPiezoHysteresisFile": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadScanFrameFromFile": {
+      "module": "builtins.scan_frame",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LoadScriptLUT": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LocateStepEdge": {
+      "module": "builtins.step_edge",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "LockNanonisUI": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "MakeAtomicResolutionTip": {
+      "module": "composite.make_special_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MakeSpectroscopyTip": {
+      "module": "composite.make_special_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MapBarrierHeight": {
+      "module": "builtins.barrier_map",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MeasureBarrierHeight": {
+      "module": "builtins.barrier_height",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MeasureFrameDrift": {
+      "module": "builtins.frame_drift_skill",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MeasureLatticeCell": {
+      "module": "builtins.lattice_cell_skill",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MeasureStepHeight": {
+      "module": "builtins.step_height",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MonitorCurrent": {
+      "module": "builtins.current_monitor",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MonitorCurrentFFT": {
+      "module": "builtins.monitor_current_fft",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MotorGetPos": {
+      "module": "builtins.motor",
+      "category": "read",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "MotorMove": {
+      "module": "builtins.motor",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "MotorMoveClosedLoop": {
+      "module": "builtins.motor",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "MoveAtomTo": {
+      "module": "composite.move_atom_to",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MoveProbeXY": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "MoveToXY": {
+      "module": "builtins.navigation",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 7,
+      "impl": true,
+      "status": "done"
+    },
+    "OpenPatternExperiment": {
+      "module": "builtins.pattern",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OpticalStageGetPos": {
+      "module": "builtins.optics_stage",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OpticalStageMove": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OpticalStageScan": {
+      "module": "builtins.optics_scan",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OpticalStageWiggle": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OptimizeResolution_BO": {
+      "module": "paper.optimization",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PLLFreqShiftAutoCenter": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PLLOnOff": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PLLPerfectPLLUpdtZTC": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PLLSignalAnalyzer": {
+      "module": "builtins.pll",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PLLSignalAnlzrTrigAuto": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ParseRegions": {
+      "module": "builtins.scan_frame",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PausePatternExperiment": {
+      "module": "builtins.pattern",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PokeConditionTip": {
+      "module": "composite.prepare_noble_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PreScanCheck": {
+      "module": "composite.prescan_check",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PredictSpectrumFromTopo": {
+      "module": "paper.imspec",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PredictStructure_ASD": {
+      "module": "paper.region_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PrepareNobleTip": {
+      "module": "composite.prepare_noble_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PulseConditionTip": {
+      "module": "composite.prepare_noble_tip",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PulseDigitalLine": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PulseProbeBias": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PumpProbeScan": {
+      "module": "builtins.optics_pump_probe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "QueryMonitorHistory": {
+      "module": "builtins.history_query",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "QuitNanonis": {
+      "module": "builtins.advanced_ops",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ReadCalibrations": {
+      "module": "builtins.calibration_readout",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ReadHardwareEvents": {
+      "module": "builtins.hardware_events",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ReadTipOscillationAmplitude": {
+      "module": "builtins.qplus_amplitude",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ReconcileSafetyEnvelope": {
+      "module": "builtins.envelope_reconcile_skill",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RecoverTipFromSaturation": {
+      "module": "builtins.saturation_recovery",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RelocateCoarseXY": {
+      "module": "composite.relocate_coarse_xy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RetractForSampleChange": {
+      "module": "composite.retract_for_sample_change",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunBiasSweep": {
+      "module": "builtins.bias_sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunCpdCompensation": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunGridExperiment": {
+      "module": "builtins.pattern",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunHighResScope": {
+      "module": "builtins.optional_scopes",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunHighSpeedSweep": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunNanonisScript": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunPllPhaseSweep": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunPllZoomFft": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "RunRfFrequencySweep": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "STSConditionSeries": {
+      "module": "composite.sts_condition_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SafeRetract": {
+      "module": "builtins.tip",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 14,
+      "impl": true,
+      "status": "done"
+    },
+    "SaveLayout": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SaveMultiPassConfig": {
+      "module": "builtins.advanced_ops",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SaveNanonisScript": {
+      "module": "builtins.nanonis_script_files",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SaveNanonisScriptLut": {
+      "module": "builtins.nanonis_script_files",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SaveScan": {
+      "module": "builtins.scan_extra",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SaveSettings": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanAt": {
+      "module": "composite.scan_at",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanBackgroundDelete": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanBackgroundPaste": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanIntelSelfCheck": {
+      "module": "builtins.scan_intel_selfcheck",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanPublicationFrame": {
+      "module": "composite.publication_frame",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ScanUntilAtomicResolution": {
+      "module": "composite.scan_until_atomic",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SearchDomainBoundary": {
+      "module": "composite.search_domain_boundary",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SegmentRegion_UNet": {
+      "module": "paper.region_analysis",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SelectPokedCluster": {
+      "module": "builtins.cluster_select",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetAcquisitionPeriod": {
+      "module": "builtins.bias_sweep",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetActiveZController": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetAdditionalRealtimeSignals": {
+      "module": "builtins.bias_sweep",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetBias": {
+      "module": "builtins.bias",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetBiasCalibration": {
+      "module": "builtins.bias",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetBiasRamp": {
+      "module": "builtins.bias",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetBiasRange": {
+      "module": "builtins.bias",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetCurrentCalibration": {
+      "module": "builtins.current",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetCurrentGain": {
+      "module": "builtins.current",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetDemodRTSignals": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetDemodSyncFilter": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetDigitalLineStatus": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetDriftCompensation": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetFolMeOversampling": {
+      "module": "builtins.folme",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetGenericPiOutput": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetHomeProps": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetInterferometerOnOff": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetKelvinControllerOnOff": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetLaserOnOff": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetLaserPower": {
+      "module": "builtins.optional_afm",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetLockInDemodPhaseRegister": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetLockInFrequencySweepSignal": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetMlsLockinPerSegment": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetModHarmonic": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetModPhasReg": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetModSignal": {
+      "module": "builtins.lockin",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetMotorFreqAmp": {
+      "module": "builtins.motor",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 1,
+      "impl": true,
+      "status": "done"
+    },
+    "SetMultiPass": {
+      "module": "builtins.advanced_ops",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetOsciTimebase": {
+      "module": "builtins.acquire_osci_trace",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLAmpCtrlBandwidth": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLAmpCtrlSetpnt": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLDemodFilter": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLDemodInput": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLDemodPhasRef": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLFreqExcOverwrite": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLFreqRange": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLInpCalibr": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLInpProps": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLInpRange": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLPhasCtrlBandwidth": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPLLSignalAnlzrTrig": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPatternCloud": {
+      "module": "builtins.pattern",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPatternExperiment": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPatternLine": {
+      "module": "builtins.pattern",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiControllerOnOff": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiezoHysteresisOnOff": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiezoHysteresisValues": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiezoLimits": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiezoRange": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetPiezoSensitivity": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPiezoTilt": {
+      "module": "builtins.piezo",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetPllDemodHarmonic": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPllExcitationAdd": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPointShootExperiment": {
+      "module": "builtins.folme",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPointShootOnOff": {
+      "module": "builtins.folme",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPointShootProps": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetProbeBias": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetProbeZController": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetRTFreq": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetRTOversample": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSAdvancedProps": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSChannels": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSMLSMode": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSMLSVals": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSSafeCond1": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSTSSafeCond2": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSafeTipProps": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetScanBuffer": {
+      "module": "builtins.scan_buffer",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 6,
+      "impl": true,
+      "status": "done"
+    },
+    "SetScanSpeed": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetScriptAutosave": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetScriptChannels": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSessionPath": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 5,
+      "impl": true,
+      "status": "done"
+    },
+    "SetSetpoint": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 6,
+      "impl": true,
+      "status": "done"
+    },
+    "SetSpectroscopyPulseSync": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSpectroscopyTtlSync": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSpectroscopyZControl": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSpectrumAnalyzerBand": {
+      "module": "builtins.spectrum_analyzer",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSwitchOffDelay": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetTipLift": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetTipSpeed": {
+      "module": "builtins.folme",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetUserOutput": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetUserOutputCalibration": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetUserOutputLimits": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetUserOutputMode": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetUserOutputMonitorChannel": {
+      "module": "builtins.user_output",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetWaveformChannelOnOff": {
+      "module": "builtins.function_generator",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetWaveformIdleValue": {
+      "module": "builtins.function_generator",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetWaveformSignal": {
+      "module": "builtins.misc_setters",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetWithdrawRate": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZCtrlGain": {
+      "module": "builtins.zctrl_gain",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 6,
+      "impl": true,
+      "status": "done"
+    },
+    "SetZLimits": {
+      "module": "builtins.instrument_limits",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZLimitsEnabled": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetZPosition": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "SetZSpectrAdvProps": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZSpectrChannels": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZSpectrRange": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZSpectrRetract": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZSpectrRetractDelay": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetZSpectroscopySecondRetract": {
+      "module": "builtins.spectroscopy_sync",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ShapeTipOnSurface": {
+      "module": "composite.shape_tip_on_surface",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SpectroscopyAtPositions": {
+      "module": "composite.spectroscopy_at_positions",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StartDataLog": {
+      "module": "builtins.datalog",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StartRfGenerator": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StartScan": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StartTcpLog": {
+      "module": "builtins.datalog",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StartWaveform": {
+      "module": "builtins.function_generator",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StepCoarseXY": {
+      "module": "builtins.coarse_nudge",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopAutoApproach": {
+      "module": "builtins.approach",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "StopDataLog": {
+      "module": "builtins.datalog",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopFolMe": {
+      "module": "builtins.folme",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "StopHighSpeedSweep": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopMotor": {
+      "module": "builtins.motor",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "StopNanonisScript": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopOpticalStage": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopPLLFreqSwp": {
+      "module": "builtins.pll",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopPllPhaseSweep": {
+      "module": "builtins.optional_controllers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopProbeScanner": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopRfGenerator": {
+      "module": "builtins.optional_sweepers",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopSTS": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopScan": {
+      "module": "builtins.imaging",
+      "category": "write",
+      "safety": "auto",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "StopTcpLog": {
+      "module": "builtins.datalog",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopWaveform": {
+      "module": "builtins.function_generator",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopZSpectr": {
+      "module": "builtins.spectroscopy",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SubtractPlane_RANSAC": {
+      "module": "paper.data_processing",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SubtractPoly2D": {
+      "module": "paper.background",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SurveySurface_TileScan": {
+      "module": "composite.survey_surface",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TiltCalibrate": {
+      "module": "composite.auto_tilt",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TiltProbeCircle": {
+      "module": "builtins.tilt_probe",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TipConditioningSelfCheck": {
+      "module": "builtins.tip_conditioning_selfcheck",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TipForgeSelfCheck": {
+      "module": "builtins.tip_forge_selfcheck",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TipPulse": {
+      "module": "composite.tip_pulse",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TipShape": {
+      "module": "builtins.tip_shaper",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TipShapeWithReadback": {
+      "module": "builtins.tip_shaper_readback",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TrackBestFrame": {
+      "module": "builtins.best_frame",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TrackDrift_ReferenceScan": {
+      "module": "composite.drift_track",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TryEngageController": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 7,
+      "impl": true,
+      "status": "done"
+    },
+    "UndeployNanonisScript": {
+      "module": "builtins.nanonis_script",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "UnlockNanonisUI": {
+      "module": "builtins.util",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "UnmixSpectra": {
+      "module": "paper.spectral_unmix",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "VerifyAdatomAt": {
+      "module": "builtins.adatom_verify",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "VerifyAtomicResolution": {
+      "module": "composite.verify_atomic_resolution",
+      "category": "analysis",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WaitForScanEndBlocking": {
+      "module": "builtins.advanced_ops",
+      "category": "read",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WaitForThermalSettle": {
+      "module": "builtins.thermal_settle",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WaitScanComplete": {
+      "module": "builtins.scan_utils",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WatchScanLines": {
+      "module": "builtins.scan_watch",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WithdrawProbe": {
+      "module": "builtins.optional_multiprobe",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "WithdrawTip": {
+      "module": "builtins.approach",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 3,
+      "impl": true,
+      "status": "done"
+    },
+    "ZControllerOnOff": {
+      "module": "builtins.zcontrol",
+      "category": "write",
+      "safety": "confirm",
+      "spec": true,
+      "model": true,
+      "traces": 5,
+      "impl": true,
+      "status": "done"
+    }
+  }
+}
