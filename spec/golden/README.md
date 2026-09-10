@@ -17,6 +17,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 | 文件 | 内容 | 谁消费 |
 |---|---|---|
 | `skills.json` | 515 条技能的**作者声明**契约：category / safety_level / description / 逐参数 ParameterSpec（含 unit、min/max、allowed_values）/ preconditions / capabilities / composition_level / 所在模块与 origin | DoD ①（`skill.spec` 与之 deep-equal）、DoD ②（工具 schema description 逐字相等）、§8.4 分批成员派生 |
+| `watchdog.json` | 看门狗的判定行为：12 条脚本，由**真 `SafetyWatchdog.run()`** 跑出来（把它的 `time` 换成假时钟，让真循环自己跑）。含 2026-08-10 那次「武装着却打不着火」的复现 | 课时 1.9 的看门狗移植 |
 | `state.json` | 状态缓存三节：`spec`（1 Hz 读哪 11 个动词——**观测得到，不是手抄**——加可 patch / 需强转的字段白名单）、`coerce`（21 条「什么算一个读数」）、`trace`（14 条脚本 29 步，驱动真 `InstrumentState`，含 carry-forward 与 stale 的逐步快照）、`live_state`（7 条实时状态提示块的**整段文本**——措辞就是契约） | 课时 1.8 的状态缓存移植与 D-STATE-1；1.8b 的提示块 |
 | `si_cases.json` | 127 条 SI 行为金样：`parse_si` / `parse_quantity`（strict 与 loose 各一遍）/ `needs_strict_prefix` / `format_si`，**含报错类型与原文** | 课时 1.1 的 `si.ts` 移植 |
 | `manifest.json` | 每个 collector 的成败与条数 | 一个 collector 坏了不能静默缺一块——缺一块会让分母悄悄变小 |

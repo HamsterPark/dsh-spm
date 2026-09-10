@@ -2,3 +2,4 @@
 export * from './si.js'
 export * from './comms-breaker.js'
 export * from './hardware-state.js'
+export * from './watchdog.js'

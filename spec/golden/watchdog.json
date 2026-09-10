@@ -1,0 +1,145 @@
+{
+  "constants": {
+    "human_rail_override_s": 20.0,
+    "interval_s": 0.5,
+    "retrigger_cooldown_s": 30.0,
+    "shipped_saturation_threshold_a": 9e-08,
+    "window_seconds": 4.0,
+    "window_size": 8
+  },
+  "trace": {
+    "absent_idle_getter_still_arms": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 3.5,
+          "tick": 7
+        }
+      ],
+      "latched": true,
+      "ticks": 12
+    },
+    "confirmed_retract_latches": {
+      "current_get_calls": 40,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 3.5,
+          "tick": 7
+        }
+      ],
+      "latched": true,
+      "ticks": 40
+    },
+    "eight_high_fires": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 3.5,
+          "tick": 7
+        }
+      ],
+      "latched": true,
+      "ticks": 12
+    },
+    "garbage_reply_preserves_window": {
+      "current_get_calls": 13,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 4.0,
+          "tick": 8
+        }
+      ],
+      "latched": true,
+      "ticks": 13
+    },
+    "human_operating_suppresses": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 5e-09,
+      "fired": [],
+      "latched": false,
+      "ticks": 12
+    },
+    "human_override_expires": {
+      "current_get_calls": 60,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 23.5,
+          "tick": 47
+        }
+      ],
+      "latched": true,
+      "ticks": 60
+    },
+    "read_failure_preserves_window": {
+      "current_get_calls": 13,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 4.0,
+          "tick": 8
+        }
+      ],
+      "latched": true,
+      "ticks": 13
+    },
+    "seven_high_one_low": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 5e-09,
+      "fired": [],
+      "latched": false,
+      "ticks": 12
+    },
+    "suppression_clears_window": {
+      "current_get_calls": 17,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 8.0,
+          "tick": 16
+        }
+      ],
+      "latched": true,
+      "ticks": 20
+    },
+    "threshold_degrades_to_last_good": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 3.5,
+          "tick": 7
+        }
+      ],
+      "latched": true,
+      "ticks": 12
+    },
+    "threshold_getter_raises": {
+      "current_get_calls": 12,
+      "effective_threshold_a": 9e-08,
+      "fired": [],
+      "latched": false,
+      "ticks": 12
+    },
+    "unconfirmed_retract_retries": {
+      "current_get_calls": 80,
+      "effective_threshold_a": 5e-09,
+      "fired": [
+        {
+          "t": 3.5,
+          "tick": 7
+        },
+        {
+          "t": 33.5,
+          "tick": 67
+        }
+      ],
+      "latched": false,
+      "ticks": 80
+    }
+  }
+}
