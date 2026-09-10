@@ -3,6 +3,7 @@
 > **这份文件是开工入口**。`PLAN.md` 回答「为什么这样设计」，本文回答「下一步做什么、做到哪算完、在哪停下」。
 > 版本相关的事实在 `dsh/facts.md`，升级流程与日志在 `dsh/upgrades.md`。
 > 建于 2026-09-07，随每段推进更新「当前位置」与「决策台账」两节。
+> **2026-09-10：Phase 2–8 的分段计划一次写全**（§4–§10）。计划写在前面，执行仍然一段一停。
 
 ## 0. 怎么用这份文件
 
@@ -23,7 +24,7 @@
 
 ---
 
-## 1. 当前位置（2026-09-09）
+## 1. 当前位置（2026-09-10）
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
@@ -101,7 +102,7 @@ semver 规定预发布只匹配元组相同的比较符，所以 09-04 那种 al
 
 ---
 
-## 2. Phase 0 · 脚手架（当前 Phase）
+## 2. Phase 0 · 脚手架 ✅ 完成
 
 完成判据（PLAN §11）：`dsh plugin --profile web add ./packages/bundle/dsh-spm` 成功；会话里 `stm_hello` 返回版本；contract 测试绿；覆盖率门禁生效；spike 十条各有结论；`check-dsh-pin` / `check-dsh-latest` 生效。
 
@@ -734,8 +735,58 @@ Python 的块里**没有** `stale`。链路断了的时候，模型看到的是 
 | 1.7 ✅ | `instrument-stmsim` provider（spawn/等端口/SIGTERM）+ ~~`instrument-fake`~~（无消费者，推迟到 Phase 2） | `profiles/mast-sim` 装上后自动拉起模拟器 |
 | 1.8 ✅ | `instrument-state`（1 Hz 11 verb、stale/carry-forward、`applyPatch`） | monitor 端口上有 1 Hz 轮询 |
 | 1.8b ✅ | 提示块 `stm-live-state` + `stm_get_state`（投影 `mast.instrumentState` 推迟到 1.10，理由见课时记录） | 提示装配里有实时状态块 |
-| 1.9 | 看门狗 + `estop()` + `/estop` 命令 | stmsim 撞针场景 4 s 内退针 |
-| 1.10 | U0：SSE hub `/mast/events` + `ui-core` 右栏「仪器状态」卡 | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
+| 1.9 | 看门狗（monitor 0.5 s × 8 窗口）+ `estop()` + `/estop` 命令 + 告警路径 | stmsim 撞针场景 4 s 内退针 |
+| 1.10 | U0：客户端机器 + SSE hub `/mast/events` + 右栏「仪器状态」卡 + 设置卡（0.5 并入）+ 投影 `mast.instrumentState` | 右栏读数 1 Hz 跳动；杀宿主重启 5 s 内续传 |
+
+### 课时 1.9 —— 看门狗 + 急停（计划）
+
+**写什么**（`packages/instrument/instrument-watchdog`，估 180 行）
+
+- `kernel/watchdog.ts`：纯状态机，**注入时钟与读数源**。移植 `mast/core/watchdog.py` 的判据——
+  monitor 角色 **0.5 s** 采一次，**连续 8 个窗口**都超阈值才动手（不是单点触发）。
+  **阈值每 tick 活读**：读不到阈值 ⇒ **不武装**（宁可不保护，也不拿一个猜的阈值去退针）。
+- `estop()`：走 **emergency 角色**、`ZCtrl_Withdraw(1, -1)`、**绕过熔断**（1.6 已留好 `urgentCall`）。
+- `/estop` 命令（`ctx.commands`）+ 急停闩：闩上之后所有写动词被拒，只放行退针与停扫。
+- 顺手补 **1.8b 记下的缺口**：链路断（`stale`）走**告警**而不是改提示块——与 Python 同构。
+
+**为什么阈值活读这条要单独讲**：写死阈值的看门狗在换针/换样品后就是错的，而它错的方式是
+「在不该退针的时候退针」或「该退时不退」。两种都比没有看门狗更危险，因为人会信它。
+
+**验收**：stmsim 的「Z 顶限撞针」场景 4 s 内退针；注入时钟走一遍「7 个窗口超阈值 → 第 8 个不超 ⇒ 不动手」；
+急停闩上后 `SetBias` 被拒而 `ZCtrl_Withdraw` 放行；`/estop` 在会话里 1 s 内亮横幅（横幅要 1.10 的 UI，
+本段只做宿主侧事件）。
+
+**变红演练**：把「连续 8 窗口」改成「单点触发」⇒ 抖动用例必须变红；把阈值改成常量 ⇒「读不到阈值不武装」的用例必须变红。
+
+### 课时 1.10 —— U0：第一个客户端包（计划）
+
+**这一段是 D11.1 的切换点**：出现第一个 client 包之后，dsh 的追踪策略从「最新 alpha」改为
+**跟稳定通道 `latest`**（客户端面的破坏性变更代价比宿主面高一个量级，见 `dsh/upgrades.md` 判据一节）。
+
+**写什么**（分三小段做，别一次推）
+
+1. **1.10a 客户端机器**：把根 `tsconfig.json` 拆成 `tsconfig.host.json` + `tsconfig.client.json`，
+   根文件只 `files: []` + 引用两个。**理由是硬约束不是整洁**：Cordis 靠 declaration merging 往
+   `Context` 上挂服务，宿主面与客户端面挂的是**两组不同的服务**；两张图落进同一个 `ts.Program`，
+   两套 merge 会互相污染——**编译期一切正常，运行期才炸**。dsh 自己的根 tsconfig 注释写着同一句。
+   client 侧 `compilerOptions` 覆盖成 `module: esnext` / `moduleResolution: bundler` / `lib` 加 dom / `jsx: react-jsx`；
+   打包用 tsdown。**先跑通一个空壳 client 包再往里放东西**。
+2. **1.10b SSE hub**：`webServer.register({kind:'prefix', path:'/mast/events'})`，`text/event-stream`，
+   `Last-Event-ID` 续传（= 旧的 `?since=seq`）、100 条环形重放、15 s `: ping`、队列满发 `dropped`；
+   另加 `/mast/events/snapshot`。事件闭集见 PLAN §9.2。**帧里永远只有指针与标量**——
+   图像与长文本走引用，否则 SSE 通道会被一张图堵死。**客户端遇到未知 type 必须忽略**（前向兼容）。
+   spike 第 9 条（`webServer` 是否支持流式 `res.write`）的触发点就在这里；红了退化成轮询。
+3. **1.10c 右栏卡 + 设置卡 + 投影**：`ui-core` 右栏「仪器状态」卡（读 SSE，1 Hz 跳动）；
+   **0.5 的设置卡 `mast.instrument` 并到这里**（端口 / hardware_modules / instrument_profile）；
+   投影 `mast.instrumentState`（1.8b 推迟的那件，此刻有了读它的一方，fold 折成什么形状才定得下来）。
+   spike 第 8 条（`conversation.view` / `details` / `toolview`）一并结清。
+
+**验收**：右栏读数 1 Hz 跳动；**杀宿主重启 5 s 内重连且 `Last-Event-ID` 续传无缺口**（这条是 U0 的核心，
+不是锦上添花——断线重连丢事件的实时面板会让人在错误的画面前做决定）；设置卡改端口后重载 profile 生效。
+
+**已知的坑（上游 Discussion #5999）**：升级**既有** profile 时 client combo 会缺新增的 bundle 模块
+⇒ 全部 client 插件失效。全新 profile 不受影响。做 U0 时先确认本地 profile 是新建的，
+再把这条写进升级清单。
 
 **1.10 落第一个客户端包时必须做的一件结构改动**（0.2 按消融原则没有预先搭）：把根 `tsconfig.json`
 拆成 `tsconfig.host.json` + `tsconfig.client.json` 两个解决方案文件，根文件只 `files: []` + 引用这两个。
@@ -750,17 +801,169 @@ dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the
 
 ---
 
-## 4. Phase 2–8
+## 4. Phase 2 · 安全 + 内核 + 批 1/2（课时 2.1–2.15）
 
-粒度到时按同样格式切（PLAN §2.1：「后续 Phase 到时再按同样粒度切」）。各 Phase 的内容与完成判据见 **PLAN §11**，批次成员与每技能 DoD 见 **PLAN §8.4 / §8.5**。要记住的三条：
+**完成判据**（PLAN §11）：§8.4 批 1/2 判据；蜜罐/SAFE 拒/互斥/hash 不等被拒；差分序列一致。
 
-- **批次成员一律从 golden 的 `category` + 目录 + `safety_level` 派生，不读 `composition_level`**（374/498 个吃默认值 0，照它分会把四分之三全归 L0）。
-- **Phase 3 是第一个「可用里程碑」**：私聊 IC 在 stmsim 上十轮对话，session log 可 replay 重建每次请求。在那之前没有任何东西是"能用"的，别在 Phase 2 就想着演示。
-- **Phase 8 之前不出现 `mast-rig`**。
+**这个 Phase 是整个项目的承重墙。** 后面 400 多个技能全部穿过 `SkillKernel.run()` 这一个 choke point，
+闸门写错一次，错的就是 400 多次。所以本 Phase 的每一段都遵守一条额外纪律：
+**闸门先有 golden，再有实现，再有变异**——变异证明「这道闸真的在挡东西」，没有变异的闸等于没有闸。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 2.1 | 安全金样导出：`safety.json`（`SafetyLimits().model_dump()` / `_GLOBAL_CHECKS` / `_PHYSICAL_ABSURD` / `_ENVELOPE_FIELDS` / `_STRICT_BY_DIMENSION` / `_ABORT_SAFE_WRITES` / `_is_read` 对 671 动词的判定表 / 五硬闸用例表 / `mode_refusal` 用例表 / `BYPASS_*` / sample gate 四表 / `_AUDIT_ONLY_KEYS` / `_TOOL_RETURN_CAP`）+ `preconditions.json` + `prompts/` | 重跑逐字节相同；`manifest.json` 记每个 collector 成败 |
+| 2.2 | `kernel/safety.ts` ①：`SafetyLimits` 包络 + `_ENVELOPE_FIELDS` 逐字段检查 | 金样逐条；蜜罐 `setpoint_a=1.5` 被拒 |
+| 2.3 | `kernel/safety.ts` ②：物理荒谬 `_PHYSICAL_ABSURD` + 教学文案逐字 | 金样逐条 + **文案逐字相等** |
+| 2.4 | `kernel/safety.ts` ③：`_is_read` 671 动词判定表 + `_ABORT_SAFE_WRITES` | 671 条逐动词对表；中止后 `ZCtrl_Withdraw`/`Scan_Action(1,…)` 仍放行 |
+| 2.5 | `kernel/safety.ts` ④：五条硬闸 + `operating_mode` 拒绝 | 五硬闸在 `approvalSource !== 'human'` 一律拒；SAFE 下 `bias_pulse`/`tip_shaping` 被拒 |
+| 2.6 | `kernel/sample-gate.ts`：sample gate 四表（depth 0 判、子步继承 admission） | 四表逐条；子步不重复判 |
+| 2.7 | `ctx.stmSafety` Service + dsh 四钩子接线（`tools/pre-execute` guard、approval、digest、`tools/post-execute`） | contract 测试：guard 拿得到工具名与参数（spike 1 已证）；approval reason 透传 |
+| 2.8 | `/mode` `/estop` 命令 + `ApprovalDigest` | `/mode SAFE` 后写技能被拒；digest 里没有参数（spike 1 的边界） |
+| 2.9 | preconditions 移植 + `HardwareState` 夹具网格 | 金样网格逐条；措辞 `[Name] precondition_failed:` 逐字 |
+| 2.10 | `SkillKernel` 骨架：K0 覆盖 / K1 SI / K5 快照+计时 / K6 validateParams / K11 execute / K12 applyPatch / K13 composeText | `_Probe` 走通这七步；`>2000` 落盘 `textRef` |
+| 2.11 | `SkillKernel` 其余闸：K2 abort 闩 / K3 sample / K7 荒谬+包络+mode+hard_gate / K8 前置（不满足先 `refreshState()` 再判，**两入口都做**）/ K9 `holdForSkill` / K10 调制 preflight / K14–K18 | 每闸至少一条金样；K18 的 `AbortRequested`/`InstrumentBusy` **不回滚** |
+| 2.12 | schema 生成（复刻 `_schema_from_metadata` + `si_params` + `effective_bounds`）+ `defineSkillTool()` | `tool_schemas.json` 比对：类型/required/**description 逐字相等** |
+| 2.13 | RunLedger + `ctx.stmRecords`（SQLite，`node:sqlite`） | `records_schema.sql` 建表一致；被拒的调用**也记**；`approval_source` 落库 |
+| 2.14 | 假技能 `_Probe` 的 dsh recorded-session 测试 + **变异框架**（`MAST_MUTATE=<gate>` 逐闸换 no-op） | meta 断言：**每闸至少一条变红**（三判据：已应用、落在被测对象、变红）；拔掉 pre-execute 的 abort deny ⇒ 内核 K2 仍拒 |
+| 2.15 | 批 1（只读 L0 ≈38）+ 批 2（写 L0 ≈36 + 硬闸七件套 + DANGEROUS 2 + L1 试点 AutoApproach/ApproachTip） | §8.4 批 1/2 全部判据；`ZControllerOnOff(true)` 后立刻 `MoveToXY` 过前置（钉 2026-08-10 反例） |
+
+**最容易翻车的三处**
+
+1. **K8 的「两入口都做」**。前置条件不满足时要**先 `refreshState()` 再判**，而这件事在 Python 里有两个入口
+   （agent 工具边界与 composite 子步）。2026-08-10 真机复现过：写回成功、缓存却还是旧值、下一步前置永远不满足。
+   1.8 的 carry-forward 修了缓存那一半，K8 修的是判定那一半，**两半都要**。
+2. **文案逐字**。`_explain_validation` / abort / sample gate 的固定措辞是模型读的东西，不是给人看的日志。
+   照行为写 TS 能过测试，照措辞写才对得上（0.7 已经发现 strict 与 loose 对同一个非法输入给的是两句不同的教学文案）。
+3. **变异框架不是加分项，是这个 Phase 的完成判据**。没有它，「闸门写了」和「闸门在挡」分不清——
+   而这正是安全件唯一重要的性质。
 
 ---
 
-## 5. 决策台账
+## 5. Phase 3 · 可用里程碑：私聊 IC on stmsim（课时 3.1–3.8）
+
+**完成判据**：kimi-k3 在 stmsim 上「设偏压 → 开反馈 → 扫一帧 → 读状态」十轮对话；
+session log 可 replay 重建每次请求；帧内联可见；`stm_selfcheck` 全绿。
+
+**这是第一个「能用」的东西。** 在这之前没有任何东西可演示——别在 Phase 2 就想着给人看。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 3.1 | `dsh-spm-llm-providers`：Kimi / Qwen / GLM 三家自写 `LlmAdapter`（`enable_thinking`、`thinking.type`、Kimi 温度锁 1.0、`reasoning_content` 多轮回传） | 三家各跑通一次真实调用；**带工具调用一律不流式**（§3.2-12 的纪律不因上游修复而放宽） |
+| 3.2 | `instrument-control` agent preset（`restrict({deny})` 写在 agent 平面——`tools.restrict()` 要求 scoped context，全局调用直接抛） | preset 里 `web_fetch` 显式 deny；工具目录只有 STM 族 |
+| 3.3 | `ctx.stmRecords` 完整化 + 投影接线 | 投影 `apply` 重放与 live 一致（同引用） |
+| 3.4 | `dsh-spm-stm-ui` 宿主接缝**冻结 v1**（PLAN §7.9） | 接缝清单落文档；此后加字段不改语义 |
+| 3.5 | U1：设置卡 instrument/safety/models + `stm_*` toolview + 审批卡 + `ask_user` 包装 + `stm-frame` 节点 + `/mast/frames/:id.png` + `/mast/approvals/:callId` | 审批卡的 `argsHash` = 内核执行时的 hash（**不等就拒**）；投影回放重建的卡片与 live 一致 |
+| 3.6 | 批 3a 扫描主链：ConfigureScan / SetScanSpeed / StartScan / **WaitScanComplete**（流式 poll，起扫宽限 5 s、按行数延长、五种 outcome）/ SaveScan（session path 下 120 s 内最新 `.sxm`）/ GrabScanFrameData | 复现 STM-Bench `test_scan_pipeline_start_wait_save_grab_crashcheck`；五种 outcome 各有故障注入用例 |
+| 3.7 | 批 3b 扫描族其余（LoadScanFrameFromFile / CheckScanForCrash / ComputeDriftVector / ParseRegions / SetBiasRamp / WatchScanLines / ScanBackgroundPaste / Delete / marks 3 / datalog 6 / lockin 14 / signals 其余 / misc_setters 8 / util 其余，≈45 合计） | 每个技能 DoD 八条全绿 |
+| 3.8 | 十轮对话端到端 + `stm_selfcheck` | session log replay 逐请求重建；帧内联可见 |
+
+**为什么 WaitScanComplete 单独占一格**：它是第一个**长时**技能，抱着 abort、超时、五种 outcome 与
+「dsh 超时也触发 signal，绝不把仪器留在运动中」这条硬约束。`exec.signal` 触发时要发
+`Scan_Action(1,0)` 停扫再返回 aborted——**不是直接返回**。
+
+---
+
+## 6. Phase 4 · 分析与视觉 + 数据页（课时 4.1–4.7）
+
+**完成判据**：numpy 金样逐检测器一致（容差写明）；新旧 UI 缩略图像素相等。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 4.1 | `dsh-spm-numerics` 基础件：`Mat{rows,cols,Float64Array}`、FFT 1-D（`fft.js`）+ 自写 2-D/互相关/`phase_cross_correlation`、线代（`ml-matrix`）、`curve_fit`（`ml-levenberg-marquardt`）、平面/多项式/RANSAC 自写、可分离高斯/拉普拉斯/灰度形态学/插值（边界模式对齐 scipy）、连通域 union-find、SSIM、统计（percentile 用 numpy `linear`）、xoshiro128\*\* 可种子 RNG、`.npy` v1/v2 | 每件对 numpy/scipy 金样，**容差逐件写明**；峰位约定用 golden 钉 |
+| 4.2 | `dsh-spm-nanonis-files`：`.sxm` / `.dat` / `.3ds` 自写读写（GBK 走 Node full-ICU `TextDecoder('gbk')`，退路 `iconv-lite`） | 真机文件帧 SHA-256 与 nm/px 相等 |
+| 4.3 | `vision-classic`：非深度检测器 | 逐检测器 numpy 金样 |
+| 4.4 | 批 4a：builtins 23（FindFlatRegion / MeasureStepHeight / AnalyzeFrameTilt / AnalyzeScanImage 非视觉分支 / ClusterExtract / DomainAssess / FrameCorrugation / FrameTrust / BestFrame / AssessSpectrum / MapBarrierHeight / MonitorCurrentFFT / DetectAtomicLattice ×3 / AtomicLines / AtomicPhase / Multiframe / TiltProbeCircle / CalibrateCoarseStep / ReconcileSafetyEnvelope / ScanIntelSelfCheck …） | 每技能 `golden/analysis/<Name>/cases.json`；分箱/阈值**按分辨率派生**不写死 |
+| 4.5 | 批 4b：paper 分析 25（CheckLineQuality / LevelLines_Median / SubtractPlane_RANSAC / SubtractPoly2D / Destripe_MorphOpen / CorrectDrift_XCorr\|BraggPeak / DiffScans / FindEmptySpot / FitFano_Kondo / FitGap_BCS / DetectAtomJump / UnmixSpectra / DeconvolveTip_RL …） | 同上；**KNOWN_ISSUES 里的缺陷判据不照抄**，登记 deviations |
+| 4.6 | U2：数据页 / 扫描地图 / 视觉缓冲 / 活帧 | 同组真机 `.sxm` 新旧 UI 缩略图**像素相等**；纯函数测试原样全绿；活帧刷新 ≤1 s |
+| 4.7 | `gen-skill-skeleton.ts`（从 golden 的 spec + `verbs_used` 生成 spec 与 execute 桩）+ 批 2b/3b 长尾 ≈250（spectroscopy 38、pll 36、optional_\* 58、user_output 14、nanonis_script 14、sweep 11、pattern 7、function_generator 6、instrument_limits 6、readback 7、spectroscopy_sync 6、atom_track 4、bias_sweep 4、spectrum_analyzer 3、osci 3、optics 11、chamber/temperature/hardware_events） | 生成器重跑无 diff；stmsim 没有的模块只对 SpecEchoServer 做 e2e，**技能卡片标「未在物理模拟器验证」** |
+
+**这个 Phase 的陷阱是「差不多对」**。数值代码没有红绿之分，只有容差。所以每一件都必须
+**先写下容差再写实现**——反过来做，容差就会变成「刚好让我这版通过的那个数」。
+
+---
+
+## 7. Phase 5 · 硬件闭环（课时 5.1–5.7）
+
+**完成判据**：`test_e2e_composites` 复现；断点续跑；换针后 SAFE 包络按登记 capability 生效；
+知识三档 contract；后台 job cancel 1 s 内停扫。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 5.1 | `GraphExecutor` 移植：async generator plan、sidecar（进度真源）、`step_skip` 台账、abort/halt 双检、旁白模板、`_validate_products`、`abort_facts` | **先用批 3 的 WaitScanComplete/SetBiasRamp 验过再往下**（PLAN §8.4 批 5 的前置） |
+| 5.2 | 长时技能 → `ctx.jobs`；human 节点 `ctx.ask` → `userQuestions.ask`；决策缓存写 sidecar `_human[decisionKey]` | 后台 job `cancel` **1 s 内停扫**；续跑不再打扰；无 `ask` 通道 ⇒ **明确失败**不静默继续 |
+| 5.3 | tip registry / instrument profile（`hardware_modules`）/ env history | 换针后 SAFE 包络按登记的 capability 生效 |
+| 5.4 | 批 5a 扫描类 composite：FullScan / ScanAt / PreScanCheck / BatchRegionsScan / SurveySurface / ScanPublicationFrame / AssessImageQuality … | `FullScan` 的 `wait_stopped_early` ⇒ **失败且不做撞针检查**；断点续跑 e2e（杀进程再调同名 composite ⇒ 跳过已完成步并记 `step_skip`，跑完 sidecar 清除） |
+| 5.5 | 批 5b 针尖/谱类 composite：TipPulse / ConditionTip(+Poke/Pulse) / ShapeTipOnSurface / GridSTS / SpectroscopyAtPositions / AutoTilt / TiltCalibrate / TrackDrift / RelocateCoarseXY / VerifyAtomicResolution / MakeAtomicResolutionTip / MakeSpectroscopyTip / AcquireSTS / BiasPulseWithReadback … | `TipPulse` 在 SAFE 下被拒**且子步路径也拒**（这条是 D9 的核心：闸门不能只挡工具入口） |
+| 5.6 | 知识 SKILL.md ×15 + 检索工具；跨会话记忆（dsh 无内置，走 section provider + tool） | 知识三档 contract |
+| 5.7 | U3：实验记录 / 心愿单 / 智能体拓扑 / 电流监控 / 环境历史 / 初始化 / 记忆 / 用量 / 作用域 chip | 记录页与 records 导出对得上；`visitCount` 回放一致 |
+
+**为什么 5.1 要先拿批 3 的两个技能验**：`GraphExecutor` 是 composite 的骨架，
+先写骨架再写第一个 composite，等于同时调试两个未知数。拿两个**已经绿的**技能当负载先把骨架跑通。
+
+---
+
+## 8. Phase 6 · L4/L5 闭环 + 七 agent（课时 6.1–6.6）
+
+**完成判据**：ForgeAuTip 在 sharp/blunt 两种 stmsim 世界分别成功/干净失败；
+supervisor 委托 IC 扫图交 DP 分析的端到端 replay 可重建；两个 IC 分支并发被**结构**拒绝；
+STM-Bench B0/B1 场景在 dsh 栈跑完。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 6.1 | 批 6a：ForgeAuTip / PrepareNobleTip(3) / AchieveAtomicResolution / AcquireBiasImagingSeries / AtomicBiasSeries / AcquireAngleSeriesForCalibration / ExecuteScanPlan / LineSTSAcrossWall / STSConditionSeries / StepCoarseXY | ForgeAuTip sharp/blunt 两个世界；`time_budget_h` 用**墙钟**；`ctx.markers` 必填（缺席构造期就拒绝） |
+| 6.2 | 批 6b：paper 闭环 AdaptiveSTS_GP / OptimizeResolution_BO / FindGoodRegion / ContinuousImaging_Auto / AutonomousSurvey_Scanbot / ConditionTip_DQN / AtomManip_SAC / AutoOSS_Dehalogenation（GP/BO 自写） | 每技能 DoD；GP/BO 对 golden |
+| 6.3 | `dsh-spm-agent-presets`：8 个 preset + subagent 编排（supervisor→IC）+ persona prefix/suffix 拆分 | **两个 IC 分支并发被结构拒绝**（不是运行时报错，是编排层不允许） |
+| 6.4 | 账本 + 护栏（用量、预算、越界拦截） | 账本与 records 对得上 |
+| 6.5 | 批 8：其余 agent 工具族（DP / XD / LIT / PW / PR / RD） | 每族 DoD |
+| 6.6 | literature 包 + U5 部分（技能目录 / 构建器 / 市场 / 文献库） | 端到端 replay 可重建 |
+
+---
+
+## 9. Phase 7 · conduct + 声明式（课时 7.1–7.5）
+
+**完成判据**：中途 kill 重启后 campaign 从最后确认步续跑；`autonomous` 编译期无 ask；
+attended 无人应答时 deny 不挂起；SpecComposite 全模板跑通。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 7.1 | conduct / goals：campaign 状态机 + 最后确认步 | 中途 kill 重启后从最后确认步续跑 |
+| 7.2 | 唤醒 / 自主度 / 撤销窗 / journal | `autonomous` **编译期**无 ask；attended 无人应答时 **deny 不挂起** |
+| 7.3 | 批 7a：SpecComposite（12 节点、`jsep` 白名单求值、继承安全级 = max）+ version_store CAS + templates + loader | 全部 templates 跑通 stmsim；`safe_eval` golden；「声明 auto 含 CONFIRM 子步 ⇒ 提级」有测试 |
+| 7.4 | 批 7b：技能工坊 `skill_catalog` / `draft_composite` / `save_composite` / `run_composite`；overlay/市场订阅；`hardware_modules` 与高级能力门；tool packs 桩换注册 + `search_tools` / `load_tool_pack`（中文同义词表照搬） | spike 第 6 条的「重注册语义」在这里结清 |
+| 7.5 | U4：Conduct 视图 | 中途 kill 重启后面板从 `GET /mast/conducts/:id` **完整重建** |
+
+---
+
+## 10. Phase 8 · 视觉深模型 + 基准 + 真机准备（课时 8.1–8.5）
+
+**完成判据**：ONNX 与 torch 逐样本 ≤1e-4；Track B 九族全跑；真机首次接触条件全部满足。
+
+| 段 | 写什么 | 验收 |
+|---|---|---|
+| 8.1 | `vision-onnx`：旧 venv 一次性 `torch.onnx.export` 出 `.onnx` + manifest；`onnxruntime-node` 推理；骨干**无条件离线** | parity max-abs ≤1e-4 逐样本 |
+| 8.2 | TS 版 stmbench harness | Track B 九族全跑 |
+| 8.3 | 差分测试全套（PLAN §12）：`tools/record-traces.py` 录 `spec/golden/traces/`，TS 同 seed 跑内核比对；`traceNormalize()`（连续只读轮询折叠 `×k`、差分时关 1 Hz 刷新、浮点 1e-9 相对容差、路径只比 basename、**不比 `return_value` 形状**，比状态缓存 patch 后的非时变字段） | L0/L1/L3 确定性技能全过 |
+| 8.4 | `profiles/mast-rig` **首次入仓**（`allowRealRig: true`、`mode: SAFE`、approval `ask`、遥测决策）+ `rigGuard` 端到端 | rigGuard 拒绝「模拟 profile 碰真机」与反向；selfcheck 全绿 |
+| 8.5 | 真机接触清单与阶梯 | 只读全扫 → 值守窗口清单（带工具多轮 / `ask_user` / Stop / 重启续聊 / 语音各一次）→ bake ≥1 周。**旧系统并行运行，切换由操作员决定** |
+
+**真机首次接触的四个条件**（缺一不可，PLAN §11）：差分套件对将用技能全绿 + rig selfcheck 全绿 +
+操作员在场 + SAFE 档且先只跑 READ 技能一整个 session。
+
+---
+
+## 11. 贯穿全程的五条
+
+- **批次成员一律从 golden 的 `category` + 目录 + `safety_level` 派生，不读 `composition_level`**
+  （374/498 个吃默认值 0，照它分会把四分之三全归 L0）。
+- **Phase 3 是第一个「可用里程碑」**。在那之前没有任何东西是「能用」的，别提前演示。
+- **Phase 8 之前不出现 `mast-rig`**。真机 0 次是**仓库结构**，不是纪律——纪律会松，结构不会。
+- **每个 Phase 开头先补该 Phase 要用的 golden**，不要边写边补。分母先定，进度才有意义。
+- **每一段都要有变红演练**。Phase 0–1 的经验是：**「没红」的演练比红的更有价值**——
+  1.8 有两次演练没红，一次暴露出 stale 只测了一半，一次暴露出卸载竞态会留下没人接的 rejection。
+
+---
+
+## 12. 决策台账
 
 | # | 议题 | 状态 | 结论 / 待办 |
 |---|---|---|---|
@@ -776,7 +979,7 @@ dsh 自己的根 tsconfig 注释写着同一句（"keeps it program-less, so the
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |
 | B9 | ONNX 权重放哪（不入仓） | 未定（PLAN §16） | 建议 `E:\dsh-spm-models\` + manifest |
 
-## 6. 每次开工前的三条自检
+## 13. 每次开工前的三条自检
 
 1. `npm view @deepseek-ai/dsh dist-tags --json` —— 与 `dsh/facts.md` 首行一致吗？
 2. `git status` —— 上一段收干净了吗（不该有跨段的半成品）？
