@@ -46,10 +46,12 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 · **2.10+2.11 ✅**（`SkillKernel` K0–K18 一次落地 + `_Probe` 走通全路）。
 · **2.12 ✅**（schema 生成 21 条金样逐字 + `defineSkillTool()`；顺带修好内核里两处与 Python 分叉的判据，
 新登记 D-SCHEMA-1/2/3）。
-**下一段 = 课时 2.13（RunLedger + `ctx.stmRecords`）。**
+· **2.13 ✅**（`ctx.stmRecords` + RunLedger + 声明交叉核对；建表由金样原样执行，21 张表 124 个对象逐条比；
+新登记 D-REC-1…4）。
+**下一段 = 课时 2.14（`_Probe` 的 recorded-session 测试 + **变异框架**）。**
 
-仓库现状：12 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**887 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
+**954 条测试**（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 

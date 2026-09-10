@@ -178,3 +178,61 @@
 **不是** `effective_bounds`。于是 `center_x_m` 这种范围全部来自安全包络的参数，
 描述里写着「范围 -1.5u … 1.5u m」，而这句话里是「见参数说明」——同一个参数，两处说法。
 金样用例 `envelope_only` 把这一格钉住了。
+
+## D-REC-1 · 没有活动实验时**也记**（旧仓整条不记）
+
+| | |
+|---|---|
+| **Python** | `_record_v2_action` 开头是 `if repos is None or not eid: return None` —— 没有活动实验，v2 里一行都不写 |
+| **为什么它这样** | `actions.experiment_id` 是 `NOT NULL` 外键，而 v1 那张表的同名列可空。这不是懒，是 schema 逼的（两个库分担了这件事） |
+| **我们** | 种三行哨兵（`campaigns`/`samples`/`experiments`，id 全是 `_unscoped`），每次调用都有地方落。查询侧 `WHERE experiment_id = '_unscoped'` 就能把它们摘出来 |
+| **测试** | `store.test.ts` → `**没有活动实验时也记**（D-REC-1）` |
+
+**为什么有意**：「没有活动实验」恰恰是**样品闸拒绝的判据本身**。照抄的话，
+最该被记下来的那一类拒绝会一条都不留——而记录层存在的全部意义，按旧仓自己的话说，
+是回答「为什么什么都没发生」。我们只有一个库，没有 v1 那张可空表兜着。
+
+## D-REC-2 · `approval_source` 落 `approvals` 表，不给 `actions` 加列
+
+| | |
+|---|---|
+| **Python** | v1 的 `actions` 有 `approval_source` 列；**v2 的没有**。v2 的 `approvals` 表在这条路上基本是空的——旧仓注释：「nothing on this path records the HITL verdict」 |
+| **我们** | `human` → `human_operator`/`gui_click`，`auto` → `automated_policy`/`policy_rule_v1`，`llm` → **不写行**。于是「没有 approvals 行」＝ llm，是可判的，不是缺失 |
+| **测试** | `store.test.ts` → `approval_source 落库` 三条 |
+
+**为什么有意**：不加列是因为 `approvals` 已经能表达它，而加列会让我们的库和金样 schema
+不一致（`records_schema.sql` 的判据就是「建出来的库一模一样」）。而**必须真的写**这张表，
+理由是旧仓自己写下的：
+
+> 审批链路割掉之后 approvals 会变成一张只有历史行的死表，而事后查
+> 「这个 DANGEROUS 动作是谁准的」时，**空表和「没人准过」长得一模一样**
+> —— 2026-07-27 的取证正好栽在这个形状上。
+
+内核每次调用都知道 `approvalSource`，所以人批准的那一半我们也写得出——这是旧仓那条路
+拿不到的信息。
+
+## D-REC-3 · 六种结局压进 schema 的三个 `status`
+
+| | |
+|---|---|
+| **schema** | `status` 的 CHECK 只认 `pending/running/succeeded/failed/rolled_back/retracted` |
+| **内核** | `ok / failed / refused / aborted / busy / rolled_back` |
+| **映射** | `ok`→`succeeded`，`rolled_back`→`rolled_back`，**其余全落 `failed`** |
+| **测试** | `store.test.ts` → `六种结局都落一行，status 按 schema 的 CHECK 收敛到三个值` |
+
+**为什么有意**：区分没丢，它在 `error` 的**前缀**里（`[skill] precondition_failed:`、
+`[sample_gate] …`、`[safety_gate] …`），而那个前缀本来就是机器读的——StallGuard 按它
+聚合重复失败（课时 2.12 的 `explainValidationError` 里那句「前缀是**故意**的」）。
+加一个 `'refused'` 状态值会让库与金样 schema 不一致，换来的只是一个已经能从前缀得到的答案。
+
+## D-REC-4 · 路径比较写死 Windows 语义
+
+| | |
+|---|---|
+| **Python** | `os.path.normcase(normpath(p))` ——**随平台变**：Windows 上小写化并把 `/` 换成 `\`，POSIX 上是恒等 |
+| **我们** | 永远按 Windows 语义比 |
+| **测试** | `claim-audit.test.ts` → `路径比较用 **Windows 语义**，不跟运行平台走` |
+
+**为什么有意**：路径本身是**仪器机的 Windows 路径**，代码在哪台机器上跑不改变这一点。
+跟着平台走的话，同一条金样在开发机（Windows）和 CI（Linux）上会给出两个答案，
+而这条判据是用来反驳「agent 声称写了一个不存在的文件」的——它不该取决于谁在跑测试。

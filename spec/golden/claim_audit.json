@@ -1,0 +1,345 @@
+{
+  "artifact_matches_via_normpath": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "D:\\data\\.\\sub\\..\\sub\\a.sxm"
+    ],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\.\\sub\\..\\sub\\a.sxm"
+      ],
+      "executed_skills": [
+        "X"
+      ],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "bare_filename_not_matched": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "both_words_but_skills_ran": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [
+        "StartScan"
+      ],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "both_words_cn": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息声称已完成测量，但本次运行没有任何技能被调用",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": false,
+      "problems": [
+        "消息声称已完成测量，但本次运行没有任何技能被调用"
+      ],
+      "unsupported_completion": true
+    }
+  },
+  "both_words_en": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息声称已完成测量，但本次运行没有任何技能被调用",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": false,
+      "problems": [
+        "消息声称已完成测量，但本次运行没有任何技能被调用"
+      ],
+      "unsupported_completion": true
+    }
+  },
+  "dedup_case_and_slash": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "D:\\Data\\A.sxm",
+      "D:\\Data\\B.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\Data\\A.sxm、D:\\Data\\B.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\Data\\A.sxm",
+        "D:\\Data\\B.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\Data\\A.sxm",
+        "D:\\Data\\B.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\Data\\A.sxm、D:\\Data\\B.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "done_word_only": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "empty_text": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "forensic_2026_07_27": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [
+      "D:\\data\\claim-audit\\GridSTS_report.txt"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt；消息声称已完成测量，但本次运行没有任何技能被调用",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt",
+        "消息声称已完成测量，但本次运行没有任何技能被调用"
+      ],
+      "unsupported_completion": true
+    }
+  },
+  "forensic_and_file_real": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [
+      "D:\\data\\claim-audit\\GridSTS_report.txt"
+    ],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "executed_skills": [
+        "GridSTS"
+      ],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "forensic_but_skill_ran": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [
+      "D:\\data\\claim-audit\\GridSTS_report.txt"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "executed_skills": [
+        "GridSTS"
+      ],
+      "fabricated_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "no_extension_not_matched": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  },
+  "no_record_at_all": {
+    "claims_completed_work": true,
+    "extract_claimed_paths": [
+      "D:\\data\\claim-audit\\GridSTS_report.txt"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\claim-audit\\GridSTS_report.txt"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "posix_path": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "/home/rig/data/scan_001.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：/home/rig/data/scan_001.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "/home/rig/data/scan_001.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "/home/rig/data/scan_001.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：/home/rig/data/scan_001.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "trailing_punct_cn": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "D:\\data\\scan_001.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "trailing_punct_paren": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "D:\\data\\scan_001.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "unc_path": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "\\\\rig-pc\\share\\scan_001.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：\\\\rig-pc\\share\\scan_001.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "\\\\rig-pc\\share\\scan_001.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "\\\\rig-pc\\share\\scan_001.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：\\\\rig-pc\\share\\scan_001.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "windows_path": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [
+      "D:\\data\\scan_001.sxm"
+    ],
+    "notice": "⚠️ 本次运行的记录与该消息不符：消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm",
+    "verdict": {
+      "claimed_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "executed_skills": [],
+      "fabricated_paths": [
+        "D:\\data\\scan_001.sxm"
+      ],
+      "ok": false,
+      "problems": [
+        "消息里引用的文件本次运行没有产生、磁盘上也不存在：D:\\data\\scan_001.sxm"
+      ],
+      "unsupported_completion": false
+    }
+  },
+  "work_word_only": {
+    "claims_completed_work": false,
+    "extract_claimed_paths": [],
+    "notice": "",
+    "verdict": {
+      "claimed_paths": [],
+      "executed_skills": [],
+      "fabricated_paths": [],
+      "ok": true,
+      "problems": [],
+      "unsupported_completion": false
+    }
+  }
+}

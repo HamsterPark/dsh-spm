@@ -143,9 +143,28 @@ export interface KernelDeps {
   readonly acquireLock?:
     | ((skill: string, rootCallId: string) => Promise<() => void>)
     | undefined
+  /**
+   * K16 记录一次调用。**每一个结局都会到这里，包括被拒的**。
+   *
+   * 注入而不是内建：内核仍然零 I/O，而记录的去处（SQLite / 内存 / 什么都不做）
+   * 是宿主的事。抛出去也没关系——`finish` 吃掉它。
+   */
+  readonly record?: ((rec: KernelRecord) => void) | undefined
   /** 超长文本落盘（K13），返回引用。 */
   readonly offload?: ((skill: string, full: string) => string) | undefined
   readonly clock?: (() => number) | undefined
+}
+
+/** 交给 `KernelDeps.record` 的一条。 */
+export interface KernelRecord {
+  readonly spec: SkillSpec
+  /** K1 解析成功后是**解析过的**参数；解析失败时是原样入参。 */
+  readonly params: Readonly<Record<string, unknown>>
+  readonly outcome: SkillOutcome
+  readonly approvalSource: 'llm' | 'human' | 'auto'
+  readonly owner?: string | undefined
+  readonly rootCallId?: string | undefined
+  readonly depth: number
 }
 
 export class BusyError extends Error {
@@ -189,19 +208,40 @@ export class SkillKernel {
     // **`markers` 缺席就是构造期错误**，不是运行期降级：没有 markers 的技能跑完
     // 什么都不留下，而「跑过但没留痕」比「没跑」更难查（换区不翻代那次事故）。
     const markers = opts.markers ?? { emit: (): void => {} }
-    const finish = (o: Omit<SkillOutcome, 'elapsedMs' | 'argsHash'>): SkillOutcome => ({
-      ...o,
-      elapsedMs: this.now() - started,
-      argsHash: hash,
-    })
-
     // ── K0 管理员覆盖：**建工具与执行各调一次同一个函数** ──
     const spec = (this.deps.effectiveSpec ?? ((s: SkillSpec) => s))(skill.spec)
+    // 记录用的参数：K1 解析成功后换成解析过的（记 `'100p'` 还是 `1e-10`，
+    // 决定了事后能不能按数值查——schema 那四个生成列读的就是这里）
+    let recorded: Readonly<Record<string, unknown>> = rawParams
+
+    // K16 记录**挂在这个漏斗上**，不在各个 return 点。
+    // 六个结局分散在十几个 return 里，靠人记得「这里也要记一笔」＝ 迟早漏。
+    // 旧仓漏的正是被闸门拒掉的那一类：那两道闸原来在 recorder 定义**之上**、
+    // 直接 return，于是一次被拒的调用哪个记录库都没进过——而记录层存在的意义
+    // 就是回答「为什么什么都没发生」。
+    const finish = (o: Omit<SkillOutcome, 'elapsedMs' | 'argsHash'>): SkillOutcome => {
+      const outcome: SkillOutcome = { ...o, elapsedMs: this.now() - started, argsHash: hash }
+      try {
+        this.deps.record?.({
+          spec,
+          params: recorded,
+          outcome,
+          approvalSource: opts.approvalSource ?? 'llm',
+          owner: opts.owner,
+          rootCallId: opts.rootCallId,
+          depth,
+        })
+      } catch {
+        // 记录永不打断技能（旧仓每一处都写着 logging must never break the skill）
+      }
+      return outcome
+    }
 
     // ── K1 SI 解析 ──
     let params: Record<string, unknown>
     try {
       params = this.parseSi(spec, rawParams)
+      recorded = params
     } catch (e) {
       const msg = e instanceof SIParseError ? e.message : String(e)
       return finish({

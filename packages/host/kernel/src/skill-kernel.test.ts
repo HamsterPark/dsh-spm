@@ -15,6 +15,7 @@ import {
   explanationSuffix,
   stripAuditOnly,
   type KernelDeps,
+  type KernelRecord,
   type Skill,
   type SkillResultLike,
 } from './skill-kernel.js'
@@ -393,5 +394,83 @@ describe('K0 · 管理员覆盖建工具与执行共用同一个函数', () => {
       }),
     )
     expect((await k.run(probe(), { ...OK_ARGS, count: 5 })).code).toBe('invalid_params')
+  })
+})
+
+describe('K16 · 记录挂在唯一的漏斗上', () => {
+  /** 把一个技能推向指定结局的最小配置。**每一种都要有**——漏一种就是漏一类记录。 */
+  const paths: [string, Partial<KernelDeps>, Partial<Skill>, Record<string, unknown>][] = [
+    ['ok', {}, {}, { setpoint_a: '1p' }],
+    ['si_parse 拒绝', {}, {}, { setpoint_a: 'abc' }],
+    ['中止闩', { abortLatched: () => true }, {}, { setpoint_a: '1p' }],
+    ['样品闸', { sampleGate: () => '没有样品' }, {}, { setpoint_a: '1p' }],
+    ['参数校验', {}, {}, {}],
+    ['安全闸', { safetyGate: () => '不行' }, {}, { setpoint_a: '1p' }],
+    ['前置条件', { snapshot: () => ({ ...S0, z_controller_on: false }) }, {}, { setpoint_a: '1p' }],
+    [
+      '执行失败',
+      {},
+      { execute: (): Promise<SkillResultLike> => Promise.resolve({ success: false, error: '炸了' }) },
+      { setpoint_a: '1p' },
+    ],
+    [
+      '异常',
+      {},
+      { execute: (): Promise<SkillResultLike> => Promise.reject(new Error('boom')) },
+      { setpoint_a: '1p' },
+    ],
+    [
+      '占用',
+      { acquireLock: () => Promise.reject(new BusyError('忙')) },
+      {},
+      { setpoint_a: '1p' },
+    ],
+  ]
+
+  for (const [name, over, skillOver, params] of paths) {
+    it(`${name} 也进 record —— 一次被拒的调用正是「为什么什么都没发生」本身`, async () => {
+      const seen: KernelRecord[] = []
+      await new SkillKernel({ ...deps(), ...over, record: (r) => seen.push(r) }).run(
+        probe(skillOver),
+        params,
+      )
+      expect(seen).toHaveLength(1)
+      expect(seen[0]?.spec.name).toBe('_Probe')
+    })
+  }
+
+  it('记的是**解析过**的参数 —— 记 100p 而不是 1e-10，事后就没法按数值查', async () => {
+    const seen: KernelRecord[] = []
+    await new SkillKernel({ ...deps(), record: (r) => seen.push(r) }).run(probe(), {
+      setpoint_a: '100p',
+    })
+    expect(seen[0]?.params['setpoint_a']).toBe(1e-10)
+  })
+
+  it('K1 解析失败时记原样入参 —— 那时还没有解析过的版本', async () => {
+    const seen: KernelRecord[] = []
+    await new SkillKernel({ ...deps(), record: (r) => seen.push(r) }).run(probe(), {
+      setpoint_a: 'abc',
+    })
+    expect(seen[0]?.params['setpoint_a']).toBe('abc')
+    expect(seen[0]?.outcome.code).toBe('si_parse')
+  })
+
+  it('**记录抛出不打断技能**', async () => {
+    const o = await new SkillKernel({
+      ...deps(),
+      record: () => {
+        throw new Error('记录库炸了')
+      },
+    }).run(probe(), { setpoint_a: '1p' })
+    expect(o.kind).toBe('ok')
+  })
+
+  it('approvalSource 原样传下去 —— 硬闸对模型和人的答案不同', async () => {
+    const seen: KernelRecord[] = []
+    const k = new SkillKernel({ ...deps(), record: (r) => seen.push(r) })
+    await k.run(probe(), { setpoint_a: '1p' }, { approvalSource: 'human' })
+    await k.run(probe(), { setpoint_a: '1p' })
+    expect(seen.map((r) => r.approvalSource)).toEqual(['human', 'llm'])
   })
 })

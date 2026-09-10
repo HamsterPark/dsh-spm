@@ -15,7 +15,8 @@
     "clean": "tsc -b --clean",
     "test": "vitest run",
     "check:dsh-latest": "node scripts/check-dsh-latest.ts",
-    "gen:nanonis": "node scripts/gen-nanonis.ts"
+    "gen:nanonis": "node scripts/gen-nanonis.ts",
+    "gen:records": "node scripts/gen-records-schema.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",
