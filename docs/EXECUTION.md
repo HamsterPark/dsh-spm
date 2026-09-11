@@ -162,10 +162,30 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 
 新登记 **D-APPROACH-3 · D-KERNEL-1**（共 27 条）。
 
-**下一段**：批 3a 剩下的 `ConfigureScan` / `StartScan` / `GrabScanFrameData`
-（各自卡在扫描参数分层表、五个回读解析器、`.npy` 写出上），以及批 2 剩下的
-`CreateZCtrlPreset` / `GetLatestScanFile`。参数组存储（D-APPROACH-1 欠的那笔）
-该和 `CreateZCtrlPreset` 一起落。
+· **2.19 ✅ `ConfigureScan` + `StartScan`** —— 批 3a 只剩 `GrabScanFrameData`。
+
+这两个技能各卡着一批**纯判据**，全部从真机事故里长出来，先搬进内核：
+
+| 件 | 事故 |
+|---|---|
+| 档位表 + `resolveLineTime` | 三份实现里两份把 0.1 s 当默认，而 0.1 s 在 50 nm 图上是 488 nm/s，2026-08-12 **刮坏了针尖** |
+| `frameReadbackMismatch` | **回声不是读数**：仪器把框夹到量程内，上层完全看不出来，此后每张图的坐标都是假的 |
+| `frameExceeds` + `piezoHalfRangeM` | 2026-08-28：2 µm 的框有一小半在量程外，溢出的 39 列里相邻列差从 119 pm 掉到 43 pm——**那 15 % 不是数据**，而图看着完全正常 |
+| `scanPropsModules` | 找错了层 ⇒ 兜底一直在生效 ⇒ 写死的 5 个名字**每一次扫描**都覆盖掉用户在 GUI 里配的清单 |
+| `continuousState` | 2026-08-19：解析崩掉 ⇒ `None == 1` 为假 ⇒ 报「continuous 已关」，而那一帧的 wait 恰恰是 `restarted` |
+
+两道帧闸**各管一半，缺一不可**：回读那道抓不到量程越界（仪器照单全收、原样回显，
+被夹的是扫描时的输出电压），算术那道抓不到「仪器偷偷改了框」。
+
+`StartScan` 那道 continuous 闸是**三态**：关着才起扫，开着拒，**读不到也拒**。
+拒绝文案里三条出口逐字照移——第 3 条那句「这是用户的决定，不是自动重试的开关」
+尤其不能改写，没有它 agent 会把 override 当成一个重试按钮。
+
+新登记 **D-SCAN-4/5**（共 29 条）。
+
+**下一段**：`GrabScanFrameData`（卡在 `.npy` 写出），以及批 2 剩下的
+`CreateZCtrlPreset` / `GetLatestScanFile`。参数组存储（D-APPROACH-1 欠的那笔
+`finally` 放回）该和 `CreateZCtrlPreset` 一起落。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 

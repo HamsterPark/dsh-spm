@@ -15,6 +15,8 @@ import { MoveToXY } from './move.js'
 import { SafeRetract } from './safe-retract.js'
 import { TryEngageController } from './engage.js'
 import { SCAN_CHAIN } from './scan.js'
+import { ConfigureScan } from './configure-scan.js'
+import { StartScan } from './start-scan.js'
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
@@ -32,6 +34,8 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   SafeRetract,
   TryEngageController,
   ...SCAN_CHAIN,
+  ConfigureScan,
+  StartScan,
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
@@ -50,6 +54,8 @@ export * from './tip-park-read.js'
 export * from './safe-retract.js'
 export * from './engage.js'
 export * from './scan.js'
+export * from './configure-scan.js'
+export * from './start-scan.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'
 export * from '../composite/set-bias-ramp.js'

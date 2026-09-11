@@ -1,9 +1,8 @@
 /**
- * 批 3a 扫描主链 —— 目前只有两个：`SetScanSpeed` 与 `SaveScan`。
+ * 批 3a 扫描主链里的两个简单件：`SetScanSpeed` 与 `SaveScan`。
  *
- * 其余四个各自卡在一件支撑件上，逐条记在 `docs/EXECUTION.md`。
- * 这里不做半个 —— 一个只实现了「一半判据」的 `ConfigureScan`，
- * 比没有它更危险：调用方会以为帧已经被核对过了。
+ * 带判据的那几个各有自己的文件：`configure-scan.ts`（三道拒绝）、
+ * `start-scan.ts`（continuous 闸）、`composite/wait-scan-complete.ts`（六种结局）。
  */
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'

@@ -1,0 +1,1390 @@
+{
+  "_note": "由 tools/spec-export/export_scan_chain.py 生成——驱动旧仓真实 scan_policy / imaging 判定件录得，不要手改。",
+  "constants": {
+    "bound_rel_tol": 1e-09,
+    "frame_tol_abs_m": 1e-12,
+    "frame_tol_deg": 0.05,
+    "frame_tol_frac": 0.0002,
+    "get_off": 0,
+    "get_on": 1,
+    "props_get_attempts": 2,
+    "props_ix_modules": 9,
+    "props_ix_modules_count": 8,
+    "props_ix_series_name": 4,
+    "props_n_fields": 16,
+    "set_autosave_all": 1,
+    "set_no_change": 0,
+    "set_off": 2
+  },
+  "continuous_state": {
+    "'0'": null,
+    "-1": null,
+    "0": false,
+    "1": true,
+    "1.0": true,
+    "2": null,
+    "False": false,
+    "None": null,
+    "True": true
+  },
+  "estimate_scan_seconds": {
+    "0px@1.0s": 0.0,
+    "256px@0.5s": 256.0,
+    "256px@0s": 0.0,
+    "256px@1.0s": 512.0,
+    "512px@1.75s": 1792.0
+  },
+  "frame_exceeds": {
+    "axis_aligned_just_fits": {
+      "input": [
+        1.28e-06,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": null
+    },
+    "exactly_at_edge": {
+      "input": [
+        1.2845000000000002e-06,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": null
+    },
+    "half_unknown": {
+      "input": [
+        0.0,
+        0.0,
+        5e-06,
+        5e-06,
+        0.0,
+        null,
+        1.3345e-06
+      ],
+      "over": null
+    },
+    "inside": {
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": null
+    },
+    "rig_20260828": {
+      "input": [
+        6.39e-07,
+        -5.97e-07,
+        2e-06,
+        2e-06,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": {
+        "extent_m": [
+          -3.609999999999999e-07,
+          1.6389999999999999e-06,
+          -1.597e-06,
+          4.03e-07
+        ],
+        "half_m": [
+          1.3345e-06,
+          1.3345e-06
+        ],
+        "x_high_m": 3.044999999999998e-07,
+        "y_low_m": 2.624999999999998e-07
+      }
+    },
+    "rot45_pushes_out": {
+      "input": [
+        1.25e-06,
+        0.0,
+        2e-07,
+        2e-07,
+        45.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": {
+        "extent_m": [
+          1.1085786437626907e-06,
+          1.3914213562373095e-06,
+          -1.4142135623730952e-07,
+          1.4142135623730952e-07
+        ],
+        "half_m": [
+          1.3345e-06,
+          1.3345e-06
+        ],
+        "x_high_m": 5.6921356237309414e-08
+      }
+    },
+    "x_high_only": {
+      "input": [
+        1.3e-06,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": {
+        "extent_m": [
+          1.25e-06,
+          1.35e-06,
+          -5e-08,
+          5e-08
+        ],
+        "half_m": [
+          1.3345e-06,
+          1.3345e-06
+        ],
+        "x_high_m": 1.5499999999999894e-08
+      }
+    },
+    "x_low_only": {
+      "input": [
+        -1.3e-06,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": {
+        "extent_m": [
+          -1.35e-06,
+          -1.25e-06,
+          -5e-08,
+          5e-08
+        ],
+        "half_m": [
+          1.3345e-06,
+          1.3345e-06
+        ],
+        "x_low_m": 1.5499999999999894e-08
+      }
+    },
+    "y_both": {
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        3e-06,
+        0.0,
+        1.3345e-06,
+        1.3345e-06
+      ],
+      "over": {
+        "extent_m": [
+          -5e-08,
+          5e-08,
+          -1.5e-06,
+          1.5e-06
+        ],
+        "half_m": [
+          1.3345e-06,
+          1.3345e-06
+        ],
+        "y_high_m": 1.6549999999999994e-07,
+        "y_low_m": 1.6549999999999994e-07
+      }
+    }
+  },
+  "frame_extent": {
+    "angle_none": {
+      "extent": [
+        -5e-08,
+        5e-08,
+        -5e-08,
+        5e-08
+      ],
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        null
+      ]
+    },
+    "axis_aligned": {
+      "extent": [
+        -5e-08,
+        5e-08,
+        -5e-08,
+        5e-08
+      ],
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "negative_angle": {
+      "extent": [
+        -7.071067811865476e-08,
+        7.071067811865476e-08,
+        -7.071067811865476e-08,
+        7.071067811865476e-08
+      ],
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        -45.0
+      ]
+    },
+    "offset": {
+      "extent": [
+        0.0,
+        1e-07,
+        -5e-08,
+        -9.999999999999997e-09
+      ],
+      "input": [
+        5e-08,
+        -3e-08,
+        1e-07,
+        4e-08,
+        0.0
+      ]
+    },
+    "rot30_offset": {
+      "extent": [
+        -3.964101615137754e-08,
+        5.964101615137755e-08,
+        -2.5980762113533156e-08,
+        6.598076211353316e-08
+      ],
+      "input": [
+        1e-08,
+        2e-08,
+        8e-08,
+        6e-08,
+        30.0
+      ]
+    },
+    "rot45": {
+      "extent": [
+        -7.071067811865476e-08,
+        7.071067811865476e-08,
+        -7.071067811865476e-08,
+        7.071067811865476e-08
+      ],
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        45.0
+      ]
+    },
+    "rot90": {
+      "extent": [
+        -2.0000000000000004e-08,
+        2.0000000000000004e-08,
+        -5e-08,
+        5e-08
+      ],
+      "input": [
+        0.0,
+        0.0,
+        1e-07,
+        4e-08,
+        90.0
+      ]
+    }
+  },
+  "frame_readback_mismatch": {
+    "all_five_differ": {
+      "mismatch": {
+        "angle_deg": {
+          "readback": 30.0,
+          "requested": 0.0
+        },
+        "center_x_m": {
+          "delta_m": 1e-09,
+          "readback": 1e-09,
+          "requested": 0.0
+        },
+        "center_y_m": {
+          "delta_m": 1e-09,
+          "readback": 1e-09,
+          "requested": 0.0
+        },
+        "height_m": {
+          "delta_m": -5e-08,
+          "readback": 5e-08,
+          "requested": 1e-07
+        },
+        "width_m": {
+          "delta_m": -5e-08,
+          "readback": 5e-08,
+          "requested": 1e-07
+        }
+      },
+      "readback": [
+        1e-09,
+        1e-09,
+        5e-08,
+        5e-08,
+        30.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "angle_changed": {
+      "mismatch": {
+        "angle_deg": {
+          "readback": 1.0,
+          "requested": 0.0
+        }
+      },
+      "readback": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        1.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "angle_within_tol": {
+      "mismatch": null,
+      "readback": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.04
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "center_clamped": {
+      "mismatch": {
+        "center_x_m": {
+          "delta_m": -1.3900000000000007e-07,
+          "readback": 5e-07,
+          "requested": 6.39e-07
+        }
+      },
+      "readback": [
+        5e-07,
+        -5.97e-07,
+        2e-06,
+        2e-06,
+        0.0
+      ],
+      "requested": [
+        6.39e-07,
+        -5.97e-07,
+        2e-06,
+        2e-06,
+        0.0
+      ]
+    },
+    "exact": {
+      "mismatch": null,
+      "readback": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "unreadable_garbage": {
+      "mismatch": {
+        "unreadable": true
+      },
+      "readback": [
+        "x",
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "unreadable_nan": {
+      "mismatch": {
+        "unreadable": true
+      },
+      "readback": [
+        "NaN",
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "unreadable_none": {
+      "mismatch": {
+        "unreadable": true
+      },
+      "readback": null,
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "unreadable_short": {
+      "mismatch": {
+        "unreadable": true
+      },
+      "readback": [
+        0.0,
+        0.0,
+        1e-07
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "width_clamped": {
+      "mismatch": {
+        "width_m": {
+          "delta_m": -1.9999999999999994e-08,
+          "readback": 8e-08,
+          "requested": 1e-07
+        }
+      },
+      "readback": [
+        0.0,
+        0.0,
+        8e-08,
+        1e-07,
+        0.0
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    },
+    "within_tolerance": {
+      "mismatch": null,
+      "readback": [
+        1e-13,
+        0.0,
+        1.0001e-07,
+        1e-07,
+        0.02
+      ],
+      "requested": [
+        0.0,
+        0.0,
+        1e-07,
+        1e-07,
+        0.0
+      ]
+    }
+  },
+  "match_signal": {
+    "cases": {
+      "": null,
+      "  Z  ": 5,
+      "Amplitude": 6,
+      "Bias": 2,
+      "Cur": null,
+      "Current": 0,
+      "LI Demod 1 X": 3,
+      "Nope": null,
+      "Z": 5,
+      "Z (m)": 1,
+      "current": 0,
+      "z": 1
+    },
+    "signals": [
+      "Current (A)",
+      "Z (m)",
+      "Bias (V)",
+      "LI Demod 1 X (A)",
+      "LI Demod 1 Y (A)",
+      "Z",
+      "Amplitude (m)"
+    ]
+  },
+  "piezo_half_range": {
+    "calib_none": {
+      "half_m": null,
+      "input": [
+        null,
+        null,
+        null,
+        false
+      ]
+    },
+    "calib_only": {
+      "half_m": 1.3344999999999999e-06,
+      "input": [
+        1.3345e-07,
+        null,
+        null,
+        false
+      ]
+    },
+    "limits_off_ignored": {
+      "half_m": 1.3344999999999999e-06,
+      "input": [
+        1.3345e-07,
+        -3.0,
+        3.0,
+        false
+      ]
+    },
+    "limits_on_asymmetric": {
+      "half_m": 2.669e-07,
+      "input": [
+        1.3345e-07,
+        -2.0,
+        8.0,
+        true
+      ]
+    },
+    "limits_on_but_missing": {
+      "half_m": 1.3344999999999999e-06,
+      "input": [
+        1.3345e-07,
+        null,
+        3.0,
+        true
+      ]
+    },
+    "limits_on_narrows": {
+      "half_m": 4.0035e-07,
+      "input": [
+        1.3345e-07,
+        -3.0,
+        3.0,
+        true
+      ]
+    },
+    "limits_on_wider_than_dac": {
+      "half_m": 1.3344999999999999e-06,
+      "input": [
+        1.3345e-07,
+        -50.0,
+        50.0,
+        true
+      ]
+    },
+    "negative_calib": {
+      "half_m": 1.3344999999999999e-06,
+      "input": [
+        -1.3345e-07,
+        null,
+        null,
+        false
+      ]
+    }
+  },
+  "resolve_line_time": {
+    "boundary_100nm_is_highres": {
+      "explicit": null,
+      "line_time_s": 1.0,
+      "size_m": 1e-07,
+      "source": "tier:highres"
+    },
+    "boundary_2nm_is_slow": {
+      "explicit": null,
+      "line_time_s": 1.75,
+      "size_m": 2e-09,
+      "source": "tier:slow"
+    },
+    "explicit": {
+      "explicit": 0.25,
+      "line_time_s": 0.25,
+      "size_m": 5e-08,
+      "source": "explicit"
+    },
+    "explicit_garbage_falls_back": {
+      "explicit": "nope",
+      "line_time_s": 1.0,
+      "size_m": 5e-08,
+      "source": "tier:highres"
+    },
+    "explicit_negative_falls_back": {
+      "explicit": -1.0,
+      "line_time_s": 1.0,
+      "size_m": 5e-08,
+      "source": "tier:highres"
+    },
+    "explicit_zero_falls_back": {
+      "explicit": 0.0,
+      "line_time_s": 1.0,
+      "size_m": 5e-08,
+      "source": "tier:highres"
+    },
+    "size_none": {
+      "explicit": null,
+      "line_time_s": 1.75,
+      "size_m": null,
+      "source": "tier:slow"
+    },
+    "size_zero": {
+      "explicit": null,
+      "line_time_s": 1.75,
+      "size_m": 0.0,
+      "source": "tier:slow"
+    },
+    "tier_atomic": {
+      "explicit": null,
+      "line_time_s": 1.2,
+      "size_m": 8e-09,
+      "source": "tier:atomic"
+    },
+    "tier_atomic_verify": {
+      "explicit": null,
+      "line_time_s": 0.3,
+      "size_m": 4e-09,
+      "source": "tier:atomic_verify"
+    },
+    "tier_highres": {
+      "explicit": null,
+      "line_time_s": 1.0,
+      "size_m": 5e-08,
+      "source": "tier:highres"
+    },
+    "tier_roi": {
+      "explicit": null,
+      "line_time_s": 0.8,
+      "size_m": 3e-07,
+      "source": "tier:roi"
+    },
+    "tier_slow": {
+      "explicit": null,
+      "line_time_s": 1.75,
+      "size_m": 1e-09,
+      "source": "tier:slow"
+    },
+    "tier_survey": {
+      "explicit": null,
+      "line_time_s": 0.5,
+      "size_m": 2e-06,
+      "source": "tier:survey"
+    }
+  },
+  "scan_props": {
+    "body_not_a_list": {
+      "body": 7,
+      "continuous_flag": null,
+      "continuous_state": null,
+      "input": [
+        "",
+        "<bytes 0>",
+        7
+      ],
+      "module_count": null,
+      "modules": [],
+      "series_name": ""
+    },
+    "continuous_tuple": {
+      "body": [
+        [
+          1
+        ],
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        2,
+        [
+          "Bias",
+          "Z-Controller"
+        ],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 1,
+      "continuous_state": true,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          [
+            1
+          ],
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          2,
+          [
+            "Bias",
+            "Z-Controller"
+          ],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": 2,
+      "modules": [
+        "Bias",
+        "Z-Controller"
+      ],
+      "series_name": "Au111"
+    },
+    "count_disagrees": {
+      "body": [
+        0,
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        3,
+        [
+          "A",
+          "B"
+        ],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 0,
+      "continuous_state": false,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          0,
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          3,
+          [
+            "A",
+            "B"
+          ],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": null,
+      "modules": [
+        "A",
+        "B"
+      ],
+      "series_name": "Au111"
+    },
+    "empty_body": {
+      "body": [],
+      "continuous_flag": null,
+      "continuous_state": null,
+      "input": [
+        "",
+        "<bytes 0>",
+        []
+      ],
+      "module_count": null,
+      "modules": [],
+      "series_name": ""
+    },
+    "full_off": {
+      "body": [
+        0,
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        2,
+        [
+          "Bias",
+          "Z-Controller"
+        ],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 0,
+      "continuous_state": false,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          0,
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          2,
+          [
+            "Bias",
+            "Z-Controller"
+          ],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": 2,
+      "modules": [
+        "Bias",
+        "Z-Controller"
+      ],
+      "series_name": "Au111"
+    },
+    "full_on": {
+      "body": [
+        1,
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        2,
+        [
+          "Bias",
+          "Z-Controller"
+        ],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 1,
+      "continuous_state": true,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          1,
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          2,
+          [
+            "Bias",
+            "Z-Controller"
+          ],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": 2,
+      "modules": [
+        "Bias",
+        "Z-Controller"
+      ],
+      "series_name": "Au111"
+    },
+    "no_string_array": {
+      "body": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "continuous_flag": 0,
+      "continuous_state": false,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ],
+      "module_count": null,
+      "modules": [],
+      "series_name": ""
+    },
+    "none": {
+      "body": null,
+      "continuous_flag": null,
+      "continuous_state": null,
+      "input": null,
+      "module_count": null,
+      "modules": [],
+      "series_name": ""
+    },
+    "not_an_envelope": {
+      "body": null,
+      "continuous_flag": null,
+      "continuous_state": null,
+      "input": [
+        1,
+        2
+      ],
+      "module_count": null,
+      "modules": [],
+      "series_name": ""
+    },
+    "set_encoding_2_is_unknown": {
+      "body": [
+        2,
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        2,
+        [
+          "Bias",
+          "Z-Controller"
+        ],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 2,
+      "continuous_state": null,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          2,
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          2,
+          [
+            "Bias",
+            "Z-Controller"
+          ],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": 2,
+      "modules": [
+        "Bias",
+        "Z-Controller"
+      ],
+      "series_name": "Au111"
+    },
+    "short_body_heuristic": {
+      "body": [
+        0,
+        [
+          "Bias",
+          "Z-Controller"
+        ],
+        "Au111"
+      ],
+      "continuous_flag": 0,
+      "continuous_state": false,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          0,
+          [
+            "Bias",
+            "Z-Controller"
+          ],
+          "Au111"
+        ]
+      ],
+      "module_count": null,
+      "modules": [
+        "Bias",
+        "Z-Controller"
+      ],
+      "series_name": "Au111"
+    },
+    "zero_modules": {
+      "body": [
+        0,
+        0,
+        0,
+        0,
+        "Au111",
+        0,
+        0,
+        0,
+        0,
+        [],
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "continuous_flag": 0,
+      "continuous_state": false,
+      "input": [
+        "",
+        "<bytes 0>",
+        [
+          0,
+          0,
+          0,
+          0,
+          "Au111",
+          0,
+          0,
+          0,
+          0,
+          [],
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "module_count": 0,
+      "modules": [],
+      "series_name": "Au111"
+    }
+  },
+  "tier_for_size": {
+    "-1.0nm": {
+      "line_time_s": 1.75,
+      "pixels": 512,
+      "size_m": -1e-09,
+      "tier": "slow"
+    },
+    "0.0nm": {
+      "line_time_s": 1.75,
+      "pixels": 512,
+      "size_m": 0.0,
+      "tier": "slow"
+    },
+    "0.5nm": {
+      "line_time_s": 1.75,
+      "pixels": 512,
+      "size_m": 5e-10,
+      "tier": "slow"
+    },
+    "1.0nm": {
+      "line_time_s": 1.75,
+      "pixels": 512,
+      "size_m": 1e-09,
+      "tier": "slow"
+    },
+    "10.001nm": {
+      "line_time_s": 1.0,
+      "pixels": 256,
+      "size_m": 1.0001e-08,
+      "tier": "highres"
+    },
+    "10.0nm": {
+      "line_time_s": 1.2,
+      "pixels": 256,
+      "size_m": 1e-08,
+      "tier": "atomic"
+    },
+    "100.001nm": {
+      "line_time_s": 0.8,
+      "pixels": 256,
+      "size_m": 1.0000100000000001e-07,
+      "tier": "roi"
+    },
+    "100.0nm": {
+      "line_time_s": 1.0,
+      "pixels": 256,
+      "size_m": 1.0000000000000001e-07,
+      "tier": "highres"
+    },
+    "1000.0nm": {
+      "line_time_s": 0.5,
+      "pixels": 256,
+      "size_m": 1.0000000000000002e-06,
+      "tier": "survey"
+    },
+    "2.001nm": {
+      "line_time_s": 0.3,
+      "pixels": 512,
+      "size_m": 2.001e-09,
+      "tier": "atomic_verify"
+    },
+    "2.0nm": {
+      "line_time_s": 1.75,
+      "pixels": 512,
+      "size_m": 2e-09,
+      "tier": "slow"
+    },
+    "2000.0nm": {
+      "line_time_s": 0.5,
+      "pixels": 256,
+      "size_m": 2.0000000000000003e-06,
+      "tier": "survey"
+    },
+    "250.0nm": {
+      "line_time_s": 0.8,
+      "pixels": 256,
+      "size_m": 2.5000000000000004e-07,
+      "tier": "roi"
+    },
+    "3.0nm": {
+      "line_time_s": 0.3,
+      "pixels": 512,
+      "size_m": 3.0000000000000004e-09,
+      "tier": "atomic_verify"
+    },
+    "5.001nm": {
+      "line_time_s": 1.2,
+      "pixels": 256,
+      "size_m": 5.001e-09,
+      "tier": "atomic"
+    },
+    "5.0nm": {
+      "line_time_s": 0.3,
+      "pixels": 512,
+      "size_m": 5e-09,
+      "tier": "atomic_verify"
+    },
+    "50.0nm": {
+      "line_time_s": 1.0,
+      "pixels": 256,
+      "size_m": 5.0000000000000004e-08,
+      "tier": "highres"
+    },
+    "500.001nm": {
+      "line_time_s": 0.5,
+      "pixels": 256,
+      "size_m": 5.00001e-07,
+      "tier": "survey"
+    },
+    "500.0nm": {
+      "line_time_s": 0.8,
+      "pixels": 256,
+      "size_m": 5.000000000000001e-07,
+      "tier": "roi"
+    },
+    "8.0nm": {
+      "line_time_s": 1.2,
+      "pixels": 256,
+      "size_m": 8e-09,
+      "tier": "atomic"
+    }
+  },
+  "tiers": [
+    {
+      "line_time_s": 1.75,
+      "name": "slow",
+      "p_gain": null,
+      "pixels": 512,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": 2e-09
+    },
+    {
+      "line_time_s": 0.3,
+      "name": "atomic_verify",
+      "p_gain": null,
+      "pixels": 512,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": 5e-09
+    },
+    {
+      "line_time_s": 1.2,
+      "name": "atomic",
+      "p_gain": null,
+      "pixels": 256,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": 1e-08
+    },
+    {
+      "line_time_s": 1.0,
+      "name": "highres",
+      "p_gain": null,
+      "pixels": 256,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": 1e-07
+    },
+    {
+      "line_time_s": 0.8,
+      "name": "roi",
+      "p_gain": null,
+      "pixels": 256,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": 5e-07
+    },
+    {
+      "line_time_s": 0.5,
+      "name": "survey",
+      "p_gain": null,
+      "pixels": 256,
+      "setpoint_a": null,
+      "source": "factory",
+      "time_constant_s": null,
+      "upper_size_m": null
+    }
+  ],
+  "unwrap_scalar": {
+    "empty": {
+      "input": [],
+      "out": null
+    },
+    "float": {
+      "input": 1.5,
+      "out": 1.5
+    },
+    "none": {
+      "input": null,
+      "out": null
+    },
+    "one_list": {
+      "input": [
+        7
+      ],
+      "out": 7
+    },
+    "one_tuple": {
+      "input": [
+        7
+      ],
+      "out": 7
+    },
+    "scalar": {
+      "input": 7,
+      "out": 7
+    },
+    "string": {
+      "input": "x",
+      "out": "x"
+    },
+    "two_tuple": {
+      "input": [
+        7,
+        8
+      ],
+      "out": null
+    }
+  }
+}

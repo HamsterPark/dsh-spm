@@ -2,8 +2,8 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 75,
-    "partial": 5,
+    "done": 77,
+    "partial": 3,
     "todo": 435
   },
   "modules_complete": 10,
@@ -261,7 +261,7 @@
     },
     "builtins.imaging": {
       "total": 7,
-      "done": 3,
+      "done": 5,
       "complete": false
     },
     "builtins.instrument_limits": {
@@ -1843,8 +1843,8 @@
       "spec": true,
       "model": true,
       "traces": 10,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "ConfigureScopeTrigger": {
       "module": "builtins.misc_setters",
@@ -5543,8 +5543,8 @@
       "spec": true,
       "model": true,
       "traces": 6,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "StartTcpLog": {
       "module": "builtins.datalog",

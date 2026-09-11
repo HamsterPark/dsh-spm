@@ -202,6 +202,20 @@ function dropPath(obj: unknown, path: string): boolean {
 /** D-APPROACH-1 的三行留痕。 */
 const ZCTRL_PRESET_FIELDS = ['zctrl_preset', 'zctrl_preset_applied', 'zctrl_preset_note']
 
+/**
+ * D-SCAN-5：那句报文里印的是「读回的 GET 值」，而读不到时 Python 印 `None`、
+ * JS 印 `null`。为了逐字去伪造一个 Python 字面量，等于让诊断指向一个不存在的语言
+ * （同 D-SKILL-2 的理由）。
+ *
+ * 期望值**从金样算出来**而不是抄一遍：差异就是这一个 `.replace`，看得见；
+ * 而旧仓哪天改了那句话，这里会跟着变，不会悄悄过期。
+ */
+function startScanNullRendering(trace: string): { error?: string } {
+  const want = golden['StartScan']?.traces[trace]?.error ?? ''
+  const ours = want.replace('before=None', 'before=null')
+  return ours === want ? {} : { error: ours }
+}
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   // ── D-SKILL-1：信封不当读数 ──
   'GetBiasCalibration/empty@0': { data: { calibration: null, offset: 0 } },
@@ -248,6 +262,30 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   //
   // 导出机上**没配参数组**，所以金样里那三个字段记的正是「没切、沿用当前增益」——
   // 也就是本仓现在的行为。差的只是那三行留痕。
+  // ── D-SCAN-4：扫描进度视觉监视器不移植 ──
+  //
+  // 旧仓 `StartScan` 起扫之后拉起一个守护线程，在 12.5 %…100 % 抓部分帧、跑 M12、
+  // 往缓冲里发一条中文旁白。它**完全 fail-safe**（没缓冲/没视觉就空转）、也在图之外
+  // （自己的线程），所以它不可能弄坏扫描——而视觉链路本仓还没有。
+  ...Object.fromEntries(
+    ['ok', 'empty@0', 'mismatch', 'err@0', 'err@1', 'err@2'].map((t) => [
+      `StartScan/${t}`,
+      {
+        absent: ['vision_monitor'],
+        // ── D-SCAN-5：`before=None` → `before=null` ──
+        //
+        // 那句报文里印的是「读回的 GET 值」，而读不到时 Python 印 `None`、JS 印
+        // `null`。为了逐字去伪造一个 Python 字面量，等于让诊断指向一个不存在的
+        // 语言（同 D-SKILL-2 的理由）。
+        //
+        // 期望值**从金样算出来**而不是抄一遍：差异就是这一个 `.replace`，
+        // 看得见；而旧仓哪天改了那句话，这里会跟着变，不会悄悄过期。
+        // 只在金样那句话里**真的**有 `before=None` 时才登记 —— 读得到值的那几趟
+        // 两边一字不差，给它们挂一条「偏差」等于登记一条不存在的差异。
+        ...startScanNullRendering(t),
+      },
+    ]),
+  ),
   // D-APPROACH-1 同样适用于 `ApproachTip`：它也套了一层进针参数组的切换与放回
   // （理由是**第一相就可能进成**，那一段整个在 AutoApproach 之外）。
   ...Object.fromEntries(

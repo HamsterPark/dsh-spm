@@ -179,3 +179,128 @@ export function frameAcquiredLines(body: unknown): [number, number] | null {
   }
   return [done, rows]
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// `Scan_PropsGet` 的五个解析器
+// ─────────────────────────────────────────────────────────────────────────
+
+/** 声明的字段数。少于它就只能走启发式。 */
+export const PROPS_N_FIELDS = 16
+export const PROPS_IX_CONTINUOUS = 0
+export const PROPS_IX_SERIES_NAME = 4
+export const PROPS_IX_MODULES_COUNT = 8
+export const PROPS_IX_MODULES = 9
+
+/** SET 侧的编码。⚠️ 与 GET 侧**不同**：这边的「关」是 2。 */
+export const SET_NO_CHANGE = 0
+export const SET_OFF = 2
+export const SET_AUTOSAVE_ALL = 1
+/** GET 侧的编码。只有两个值。 */
+export const GET_ON = 1
+export const GET_OFF = 0
+
+/**
+ * 数组字段在真机上是 1-元组，标量不是。
+ *
+ * 多元素 ⇒ `null`（**不取第 0 个**）：那是一个我们没预料到的形状，猜一个值出来
+ * 只会把形状错误变成一个看起来合理的数。
+ */
+export function unwrapScalar(value: unknown): unknown {
+  if (Array.isArray(value)) return value.length === 1 ? value[0] : null
+  return value
+}
+
+/**
+ * GET 编码的 continuous 标志 → **三态**。
+ *
+ * `null` 同时覆盖「读不到」与「机器答了一个不在 GET 表里的值」——因为两者都**不是**
+ * 「它开着吗」的答案。
+ *
+ * 后半句不是假设性的填充：GET 表恰好两个值（0=关、1=开），而 SET 表的「关」是 **2**，
+ * 一个 2 到了这里曾经算成 `2 === GET_ON` → `false` → 「确认已关」。那与 2026-08-19
+ * 那次故障是同一个形状：**一个不是答案的值，被折进了那个让人安心的答案**。
+ */
+export function continuousState(flag: unknown): boolean | null {
+  // Python 那边 `bool` 是 `int` 的子类，于是 `True == 1` 成立。本仓的线协议这一格
+  // 解出来永远是数字，所以这一支实际到不了；照移是为了**不引入一处无动机的分岔**
+  // ——而 `true`/`false` 本来也确实就是那两个状态。
+  if (typeof flag === 'boolean') return flag
+  if (flag === GET_ON) return true
+  if (flag === GET_OFF) return false
+  return null
+}
+
+/** body 里第 0 位那个 continuous 标志（已解 1-元组）；读不到 `null`。 */
+export function scanPropsContinuous(body: unknown): unknown {
+  if (!Array.isArray(body) || body.length === 0) return null
+  return unwrapScalar(body[PROPS_IX_CONTINUOUS])
+}
+
+/**
+ * 「保存哪些模块参数」清单；读不到给空表。
+ *
+ * **这个函数存在，是因为原来那段循环找错了层。** 回包形状是 `(err, raw, body)`，
+ * 模块名数组在 **body 里面**；原来的代码在**顶层**三个元素上找「全是字符串的 list」，
+ * 那里永远没有，于是 `moduleNames` **每次都是空的**，紧接着的兜底每次都命中，
+ * **写死的 5 个名字每一次扫描都被下发**，把用户在 GUI 里配的清单覆盖掉。
+ *
+ * 这不是「读失败时的兜底」，是**兜底一直在生效**。真机证据（2026-08-10）：用户全选
+ * 之前的文件头里正好只有 4 个模块块——也就是那 5 个写死名字里**能对上的那 4 个**；
+ * 第 5 个 `"Piezo"` 在 Nanonis 里实际叫 `Piezo Configuration`，所以它一次都没生效过，
+ * 而代码读起来像包含了它。倾斜矫正角正是因此从来没进过文件。
+ *
+ * **只认全字符串的数组**——模块名数组是回包里唯一这样的东西。
+ */
+export function scanPropsModules(body: unknown): string[] {
+  if (!Array.isArray(body)) return []
+  for (const item of body) {
+    if (Array.isArray(item) && item.length > 0 && item.every((s) => typeof s === 'string')) {
+      return item.map((s) => String(s))
+    }
+  }
+  return []
+}
+
+/**
+ * **声明的**模块数，信不过就 `null`。
+ *
+ * 为什么要有它：{@link scanPropsModules} 对**两种不同的处境**都返回 `[]`——
+ * 用户选了**零个**模块（一个事实），以及我们**没在回包里找到那个数组**（事实的缺席）。
+ *
+ * 把两者折在一起，正是这个仓库反复付账的那一步，而这里的代价很具体：选了零个模块时，
+ * 写回 `[]` 在**两种可能的协议语义下都可证是空操作**——空数组若表示「清空」就清了一个
+ * 已经空的表，若表示「不改」就什么都没改。那是唯一一种**没读到清单也能安全下发**
+ * `Scan_PropsSet` 的情形，而把它与「未知」混为一谈就把这一格扔掉了。
+ *
+ * 只有当回包有完整的声明形状**且**声明的个数与解出的数组一致时才采信——同一个回包的
+ * 两个字段，一次错解没有理由让它们保持一致。不一致 ⇒ `null`（未知），**绝不修补**。
+ */
+export function scanPropsModuleCount(body: unknown): number | null {
+  if (!Array.isArray(body) || body.length < PROPS_N_FIELDS) return null
+  const count = unwrapScalar(body[PROPS_IX_MODULES_COUNT])
+  if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) return null
+  const names = body[PROPS_IX_MODULES]
+  if (!Array.isArray(names)) return null
+  if (names.length !== count || !names.every((s) => typeof s === 'string')) return null
+  return count
+}
+
+/**
+ * 当前序列名；读不懂给 `""`。
+ *
+ * 有完整声明形状时按位取，否则取第一个非空字符串。它存在是为了让 `StartScan` **不再
+ * 为它单发第二次 `Scan_PropsGet`**：两次读可以给出不同的答案，而分歧不是无害的——
+ * 一个空序列名写进 `Scan_PropsSet` 会把用户配的文件名前缀打回 `unnamed####`。
+ * **一次读，一个答案。**
+ */
+export function scanPropsSeriesName(body: unknown): string {
+  if (!Array.isArray(body)) return ''
+  if (body.length >= PROPS_N_FIELDS) {
+    const name = body[PROPS_IX_SERIES_NAME]
+    return typeof name === 'string' ? name : ''
+  }
+  for (const item of body) {
+    if (typeof item === 'string' && item) return item
+  }
+  return ''
+}
