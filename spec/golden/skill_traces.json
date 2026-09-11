@@ -6118,7 +6118,7 @@
           }
         ],
         "data": {
-          "frame_path": "<project-root>\\experiments\\frames\\frame_ch0_dir1_cfe56800.npy",
+          "frame_path": "<project-root>\\experiments\\frames\\frame_ch0_dir1_<stamp>.npy",
           "n_samples": 4,
           "shape": [
             2,

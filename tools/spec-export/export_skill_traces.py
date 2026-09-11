@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -329,9 +330,17 @@ class _FakeContext:
 _PROJECT_ROOT = os.environ["MAST2_PROJECT_ROOT"]
 
 
+#: 抓帧的文件名里嵌了**毫秒钟**（`frame_ch0_dir1_<hex>.npy`）。它和临时项目根一样
+#: 与判据无关，但比项目根更隐蔽：抹掉根之后金样看起来是可复现的，其实每跑一次那八位
+#: 十六进制都在变。抹成 `<stamp>` 而不是整条路径丢掉 —— 留下来的**目录、命名模板、
+#: 后缀**都是判据（尤其是 `_dir{D}_` 那一段：它是「取第一个空名」那道防覆盖的前提）。
+_STAMP = re.compile(r"(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)")
+
+
 def _scrub(s: str) -> str:
-    return s.replace(_PROJECT_ROOT, "<project-root>").replace(
+    s = s.replace(_PROJECT_ROOT, "<project-root>").replace(
         _PROJECT_ROOT.replace("\\", "/"), "<project-root>")
+    return _STAMP.sub(lambda m: m.group(1) + "<stamp>", s)
 
 
 def _jsonable(v: Any) -> Any:

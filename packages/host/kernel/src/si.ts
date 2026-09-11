@@ -184,16 +184,29 @@ export function formatSi(value: number, digits = 6): string {
 export function pyFloatRepr(v: number): string {
   if (!Number.isFinite(v)) return v > 0 ? 'inf' : Number.isNaN(v) ? 'nan' : '-inf'
   if (Object.is(v, -0)) return '-0.0' // 同 `formatG`：Python 的 `repr(-0.0)`
-  const s = String(v)
-  const e = s.indexOf('e')
-  if (e < 0) {
+  if (v === 0) return '0.0'
+
+  // ⚠️ **两种语言换指数记法的门槛不同。** CPython 的 `float_repr` 在
+  // `decpt <= -4 || decpt > 16` 时用指数（`decpt` = 小数点相对首位有效数字的位置），
+  // 而 JS 的 `String()` 要到 `< 1e-6` 或 `>= 1e21` 才换。中间那两条带是分岔的：
+  //
+  //   * `1e-6`  → Python `'1e-06'`、JS `'0.000001'`
+  //   * `1e16`  → Python `'1e+16'`、JS `'10000000000000000'`
+  //
+  // 这不是理论问题：`setpoint_a` 的上界正是 `1e-7`，而超界报文里印的就是这个数。
+  // （146 条 SI 金样没覆盖到这一带，是参数组那 28 格把它照出来的。）
+  const es = v.toExponential() // 无参 = 能唯一还原的最短位数
+  const at = es.indexOf('e')
+  const mant = es.slice(0, at)
+  const exp10 = Number(es.slice(at + 1))
+  const decpt = exp10 + 1
+
+  if (decpt > -4 && decpt <= 16) {
+    const s = String(v)
     // 整值浮点：Python 印 `5.0`，JS 印 `5`
-    return Number.isInteger(v) && !s.includes('.') ? `${s}.0` : s
+    return Number.isInteger(v) && !s.includes('.') && !s.includes('e') ? `${s}.0` : s
   }
-  const mant = s.slice(0, e)
-  let exp = s.slice(e + 1)
-  const sign = exp.startsWith('-') ? '-' : '+'
-  if (exp.startsWith('-') || exp.startsWith('+')) exp = exp.slice(1)
-  if (exp.length < 2) exp = `0${exp}`
-  return `${mant}e${sign}${exp}`
+  const sign = exp10 < 0 ? '-' : '+'
+  const digits = String(Math.abs(exp10)).padStart(2, '0')
+  return `${mant}e${sign}${digits}`
 }

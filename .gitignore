@@ -14,6 +14,10 @@ coverage/
 .tmp/
 tmp/
 *.log
+# 抓帧落盘。`GrabScanFrameData` 的默认实例往 <cwd>/experiments/frames 写
+# —— 那是它的**真实行为**（同旧仓的 <data>/experiments/frames），跑一次
+# 轨迹金样测试就会留下一个 .npy。数据不入仓。
+experiments/
 
 # ---- 绝不入仓（PLAN §13 许可证行、§14 非目标）----
 # 深度视觉权重（DINOv3 许可）

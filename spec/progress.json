@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 77,
-    "partial": 3,
+    "done": 80,
+    "partial": 0,
     "todo": 435
   },
-  "modules_complete": 10,
+  "modules_complete": 11,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -411,12 +411,12 @@
     },
     "builtins.scan_extra": {
       "total": 4,
-      "done": 3,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "builtins.scan_frame": {
       "total": 5,
-      "done": 0,
+      "done": 1,
       "complete": false
     },
     "builtins.scan_intel_selfcheck": {
@@ -571,7 +571,7 @@
     },
     "builtins.zctrl_presets_skills": {
       "total": 3,
-      "done": 0,
+      "done": 1,
       "complete": false
     },
     "composite.achieve_atomic": {
@@ -1953,8 +1953,8 @@
       "spec": true,
       "model": true,
       "traces": 1,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "CrossPointTipCheck": {
       "module": "composite.cross_point_tip_check",
@@ -2583,8 +2583,8 @@
       "spec": true,
       "model": true,
       "traces": 3,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "GetLockInConfig": {
       "module": "builtins.lockin",
@@ -3573,8 +3573,8 @@
       "spec": true,
       "model": true,
       "traces": 3,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "GridSTS": {
       "module": "composite.grid_sts",

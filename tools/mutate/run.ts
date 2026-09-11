@@ -80,7 +80,19 @@ export function runOne(m: Mutation): MutationResult {
     if (!m.scope.startsWith('packages') || !m.file.startsWith(m.scope)) {
       return fail(`scope \`${m.scope}\` 没有覆盖被变异的文件 \`${m.file}\``)
     }
-    const t = run([...PNPM, 'run', m.scope, '--reporter=dot'], { allowFail: true })
+    // **排除** integration，而不是白名单 unit。
+    //
+    // 要排它是因为：`integration` 的 globalSetup 在没有 STMSIM_* 时会**直接抛**，
+    // 整趟 vitest 连 `Tests` 汇总行都不打，于是判据③ 不成立、演练齐刷刷判成
+    // `inconclusive`（2026-09-11 加第一个 host 侧 integration 文件时当场撞上：
+    // 前 53 条跑在文件存在之前，后 27 条跑在之后）。
+    //
+    // 而**不**写成 `--project unit` 是因为第一版就是那么写的，它当场把
+    // `gated-call-abort-verbs` 变成绿的 —— 那道闸的测试住在 `contract/` 里。
+    // 白名单会在下一个 project 加进来的时候再漏一次；排除法不会。
+    const t = run([...PNPM, 'run', '--project', '!integration', m.scope, '--reporter=dot'], {
+      allowFail: true,
+    })
     const line = /^\s+Tests\s+(?:(\d+) failed \| )?(\d+) passed/m.exec(t.out)
     if (line === null) return fail('测试没跑起来（输出里找不到 Tests 汇总行）')
     const failed = Number(line[1] ?? 0)

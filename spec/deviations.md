@@ -452,3 +452,98 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 看得见，而旧仓哪天改了那句话，这里会跟着变，不会悄悄过期。而且只登记**真的**含
 `before=None` 的那几趟：读得到值的那几趟两边一字不差，给它们挂一条「偏差」等于登记
 一条不存在的差异。
+
+## D-FRAME-1 · 候选保存目录只留一个来源
+
+| | |
+|---|---|
+| **Python** | `_candidate_save_dirs` 攒四路：① `Util_SessionPathGet` 报的会话目录 ② `scan_registry.known_scan_dirs()`（`SaveScan` 落盘时登记过的）③ `<data>/working-sessions/` ④ 当前样品的 `raw/nanonis/`（原位模式） |
+| **我们** | **只留 ①** |
+| **影响面** | `GetLatestScanFile` 的 `searched_dirs`；金样那三趟里它是 `[]`，两侧一致 |
+
+**为什么有意**，逐路：
+
+- **②** 是给**没有 context 的调用方**用的（旧仓 data_processing 的文件工具
+  `context=None`、没有连接池，只能靠登记表反查目录）。本仓没有那条调用路径——
+  每个技能都拿着 `ctx`，会话目录直接问仪器就是。
+- **③** 的 `project_root()` 是旧仓的**数据根**（`MAST2_PROJECT_ROOT`），而本仓
+  **还没有「数据目录」这个概念**。第一版我把它映射成了 `process.cwd()`——那是我编的：
+  本仓没有任何东西会去创建 `<cwd>/working-sessions/`，于是它是一个**永远为空的候选**，
+  只会让 `searched_dirs` 长出一行没发生过的搜索（正是 D-FRAME-2 那条纪律要防的），
+  外加给轨迹金样引进一个跟工作目录有关的变量。删掉。
+- **④** 依赖实验日志与「当前活跃样品」，两者本仓都还没有。
+
+**⚠️ 这一条让模型面的描述超发了。** `GetLatestScanFile` 的 description 是**逐字冻结**的
+（DoD ②），而它写着「再查数据目录下的 working-sessions/，最后查历史遗留的开发目录」。
+我们现在只查第一路。**不改那句话**——改了它就跟旧仓对不上，而 `searched_dirs` 本来就
+把「实际找过哪儿」如实交出去了，调用方读得到真相。接上数据根的时候这条要回来删。
+
+**没有一起省掉的是 ①**：会话目录**问仪器**，不从属性里读。旧仓原先只读一个从来没人写过的
+属性，于是存在 working-sessions 之外的图一律找不到（2026-06-29：报 `path: null`，而文件
+就在那儿）。这条修补是本技能存在的理由之一，照移。
+
+**照移的还有那条注释里的纪律**：④ 只加一个目录，**绝不**加整个实验根——`findLatestSaved`
+是递归的，把实验根塞进来会让它每次翻遍所有历史副本，而且极可能把某个历史副本当成
+「刚存的那一个」。这条在补 ④ 的时候必须一起补。
+
+## D-FRAME-2 · `searched_dirs` 报的是**真目录的绝对路径**
+
+| | |
+|---|---|
+| **Python** | `[str(c) for c in cands]`，`cands` 已经过 `resolve()` + `is_dir()` 过滤 |
+| **我们** | 同样过滤，用 `realpathSync`；差别只在 Windows 上 `realpath` 会还原盘符与短名 |
+| **测试** | `l0/frames-skills.test.ts` → `existingDirs`、`searched_dirs 只列真找过的目录` |
+
+**为什么登记**：这不是一条「少做了什么」，是一条**平台差异**。两侧都拒绝把不存在的目录
+列进去（把它列进去等于报告一次没发生过的搜索），但同一个目录在两侧印出来的字符串可能不同。
+金样那三趟里它是空表，所以看不出来——**看不出来正是要写下来的理由**。
+
+## D-PRESET-1 · 只移植自定义组的来历行，不移植 `resolve`
+
+| | |
+|---|---|
+| **Python** | `resolve(name)` 四路：`approach`（仪器档案）、`scan`（按当前帧宽选档）、档名（扫描档位表）、自定义组；`ResolvedPreset` 带 `sources` / `notes` / `gain_params()` / `trace_lines()` |
+| **我们** | 只有 `presetTraceLines(item)`——**从一条已存的自定义组**直接生成那四行 |
+| **测试** | `l0/frames-skills.test.ts` → `CreateZCtrlPreset` 那三格；金样 `CreateZCtrlPreset/ok` 逐字 |
+
+**为什么有意**：`CreateZCtrlPreset` 调 `resolve` 的入参**永远是它刚存进去的那个自定义名**，
+另外三路一次也走不到。而写一个走不到的分支不是「先备着」——那三条各自的报文是
+**「去哪儿改」的指路牌**（`请在「设置 → 仪器档案 → 进针参数」里填写`、
+`请在「设置 → 扫描档位表」里补上`），指向本仓还不存在的界面。一句指错路的报错比没有更坏。
+
+**顺带一个事实**：出厂档位表里 `p_gain` / `time_constant_s` **全是 `None`**（旧仓也是），
+所以 `resolve(档名)` 在出厂配置下**本来就恒拒**。能拿到增益的只有操作员编辑过的档。
+补 `ApplyZCtrlPreset` 的时候这一条要记住：那三路不是「还没接线」，是「没配就该拒」。
+
+**欠的那笔**：`ApplyZCtrlPreset` / `ListZCtrlPresets` 与 [D-APPROACH-1] 的 `finally: restore_zctrl`
+是同一笔债的三面，要一起落。存储（`PresetStore`）与校验（`sanitizePreset`）本段已经就位。
+
+## D-PRESET-2 · 参数组存储在**进程里**，落盘由宿主接
+
+| | |
+|---|---|
+| **Python** | 模块级 `_presets` + `_persist_sink`，`set_persist_sink` 由 SettingsStore 装 |
+| **我们** | `PresetStore` 实例；`processPresetStore` 是给技能默认实例用的那一份，`persist` 由构造参数注入 |
+| **测试** | `kernel/src/frames-presets.test.ts`（6 格存储金样）+ 技能层的同名/覆盖/上限三格 |
+
+**为什么有意**：模块级可变状态在测试里要靠 `_presets.clear()` 手动收拾（旧仓的导出脚本
+每一格开头都得清一次），而**忘了清的那一次不会报错，只会让下一格读到上一格的残留**。
+本仓的导出脚本已经因为同一类问题错了三次（组合技能的断点串在一起）。
+
+**没有跟着变的是那条纪律**：落盘失败**只记不抛**——内存里已经改好了，把一次成功的写入
+报成失败比报出去更坏。`PresetStore.#flush` 里那个空 `catch` 就是它。
+
+## D-PRESET-3 · `ThreadingRLock` 不移植
+
+| | |
+|---|---|
+| **Python** | `_lock = threading.RLock()`，`upsert` / `delete` 全程持锁 |
+| **我们** | 没有锁 |
+
+**为什么有意**：Node 是单线程的，而 `PresetStore` 的每个方法都是**同步**的——它们之间
+没有 `await`，所以不存在另一个任务插进来的那一刻。加一把在这门语言里永远不会争用的锁，
+只会让读代码的人以为这里有并发。
+
+**边界写清楚**：这条成立的**前提**是那些方法保持同步。哪天 `persist` 变成 `await`，
+`#flush` 之后的状态就有人能看见了——那时要重新想，不是加锁，是想清楚「一次半完成的
+写入被别人读到」意味着什么。

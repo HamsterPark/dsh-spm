@@ -354,10 +354,27 @@ function stripVolatile(v: unknown): unknown {
     return Object.fromEntries(
       Object.entries(v as Record<string, unknown>)
         .filter(([k]) => !VOLATILE.has(k))
-        .map(([k, x]) => [k, stripVolatile(x)]),
+        .map(([k, x]) => [k, scrubPaths(stripVolatile(x))]),
     )
   }
-  return v
+  return scrubPaths(v)
+}
+
+/**
+ * 落盘路径按**导出脚本那一套**抹一遍，再比。
+ *
+ * `GrabScanFrameData` 的 `frame_path` 里有两样与判据无关的东西：跑出金样的那台机器
+ * 的项目根，和一个毫秒戳。把整个字段丢掉（像 `read_at` 那样）会顺手丢掉**是判据**的
+ * 部分——目录、`frame_ch{N}_dir{D}_` 这个命名模板、`.npy` 后缀。模板尤其要留：
+ * 它是「取第一个空名」那道防覆盖的前提，名字里少了 `_dir{D}` 就等于两个方向互相盖。
+ *
+ * 所以抹的是那两段，**留下其余全部逐字比**。两侧用的是同一条规则（导出脚本里的
+ * `_scrub`），改一边另一边就会红。
+ */
+const STAMP_RE = /(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)/g
+function scrubPaths(v: unknown): unknown {
+  if (typeof v !== 'string') return v
+  return v.split(process.cwd()).join('<project-root>').replace(STAMP_RE, '$1<stamp>')
 }
 
 const names = Object.keys(IMPLEMENTED).sort()

@@ -183,9 +183,55 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 
 新登记 **D-SCAN-4/5**（共 29 条）。
 
-**下一段**：`GrabScanFrameData`（卡在 `.npy` 写出），以及批 2 剩下的
-`CreateZCtrlPreset` / `GetLatestScanFile`。参数组存储（D-APPROACH-1 欠的那笔
-`finally` 放回）该和 `CreateZCtrlPreset` 一起落。
+· **2.20 ✅ `GrabScanFrameData` + `GetLatestScanFile` + `CreateZCtrlPreset`**
+—— 批 3a **收官**，批 1/2 的最后两个也补齐了。
+
+三个技能的共同点是它们**都不只跟仪器说话**：产物在文件系统上，或者在一份要跨调用
+活着的存储里。于是判据也换了地方——
+
+| 件 | 判据落在哪 | 背后那件事 |
+|---|---|---|
+| `npy.ts` | **字节** | 「大概能用 numpy 读回来」在 `np.load` 抛异常之前一切看起来都正常，而那时那一帧已经扫完了。8 份真 numpy 写出的字节逐字节比 |
+| 二维保形 | `shape` 有两位 | 旧仓 `parse_frame_grab` 默认拉平，于是写出去的每个 `.npy` 都是扁的。断链断在测量之后一步：2026-07-28 那趟报告每个数都是真的，**只是没有图** |
+| 取第一个空名 | 连发三次，前两份还在 | 毫秒戳自己不够唯一（旧仓实测连读 2000 次 `time.time()` 只得到两个不同值）。固定名更糟：下游拿上一趟的残留当本趟结果，而本趟落地时毁掉上一趟 |
+| `existingDirs` | `searched_dirs` 只列真目录 | 把不存在的目录列进去，等于**报告一次没发生过的搜索**，调用方据此断定「那儿没有图」 |
+| `sessionDir` | 报文件前缀就取上级 | 2026-06-29：会话目录从一个从来没人写过的属性里读，于是 working-sessions 之外的图一律 `path: null`，而文件就在那儿 |
+| `sanitizePreset` | **拒绝，不夹紧** | 被悄悄改小的值会让你以为自己设的是原来那个数。28 格校验金样 + 6 格存储金样 |
+
+**金样照出来的两个真 bug**：
+
+1. `Date.now() & 0xffffffff` 在 JS 里是**有符号**的，一半的时刻会得到 `-6fca3bef`
+   这种文件名。Python 的 `& 0xFFFFFFFF` 无符号，对应的是 `>>> 0`。
+2. `pyFloatRepr` 换指数记法的门槛错了：CPython 在 `decpt <= -4 || decpt > 16` 换，
+   JS 的 `String()` 要到 `< 1e-6` / `>= 1e21`。中间那两条带分岔，而 `setpoint_a`
+   的上界正是 `1e-7` —— 超界报文里印的就是这个数。**146 条 SI 金样没覆盖到这一带**，
+   是参数组那 28 格把它照出来的。
+
+**顺手让 `skill_traces.json` 重新可复现**：抓帧的文件名里嵌着毫秒钟，抹掉临时项目根
+之后金样看起来是可复现的，其实每跑一次那八位十六进制都在变。抹成 `<stamp>` 而不是
+整条路径丢掉——留下来的目录、命名模板、后缀都是判据。
+
+**DoD ④ 第一次真的走到**：`packages/host/stm-skills/integration/frames.test.ts` 是
+第一条「技能 ↔ 真 stmsim」的缝（`InstrumentService.call` → `ctx.safeCall`，中间**没有
+任何转译**）。它验的是单测验不到的那件事：真机回包的**形状**正是解析器假设的那个。
+抓帧尤其——真 body 是异构表，整表一起当数组解在扁平桩上「能跑」、在每一次真实扫描上都炸。
+
+**它也当场坑了变异演练一次**：`vitest run <scope>` 会连 `integration` project 一起起，
+而它的 globalSetup 没有 STMSIM_* 就直接抛，整趟连 `Tests` 汇总行都不打 —— 27 条演练
+齐刷刷判成 `inconclusive`。
+**「没红」和「压根没验」长得一模一样**，这套三判据的价值就在这儿：它没把这 27 条报成绿的。
+
+**修它的第一版又换一种方式漏掉一道闸。** 钉成 `--project unit` 之后
+`gated-call-abort-verbs`（动词级中止门）从红变**绿** —— 那道闸的测试住在 `contract/` 里。
+它守的是「中止落在技能中段时，技能自己的退针会不会被自己触发的闸拒掉」，
+拆掉 = 人按了中止、针留在原地。改成**排除** `--project '!integration'`：
+白名单会在下一个 project 加进来的时候再漏一次，排除法不会。
+
+新登记 **D-FRAME-1/2 · D-PRESET-1/2/3**（共 34 条）。
+
+**下一段**：`ApplyZCtrlPreset` / `ListZCtrlPresets`，连着 D-APPROACH-1 欠的那笔
+`finally: restore_zctrl`。三者是同一笔债的三面：存储与校验本段已经就位，
+`resolve` 的另外三路（仪器档案 / 按帧宽选档 / 档名）跟着 `ApplyZCtrlPreset` 一起落。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -193,18 +239,18 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 |---|---|
 | ~~`SafeRetract`~~ | ✅ 连 `tip_park` 判定机一起移植（26 条网格金样） |
 | ~~`TryEngageController`~~ | ✅ 决策点三种处境各一条测试（变异照出来的洞） |
-| `CreateZCtrlPreset` | 参数组存储（config/admin 层，0 条仪器调用） |
-| `GetLatestScanFile` | 会话目录扫描（跟 `nanonis-files` 一起） |
+| ~~`CreateZCtrlPreset`~~ | ✅ 参数组存储 + 校验（28 格 + 6 格金样）；`resolve` 只移植自定义组那一路，见 D-PRESET-1 |
+| ~~`GetLatestScanFile`~~ | ✅ 会话目录问仪器 + 递归找最新；候选目录只留两个来源，见 D-FRAME-1 |
 | `AutoApproach` / `ApproachTip` | ~~GraphExecutor~~ ✅ 已就位；仍需**会收敛的物理脚本** = stmsim（DoD ④） |
 
 > 批 1 计划稿点名 38 个，其中 `GetScanStatus` / `GetXYPosition` 在**当前旧仓不存在**
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
-> 所以分母是 36。未做的一个是 `GetLatestScanFile`——它不发仪器调用，
-> 判据落在文件系统上，跟 `nanonis-files` 一起做。
+> 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1778 条测试**（另有 **58 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
-golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
+**2123 条测试**（另有 **79 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **23 条**对真 stmsim 的集成测试——其中 3 条是第一批**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
++ **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)`**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
@@ -1208,19 +1254,20 @@ session log 可 replay 重建每次请求；帧内联可见；`stm_selfcheck` �
 
 ---
 
-### 批 3a 的依赖分析（2026-09-11）：六个里先做了两个
+### 批 3a 的依赖分析（2026-09-11）：**六个全部完成**
 
 轨迹金样已覆盖全部六个（`export_skill_traces.py` 的 `BATCH_3A`，288 条轨迹）。
-**已移植 2 个**，其余四个各自卡在一件支撑件上 —— 逐条写下来，免得下次重新查一遍：
+六个都落了。下面这张表原本记的是「各自卡在哪」，留着不删——**它是这一批真正的成本清单**：
+每一格里那件支撑件都比技能本身大，而且没有一件是能跳过的。
 
 | 技能 | 状态 | 卡在哪 |
 |---|---|---|
 | `SetScanSpeed` | ✅ | — |
 | `SaveScan` | ✅ | 目录扫描做成**注入**（`findLatestSxm`），技能本身不碰文件系统 |
-| `ConfigureScan` | ⏳ | `scan_policy.resolve_line_time`（出厂档位表）、`frame_readback_mismatch`、通道名→索引解析、压电半程核对 |
-| `StartScan` | ⏳ | `_read_scan_props` 一族五个解析器（continuous / series name / module count / modules）、`_build_scan_basename`（实验+样品命名） |
-| `WaitScanComplete` | ⏳ | **它是图技能**（`CompositeSkillGraph`，每次轮询是一个 `_phase_poll_<i>` 合成步），要 GraphExecutor |
-| `GrabScanFrameData` | ⏳ | `.npy` 写出（Phase 4 的 `numerics`） |
+| `ConfigureScan` | ✅ | `scan_policy.resolve_line_time`（出厂档位表）、`frame_readback_mismatch`、通道名→索引解析、压电半程核对 |
+| `StartScan` | ✅ | `_read_scan_props` 一族五个解析器（continuous / series name / module count / modules）、`_build_scan_basename`（实验+样品命名） |
+| `WaitScanComplete` | ✅ | **它是图技能**（`CompositeSkillGraph`，每次轮询是一个 `_phase_poll_<i>` 合成步），要 GraphExecutor |
+| `GrabScanFrameData` | ✅ | `.npy` 字节自己写（`kernel/src/npy.ts`，8 份真 numpy 字节金样）——不必等 Phase 4 的 `numerics` |
 
 **为什么不先做半个 `ConfigureScan`**：它的判据里最要紧的两条是「读不回角度就拒绝」
 与「读回的帧对不上就拒绝、**不夹紧**」。一个只实现了前半的版本比没有它更危险 ——
