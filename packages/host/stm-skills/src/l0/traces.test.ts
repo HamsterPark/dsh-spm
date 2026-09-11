@@ -175,6 +175,9 @@ function dropPath(obj: unknown, path: string): boolean {
   return true
 }
 
+/** D-APPROACH-1 的三行留痕。 */
+const ZCTRL_PRESET_FIELDS = ['zctrl_preset', 'zctrl_preset_applied', 'zctrl_preset_note']
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   // ── D-SKILL-1：信封不当读数 ──
   'GetBiasCalibration/empty@0': { data: { calibration: null, offset: 0 } },
@@ -213,6 +216,39 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       { absent: ['_progress.partial_data.aborted'] },
     ]),
   ),
+  // ── D-APPROACH-1：进针参数组的切换与放回不移植 ──
+  //
+  // 旧仓 `run_composite` 会 apply_approach_preset → 跑图 → finally: restore_zctrl，
+  // 并把三个 `zctrl_preset*` 字段放进 data。它依赖 `zctrl_presets` 参数组存储，
+  // 本仓还没有（那份存储也是 `CreateZCtrlPreset` 卡着的东西，两者该一起落）。
+  //
+  // 导出机上**没配参数组**，所以金样里那三个字段记的正是「没切、沿用当前增益」——
+  // 也就是本仓现在的行为。差的只是那三行留痕。
+  // `err@0` / `err@1` 在开模块或起跑那一步就中止了，**根本没进等待相**，
+  // 所以它们的金样里没有 crosstalk 那一格——`absent` 会先断言路径存在，
+  // 一刀切地登记会被它当场判成过期（确实被判了一次）。
+  ...Object.fromEntries(
+    ['err@0', 'err@1'].map((t) => [
+      `AutoApproach/${t}`,
+      { absent: ZCTRL_PRESET_FIELDS },
+    ]),
+  ),
+  ...Object.fromEntries(
+    ['ok', 'empty@0', 'mismatch', 'runerr@0', 'err@2', 'err@3',
+      'err@17', 'err@18', 'err@19'].map((t) => [
+      `AutoApproach/${t}`,
+      {
+        absent: [
+          ...ZCTRL_PRESET_FIELDS,
+          // D-APPROACH-2：串扰报告不移植。它每 15 s 读一次 lock-in X 报「≈还剩多少步」，
+          // **不驱动任何决策**（旧仓自己的注释写着），而 lock-in 链路本仓还没有。
+          // 金样里它那一格记的正好是「调制关着所以这条报告永远是这一句」——
+          // 也就是说在旧仓的默认配置下它也不产出信息。
+          '_progress.partial_data.crosstalk',
+        ],
+      },
+    ]),
+  ),
   // ── D-SKILL-3 的又一格：空 body 上旧仓的轮询**炸了** ──
   //
   // 旧仓读状态用的是 `parsed[2][0]`，空 body ⇒ IndexError ⇒ 那一步被 `optional`
@@ -238,6 +274,7 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
 // 实现读了几次钟——把它钉住只会让每一次无关重构都变红，而它一次真 bug 也抓不到。
 const VOLATILE = new Set([
   'read_at', 'confirm_waited_s', 'elapsed_s', 'started_at', 'last_update_at',
+  'module_ran_s', 'waited_s',
 ])
 
 /** 递归剥掉时钟字段。 */

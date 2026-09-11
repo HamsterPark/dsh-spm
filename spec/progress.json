@@ -2,9 +2,9 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 73,
+    "done": 74,
     "partial": 5,
-    "todo": 437
+    "todo": 436
   },
   "modules_complete": 9,
   "modules_total": 165,
@@ -31,7 +31,7 @@
     },
     "builtins.approach": {
       "total": 5,
-      "done": 3,
+      "done": 4,
       "complete": false
     },
     "builtins.atom_track": {
@@ -1282,9 +1282,9 @@
       "safety": "auto",
       "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 11,
+      "impl": true,
+      "status": "done"
     },
     "AutoCrop_UnscannedRegion": {
       "module": "paper.scan_crop",

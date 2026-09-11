@@ -18,6 +18,7 @@ import { SCAN_CHAIN } from './scan.js'
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
+import { AutoApproach } from '../composite/auto-approach.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
@@ -32,6 +33,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...SCAN_CHAIN,
   WaitScanComplete,
   SetBiasRamp,
+  AutoApproach,
 }
 
 export * from './common.js'
@@ -49,3 +51,4 @@ export * from './scan.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'
 export * from '../composite/set-bias-ramp.js'
+export * from '../composite/auto-approach.js'

@@ -101,8 +101,35 @@ GraphExecutor 再往下），分别走执行器的两条计划入口：
 下游按 `abort_facts` 判「有没有人喊停」会得到「没有」——而 `abort_facts` 本来就是为了
 修 #46（判据落在措辞上）才存在的。
 
-**下一段**：批 2 剩下的两个 L1 试点 `AutoApproach` / `ApproachTip`（它们的成功路径
-需要会收敛的物理脚本 = stmsim，DoD ④），以及批 3a 剩下的 `ConfigureScan` /
+· **2.17 ✅ `AutoApproach`** —— 批 2 两个 L1 试点的第一个，也是本仓第一个走执行器
+**静态计划**的技能（四相：开模块 → 起跑 → 等 → 回读，全部 `optional: false`）。
+
+它当初进 `TRACE_SKIP` 的理由是「成功需要一份会收敛的物理脚本」。现在有了：
+`export_approach.py` 给每格一份脚本（模块状态序列、电流序列、Z 序列、设定点），
+于是 **20 个结局**——收敛、秒完成、启动被拒、停了但没电流、判不出、读不到、超时、
+Z 纹丝不动、状态抖动、停机被拒——各自成立在哪一格，都是**跑出来的**。
+
+判定核心搬进 `kernel/src/engage.ts`，**每一条判据对应一次真机事故**：
+
+| 日期 | 症状 | 判据 |
+|---|---|---|
+| 2026-07-10 #42 | 进针在 0.17 pA / 设定点 500 pA 上报了成功，agent 照样去扫图 | 停下之后要拿电流确认 |
+| 2026-07-10 #75 | 「调低电流假装进到针了」 | `MIN_ENGAGED_CURRENT_A` 噪声底 |
+| 2026-08-05 | 一次**成功的**进针被判成失败——那一读正好采到模块→反馈的**交接瞬态** | `settleEngagement`：两次一致才下结论 |
+| 2026-08-05 | 报文点名「量程耗尽 / Z 在极限 / 外部停止」，三条当天全是假的 | 证据里**只印测到的** |
+| 2026-08-08 | 7 次失败报文里**只有一个秒数**，所有人都把它读成进针时长，整晚查一个不存在的「秒停」 | `WaitProgress`：模块跑了多久 + 台子动没动 |
+| 2026-08-10 | 停机命令没下发，而调用方拿到的东西和停成功时一模一样 | `stopNote()` 顶进报文 |
+| 2026-08-15 | 状态位读不懂被当成「没在跑」 | `parseRunning` 三值 |
+
+`AutoApproach` 同时放回了**通用轨迹金样**（`TRACE_SKIP` 现在只剩 `ApproachTip`）：
+那一路录到的是**失败形状**（模块报在跑、压电纹丝不动、到点停机），恰好是真机
+2026-08-08 那 7 次的形状——它是一份**独立驱动器**对同一份移植的交叉核对，
+值钱的正是它跟那 20 格不一样。
+
+新登记 **D-APPROACH-1/2**（共 25 条）。
+
+**下一段**：`ApproachTip`（批 2 的另一个 L1 试点，`BaseSkill` 而非组合，带 dI/dV 标定
+窗口，与 `AutoApproach` 共用这套进针判定），以及批 3a 剩下的 `ConfigureScan` /
 `StartScan` / `GrabScanFrameData`。
 
 2.15 收尾的三个也各卡在一件支撑件上：
@@ -121,7 +148,7 @@ GraphExecutor 再往下），分别走执行器的两条计划入口：
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1553 条测试**（另有 **40 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1697 条测试**（另有 **51 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 

@@ -1,4 +1,1855 @@
 {
+  "AutoApproach": {
+    "params": {
+      "wait_timeout_s": 5.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 6,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 6,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_open_module failed: 模拟故障：连接被对端关闭",
+            "completed_steps": [],
+            "composite_name": "AutoApproach",
+            "current_step": "open_module",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_open_module failed: 模拟故障：连接被对端关闭",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": false,
+          "running": null,
+          "wait_progress": null,
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_open_module failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_start_approach failed: 模拟故障：连接被对端关闭",
+            "completed_steps": [
+              "open_module"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "start_approach",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_start_approach failed: 模拟故障：连接被对端关闭",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": false,
+          "running": null,
+          "wait_progress": null,
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_start_approach failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@17": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: OnOffGet failed persistently: 模拟故障：连接被对端关闭",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "wait_progress": {
+                "module_ran_s": 4.519,
+                "polls_n": 10,
+                "running_polls_n": 10,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 4.52,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 5,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: OnOffGet failed persistently: 模拟故障：连接被对端关闭",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 4.519,
+            "polls_n": 10,
+            "running_polls_n": 10,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 4.52,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 5,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: OnOffGet failed persistently: 模拟故障：连接被对端关闭",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@18": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 5,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 5,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@19": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。\n⚠️ **进针模块的停机命令没有成功下发**(AutoApproach_OnOffSet(0): 模拟故障：连接被对端关闭)。模块可能仍在推进针尖 —— 请立即到 Nanonis 的 Auto Approach 面板确认它已停止,不要假设本技能已经把它停下了。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 6,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。\n⚠️ **进针模块的停机命令没有成功下发**(AutoApproach_OnOffSet(0): 模拟故障：连接被对端关闭)。模块可能仍在推进针尖 —— 请立即到 Nanonis 的 Auto Approach 面板确认它已停止,不要假设本技能已经把它停下了。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 6,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。\n⚠️ **进针模块的停机命令没有成功下发**(AutoApproach_OnOffSet(0): 模拟故障：连接被对端关闭)。模块可能仍在推进针尖 —— 请立即到 Nanonis 的 Auto Approach 面板确认它已停止,不要假设本技能已经把它停下了。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **4.5s**(共轮询 10 次,其中 10 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 4.519,
+                "polls_n": 10,
+                "running_polls_n": 10,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.021,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 5,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **4.5s**(共轮询 10 次,其中 10 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 4.519,
+            "polls_n": 10,
+            "running_polls_n": 10,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.021,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 5,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **4.5s**(共轮询 10 次,其中 10 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 5,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 5,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 5 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 6,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 6,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 6,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 6,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_Open"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+            "completed_steps": [
+              "open_module",
+              "start_approach"
+            ],
+            "composite_name": "AutoApproach",
+            "current_step": "wait_complete",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "approach_started": true,
+              "crosstalk": {
+                "crosstalk_modulation_off": true,
+                "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。"
+              },
+              "running_after_start": true,
+              "timed_out": true,
+              "wait_progress": {
+                "module_ran_s": 5.021,
+                "polls_n": 11,
+                "running_polls_n": 11,
+                "status_flap_n": 0,
+                "status_unreadable_n": 0,
+                "waited_s": 5.022,
+                "z_cycles_approx": null,
+                "z_max_m": 0.25,
+                "z_min_m": 0.25,
+                "z_reads_n": 6,
+                "z_travel_m": 0.0
+              }
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "approach_started": true,
+          "running": null,
+          "wait_progress": {
+            "module_ran_s": 5.021,
+            "polls_n": 11,
+            "running_polls_n": 11,
+            "status_flap_n": 0,
+            "status_unreadable_n": 0,
+            "waited_s": 5.022,
+            "z_cycles_approx": null,
+            "z_max_m": 0.25,
+            "z_min_m": 0.25,
+            "z_reads_n": 6,
+            "z_travel_m": 0.0
+          },
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "_phase_wait_complete failed: AutoApproach did not reach the setpoint within 5s — stopped the module。模块实际运行 **5.0s**(共轮询 11 次,其中 11 次读到 running=1);期间 Z 压电**纹丝不动**(采样 6 次,始终 250.00 mm)—— 模块报在跑,压电却没动。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ConfigureScan": {
     "params": {
       "center_x_m": 1e-09,
