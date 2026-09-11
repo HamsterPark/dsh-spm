@@ -47,7 +47,7 @@ export interface SkillSpec {
 }
 
 /** 技能结果里模型不该看到、但记录要留的键。 */
-export const AUDIT_ONLY_KEYS: readonly string[] = ['safe_mode_raw']
+export const AUDIT_ONLY_KEYS: readonly string[] = ['safe_mode_raw', '_progress']
 
 /** 工具返回给模型的文本上限（字符）。超了落盘并留引用。 */
 export const TOOL_RETURN_CAP = 2000

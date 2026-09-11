@@ -113,6 +113,9 @@ BATCH_3A = [
     "SaveScan", "GrabScanFrameData",
 ]
 
+#: 批 3b：GraphExecutor 的另一半验收（先算后排的动态计划）。
+BATCH_3B = ["SetBiasRamp"]
+
 #: **不进轨迹金样**的技能。
 #:
 #: 两个 L1 试点是 GraphExecutor 图技能：它们的「成功」需要一份**会收敛的**物理脚本
@@ -166,6 +169,11 @@ PARAM_OVERRIDES: dict[str, dict] = {
     "GetSignalValues": {"signal_indexes": "0"},
     # 幅度取一个**在任何叠堆上都不会烧**的低值（默认中点 200 V 会撞上「本机上限未声明」）
     "SetMotorFreqAmp": {"amplitude_v": 30.0, "frequency_hz": 1000.0},
+    # 起点**显式给**：不给的话第 0 步去读偏压，而合成回包读回来的是
+    # 一个随协议表位置而定的数——斜坡的步数会跟着那个数走，轨迹就成了
+    # 「合成器当时给了什么」的记录，而不是这个技能的记录。
+    # 起点没给那条路由 `bias_ramp.json` 的 13 格专门覆盖。
+    "SetBiasRamp": {"bias_v_start": 0.0, "bias_v_end": 0.5},
 }
 
 
@@ -218,7 +226,17 @@ def _synth_one(t: str, i: int) -> Any:
     if t in ("*f", "*d"):
         return [round(0.5 + i, 6), round(0.75 + i, 6)]
     if t == "2f":
-        return [[0.1 + i, 0.2 + i], [0.3 + i, 0.4 + i]]
+        # ⚠️ **ndarray，不是嵌套 list。** 真机上 `nanonis_spm` 把 `2f` 解成
+        # `np.ndarray`，而旧仓的 `parse_frame_grab` 正是靠 `isinstance(el, np.ndarray)`
+        # 从异构 body 里认出那一帧的。给一份嵌套 list 的话，旧仓自己的解析器**看不见
+        # 这一帧**，于是每一条 `Scan_FrameDataGrab` 轨迹录下的都是「不可测」——
+        # 一个真机上不成立的形状。
+        #
+        # 2026-09-11 移植时发现：TS 那侧的线协议解出来就是 `number[][]`，认得出帧，
+        # 于是 `WaitScanComplete` 的调用序列对不上（15 次 vs 25 次）。第一反应是改
+        # TS 的判据去迁就，那等于把一个夹具瑕疵固化成规格。
+        import numpy as _np
+        return _np.array([[0.1 + i, 0.2 + i], [0.3 + i, 0.4 + i]], dtype=float)
     return round(0.25 * (i + 1), 6)
 
 
@@ -293,9 +311,26 @@ class _FakeContext:
         return SkillResult(skill_name=skill_name, success=True, data={}, summary=f"{skill_name}: ok")
 
 
+#: 隔离用的临时项目根。它每次跑都换名字，而技能会把落盘路径写进 `data` ——
+#: 于是「重跑逐字节相同」会因为一个**与判据无关**的随机目录名而失效。
+#: 抹成占位符，而不是把项目根钉死：钉死等于让两次导出共用状态，那才是真的会
+#: 污染金样的东西。（2026-09-11：`2f` 合成改成 ndarray 之后 `GrabScanFrameData`
+#: 第一次真的写出了 `.npy`，这条才暴露出来。）
+_PROJECT_ROOT = os.environ["MAST2_PROJECT_ROOT"]
+
+
+def _scrub(s: str) -> str:
+    return s.replace(_PROJECT_ROOT, "<project-root>").replace(
+        _PROJECT_ROOT.replace("\\", "/"), "<project-root>")
+
+
 def _jsonable(v: Any) -> Any:
-    if isinstance(v, (str, int, float, bool)) or v is None:
+    if isinstance(v, str):
+        return _scrub(v)
+    if isinstance(v, (int, float, bool)) or v is None:
         return v
+    if type(v).__name__ == "ndarray":
+        return _jsonable(v.tolist())
     if isinstance(v, (list, tuple)):
         return [_jsonable(x) for x in v]
     if isinstance(v, dict):
@@ -309,13 +344,29 @@ def _result(r: Any) -> dict:
     """SkillResult 里**判据落得到的部分**。时间戳与耗时刻意不录（每跑一次都变）。"""
     return {
         "success": bool(getattr(r, "success", False)),
-        "error": str(getattr(r, "error", "") or ""),
-        "summary": str(getattr(r, "summary", "") or ""),
+        "error": _scrub(str(getattr(r, "error", "") or "")),
+        "summary": _scrub(str(getattr(r, "summary", "") or "")),
         "data": _jsonable(getattr(r, "data", None) or {}),
     }
 
 
 def _trace(skill: Any, params: dict, table: dict, **kw) -> dict:
+    # ⚠️ 每条轨迹**从零开始**。组合技能（`WaitScanComplete` / `SetBiasRamp`）会往
+    # `experiments/composite_progress/` 落断点，而假 context 没有 `run_id`，于是所有
+    # 轨迹共用同一个文件——上一条留下的进度会被下一条捡起来**续跑**。
+    #
+    # 不清的代价是看得见的：`SetBiasRamp/empty@0` 本该发 5 次 `Bias_Set`，实际只发了
+    # **1 次**——前 4 步是从上一条轨迹的断点里「已完成」的。一条录着「跳过了 4 步硬件
+    # 动作」的金样，比没有这条金样更坏。
+    #
+    # 这是同一个坑在本仓工具里的**第三次**（另两次：`export_graph_executor.py`、
+    # `export_scan_wait.py`）。它也正是断点键里该有 run_id 的那条理由。
+    try:
+        from mast.skills.composite.graph_executor import _sidecar_dir
+        for f in _sidecar_dir().glob("*"):
+            f.unlink(missing_ok=True)
+    except Exception:  # noqa: BLE001
+        pass
     ctx = _FakeContext(table, **kw)
     try:
         r = skill.execute(ctx, dict(params))
@@ -337,7 +388,7 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2 + BATCH_3A:
+    for name in BATCH_1 + BATCH_2 + BATCH_3A + BATCH_3B:
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

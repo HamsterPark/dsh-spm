@@ -278,3 +278,84 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 「保护未开」和「没问出来」交给调用方去猜——而这两者在要不要进针这件事上
 是相反的处境。这正是 `reply_scalar` 那段 docstring 说的第一个毛病，同一族，
 只是这一格没被修到。
+
+## D-GRAPH-1 · LangGraph 的 `GraphInterrupt` 没有对应物
+
+| | |
+|---|---|
+| **Python** | `run_plan` 里两处 `if _is_graph_interrupt(exc): raise` —— HITL 图节点暂停时必须冒泡 |
+| **我们** | 不写 |
+| **影响面** | 组合执行器的两条异常分支 |
+
+**为什么有意**：dsh 没有图、没有 checkpointer、没有 human node。一个永远为假的分支
+写出来只会让读的人以为有人在守它。操作员中止（`AbortRequested`）那一支照移——
+它是真的控制流，而且真的会从子技能与生成器里抛出来。
+
+## D-GRAPH-2 · 结论类旁白 `_narrate_step_result` 不移植
+
+| | |
+|---|---|
+| **Python** | 步骤成功后按 `RESULT_KIND_FOR_SKILL` 发一条带图的旁白，图由 `mast.vision.cluster_panel.render_cluster_panel` 现场渲染落盘 |
+| **我们** | 只移植开场旁白与失败旁白 |
+| **影响面** | 一个发射点 |
+
+**为什么有意**：视觉链路本仓还没有，而那张图不是装饰——旧仓自己的注释写着
+「猜错 origin 的后果不是没有图，是**借了别的图**」。没有渲染方就发一条带 `image`
+的旁白，等于发一条**指向不存在资源**的消息。开场与失败两条是纯的，照移；它们承担
+「句子里的电压等于真正下发的电压」那条性质（交出去的 `params` 就是下一行送进子技能
+的同一份）。
+
+## D-SCAN-1 · JS 只有一种数，`rows`/`cols` 的表头识别判据不同
+
+| | |
+|---|---|
+| **Python** | `parse_frame_grab` 用 `isinstance(x, int) and not isinstance(x, bool)` 从异构 body 里挑出表头整数；`2.0` 是 float，挑不中 |
+| **我们** | `Number.isInteger(x)` —— `2.0` 在 JS 里就是整数 |
+| **影响面** | 只有**扁平数值 body** 那条兜底路（桩 / 扁平仪器） |
+
+**为什么有意**：不可消除。真机 body 里那个二维元素会先被找到，表头路根本不参与；
+金样 10 格在两种判据下结论相同。差异是真的，但它没落在任何一个已知回包上。
+
+**顺带查出旧仓一处夹具瑕疵**：`export_skill_traces.py` 给 `2f` 合成的是 Python
+**list**，而真机上 `nanonis_spm` 解出来是 `ndarray`——旧仓的 `parse_frame_grab` 正是
+靠 `isinstance(el, np.ndarray)` 认帧的，于是每一条 `Scan_FrameDataGrab` 轨迹录下的都是
+「不可测」，一个真机上不成立的形状。已改成 ndarray 并重新导出。第一反应是改 TS 的判据
+去迁就，那等于把一个夹具瑕疵固化成规格。
+
+## D-SCAN-2 · 轮询自己那道中止检查不移植
+
+| | |
+|---|---|
+| **Python** | `_phase_poll` 开头再查一次 `check_abort`，中了就自己发停扫并返回 `success=False` |
+| **我们** | 不写。中止一律由执行器的步前检查拦下 |
+| **测试** | `composite/wait-scan-complete.test.ts` → `D-SCAN-2 · 中止只有一个说法` |
+
+**为什么有意**：两件事。
+
+其一，**在本仓它不可达**：执行器同步查完 `checkAbort()` 就调分发器，中间没有 `await`，
+所以第二道检查永远和第一道同答案。
+
+其二，它唯一可观测的作用是**让 `abort_facts` 自相矛盾**。金样 `abort_inside_poll`
+那一格：`outcome: "aborted"`、`error: "aborted by user"`，而同一份 data 里
+`aborted: false, aborted_by_operator: false` —— 因为那条路只写 `partial_data["aborted"]`，
+没碰 `progress.aborted`。下游按 `abort_facts` 判「是不是有人喊停」会得到「没有」。
+那正是 #46 那一族（判据与事实对不上）的翻版，而 `abort_facts` 本来就是为了修 #46 才
+存在的。去掉之后所有中止都走执行器，`abort_facts` 只有一个答案。
+
+**连带**：旧仓 `run_composite` 起手 `set_partial_default("aborted", False)`，而唯一的
+写入方就是那条分支。去掉之后这个键恒为 false，按消融的纪律一并删掉；轨迹金样里那 9 条
+登记在 `l0/traces.test.ts` 的 `absent` 里（测试会先断言金样里确实有它，差异消失时那条
+登记会当场变红）。
+
+## D-SCAN-3 · `WaitScanComplete` 不接断点
+
+| | |
+|---|---|
+| **Python** | 走 `GraphExecutor` 的 sidecar，`WaitScanComplete__<run_id>.json` |
+| **我们** | 不传 `store` |
+
+**为什么有意**：dsh 的一次工具调用不跨进程续跑，而「续跑一次等待」本来也没有意义
+（重新等就是了）。接一个永远不会被读的断点，只会让人以为这里有续跑语义。
+
+断点的**判据**（什么时候读、写、丢）仍然全部留在 `graph-executor.ts` 里，介质在
+`stm-skills/src/sidecar.ts`——批 5 的组合技能要用。

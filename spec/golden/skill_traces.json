@@ -4203,10 +4203,11 @@
           }
         ],
         "data": {
-          "frame_path": "<TEMP_ROOT>\\mast-spec-export\\experiments\\frames\\frame_ch0_dir1_cfe56800.npy",
-          "n_samples": 5,
+          "frame_path": "<project-root>\\experiments\\frames\\frame_ch0_dir1_cfe56800.npy",
+          "n_samples": 4,
           "shape": [
-            5
+            2,
+            2
           ]
         },
         "error": "",
@@ -15742,6 +15743,278 @@
       }
     }
   },
+  "SetBiasRamp": {
+    "params": {
+      "bias_v_end": 0.5,
+      "bias_v_start": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.30000000000000004
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "set_step_0",
+              "set_step_1",
+              "set_step_2",
+              "set_step_3",
+              "set_step_4"
+            ],
+            "composite_name": "SetBiasRamp",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "bias_v_end": 0.5,
+              "bias_v_start": 0.0,
+              "last_bias_v": 0.5,
+              "n_steps": 5,
+              "slew_rate_v_per_s": 1.0
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 5
+          },
+          "bias_v": 0.5,
+          "slew_rate_v_per_s": 1.0,
+          "steps": 5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_set_step_0 failed: Slew failed at 0.1000V: 模拟故障：连接被对端关闭",
+            "completed_steps": [],
+            "composite_name": "SetBiasRamp",
+            "current_step": "set_step_0",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "bias_v_end": 0.5,
+              "bias_v_start": 0.0,
+              "n_steps": 5,
+              "slew_rate_v_per_s": 1.0
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 5
+          },
+          "bias_v": 0.5,
+          "slew_rate_v_per_s": 1.0,
+          "steps": 5
+        },
+        "error": "_phase_set_step_0 failed: Slew failed at 0.1000V: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.30000000000000004
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.5
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_set_step_4 failed: Slew failed at 0.5000V: 模拟故障：连接被对端关闭",
+            "completed_steps": [
+              "set_step_0",
+              "set_step_1",
+              "set_step_2",
+              "set_step_3"
+            ],
+            "composite_name": "SetBiasRamp",
+            "current_step": "set_step_4",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "bias_v_end": 0.5,
+              "bias_v_start": 0.0,
+              "last_bias_v": 0.4,
+              "n_steps": 5,
+              "slew_rate_v_per_s": 1.0
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 5
+          },
+          "bias_v": 0.5,
+          "slew_rate_v_per_s": 1.0,
+          "steps": 5
+        },
+        "error": "_phase_set_step_4 failed: Slew failed at 0.5000V: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.30000000000000004
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "set_step_0",
+              "set_step_1",
+              "set_step_2",
+              "set_step_3",
+              "set_step_4"
+            ],
+            "composite_name": "SetBiasRamp",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "bias_v_end": 0.5,
+              "bias_v_start": 0.0,
+              "last_bias_v": 0.5,
+              "n_steps": 5,
+              "slew_rate_v_per_s": 1.0
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 5
+          },
+          "bias_v": 0.5,
+          "slew_rate_v_per_s": 1.0,
+          "steps": 5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetBiasRange": {
     "params": {
       "range_index": 0
@@ -19567,7 +19840,7 @@
               "budget_s": 5.0,
               "elapsed_s": 5.011000000522472,
               "frame_restarted": false,
-              "last_lines_done": null,
+              "last_lines_done": 2,
               "lines_verified": false,
               "outcome": "timed_out",
               "polls": 10,
@@ -20128,16 +20401,7 @@
             "args": [],
             "error": "",
             "kwargs": {},
-            "verb": "Scan_BufferGet"
-          },
-          {
-            "args": [
-              2,
-              1
-            ],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_FrameDataGrab"
+            "verb": "Scan_StatusGet"
           },
           {
             "args": [],
@@ -20149,79 +20413,13 @@
             "args": [],
             "error": "",
             "kwargs": {},
-            "verb": "Scan_BufferGet"
-          },
-          {
-            "args": [
-              2,
-              1
-            ],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_FrameDataGrab"
-          },
-          {
-            "args": [],
-            "error": "",
-            "kwargs": {},
             "verb": "Scan_StatusGet"
           },
           {
             "args": [],
             "error": "",
             "kwargs": {},
-            "verb": "Scan_BufferGet"
-          },
-          {
-            "args": [
-              2,
-              1
-            ],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_FrameDataGrab"
-          },
-          {
-            "args": [],
-            "error": "",
-            "kwargs": {},
             "verb": "Scan_StatusGet"
-          },
-          {
-            "args": [],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_BufferGet"
-          },
-          {
-            "args": [
-              2,
-              1
-            ],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_FrameDataGrab"
-          },
-          {
-            "args": [],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_StatusGet"
-          },
-          {
-            "args": [],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_BufferGet"
-          },
-          {
-            "args": [
-              2,
-              1
-            ],
-            "error": "",
-            "kwargs": {},
-            "verb": "Scan_FrameDataGrab"
           },
           {
             "args": [],
@@ -20275,7 +20473,7 @@
               "budget_s": 5.0,
               "elapsed_s": 5.011000000522472,
               "frame_restarted": false,
-              "last_lines_done": null,
+              "last_lines_done": 2,
               "lines_verified": false,
               "outcome": "timed_out",
               "polls": 10,

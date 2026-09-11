@@ -1,0 +1,6150 @@
+{
+  "_note": "由 tools/spec-export/export_graph_executor.py 生成——驱动旧仓真实 GraphExecutor 录得，不要手改。",
+  "abort_text": {
+    "aborted_blank_reason": {
+      "aborted": true,
+      "aborted_reason": "   ",
+      "facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "text": "aborted by user"
+    },
+    "aborted_no_reason": {
+      "aborted": true,
+      "aborted_reason": "",
+      "facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "text": "aborted by user"
+    },
+    "halt": {
+      "aborted": true,
+      "aborted_reason": "针尖状态 CRITICAL：前置放大器顶轨",
+      "facts": {
+        "abort_reason": "针尖状态 CRITICAL：前置放大器顶轨",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "text": "针尖状态 CRITICAL：前置放大器顶轨"
+    },
+    "latch_sentinel": {
+      "aborted": true,
+      "aborted_reason": "external abort flag before step",
+      "facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "text": "aborted by user"
+    },
+    "not_aborted": {
+      "aborted": false,
+      "aborted_reason": "",
+      "facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "text": "aborted by user"
+    },
+    "not_aborted_with_reason": {
+      "aborted": false,
+      "aborted_reason": "残留的上一轮理由",
+      "facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "text": "残留的上一轮理由"
+    },
+    "operator": {
+      "aborted": true,
+      "aborted_reason": "aborted by operator",
+      "facts": {
+        "abort_reason": "aborted by operator",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "text": "aborted by operator"
+    },
+    "padded": {
+      "aborted": true,
+      "aborted_reason": "  周围有空格  ",
+      "facts": {
+        "abort_reason": "周围有空格",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "text": "周围有空格"
+    },
+    "step_failure": {
+      "aborted": true,
+      "aborted_reason": "GetBias failed: 通道不存在",
+      "facts": {
+        "abort_reason": "GetBias failed: 通道不存在",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "text": "GetBias failed: 通道不存在"
+    },
+    "user_abort_text": {
+      "aborted": true,
+      "aborted_reason": "aborted by user",
+      "facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "text": "aborted by user"
+    }
+  },
+  "cases": {
+    "abort_before_step_1": {
+      "abort_facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "abort_text": "aborted by user",
+      "calls": [],
+      "checkpoint_flushes": 0,
+      "diags": [
+        {
+          "fields": {
+            "completed": 0,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "aborted by user",
+          "subject": "C.?"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": true,
+          "aborted_reason": "aborted by user",
+          "completed_steps": [],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [], \"failed_steps\": [], \"current_step\": null, \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"aborted by user\"}",
+      "sidecar_flushes": 1,
+      "sub_results": []
+    },
+    "abort_before_step_2": {
+      "abort_facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "aborted by user",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "aborted by user",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s1",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s1\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"aborted by user\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "abort_wins_over_halt": {
+      "abort_facts": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true
+      },
+      "abort_text": "aborted by user",
+      "calls": [],
+      "checkpoint_flushes": 0,
+      "diags": [
+        {
+          "fields": {
+            "completed": 0,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "aborted by user",
+          "subject": "C.?"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": true,
+          "aborted_reason": "aborted by user",
+          "completed_steps": [],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [], \"failed_steps\": [], \"current_step\": null, \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"aborted by user\"}",
+      "sidecar_flushes": 1,
+      "sub_results": []
+    },
+    "context_kept_when_sidecar_not_further": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        },
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 2,
+            "skill": "GetBias"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s3"
+      ]
+    },
+    "context_prior_empty_dict_ignored": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "context_prior_object_accepted": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s2",
+        "s3"
+      ]
+    },
+    "context_prior_resume_skips": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s2",
+        "s3"
+      ]
+    },
+    "context_prior_stale_abort_dropped": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s2",
+        "s3"
+      ]
+    },
+    "context_prior_terminal_discarded": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [
+        {
+          "fields": {
+            "completed": 3,
+            "total": 3
+          },
+          "kind": "progress_discard",
+          "reason": "上下文里的既往进度是**跑完了的**——本次从头跑,不跳步(跳步 = 零仪器调用的假成功)",
+          "subject": "C"
+        }
+      ],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "dynamic_plan_ok": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "empty_plan": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [],
+      "checkpoint_flushes": 0,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 2,
+      "sub_results": []
+    },
+    "fail_with_empty_error": {
+      "abort_facts": {
+        "abort_reason": "GetBias failed: (no error message)",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias failed: (no error message)",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: (no error message)",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias failed: (no error message)",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias failed: (no error message)",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "",
+            "reason": "GetBias failed: (no error message)",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias failed: (no error message)",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias failed: (no error message)\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "fail_without_detail": {
+      "abort_facts": {
+        "abort_reason": "GetBias failed: no_such_channel",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias failed: no_such_channel",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: no_such_channel",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias failed: no_such_channel",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias failed: no_such_channel",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "",
+            "reason": "GetBias failed: no_such_channel",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias failed: no_such_channel",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias failed: no_such_channel\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "generator_abort_requested": {
+      "abort_facts": {
+        "abort_reason": "aborted by operator",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by operator",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "aborted by operator",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "aborted by operator",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by operator",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s1",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s1\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"aborted by operator\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "generator_raises": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s1",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "raised": "ValueError",
+      "raised_text": "plan blew up",
+      "returned": null,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s1\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": false, \"aborted_reason\": \"\"}",
+      "sidecar_flushes": 1,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "halt_before_step_2": {
+      "abort_facts": {
+        "abort_reason": "针尖状态 CRITICAL：前置放大器顶轨",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "针尖状态 CRITICAL：前置放大器顶轨",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "针尖状态 CRITICAL：前置放大器顶轨",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "针尖状态 CRITICAL：前置放大器顶轨",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "针尖状态 CRITICAL：前置放大器顶轨",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s1",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s1\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"针尖状态 CRITICAL：前置放大器顶轨\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "halt_false_ignored": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "halt_is_one_shot": {
+      "abort_facts": {
+        "abort_reason": "第三次才停",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "第三次才停",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "completed": 2,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "第三次才停",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "第三次才停",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "第三次才停",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\", \"s2\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"第三次才停\"}",
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s1",
+        "s2"
+      ]
+    },
+    "halt_non_string_ignored": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "halt_none_ignored": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "mandatory_fail_aborts": {
+      "abort_facts": {
+        "abort_reason": "GetBias failed: rolled_back: diverged",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias failed: rolled_back: diverged",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias failed: rolled_back: diverged",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias failed: rolled_back: diverged",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias failed: rolled_back: diverged\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "no_check_abort_never_aborts": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "no_check_halt_never_halts": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "no_checkpoint": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "Noop"
+        },
+        {
+          "params": {},
+          "skill": "Noop"
+        }
+      ],
+      "checkpoint_flushes": 0,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 2
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 2
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s1",
+        "s2"
+      ]
+    },
+    "on_step_failed_aborts": {
+      "abort_facts": {
+        "abort_reason": "GetBias failed: rolled_back: diverged",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias failed: rolled_back: diverged",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias failed: rolled_back: diverged",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias failed: rolled_back: diverged",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias failed: rolled_back: diverged\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "on_step_failed_continues": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "continued": true,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {
+        "s2": "GetBias failed: rolled_back: diverged"
+      },
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": true,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [
+          "s2"
+        ],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s3"
+      ]
+    },
+    "on_step_failed_declines_but_optional": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": true,
+            "optional": true,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [
+            "s1"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [
+            "s1"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [
+            "s1"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 2
+        }
+      ],
+      "failed_reasons": {
+        "s1": "GetBias failed: rolled_back: diverged"
+      },
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "continued": true,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s1"
+          },
+          "kind": "step_failed"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s2"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [
+          "s1"
+        ],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 2
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s2"
+      ]
+    },
+    "on_step_failed_raises": {
+      "abort_facts": {
+        "abort_reason": "GetBias failed: rolled_back: diverged",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias failed: rolled_back: diverged",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias failed: rolled_back: diverged",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias failed: rolled_back: diverged",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias failed: rolled_back: diverged\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "on_step_result_raises": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 1
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "optional_fail_continues": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "continued": true,
+            "optional": true,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias failed: rolled_back: diverged",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {
+        "s2": "GetBias failed: rolled_back: diverged"
+      },
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": true,
+            "detail": "第 1 轮后残余 Z 占用 6.4 nm",
+            "reason": "GetBias failed: rolled_back: diverged",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [
+          "s2"
+        ],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s3"
+      ]
+    },
+    "set_total_steps_below_seen": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 1
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "set_total_steps_is_a_max": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 10
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 10
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 10
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 10
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "sidecar_beats_context_when_further": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        },
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 2,
+            "skill": "GetBias"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1699999940.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s3"
+      ]
+    },
+    "sidecar_empty_not_used": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "sidecar_resume_skips": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        },
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 2,
+            "skill": "GetBias"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1699999940.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s3"
+      ]
+    },
+    "sidecar_run_id_scopes_the_file": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "sidecar_stale_abort_dropped": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1699999940.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 4,
+      "sub_results": [
+        "s2",
+        "s3"
+      ]
+    },
+    "sidecar_stale_discarded": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "sidecar_streaming_total_zero_still_resumes": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 1,
+            "skill": "MoveToXY"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s1"
+        },
+        {
+          "fields": {
+            "completed": 2,
+            "ordinal": 2,
+            "skill": "GetBias"
+          },
+          "kind": "step_skip",
+          "reason": "已完成（从 sidecar 断点恢复）——本次未执行",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1699999940.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s3"
+      ]
+    },
+    "sidecar_terminal_discarded": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "skill_version": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "GetBias",
+          "version": "2.1"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 1
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "static_ok": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 3,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s2",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s2",
+        "s3"
+      ]
+    },
+    "sub_skill_abort_requested": {
+      "abort_facts": {
+        "abort_reason": "aborted by operator",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by operator",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "aborted by operator",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "aborted by operator",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by operator",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"aborted by operator\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "sub_skill_raises": {
+      "abort_facts": {
+        "abort_reason": "GetBias raised ValueError: boom",
+        "aborted": true,
+        "aborted_by_operator": false
+      },
+      "abort_text": "GetBias raised ValueError: boom",
+      "calls": [
+        {
+          "params": {
+            "x_m": 1e-09
+          },
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [
+        {
+          "fields": {
+            "continued": false,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias raised ValueError: boom",
+          "subject": "C.s2"
+        },
+        {
+          "fields": {
+            "completed": 1,
+            "failed": [],
+            "total": 0
+          },
+          "kind": "step_abort",
+          "reason": "GetBias raised ValueError: boom",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": true,
+          "aborted_reason": "GetBias raised ValueError: boom",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {
+              "x_m": 1e-09
+            },
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": false,
+            "detail": "",
+            "reason": "GetBias raised ValueError: boom",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        }
+      ],
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "GetBias raised ValueError: boom",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": "s2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": false,
+      "sidecar_after": "{\"composite_name\": \"C\", \"total_steps\": 0, \"completed_steps\": [\"s1\"], \"failed_steps\": [], \"current_step\": \"s2\", \"partial_data\": {}, \"started_at\": 1700000000.0, \"last_update_at\": 1700000000.0, \"aborted\": true, \"aborted_reason\": \"GetBias raised ValueError: boom\"}",
+      "sidecar_flushes": 2,
+      "sub_results": [
+        "s1"
+      ]
+    },
+    "sub_skill_raises_optional": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "MoveToXY"
+        },
+        {
+          "params": {},
+          "skill": "GetBias"
+        },
+        {
+          "params": {},
+          "skill": "StartScan"
+        }
+      ],
+      "checkpoint_flushes": 2,
+      "diags": [
+        {
+          "fields": {
+            "continued": true,
+            "optional": true,
+            "skill": "GetBias"
+          },
+          "kind": "step_fail",
+          "reason": "GetBias raised ValueError: boom",
+          "subject": "C.s2"
+        }
+      ],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s2",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": "s3",
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1",
+            "s3"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [
+            "s2"
+          ],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 3
+        }
+      ],
+      "failed_reasons": {
+        "s2": "GetBias raised ValueError: boom"
+      },
+      "init_diags": [],
+      "narrations": [
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "MoveToXY",
+            "step_id": "s1"
+          },
+          "kind": "move_xy"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "continued": true,
+            "detail": "",
+            "reason": "GetBias raised ValueError: boom",
+            "skill": "GetBias",
+            "step_id": "s2"
+          },
+          "kind": "step_failed"
+        },
+        {
+          "data": {
+            "composite": "C",
+            "params": {},
+            "skill": "StartScan",
+            "step_id": "s3"
+          },
+          "kind": "scan_start"
+        }
+      ],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1",
+          "s3"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [
+          "s2"
+        ],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 3
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 5,
+      "sub_results": [
+        "s1",
+        "s3"
+      ]
+    },
+    "tags_dont_change_anything": {
+      "abort_facts": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false
+      },
+      "abort_text": "aborted by user",
+      "calls": [
+        {
+          "params": {},
+          "skill": "Noop"
+        }
+      ],
+      "checkpoint_flushes": 1,
+      "diags": [],
+      "emits": [
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": "s1",
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 0
+        },
+        {
+          "aborted": false,
+          "aborted_reason": "",
+          "completed_steps": [
+            "s1"
+          ],
+          "composite_name": "C",
+          "current_step": null,
+          "failed_steps": [],
+          "last_update_at": 1700000000.0,
+          "partial_data": {},
+          "started_at": 1700000000.0,
+          "total_steps": 1
+        }
+      ],
+      "failed_reasons": {},
+      "init_diags": [],
+      "narrations": [],
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "s1"
+        ],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 1
+      },
+      "progress_after_init": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [],
+        "composite_name": "C",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "returned": true,
+      "sidecar_after": null,
+      "sidecar_flushes": 3,
+      "sub_results": [
+        "s1"
+      ]
+    }
+  },
+  "constants": {
+    "abort_latch_reason": "external abort flag before step",
+    "begin_kind_for_skill": {
+      "AutoTilt": "auto_tilt",
+      "BiasPulse": "bias_pulse",
+      "BiasPulseWithReadback": "bias_pulse",
+      "FindCleanSpot": "find_spot",
+      "FindFlatRegion": "flat_region",
+      "FullScan": "scan_start",
+      "MoveToXY": "move_xy",
+      "RelocateCoarseXY": "relocate",
+      "ScanAt": "scan_at",
+      "StartScan": "scan_start",
+      "TipPulse": "tip_pulse",
+      "TipShapeWithReadback": "poke"
+    },
+    "now": 1700000000.0,
+    "sidecar_resume_window_s": 1800.0,
+    "user_abort_text": "aborted by user"
+  },
+  "drop_stale_abort": {
+    "aborted_no_reason": {
+      "after": {
+        "aborted": false,
+        "aborted_reason": ""
+      },
+      "before": {
+        "aborted": true,
+        "aborted_reason": ""
+      }
+    },
+    "aborted_with_reason": {
+      "after": {
+        "aborted": false,
+        "aborted_reason": ""
+      },
+      "before": {
+        "aborted": true,
+        "aborted_reason": "上一轮失败"
+      }
+    },
+    "clean": {
+      "after": {
+        "aborted": false,
+        "aborted_reason": ""
+      },
+      "before": {
+        "aborted": false,
+        "aborted_reason": ""
+      }
+    }
+  },
+  "is_terminal": {
+    "total=-1,done=0": {
+      "completed": 0,
+      "terminal": false,
+      "total_steps": -1
+    },
+    "total=0,done=0": {
+      "completed": 0,
+      "terminal": false,
+      "total_steps": 0
+    },
+    "total=0,done=3": {
+      "completed": 3,
+      "terminal": false,
+      "total_steps": 0
+    },
+    "total=1,done=1": {
+      "completed": 1,
+      "terminal": true,
+      "total_steps": 1
+    },
+    "total=3,done=0": {
+      "completed": 0,
+      "terminal": false,
+      "total_steps": 3
+    },
+    "total=3,done=2": {
+      "completed": 2,
+      "terminal": false,
+      "total_steps": 3
+    },
+    "total=3,done=3": {
+      "completed": 3,
+      "terminal": true,
+      "total_steps": 3
+    },
+    "total=3,done=5": {
+      "completed": 5,
+      "terminal": true,
+      "total_steps": 3
+    }
+  },
+  "progress_shape": {
+    "defaults": {
+      "aborted": false,
+      "aborted_reason": "",
+      "completed_steps": [],
+      "composite_name": "C",
+      "current_step": null,
+      "failed_steps": [],
+      "last_update_at": 1700000000.0,
+      "partial_data": {},
+      "started_at": 1700000000.0,
+      "total_steps": 0
+    },
+    "failed_reasons_not_in_to_dict": false,
+    "from_dict_empty": {
+      "aborted": false,
+      "aborted_reason": "",
+      "completed_steps": [],
+      "composite_name": "",
+      "current_step": null,
+      "failed_steps": [],
+      "last_update_at": 1700000000.0,
+      "partial_data": {},
+      "started_at": 1700000000.0,
+      "total_steps": 0
+    },
+    "from_dict_partial": {
+      "aborted": true,
+      "aborted_reason": "7",
+      "completed_steps": [
+        "a"
+      ],
+      "composite_name": "X",
+      "current_step": null,
+      "failed_steps": [],
+      "last_update_at": 1700000000.0,
+      "partial_data": {},
+      "started_at": 1700000000.0,
+      "total_steps": 4
+    },
+    "roundtrip": {
+      "aborted": true,
+      "aborted_reason": "r",
+      "completed_steps": [
+        "a"
+      ],
+      "composite_name": "X",
+      "current_step": "c",
+      "failed_steps": [
+        "b"
+      ],
+      "last_update_at": 1700000000.0,
+      "partial_data": {
+        "k": [
+          1,
+          2
+        ]
+      },
+      "started_at": 1700000000.0,
+      "total_steps": 2
+    }
+  },
+  "step_shape": {
+    "defaults": {
+      "checkpoint_after": true,
+      "optional": false,
+      "params": {},
+      "skill_name": "GetBias",
+      "skill_version": null,
+      "step_id": "s1",
+      "tags": []
+    },
+    "explicit": {
+      "checkpoint_after": false,
+      "optional": true,
+      "params": {
+        "v": 1.0
+      },
+      "skill_name": "SetBias",
+      "skill_version": "3",
+      "step_id": "s2",
+      "tags": [
+        "t"
+      ]
+    }
+  }
+}

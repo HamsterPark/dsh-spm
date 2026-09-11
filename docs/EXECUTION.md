@@ -62,8 +62,48 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 `ABORT_SAFE_WRITES` 用在了**工具名**上 —— 两套命名空间，于是「有豁免」只是注释里的一句话。
 动词那一层现在在 `gatedSafeCall()`。
 
-**下一段 = GraphExecutor**（见 §5 末尾的依赖分析：它同时挡着批 2 的两个 L1 试点、
-批 3a 的 `WaitScanComplete`、批 3b 的 `SetBiasRamp` 和整个批 5）。
+· **2.16 ✅ GraphExecutor + 它的两个验收技能**。
+
+`packages/host/kernel/src/graph-executor.ts` —— 组合执行器，**四次真机事故的现场**，
+四条守卫全部长在「恢复」这条路径上：
+
+| 日期 | 症状 | 守卫 |
+|---|---|---|
+| 2026-07-10 | AutoApproach 假进针（#42/#75） | `isTerminal` |
+| 2026-07-27 | BatchRegionsScan 五个 region 各 0.37 s「扫完」，还报 `success_count=5` | `isTerminal` 的**第二个入口** |
+| 2026-08-12 | ForgeAuTip 的 `finalize` 被跳过 | 跑完删掉自己的断点 |
+| 2026-08-23 | 「重试」静默变成「重放」，用时 0.0 分钟、error 一字不差 | `dropStaleAbort` |
+
+判据是 `spec/golden/graph_executor.json`：**46 个执行用例**驱动旧仓真执行器录得，
+每格录下调用序列、拒绝台账逐条（含字段）、旁白逐条、每一拍的进度快照、断点落盘次数
+与终态、以及跑完之后那个文件**还在不在**——最后一样是 2026-08-12 那条 bug 的唯一可见
+证据。外加 8 格 `isTerminal`、10 格 `abortErrorText`/`abortFacts`。
+
+内核零 I/O，所以断点是一个**注入的口子**（`ProgressStore`）：判据（什么时候读、写、丢）
+留在内核，介质在 `stm-skills/src/sidecar.ts`。键里带 `run_id` 不是装饰——只按名字的旧键
+让断点成了跨运行的共享信箱，那才是 2026-07-10 的**真正缺陷**，terminal/stale 两条守卫
+是后来补的兜底。
+
+两个验收技能（PLAN §5.1 原话：先用批 3 的 `WaitScanComplete`/`SetBiasRamp` 验过
+GraphExecutor 再往下），分别走执行器的两条计划入口：
+
+| 技能 | 计划形状 | 金样 |
+|---|---|---|
+| `WaitScanComplete` | **流式**：步数事先不知道，一次轮询一步 + finalize | `scan_wait.json`：22 格回包解析 + **17 个结局** |
+| `SetBiasRamp` | **先算后排**：第 0 步先读当前偏压，读到了才排得出后面那串 | `bias_ramp.json`：12 格步长（逐位浮点）+ 13 个端到端 |
+
+那条硬约束已兑现并钉住：**中止与超时都先发 `Scan_Action(1, 0)` 停扫、再返回**
+（dsh 的超时同样触发 `ctx.signal`，绝不把仪器留在运动中）。`Scan_Action(1, …)` 在
+`ABORT_SAFE_WRITES` 里，中止闩上了照样发得出去。
+
+新登记 **D-GRAPH-1/2 · D-SCAN-1/2/3**（共 23 条）。其中 D-SCAN-2 修的是旧仓一处
+自相矛盾：`abort_inside_poll` 那条路给出 `outcome: "aborted"` 配 `aborted: false`，
+下游按 `abort_facts` 判「有没有人喊停」会得到「没有」——而 `abort_facts` 本来就是为了
+修 #46（判据落在措辞上）才存在的。
+
+**下一段**：批 2 剩下的两个 L1 试点 `AutoApproach` / `ApproachTip`（它们的成功路径
+需要会收敛的物理脚本 = stmsim，DoD ④），以及批 3a 剩下的 `ConfigureScan` /
+`StartScan` / `GrabScanFrameData`。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -73,15 +113,15 @@ profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无�
 | ~~`TryEngageController`~~ | ✅ 决策点三种处境各一条测试（变异照出来的洞） |
 | `CreateZCtrlPreset` | 参数组存储（config/admin 层，0 条仪器调用） |
 | `GetLatestScanFile` | 会话目录扫描（跟 `nanonis-files` 一起） |
-| `AutoApproach` / `ApproachTip` | GraphExecutor（Phase 5 的件），且成功路径需要**会收敛的物理脚本** = stmsim（DoD ④） |
+| `AutoApproach` / `ApproachTip` | ~~GraphExecutor~~ ✅ 已就位；仍需**会收敛的物理脚本** = stmsim（DoD ④） |
 
 > 批 1 计划稿点名 38 个，其中 `GetScanStatus` / `GetXYPosition` 在**当前旧仓不存在**
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
 > 所以分母是 36。未做的一个是 `GetLatestScanFile`——它不发仪器调用，
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
-仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1314 条测试**（另有 18 条变异演练，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
+**1553 条测试**（另有 **40 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 

@@ -1,0 +1,1854 @@
+{
+  "_note": "由 tools/spec-export/export_bias_ramp.py 生成——驱动旧仓真实 SetBiasRamp 录得，不要手改。",
+  "cases": {
+    "abort_before_first_step": {
+      "calls": [],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "aborted by user",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "set_targets": [],
+      "success": false,
+      "verbs": []
+    },
+    "abort_before_get_current": {
+      "calls": [],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 0
+      },
+      "error": "aborted by user",
+      "params": {
+        "bias_v_end": 1.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "set_targets": [],
+      "success": false,
+      "verbs": []
+    },
+    "abort_midway": {
+      "calls": [
+        {
+          "args": [
+            0.1
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.2
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.30000000000000004
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "aborted by user",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [
+          "set_step_0",
+          "set_step_1",
+          "set_step_2"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": "set_step_2",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "last_bias_v": 0.30000000000000004,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "set_targets": [
+        0.1,
+        0.2,
+        0.30000000000000004
+      ],
+      "success": false,
+      "verbs": [
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    },
+    "bias_get_fails": {
+      "calls": [
+        {
+          "args": [],
+          "error": "模拟故障：连接被对端关闭",
+          "verb": "Bias_Get"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 0
+      },
+      "error": "_phase_get_current failed: Bias_Get failed: 模拟故障：连接被对端关闭",
+      "params": {
+        "bias_v_end": 1.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "_phase_get_current failed: Bias_Get failed: 模拟故障：连接被对端关闭",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": "get_current",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "set_targets": [],
+      "success": false,
+      "verbs": [
+        "Bias_Get"
+      ]
+    },
+    "bias_get_nan": {
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Bias_Get"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 0
+      },
+      "error": "_phase_get_current failed: Cannot slew-ramp bias: Bias_Get returned an unparseable response, so the current bias is unknown. Refusing to ramp from an assumed 0.0V start, which would defeat slew protection. Retry, or pass bias_v_start explicitly.",
+      "params": {
+        "bias_v_end": 1.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "_phase_get_current failed: Cannot slew-ramp bias: Bias_Get returned an unparseable response, so the current bias is unknown. Refusing to ramp from an assumed 0.0V start, which would defeat slew protection. Retry, or pass bias_v_start explicitly.",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": "get_current",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "set_targets": [],
+      "success": false,
+      "verbs": [
+        "Bias_Get"
+      ]
+    },
+    "bias_get_unparseable": {
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Bias_Get"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 0
+      },
+      "error": "_phase_get_current failed: Cannot slew-ramp bias: Bias_Get returned an unparseable response, so the current bias is unknown. Refusing to ramp from an assumed 0.0V start, which would defeat slew protection. Retry, or pass bias_v_start explicitly.",
+      "params": {
+        "bias_v_end": 1.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "_phase_get_current failed: Cannot slew-ramp bias: Bias_Get returned an unparseable response, so the current bias is unknown. Refusing to ramp from an assumed 0.0V start, which would defeat slew protection. Retry, or pass bias_v_start explicitly.",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": "get_current",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {},
+        "started_at": 1700000000.0,
+        "total_steps": 0
+      },
+      "set_targets": [],
+      "success": false,
+      "verbs": [
+        "Bias_Get"
+      ]
+    },
+    "custom_interval": {
+      "calls": [
+        {
+          "args": [
+            0.5
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 2
+      },
+      "error": "",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0,
+        "step_interval_s": 0.5
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "set_step_0",
+          "set_step_1"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "last_bias_v": 1.0,
+          "n_steps": 2,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 2
+      },
+      "set_targets": [
+        0.5,
+        1.0
+      ],
+      "success": true,
+      "verbs": [
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    },
+    "set_fails_first": {
+      "calls": [
+        {
+          "args": [
+            0.1
+          ],
+          "error": "模拟故障：写偏压失败",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "_phase_set_step_0 failed: Slew failed at 0.1000V: 模拟故障：写偏压失败",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "_phase_set_step_0 failed: Slew failed at 0.1000V: 模拟故障：写偏压失败",
+        "completed_steps": [],
+        "composite_name": "SetBiasRamp",
+        "current_step": "set_step_0",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "set_targets": [
+        0.1
+      ],
+      "success": false,
+      "verbs": [
+        "Bias_Set"
+      ]
+    },
+    "set_fails_midway": {
+      "calls": [
+        {
+          "args": [
+            0.1
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.2
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.30000000000000004
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.4
+          ],
+          "error": "模拟故障：写偏压失败",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "_phase_set_step_3 failed: Slew failed at 0.4000V: 模拟故障：写偏压失败",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "_phase_set_step_3 failed: Slew failed at 0.4000V: 模拟故障：写偏压失败",
+        "completed_steps": [
+          "set_step_0",
+          "set_step_1",
+          "set_step_2"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": "set_step_3",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "last_bias_v": 0.30000000000000004,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "set_targets": [
+        0.1,
+        0.2,
+        0.30000000000000004,
+        0.4
+      ],
+      "success": false,
+      "verbs": [
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    },
+    "single_shot_below_1mv": {
+      "calls": [
+        {
+          "args": [
+            1.0005
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0005,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 1
+      },
+      "error": "",
+      "params": {
+        "bias_v_end": 1.0005,
+        "bias_v_start": 1.0
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "set_step_0"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0005,
+          "bias_v_start": 1.0,
+          "last_bias_v": 1.0005,
+          "n_steps": 1,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 1
+      },
+      "set_targets": [
+        1.0005
+      ],
+      "success": true,
+      "verbs": [
+        "Bias_Set"
+      ]
+    },
+    "slow_slew": {
+      "calls": [
+        {
+          "args": [
+            0.02040816326530612
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.04081632653061224
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.061224489795918366
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.08163265306122448
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.1020408163265306
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.12244897959183673
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.14285714285714285
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.16326530612244897
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.18367346938775508
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.2040816326530612
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.22448979591836732
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.24489795918367346
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.26530612244897955
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.2857142857142857
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.3061224489795918
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.32653061224489793
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.3469387755102041
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.36734693877551017
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.3877551020408163
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.4081632653061224
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.42857142857142855
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.44897959183673464
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.4693877551020408
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.4897959183673469
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5102040816326531
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5306122448979591
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5510204081632653
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5714285714285714
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5918367346938775
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.6122448979591836
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.6326530612244897
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.6530612244897959
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.673469387755102
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.6938775510204082
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7142857142857142
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7346938775510203
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7551020408163265
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7755102040816326
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7959183673469387
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.8163265306122448
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.836734693877551
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.8571428571428571
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.8775510204081632
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.8979591836734693
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.9183673469387754
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.9387755102040816
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.9591836734693877
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.9795918367346939
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 0.2,
+        "steps": 49
+      },
+      "error": "",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0,
+        "slew_rate_v_per_s": 0.2
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "set_step_0",
+          "set_step_1",
+          "set_step_2",
+          "set_step_3",
+          "set_step_4",
+          "set_step_5",
+          "set_step_6",
+          "set_step_7",
+          "set_step_8",
+          "set_step_9",
+          "set_step_10",
+          "set_step_11",
+          "set_step_12",
+          "set_step_13",
+          "set_step_14",
+          "set_step_15",
+          "set_step_16",
+          "set_step_17",
+          "set_step_18",
+          "set_step_19",
+          "set_step_20",
+          "set_step_21",
+          "set_step_22",
+          "set_step_23",
+          "set_step_24",
+          "set_step_25",
+          "set_step_26",
+          "set_step_27",
+          "set_step_28",
+          "set_step_29",
+          "set_step_30",
+          "set_step_31",
+          "set_step_32",
+          "set_step_33",
+          "set_step_34",
+          "set_step_35",
+          "set_step_36",
+          "set_step_37",
+          "set_step_38",
+          "set_step_39",
+          "set_step_40",
+          "set_step_41",
+          "set_step_42",
+          "set_step_43",
+          "set_step_44",
+          "set_step_45",
+          "set_step_46",
+          "set_step_47",
+          "set_step_48"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "last_bias_v": 1.0,
+          "n_steps": 49,
+          "slew_rate_v_per_s": 0.2
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 49
+      },
+      "set_targets": [
+        0.02040816326530612,
+        0.04081632653061224,
+        0.061224489795918366,
+        0.08163265306122448,
+        0.1020408163265306,
+        0.12244897959183673,
+        0.14285714285714285,
+        0.16326530612244897,
+        0.18367346938775508,
+        0.2040816326530612,
+        0.22448979591836732,
+        0.24489795918367346,
+        0.26530612244897955,
+        0.2857142857142857,
+        0.3061224489795918,
+        0.32653061224489793,
+        0.3469387755102041,
+        0.36734693877551017,
+        0.3877551020408163,
+        0.4081632653061224,
+        0.42857142857142855,
+        0.44897959183673464,
+        0.4693877551020408,
+        0.4897959183673469,
+        0.5102040816326531,
+        0.5306122448979591,
+        0.5510204081632653,
+        0.5714285714285714,
+        0.5918367346938775,
+        0.6122448979591836,
+        0.6326530612244897,
+        0.6530612244897959,
+        0.673469387755102,
+        0.6938775510204082,
+        0.7142857142857142,
+        0.7346938775510203,
+        0.7551020408163265,
+        0.7755102040816326,
+        0.7959183673469387,
+        0.8163265306122448,
+        0.836734693877551,
+        0.8571428571428571,
+        0.8775510204081632,
+        0.8979591836734693,
+        0.9183673469387754,
+        0.9387755102040816,
+        0.9591836734693877,
+        0.9795918367346939,
+        1.0
+      ],
+      "success": true,
+      "verbs": [
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    },
+    "start_given": {
+      "calls": [
+        {
+          "args": [
+            0.1
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.2
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.30000000000000004
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.4
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.5
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.6000000000000001
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.7000000000000001
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.8
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            0.9
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.0
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 1.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "",
+      "params": {
+        "bias_v_end": 1.0,
+        "bias_v_start": 0.0
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "set_step_0",
+          "set_step_1",
+          "set_step_2",
+          "set_step_3",
+          "set_step_4",
+          "set_step_5",
+          "set_step_6",
+          "set_step_7",
+          "set_step_8",
+          "set_step_9"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 1.0,
+          "bias_v_start": 0.0,
+          "last_bias_v": 1.0,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 10
+      },
+      "set_targets": [
+        0.1,
+        0.2,
+        0.30000000000000004,
+        0.4,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000001,
+        0.8,
+        0.9,
+        1.0
+      ],
+      "success": true,
+      "verbs": [
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    },
+    "start_read_from_instrument": {
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Bias_Get"
+        },
+        {
+          "args": [
+            1.1
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.2
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.3
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.4
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.5
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.6
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.7000000000000002
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.8
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            1.9
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        },
+        {
+          "args": [
+            2.0
+          ],
+          "error": "",
+          "verb": "Bias_Set"
+        }
+      ],
+      "data": {
+        "bias_v": 2.0,
+        "slew_rate_v_per_s": 1.0,
+        "steps": 10
+      },
+      "error": "",
+      "params": {
+        "bias_v_end": 2.0
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "get_current",
+          "set_step_0",
+          "set_step_1",
+          "set_step_2",
+          "set_step_3",
+          "set_step_4",
+          "set_step_5",
+          "set_step_6",
+          "set_step_7",
+          "set_step_8",
+          "set_step_9"
+        ],
+        "composite_name": "SetBiasRamp",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "bias_v_end": 2.0,
+          "bias_v_start": 1.0,
+          "last_bias_v": 2.0,
+          "n_steps": 10,
+          "slew_rate_v_per_s": 1.0
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 11
+      },
+      "set_targets": [
+        1.1,
+        1.2,
+        1.3,
+        1.4,
+        1.5,
+        1.6,
+        1.7000000000000002,
+        1.8,
+        1.9,
+        2.0
+      ],
+      "success": true,
+      "verbs": [
+        "Bias_Get",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set",
+        "Bias_Set"
+      ]
+    }
+  },
+  "compute_steps": {
+    "cross_zero": {
+      "end_v": 1.0,
+      "n": 20,
+      "slew": 1.0,
+      "start_v": -1.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        -0.9,
+        -0.8,
+        -0.7,
+        -0.6,
+        -0.5,
+        -0.3999999999999999,
+        -0.29999999999999993,
+        -0.19999999999999996,
+        -0.09999999999999998,
+        0.0,
+        0.10000000000000009,
+        0.20000000000000018,
+        0.30000000000000004,
+        0.40000000000000013,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000002,
+        0.8,
+        0.9000000000000001,
+        1.0
+      ]
+    },
+    "down_1v": {
+      "end_v": 0.0,
+      "n": 10,
+      "slew": 1.0,
+      "start_v": 1.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.9,
+        0.8,
+        0.7,
+        0.6,
+        0.5,
+        0.3999999999999999,
+        0.29999999999999993,
+        0.19999999999999996,
+        0.09999999999999998,
+        0.0
+      ]
+    },
+    "exactly_1mv": {
+      "end_v": 1.001,
+      "n": 1,
+      "slew": 1.0,
+      "start_v": 1.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        1.001
+      ]
+    },
+    "fast_slew_one_step": {
+      "end_v": 0.05,
+      "n": 1,
+      "slew": 100.0,
+      "start_v": 0.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.05
+      ]
+    },
+    "float_repeating": {
+      "end_v": 1.0,
+      "n": 3,
+      "slew": 3.0,
+      "start_v": 0.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.3333333333333333,
+        0.6666666666666666,
+        1.0
+      ]
+    },
+    "long_interval": {
+      "end_v": 1.0,
+      "n": 1,
+      "slew": 1.0,
+      "start_v": 0.0,
+      "step_interval_s": 1.0,
+      "targets": [
+        1.0
+      ]
+    },
+    "negative_target": {
+      "end_v": -0.8,
+      "n": 10,
+      "slew": 1.0,
+      "start_v": 0.2,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.1,
+        0.0,
+        -0.10000000000000003,
+        -0.2,
+        -0.3,
+        -0.4000000000000001,
+        -0.5,
+        -0.6000000000000001,
+        -0.7,
+        -0.8
+      ]
+    },
+    "no_change": {
+      "end_v": 0.5,
+      "n": 1,
+      "slew": 1.0,
+      "start_v": 0.5,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.5
+      ]
+    },
+    "odd_divisor": {
+      "end_v": 0.3,
+      "n": 2,
+      "slew": 1.0,
+      "start_v": 0.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.15,
+        0.3
+      ]
+    },
+    "slow_slew_many": {
+      "end_v": 2.0,
+      "n": 399,
+      "slew": 0.05,
+      "start_v": 0.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.005012531328320802,
+        0.010025062656641603,
+        0.015037593984962405,
+        0.020050125313283207,
+        0.02506265664160401,
+        0.03007518796992481,
+        0.03508771929824561,
+        0.040100250626566414,
+        0.045112781954887216,
+        0.05012531328320802,
+        0.05513784461152882,
+        0.06015037593984962,
+        0.06516290726817042,
+        0.07017543859649122,
+        0.07518796992481203,
+        0.08020050125313283,
+        0.08521303258145363,
+        0.09022556390977443,
+        0.09523809523809523,
+        0.10025062656641603,
+        0.10526315789473684,
+        0.11027568922305764,
+        0.11528822055137844,
+        0.12030075187969924,
+        0.12531328320802004,
+        0.13032581453634084,
+        0.13533834586466165,
+        0.14035087719298245,
+        0.14536340852130325,
+        0.15037593984962405,
+        0.15538847117794485,
+        0.16040100250626566,
+        0.16541353383458646,
+        0.17042606516290726,
+        0.17543859649122806,
+        0.18045112781954886,
+        0.18546365914786966,
+        0.19047619047619047,
+        0.19548872180451127,
+        0.20050125313283207,
+        0.20551378446115287,
+        0.21052631578947367,
+        0.21553884711779447,
+        0.22055137844611528,
+        0.22556390977443608,
+        0.23057644110275688,
+        0.23558897243107768,
+        0.24060150375939848,
+        0.24561403508771928,
+        0.2506265664160401,
+        0.2556390977443609,
+        0.2606516290726817,
+        0.2656641604010025,
+        0.2706766917293233,
+        0.2756892230576441,
+        0.2807017543859649,
+        0.2857142857142857,
+        0.2907268170426065,
+        0.2957393483709273,
+        0.3007518796992481,
+        0.3057644110275689,
+        0.3107769423558897,
+        0.3157894736842105,
+        0.3208020050125313,
+        0.3258145363408521,
+        0.3308270676691729,
+        0.3358395989974937,
+        0.3408521303258145,
+        0.3458646616541353,
+        0.3508771929824561,
+        0.3558897243107769,
+        0.3609022556390977,
+        0.3659147869674185,
+        0.37092731829573933,
+        0.37593984962406013,
+        0.38095238095238093,
+        0.38596491228070173,
+        0.39097744360902253,
+        0.39598997493734334,
+        0.40100250626566414,
+        0.40601503759398494,
+        0.41102756892230574,
+        0.41604010025062654,
+        0.42105263157894735,
+        0.42606516290726815,
+        0.43107769423558895,
+        0.43609022556390975,
+        0.44110275689223055,
+        0.44611528822055135,
+        0.45112781954887216,
+        0.45614035087719296,
+        0.46115288220551376,
+        0.46616541353383456,
+        0.47117794486215536,
+        0.47619047619047616,
+        0.48120300751879697,
+        0.48621553884711777,
+        0.49122807017543857,
+        0.49624060150375937,
+        0.5012531328320802,
+        0.506265664160401,
+        0.5112781954887218,
+        0.5162907268170426,
+        0.5213032581453634,
+        0.5263157894736842,
+        0.531328320802005,
+        0.5363408521303258,
+        0.5413533834586466,
+        0.5463659147869674,
+        0.5513784461152882,
+        0.556390977443609,
+        0.5614035087719298,
+        0.5664160401002506,
+        0.5714285714285714,
+        0.5764411027568922,
+        0.581453634085213,
+        0.5864661654135338,
+        0.5914786967418546,
+        0.5964912280701754,
+        0.6015037593984962,
+        0.606516290726817,
+        0.6115288220551378,
+        0.6165413533834586,
+        0.6215538847117794,
+        0.6265664160401002,
+        0.631578947368421,
+        0.6365914786967418,
+        0.6416040100250626,
+        0.6466165413533834,
+        0.6516290726817042,
+        0.656641604010025,
+        0.6616541353383458,
+        0.6666666666666666,
+        0.6716791979949874,
+        0.6766917293233082,
+        0.681704260651629,
+        0.6867167919799498,
+        0.6917293233082706,
+        0.6967418546365914,
+        0.7017543859649122,
+        0.706766917293233,
+        0.7117794486215538,
+        0.7167919799498746,
+        0.7218045112781954,
+        0.7268170426065163,
+        0.731829573934837,
+        0.7368421052631579,
+        0.7418546365914787,
+        0.7468671679197995,
+        0.7518796992481203,
+        0.7568922305764411,
+        0.7619047619047619,
+        0.7669172932330827,
+        0.7719298245614035,
+        0.7769423558897243,
+        0.7819548872180451,
+        0.7869674185463659,
+        0.7919799498746867,
+        0.7969924812030075,
+        0.8020050125313283,
+        0.8070175438596491,
+        0.8120300751879699,
+        0.8170426065162907,
+        0.8220551378446115,
+        0.8270676691729323,
+        0.8320802005012531,
+        0.8370927318295739,
+        0.8421052631578947,
+        0.8471177944862155,
+        0.8521303258145363,
+        0.8571428571428571,
+        0.8621553884711779,
+        0.8671679197994987,
+        0.8721804511278195,
+        0.8771929824561403,
+        0.8822055137844611,
+        0.8872180451127819,
+        0.8922305764411027,
+        0.8972431077694235,
+        0.9022556390977443,
+        0.9072681704260651,
+        0.9122807017543859,
+        0.9172932330827067,
+        0.9223057644110275,
+        0.9273182957393483,
+        0.9323308270676691,
+        0.9373433583959899,
+        0.9423558897243107,
+        0.9473684210526315,
+        0.9523809523809523,
+        0.9573934837092731,
+        0.9624060150375939,
+        0.9674185463659147,
+        0.9724310776942355,
+        0.9774436090225563,
+        0.9824561403508771,
+        0.9874686716791979,
+        0.9924812030075187,
+        0.9974937343358395,
+        1.0025062656641603,
+        1.007518796992481,
+        1.012531328320802,
+        1.0175438596491229,
+        1.0225563909774436,
+        1.0275689223057642,
+        1.0325814536340852,
+        1.037593984962406,
+        1.0426065162907268,
+        1.0476190476190474,
+        1.0526315789473684,
+        1.0576441102756893,
+        1.06265664160401,
+        1.0676691729323307,
+        1.0726817042606516,
+        1.0776942355889725,
+        1.0827067669172932,
+        1.0877192982456139,
+        1.0927318295739348,
+        1.0977443609022557,
+        1.1027568922305764,
+        1.107769423558897,
+        1.112781954887218,
+        1.117794486215539,
+        1.1228070175438596,
+        1.1278195488721803,
+        1.1328320802005012,
+        1.137844611528822,
+        1.1428571428571428,
+        1.1478696741854635,
+        1.1528822055137844,
+        1.1578947368421053,
+        1.162907268170426,
+        1.1679197994987467,
+        1.1729323308270676,
+        1.1779448621553885,
+        1.1829573934837092,
+        1.18796992481203,
+        1.1929824561403508,
+        1.1979949874686717,
+        1.2030075187969924,
+        1.208020050125313,
+        1.213032581453634,
+        1.218045112781955,
+        1.2230576441102756,
+        1.2280701754385963,
+        1.2330827067669172,
+        1.2380952380952381,
+        1.2431077694235588,
+        1.2481203007518795,
+        1.2531328320802004,
+        1.2581453634085213,
+        1.263157894736842,
+        1.2681704260651627,
+        1.2731829573934836,
+        1.2781954887218046,
+        1.2832080200501252,
+        1.288220551378446,
+        1.2932330827067668,
+        1.2982456140350878,
+        1.3032581453634084,
+        1.3082706766917291,
+        1.31328320802005,
+        1.318295739348371,
+        1.3233082706766917,
+        1.3283208020050123,
+        1.3333333333333333,
+        1.3383458646616542,
+        1.3433583959899749,
+        1.3483709273182956,
+        1.3533834586466165,
+        1.3583959899749374,
+        1.363408521303258,
+        1.3684210526315788,
+        1.3734335839598997,
+        1.3784461152882206,
+        1.3834586466165413,
+        1.388471177944862,
+        1.3934837092731829,
+        1.3984962406015038,
+        1.4035087719298245,
+        1.4085213032581452,
+        1.413533834586466,
+        1.418546365914787,
+        1.4235588972431077,
+        1.4285714285714284,
+        1.4335839598997493,
+        1.4385964912280702,
+        1.443609022556391,
+        1.4486215538847116,
+        1.4536340852130325,
+        1.4586466165413534,
+        1.463659147869674,
+        1.4686716791979948,
+        1.4736842105263157,
+        1.4786967418546366,
+        1.4837092731829573,
+        1.488721804511278,
+        1.493734335839599,
+        1.4987468671679198,
+        1.5037593984962405,
+        1.5087719298245612,
+        1.5137844611528821,
+        1.518796992481203,
+        1.5238095238095237,
+        1.5288220551378444,
+        1.5338345864661653,
+        1.5388471177944862,
+        1.543859649122807,
+        1.5488721804511276,
+        1.5538847117794485,
+        1.5588972431077694,
+        1.5639097744360901,
+        1.5689223057644108,
+        1.5739348370927317,
+        1.5789473684210527,
+        1.5839598997493733,
+        1.588972431077694,
+        1.593984962406015,
+        1.5989974937343359,
+        1.6040100250626566,
+        1.6090225563909772,
+        1.6140350877192982,
+        1.619047619047619,
+        1.6240601503759398,
+        1.6290726817042605,
+        1.6340852130325814,
+        1.6390977443609023,
+        1.644110275689223,
+        1.6491228070175437,
+        1.6541353383458646,
+        1.6591478696741855,
+        1.6641604010025062,
+        1.6691729323308269,
+        1.6741854636591478,
+        1.6791979949874687,
+        1.6842105263157894,
+        1.68922305764411,
+        1.694235588972431,
+        1.699248120300752,
+        1.7042606516290726,
+        1.7092731829573933,
+        1.7142857142857142,
+        1.719298245614035,
+        1.7243107769423558,
+        1.7293233082706765,
+        1.7343358395989974,
+        1.7393483709273183,
+        1.744360902255639,
+        1.7493734335839597,
+        1.7543859649122806,
+        1.7593984962406015,
+        1.7644110275689222,
+        1.769423558897243,
+        1.7744360902255638,
+        1.7794486215538847,
+        1.7844611528822054,
+        1.789473684210526,
+        1.794486215538847,
+        1.799498746867168,
+        1.8045112781954886,
+        1.8095238095238093,
+        1.8145363408521302,
+        1.8195488721804511,
+        1.8245614035087718,
+        1.8295739348370925,
+        1.8345864661654134,
+        1.8395989974937343,
+        1.844611528822055,
+        1.8496240601503757,
+        1.8546365914786966,
+        1.8596491228070176,
+        1.8646616541353382,
+        1.869674185463659,
+        1.8746867167919798,
+        1.8796992481203008,
+        1.8847117794486214,
+        1.8897243107769421,
+        1.894736842105263,
+        1.899749373433584,
+        1.9047619047619047,
+        1.9097744360902253,
+        1.9147869674185463,
+        1.9197994987468672,
+        1.9248120300751879,
+        1.9298245614035086,
+        1.9348370927318295,
+        1.9398496240601504,
+        1.944862155388471,
+        1.9498746867167918,
+        1.9548872180451127,
+        1.9598997493734336,
+        1.9649122807017543,
+        1.969924812030075,
+        1.9749373433583959,
+        1.9799498746867168,
+        1.9849624060150375,
+        1.9899749373433582,
+        1.994987468671679,
+        2.0
+      ]
+    },
+    "tiny_below_1mv": {
+      "end_v": 1.0005,
+      "n": 1,
+      "slew": 1.0,
+      "start_v": 1.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        1.0005
+      ]
+    },
+    "up_1v_slew1": {
+      "end_v": 1.0,
+      "n": 10,
+      "slew": 1.0,
+      "start_v": 0.0,
+      "step_interval_s": 0.1,
+      "targets": [
+        0.1,
+        0.2,
+        0.30000000000000004,
+        0.4,
+        0.5,
+        0.6000000000000001,
+        0.7000000000000001,
+        0.8,
+        0.9,
+        1.0
+      ]
+    }
+  },
+  "constants": {
+    "default_slew_v_per_s": 1.0,
+    "default_step_interval_s": 0.1,
+    "phase_get_current": "_phase_get_current",
+    "phase_ramp_step_prefix": "_phase_set_step_",
+    "single_shot_threshold_v": 0.001
+  }
+}

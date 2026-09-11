@@ -1,0 +1,2924 @@
+{
+  "_note": "由 tools/spec-export/export_scan_wait.py 生成——驱动旧仓真实 WaitScanComplete 与回包解析器录得，不要手改。",
+  "constants": {
+    "extension_fraction": 0.25,
+    "max_extensions": 2,
+    "phase_finalize": "_phase_finalize",
+    "phase_poll_prefix": "_phase_poll_",
+    "start_grace_s": 5.0
+  },
+  "parsers": {
+    "buffer": {
+      "bare_ints": {
+        "body": [
+          2,
+          [
+            0,
+            14
+          ],
+          512,
+          512
+        ],
+        "channel_ids": [
+          0,
+          14
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            [
+              0,
+              14
+            ],
+            512,
+            512
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            0,
+            14
+          ],
+          "lines": 512,
+          "num_channels": 2,
+          "pixels": 512
+        }
+      },
+      "body_not_a_sequence": {
+        "body": 7,
+        "channel_ids": [],
+        "input": [
+          "",
+          "<bytes 0>",
+          7
+        ],
+        "parse_buffer_get": null
+      },
+      "body_too_short": {
+        "body": [
+          2,
+          [
+            [
+              0
+            ]
+          ],
+          256
+        ],
+        "channel_ids": [
+          0
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            [
+              [
+                0
+              ]
+            ],
+            256
+          ]
+        ],
+        "parse_buffer_get": null
+      },
+      "garbled_element_skipped": {
+        "body": [
+          3,
+          [
+            0,
+            "x",
+            30
+          ],
+          256,
+          256
+        ],
+        "channel_ids": [
+          0,
+          30
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            3,
+            [
+              0,
+              "x",
+              30
+            ],
+            256,
+            256
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            0,
+            30
+          ],
+          "lines": 256,
+          "num_channels": 3,
+          "pixels": 256
+        }
+      },
+      "lines_wrapped_degrades": {
+        "body": [
+          2,
+          [
+            [
+              0
+            ]
+          ],
+          [
+            256
+          ],
+          [
+            256
+          ]
+        ],
+        "channel_ids": [
+          0
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            [
+              [
+                0
+              ]
+            ],
+            [
+              256
+            ],
+            [
+              256
+            ]
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            0
+          ],
+          "lines": 256,
+          "num_channels": 2,
+          "pixels": 256
+        }
+      },
+      "ndarray_ids": {
+        "body": [
+          2,
+          [
+            0,
+            30
+          ],
+          256,
+          256
+        ],
+        "channel_ids": [
+          0,
+          30
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            [
+              0,
+              30
+            ],
+            256,
+            256
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            0,
+            30
+          ],
+          "lines": 256,
+          "num_channels": 2,
+          "pixels": 256
+        }
+      },
+      "no_channels": {
+        "body": [
+          0,
+          [],
+          256,
+          256
+        ],
+        "channel_ids": [],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            0,
+            [],
+            256,
+            256
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [],
+          "lines": 256,
+          "num_channels": 0,
+          "pixels": 256
+        }
+      },
+      "none": {
+        "body": null,
+        "channel_ids": [],
+        "input": null,
+        "parse_buffer_get": null
+      },
+      "not_an_envelope": {
+        "body": [
+          1,
+          2
+        ],
+        "channel_ids": [
+          2
+        ],
+        "input": [
+          1,
+          2
+        ],
+        "parse_buffer_get": null
+      },
+      "real_rig_tuples": {
+        "body": [
+          2,
+          [
+            [
+              0
+            ],
+            [
+              30
+            ]
+          ],
+          256,
+          256
+        ],
+        "channel_ids": [
+          0,
+          30
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            [
+              [
+                0
+              ],
+              [
+                30
+              ]
+            ],
+            256,
+            256
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            0,
+            30
+          ],
+          "lines": 256,
+          "num_channels": 2,
+          "pixels": 256
+        }
+      },
+      "single_unwrapped": {
+        "body": [
+          1,
+          7,
+          128,
+          128
+        ],
+        "channel_ids": [
+          7
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            1,
+            7,
+            128,
+            128
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [
+            7
+          ],
+          "lines": 128,
+          "num_channels": 1,
+          "pixels": 128
+        }
+      },
+      "string_ids_refused": {
+        "body": [
+          1,
+          "abc",
+          256,
+          256
+        ],
+        "channel_ids": [],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            1,
+            "abc",
+            256,
+            256
+          ]
+        ],
+        "parse_buffer_get": {
+          "channel_indexes": [],
+          "lines": 256,
+          "num_channels": 1,
+          "pixels": 256
+        }
+      }
+    },
+    "frame": {
+      "bare_ndarray": {
+        "body": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          [
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ],
+          [
+            "NaN",
+            "NaN",
+            "NaN",
+            "NaN"
+          ]
+        ],
+        "frame_acquired_lines": [
+          3,
+          4
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              2.0,
+              2.0,
+              2.0,
+              2.0
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ]
+          ]
+        ],
+        "shape_2d": [
+          4,
+          4
+        ]
+      },
+      "empty_body": {
+        "body": [],
+        "frame_acquired_lines": null,
+        "input": [
+          "",
+          "<bytes 0>",
+          []
+        ],
+        "shape_2d": null
+      },
+      "flat_list_not_square": {
+        "body": [
+          1.0,
+          2.0,
+          3.0
+        ],
+        "frame_acquired_lines": null,
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            1.0,
+            2.0,
+            3.0
+          ]
+        ],
+        "shape_2d": null
+      },
+      "flat_list_square": {
+        "body": [
+          1.0,
+          2.0,
+          3.0,
+          4.0
+        ],
+        "frame_acquired_lines": [
+          2,
+          2
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            1.0,
+            2.0,
+            3.0,
+            4.0
+          ]
+        ],
+        "shape_2d": [
+          2,
+          2
+        ]
+      },
+      "header_dims_reshape": {
+        "body": [
+          2,
+          2,
+          3,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ],
+        "frame_acquired_lines": [
+          3,
+          3
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            2,
+            3,
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0
+          ]
+        ],
+        "shape_2d": [
+          3,
+          3
+        ]
+      },
+      "none": {
+        "body": null,
+        "frame_acquired_lines": null,
+        "input": null,
+        "shape_2d": null
+      },
+      "not_an_envelope": {
+        "body": [
+          1,
+          2
+        ],
+        "frame_acquired_lines": null,
+        "input": [
+          1,
+          2
+        ],
+        "shape_2d": null
+      },
+      "real_shape_empty": {
+        "body": [
+          2,
+          "Z",
+          8,
+          6,
+          [
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ]
+          ],
+          1
+        ],
+        "frame_acquired_lines": [
+          0,
+          8
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            "Z",
+            8,
+            6,
+            [
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ]
+            ],
+            1
+          ]
+        ],
+        "shape_2d": [
+          8,
+          6
+        ]
+      },
+      "real_shape_full": {
+        "body": [
+          2,
+          "Z",
+          8,
+          6,
+          [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0
+            ],
+            [
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0
+            ],
+            [
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0
+            ],
+            [
+              5.0,
+              5.0,
+              5.0,
+              5.0,
+              5.0,
+              5.0
+            ],
+            [
+              6.0,
+              6.0,
+              6.0,
+              6.0,
+              6.0,
+              6.0
+            ],
+            [
+              7.0,
+              7.0,
+              7.0,
+              7.0,
+              7.0,
+              7.0
+            ]
+          ],
+          1
+        ],
+        "frame_acquired_lines": [
+          8,
+          8
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            "Z",
+            8,
+            6,
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              [
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0
+              ],
+              [
+                3.0,
+                3.0,
+                3.0,
+                3.0,
+                3.0,
+                3.0
+              ],
+              [
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0
+              ],
+              [
+                5.0,
+                5.0,
+                5.0,
+                5.0,
+                5.0,
+                5.0
+              ],
+              [
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0,
+                6.0
+              ],
+              [
+                7.0,
+                7.0,
+                7.0,
+                7.0,
+                7.0,
+                7.0
+              ]
+            ],
+            1
+          ]
+        ],
+        "shape_2d": [
+          8,
+          6
+        ]
+      },
+      "real_shape_partial": {
+        "body": [
+          2,
+          "Z",
+          8,
+          6,
+          [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ],
+            [
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN",
+              "NaN"
+            ]
+          ],
+          1
+        ],
+        "frame_acquired_lines": [
+          3,
+          8
+        ],
+        "input": [
+          "",
+          "<bytes 0>",
+          [
+            2,
+            "Z",
+            8,
+            6,
+            [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              [
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0,
+                2.0
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ],
+              [
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN",
+                "NaN"
+              ]
+            ],
+            1
+          ]
+        ],
+        "shape_2d": [
+          8,
+          6
+        ]
+      }
+    }
+  },
+  "wait": {
+    "abort_external": {
+      "abort_checks": 1,
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.0010000000474974513,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "aborted",
+        "polls": 0,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "aborted by user",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "frame_restarted": false,
+          "lines_verified": false,
+          "polls": 0,
+          "scan_done": false,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": false,
+      "verbs": [
+        "Scan_Action"
+      ]
+    },
+    "abort_inside_poll": {
+      "abort_checks": 3,
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.0010000000474974513,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "aborted",
+        "polls": 0,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "aborted by user",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [
+          "poll_0"
+        ],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": true,
+          "elapsed_s": 0.0010000000474974513,
+          "frame_restarted": false,
+          "lines_verified": false,
+          "polls": 0,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": false,
+      "verbs": [
+        "Scan_Action"
+      ]
+    },
+    "abort_midway": {
+      "abort_checks": 5,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "aborted by user",
+        "aborted": true,
+        "aborted_by_operator": true,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 1.0030000001424924,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "aborted",
+        "polls": 0,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "aborted by user",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": true,
+        "aborted_reason": "aborted by user",
+        "completed_steps": [
+          "poll_0",
+          "poll_1"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": "poll_1",
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "frame_restarted": false,
+          "lines_verified": false,
+          "polls": 0,
+          "scan_done": false,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": false,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_Action"
+      ]
+    },
+    "already_finished_before_wait": {
+      "abort_checks": 3,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.0020000000949949026,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 256,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 1,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 0.0020000000949949026,
+          "frame_restarted": false,
+          "lines_done": 256,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 1,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "completed": {
+      "abort_checks": 7,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 1.0040000001899898,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 256,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 3,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 1.0040000001899898,
+          "frame_restarted": false,
+          "lines_done": 256,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 3,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "extension_granted": {
+      "abort_checks": 15,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 2.0,
+        "deadline_s": 3.0060000002849847,
+        "elapsed_s": 3.007000000332482,
+        "extensions": 2,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "timed_out",
+        "polls": 6,
+        "stopped_early": false,
+        "timed_out": true
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 2000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "poll_5",
+          "poll_6",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "budget_s": 2.0,
+          "deadline_s": 3.0060000002849847,
+          "elapsed_s": 3.007000000332482,
+          "extensions": 2,
+          "frame_restarted": false,
+          "last_lines_done": 200,
+          "lines_verified": false,
+          "outcome": "timed_out",
+          "polls": 6,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 9
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_Action"
+      ]
+    },
+    "frame_rows_mismatch": {
+      "abort_checks": 5,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.5030000001424924,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": 256,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 2,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 0.5030000001424924,
+          "frame_restarted": false,
+          "lines_total": 256,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 2,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "frozen_no_extension": {
+      "abort_checks": 11,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 2.0,
+        "deadline_s": 2.0,
+        "elapsed_s": 2.0050000002374873,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "timed_out",
+        "polls": 4,
+        "stopped_early": false,
+        "timed_out": true
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 2000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "budget_s": 2.0,
+          "elapsed_s": 2.0050000002374873,
+          "frame_restarted": false,
+          "last_lines_done": 100,
+          "lines_verified": false,
+          "outcome": "timed_out",
+          "polls": 4,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 9
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_Action"
+      ]
+    },
+    "never_started": {
+      "abort_checks": 23,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 5.012000000569969,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 0,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": true,
+        "outcome": "never_started",
+        "polls": 11,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "poll_5",
+          "poll_6",
+          "poll_7",
+          "poll_8",
+          "poll_9",
+          "poll_10",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 5.012000000569969,
+          "frame_restarted": false,
+          "lines_done": 0,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": true,
+          "outcome": "never_started",
+          "polls": 11,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "poll_error_is_optional": {
+      "abort_checks": 9,
+      "calls": [
+        {
+          "args": [],
+          "error": "模拟故障：连接被对端关闭",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 1.5050000002374873,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 256,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 4,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 1.5050000002374873,
+          "frame_restarted": false,
+          "lines_done": 256,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 4,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "restarted": {
+      "abort_checks": 11,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 2.0,
+        "deadline_s": 2.0,
+        "elapsed_s": 2.0050000002374873,
+        "extensions": 0,
+        "frame_restarted": true,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "restarted",
+        "polls": 4,
+        "stopped_early": false,
+        "timed_out": true
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 2000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "budget_s": 2.0,
+          "elapsed_s": 2.0050000002374873,
+          "frame_restarted": true,
+          "last_lines_done": 208,
+          "lines_verified": false,
+          "outcome": "restarted",
+          "polls": 4,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 9
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_Action"
+      ]
+    },
+    "start_grace_then_completed": {
+      "abort_checks": 11,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 2.0060000002849847,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 256,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 5,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 2.0060000002849847,
+          "frame_restarted": false,
+          "lines_done": 256,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 5,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "stopped_early": {
+      "abort_checks": 7,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 1.0040000001899898,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 100,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "stopped_early",
+        "polls": 3,
+        "stopped_early": true,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 1.0040000001899898,
+          "frame_restarted": false,
+          "lines_done": 100,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "stopped_early",
+          "polls": 3,
+          "scan_done": true,
+          "stopped_early": true,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "timed_out": {
+      "abort_checks": 11,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "error": "",
+          "verb": "Scan_Action"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 2.0,
+        "deadline_s": 2.0,
+        "elapsed_s": 2.0050000002374873,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "timed_out",
+        "polls": 4,
+        "stopped_early": false,
+        "timed_out": true
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 2000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "budget_s": 2.0,
+          "elapsed_s": 2.0050000002374873,
+          "frame_restarted": false,
+          "last_lines_done": 100,
+          "lines_verified": false,
+          "outcome": "timed_out",
+          "polls": 4,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 9
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_Action"
+      ]
+    },
+    "timed_out_no_stop": {
+      "abort_checks": 11,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 2.0,
+        "deadline_s": 2.0,
+        "elapsed_s": 2.0050000002374873,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": null,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "timed_out",
+        "polls": 4,
+        "stopped_early": false,
+        "timed_out": true
+      },
+      "error": "",
+      "params": {
+        "stop_on_timeout": false,
+        "timeout_ms": 2000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "poll_2",
+          "poll_3",
+          "poll_4",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "budget_s": 2.0,
+          "elapsed_s": 2.0050000002374873,
+          "frame_restarted": false,
+          "last_lines_done": 100,
+          "lines_verified": false,
+          "outcome": "timed_out",
+          "polls": 4,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": true
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 9
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab",
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "unmeasurable_buffer": {
+      "abort_checks": 5,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "模拟故障：读缓冲区失败",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.5030000001424924,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": 256,
+        "lines_total": 256,
+        "lines_verified": true,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 2,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 0.5030000001424924,
+          "frame_restarted": false,
+          "lines_done": 256,
+          "lines_total": 256,
+          "lines_verified": true,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 2,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    },
+    "unmeasurable_frame": {
+      "abort_checks": 5,
+      "calls": [
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_StatusGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "Scan_BufferGet"
+        },
+        {
+          "args": [
+            0,
+            1
+          ],
+          "error": "模拟故障：抓帧失败",
+          "verb": "Scan_FrameDataGrab"
+        }
+      ],
+      "data": {
+        "abort_reason": "",
+        "aborted": false,
+        "aborted_by_operator": false,
+        "budget_s": 20.0,
+        "deadline_s": 20.0,
+        "elapsed_s": 0.5030000001424924,
+        "extensions": 0,
+        "frame_restarted": false,
+        "lines_done": null,
+        "lines_total": 256,
+        "lines_verified": false,
+        "never_started": false,
+        "outcome": "completed",
+        "polls": 2,
+        "stopped_early": false,
+        "timed_out": false
+      },
+      "error": "",
+      "params": {
+        "timeout_ms": 20000
+      },
+      "progress": {
+        "aborted": false,
+        "aborted_reason": "",
+        "completed_steps": [
+          "poll_0",
+          "poll_1",
+          "finalize"
+        ],
+        "composite_name": "WaitScanComplete",
+        "current_step": null,
+        "failed_steps": [],
+        "last_update_at": 1700000000.0,
+        "partial_data": {
+          "aborted": false,
+          "elapsed_s": 0.5030000001424924,
+          "frame_restarted": false,
+          "lines_total": 256,
+          "lines_verified": false,
+          "never_started": false,
+          "outcome": "completed",
+          "polls": 2,
+          "scan_done": true,
+          "stopped_early": false,
+          "timed_out": false
+        },
+        "started_at": 1700000000.0,
+        "total_steps": 63
+      },
+      "success": true,
+      "verbs": [
+        "Scan_StatusGet",
+        "Scan_StatusGet",
+        "Scan_BufferGet",
+        "Scan_FrameDataGrab"
+      ]
+    }
+  }
+}

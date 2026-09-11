@@ -141,6 +141,38 @@ function optsOf(trace: string): { errorAt?: number; emptyAt?: number; noEcho?: b
 interface Deviation {
   readonly data?: Record<string, unknown>
   readonly error?: string
+  /**
+   * 金样里有、本仓**故意没有**的字段（点分路径）。
+   *
+   * 比整份 `data` 抄一遍轻，而且**抄不成一份过期的期望**：测试会先断言这个路径
+   * 在金样里确实存在——差异消失时这条登记会当场变红，而不是安静地什么都不管。
+   */
+  readonly absent?: readonly string[]
+  /**
+   * 动词序列**不比**，附上理由。
+   *
+   * 只在旧仓那一趟里**有步骤炸了**时才允许（测试会去金样的 `_progress.failed_steps`
+   * 里核实）：一次抛出去的异常会跳过那一步剩下的动作，于是后面每一拍的时刻都偏了。
+   * 比较一个从崩溃点之后错位的序列，比不比更糟——它看起来像在测什么。
+   *
+   * 它同时豁免 `_progress` 与 `polls`：执行器的步骤台账、以及那些对不上的调用的计数，
+   * 都是同一次崩溃的直接后果。**结局字段照比** —— 那才是判据。
+   */
+  readonly callsDifferBecause?: string
+}
+
+/** 按点分路径删一个键。返回它原来在不在。 */
+function dropPath(obj: unknown, path: string): boolean {
+  const parts = path.split('.')
+  let cur = obj
+  for (const seg of parts.slice(0, -1)) {
+    if (cur === null || typeof cur !== 'object') return false
+    cur = (cur as Record<string, unknown>)[seg]
+  }
+  const last = parts[parts.length - 1]!
+  if (cur === null || typeof cur !== 'object' || !(last in (cur as object))) return false
+  delete (cur as Record<string, unknown>)[last]
+  return true
 }
 
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
@@ -169,6 +201,28 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'ListSignalChannels/empty@0': {
     error: 'Could not parse signal names from response: []',
   },
+  // ── D-SCAN-2：轮询自己那道中止检查不移植，于是没人再写 partial.aborted ──
+  //
+  // 旧仓 `run_composite` 起手 `set_partial_default("aborted", False)`，而唯一的
+  // 写入方是轮询里那道中止分支。去掉那道检查之后这个键恒为 false ——
+  // 一个永远不表示任何事的字段，按消融的纪律不该存在。
+  // 中止本身照常记在 `progress.aborted` 与 `abort_facts` 里（而且只有一个说法）。
+  ...Object.fromEntries(
+    ['ok', 'err@0', 'err@5', 'err@6', 'err@19', 'err@22', 'err@23', 'err@24'].map((t) => [
+      `WaitScanComplete/${t}`,
+      { absent: ['_progress.partial_data.aborted'] },
+    ]),
+  ),
+  // ── D-SKILL-3 的又一格：空 body 上旧仓的轮询**炸了** ──
+  //
+  // 旧仓读状态用的是 `parsed[2][0]`，空 body ⇒ IndexError ⇒ 那一步被 `optional`
+  // 吞掉（金样里看得见：`failed_steps: ["poll_0"]`）。**这同时是 GraphExecutor 的
+  // optional 路第一次在一个真技能上被走到。** 崩掉的那一步不会 sleep，于是从它之后
+  // 每一拍的时刻都比本仓早半个轮询，动词序列整体错位。
+  'WaitScanComplete/empty@0': {
+    absent: ['_progress.partial_data.aborted'],
+    callsDifferBecause: '旧仓 poll_0 在空 body 上抛 IndexError（被 optional 吞掉），此后时序错位',
+  },
 }
 
 /**
@@ -180,7 +234,11 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
  *
  * 钉的是它们的**形状**（是个数、在预算之内），在下面单独一条测试里。
  */
-const VOLATILE = new Set(['read_at', 'confirm_waited_s'])
+// 时钟读数不是判据。`elapsed_s` / `started_at` / `last_update_at` 的具体值取决于
+// 实现读了几次钟——把它钉住只会让每一次无关重构都变红，而它一次真 bug 也抓不到。
+const VOLATILE = new Set([
+  'read_at', 'confirm_waited_s', 'elapsed_s', 'started_at', 'last_update_at',
+])
 
 /** 递归剥掉时钟字段。 */
 function stripVolatile(v: unknown): unknown {
@@ -215,11 +273,18 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
           const { ctx, calls } = fakeCtx(optsOf(traceName))
           const got = await skill.execute(ctx, entry.params)
 
-          expect(calls.map((c) => [c.verb, c.args])).toEqual(
-            want.calls.map((c) => [c.verb, c.args]),
-          )
-          expect(got.success).toBe(want.success === true)
           const dev = DEVIATIONS[`${name}/${traceName}`]
+          if (dev?.callsDifferBecause === undefined) {
+            expect(calls.map((c) => [c.verb, c.args])).toEqual(
+              want.calls.map((c) => [c.verb, c.args]),
+            )
+          } else {
+            // 豁免只在旧仓真的炸了一步时成立——去金样里核实，别信这段注释
+            const prog = (want.data as { _progress?: { failed_steps?: string[] } } | undefined)
+              ?._progress
+            expect(prog?.failed_steps ?? [], dev.callsDifferBecause).not.toEqual([])
+          }
+          expect(got.success).toBe(want.success === true)
 
           if (dev?.error === undefined) {
             expect(got.error ?? '').toBe(want.error ?? '')
@@ -231,7 +296,25 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
           expect(got.summary ?? '').toBe(want.summary ?? '')
 
           if (dev?.data === undefined) {
-            expect(stripVolatile(got.data ?? {})).toEqual(stripVolatile(want.data ?? {}))
+            const wantData = stripVolatile(want.data ?? {})
+            const gotData = stripVolatile(got.data ?? {})
+            if (dev?.callsDifferBecause !== undefined) {
+              // `polls` 就是**那些对不上的调用**的计数，`_progress` 是执行器为它们
+              // 记的台账。两者都是同一次崩溃的直接后果，不是第二条证据。
+              for (const k of ['_progress', 'polls']) {
+                dropPath(wantData, k)
+                dropPath(gotData, k)
+              }
+            }
+            for (const path of dev?.absent ?? []) {
+              // 先钉住「金样里确实有它」——否则这条登记会在差异消失之后静静地留着
+              // `callsDifferBecause` 已经把 `_progress` 整个摘掉了，那条路径下的
+              // absent 登记这时不再适用
+              if (dev?.callsDifferBecause !== undefined && path.startsWith('_progress.')) continue
+              expect(dropPath(wantData, path), `金样里没有 ${path}，这条 absent 登记过期了`)
+                .toBe(true)
+            }
+            expect(gotData).toEqual(wantData)
           } else {
             expect(stripVolatile(got.data ?? {})).toEqual(dev.data)
             expect(stripVolatile(want.data ?? {})).not.toEqual(dev.data)

@@ -54,6 +54,14 @@ const BATCH_2 = [
   'AutoApproach', 'ApproachTip',
 ]
 
+/**
+ * 批 3b：装在 GraphExecutor 上的另一半验收。
+ *
+ * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
+ * **先算后排**那一种——第 0 步先读当前偏压，读到了才排得出后面那串步骤。
+ */
+const BATCH_3B = ['SetBiasRamp']
+
 /** 批 3a：扫描主链（PLAN §8.4 批 3 的头六个）。 */
 const BATCH_3A = [
   'ConfigureScan', 'SetScanSpeed', 'StartScan', 'WaitScanComplete',
@@ -122,7 +130,7 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2, ...BATCH_3A]
+  const names = [...BATCH_1, ...BATCH_2, ...BATCH_3A, ...BATCH_3B]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 
@@ -135,7 +143,9 @@ function main(): number {
     `// 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）\n` +
     `//\n` +
     `// 批 1 只读 L0 ${BATCH_1.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 2 写/硬闸/DANGEROUS/L1 ${BATCH_2.filter((n) => byName.has(n)).length} 个\n` +
+    `批 2 写/硬闸/DANGEROUS/L1 ${BATCH_2.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3a 扫描主链 ${BATCH_3A.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3b 组合 ${BATCH_3B.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +
@@ -145,7 +155,7 @@ function main(): number {
     `export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {\n` +
     found.map((n) => `  ${n}: ${n}Spec,`).join('\n') +
     `\n}\n\n` +
-    `/** 有行为轨迹金样的那些（两个 L1 图技能不在内，见导出脚本的 TRACE_SKIP）。 */\n` +
+    `/** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */\n` +
     `export const TRACED = ${q(found.filter((n) => traced.has(n)))} as const\n`
 
   const check = process.argv.includes('--check')

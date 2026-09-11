@@ -2,3 +2,4 @@
 export * from './tool.js'
 export * from './l0/index.js'
 export * from './gated-call.js'
+export * from './sidecar.js'

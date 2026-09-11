@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 71,
-    "partial": 6,
-    "todo": 438
+    "done": 73,
+    "partial": 5,
+    "todo": 437
   },
-  "modules_complete": 7,
+  "modules_complete": 9,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -71,8 +71,8 @@
     },
     "builtins.bias": {
       "total": 7,
-      "done": 6,
-      "complete": false
+      "done": 7,
+      "complete": true
     },
     "builtins.bias_pulse": {
       "total": 1,
@@ -436,8 +436,8 @@
     },
     "builtins.scan_utils": {
       "total": 2,
-      "done": 1,
-      "complete": false
+      "done": 2,
+      "complete": true
     },
     "builtins.scan_watch": {
       "total": 1,
@@ -4560,11 +4560,11 @@
       "module": "builtins.bias",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetBiasRange": {
       "module": "builtins.bias",
@@ -5943,8 +5943,8 @@
       "spec": true,
       "model": true,
       "traces": 9,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "WatchScanLines": {
       "module": "builtins.scan_watch",
