@@ -128,9 +128,44 @@ Z 纹丝不动、状态抖动、停机被拒——各自成立在哪一格，都
 
 新登记 **D-APPROACH-1/2**（共 25 条）。
 
-**下一段**：`ApproachTip`（批 2 的另一个 L1 试点，`BaseSkill` 而非组合，带 dI/dV 标定
-窗口，与 `AutoApproach` 共用这套进针判定），以及批 3a 剩下的 `ConfigureScan` /
-`StartScan` / `GrabScanFrameData`。
+· **2.18 ✅ `ApproachTip` + L2 组合接缝 + 进针升级逃逸闸** —— 批 2 的两个 L1 试点齐了。
+
+这一段有三件互相咬着的事：
+
+**① `ctx.runSkill` —— L2 的接缝**（新登记 D-KERNEL-1）。`ApproachTip` 自己一次裸动词
+都不发，只调别的技能。旧仓的 `ExecutionContext.run` 是**手写的第二份闸门清单**
+（中止闸、注册表、样品闸、运行模式、数值边界、参数校验、前置检查），而那份清单必须
+和主路那份保持一致，靠的是有人记得两边一起改。本仓不重写：子步**再进一次内核**，
+深度 +1，于是 K1–K18 逐条自动成立，owner / rootCallId / approvalSource 一路继承
+（记录链不断），K3 样品闸只在 depth 0 判。
+
+新增 `MAX_COMPOSITION_DEPTH`：有了这条路，一个自己调自己的技能就能把进程转死，
+**而那时仪器还握在手里**。
+
+**② 进针升级的逃逸闸** —— 2026-07-27 那道侧门：`ApproachTip` 拒绝升级 → **133 秒后**
+agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。闸有两条**不对称**的规矩：
+
+| | 作用域 | 为什么 |
+|---|---|---|
+| **记**一次拒绝 | 进程全局 | 一根针、一块样品——一次拒绝必须挡住每一条链 |
+| **清**一次拒绝 | 按链计 | 2026-07-28 致命一(c)：私聊里一次成功 engage 把群聊十秒前记下的拒绝抹掉，**侧门重新打开** |
+
+对称地清除看起来更「一致」，而那份一致正是缺陷本身。记的一侧（`ApproachTip`）与读的
+一侧（安全闸 ④′）共享内核里的**进程单例**——拒绝的全局性是规格本身，不是实现便利。
+
+**③ `ApproachTip`** —— 两相分派（先 `TryEngageController` 不动马达，够不到才退到
+`AutoApproach`），外加**粗进针跑完自己再测一次**。那次复核曾经也是单次瞬时读数
+（2026-08-05），它就长在 `AutoApproach` 那处的下游，于是真机上一次成功的进针可能被
+同一个瞬态**判死两遍**。现在两处都走 `settleEngagement`。
+
+`TRACE_SKIP` **空了**：两个进针技能都放回了通用轨迹金样。
+
+新登记 **D-APPROACH-3 · D-KERNEL-1**（共 27 条）。
+
+**下一段**：批 3a 剩下的 `ConfigureScan` / `StartScan` / `GrabScanFrameData`
+（各自卡在扫描参数分层表、五个回读解析器、`.npy` 写出上），以及批 2 剩下的
+`CreateZCtrlPreset` / `GetLatestScanFile`。参数组存储（D-APPROACH-1 欠的那笔）
+该和 `CreateZCtrlPreset` 一起落。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -148,7 +183,7 @@ Z 纹丝不动、状态抖动、停机被拒——各自成立在哪一格，都
 > 判据落在文件系统上，跟 `nanonis-files` 一起做。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**1697 条测试**（另有 **51 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**1778 条测试**（另有 **58 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + 20 条对真 stmsim 的集成测试），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 

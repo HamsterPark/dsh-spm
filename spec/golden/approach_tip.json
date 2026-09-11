@@ -1,0 +1,849 @@
+{
+  "_note": "由 tools/spec-export/export_approach_tip.py 生成——驱动旧仓真实 ApproachTip._approach 录得，不要手改。",
+  "cases": {
+    "auto_approach_fails": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "method": "auto_approach",
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "AutoApproach 模块已停止,且电流稳定地没有达到进针判据",
+            "skill": "AutoApproach",
+            "success": false
+          }
+        ]
+      },
+      "error": "auto-approach phase failed: AutoApproach 模块已停止,且电流稳定地没有达到进针判据",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        }
+      ],
+      "success": false
+    },
+    "engage_cannot_clear_other_chain": {
+      "data": {
+        "auto_approach_used": false,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "message": "Tip already within tunnelling range — engaged via the Z-controller; no coarse approach needed.",
+        "method": "engage_controller",
+        "peak_current_a": 4.66e-11,
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": true,
+            "error": "",
+            "needs_auto_approach": null,
+            "skill": "TryEngageController",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {},
+      "refusal_after": {
+        "owner": "chat#R9",
+        "reason": "群跑记的",
+        "source": "ApproachTip"
+      },
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": true
+    },
+    "engage_clears_own_refusal": {
+      "data": {
+        "auto_approach_used": false,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "message": "Tip already within tunnelling range — engaged via the Z-controller; no coarse approach needed.",
+        "method": "engage_controller",
+        "peak_current_a": 4.66e-11,
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": true,
+            "error": "",
+            "needs_auto_approach": null,
+            "skill": "TryEngageController",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": true
+    },
+    "engage_phase_fails": {
+      "data": {
+        "phase": "engage",
+        "steps": [
+          {
+            "engaged": null,
+            "error": "Z 反馈开关读不出",
+            "needs_auto_approach": null,
+            "skill": "TryEngageController",
+            "success": false
+          }
+        ]
+      },
+      "error": "engage phase failed: Z 反馈开关读不出",
+      "params": {},
+      "refusal_after": {
+        "owner": "group#R1",
+        "reason": "engage phase failed: Z 反馈开关读不出",
+        "source": "ApproachTip"
+      },
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": false
+    },
+    "engaged_via_feedback": {
+      "data": {
+        "auto_approach_used": false,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "message": "Tip already within tunnelling range — engaged via the Z-controller; no coarse approach needed.",
+        "method": "engage_controller",
+        "peak_current_a": 4.66e-11,
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": true,
+            "error": "",
+            "needs_auto_approach": null,
+            "skill": "TryEngageController",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": true
+    },
+    "escalates_and_verifies": {
+      "data": {
+        "auto_approach_used": true,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 2,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": true,
+          "engagement_bar_a": 2.5e-11,
+          "measured_current_a": 4.66e-11,
+          "reads_a": [
+            4.66e-11,
+            4.66e-11
+          ],
+          "setpoint_a": 5e-11,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 2,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": 4.66e-11,
+        "message": "Tip was too far to engage by feedback alone — ran the current-feedback AutoApproach; tunnelling verified at |I|=46.60 pA vs setpoint 50.00 pA (2 次一致读数).",
+        "method": "auto_approach",
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": true
+    },
+    "escalation_clears_prior_refusal": {
+      "data": {
+        "auto_approach_used": true,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 2,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": true,
+          "engagement_bar_a": 2.5e-11,
+          "measured_current_a": 4.66e-11,
+          "reads_a": [
+            4.66e-11,
+            4.66e-11
+          ],
+          "setpoint_a": 5e-11,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 2,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": 4.66e-11,
+        "message": "Tip was too far to engage by feedback alone — ran the current-feedback AutoApproach; tunnelling verified at |I|=46.60 pA vs setpoint 50.00 pA (2 次一致读数).",
+        "method": "auto_approach",
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": true
+    },
+    "no_tunnel_no_flag": {
+      "data": {
+        "auto_approach_used": false,
+        "engaged": false,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": false,
+            "skill": "TryEngageController",
+            "success": true
+          }
+        ]
+      },
+      "error": "engage did not establish tunnelling and did not flag needs_auto_approach — stopping rather than approaching on a maybe; check the tip/Z state.",
+      "params": {},
+      "refusal_after": {
+        "owner": "group#R1",
+        "reason": "engage did not establish tunnelling and did not flag needs_auto_approach — stopping rather than approaching on a maybe; check the tip/Z state.",
+        "source": "ApproachTip"
+      },
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": false
+    },
+    "settle_s_passes_through": {
+      "data": {
+        "auto_approach_used": false,
+        "didv_at_contact_v": null,
+        "engaged": true,
+        "message": "Tip already within tunnelling range — engaged via the Z-controller; no coarse approach needed.",
+        "method": "engage_controller",
+        "peak_current_a": 4.66e-11,
+        "qplus_crash": null,
+        "qplus_note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+        "qplus_status": "unavailable",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": true,
+            "error": "",
+            "needs_auto_approach": null,
+            "skill": "TryEngageController",
+            "success": true
+          }
+        ]
+      },
+      "error": "",
+      "params": {
+        "settle_s": 3.0
+      },
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 3.0
+          },
+          "skill": "TryEngageController"
+        }
+      ],
+      "success": true
+    },
+    "verify_aborted": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": true,
+          "agreed_n": 0,
+          "budget_s": 4.0,
+          "elapsed_s": 0.001,
+          "engaged": null,
+          "engagement_bar_a": null,
+          "measured_current_a": null,
+          "reads_a": [],
+          "setpoint_a": null,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 0,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": null,
+        "method": "auto_approach",
+        "setpoint_a": null,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification 被中止 —— **进针状态未知**,不要按「已进针」继续。判据 |I| ≥ 无法计算(设定点读不到或为 0)(= max(50%×设定点 unreadable, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [(无)],电流判定窗口 0.0s / 判定预算 4.0s,取样间隔 1.0s",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        }
+      ],
+      "success": false
+    },
+    "verify_below_bar": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 2,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": false,
+          "engagement_bar_a": 2.5e-11,
+          "measured_current_a": 4e-14,
+          "reads_a": [
+            4e-14,
+            4e-14
+          ],
+          "setpoint_a": 5e-11,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 2,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": 4e-14,
+        "method": "auto_approach",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification FAILED:电流**稳定地**没有达到进针判据,针尖未进入隧穿,不要扫图。判据 |I| ≥ 25.00 pA(= max(50%×设定点 50.00 pA, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [0.04 pA, 0.04 pA],电流判定窗口 1.0s / 判定预算 4.0s,取样间隔 1.0s。",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": false
+    },
+    "verify_current_unreadable": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 0,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": null,
+          "engagement_bar_a": null,
+          "measured_current_a": null,
+          "reads_a": [],
+          "setpoint_a": null,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 0,
+          "unreadable_reads": 2
+        },
+        "measured_current_a": null,
+        "method": "auto_approach",
+        "setpoint_a": null,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification 判不出结果:预算耗尽前始终没有出现 2 次一致的电流读数(其中 2 次根本读不到电流/设定点)。判据 |I| ≥ 无法计算(设定点读不到或为 0)(= max(50%×设定点 unreadable, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [(无)],电流判定窗口 1.0s / 判定预算 4.0s,取样间隔 1.0s。**这不等于没进针**,也不等于进针了。不要扫图;先确认反馈已合上、电流量程合适。",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": false
+    },
+    "verify_never_settles": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 1,
+          "budget_s": 4.0,
+          "elapsed_s": 4.001,
+          "engaged": null,
+          "engagement_bar_a": 2.5e-11,
+          "measured_current_a": 4.66e-11,
+          "reads_a": [
+            4.66e-11,
+            4e-14,
+            4.66e-11,
+            4e-14,
+            4.66e-11
+          ],
+          "setpoint_a": 5e-11,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 5,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": 4.66e-11,
+        "method": "auto_approach",
+        "setpoint_a": 5e-11,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification 判不出结果:预算耗尽前始终没有出现 2 次一致的电流读数。判据 |I| ≥ 25.00 pA(= max(50%×设定点 50.00 pA, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [46.60 pA, 0.04 pA, 46.60 pA, 0.04 pA, 46.60 pA],电流判定窗口 4.0s / 判定预算 4.0s,取样间隔 1.0s。**这不等于没进针**,也不等于进针了。不要扫图;先确认反馈已合上、电流量程合适。",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": false
+    },
+    "verify_noise_floor": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 2,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": false,
+          "engagement_bar_a": 1e-12,
+          "measured_current_a": 4e-13,
+          "reads_a": [
+            4e-13,
+            4e-13
+          ],
+          "setpoint_a": 5e-13,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 2,
+          "unreadable_reads": 0
+        },
+        "measured_current_a": 4e-13,
+        "method": "auto_approach",
+        "setpoint_a": 5e-13,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification FAILED:电流**稳定地**没有达到进针判据,针尖未进入隧穿,不要扫图。判据 |I| ≥ 1.00 pA(= max(50%×设定点 0.50 pA, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [0.40 pA, 0.40 pA],电流判定窗口 1.0s / 判定预算 4.0s,取样间隔 1.0s。",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": false
+    },
+    "verify_setpoint_unreadable": {
+      "data": {
+        "auto_approach_used": true,
+        "engaged": false,
+        "engagement": {
+          "aborted": false,
+          "agreed_n": 0,
+          "budget_s": 4.0,
+          "elapsed_s": 1.002,
+          "engaged": null,
+          "engagement_bar_a": null,
+          "measured_current_a": null,
+          "reads_a": [],
+          "setpoint_a": null,
+          "settle_interval_s": 1.0,
+          "total_reads_n": 0,
+          "unreadable_reads": 2
+        },
+        "measured_current_a": null,
+        "method": "auto_approach",
+        "setpoint_a": null,
+        "steps": [
+          {
+            "engaged": false,
+            "error": "",
+            "needs_auto_approach": true,
+            "skill": "TryEngageController",
+            "success": true
+          },
+          {
+            "data": {},
+            "error": "",
+            "skill": "AutoApproach",
+            "success": true
+          }
+        ]
+      },
+      "error": "post-approach verification 判不出结果:预算耗尽前始终没有出现 2 次一致的电流读数(其中 2 次根本读不到电流/设定点)。判据 |I| ≥ 无法计算(设定点读不到或为 0)(= max(50%×设定点 unreadable, 噪声底 1.00 pA));窗口内实测 |I| 依次为 [(无)],电流判定窗口 1.0s / 判定预算 4.0s,取样间隔 1.0s。**这不等于没进针**,也不等于进针了。不要扫图;先确认反馈已合上、电流量程合适。",
+      "params": {},
+      "refusal_after": null,
+      "runs": [
+        {
+          "params": {
+            "settle_s": 1.5
+          },
+          "skill": "TryEngageController"
+        },
+        {
+          "params": {},
+          "skill": "AutoApproach"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        },
+        {
+          "params": {},
+          "skill": "GetCurrent"
+        },
+        {
+          "params": {},
+          "skill": "GetSetpoint"
+        }
+      ],
+      "success": false
+    }
+  },
+  "constants": {
+    "default_settle_s": 1.5
+  }
+}

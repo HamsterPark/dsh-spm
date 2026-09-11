@@ -33,6 +33,10 @@ import {
   isCoarseSampleApproach,
   isProtectionDisable,
   isUnguardedLateralCoarseMove,
+  isApproachEscalation,
+  approachRefusedText,
+  processApproachRefusalLatch,
+  type ApproachRefusal,
   modeRefusal,
   physicallyAbsurdViolations,
   type ExperimentPointers,
@@ -51,6 +55,7 @@ export interface SkillDeclaration extends SkillMetaLike {
 
 /** 机器可判的拒绝码。**判据不落在文案上**（PLAN §3.2-16）。 */
 export type RefusalCode =
+  | 'approach_escalation_refused'
   | 'physically_absurd'
   | 'envelope'
   | 'operating_mode'
@@ -107,6 +112,23 @@ export interface Config {
 }
 
 export class StmSafetyService extends Service {
+  /**
+   * 进针升级的逃逸闸。默认接**进程那一把**——记的一侧（`ApproachTip`）与读的这一侧
+   * 必须共享同一个实例，否则这道闸挡不住它要挡的那条链。测试可以换掉。
+   */
+  approachLatch = processApproachRefusalLatch
+
+  /**
+   * 这次调用撞上一条活着的升级拒绝了吗。
+   *
+   * 提成一个有返回类型的方法，不是内联三元：内联的话，把它改成常量 `null` 的变异会
+   * 让调用点那一侧的类型收窄成 `never`，于是**编不过**——而一条编不过的变异
+   * 「红不算数」，那道闸就永远验不到。判据要留得下痕迹，先得能被拆开试一次。
+   */
+  private approachRefusalFor(toolName: string): ApproachRefusal | null {
+    return isApproachEscalation(toolName) ? this.approachLatch.active() : null
+  }
+
   private readonly skills = new Map<string, SkillDeclaration>()
   /** 记录库。没装就是 `undefined`——安全件不因为它缺席而不装载。 */
   private recordsSvc: { record: (i: RecordInput) => string | null } | undefined
@@ -277,6 +299,30 @@ export class StmSafetyService extends Service {
       // ④ 样品门控（**方向相反**：fail-open）
       const sample = checkSampleScope(meta, toolName, this.pointers)
       if (sample !== null) return { kind: 'deny', code: 'sample_gate', reason: sample }
+    }
+
+    // ④′ 进针升级的逃逸闸 —— **它不需要技能声明**，也不该排在声明那个 if 里面
+    //
+    // 形状：`ApproachTip` 拒绝升级到粗进针 → **133 秒后** agent 直接调用
+    // `AutoApproach`（2026-07-27）。`AutoApproach` 正是它刚拒绝的那个粗进针，
+    // 直接调用等于绕过一个刚刚做出的安全判断。
+    //
+    // ⚠️ 只拦**直接**调用：`ApproachTip` 自己的升级走 `ctx.runSkill`，不经过这道
+    // 工具面的闸。安全那条路一点没被动。
+    //
+    // 闩是 kernel 的进程单例——**记的一侧（`ApproachTip`）与读的这一侧必须是同一把**，
+    // 见 `approach-refusal.ts` 里那段。
+    const refused = this.approachRefusalFor(toolName)
+    if (refused !== null) {
+      return {
+        kind: 'deny',
+        code: 'approach_escalation_refused',
+        reason: approachRefusedText(
+          refused.source,
+          this.approachLatch.ageS(refused),
+          refused.reason,
+        ),
+      }
     }
 
     // ⑤ 硬闸——**它不需要技能声明**，键在技能名与原始参数上

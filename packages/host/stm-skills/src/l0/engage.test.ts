@@ -49,6 +49,10 @@ function ctxWith(opts: {
       signal: new AbortController().signal,
       safeCall,
       emergencyCall: safeCall,
+      // 这个桩不接注册表。**返回一次带理由的失败**，不返回成功：
+      // 一个静静地「成功」的子技能调用会把组合技能的判据整段架空。
+      runSkill: (n: string) =>
+        Promise.resolve({ success: false, error: `这个桩不支持子技能 '${n}'` }),
       now: () => (clock += 1),
       sleep: (ms: number) => {
         clock += ms

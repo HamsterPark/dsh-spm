@@ -132,7 +132,36 @@ export interface SkillContext {
   readonly owner: string
   readonly rootCallId: string
   readonly approvalSource: 'llm' | 'human' | 'auto'
+  /**
+   * 跑一个**子技能**（L2 组合用）。
+   *
+   * ⚠️ 它走的是**同一个内核**，深度 +1 —— 不是另开一条判据链。旧仓的
+   * `ExecutionContext.run` 是手写的第二份闸门清单（中止闸、样品闸、运行模式、
+   * 数值边界、参数校验、前置检查），而那份清单必须和主路那份保持一致，
+   * 靠的是有人记得两边一起改。
+   *
+   * 这里不重写：子步**再进一次内核**，于是 K1–K18 逐条自动成立，owner /
+   * rootCallId / approvalSource 一路继承（记录链不断），而 K3 样品闸只在
+   * depth 0 判（子步继承上层的准入，与旧仓的 `_scope_admitted` 同义）。
+   *
+   * 注册表读不到、或者深度超过 {@link MAX_COMPOSITION_DEPTH}，都表达成一个
+   * **失败的返回值**，不抛：技能里所有分支都按 `success` 判。
+   */
+  readonly runSkill: (
+    name: string,
+    params: Readonly<Record<string, unknown>>,
+  ) => Promise<SkillResultLike>
 }
+
+/**
+ * 组合嵌套的上限。
+ *
+ * 旧仓最深的是 `composition_level=2`（`ApproachTip` → `AutoApproach` → 各相），
+ * 4 给了两层余量。**上限本身不是余量问题**：有了子技能分发这条路，一个自己调
+ * 自己的技能（或者两个互相调的）就能把进程转死，而那时仪器还握在手里。
+ * 表达成一次拒绝，于是它进记录、进报文，查得到。
+ */
+export const MAX_COMPOSITION_DEPTH = 4
 
 export interface Skill {
   readonly spec: SkillSpec
@@ -172,6 +201,13 @@ export interface KernelDeps {
   readonly abortReason?: (() => string | null | undefined) | undefined
   /** 样品闸（K3）：返回拒绝文案或 `null`。 */
   readonly sampleGate?: ((spec: SkillSpec) => string | null) | undefined
+  /**
+   * 名字 → 技能，给 `ctx.runSkill` 用。
+   *
+   * 没接就是**这个内核不支持组合**：子技能调用返回一次带理由的失败，而不是
+   * 静静地什么都不做。
+   */
+  readonly skillByName?: ((name: string) => Skill | undefined) | undefined
   /** 安全闸（K7）：返回拒绝文案或 `null`。 */
   readonly safetyGate?:
     | ((spec: SkillSpec, params: Readonly<Record<string, unknown>>) => string | null)
@@ -430,6 +466,7 @@ export class SkillKernel {
       owner: opts.owner ?? 'llm',
       rootCallId: opts.rootCallId ?? hash,
       approvalSource: opts.approvalSource ?? 'llm',
+      runSkill: (name, p) => this.runSub(name, p, depth, opts, markers, hash),
     }
 
     try {
@@ -580,6 +617,46 @@ export class SkillKernel {
    * 而逐轮的斜率向量、残余 Z、是否限幅全在 `data` 里**没穿过来**——
    * 整夜的排查因此在找一个「发散」机制，而现象只支持「降得不够快」。
    */
+  /** {@link SkillContext.runSkill} 的实现。见那里的自述。 */
+  private async runSub(
+    name: string,
+    params: Readonly<Record<string, unknown>>,
+    depth: number,
+    opts: RunOptions,
+    markers: SkillContext['markers'],
+    hash: string,
+  ): Promise<SkillResultLike> {
+    if (depth + 1 >= MAX_COMPOSITION_DEPTH) {
+      return {
+        success: false,
+        error:
+          `composition_too_deep: 子技能 '${name}' 会让组合嵌套到第 ${depth + 1} 层，` +
+          `上限是 ${MAX_COMPOSITION_DEPTH}。这通常意味着一条自我调用的环 —— ` +
+          `先看调用链，不要提高上限。`,
+      }
+    }
+    const sub = this.deps.skillByName?.(name)
+    if (sub === undefined) {
+      return {
+        success: false,
+        error: `unknown_skill: 注册表里没有子技能 '${name}'（本内核可能没接注册表）。`,
+      }
+    }
+    const out = await this.run(sub, params, {
+      depth: depth + 1,
+      owner: opts.owner,
+      rootCallId: opts.rootCallId ?? hash,
+      approvalSource: opts.approvalSource,
+      signal: opts.signal,
+      markers,
+    })
+    // `SkillOutcome` → `SkillResultLike`：调用方按 `success` / `error` / `data` 判，
+    // 而 `text` 是模型面的东西，不该成为一个组合技能的判据。
+    return out.kind === 'ok'
+      ? { success: true, data: out.data, summary: out.text }
+      : { success: false, error: out.text, data: out.data }
+  }
+
   private composeText(name: string, r: SkillResultLike): { text: string; textRef?: string } {
     const head = r.summary ?? (r.success ? `${name}: ok` : `[${name}] failed: ${r.error ?? 'unknown'}`)
     let full = head + explanationSuffix(r.data, r.success)

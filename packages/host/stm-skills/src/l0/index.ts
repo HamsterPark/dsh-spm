@@ -19,6 +19,7 @@ import { SCAN_CHAIN } from './scan.js'
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
 import { AutoApproach } from '../composite/auto-approach.js'
+import { ApproachTip } from '../composite/approach-tip.js'
 
 export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CORE_READS,
@@ -34,6 +35,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
+  ApproachTip,
 }
 
 export * from './common.js'
@@ -52,3 +54,4 @@ export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'
 export * from '../composite/set-bias-ramp.js'
 export * from '../composite/auto-approach.js'
+export * from '../composite/approach-tip.js'

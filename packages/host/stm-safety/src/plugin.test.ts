@@ -6,6 +6,7 @@ import { Context, Service } from 'dsh-spm-compat'
 import { CAP_BIAS_PULSE, CAP_TIP_SHAPING, argsHash } from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
 import * as records from 'dsh-spm-stm-records'
+import { ApproachRefusalLatch } from 'dsh-spm-kernel'
 import { stmSafetyProvider, type SkillDeclaration } from './plugin.js'
 
 /** 工具注册表的替身：只把 guard 收下来，供测试直接调。 */
@@ -304,5 +305,53 @@ describe('guard 拒掉的**自己记一行** —— 内核看不见它们', () =
     const { tools, svc } = await host()
     svc.registerSkill(SET_SETPOINT)
     expect(tools.runGuards('SetSetpoint', { setpoint_a: 1.5 })).toBeDefined()
+  })
+})
+
+describe('④′ 进针升级的逃逸闸 —— 2026-07-27 那道侧门', () => {
+  /** 换一把**自己的**闩：进程那一把是共享的，测试之间会串。 */
+  const withLatch = async (
+    nowS: () => number = () => 0,
+  ): Promise<Context['stmSafety']> => {
+    const { svc } = await host()
+    ;(svc as unknown as { approachLatch: ApproachRefusalLatch }).approachLatch =
+      new ApproachRefusalLatch(nowS)
+    return svc
+  }
+  const latchOf = (svc: Context['stmSafety']): ApproachRefusalLatch =>
+    (svc as unknown as { approachLatch: ApproachRefusalLatch }).approachLatch
+
+  it('没有活着的拒绝 ⇒ `AutoApproach` 照常放行', async () => {
+    expect((await withLatch()).decide('AutoApproach', {}).kind).toBe('allow')
+  })
+
+  it('有活着的拒绝 ⇒ **拒**，并把三条出路说清楚', async () => {
+    const s = await withLatch()
+    latchOf(s).record('Z 反馈开关读不出', { source: 'ApproachTip', owner: 'g#1' })
+    const v = s.decide('AutoApproach', {})
+    expect(v.kind).toBe('deny')
+    expect(v.kind === 'deny' && v.code).toBe('approach_escalation_refused')
+    const reason = v.kind === 'deny' ? v.reason : ''
+    expect(reason).toContain('Do NOT retry')
+    expect(reason).toContain('(1) 重新调用 ApproachTip')
+    expect(reason).toContain('Z 反馈开关读不出')
+  })
+
+  it('**只拦直接调用** —— `ApproachTip` 自己一点没被挡', async () => {
+    // 它的升级走 `ctx.runSkill`，根本不经过这道工具面的闸；而拦住正门
+    // 等于把逃逸闸自己的出路也堵死。
+    const s = await withLatch()
+    latchOf(s).record('理由', { owner: 'g#1' })
+    expect(s.decide('ApproachTip', {}).kind).toBe('allow')
+    expect(s.decide('TryEngageController', {}).kind).toBe('allow')
+  })
+
+  it('拒绝过期之后自动放行 —— 出路不在 TTL 里，但 TTL 也不该永远挡着', async () => {
+    let clock = 0
+    const s = await withLatch(() => clock)
+    latchOf(s).record('理由', { owner: 'g#1' })
+    expect(s.decide('AutoApproach', {}).kind).toBe('deny')
+    clock += 601
+    expect(s.decide('AutoApproach', {}).kind).toBe('allow')
   })
 })

@@ -1,0 +1,550 @@
+{
+  "_note": "由 tools/spec-export/export_approach_gate.py 生成——驱动旧仓真实 safety_escalation 录得，不要手改。",
+  "cases": {
+    "admin_override_clears": [
+      {
+        "args": [
+          "理由",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "管理员",
+          "{'owner': None}"
+        ],
+        "op": "clear",
+        "returned": true,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ],
+    "blank_reason_gets_placeholder": [
+      {
+        "args": [
+          "   ",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "(no reason recorded)",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "(no reason recorded)",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "(no reason recorded)",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      }
+    ],
+    "clear_when_empty_is_idempotent": [
+      {
+        "args": [
+          "没有可清的",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "clear",
+        "returned": false,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ],
+    "custom_ttl": [
+      {
+        "args": [
+          "理由",
+          "{'owner': 'group#run-1', 'ttl_s': 10.0}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 10.0
+        }
+      },
+      {
+        "args": [
+          "11.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ],
+    "expired_then_cleared_is_false": [
+      {
+        "args": [
+          "理由",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "601.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      },
+      {
+        "args": [
+          "已经没了",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "clear",
+        "returned": false,
+        "state": null
+      }
+    ],
+    "expires_after_ttl": [
+      {
+        "args": [
+          "读不到设定点",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "读不到设定点",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "599.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": {
+          "age_s": 599.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "读不到设定点",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 599.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "读不到设定点",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 599.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "读不到设定点",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "2.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ],
+    "other_owner_cannot_clear": [
+      {
+        "args": [
+          "理由",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "私聊里 engage 成功了",
+          "{'owner': 'chat#run-2'}"
+        ],
+        "op": "clear",
+        "returned": false,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      }
+    ],
+    "record_overwrites": [
+      {
+        "args": [
+          "第一次的理由",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第一次的理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "第二次的理由",
+          "{'owner': 'chat#run-2'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "chat#run-2",
+          "reason": "第二次的理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "chat#run-2",
+          "reason": "第二次的理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "chat#run-2",
+          "reason": "第二次的理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      }
+    ],
+    "record_resets_age": [
+      {
+        "args": [
+          "第一次",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第一次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "500.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": {
+          "age_s": 500.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第一次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "第二次",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第二次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "200.0"
+        ],
+        "op": "tick",
+        "returned": null,
+        "state": {
+          "age_s": 200.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第二次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 200.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第二次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 200.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "第二次",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      }
+    ],
+    "record_then_active": [
+      {
+        "args": [
+          "Z 反馈开关读不出",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "Z 反馈开关读不出",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "Z 反馈开关读不出",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        },
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "Z 反馈开关读不出",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      }
+    ],
+    "same_owner_clears": [
+      {
+        "args": [
+          "理由",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "group#run-1",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "ApproachTip 升级了",
+          "{'owner': 'group#run-1'}"
+        ],
+        "op": "clear",
+        "returned": true,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ],
+    "unscoped_cleared_by_anyone": [
+      {
+        "args": [
+          "理由",
+          "{}"
+        ],
+        "op": "record",
+        "returned": null,
+        "state": {
+          "age_s": 0.0,
+          "expired": false,
+          "owner": "",
+          "reason": "理由",
+          "source": "ApproachTip",
+          "ttl_s": 600.0
+        }
+      },
+      {
+        "args": [
+          "别的链",
+          "{'owner': 'chat#run-2'}"
+        ],
+        "op": "clear",
+        "returned": true,
+        "state": null
+      },
+      {
+        "args": [],
+        "op": "active",
+        "returned": null,
+        "state": null
+      }
+    ]
+  },
+  "constants": {
+    "escalation_skills": [
+      "AutoApproach"
+    ],
+    "no_reason_placeholder": "(no reason recorded)",
+    "ttl_s": 600.0
+  },
+  "is_escalation": {
+    "": false,
+    "ApproachTip": false,
+    "AutoApproach": true,
+    "MotorMove": false,
+    "TryEngageController": false,
+    "WithdrawTip": false,
+    "autoapproach": false
+  },
+  "refusal_text": {
+    "no_reason": "[safety_gate] approach_escalation_refused: ApproachTip 在 12 秒前拒绝了粗进针升级，理由：(no reason recorded)。AutoApproach 就是它拒绝的那个粗进针，直接调用等于绕过刚做出的安全判断。Do NOT retry AutoApproach. 出路有三条：(1) 重新调用 ApproachTip —— 它会重新核验 Z 反馈状态，若确实需要粗进针会自己升级，本拦截随即解除；(2) 先修好拒绝理由里说的那个状态（如 Z 反馈开关读不出/ 关不掉）再走 ApproachTip；(3) 交给用户在 GUI 手动进针。",
+    "typical": "[safety_gate] approach_escalation_refused: ApproachTip 在 133 秒前拒绝了粗进针升级，理由：Z 反馈开关读不出。AutoApproach 就是它拒绝的那个粗进针，直接调用等于绕过刚做出的安全判断。Do NOT retry AutoApproach. 出路有三条：(1) 重新调用 ApproachTip —— 它会重新核验 Z 反馈状态，若确实需要粗进针会自己升级，本拦截随即解除；(2) 先修好拒绝理由里说的那个状态（如 Z 反馈开关读不出/ 关不掉）再走 ApproachTip；(3) 交给用户在 GUI 手动进针。",
+    "zero_age": "[safety_gate] approach_escalation_refused: ApproachTip 在 0 秒前拒绝了粗进针升级，理由：理由。AutoApproach 就是它拒绝的那个粗进针，直接调用等于绕过刚做出的安全判断。Do NOT retry AutoApproach. 出路有三条：(1) 重新调用 ApproachTip —— 它会重新核验 Z 反馈状态，若确实需要粗进针会自己升级，本拦截随即解除；(2) 先修好拒绝理由里说的那个状态（如 Z 反馈开关读不出/ 关不掉）再走 ApproachTip；(3) 交给用户在 GUI 手动进针。"
+  }
+}

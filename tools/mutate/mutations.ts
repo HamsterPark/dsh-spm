@@ -39,6 +39,7 @@ export interface Mutation {
 const K = 'packages/host/kernel/src'
 const R = 'packages/host/stm-records/src'
 const SK = 'packages/host/stm-skills/src'
+const SF = 'packages/host/stm-safety/src'
 
 export const MUTATIONS: readonly Mutation[] = [
   // ── 内核的闸 ────────────────────────────────────────────────────────
@@ -475,5 +476,62 @@ function physicallyAbsurdViolations_unused(`,
     find: '      if (elapsed >= this.#timeoutS) return this.#afterTimeout(progress)',
     replace: '      if (false && elapsed >= this.#timeoutS) return this.#afterTimeout(progress)',
     scope: 'packages/host/stm-skills',
+  },
+  // ── 逃逸闸与 L2 分派 ─────────────────────────────────────────────────
+  {
+    id: 'refusal-clear-is-chain-scoped',
+    why: '另一条链清不掉本链记的拒绝。拆掉 ⇒ 私聊里一次成功 engage 抹掉群聊十秒前记下的拒绝，2026-07-27 那道侧门重新打开',
+    file: `${K}/approach-refusal.ts`,
+    find: "    if (owner !== null && owner !== undefined && cur.owner !== '' && cur.owner !== owner) {",
+    replace: "    if (owner === '\u0000never') {",
+    scope: 'packages/host',
+  },
+  {
+    id: 'refusal-expires',
+    why: '拒绝到期自动失效。拆掉 ⇒ 一条没人再回头看的拒绝活得比它描述的硬件状态更久，粗进针从此调不动',
+    file: `${K}/approach-refusal.ts`,
+    find: '    if (this.ageS(r) >= r.ttlS) {',
+    replace: '    if (false) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'refusal-gate-denies',
+    why: '安全闸读到活着的拒绝就拒。拆掉 ⇒ 记下的拒绝谁都挡不住，整条闸等于没有',
+    file: `${SF}/plugin.ts`,
+    find: '    return isApproachEscalation(toolName) ? this.approachLatch.active() : null',
+    replace: '    return isApproachEscalation(toolName) ? null : null',
+    scope: 'packages/host/stm-safety',
+  },
+  {
+    id: 'tip-records-refusal-on-engage-fail',
+    why: 'engage 相失败要记一次拒绝。拆掉 ⇒ 正门拒了，侧门（直接 AutoApproach）却是开的',
+    file: `${SK}/composite/approach-tip.ts`,
+    find: `      const err = \`engage phase failed: \${eng.error ?? 'unknown'}\``,
+    replace: `      const err = 'engage phase failed'; void this.#latch`,
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'tip-no-approach-on-a-maybe',
+    why: 'engage 既没进针也没说要粗进针 ⇒ 停下。拆掉 ⇒ 在两个自相矛盾的判据上开一次粗进针',
+    file: `${SK}/composite/approach-tip.ts`,
+    find: "    if (engData['needs_auto_approach'] !== true) {",
+    replace: "    if (false && engData['needs_auto_approach'] !== true) {",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'tip-verifies-after-approach',
+    why: '粗进针跑完要自己再测一次。拆掉 ⇒ 一次过期续跑让 AutoApproach 报成功，0.17 pA 对 500 pA 也「确认」了进针（#42/#75）',
+    file: `${SK}/composite/approach-tip.ts`,
+    find: '    if (v.engaged !== true) {',
+    replace: '    if (false && v.engaged !== true) {',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'kernel-composition-depth-cap',
+    why: '组合嵌套上限。拆掉 ⇒ 一个自己调自己的技能把进程转死，而那时仪器还握在手里',
+    file: `${K}/skill-kernel.ts`,
+    find: '    if (depth + 1 >= MAX_COMPOSITION_DEPTH) {',
+    replace: '    if (false) {',
+    scope: 'packages/host',
   },
 ]

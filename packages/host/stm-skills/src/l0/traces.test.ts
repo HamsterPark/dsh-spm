@@ -66,11 +66,15 @@ function synthBody(verb: string): unknown[] {
 }
 
 /** 与导出脚本同形的假 context：回显记忆 + 按序号注错 + 空 body。 */
-function fakeCtx(opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean } = {}): {
+function fakeCtx(
+  opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean; runErrorAt?: number } = {},
+): {
   ctx: SkillContext
   calls: { verb: string; args: unknown[] }[]
 } {
   const calls: { verb: string; args: unknown[]; emergency?: true }[] = []
+  /** 子技能调用序列（L2 技能才有）。 */
+  const runs: { skill: string; params: Record<string, unknown> }[] = []
   const echo = new Map<string, unknown[]>()
   const safeCall = (method: string, ...args: unknown[]): Promise<SkillCallRecord> => {
     const i = calls.length
@@ -96,6 +100,18 @@ function fakeCtx(opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean } 
   const ctx: SkillContext = {
     signal: new AbortController().signal,
     safeCall,
+    // 子技能分发**照着导出脚本的 `_FakeContext.run` 来**：成功 + 空 data，
+    // 第 `runErrorAt` 次失败。这个夹具的职责就是复现金样那台驱动器——
+    // 换成别的形状（比如一律失败），比的就不是同一件事了。
+    runSkill: (n: string, p: Readonly<Record<string, unknown>>) => {
+      const i = runs.length
+      runs.push({ skill: n, params: { ...p } })
+      return Promise.resolve(
+        i === opts.runErrorAt
+          ? { success: false, error: '模拟故障：子技能失败' }
+          : { success: true, data: {}, summary: `${n}: ok` },
+      )
+    },
     emergencyCall: (method: string, ...args: unknown[]) => {
       const p = safeCall(method, ...args)
       calls[calls.length - 1]!.emergency = true
@@ -118,7 +134,12 @@ function fakeCtx(opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean } 
 }
 
 /** 轨迹名 → 假 context 的开关。 */
-function optsOf(trace: string): { errorAt?: number; emptyAt?: number; noEcho?: boolean } {
+function optsOf(trace: string): {
+  errorAt?: number
+  emptyAt?: number
+  noEcho?: boolean
+  runErrorAt?: number
+} {
   // `mismatch` = 关掉回显：写进去什么、读回来是另一个数。
   // 这是「写后回读」那一族**最要命**的一条分支 —— 硬件没接受这个值。
   if (trace === 'mismatch') return { noEcho: true }
@@ -126,6 +147,9 @@ function optsOf(trace: string): { errorAt?: number; emptyAt?: number; noEcho?: b
   if (err !== null) return { errorAt: Number(err[1]) }
   const empty = /^empty@(\d+)$/.exec(trace)
   if (empty !== null) return { emptyAt: Number(empty[1]) }
+  // `runerr@i` = 第 i 次**子技能**调用失败（L2 技能才有这一路）
+  const runErr = /^runerr@(\d+)$/.exec(trace)
+  if (runErr !== null) return { runErrorAt: Number(runErr[1]) }
   return {}
 }
 
@@ -224,6 +248,14 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   //
   // 导出机上**没配参数组**，所以金样里那三个字段记的正是「没切、沿用当前增益」——
   // 也就是本仓现在的行为。差的只是那三行留痕。
+  // D-APPROACH-1 同样适用于 `ApproachTip`：它也套了一层进针参数组的切换与放回
+  // （理由是**第一相就可能进成**，那一段整个在 AutoApproach 之外）。
+  ...Object.fromEntries(
+    ['ok', 'empty@0', 'mismatch', 'runerr@0', 'err@0'].map((t) => [
+      `ApproachTip/${t}`,
+      { absent: ZCTRL_PRESET_FIELDS },
+    ]),
+  ),
   // `err@0` / `err@1` 在开模块或起跑那一步就中止了，**根本没进等待相**，
   // 所以它们的金样里没有 crosstalk 那一格——`absent` 会先断言路径存在，
   // 一刀切地登记会被它当场判成过期（确实被判了一次）。

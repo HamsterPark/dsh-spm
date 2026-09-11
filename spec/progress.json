@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 74,
+    "done": 75,
     "partial": 5,
-    "todo": 436
+    "todo": 435
   },
-  "modules_complete": 9,
+  "modules_complete": 10,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -31,8 +31,8 @@
     },
     "builtins.approach": {
       "total": 5,
-      "done": 4,
-      "complete": false
+      "done": 5,
+      "complete": true
     },
     "builtins.atom_track": {
       "total": 4,
@@ -1042,9 +1042,9 @@
       "safety": "auto",
       "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 2,
+      "impl": true,
+      "status": "done"
     },
     "AssessAtomicConsistency": {
       "module": "builtins.atomic_multiframe",

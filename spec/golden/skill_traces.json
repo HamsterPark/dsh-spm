@@ -1,4 +1,68 @@
 {
+  "ApproachTip": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "auto_approach_used": false,
+          "engaged": false,
+          "steps": [
+            {
+              "engaged": null,
+              "error": "",
+              "needs_auto_approach": null,
+              "skill": "TryEngageController",
+              "success": true
+            }
+          ],
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "engage did not establish tunnelling and did not flag needs_auto_approach — stopping rather than approaching on a maybe; check the tip/Z state.",
+        "runs": [
+          {
+            "params": {
+              "settle_s": 1.5
+            },
+            "skill": "TryEngageController"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "phase": "engage",
+          "steps": [
+            {
+              "engaged": null,
+              "error": "模拟故障：子技能失败",
+              "needs_auto_approach": null,
+              "skill": "TryEngageController",
+              "success": false
+            }
+          ],
+          "zctrl_preset": "approach",
+          "zctrl_preset_applied": false,
+          "zctrl_preset_note": "仪器档案里没有可用的进针参数组,本次进针**沿用当前 Z 控制器增益**(即改动前的行为):进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+        },
+        "error": "engage phase failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "settle_s": 1.5
+            },
+            "skill": "TryEngageController"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AutoApproach": {
     "params": {
       "wait_timeout_s": 5.0
