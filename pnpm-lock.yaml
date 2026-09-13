@@ -158,6 +158,9 @@ importers:
       dsh-spm-kernel:
         specifier: workspace:*
         version: link:../kernel
+      dsh-spm-nanonis-wire:
+        specifier: workspace:*
+        version: link:../../instrument/nanonis-wire
       dsh-spm-stm-records:
         specifier: workspace:*
         version: link:../stm-records

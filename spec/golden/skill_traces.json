@@ -1,4 +1,229 @@
 {
+  "AcquireOsciTrace": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {
+          "dt_s": 0.5,
+          "duration_s": 2.5,
+          "fs_hz": 2.0,
+          "n_samples": 5,
+          "nyquist_hz": 1.0,
+          "samples": [
+            3.5,
+            3.75
+          ],
+          "source": "nanonis_osci1t",
+          "t0_s": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {
+          "dt_s": 0.5,
+          "duration_s": 2.5,
+          "fs_hz": 2.0,
+          "n_samples": 5,
+          "nyquist_hz": 1.0,
+          "samples": [
+            3.5,
+            3.75
+          ],
+          "source": "nanonis_osci1t",
+          "t0_s": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T_DataGet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "need_module@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "NanonisError: NeedModule Osci1T",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T module is not loaded in this Nanonis configuration. On the bundled simulator try the v2 config that includes the Oscilloscope module, or fall back to CaptureSignalBuffer for a polled-rate trace.",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {
+          "dt_s": 0.5,
+          "duration_s": 2.5,
+          "fs_hz": 2.0,
+          "n_samples": 5,
+          "nyquist_hz": 1.0,
+          "samples": [
+            3.5,
+            3.75
+          ],
+          "source": "nanonis_osci1t",
+          "t0_s": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "wait_trigger": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {
+          "dt_s": 0.5,
+          "duration_s": 2.5,
+          "fs_hz": 2.0,
+          "n_samples": 5,
+          "nyquist_hz": 1.0,
+          "samples": [
+            3.5,
+            3.75
+          ],
+          "source": "nanonis_osci1t",
+          "t0_s": 0.25
+        },
+        "error": "",
+        "params": {
+          "data_to_get": 2
+        },
+        "success": true,
+        "summary": ""
+      },
+      "with_channel": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChSet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_DataGet"
+          }
+        ],
+        "data": {
+          "dt_s": 0.5,
+          "duration_s": 2.5,
+          "fs_hz": 2.0,
+          "n_samples": 5,
+          "nyquist_hz": 1.0,
+          "samples": [
+            3.5,
+            3.75
+          ],
+          "source": "nanonis_osci1t",
+          "t0_s": 0.25
+        },
+        "error": "",
+        "params": {
+          "signal_index": 4
+        },
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "ApplyLockInPreset": {
     "params": {},
     "traces": {
@@ -264,6 +489,245 @@
           }
         ],
         "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AtomTrackDriftComp": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_DriftComp"
+          }
+        ],
+        "data": {
+          "drift_compensation_applied": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_DriftComp"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_DriftComp"
+          }
+        ],
+        "data": {
+          "drift_compensation_applied": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "AtomTrackQuickCompStart": {
+    "params": {
+      "compensation_type": 0
+    },
+    "traces": {
+      "drift": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_QuickCompStart"
+          }
+        ],
+        "data": {
+          "compensation_type": "Drift",
+          "started": true
+        },
+        "error": "",
+        "params": {
+          "compensation_type": 1
+        },
+        "success": true,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_QuickCompStart"
+          }
+        ],
+        "data": {
+          "compensation_type": "Tilt",
+          "started": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_QuickCompStart"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_QuickCompStart"
+          }
+        ],
+        "data": {
+          "compensation_type": "Tilt",
+          "started": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "AtomTrackStatusGet": {
+    "params": {
+      "control": 0
+    },
+    "traces": {
+      "controller": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_StatusGet"
+          }
+        ],
+        "data": {
+          "control": "Controller",
+          "status": true
+        },
+        "error": "",
+        "params": {
+          "control": 1
+        },
+        "success": true,
+        "summary": ""
+      },
+      "drift": {
+        "calls": [
+          {
+            "args": [
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_StatusGet"
+          }
+        ],
+        "data": {
+          "control": "Drift Measurement",
+          "status": true
+        },
+        "error": "",
+        "params": {
+          "control": 2
+        },
+        "success": true,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_StatusGet"
+          }
+        ],
+        "data": {
+          "control": "Modulation",
+          "status": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_StatusGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_StatusGet"
+          }
+        ],
+        "data": {
+          "control": "Modulation",
+          "status": true
+        },
+        "error": "",
+        "success": true,
         "summary": ""
       }
     }
@@ -2134,6 +2598,179 @@
       }
     }
   },
+  "BiasPulse": {
+    "params": {
+      "bias_v": 5.0,
+      "width_s": 5.0000005
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              1,
+              5.0000005,
+              5.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Pulse"
+          }
+        ],
+        "data": {
+          "absolute": true,
+          "bias_v": 5.0,
+          "width_s": 5.0000005,
+          "z_hold": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              1,
+              5.0000005,
+              5.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Pulse"
+          }
+        ],
+        "data": {
+          "absolute": true,
+          "bias_v": 5.0,
+          "width_s": 5.0000005,
+          "z_hold": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              1,
+              5.0000005,
+              5.0,
+              1,
+              2
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Pulse"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              1,
+              5.0000005,
+              5.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Pulse"
+          }
+        ],
+        "data": {
+          "absolute": true,
+          "bias_v": 5.0,
+          "width_s": 5.0000005,
+          "z_hold": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "relative": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              1,
+              5.0000005,
+              5.0,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Pulse"
+          }
+        ],
+        "data": {
+          "absolute": false,
+          "bias_v": 5.0,
+          "width_s": 5.0000005,
+          "z_hold": 1
+        },
+        "error": "",
+        "params": {
+          "absolute": false,
+          "bias_v": 5.0,
+          "width_s": 5.0000005
+        },
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "CheckScanForCrash": {
     "params": {},
     "traces": {
@@ -2383,6 +3020,264 @@
             "ch14": "ok"
           },
           "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureAtomTrack": {
+    "params": {
+      "amplitude_m": 0.0,
+      "frequency_hz": 0.0,
+      "integral_gain": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          }
+        ],
+        "data": {
+          "amplitude_m": 0.0,
+          "controller_enabled": true,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0,
+          "modulation_enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          }
+        ],
+        "data": {},
+        "error": "enable modulation failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          }
+        ],
+        "data": {},
+        "error": "enable controller failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "modulation_only": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          }
+        ],
+        "data": {
+          "amplitude_m": 0.0,
+          "controller_enabled": false,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0,
+          "modulation_enabled": true
+        },
+        "error": "",
+        "params": {
+          "amplitude_m": 0.0,
+          "enable_controller": false,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "no_enables": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          }
+        ],
+        "data": {
+          "amplitude_m": 0.0,
+          "controller_enabled": false,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0,
+          "modulation_enabled": false
+        },
+        "error": "",
+        "params": {
+          "amplitude_m": 0.0,
+          "enable_controller": false,
+          "enable_modulation": false,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsSet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_CtrlSet"
+          }
+        ],
+        "data": {
+          "amplitude_m": 0.0,
+          "controller_enabled": true,
+          "frequency_hz": 0.0,
+          "integral_gain": 1.0,
+          "modulation_enabled": true
         },
         "error": "",
         "success": true,
@@ -3269,6 +4164,219 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "ConfigureSpectrumAnalyzer": {
+    "params": {},
+    "traces": {
+      "dc_coupled": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              20
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragSet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingSet"
+          }
+        ],
+        "data": {
+          "ac_coupling": false,
+          "averaging_count": 20,
+          "instance": 1
+        },
+        "error": "",
+        "params": {
+          "ac_coupling": false
+        },
+        "success": true,
+        "summary": "频谱分析仪 #1 已配置：平均 20 次，DC 耦合"
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              20
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingSet"
+          }
+        ],
+        "data": {
+          "ac_coupling": true,
+          "averaging_count": 20,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "频谱分析仪 #1 已配置：平均 20 次，AC 耦合"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          }
+        ],
+        "data": {},
+        "error": "SpectrumAnlzr_FFTWindowSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              20
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragSet"
+          }
+        ],
+        "data": {},
+        "error": "SpectrumAnlzr_AveragSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              20
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingSet"
+          }
+        ],
+        "data": {},
+        "error": "SpectrumAnlzr_ACCouplingSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              20
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingSet"
+          }
+        ],
+        "data": {
+          "ac_coupling": true,
+          "averaging_count": 20,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "频谱分析仪 #1 已配置：平均 20 次，AC 耦合"
       }
     }
   },
@@ -9033,6 +10141,150 @@
       }
     }
   },
+  "GetOsciTimebases": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseGet"
+          }
+        ],
+        "data": {
+          "current_index": 3,
+          "n_timebases": 2,
+          "timebases": [
+            {
+              "dt_s": 2.5,
+              "fs_hz": 0.4,
+              "index": 0
+            },
+            {
+              "dt_s": 2.75,
+              "fs_hz": 0.36363636363636365,
+              "index": 1
+            }
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseGet"
+          }
+        ],
+        "data": {
+          "current_index": 3,
+          "n_timebases": 2,
+          "timebases": [
+            {
+              "dt_s": 2.5,
+              "fs_hz": 0.4,
+              "index": 0
+            },
+            {
+              "dt_s": 2.75,
+              "fs_hz": 0.36363636363636365,
+              "index": 1
+            }
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseGet"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T_TimebaseGet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "need_module@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "NanonisError: NeedModule Osci1T",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T module is not loaded in this Nanonis configuration — no hardware timebases to list. Use the polled fast-path (CaptureSignalBuffer) and its poll_hz knob to choose a sample rate instead.",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseGet"
+          }
+        ],
+        "data": {
+          "current_index": 3,
+          "n_timebases": 2,
+          "timebases": [
+            {
+              "dt_s": 2.5,
+              "fs_hz": 0.4,
+              "index": 0
+            },
+            {
+              "dt_s": 2.75,
+              "fs_hz": 0.36363636363636365,
+              "index": 1
+            }
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetPiezoConfig": {
     "params": {},
     "traces": {
@@ -12543,6 +13795,69 @@
       }
     }
   },
+  "GetSignalCalibration": {
+    "params": {
+      "signal_index": 63
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_CalibrGet"
+          }
+        ],
+        "data": {
+          "calibration": null,
+          "offset": null,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_CalibrGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_CalibrGet"
+          }
+        ],
+        "data": {
+          "calibration": 0.25,
+          "offset": 0.5,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetSignalRange": {
     "params": {
       "signal_index": 63
@@ -14188,6 +15503,615 @@
           ],
           "z_retract_delay": 0.25,
           "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSpectrumAnalyzerData": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": null,
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": null,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": null,
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": null,
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": 0.25,
+          "fft_window": null,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": null,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_BandRMSGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_DCGet"
+          },
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_AveragGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_FFTWindowGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_ACCouplingGet"
+          }
+        ],
+        "data": {
+          "ac_coupling": 3,
+          "averaging": [
+            3,
+            4,
+            5
+          ],
+          "band": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "band_rms": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "dc": 0.25,
+          "fft_window": 3,
+          "instance": 1
         },
         "error": "",
         "success": true,
@@ -18246,6 +20170,356 @@
           "y_m": 7.5e-07
         },
         "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "RunBiasSweep": {
+    "params": {
+      "lower_limit_v": -1.0,
+      "upper_limit_v": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          },
+          {
+            "args": [
+              256,
+              10,
+              1,
+              0,
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              "mast_biasswp",
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Start"
+          }
+        ],
+        "data": {
+          "data": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            [
+              [
+                5.1,
+                5.2
+              ],
+              [
+                5.3,
+                5.4
+              ]
+            ]
+          ],
+          "lower_limit_v": -1.0,
+          "period_ms": 10,
+          "steps": 256,
+          "upper_limit_v": 1.0,
+          "z_controller_off": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          }
+        ],
+        "data": {},
+        "error": "BiasSwp_Open failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          }
+        ],
+        "data": {},
+        "error": "BiasSwp_LimitsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          },
+          {
+            "args": [
+              256,
+              10,
+              1,
+              0,
+              10
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSwp_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "BiasSwp_PropsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          },
+          {
+            "args": [
+              256,
+              10,
+              1,
+              0,
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              "mast_biasswp",
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSwp_Start"
+          }
+        ],
+        "data": {},
+        "error": "BiasSwp_Start failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          },
+          {
+            "args": [
+              256,
+              10,
+              1,
+              0,
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              "mast_biasswp",
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Start"
+          }
+        ],
+        "data": {
+          "data": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            [
+              [
+                5.1,
+                5.2
+              ],
+              [
+                5.3,
+                5.4
+              ]
+            ]
+          ],
+          "lower_limit_v": -1.0,
+          "period_ms": 10,
+          "steps": 256,
+          "upper_limit_v": 1.0,
+          "z_controller_off": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "swapped": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Open"
+          },
+          {
+            "args": [
+              -1.0,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsSet"
+          },
+          {
+            "args": [
+              256,
+              10,
+              1,
+              0,
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              "mast_biasswp",
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_Start"
+          }
+        ],
+        "data": {
+          "data": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            [
+              [
+                5.1,
+                5.2
+              ],
+              [
+                5.3,
+                5.4
+              ]
+            ]
+          ],
+          "lower_limit_v": -1.0,
+          "period_ms": 10,
+          "steps": 256,
+          "upper_limit_v": 1.0,
+          "z_controller_off": true
+        },
+        "error": "",
+        "params": {
+          "lower_limit_v": 1.0,
+          "upper_limit_v": -1.0
+        },
         "success": true,
         "summary": ""
       }
@@ -28195,6 +30469,130 @@
       }
     }
   },
+  "SetAcquisitionPeriod": {
+    "params": {
+      "period_s": 0.5000005
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.5000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_AcqPeriodSet"
+          }
+        ],
+        "data": {
+          "period_s": 0.5000005
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.5000005
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_AcqPeriodSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.5000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_AcqPeriodSet"
+          }
+        ],
+        "data": {
+          "period_s": 0.5000005
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetAdditionalRealtimeSignals": {
+    "params": {
+      "signal_1": 63,
+      "signal_2": 63
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              63,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_AddRTSet"
+          }
+        ],
+        "data": {
+          "signal_1": 63,
+          "signal_2": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              63,
+              63
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_AddRTSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              63,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_AddRTSet"
+          }
+        ],
+        "data": {
+          "signal_1": 63,
+          "signal_2": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetBias": {
     "params": {
       "bias_v": 5.0
@@ -29310,6 +31708,121 @@
         "data": {},
         "error": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
         "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "SetOsciTimebase": {
+    "params": {
+      "timebase_index": 0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseSet"
+          }
+        ],
+        "data": {
+          "timebase_index": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseSet"
+          }
+        ],
+        "data": {
+          "timebase_index": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseSet"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T_TimebaseSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "need_module@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "NanonisError: NeedModule Osci1T",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T module is not loaded in this Nanonis configuration — cannot set a hardware timebase.",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_Run"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TimebaseSet"
+          }
+        ],
+        "data": {
+          "timebase_index": 0
+        },
+        "error": "",
+        "success": true,
         "summary": ""
       }
     }
@@ -30583,6 +33096,101 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetSpectrumAnalyzerBand": {
+    "params": {
+      "f_high_hz": 1000.0,
+      "f_low_hz": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0,
+              1.0,
+              1000.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosSet"
+          }
+        ],
+        "data": {
+          "f_high_hz": 1000.0,
+          "f_low_hz": 1.0,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "频谱 RMS 频带 = [1, 1000] Hz"
+      },
+      "equal": {
+        "calls": [],
+        "data": {},
+        "error": "f_low_hz (50) 必须小于 f_high_hz (50)",
+        "params": {
+          "f_high_hz": 50.0,
+          "f_low_hz": 50.0
+        },
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0,
+              1.0,
+              1000.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosSet"
+          }
+        ],
+        "data": {},
+        "error": "SpectrumAnlzr_CursorPosSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "inverted": {
+        "calls": [],
+        "data": {},
+        "error": "f_low_hz (1000) 必须小于 f_high_hz (1)",
+        "params": {
+          "f_high_hz": 1.0,
+          "f_low_hz": 1000.0
+        },
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0,
+              1.0,
+              1000.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SpectrumAnlzr_CursorPosSet"
+          }
+        ],
+        "data": {
+          "f_high_hz": 1000.0,
+          "f_low_hz": 1.0,
+          "instance": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "频谱 RMS 频带 = [1, 1000] Hz"
       }
     }
   },

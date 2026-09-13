@@ -354,10 +354,67 @@ vitest 的超时是宏任务、永远轮不上。加 5000 次预算后 **4.73 �
 
 新登记 **D-SKILL-1 补充二 · D-LOCKIN-1 · D-CHANNELS-1**（共 40 条，其中 2 条已销账）。
 
-**下一段**：锁相参数组三件套（`ListLockInPresets` / `ApplyLockInPreset` / `AutoPhase`）。
-金样已经录好，实现没落 ⇒ 进度表上是 **3 个 `partial`**，这正是那一档该表示的状态。
-`AutoPhase` 自己就够一个课时：噪声底判据（判不了就不写）、缺陷⑪ 的收尾关调制、
-以及中止时**什么都不写**的语义。
+· **2.24 ✅ 批 3e —— 锁相参数组三件套 + 五个模块收口**
+
+18 个技能，模块 22/165 → **28/165**，技能 133 → **151**，`partial` 3 → **0**。
+三件套把锁相那一族收了口：模型说组名，**代码去用户填的地方取数字**，一个数值参数都不过模型。
+
+**两条语言差异，各自值一条测试。** 都不是风格问题，都在小数据上看不见：
+
+| | |
+|---|---|
+| `%` | JS 的余数符号跟被除数，Python 的模跟除数。当前 −170°、增量 −90° ⇒ 和是 −80：Python 给 **+100°**，JS 给 **−260°**。而 −260° 还会被硬件自己折回去 —— 一次「已对齐」里藏着一个没人核得出的偏差 |
+| `sum()` | **CPython 3.12 起对浮点用 Neumaier 补偿求和**。`[2.0e-9, 2.2e-9, 1.8e-9]`：`sum()` 给 `6e-9`，朴素相加给 `5.999999999999999e-9`。均值因此差最后两位，而金样是**逐字节**比的 |
+
+第二条是金样先红了我才知道的。它同时说明**一件事**：`pyFloatRepr` / `pyStr` / `pyMod` / `pySum`
+这一族的共同点不是「Python 有怪癖」，是**两种语言对同一串数字给的答案不同**，
+而移植要的是旧仓那一个答案。
+
+**导出脚本录不到那一格，于是那一格本身成了证据（D-LOCKIN-2）。**
+专用导出器本来要录「仪器档案一个键都没配 ⇒ 拒绝并指路」，结果 `set_profile({})` 之后
+返回里照旧带着 973 Hz / 0.02 V —— `_CONFIG_SPEC` 的**出厂默认**，而 `sanitize()` 又把空值丢掉，
+于是 `usable == False` 那一支在旧仓是**死代码**，模块 docstring 里
+「档案没填的键不下发」这句话从来没有机会执行。
+
+代价不是纸面的：0.02 V 是出厂值而不是本机标定，而 `sources` 说它来自「仪器档案 lockin_mod_amp_v」
+—— 读的人会当成用户填的。本仓反过来（**没配就拒**），与 `zctrl-preset` 拒绝编造进针增益同一条理由：
+20 mV 的调制是一次**真实的物理动作**，加在谁也没确认过的隧道结上。
+那一格留在金样里，名字就叫 `profile_cleared_still_has_factory_defaults`。
+
+**协议表照出了一个金样照不出的缺陷（D-BIASSWP-1）。**
+旧仓给 `BiasSwp_PropsSet` 发**五个**实参，而这条命令只收四个（协议表与 `nanonis_spm` 的签名
+一致，都没有 `Settling_ms`）。真机上那是一次 `TypeError` ⇒ **`RunBiasSweep` 一次也没成功过**。
+金样看不见它——假 context 不检查实参个数；看得见它的是那张**生成整个 Nanonis 门面的表**。
+bug 的来源是注释：有人写下一个五参数的签名，然后照着自己的注释写了代码。
+
+**`x or default` 把合法的 `0` 吃掉，第二次（D-ZERO-1）。**
+批 3d 是 `amplitude_v = 0`（「开之前先把它变安全」）。这一批是四处：
+矩形窗 `fft_window=0`、不平均 `averaging_mode=0`、`sweep_direction=0`（上限→下限）、
+`z_hold=0`。判据是「**`0` 在这个参数上是不是一个合法值**」，不是写起来方不方便；
+症状则一律相同——「我选了矩形窗，而谱看起来像加了窗」，图上看不出任何错。
+
+**④验（8 条新的技能级集成测试）照出两件文档层面的事实。**
+`ApplyLockInPreset` 对真 stmsim 走完「写 → 回读 → `valuesMatch`」：幅度请求 `0.02`、
+读回 `0.0099…`（float32 量化的另一个值），回读**通过**——上一批那条 D-READBACK-1 在这一族上
+也成立。另外两件是真机现场才说得出的：
+
+| | |
+|---|---|
+| `NeedModule` 的**真文案** | `NanonisError: NeedModule: Cannot access the 'SpectrumAnlzr' module. Please make sure it is running.` —— 那个子串确实在里面，而这条判据以前只在**我自己造的回包**上验过 |
+| 旧仓 docstring 说错了一句 | 它写着「自带的模拟器默认没有 Osci1T」。**本机 stmsim 上 Osci1T 是装着的**，而 `SpectrumAnlzr` / `AtomTrack` 才是没装的。那句话是关于另一台模拟器的 |
+
+第二件的用处不在于纠正一句注释，在于：`GetSpectrumAnalyzerData` 那一趟六个读**全是 `null`**，
+而技能照旧 `success` —— 「读不到」在真机上第一次被表示成它该有的样子。
+
+新登记 **D-LOCKIN-2 · D-ZERO-1 · D-BIASSWP-1 · D-HYPOT-1 · D-OSCI-1**
+（共 45 条，其中 2 条已销账）。
+
+**下一段**：`builtins.nanonis_script`（11 个）+ `nanonis_script_files`（3 个）——
+Nanonis 脚本整族，带一张 allowlist。另有两个一技能模块（`GetChamberPressure` /
+`GetTemperature`）**这一批没做**，理由写在这里免得下次再挑一遍：它们各自压着一个整的
+支撑子系统（`vacuum_interlock` 631 行的真空互锁 + 签署、`core/temperature` 的传感器源），
+移过来的不是「一个小技能」，是那个子系统。`StepCoarseXY` 同理——它是
+`RelocateCoarseXY` 的一层薄壳，而那个还没移，移过来就是一个永远调不通的壳。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -373,10 +430,10 @@ vitest 的超时是宏任务、永远轮不上。加 5000 次预算后 **4.73 �
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
-仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2456 条测试**（另有 **102 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
+**2605 条测试**（另有 **125 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **33 条**对真 stmsim 的集成测试——其中 **13 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
-+ **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用**，重跑逐字节相同）；
++ **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用 / 锁相 8 格应用 + 13 格相位**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支

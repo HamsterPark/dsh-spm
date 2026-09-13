@@ -1,0 +1,1417 @@
+{
+  "_note": "由 tools/spec-export/export_lockin_presets.py 生成——驱动旧仓真实的 lockin_presets 三件套。",
+  "apply": {
+    "configure_failed": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "下发 lock-in 参数组失败:LockIn_ModAmpSet failed: 链路已断",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        }
+      ],
+      "success": false
+    },
+    "mod_off": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": false
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {
+          "amplitude": 0.019999999552965164,
+          "frequency_hz": 973.0,
+          "harmonic": 1,
+          "mod_on": true,
+          "modulated_signal": 24,
+          "modulator": 1,
+          "phase_deg": 0.0
+        },
+        "readback_verified": true,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "",
+      "params": {
+        "mod_on": false
+      },
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": false
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": true
+    },
+    "ok": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {
+          "amplitude": 0.019999999552965164,
+          "frequency_hz": 973.0,
+          "harmonic": 1,
+          "mod_on": true,
+          "modulated_signal": 24,
+          "modulator": 1,
+          "phase_deg": 0.0
+        },
+        "readback_verified": true,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": true
+    },
+    "profile_cleared_still_has_factory_defaults": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {},
+        "readback_verified": false,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "下发后回读不一致:frequency_hz: 读不回来(回包里没有 frequency_hz);amplitude_v: 读不回来(回包里没有 amplitude)。**不要按已设置继续**。",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": false
+    },
+    "readback_command_failed": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {},
+        "readback_verified": false,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "下发后回读不一致:回读命令失败:链路已断;frequency_hz: 读不回来(回包里没有 frequency_hz);amplitude_v: 读不回来(回包里没有 amplitude)。**不要按已设置继续**。",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": false
+    },
+    "readback_key_renamed": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {
+          "amplitude_v": 0.019999999552965164,
+          "frequency_hz": 973.0,
+          "harmonic": 1,
+          "mod_on": true,
+          "modulated_signal": 24,
+          "modulator": 1,
+          "phase_deg": 0.0
+        },
+        "readback_verified": false,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "下发后回读不一致:amplitude_v: 读不回来(回包里没有 amplitude)。**不要按已设置继续**。",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": false
+    },
+    "readback_mismatch": {
+      "data": {
+        "applied": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true
+        },
+        "configure_result": {},
+        "name": "didv",
+        "notes": [],
+        "phase_deg": null,
+        "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+        "readback": {
+          "amplitude": 0.04,
+          "frequency_hz": 973.0,
+          "harmonic": 1,
+          "mod_on": true,
+          "modulated_signal": 24,
+          "modulator": 1,
+          "phase_deg": 0.0
+        },
+        "readback_verified": false,
+        "sources": {
+          "amplitude_v": "仪器档案 lockin_mod_amp_v",
+          "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+        },
+        "unset": [],
+        "usable": true,
+        "values": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0
+        },
+        "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+      },
+      "error": "下发后回读不一致:amplitude_v: 请求 0.02, 读回 0.04(相差 2 倍)。**不要按已设置继续**。",
+      "params": {},
+      "runs": [
+        {
+          "params": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "skill": "ConfigureLockIn"
+        },
+        {
+          "params": {},
+          "skill": "GetLockInConfig"
+        }
+      ],
+      "success": false
+    },
+    "unknown_preset": {
+      "data": {},
+      "error": "没有名为 'iv' 的 lock-in 参数组;目前只有 didv。",
+      "params": {
+        "preset": "iv"
+      },
+      "runs": [],
+      "success": false
+    }
+  },
+  "constants": {
+    "amplitude_float32": 0.019999999552965164,
+    "min_signal": 1e-12,
+    "poll_interval_s": 0.1,
+    "preset_didv": "didv",
+    "profile_fixture": {
+      "lockin_mod_amp_v": 0.02,
+      "lockin_mod_freq_hz": 973.0
+    },
+    "profile_keys": {
+      "lockin_mod_amp_v": "amplitude_v",
+      "lockin_mod_freq_hz": "frequency_hz"
+    },
+    "readback_keys": {
+      "amplitude_v": "amplitude",
+      "frequency_hz": "frequency_hz"
+    },
+    "reserved_names": [
+      "didv"
+    ]
+  },
+  "phase": {
+    "aborted": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        }
+      ],
+      "data": {
+        "aborted": true
+      },
+      "error": "取样期间被中止 —— 相位未改动,**调制也未改动**(中止后不再对仪器发写操作;调制此刻可能还开着)。",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    },
+    "close_failed": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "用完 lock-in 后关调制**失败**:模拟故障：连接被对端关闭。调制可能仍开着 —— 它会在电流通道上叠一层纹波,污染后面每一条判据。请手动关闭。",
+        "modulation_off_after": false,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": 26.565051177077976,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "close_still_on": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "发出了关调制命令,回读却仍是开着 —— **不要按已关闭继续**,请手动确认。",
+        "modulation_off_after": false,
+        "modulation_was_on_before": true,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": 26.565051177077976,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "close_unconfirmed": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "已发出关调制命令,但回读不到调制状态 —— **没确认**它关上了。「写进去了」和「我们看见它在里面」是两句话。",
+        "modulation_off_after": null,
+        "modulation_was_on_before": null,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": 26.565051177077976,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "crosstalk_to_y": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            -63.43494882292201
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": -63.43494882292201,
+        "mode": "crosstalk_to_y",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": -63.43494882292201,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": -63.43494882292201,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "mode": "crosstalk_to_y",
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "fold_negative": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            100.0
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": -170.0,
+        "delta_deg": -90.0,
+        "mode": "crosstalk_to_y",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 1e-09,
+        "readback_phase_deg": 100.0,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": 100.0,
+        "window_s": 0.3,
+        "x_mean": 1e-09,
+        "x_sd": 0.0,
+        "y_mean": 0.0,
+        "y_sd": 0.0
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "mode": "crosstalk_to_y",
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "half_indices": {
+      "calls": [],
+      "data": {
+        "x_signal_index": 86,
+        "y_signal_index": null
+      },
+      "error": "不知道解调 Y 在哪一路 RT 信号上 —— **拒绝对齐相位**。请传 x_signal_index / y_signal_index,或在仪器档案里填 lockin_x_signal_index / lockin_y_signal_index。(不猜:猜错读到的是另一路信号,而算出来的角度看上去一样合理,然后它会被写进硬件。)",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": null
+      },
+      "success": false
+    },
+    "no_current_phase": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "samples": 3,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "读不到当前解调相位 —— 算出来的是增量,没有起点就写不了。(假起点会把相位转到一个谁也没要的地方。)",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    },
+    "no_samples": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "samples": 0
+      },
+      "error": "读不到解调器的 X/Y —— **判不了相位**。先确认调制已打开、解调通道配置正确。",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    },
+    "noise_floor": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 1.414213562373095e-15,
+        "samples": 3,
+        "window_s": 0.3,
+        "x_mean": 1e-15,
+        "x_sd": 0.0,
+        "y_mean": 1e-15,
+        "y_sd": 0.0
+      },
+      "error": "X/Y 都在噪声底(|R| = 1.41e-15,下界 1e-12) —— **无可用信号,不给相位角**。请先打开调制、或确认有信号源(隧穿态下有 dI/dV,退针态下有电容串扰)。",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    },
+    "readback_mismatch": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": 12.5,
+        "readback_verified": false,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "写了 26.57° 但回读是 12.5 —— 不一致,**不要按已对齐继续**。",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    },
+    "signal_to_x": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "readback_phase_deg": 26.565051177077976,
+        "readback_verified": true,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": true
+    },
+    "write_failed": {
+      "calls": [
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            [
+              86,
+              87
+            ],
+            0
+          ],
+          "verb": "Signals_ValsGet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_DemodPhasGet"
+        },
+        {
+          "args": [
+            1,
+            26.565051177077976
+          ],
+          "verb": "LockIn_DemodPhasSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        },
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "LockIn_ModOnOffSet"
+        },
+        {
+          "args": [
+            1
+          ],
+          "verb": "LockIn_ModOnOffGet"
+        }
+      ],
+      "data": {
+        "current_phase_deg": 0.0,
+        "delta_deg": 26.56505117707799,
+        "mode": "signal_to_x",
+        "modulation_closed_by": "AutoPhase",
+        "modulation_note": "AutoPhase 用完 lock-in,已把调制关回 OFF(幅度/频率原样保留)。要接着做 dI/dV,请先用 ApplyLockInPreset 重新打开调制 —— 调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+        "modulation_off_after": true,
+        "modulation_was_on_before": false,
+        "r": 2.2360679774997897e-09,
+        "samples": 3,
+        "target_phase_deg": 26.565051177077976,
+        "window_s": 0.3,
+        "x_mean": 2e-09,
+        "x_sd": 1.9999999999999993e-10,
+        "y_mean": 1e-09,
+        "y_sd": 9.999999999999996e-11
+      },
+      "error": "写解调相位失败:模拟故障：连接被对端关闭",
+      "params": {
+        "demodulator": 1,
+        "window_s": 0.3,
+        "x_signal_index": 86,
+        "y_signal_index": 87
+      },
+      "success": false
+    }
+  }
+}

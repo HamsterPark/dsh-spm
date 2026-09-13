@@ -24,6 +24,11 @@ import { CONFIG_READS } from './reads-config.js'
 import { CheckScanForCrash } from './crash.js'
 import { LOCKIN } from './lockin.js'
 import { DATALOG_MARKS } from './datalog-marks.js'
+import { LOCKIN_PRESETS } from './lockin-presets.js'
+import { ATOM_TRACK } from './atom-track.js'
+import { OSCI } from './osci.js'
+import { SPECTRUM } from './spectrum.js'
+import { BIAS_SWEEP } from './bias-sweep.js'
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
@@ -50,6 +55,11 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   CheckScanForCrash,
   ...LOCKIN,
   ...DATALOG_MARKS,
+  ...LOCKIN_PRESETS,
+  ...ATOM_TRACK,
+  ...OSCI,
+  ...SPECTRUM,
+  ...BIAS_SWEEP,
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
@@ -77,6 +87,12 @@ export * from './reads-config.js'
 export * from './crash.js'
 export * from './lockin.js'
 export * from './datalog-marks.js'
+export * from './lockin-presets.js'
+export * from './atom-track.js'
+export * from './osci.js'
+export * from './spectrum.js'
+export * from './bias-sweep.js'
+export * from './tip-xy.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'
 export * from '../composite/set-bias-ramp.js'

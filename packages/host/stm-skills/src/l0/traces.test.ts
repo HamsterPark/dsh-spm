@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest'
 import { emptyHardwareState, type Skill, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'
 import { IMPLEMENTED } from './index.js'
 import { processPresetStore } from './frames.js'
+import { processLockInProfile } from './lockin-presets.js'
 
 interface Trace {
   /**
@@ -76,7 +77,14 @@ function synthBody(verb: string): unknown[] {
 
 /** 与导出脚本同形的假 context：回显记忆 + 按序号注错 + 空 body。 */
 function fakeCtx(
-  opts: { errorAt?: number; emptyAt?: number; noEcho?: boolean; runErrorAt?: number } = {},
+  opts: {
+    errorAt?: number
+    emptyAt?: number
+    noEcho?: boolean
+    runErrorAt?: number
+    /** 注错的**文案**。有技能按错误里的子串分流（`NeedModule`），文案就是开关。 */
+    errorText?: string
+  } = {},
 ): {
   ctx: SkillContext
   calls: { verb: string; args: unknown[] }[]
@@ -97,7 +105,7 @@ function fakeCtx(
     if (i >= 5000) throw new Error(`轨迹夹具：调用数超过预算（${i}）—— 轮询没有出口`)
     calls.push({ verb: method, args })
     if (i === opts.errorAt) {
-      return Promise.resolve({ method, args, error: '模拟故障：连接被对端关闭' })
+      return Promise.resolve({ method, args, error: opts.errorText ?? '模拟故障：连接被对端关闭' })
     }
     if (i === opts.emptyAt) return Promise.resolve({ method, args, values: [] })
     const base = method.endsWith('Set') || method.endsWith('Get') ? method.slice(0, -3) : undefined
@@ -156,7 +164,15 @@ function optsOf(trace: string): {
   emptyAt?: number
   noEcho?: boolean
   runErrorAt?: number
+  errorText?: string
 } {
+  // `need_module@i` = 第 i 次调用回一条**带 `NeedModule` 字样**的错。
+  // Osci1T 那三个技能按这个子串分流（模块没装 ≠ 线路坏了），于是文案本身是开关：
+  // 用通用注错文案跑这一格，走的是另一条分支，而且它会绿。
+  const need = /^need_module@(\d+)$/.exec(trace)
+  if (need !== null) {
+    return { errorAt: Number(need[1]), errorText: 'NanonisError: NeedModule Osci1T' }
+  }
   // `mismatch` = 关掉回显：写进去什么、读回来是另一个数。
   // 这是「写后回读」那一族**最要命**的一条分支 —— 硬件没接受这个值。
   if (trace === 'mismatch') return { noEcho: true }
@@ -200,6 +216,32 @@ interface Deviation {
    * 都是同一次崩溃的直接后果。**结局字段照比** —— 那才是判据。
    */
   readonly callsDifferBecause?: string
+  /**
+   * 动词序列**照这一份比**（而不是照金样那一份）。
+   *
+   * 与 `callsDifferBecause` 的区别是它仍然逐格比 —— 只是先按一条**写得出来的规则**
+   * 把金样改一下。给的是「旧仓发错了实参」这一类：差异是确定的、看得见的，
+   * 而整条序列的其余部分照旧钉住。
+   */
+  readonly calls?: readonly [string, unknown[]][]
+}
+
+/**
+ * D-BIASSWP-1：旧仓给 `BiasSwp_PropsSet` 发了**五个**实参，而这条命令只收四个
+ * （协议表与 `nanonis_spm` 的签名一致，都没有 `Settling_ms`）。真机上那是一次
+ * `TypeError` ⇒ `RunBiasSweep` 每一次都停在第三步。
+ *
+ * 金样照不出它：假 context 不检查实参个数。期望值**从金样算出来** ——
+ * 旧仓哪天把那个多余的实参删了，这条登记会当场变红。
+ */
+function withoutPhantomArg(name: string, trace: string): Deviation {
+  const want = golden[name]?.traces[trace]?.calls ?? []
+  return {
+    calls: want.map((c) => [
+      c.verb,
+      c.verb === 'BiasSwp_PropsSet' ? c.args.slice(0, 4) : c.args,
+    ]),
+  }
 }
 
 /** 按点分路径删一个键。返回它原来在不在。 */
@@ -377,6 +419,15 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
     absent: ['_progress.partial_data.aborted'],
     callsDifferBecause: '旧仓 poll_0 在空 body 上抛 IndexError（被 optional 吞掉），此后时序错位',
   },
+  // ── D-BIASSWP-1：那个第五个实参不存在（见 `withoutPhantomArg`）──
+  ...Object.fromEntries(
+    ['ok', 'empty@0', 'swapped', 'err@2', 'err@3'].map((t) => [
+      `RunBiasSweep/${t}`,
+      withoutPhantomArg('RunBiasSweep', t),
+    ]),
+  ),
+  // ── D-SKILL-1 的又一格：空 body 上旧仓把整个信封塞进 `band_rms` ──
+  'GetSpectrumAnalyzerData/empty@0': withoutEnvelope('GetSpectrumAnalyzerData', 'empty@0'),
 }
 
 /**
@@ -440,9 +491,25 @@ function scrubPaths(v: unknown): unknown {
 const PRESET_FIXTURE = { name: 'spec-export', p_gain: '150p', i_gain: '150p' }
 const NEEDS_PRESET = new Set(['ApplyZCtrlPreset', 'ListZCtrlPresets'])
 
+/**
+ * 跑金样那台机器的 lock-in 档案 —— **D-LOCKIN-2 的另一半，写下来**。
+ *
+ * 旧仓这两个键在 `instrument_profile` 里带**出厂默认**（973 Hz / 0.02 V），而
+ * `sanitize()` 又把空值丢掉，于是 `get_config` 永远给得出数。金样因此是在
+ * 「档案已填」的前提下录的，而那个前提**没写在金样里**，它藏在出厂表里。
+ *
+ * 本仓不带出厂默认（见 `lockin-preset.ts` 抬头：0.02 V 是一次真实的物理动作，
+ * 加在谁也没确认过的隧道结上）。所以这里把那个前提**摆出来**——同 `PRESET_FIXTURE`：
+ * 金样自带它的前提，两侧摆一样的。
+ *
+ * X/Y 信号索引照旧是 `null`：那两个键**没有**出厂默认，两侧都拒绝。
+ */
+const LOCKIN_FIXTURE = { modFreqHz: 973.0, modAmpV: 0.02, xSignalIndex: null, ySignalIndex: null }
+
 function resetProcessState(skillName: string): void {
   processPresetStore.clear()
   if (NEEDS_PRESET.has(skillName)) processPresetStore.upsert(PRESET_FIXTURE)
+  processLockInProfile.current = LOCKIN_FIXTURE
 }
 
 const names = Object.keys(IMPLEMENTED).sort()
@@ -467,7 +534,11 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
           const got = await skill.execute(ctx, want.params ?? entry.params)
 
           const dev = DEVIATIONS[`${name}/${traceName}`]
-          if (dev?.callsDifferBecause === undefined) {
+          if (dev?.calls !== undefined) {
+            expect(calls.map((c) => [c.verb, c.args])).toEqual(dev.calls)
+            // 旧仓那一侧也钉住 —— 差异消失时这条登记会变红，而不是安静地留着
+            expect(want.calls.map((c) => [c.verb, c.args])).not.toEqual(dev.calls)
+          } else if (dev?.callsDifferBecause === undefined) {
             expect(calls.map((c) => [c.verb, c.args])).toEqual(
               want.calls.map((c) => [c.verb, c.args]),
             )

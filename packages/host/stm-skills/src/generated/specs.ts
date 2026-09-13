@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -1497,6 +1497,192 @@ export const EraseScanMarkersSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const ConfigureAtomTrackSpec: SkillSpec = {
+  name: "ConfigureAtomTrack",
+  description: "配置 Atom Tracking 参数，并启用/禁用各项控制。",
+  parameters: [
+    { name: "integral_gain", type: "float", description: "控制器积分增益", required: true },
+    { name: "frequency_hz", type: "float", description: "调制频率", unit: "Hz", required: true, minValue: 0 },
+    { name: "amplitude_m", type: "float", description: "调制幅度", unit: "m", required: true, minValue: 0 },
+    { name: "phase_deg", type: "float", description: "调制相位", unit: "deg", required: false, minValue: -360, maxValue: 360, default: 0 },
+    { name: "switch_off_delay_s", type: "float", description: "关闭前的位置平均时间", unit: "s", required: false, minValue: 0, default: 0.5 },
+    { name: "enable_modulation", type: "bool", description: "启用调制", required: false, default: true },
+    { name: "enable_controller", type: "bool", description: "启用控制器", required: false, default: true },
+  ],
+  tags: ["atomtrack","tracking","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AtomTrackDriftCompSpec: SkillSpec = {
+  name: "AtomTrackDriftComp",
+  description: "把 Atom Tracking 测得的漂移应用到漂移补偿上。",
+  parameters: [],
+  tags: ["atomtrack","drift","compensation","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AtomTrackQuickCompStartSpec: SkillSpec = {
+  name: "AtomTrackQuickCompStart",
+  description: "通过 Atom Tracking 启动倾斜或漂移补偿。",
+  parameters: [
+    { name: "compensation_type", type: "int", description: "0=倾斜补偿, 1=漂移补偿", required: true, minValue: 0, maxValue: 1, allowedValues: [0,1] },
+  ],
+  tags: ["atomtrack","compensation","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AtomTrackStatusGetSpec: SkillSpec = {
+  name: "AtomTrackStatusGet",
+  description: "读取某一项 Atom Tracking 控制（调制、控制器或漂移）的开/关状态。",
+  parameters: [
+    { name: "control", type: "int", description: "0=调制, 1=控制器, 2=漂移测量", required: true, minValue: 0, maxValue: 2, allowedValues: [0,1,2] },
+  ],
+  tags: ["atomtrack","status","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const AcquireOsciTraceSpec: SkillSpec = {
+  name: "AcquireOsciTrace",
+  description: "从 Nanonis 的 1 通道示波器（Osci1T）取一段缓冲时间序列。按硬件 RT 速率采样（V5e 上 ~20 kHz）。返回 (t0, dt, y_array)。要求 Nanonis 里已加载 Osci1T 模块 —— 默认自带的模拟器上没有。",
+  parameters: [
+    { name: "data_to_get", type: "int", description: "0 = 当前显示的缓冲区（最快，可能是陈旧的），1 = 等下一个触发，2 = 等 2 个触发（最干净的快照）。", required: false, minValue: 0, maxValue: 2, default: 0 },
+    { name: "signal_index", type: "int", description: "可选的 0–15 信号通道索引，采集前赋给 Osci1T。-1 = 保持现有。", required: false, minValue: -1, maxValue: 15, default: -1 },
+  ],
+  tags: ["oscilloscope","trace","hardware","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetOsciTimebasesSpec: SkillSpec = {
+  name: "GetOsciTimebases",
+  description: "列出可用的 Oscilloscope-1-Channel（Osci1T）时基。每个时基就是每采样点的间隔 dt（s）；采样率 fs = 1/dt。可选时基集合取决于 RT 频率与 RT 过采样。要求 Nanonis 里已加载 Osci1T 模块。",
+  parameters: [],
+  tags: ["oscilloscope","timebase","samplerate","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetOsciTimebaseSpec: SkillSpec = {
+  name: "SetOsciTimebase",
+  description: "按索引设置 Oscilloscope-1-Channel（Osci1T）时基。先用 GetOsciTimebases 拿到 index→sample-rate 的对应关系。纯配置 —— 不移动针尖，也不改任何 setpoint。",
+  parameters: [
+    { name: "timebase_index", type: "int", description: "在 GetOsciTimebases 返回的时基列表里的索引。索引越小 = 时基越快 / 采样率越高。", required: true, minValue: 0 },
+  ],
+  tags: ["oscilloscope","timebase","samplerate","configure"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const ConfigureSpectrumAnalyzerSpec: SkillSpec = {
+  name: "ConfigureSpectrumAnalyzer",
+  description: "配置频谱分析仪：FFT 窗、平均、以及 AC 耦合。只读 —— 分析仪只是把信号数字化，它不驱动任何东西。\n\n这三项决定了一条谱值不值得看：\n• **averaging** —— count=1 时每个 bin 都只是一次带噪的单点采样，每一个「峰」都是巧合。相信一个峰之前，先平均 10–50×。\n• **fft_window** —— 矩形窗（0）会把每一个音调抹到相邻的 bin 上。看噪声时该用的默认值是 Hann（通常是 1）。\n• **ac_coupling** —— DC 耦合下，一个大的偏置会主导整条谱，有意思的那几个数量级会被压在它底下。\n\n然后调用 GetSpectrumAnalyzerData。",
+  parameters: [
+    { name: "instance", type: "int", description: "用哪一个分析仪实例（从 1 开始，Nanonis 编号）", required: false, minValue: 1, maxValue: 8, default: 1 },
+    { name: "fft_window", type: "int", description: "FFT 窗索引（0 = 矩形窗；通常该用 Hann）", required: false, minValue: 0, maxValue: 8, default: 1 },
+    { name: "averaging_count", type: "int", description: "平均多少条谱（1 = 不平均 —— 每个峰都是噪声）", required: false, minValue: 1, maxValue: 10000, default: 20 },
+    { name: "averaging_mode", type: "int", description: "平均模式索引（0 = 不平均，1 = 线性，2 = 指数…）", required: false, minValue: 0, maxValue: 4, default: 1 },
+    { name: "weighting_mode", type: "int", description: "加权模式索引", required: false, minValue: 0, maxValue: 4, default: 0 },
+    { name: "ac_coupling", type: "bool", description: "对输入做 AC 耦合（剥掉 DC 偏置）", required: false, default: true },
+  ],
+  tags: ["spectrum","noise","fft","diagnostics"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const SetSpectrumAnalyzerBandSpec: SkillSpec = {
+  name: "SetSpectrumAnalyzerBand",
+  description: "设置频谱分析仪上报 band RMS 所用的频段（那一对游标），单位是 HERTZ。\n\nband RMS 是回答「到底有多少噪声」的那一个数 —— 例如电流信号上 1 Hz 到 1 kHz，告诉你反馈环实际要与之共处的噪声。先设频段，再读 GetSpectrumAnalyzerData.band_rms。",
+  parameters: [
+    { name: "f_low_hz", type: "float", description: "频段下边界，单位 HERTZ", unit: "Hz", required: true, minValue: 0, maxValue: 10000000 },
+    { name: "f_high_hz", type: "float", description: "频段上边界，单位 HERTZ", unit: "Hz", required: true, minValue: 0, maxValue: 10000000 },
+    { name: "instance", type: "int", description: "用哪一个分析仪实例（从 1 开始）", required: false, minValue: 1, maxValue: 8, default: 1 },
+  ],
+  tags: ["spectrum","noise","diagnostics"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const GetSpectrumAnalyzerDataSpec: SkillSpec = {
+  name: "GetSpectrumAnalyzerData",
+  description: "读频谱分析仪：谱本身、BAND RMS（由 SetSpectrumAnalyzerBand 设定的频段内的噪声 —— 值得拿出来说的就是这一个数）、DC 值，以及当前设置，好让你判断这条谱可不可信。\n\n诊断读法：50 Hz 处的峰及其谐波是市电串入 / 地环路；几百赫兹处宽缓的鼓包是楼体或隔振台；朝 DC 方向抬起是漂移；单纯就是太高的本底是前放、增益或走线。\n\n相信任何一个峰之前，先看 `averaging` —— count=1 时每个 bin 都只是一次带噪的单点采样。",
+  parameters: [
+    { name: "instance", type: "int", description: "用哪一个分析仪实例（从 1 开始）", required: false, minValue: 1, maxValue: 8, default: 1 },
+  ],
+  tags: ["spectrum","noise","read","diagnostics"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const RunBiasSweepSpec: SkillSpec = {
+  name: "RunBiasSweep",
+  description: "运行 Nanonis 的 BIAS SWEEPER：把偏压在两个限值之间 ramp，并记录采集通道。它**不是** bias spectroscopy（BiasSpectr / RunSTS）—— sweeper 只管 ramp 和记录，没有 spectroscopy 模块的那套 Z-control 时序。用它做定高的 I–V，或者在 lock-in 盯着时做一次偏压 ramp。\n\n针尖留在原地不动。挑限值时要像用 SetBias 那样谨慎 —— 一次停在 5 V 的 sweep，会把偏压就留在 5 V。",
+  parameters: [
+    { name: "lower_limit_v", type: "float", description: "sweep 的偏压下限（V）", unit: "V", required: true, minValue: -10, maxValue: 10 },
+    { name: "upper_limit_v", type: "float", description: "sweep 的偏压上限（V）", unit: "V", required: true, minValue: -10, maxValue: 10 },
+    { name: "steps", type: "int", description: "sweep 的点数", required: false, minValue: 2, maxValue: 65535, default: 256 },
+    { name: "period_ms", type: "int", description: "每个点的耗时（ms）", unit: "ms", required: false, minValue: 1, maxValue: 65535, default: 10 },
+    { name: "z_controller_off", type: "bool", description: "sweep 期间断开 Z feedback 环路。做定高 I–V 时通常选 True；选 False 则偏压变动时 feedback 会一直追着 setpoint 走。", required: false, default: true },
+    { name: "sweep_direction", type: "int", description: "1 = 下限→上限，0 = 上限→下限", required: false, minValue: 0, maxValue: 1, default: 1 },
+    { name: "autosave", type: "bool", description: "把这次 sweep 存成文件，落在 Nanonis 那台机器上", required: false, default: true },
+  ],
+  tags: ["bias","sweep","spectroscopy","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSignalCalibrationSpec: SkillSpec = {
+  name: "GetSignalCalibration",
+  description: "读取某路信号的标定（gain + offset）—— 也就是原始值的一个单位对应多少物理量。MAST 一直能列出信号、也能读到它们的值，却说不出这些数字**到底是什么意思**。在解读一条不是你配置的原始通道之前，先用它。",
+  parameters: [
+    { name: "signal_index", type: "int", description: "信号索引（0..127）—— 见 ListSignalNames", required: true, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["signals","calibration","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetAdditionalRealtimeSignalsSpec: SkillSpec = {
+  name: "SetAdditionalRealtimeSignals",
+  description: "选择 Nanonis 额外计算并输出的那**两路**实时信号（在固定的那几路之外）。它只是配置 —— 改变的是测什么，绝不改变仪器做什么。",
+  parameters: [
+    { name: "signal_1", type: "int", description: "第一路额外 RT 信号的索引", required: true, minValue: 0, maxValue: 127 },
+    { name: "signal_2", type: "int", description: "第二路额外 RT 信号的索引", required: true, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["signals","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const SetAcquisitionPeriodSpec: SkillSpec = {
+  name: "SetAcquisitionPeriod",
+  description: "设置 Nanonis 的采集周期（控制器的采样间隔）。MAST 以前只能**读**它（GetAcqPeriod），设不了。调小它采样更快、也更吃带宽；它影响控制器做的**每一次**测量，所以要有意识地改。",
+  parameters: [
+    { name: "period_s", type: "float", description: "采集周期，单位秒", unit: "s", required: true, minValue: 0.000001, maxValue: 1 },
+  ],
+  tags: ["util","acquisition","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const BiasPulseSpec: SkillSpec = {
+  name: "BiasPulse",
+  description: "由硬件计时发出单个偏压脉冲。",
+  parameters: [
+    { name: "width_s", type: "float", description: "脉冲宽度，单位秒", unit: "s", required: true, minValue: 0.000001, maxValue: 10 },
+    { name: "bias_v", type: "float", description: "脉冲期间的偏压", unit: "V", required: true, minValue: -10, maxValue: 10 },
+    { name: "z_hold", type: "int", description: "Z controller 的保持方式：0=不变，1=保持，2=不保持", required: false, allowedValues: [0,1,2], default: 1 },
+    { name: "absolute", type: "bool", description: "True=绝对偏压，False=相对当前值", required: false, default: true },
+  ],
+  capabilities: ["bias_pulse"],
+  tags: ["bias","pulse","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -1635,7 +1821,22 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   ListScanMarkers: ListScanMarkersSpec,
   DrawScanMarker: DrawScanMarkerSpec,
   EraseScanMarkers: EraseScanMarkersSpec,
+  ConfigureAtomTrack: ConfigureAtomTrackSpec,
+  AtomTrackDriftComp: AtomTrackDriftCompSpec,
+  AtomTrackQuickCompStart: AtomTrackQuickCompStartSpec,
+  AtomTrackStatusGet: AtomTrackStatusGetSpec,
+  AcquireOsciTrace: AcquireOsciTraceSpec,
+  GetOsciTimebases: GetOsciTimebasesSpec,
+  SetOsciTimebase: SetOsciTimebaseSpec,
+  ConfigureSpectrumAnalyzer: ConfigureSpectrumAnalyzerSpec,
+  SetSpectrumAnalyzerBand: SetSpectrumAnalyzerBandSpec,
+  GetSpectrumAnalyzerData: GetSpectrumAnalyzerDataSpec,
+  RunBiasSweep: RunBiasSweepSpec,
+  GetSignalCalibration: GetSignalCalibrationSpec,
+  SetAdditionalRealtimeSignals: SetAdditionalRealtimeSignalsSpec,
+  SetAcquisitionPeriod: SetAcquisitionPeriodSpec,
+  BiasPulse: BiasPulseSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse"] as const

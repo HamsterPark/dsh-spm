@@ -16,7 +16,7 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 · 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/2/3/5/7/9，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层 · 1.2b ✅ 类型码表 · 1.3 ✅ 协议代码生成 · 1.4 ✅ RoleLink TCP 客户端 · 1.5 ✅ 熔断状态机 · 1.6 ✅ ctx.instrument Service · 1.7 ✅ instrument-stmsim provider + `profiles/mast-sim` · 1.8 ✅ ctx.instrumentState 1 Hz 状态缓存 · 1.8b ✅ 实时状态提示块 + stm_get_state · 1.9 ✅ 看门狗 + 急停 · 1.10 ◐ SSE hub + 投影（客户端半边受阻于台账 B12）· **Phase 2 开工**：2.1–2.5 ✅ 安全闸门。
 **Phase 0 完成**（只差覆盖率门禁）。**Phase 2 进行中，下一步 = 课时 2.6（sample gate）**。2026-09-13 已升 dsh 到 `0.1.5-rc.2`（接触面零变化；**追踪已切到稳定通道**，见 `docs/dsh/upgrades.md` 的切换点补记）。0.5（设置卡）挪到 1.7 后再挪到 1.10，与 U0 共用客户端机器。
 
-10 个工作区包、508 条测试（含 20 条对真 stmsim 的集成测试，模拟器由 vitest globalSetup 自动起停），golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**——**Phase 2–8 的分段计划已于 2026-09-10 一次写全**（约 45 个课时）。
+13 个工作区包（含 root）、2605 条测试（含 33 条对真 stmsim 的集成测试，模拟器由 vitest globalSetup 自动起停）+ **125 条变异演练全红**，已移植 **151/515** 技能、**28/165** 模块，golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**——**Phase 2–8 的分段计划已于 2026-09-10 一次写全**（约 45 个课时）。
 
 ## 文档地图
 

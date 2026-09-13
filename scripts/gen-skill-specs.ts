@@ -106,6 +106,22 @@ const BATCH_3D = [
 ]
 
 /**
+ * 批 3e：锁相参数组三件套的实现（轨迹 3d 已录），加五个收口模块。
+ *
+ * 五个模块都是「一层薄壳包一族 Nanonis 动词」，选它们的标准仍然是**模块级完成**。
+ * 值钱的是各自那一两条判据：Osci1T 三件分 `NeedModule`（模块没装 ≠ 线路坏了）、
+ * 频带闸 `lo >= hi` 拒、偏压 sweep 的颠倒限值**换过来**而不是拒、
+ * AtomTrack 状态位在 body 第 0 位。
+ */
+const BATCH_3E = [
+  'ConfigureAtomTrack', 'AtomTrackDriftComp', 'AtomTrackQuickCompStart',
+  'AtomTrackStatusGet', 'AcquireOsciTrace', 'GetOsciTimebases',
+  'SetOsciTimebase', 'ConfigureSpectrumAnalyzer', 'SetSpectrumAnalyzerBand',
+  'GetSpectrumAnalyzerData', 'RunBiasSweep', 'GetSignalCalibration',
+  'SetAdditionalRealtimeSignals', 'SetAcquisitionPeriod', 'BiasPulse',
+]
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -181,7 +197,10 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C, ...BATCH_3D]
+  const names = [
+    ...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C,
+    ...BATCH_3D, ...BATCH_3E,
+  ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 
@@ -197,7 +216,10 @@ function main(): number {
     `批 2 写/硬闸/DANGEROUS/L1 ${BATCH_2.filter((n) => byName.has(n)).length} 个 · ` +
     `批 2b 参数组 ${BATCH_2B.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3a 扫描主链 ${BATCH_3A.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 3b 组合 ${BATCH_3B.filter((n) => byName.has(n)).length} 个\n` +
+    `批 3b 组合 ${BATCH_3B.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3c 长尾 ${BATCH_3C.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3d 锁相族 ${BATCH_3D.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3e 收口 ${BATCH_3E.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

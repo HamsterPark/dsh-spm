@@ -181,6 +181,40 @@ export function formatSi(value: number, digits = 6): string {
  * 前者是整值浮点的小数点，后者是指数位数。两处都会让「请求 5.0」变成
  * 「请求 5」——一个数看起来像整数还是像浮点，在**量级错**的诊断里是有意义的。
  */
+/**
+ * Python 的 `sum()`，**不是** `reduce((a, b) => a + b, 0)`。
+ *
+ * CPython **3.12 起**给 `sum()` 加了浮点快路，用的是 **Neumaier 补偿求和**：
+ * 每一步把被吃掉的低位记进一个补偿量，最后加回去。于是
+ *
+ * ```
+ * [2.0e-9, 2.2e-9, 1.8e-9]
+ *   Python sum()          → 6e-09                 ⇒ 均值 2e-09
+ *   朴素逐项相加            → 5.999999999999999e-9 ⇒ 均值 1.9999999999999997e-9
+ * ```
+ *
+ * 差在最后两位，而金样是**逐字节**比的 —— `AutoPhase` 的 `x_mean` / `x_sd` 就卡在
+ * 这一位上（2026-09-13）。这与 `pyFloatRepr` / {@link ./si.ts | pyStr} 同族：
+ * **两种语言对同一串数字的答案不同，而我们要的是旧仓那一个答案。**
+ *
+ * 顺带它也更准，所以没有「为了对齐金样而变差」的代价。
+ */
+export function pySum(values: Iterable<number>): number {
+  let sum = 0.0
+  let comp = 0.0
+  for (const x of values) {
+    const t = sum + x
+    comp += Math.abs(sum) >= Math.abs(x) ? sum - t + x : x - t + sum
+    sum = t
+  }
+  return sum + comp
+}
+
+/** `sum(xs) / len(xs)`。空表给 `NaN`（同 Python 的 `ZeroDivisionError` 位置）。 */
+export function pyMean(values: readonly number[]): number {
+  return values.length === 0 ? NaN : pySum(values) / values.length
+}
+
 export function pyFloatRepr(v: number): string {
   if (!Number.isFinite(v)) return v > 0 ? 'inf' : Number.isNaN(v) ? 'nan' : '-inf'
   if (Object.is(v, -0)) return '-0.0' // 同 `formatG`：Python 的 `repr(-0.0)`

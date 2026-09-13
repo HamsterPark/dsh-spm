@@ -144,6 +144,36 @@ BATCH_3D = [
 
 
 
+#: 批 3e：**锁相参数组三件套**（3d 已录轨迹、这一批落实现）+ 五个收口模块。
+#:
+#: 这五个都是「一层薄壳包一族 Nanonis 动词」的形状，值钱的地方在**哪些分支存在**：
+#: Osci1T 那三个各自判 `NeedModule`（模块没装 ≠ 线路坏了，见 `CUSTOM_ERRORS`），
+#: `SetSpectrumAnalyzerBand` 判 `lo >= hi`，`RunBiasSweep` 把颠倒的限值**换过来**
+#: 而不是拒绝，`AtomTrackStatusGet` 的状态位在 body 第 0 位（旧仓读信封第 0 位那版
+#: 在真机上把每一项控制都报成 Off）。
+BATCH_3E = [
+    "ConfigureAtomTrack", "AtomTrackDriftComp", "AtomTrackQuickCompStart",
+    "AtomTrackStatusGet", "AcquireOsciTrace", "GetOsciTimebases",
+    "SetOsciTimebase", "ConfigureSpectrumAnalyzer", "SetSpectrumAnalyzerBand",
+    "GetSpectrumAnalyzerData", "RunBiasSweep", "GetSignalCalibration",
+    "SetAdditionalRealtimeSignals", "SetAcquisitionPeriod", "BiasPulse",
+]
+
+#: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
+#:
+#: 通用注错点给的文案是「连接被对端关闭」，而 Osci1T 那三个技能靠
+#: `"NeedModule" in rec.error` 分流 —— 一条注错文案决定了走哪条分支，于是它必须是
+#: 一个**单独的开关**，不能指望通用注错碰巧命中。两种错都要录：带 NeedModule 的
+#: 走「去 Nanonis 里打开那个模块」，不带的**继续往下跑**（`Osci1T_Run` 是幂等的，
+#: 它失败不代表取不到数）。
+#:
+#: 文案本身是夹具，判据落在**技能自己说了什么**上——那句话是模型读的东西。
+CUSTOM_ERRORS: dict[str, dict[str, tuple[int, str]]] = {
+    "AcquireOsciTrace": {"need_module@0": (0, "NanonisError: NeedModule Osci1T")},
+    "GetOsciTimebases": {"need_module@0": (0, "NanonisError: NeedModule Osci1T")},
+    "SetOsciTimebase": {"need_module@0": (0, "NanonisError: NeedModule Osci1T")},
+}
+
 #: 批 3a（扫描主链）。`WaitScanComplete` 在计划里单独占一格：它是第一个**长时**
 #: 技能，抱着 abort、超时、五种 outcome，以及那条硬约束 ——
 #: 「dsh 超时也触发 signal，**绝不把仪器留在运动中**」。
@@ -233,6 +263,12 @@ PARAM_OVERRIDES: dict[str, dict] = {
     # 是解析拒绝，而下发那一路（三次/四次调用）一条金样都没有。
     "StartDataLog": {"channels": "0,14", "duration_s": 10.0},
     "StartTcpLog": {"channels": "0,14"},
+    # 两个边界都取中点 ⇒ `f_low_hz == f_high_hz` ⇒ **`ok` 那一趟录到的是拒绝**，
+    # 而下发那一路一条金样都没有。给一个真的频带；lo ≥ hi 那支在 EXTRA_PARAMS 里。
+    "SetSpectrumAnalyzerBand": {"f_low_hz": 1.0, "f_high_hz": 1000.0},
+    # 同理：±10 V 的中点是 0，通用规则避开 0 于是上下限都成了 5.0 ——
+    # 一次「从 5 V sweep 到 5 V」的退化轨迹。
+    "RunBiasSweep": {"lower_limit_v": -1.0, "upper_limit_v": 1.0},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -271,6 +307,25 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
         "lp_only": {"lp_cutoff_hz": 100.0},
         "phase": {"phase_deg": 45.0},
     },
+    # 两个使能各自可以不开 —— 而「没开」与「开了但失败」在旧仓曾经是同一个返回值
+    "ConfigureAtomTrack": {
+        "no_enables": {"enable_modulation": False, "enable_controller": False},
+        "modulation_only": {"enable_controller": False},
+    },
+    # 0=Tilt / 1=Drift：标签由参数决定，通用驱动只走得到枚举的第一个
+    "AtomTrackQuickCompStart": {"drift": {"compensation_type": 1}},
+    "AtomTrackStatusGet": {"controller": {"control": 1}, "drift": {"control": 2}},
+    # `signal_index` 缺省 -1 = 保持现有 ⇒ 不发 `Osci1T_ChSet`。给一个正的才走那一支。
+    "AcquireOsciTrace": {"with_channel": {"signal_index": 4}, "wait_trigger": {"data_to_get": 2}},
+    "ConfigureSpectrumAnalyzer": {"dc_coupled": {"ac_coupling": False}},
+    # 下界 ≥ 上界 ⇒ 拒绝，**一次调用都不发**
+    "SetSpectrumAnalyzerBand": {
+        "inverted": {"f_low_hz": 1000.0, "f_high_hz": 1.0},
+        "equal": {"f_low_hz": 50.0, "f_high_hz": 50.0},
+    },
+    # 颠倒的限值**换过来**而不是拒绝 —— 与频带那条刻意不同
+    "RunBiasSweep": {"swapped": {"lower_limit_v": 1.0, "upper_limit_v": -1.0}},
+    "BiasPulse": {"relative": {"absolute": False}},
 }
 
 
@@ -356,13 +411,15 @@ class _FakeContext:
 
     def __init__(self, table: dict, *, error_at: int | None = None,
                  empty_at: int | None = None, run_error_at: int | None = None,
-                 no_echo: bool = False):
+                 no_echo: bool = False,
+                 error_text: str = "模拟故障：连接被对端关闭"):
         self.table = table
         # **写进去什么、读回来就是什么** —— 真仪器就是这样，而常量回包会让每一个
         # 「写后回读」技能都走进「不一致」分支。键是去掉尾部 Set/Get 的动词名，
         # 于是 `ZCtrl_SetpntSet` 的实参成为 `ZCtrl_SetpntGet` 的 body。
         self.echo: dict[str, list] = {}
         self.error_at = error_at
+        self.error_text = error_text
         self.empty_at = empty_at
         self.run_error_at = run_error_at
         self.no_echo = no_echo
@@ -378,7 +435,7 @@ class _FakeContext:
             )
         rec = NanonisCallRecord(method=method_name, args=tuple(args), kwargs=dict(kwargs))
         if i == self.error_at:
-            rec.error = "模拟故障：连接被对端关闭"
+            rec.error = self.error_text
             rec.return_value = None
         elif i == self.empty_at:
             rec.return_value = ("", b"", [])
@@ -518,7 +575,8 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C + BATCH_3D:
+    for name in (BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C
+                 + BATCH_3D + BATCH_3E):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
@@ -560,6 +618,9 @@ def main() -> int:
         # 由**参数**而不是回包决定的分支。
         # 这一格的入参**记在它自己那条轨迹里**：整个技能只有一份 `params` 的话，
         # 重放的那一侧会拿基准参数去跑它，于是比的是另一件事（而且会绿）。
+        for case, (at, text) in (CUSTOM_ERRORS.get(name) or {}).items():
+            traces[case] = _trace(skill, params, table, _name=name,
+                                  error_at=at, error_text=text)
         for case, extra in (EXTRA_PARAMS.get(name) or {}).items():
             merged = {**params, **extra}
             tr = _trace(skill, merged, table, _name=name)

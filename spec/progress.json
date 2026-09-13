@@ -2,17 +2,17 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 133,
-    "partial": 3,
-    "todo": 379
+    "done": 151,
+    "partial": 0,
+    "todo": 364
   },
-  "modules_complete": 22,
+  "modules_complete": 28,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
       "total": 3,
-      "done": 0,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "builtins.acquire_psd": {
       "total": 1,
@@ -36,8 +36,8 @@
     },
     "builtins.atom_track": {
       "total": 4,
-      "done": 0,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "builtins.atomic_lattice": {
       "total": 3,
@@ -76,8 +76,8 @@
     },
     "builtins.bias_pulse": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.bias_pulse_readback": {
       "total": 1,
@@ -91,8 +91,8 @@
     },
     "builtins.bias_sweep": {
       "total": 4,
-      "done": 0,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "builtins.bias_wiggle": {
       "total": 1,
@@ -281,8 +281,8 @@
     },
     "builtins.lockin_presets_skills": {
       "total": 3,
-      "done": 0,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "builtins.marks": {
       "total": 3,
@@ -471,8 +471,8 @@
     },
     "builtins.spectrum_analyzer": {
       "total": 3,
-      "done": 0,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "builtins.spectrum_assess": {
       "total": 1,
@@ -910,11 +910,11 @@
       "module": "builtins.acquire_osci_trace",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "AcquirePLLFreqSweep": {
       "module": "builtins.pll",
@@ -1023,8 +1023,8 @@
       "spec": true,
       "model": true,
       "traces": 3,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "ApplyZCtrlPreset": {
       "module": "builtins.zctrl_presets_skills",
@@ -1240,31 +1240,31 @@
       "module": "builtins.atom_track",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "AtomTrackQuickCompStart": {
       "module": "builtins.atom_track",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "AtomTrackStatusGet": {
       "module": "builtins.atom_track",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "AtomicBiasSeries": {
       "module": "composite.atomic_bias_series",
@@ -1313,8 +1313,8 @@
       "spec": true,
       "model": true,
       "traces": 1,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "AutoProcessScanBatch": {
       "module": "builtins.scan_prep",
@@ -1370,11 +1370,11 @@
       "module": "builtins.bias_pulse",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "BiasPulseWithReadback": {
       "module": "builtins.bias_pulse_readback",
@@ -1590,11 +1590,11 @@
       "module": "builtins.atom_track",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureBeamDeflection": {
       "module": "builtins.optional_afm",
@@ -1870,11 +1870,11 @@
       "module": "builtins.spectrum_analyzer",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureTipRecorder": {
       "module": "builtins.optional_controllers",
@@ -2670,11 +2670,11 @@
       "module": "builtins.acquire_osci_trace",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLAddOnOff": {
       "module": "builtins.pll",
@@ -3260,11 +3260,11 @@
       "module": "builtins.bias_sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetSignalRange": {
       "module": "builtins.signals",
@@ -3320,11 +3320,11 @@
       "module": "builtins.spectrum_analyzer",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "GetTcpLogStatus": {
       "module": "builtins.datalog",
@@ -3653,8 +3653,8 @@
       "spec": true,
       "model": true,
       "traces": 1,
-      "impl": false,
-      "status": "partial"
+      "impl": true,
+      "status": "done"
     },
     "ListNanonisScripts": {
       "module": "builtins.nanonis_script",
@@ -4250,11 +4250,11 @@
       "module": "builtins.bias_sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "RunCpdCompensation": {
       "module": "builtins.optional_afm",
@@ -4510,11 +4510,11 @@
       "module": "builtins.bias_sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetActiveZController": {
       "module": "builtins.instrument_limits",
@@ -4530,11 +4530,11 @@
       "module": "builtins.bias_sweep",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetBias": {
       "module": "builtins.bias",
@@ -4790,11 +4790,11 @@
       "module": "builtins.acquire_osci_trace",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLAmpCtrlBandwidth": {
       "module": "builtins.pll",
@@ -5270,11 +5270,11 @@
       "module": "builtins.spectrum_analyzer",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetSwitchOffDelay": {
       "module": "builtins.zcontrol",

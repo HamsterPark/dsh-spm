@@ -679,3 +679,102 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
   几小时之后才在数据里发现。
 
 登记它，是因为「两个看起来一样的函数行为不一样」正是将来有人做重构时最想合并的东西。
+
+## D-LOCKIN-2 · 调制参数**没有出厂默认**
+
+| | |
+|---|---|
+| **Python** | `lockin_mod_freq_hz` / `lockin_mod_amp_v` 在 `instrument_profile._CONFIG_SPEC` 里带出厂默认 `973.0` / `0.02`，而 `sanitize()` 又把空值**丢掉** ⇒ `get_config` 永远给得出数 |
+| **TS** | `LockInProfile` 全是 `number \| null`，**没接 = 没填**；一个键都没填时 `usable: false`，`ApplyLockInPreset` 拒绝并说去哪儿填 |
+| **测试** | `packages/host/kernel/src/lockin-preset.test.ts`；`packages/host/stm-skills/src/l0/lockin-presets.test.ts` → `D-LOCKIN-2 · 本仓不带出厂默认` |
+
+**旧仓那两句话互相矛盾，而矛盾的那一方赢了。** 模块 docstring 写着「档案没填的键**不下发**，
+不是补一个默认值下去」，`why()` 写着「这组数只由用户输入，不经模型」——而存储层让「没填」
+根本不可能发生：`sanitize()` 丢掉 `None` / `""`，于是那两个键永远在 `_CONFIG_SPEC` 的默认值上。
+
+⇒ `ResolvedLockInPreset.usable` 恒为 `True`，`why()` 的否定支与 `ApplyLockInPreset` 的
+`if not preset.usable` 都是**死代码**。
+
+**这不是纸面问题。** `export_lockin_presets.py` 本来要录「一个键都没配 ⇒ 拒绝」那一格，
+结果**录不到**：`set_profile({})` 之后返回里照旧带着 973 / 0.02，而 `sources` 说它们来自
+「仪器档案 lockin_mod_amp_v」——读的人会当成用户填的。那一格于是留在金样里，
+名字就叫 `profile_cleared_still_has_factory_defaults`，它录到的是这件事本身。
+
+**为什么本仓反过来**：0.02 V 的调制是一次**真实的物理动作**，加在谁也没确认过的隧道结上。
+这与 `zctrl-preset.ts` 的 `fromProfile` 拒绝编造进针增益是同一条理由，那里写着——
+
+> **读不到就拒**，绝不拿一组「常见值」顶上：编一个出来会以本机标定的名义跑一次真实的进针。
+
+金样那一格的前提（「档案已填」）本来藏在出厂表里，现在**写出来**了：轨迹重放侧的
+`LOCKIN_FIXTURE` 与专用金样的 `profile_fixture` 都摆着同一份 973 / 0.02。
+
+## D-ZERO-1 · `x or default` 把一个**合法的 0** 吃掉
+
+| 哪一处 | 旧仓 | 后果 |
+|---|---|---|
+| `spectrum_analyzer.fft_window` | `int(params.get(k, 1) or 1)` | **矩形窗（0）一次也下发不出去** —— 而描述里明写着「0 = 矩形窗」 |
+| `spectrum_analyzer.averaging_mode` | 同上 | **不平均（0）选不出来** |
+| `bias_sweep.sweep_direction` | `int(params.get(k, 1) or 1)` | **「上限→下限」一次也选不出来** |
+| `bias_pulse.z_hold` | 本仓的 `i()` 早期版本 | `0 = 不变` 被顶成 `1 = 保持` |
+
+**TS**：这四处都改成「给了就用，`0` 也算给了」。而**步数 / 周期**那两处保持原样——
+它们的 `min` 是 2 与 1，`0` 本来就不合法，把它顶成缺省是对的。
+
+**测试**：`packages/host/stm-skills/src/l0/tail-l0e.test.ts` → `D-ZERO-1` 那几格。
+
+**这是同一个形状第二次出现。** 批 3d 的 `ConfigureLockIn` 里那条「幅度 0 要写得下去」是第一次：
+`amplitude_v = 0` 是「开之前先把它变安全」，而旧仓的 `> 0` 守卫让这件事做不到。
+
+判据：**`0` 什么时候是「没给」，取决于 `0` 在那个参数上是不是一个合法值**——
+不取决于写起来方不方便。症状则一律是同一种：「我选了矩形窗，而谱看起来像加了窗」，
+图上看不出任何错。
+
+## D-BIASSWP-1 · `BiasSwp_PropsSet` 的**第五个实参不存在**
+
+| | |
+|---|---|
+| **Python** | `safe_call("BiasSwp_PropsSet", steps, period, autosave, 0, period)` —— **五个**，注释写着第五个是 `Settling_ms` |
+| **协议表 / `nanonis_spm`** | `BiasSwp.PropsSet(Number_of_steps, Period_ms, Autosave, Save_dialog_box)` —— **四个**，没有 `Settling_ms` |
+| **TS** | 只发四个 |
+| **测试** | `traces.test.ts` 的 `withoutPhantomArg`（期望值从金样算出来，旧仓哪天删了它这里就变红）；`tail-l0e.test.ts` → `只发四个实参` |
+
+**真机上那是一次 `TypeError`**，被 `safe_call` 的 `except Exception` 兜成 `record.error`
+⇒ `RunBiasSweep` 每一次都停在第三步。**这个技能一次也没在真硬件上成功过。**
+
+**金样照不出它**：假 context 不检查实参个数，于是那一格录下的是一次漂亮的成功。
+照出它的是**协议表**——而那张表也正是本仓生成整个 Nanonis 门面的同一份源。
+
+**注释是这个 bug 的来源**：有人写下了一个五参数的签名（多半是从谱模块那边抄的，那里确实有
+安定时间），然后照着自己的注释写了代码。
+
+**为什么不照抄五个**：本仓的编码层按协议表的 `args` 逐位取参，多出来的那个会被**静默丢掉**
+⇒ 代码仍然声称设了一个安定时间，而什么都没设。那比报错更坏。
+
+## D-HYPOT-1 · 两种语言的 `hypot` 不是同一个函数
+
+| | |
+|---|---|
+| **Python** | `math.hypot(1e-15, 1e-15)` → `1.414213562373095e-15` |
+| **TS** | `Math.hypot(1e-15, 1e-15)` → `1.4142135623730953e-15`（差 1 ULP） |
+| **测试** | `packages/host/stm-skills/src/l0/lockin-presets.test.ts` → `D-HYPOT-1 的差异**只在证据里**` |
+
+两边各有自己的缩放与补偿。换成 `sqrt(x² + y²)` 不解决问题：那一格反而对上了，
+`hypot(0.7, 0.2)` 又对不上，而且它在 `1e-200` 上直接**下溢成 0**。
+
+**为什么可以登记而不是复刻**：`r` 进的是 `AutoPhase` 的**证据**字段；判据是它与 `1e-12`
+的比较，而模型读到的是 `formatG(r, 3)` —— 最后一位在这两处都表示不出来。
+金样比对里 `r` 单独按「相对差 ≤ 1e-15」比，**其余字段照旧逐字深比**。
+
+## D-OSCI-1 · 解码失败的文案不复刻 Python 的异常 repr
+
+| | |
+|---|---|
+| **Python** | `f"Decode error: {exc}"` / `f"Unexpected TimebaseGet shape: {rec.return_value!r}"` —— 印的是 Python 异常与**整个三段信封**的 repr |
+| **TS** | `Decode error: 回包的四个字段里有解不开的 —— t0=…, dt=…, n=…, samples=…`；形状那句印 body 的 JSON |
+| **测试** | `packages/host/stm-skills/src/l0/tail-l0e.test.ts` → `解不开就说解不开` |
+
+同 D-SKILL-2 的理由：信封在本仓的 wire 层就拆掉了，手上只有 body ——
+**印我们真有的东西**。而且模型要的可执行信息是「**哪一个**字段解不开」，
+一句 `float() argument must be...` 说不到那儿。
+
+`Unexpected response shape: {n} fields` 那一句**逐字保留**（它印的是字段数，两侧一样）。
