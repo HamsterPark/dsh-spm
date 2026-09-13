@@ -15,9 +15,18 @@
 #
 # `dsh plugin --profile mast-sim add <bundle>` 建出来的新 profile **只有 `dsh-base`**，
 # 而 `webServer` 服务是 `dsh-web-app` 提供的 ⇒ 少了它，`mast-ui-host` 那一行的
-# `inject` 不满足，**SSE hub 整个不装载，而且不报错**（Cordis 静默不装）。
-# 2026-09-10 实测撞到：`--dump-config` 里我们的行明明在，但树里根本没有 `webserver`。
-# 这正是「inject 是装载依赖」的另一面——它保护你，也会安静地不装。
+# `inject` 不满足。
+#
+# **2026-09-13 更正**：这里原先写的是「SSE hub 整个不装载，而且不报错（Cordis 静默不装）」。
+# 在 `0.1.5-rc.1` 与 `rc.2` 上实测**都不是静默的**，而是 boot 阶段直接失败并点名：
+#
+#     Error: dsh: plugin tree failed to load: dsh: 1 entry did not activate
+#     dsh-spm/stm-ui: pending (waiting for service: webServer)
+#
+# 哪一版改的查不出来（`npx @deepseek-ai/dsh@<旧版>` 只钉住启动器，子包照样被 caret
+# 拉到最新，见 facts.md §8.-2），但**现在的行为是好的**：它说清了是哪一条、在等哪个服务。
+# 09-10 那次「--dump-config 里我们的行在、树里没有 webserver」的观察本身仍然成立——
+# 配置树里有一行，不等于它装载成功了。
 - insert:
     # 装上它就会 spawn 一份 stmsim，并提供 `simulated: true` 的 `ctx.instrument`；
     # 卸载时 `ctx.effect` 的回滚把进程带走。

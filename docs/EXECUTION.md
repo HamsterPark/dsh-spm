@@ -32,7 +32,7 @@
 **Phase 0 完成**（只差覆盖率门禁）。**0.5（设置卡）挪到 1.7、09-09 再挪到 1.10**——1.7 实测下来端口用一个
 profile patch 就配完了，设置卡真正要拖进来的是 1.10 的 U0 无论如何都要建的那套客户端机器。
 **Phase 1：1.1 ✅**（`si.ts` + 146 条金样）· **1.2 ✅**（帧层）· **1.2b ✅**（类型码表）。
-**2026-09-09：dsh 升到 `0.1.5-alpha.1`；09-10 再升 `0.1.5-rc.1`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
+**2026-09-09：dsh 升到 `0.1.5-alpha.1`；09-10 再升 `0.1.5-rc.1`；09-13 再升 `0.1.5-rc.2`**（1.3 开工查版触发；`fs-ext` 阻塞解除，零领域代码改动，232 条测试一次通过）。
 **1.3 ✅**（协议代码生成）· **1.4 ✅**（`RoleLink`，对真 stmsim 验过）· **1.5 ✅**（熔断状态机）· **1.6 ✅**（`ctx.instrument` Cordis Service）
 · **1.7 ✅**（`instrument-stmsim` provider + 集成测试自动起停模拟器；`instrument-fake` 按消融精神推迟到 Phase 2 有消费者时）
 · **1.8 ✅**（`ctx.instrumentState` 1 Hz 缓存 + 金样 + D-STATE-1）· **1.8b ✅**（提示块 `stm-live-state` + `stm_get_state`；**结清 spike 第 2 条**；投影推迟到 1.10）。
@@ -291,7 +291,7 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2193 条测试**（另有 **88 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**2193 条测试**（另有 **88 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
