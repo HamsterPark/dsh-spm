@@ -224,6 +224,176 @@
       }
     }
   },
+  "AcquirePLLFreqSweep": {
+    "params": {
+      "num_points": 5001,
+      "period_s": 0.001
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Open"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              0.001,
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Start"
+          }
+        ],
+        "data": {
+          "completed": true,
+          "q_factor": 2.0,
+          "resonance_freq_hz": 1.75
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Open"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Open"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              0.001,
+              0.1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Open"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              0.001,
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Start"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Open"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              0.001,
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Start"
+          }
+        ],
+        "data": {
+          "completed": true,
+          "q_factor": 2.0,
+          "resonance_freq_hz": 1.75
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "ApplyLockInPreset": {
     "params": {},
     "traces": {
@@ -3574,6 +3744,84 @@
       }
     }
   },
+  "ConfigurePLL": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigurePLLExcitation": {
+    "params": {
+      "excitation_v": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationSet"
+          }
+        ],
+        "data": {
+          "excitation_v": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_ExcitationSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationSet"
+          }
+        ],
+        "data": {
+          "excitation_v": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "ConfigureScan": {
     "params": {
       "center_x_m": 1e-09,
@@ -4403,6 +4651,187 @@
             "time_constant_s = 1000ms ← 由 P/I 导出",
             "setpoint_a = 未配置(保持当前值,不下发)"
           ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "DeployNanonisScript": {
+    "params": {
+      "slot": 3
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Open"
+          },
+          {
+            "args": [
+              3
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Deploy"
+          }
+        ],
+        "data": {
+          "deployed": true,
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Open"
+          },
+          {
+            "args": [
+              3
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Deploy"
+          }
+        ],
+        "data": {
+          "deployed": true,
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Open"
+          },
+          {
+            "args": [
+              3
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Deploy"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Open"
+          },
+          {
+            "args": [
+              3
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Deploy"
+          }
+        ],
+        "data": {
+          "deployed": true,
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "unvetted_slot": {
+        "calls": [],
+        "data": {},
+        "error": "拒绝：槽位 7 不在已审核的白名单里。\n已审核的槽位：[3, 5]\nMAST 看不见脚本内部：脚本跑在 RT 控制器上，安全门/模式门/中止门在它里面全部不生效。所以只有你在 nanonis_scripts.json 里签过字的槽位才能跑。审核步骤见该文件的 _how_to_vet。",
+        "params": {
+          "slot": 7
+        },
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "DeployScriptLUT": {
+    "params": {
+      "lut_index": 8
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              1,
+              10000
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTDeploy"
+          }
+        ],
+        "data": {
+          "deployed": true,
+          "lut_index": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              1,
+              10000
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_LUTDeploy"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              8,
+              1,
+              10000
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTDeploy"
+          }
+        ],
+        "data": {
+          "deployed": true,
+          "lut_index": 8
         },
         "error": "",
         "success": true,
@@ -10285,6 +10714,1183 @@
       }
     }
   },
+  "GetPLLAddOnOff": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "add_on": true,
+          "modulator_index": 1,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLAmpCtrlOnOff": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffGet"
+          }
+        ],
+        "data": {
+          "amp_ctrl_on": true,
+          "modulator_index": 1,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLDemodFilter": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterGet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "filter_order": 3,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLDemodHarmonic": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "harmonic": 3,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLDemodInput": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodInputGet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodInputGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodInputGet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "frequency_generator": 4,
+          "input": 3,
+          "raw": [
+            3,
+            4
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLExcRange": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcRangeGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_ExcRangeGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcRangeGet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "output_range": "0.01V",
+          "output_range_index": 3,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLFreqRange": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeGet"
+          }
+        ],
+        "data": {
+          "frequency_range_hz": 0.25,
+          "modulator_index": 1,
+          "raw": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLFreqSwpParams": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsGet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_ParamsGet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "num_points": 3,
+          "period_s": 0.5,
+          "raw": [
+            3,
+            0.5,
+            0.75
+          ],
+          "settling_time_s": 0.75
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLInpCalibr": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrGet"
+          }
+        ],
+        "data": {
+          "calibration_m_per_v": 0.25,
+          "modulator_index": 1,
+          "raw": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLInpProps": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpPropsGet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpPropsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpPropsGet"
+          }
+        ],
+        "data": {
+          "differential_input": true,
+          "divider_1_10": true,
+          "modulator_index": 1,
+          "raw": [
+            3,
+            4
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLPhasCtrlOnOff": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffGet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "phase_ctrl_on": true,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLSignalAnlzrCh": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChGet"
+          }
+        ],
+        "data": {
+          "channel_index": 3,
+          "raw": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLSignalAnlzrFFTProps": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_FFTPropsGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_FFTPropsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_FFTPropsGet"
+          }
+        ],
+        "data": {
+          "averaging_mode": "unknown(4)",
+          "averaging_mode_index": 4,
+          "count": 6,
+          "fft_window": "Blackman-Harris",
+          "fft_window_index": 3,
+          "raw": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "weighting_mode": "unknown(5)",
+          "weighting_mode_index": 5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLSignalAnlzrTimebase": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TimebaseGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TimebaseGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TimebaseGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ]
+          ],
+          "timebase_index": 3,
+          "update_rate": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPLLStatus": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "amp_i_gain": 0.75,
+          "amp_p_gain": 0.25,
+          "amp_time_constant_s": 0.5,
+          "excitation_v": 0.25,
+          "freq_shift_hz": 0.25,
+          "modulator_index": 1,
+          "phas_p_gain": 0.25,
+          "phas_time_constant_s": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "amp_i_gain": 0.75,
+          "amp_p_gain": 0.25,
+          "amp_time_constant_s": 0.5,
+          "center_freq_hz": 0.25,
+          "excitation_v": 0.25,
+          "modulator_index": 1,
+          "phas_p_gain": 0.25,
+          "phas_time_constant_s": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "center_freq_hz": 0.25,
+          "excitation_v": 0.25,
+          "freq_shift_hz": 0.25,
+          "modulator_index": 1,
+          "phas_p_gain": 0.25,
+          "phas_time_constant_s": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "amp_i_gain": 0.75,
+          "amp_p_gain": 0.25,
+          "amp_time_constant_s": 0.5,
+          "center_freq_hz": 0.25,
+          "excitation_v": 0.25,
+          "freq_shift_hz": 0.25,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "amp_i_gain": 0.75,
+          "amp_p_gain": 0.25,
+          "amp_time_constant_s": 0.5,
+          "center_freq_hz": 0.25,
+          "freq_shift_hz": 0.25,
+          "modulator_index": 1,
+          "phas_p_gain": 0.25,
+          "phas_time_constant_s": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlGainGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "amp_i_gain": 0.75,
+          "amp_p_gain": 0.25,
+          "amp_time_constant_s": 0.5,
+          "center_freq_hz": 0.25,
+          "excitation_v": 0.25,
+          "freq_shift_hz": 0.25,
+          "modulator_index": 1,
+          "phas_p_gain": 0.25,
+          "phas_time_constant_s": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetPiezoConfig": {
     "params": {},
     "traces": {
@@ -13682,6 +15288,152 @@
         "data": {
           "x_m": 0.25,
           "y_m": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetScriptChannels": {
+    "params": {
+      "buffer": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_ChsGet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "channels": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_ChsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_ChsGet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "channels": [
+            3,
+            [
+              2,
+              3
+            ]
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetScriptData": {
+    "params": {
+      "buffer": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_DataGet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "data": [],
+          "sweep": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_DataGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_DataGet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "data": [
+            3,
+            4,
+            [
+              [
+                2.1,
+                2.2
+              ],
+              [
+                2.3,
+                2.4
+              ]
+            ]
+          ],
+          "sweep": 0
         },
         "error": "",
         "success": true,
@@ -18095,6 +19847,157 @@
       }
     }
   },
+  "HomeZController": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_HomePropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Home"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          }
+        ],
+        "data": {
+          "home_props": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "z_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 已回到 home（当前 Z = 2.500e-01 m）"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_HomePropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Home"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          }
+        ],
+        "data": {
+          "home_props": null,
+          "z_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 已回到 home（当前 Z = 2.500e-01 m）"
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_HomePropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_Home"
+          }
+        ],
+        "data": {},
+        "error": "ZCtrl_Home failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_HomePropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Home"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          }
+        ],
+        "data": {
+          "home_props": [
+            3,
+            0.5
+          ],
+          "z_m": null
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 已回到 home"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_HomePropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Home"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          }
+        ],
+        "data": {
+          "home_props": [
+            3,
+            0.5
+          ],
+          "z_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 已回到 home（当前 Z = 2.500e-01 m）"
+      }
+    }
+  },
   "ListLockInPresets": {
     "params": {},
     "traces": {
@@ -18118,6 +20021,42 @@
                 "frequency_hz": 973.0
               },
               "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+            }
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ListNanonisScripts": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "allowlist_file": "<project-root>\\config\\nanonis_scripts.json",
+          "count": 2,
+          "note": "只有上列槽位可运行；其余一律拒绝。",
+          "vetted_slots": [
+            {
+              "allow_lut_write": true,
+              "description": "泵浦-探测延时扫描",
+              "lut_max": 10.0,
+              "lut_min": 0.0,
+              "name": "延时扫描",
+              "notes": "LUT 单位 mm",
+              "slot": 3
+            },
+            {
+              "allow_lut_write": false,
+              "description": "固定脉冲串",
+              "lut_max": null,
+              "lut_min": null,
+              "name": "针尖成形序列",
+              "notes": "",
+              "slot": 5
             }
           ]
         },
@@ -18466,6 +20405,95 @@
       }
     }
   },
+  "LoadNanonisScript": {
+    "params": {
+      "file_path": "C:/nanonis/scripts/delay.ns",
+      "slot": 7
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              7,
+              "C:/nanonis/scripts/delay.ns",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Load"
+          }
+        ],
+        "data": {
+          "allowed_slots": [
+            3,
+            5
+          ],
+          "file_path": "C:/nanonis/scripts/delay.ns",
+          "runnable": false,
+          "slot": 7
+        },
+        "error": "",
+        "success": true,
+        "summary": "脚本已载入槽位 7。**agent 还不能运行它**——请人工审阅后把槽位 7 加入 config/nanonis_scripts.json。"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              7,
+              "C:/nanonis/scripts/delay.ns",
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Load"
+          }
+        ],
+        "data": {},
+        "error": "Script_Load failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              7,
+              "C:/nanonis/scripts/delay.ns",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Load"
+          }
+        ],
+        "data": {
+          "allowed_slots": [
+            3,
+            5
+          ],
+          "file_path": "C:/nanonis/scripts/delay.ns",
+          "runnable": false,
+          "slot": 7
+        },
+        "error": "",
+        "success": true,
+        "summary": "脚本已载入槽位 7。**agent 还不能运行它**——请人工审阅后把槽位 7 加入 config/nanonis_scripts.json。"
+      },
+      "vetted_slot": {
+        "calls": [],
+        "data": {},
+        "error": "槽位 3 在已审白名单上——不能往里装别的脚本。\n白名单认的是「**这个槽位里的那个脚本**已经被人读过、批过」，不是「这个槽位号被批过」。换掉内容，批准就成了谎言，而脚本跑在实时控制器上，MAST 的安全门/模式门/中止门一个都看不见它在做什么。\n请装进一个未审槽位；装完由人审阅，再把它加进 config/nanonis_scripts.json。",
+        "params": {
+          "file_path": "C:/nanonis/scripts/delay.ns",
+          "slot": 3
+        },
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "LoadPiezoHysteresisFile": {
     "params": {
       "file_path": "spec-export"
@@ -18521,6 +20549,216 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "LoadScriptLUT": {
+    "params": {
+      "lut_index": 1,
+      "slot": 3,
+      "values": "0, 2.5, 5, 7.5, 10"
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTOpen"
+          },
+          {
+            "args": [
+              1,
+              "",
+              [
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTLoad"
+          }
+        ],
+        "data": {
+          "lut_index": 1,
+          "max": 10.0,
+          "min": 0.0,
+          "n_values": 5,
+          "note": "需 DeployScriptLUT 才会推送到 RT 控制器。",
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_LUTOpen"
+          },
+          {
+            "args": [
+              1,
+              "",
+              [
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTLoad"
+          }
+        ],
+        "data": {
+          "lut_index": 1,
+          "max": 10.0,
+          "min": 0.0,
+          "n_values": 5,
+          "note": "需 DeployScriptLUT 才会推送到 RT 控制器。",
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTOpen"
+          },
+          {
+            "args": [
+              1,
+              "",
+              [
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0
+              ]
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_LUTLoad"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "lut_empty": {
+        "calls": [],
+        "data": {},
+        "error": "values 为空",
+        "params": {
+          "lut_index": 1,
+          "slot": 3,
+          "values": "   "
+        },
+        "success": false,
+        "summary": ""
+      },
+      "lut_out_of_range": {
+        "calls": [],
+        "data": {},
+        "error": "拒绝：LUT 值 [42.0] 超出槽位 3 声明的范围 [0, 10]（该范围由用户在审核脚本时写定——它知道脚本把这些数当什么单位用，MAST 不知道）。\n已审核的槽位：[3, 5]\nMAST 看不见脚本内部：脚本跑在 RT 控制器上，安全门/模式门/中止门在它里面全部不生效。所以只有你在 nanonis_scripts.json 里签过字的槽位才能跑。审核步骤见该文件的 _how_to_vet。",
+        "params": {
+          "lut_index": 1,
+          "slot": 3,
+          "values": "0, 5, 42"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "lut_unparsable": {
+        "calls": [],
+        "data": {},
+        "error": "values 解析失败：'0, 一点五'（应为逗号分隔的数值）",
+        "params": {
+          "lut_index": 1,
+          "slot": 3,
+          "values": "0, 一点五"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "lut_write_not_allowed": {
+        "calls": [],
+        "data": {},
+        "error": "拒绝：槽位 5（针尖成形序列）未被批准接受智能体写入 LUT（allow_lut_write=false）。\n已审核的槽位：[3, 5]\nMAST 看不见脚本内部：脚本跑在 RT 控制器上，安全门/模式门/中止门在它里面全部不生效。所以只有你在 nanonis_scripts.json 里签过字的槽位才能跑。审核步骤见该文件的 _how_to_vet。",
+        "params": {
+          "lut_index": 1,
+          "slot": 5,
+          "values": "0, 2.5, 5, 7.5, 10"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTOpen"
+          },
+          {
+            "args": [
+              1,
+              "",
+              [
+                0.0,
+                2.5,
+                5.0,
+                7.5,
+                10.0
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTLoad"
+          }
+        ],
+        "data": {
+          "lut_index": 1,
+          "max": 10.0,
+          "min": 0.0,
+          "n_values": 5,
+          "note": "需 DeployScriptLUT 才会推送到 RT 控制器。",
+          "slot": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "unvetted_slot": {
+        "calls": [],
+        "data": {},
+        "error": "拒绝：槽位 7 不在已审核的白名单里。\n已审核的槽位：[3, 5]\nMAST 看不见脚本内部：脚本跑在 RT 控制器上，安全门/模式门/中止门在它里面全部不生效。所以只有你在 nanonis_scripts.json 里签过字的槽位才能跑。审核步骤见该文件的 _how_to_vet。",
+        "params": {
+          "lut_index": 1,
+          "slot": 7,
+          "values": "0, 2.5, 5, 7.5, 10"
+        },
+        "success": false,
         "summary": ""
       }
     }
@@ -20175,6 +22413,513 @@
       }
     }
   },
+  "PLLFreqShiftAutoCenter": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftAutoCenter"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftAutoCenter"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftAutoCenter"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "PLLOnOff": {
+    "params": {
+      "output_on": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffSet"
+          }
+        ],
+        "data": {
+          "amp_ctrl_on": true,
+          "output_on": true,
+          "phase_ctrl_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffSet"
+          }
+        ],
+        "data": {
+          "amp_ctrl_on": true,
+          "output_on": true,
+          "phase_ctrl_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffSet"
+          }
+        ],
+        "data": {
+          "amp_ctrl_on": true,
+          "output_on": true,
+          "phase_ctrl_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlOnOffSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlOnOffSet"
+          }
+        ],
+        "data": {
+          "amp_ctrl_on": true,
+          "output_on": true,
+          "phase_ctrl_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "PLLPerfectPLLUpdtZTC": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PerfectPLLUpdtZTC"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PerfectPLLUpdtZTC"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PerfectPLLUpdtZTC"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "PLLSignalAnalyzer": {
+    "params": {
+      "channel_index": 0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_OsciDataGet"
+          }
+        ],
+        "data": {
+          "channel_index": 0,
+          "osci_data": "('', b'', [0.25, 0.5, 5, 1.0])"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_OsciDataGet"
+          }
+        ],
+        "data": {
+          "channel_index": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_OsciDataGet"
+          }
+        ],
+        "data": {
+          "channel_index": 0,
+          "osci_data": "('', b'', [0.25, 0.5, 5, 1.0])"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_Open"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_ChSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_OsciDataGet"
+          }
+        ],
+        "data": {
+          "channel_index": 0,
+          "osci_data": "('', b'', [0.25, 0.5, 5, 1.0])"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "PLLSignalAnlzrTrigAuto": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigAuto"
+          }
+        ],
+        "data": {},
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigAuto"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigAuto"
+          }
+        ],
+        "data": {},
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "RunBiasSweep": {
     "params": {
       "lower_limit_v": -1.0,
@@ -20521,6 +23266,84 @@
           "upper_limit_v": -1.0
         },
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "RunNanonisScript": {
+    "params": {
+      "slot": 3
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Run"
+          }
+        ],
+        "data": {
+          "script_name": "延时扫描",
+          "slot": 3,
+          "wait_until_finished": true,
+          "warning": "脚本在 RT 控制器上运行——MAST 的安全门与中止门对它不生效。要停它只能用 StopNanonisScript。"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Run"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Run"
+          }
+        ],
+        "data": {
+          "script_name": "延时扫描",
+          "slot": 3,
+          "wait_until_finished": true,
+          "warning": "脚本在 RT 控制器上运行——MAST 的安全门与中止门对它不生效。要停它只能用 StopNanonisScript。"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "unvetted_slot": {
+        "calls": [],
+        "data": {},
+        "error": "拒绝：槽位 7 不在已审核的白名单里。\n已审核的槽位：[3, 5]\nMAST 看不见脚本内部：脚本跑在 RT 控制器上，安全门/模式门/中止门在它里面全部不生效。所以只有你在 nanonis_scripts.json 里签过字的槽位才能跑。审核步骤见该文件的 _how_to_vet。",
+        "params": {
+          "slot": 7
+        },
+        "success": false,
         "summary": ""
       }
     }
@@ -30172,6 +32995,139 @@
       }
     }
   },
+  "SaveNanonisScript": {
+    "params": {
+      "file_path": "C:/nanonis/out/slot3.ns",
+      "slot": 8
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3.ns",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Save"
+          }
+        ],
+        "data": {
+          "file_path": "C:/nanonis/out/slot3.ns",
+          "slot": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "槽位 8 的脚本已保存到 C:/nanonis/out/slot3.ns"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3.ns",
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Save"
+          }
+        ],
+        "data": {},
+        "error": "Script_Save failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3.ns",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Save"
+          }
+        ],
+        "data": {
+          "file_path": "C:/nanonis/out/slot3.ns",
+          "slot": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "槽位 8 的脚本已保存到 C:/nanonis/out/slot3.ns"
+      }
+    }
+  },
+  "SaveNanonisScriptLut": {
+    "params": {
+      "file_path": "C:/nanonis/out/slot3_lut.dat",
+      "slot": 8
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3_lut.dat"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTSave"
+          }
+        ],
+        "data": {
+          "file_path": "C:/nanonis/out/slot3_lut.dat",
+          "slot": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "槽位 8 的 LUT 已保存到 C:/nanonis/out/slot3_lut.dat"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3_lut.dat"
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_LUTSave"
+          }
+        ],
+        "data": {},
+        "error": "Script_LUTSave failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              8,
+              "C:/nanonis/out/slot3_lut.dat"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_LUTSave"
+          }
+        ],
+        "data": {
+          "file_path": "C:/nanonis/out/slot3_lut.dat",
+          "slot": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "槽位 8 的 LUT 已保存到 C:/nanonis/out/slot3_lut.dat"
+      }
+    }
+  },
   "SaveScan": {
     "params": {},
     "traces": {
@@ -30525,6 +33481,65 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetActiveZController": {
+    "params": {
+      "controller_index": 7
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              7
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ActiveCtrlSet"
+          }
+        ],
+        "data": {
+          "controller_index": 7
+        },
+        "error": "",
+        "success": true,
+        "summary": "活动 Z 控制器 = 7"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              7
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ActiveCtrlSet"
+          }
+        ],
+        "data": {},
+        "error": "ZCtrl_ActiveCtrlSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              7
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ActiveCtrlSet"
+          }
+        ],
+        "data": {
+          "controller_index": 7
+        },
+        "error": "",
+        "success": true,
+        "summary": "活动 Z 控制器 = 7"
       }
     }
   },
@@ -31827,6 +34842,817 @@
       }
     }
   },
+  "SetPLLAmpCtrlBandwidth": {
+    "params": {
+      "bandwidth_hz": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthSet"
+          }
+        ],
+        "data": {
+          "bandwidth_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthSet"
+          }
+        ],
+        "data": {
+          "bandwidth_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLAmpCtrlSetpnt": {
+    "params": {
+      "setpoint_m": 1e-09
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1e-09
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntSet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "setpoint_m": 1e-09
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1e-09
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1e-09
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntSet"
+          }
+        ],
+        "data": {
+          "modulator_index": 1,
+          "setpoint_m": 1e-09
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLDemodFilter": {
+    "params": {
+      "filter_order": 0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "filter_order": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodFilterSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "filter_order": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLDemodInput": {
+    "params": {
+      "frequency_generator": 1,
+      "input": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodInputSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "frequency_generator": 1,
+          "input": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodInputSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodInputSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "frequency_generator": 1,
+          "input": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLDemodPhasRef": {
+    "params": {
+      "phase_reference_deg": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "phase_reference_deg": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefSet"
+          }
+        ],
+        "data": {
+          "demodulator_index": 1,
+          "phase_reference_deg": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLFreqExcOverwrite": {
+    "params": {
+      "excitation_overwrite_index": 1,
+      "frequency_overwrite_index": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteSet"
+          }
+        ],
+        "data": {
+          "excitation_overwrite_index": 1,
+          "frequency_overwrite_index": 1,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteSet"
+          }
+        ],
+        "data": {
+          "excitation_overwrite_index": 1,
+          "frequency_overwrite_index": 1,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLFreqRange": {
+    "params": {
+      "frequency_range_hz": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeSet"
+          }
+        ],
+        "data": {
+          "frequency_range_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqRangeSet"
+          }
+        ],
+        "data": {
+          "frequency_range_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLInpCalibr": {
+    "params": {
+      "calibration_m_per_v": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrSet"
+          }
+        ],
+        "data": {
+          "calibration_m_per_v": 1.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpCalibrSet"
+          }
+        ],
+        "data": {
+          "calibration_m_per_v": 1.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLInpProps": {
+    "params": {
+      "differential_input": true,
+      "divider_1_10": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpPropsSet"
+          }
+        ],
+        "data": {
+          "differential_input": true,
+          "divider_1_10": true,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpPropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpPropsSet"
+          }
+        ],
+        "data": {
+          "differential_input": true,
+          "divider_1_10": true,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLInpRange": {
+    "params": {
+      "input_range_m": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeSet"
+          }
+        ],
+        "data": {
+          "input_range_m": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpRangeSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeSet"
+          }
+        ],
+        "data": {
+          "input_range_m": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLPhasCtrlBandwidth": {
+    "params": {
+      "bandwidth_hz": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthSet"
+          }
+        ],
+        "data": {
+          "bandwidth_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthSet"
+          }
+        ],
+        "data": {
+          "bandwidth_hz": 0.0,
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPLLSignalAnlzrTrig": {
+    "params": {
+      "arming_mode": 1,
+      "trigger_level": 1.0,
+      "trigger_mode": 1,
+      "trigger_position_s": 1.0,
+      "trigger_slope": 1,
+      "trigger_source": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1.0,
+              1.0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigSet"
+          }
+        ],
+        "data": {
+          "arming_mode": 1,
+          "trigger_level": 1.0,
+          "trigger_mode": 1,
+          "trigger_position_s": 1.0,
+          "trigger_slope": 1,
+          "trigger_source": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1.0,
+              1.0,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1.0,
+              1.0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLSignalAnlzr_TrigSet"
+          }
+        ],
+        "data": {
+          "arming_mode": 1,
+          "trigger_level": 1.0,
+          "trigger_mode": 1,
+          "trigger_position_s": 1.0,
+          "trigger_slope": 1,
+          "trigger_source": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetPiezoHysteresisOnOff": {
     "params": {
       "enable": true
@@ -32023,6 +35849,342 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetPiezoLimits": {
+    "params": {
+      "x_high_v": 150.0,
+      "x_low_v": -150.0,
+      "y_high_v": 150.0,
+      "y_low_v": -150.0,
+      "z_high_v": 120.0,
+      "z_low_v": -120.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "limits_v": {
+            "x": [
+              -150.0,
+              150.0
+            ],
+            "y": [
+              -150.0,
+              150.0
+            ],
+            "z": [
+              -120.0,
+              120.0
+            ]
+          },
+          "verified": true,
+          "widened": null
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电电压限值已设置"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "limits_v": {
+            "x": [
+              -150.0,
+              150.0
+            ],
+            "y": [
+              -150.0,
+              150.0
+            ],
+            "z": [
+              -120.0,
+              120.0
+            ]
+          },
+          "verified": true,
+          "widened": null
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电电压限值已设置"
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          }
+        ],
+        "data": {},
+        "error": "Piezo_XYZLimitsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            3.0,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5
+          ],
+          "limits_v": {
+            "x": [
+              -150.0,
+              150.0
+            ],
+            "y": [
+              -150.0,
+              150.0
+            ],
+            "z": [
+              -120.0,
+              120.0
+            ]
+          },
+          "verified": false,
+          "widened": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电电压限值已设置（**已放宽**，已记入诊断台账）"
+      },
+      "inverted_y": {
+        "calls": [],
+        "data": {},
+        "error": "y_low_v (150 V) 必须小于 y_high_v (-150 V)",
+        "params": {
+          "x_high_v": 150.0,
+          "x_low_v": -150.0,
+          "y_high_v": -150.0,
+          "y_low_v": 150.0,
+          "z_high_v": 120.0,
+          "z_low_v": -120.0
+        },
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            3.0,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5
+          ],
+          "limits_v": {
+            "x": [
+              -150.0,
+              150.0
+            ],
+            "y": [
+              -150.0,
+              150.0
+            ],
+            "z": [
+              -120.0,
+              120.0
+            ]
+          },
+          "verified": true,
+          "widened": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电电压限值已设置（**已放宽**，已记入诊断台账）"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [
+              1,
+              -150.0,
+              150.0,
+              -150.0,
+              150.0,
+              -120.0,
+              120.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            3.0,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5
+          ],
+          "limits_v": {
+            "x": [
+              -150.0,
+              150.0
+            ],
+            "y": [
+              -150.0,
+              150.0
+            ],
+            "z": [
+              -120.0,
+              120.0
+            ]
+          },
+          "verified": true,
+          "widened": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电电压限值已设置（**已放宽**，已记入诊断台账）"
       }
     }
   },
@@ -32469,6 +36631,233 @@
       }
     }
   },
+  "SetSafeTipProps": {
+    "params": {
+      "threshold": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          }
+        ],
+        "data": {
+          "auto_pause_scan": true,
+          "auto_recovery": true,
+          "before": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "threshold": 1.0,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "SafeTip 阈值 = 1"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          }
+        ],
+        "data": {
+          "auto_pause_scan": true,
+          "auto_recovery": true,
+          "before": null,
+          "threshold": 1.0,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "SafeTip 阈值 = 1"
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "SafeTip_PropsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          }
+        ],
+        "data": {
+          "auto_pause_scan": true,
+          "auto_recovery": true,
+          "before": [
+            3,
+            4,
+            0.75
+          ],
+          "threshold": 1.0,
+          "verified": false
+        },
+        "error": "",
+        "success": true,
+        "summary": "SafeTip 阈值 = 1"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          }
+        ],
+        "data": {
+          "auto_pause_scan": true,
+          "auto_recovery": true,
+          "before": [
+            3,
+            4,
+            0.75
+          ],
+          "threshold": 1.0,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "SafeTip 阈值 = 1"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "SafeTip_PropsGet"
+          }
+        ],
+        "data": {
+          "auto_pause_scan": true,
+          "auto_recovery": true,
+          "before": [
+            3,
+            4,
+            0.75
+          ],
+          "threshold": 1.0,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "SafeTip 阈值 = 1"
+      }
+    }
+  },
   "SetScanBuffer": {
     "params": {
       "pixels": 2056
@@ -32755,6 +37144,183 @@
           "fwd_speed": 0.0,
           "keep_const": 0,
           "speed_ratio": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetScriptAutosave": {
+    "params": {
+      "buffer": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              1,
+              "",
+              "mast_script"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Autosave"
+          }
+        ],
+        "data": {
+          "basename": "mast_script",
+          "buffer": 1,
+          "sweep": -1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              1,
+              "",
+              "mast_script"
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Autosave"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              1,
+              "",
+              "mast_script"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Autosave"
+          }
+        ],
+        "data": {
+          "basename": "mast_script",
+          "buffer": 1,
+          "sweep": -1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetScriptChannels": {
+    "params": {
+      "buffer": 1,
+      "channels": "0,24"
+    },
+    "traces": {
+      "bad_channels": {
+        "calls": [],
+        "data": {},
+        "error": "channels 解析失败：'0, 二十四'",
+        "params": {
+          "buffer": 1,
+          "channels": "0, 二十四"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              [
+                0,
+                24
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_ChsSet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "channels": [
+            0,
+            24
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "empty_channels": {
+        "calls": [],
+        "data": {},
+        "error": "channels 为空",
+        "params": {
+          "buffer": 1,
+          "channels": " "
+        },
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              [
+                0,
+                24
+              ]
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_ChsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              [
+                0,
+                24
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_ChsSet"
+          }
+        ],
+        "data": {
+          "buffer": 1,
+          "channels": [
+            0,
+            24
+          ]
         },
         "error": "",
         "success": true,
@@ -33376,6 +37942,195 @@
       }
     }
   },
+  "SetWithdrawRate": {
+    "params": {
+      "rate_m_per_s": 0.0050000005
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "rate_m_per_s": 0.0050000005,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "退针速率 = 5.000e-03 m/s"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "rate_m_per_s": 0.0050000005,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "退针速率 = 5.000e-03 m/s"
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          }
+        ],
+        "data": {},
+        "error": "ZCtrl_WithdrawRateSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          }
+        ],
+        "data": {
+          "before": 0.25,
+          "rate_m_per_s": 0.0050000005,
+          "verified": false
+        },
+        "error": "",
+        "success": true,
+        "summary": "退针速率 = 5.000e-03 m/s"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          }
+        ],
+        "data": {
+          "before": 0.25,
+          "rate_m_per_s": 0.25,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "退针速率 = 5.000e-03 m/s"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          },
+          {
+            "args": [
+              0.0050000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_WithdrawRateGet"
+          }
+        ],
+        "data": {
+          "before": 0.25,
+          "rate_m_per_s": 0.0050000005,
+          "verified": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "退针速率 = 5.000e-03 m/s"
+      }
+    }
+  },
   "SetZCtrlGain": {
     "params": {
       "i_gain": 0.0005,
@@ -33621,6 +38376,346 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetZLimits": {
+    "params": {
+      "z_high_limit_m": 5e-07,
+      "z_low_limit_m": -5e-07
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "enabled": true,
+          "verified": true,
+          "widened": null,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 限值 = [-5.000e-07, 5.000e-07] m"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "before": null,
+          "enabled": true,
+          "verified": true,
+          "widened": null,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 限值 = [-5.000e-07, 5.000e-07] m"
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          }
+        ],
+        "data": {},
+        "error": "ZCtrl_LimitsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          }
+        ],
+        "data": {},
+        "error": "限值已写入但**未能启用**（ZCtrl_LimitsEnabledSet 失败：模拟故障：连接被对端关闭）——未启用的限值不起任何作用",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            0.25,
+            0.5
+          ],
+          "enabled": true,
+          "verified": false,
+          "widened": true,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 限值 = [-5.000e-07, 5.000e-07] m（**已放宽**，已记入诊断台账）（未能读回确认）"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "actual": [
+            0.5,
+            0.25
+          ],
+          "requested": [
+            -5e-07,
+            5e-07
+          ]
+        },
+        "error": "Z 限值未按要求生效：要求 [-5.000e-07, 5.000e-07] m，读回 [5.000e-01, 2.500e-01] m",
+        "success": false,
+        "summary": ""
+      },
+      "not_enabled": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            0.25,
+            0.5
+          ],
+          "enabled": true,
+          "verified": true,
+          "widened": true,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "error": "",
+        "params": {
+          "enable": false,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "success": true,
+        "summary": "Z 限值 = [-5.000e-07, 5.000e-07] m（**已放宽**，已记入诊断台账）"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          },
+          {
+            "args": [
+              5e-07,
+              -5e-07
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsEnabledSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_LimitsGet"
+          }
+        ],
+        "data": {
+          "before": [
+            0.25,
+            0.5
+          ],
+          "enabled": true,
+          "verified": true,
+          "widened": true,
+          "z_high_limit_m": 5e-07,
+          "z_low_limit_m": -5e-07
+        },
+        "error": "",
+        "success": true,
+        "summary": "Z 限值 = [-5.000e-07, 5.000e-07] m（**已放宽**，已记入诊断台账）"
       }
     }
   },
@@ -34702,6 +39797,114 @@
       }
     }
   },
+  "StopNanonisScript": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "StopPLLFreqSwp": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Stop"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLLFreqSwp_Stop"
+          }
+        ],
+        "data": {
+          "modulator_index": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "StopScan": {
     "params": {},
     "traces": {
@@ -35457,6 +40660,67 @@
           "peak_current_a": 0.25,
           "setpoint_a": 0.25,
           "z_controller_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "UndeployNanonisScript": {
+    "params": {
+      "slot": 32
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              32
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Undeploy"
+          }
+        ],
+        "data": {
+          "deployed": false,
+          "slot": 32
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              32
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Script_Undeploy"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              32
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Script_Undeploy"
+          }
+        ],
+        "data": {
+          "deployed": false,
+          "slot": 32
         },
         "error": "",
         "success": true,

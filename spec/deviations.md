@@ -778,3 +778,66 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 一句 `float() argument must be...` 说不到那儿。
 
 `Unexpected response shape: {n} fields` 那一句**逐字保留**（它印的是字段数，两侧一样）。
+
+## D-SKILL-1 补充三 · 最赤裸的一次：`str(整个信封)` 当成示波器数据
+
+| | |
+|---|---|
+| **Python** | `PLLSignalAnalyzer` 写的是 `data["osci_data"] = str(rec.return_value)` ⇒ 模型收到的是字符串 `"('', b'', [0.25, 0.5, 5, 1.0])"` |
+| **TS** | `osci_data` 是 body 本身（`[0.25, 0.5, 5, 1.0]`） |
+| **测试** | `traces.test.ts` 的 `withoutStrEnvelope`（期望值**从金样那串字符串里把 body 抠出来**，不是抄一遍） |
+
+这一族此前的形态都是「形状判据不成立时把信封当读数交出去」——**这一处连判据都没有**，
+直接 `str()`。里面那段 `b''` 在真机上是几千字节的原始回包，而 2026-08-14 的
+「四个技能直接 500」正是它把 HTTP 层的序列化撑炸的。
+
+同一批里还有一小族同形状的（空 body 上旧仓交出整个信封）：PLL 五个读的 `raw`、
+`HomeZController` 的 `home_props`、`SetSafeTipProps` 的 `before`。逐格登记在
+`traces.test.ts` 的 `DEVIATIONS` 里。
+
+## D-SKILL-3 补充 · PLL 的读在空 body 上**抛异常**，本仓给一个值
+
+| | |
+|---|---|
+| **Python** | `int(v[0])` 直接对空 body 取下标 ⇒ `IndexError`。金样里十格记着 `raised`（`GetPLLStatus` / `GetPLLAddOnOff` / `GetPLLAmpCtrlOnOff` / `GetPLLDemodFilter` / `GetPLLDemodHarmonic` / `GetPLLExcRange` / `GetPLLFreqRange` / `GetPLLInpCalibr` / `GetPLLPhasCtrlOnOff` / `GetPLLSignalAnlzrCh`） |
+| **TS** | 技能 `success`，`raw` 给 `[]`，**解不出的那个字段不写这个键** |
+| **测试** | `packages/host/stm-skills/src/l0/tail-l0f.test.ts` → `PLL 的读：空 body 给一个值，不抛` |
+
+与 `GetSafeTipStatus` 那一格（D-SKILL-3 本体）同一条理由：**一个只读技能以一句
+看不懂的异常失败，和「没问出来」是两件事**。前者会让调用方以为工具坏了；
+后者是一个可以据以决策的答案。
+
+「不写这个键」而不是「写一个 `null`」：这一族的键是**开关状态**
+（`add_on` / `amp_ctrl_on` / …），而 `null` 在 JSON 里读起来太容易被当成「关着」。
+缺键是没有歧义的。
+
+## D-DIAG-1 · `diagnostics.record` → `ctx.markers.emit`
+
+| | |
+|---|---|
+| **Python** | `mast.core.diagnostics.record(kind, subject, reason, **fields)`：进程内一个环形表 + 落一行 JSONL 到磁盘 |
+| **TS** | `ctx.markers.emit(kind, {subject, reason, ...fields})`——**内核自己的留痕通道**（`skill_ok` / `skill_failed` / `skill_crashed` 走的也是它） |
+| **测试** | `tail-l0f.test.ts` → `拒绝要留痕`、`SetZLimits —— 放宽合法，但要留痕` |
+
+`kind`（`safety_block` / `note`）与字段名逐字照搬，于是两边的台账**读起来是同一种东西**。
+落盘由宿主接——同 D-PRESET-2（参数组存储在进程里，落盘由宿主接）那条：
+一个技能不该自己决定往哪个目录写文件。
+
+**为什么必须有**：脚本那一族的留痕不是日志，是**证据**。本仓看不见脚本内部
+（它跑在 RT 控制器上），所以「哪个槽位、哪份配方、用的哪串 LUT」这条记录
+是事后唯一能拿到的东西。金样只录返回值，录不到它 —— 所以它由技能级测试单独钉。
+
+## D-PLL-1 · `f₀` / `Q` **不写回仪器档案**
+
+| | |
+|---|---|
+| **Python** | `AcquirePLLFreqSweep` 扫完把 `resonance_freq_hz` / `q_factor` 写进 `instrument_profile` 的实测槽位（2026-07-31 加的，理由是「不然想知道当前音叉的 f₀/Q 就得重扫一次」） |
+| **TS** | 只放进返回值 |
+| **测试** | 轨迹金样（`AcquirePLLFreqSweep/ok` 两侧 `data` 一致；那次写回本来就不进 `data`） |
+
+本仓还没有那份**可写**的档案存储（`processLockInProfile` 是只读接线）。
+而**写一个没有读者的值**只会让下一个人以为有人在用它 —— 与消融那条纪律同义：
+说不清现在承担什么就不写。
+
+接上去的条件很明确：等有一个技能真的要问「当前这支音叉的 Q 是多少」的时候。
+到那时这条要销账。

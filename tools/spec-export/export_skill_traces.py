@@ -31,6 +31,9 @@ from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
+#: 脚本白名单的文件名（与 `mast.skills.builtins.nanonis_script._CONFIG_NAME` 同名）。
+_CONFIG_NAME = "nanonis_scripts.json"
+
 MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "skill_traces.json"
@@ -159,6 +162,41 @@ BATCH_3E = [
     "SetAdditionalRealtimeSignals", "SetAcquisitionPeriod", "BiasPulse",
 ]
 
+#: 批 3f：**Nanonis 脚本整族**（白名单是这一批的要害）+ PLL 整族 + 仪器限值。
+#:
+#: 脚本那 14 个的判据全在一张**操作员维护的白名单**上：脚本编译后跑在 RT 控制器上，
+#: 一个 `safe_call` 都不发 ⇒ 安全门 / 模式门 / 中止门 / HITL **在它内部全部不生效**。
+#: 于是白名单是**唯一**的屏障，而 `LoadNanonisScript` 的判据是**反的**——
+#: 它拒绝往**已审**槽位里装别的脚本（换掉内容会让那份批准变成一句假话）。
+#:
+#: PLL 那 36 个是 qPlus/AFM 的调频子系统，机械但成族；仪器限值那 6 个是
+#: 「能读不能写」那一族的补完，每一次放宽都记账。
+BATCH_3F = [
+    # nanonis_script（11）
+    "ListNanonisScripts", "GetScriptData", "GetScriptChannels",
+    "RunNanonisScript", "StopNanonisScript", "DeployNanonisScript",
+    "UndeployNanonisScript", "LoadScriptLUT", "DeployScriptLUT",
+    "SetScriptChannels", "SetScriptAutosave",
+    # nanonis_script_files（3）
+    "LoadNanonisScript", "SaveNanonisScript", "SaveNanonisScriptLut",
+    # instrument_limits（6）
+    "SetZLimits", "SetWithdrawRate", "HomeZController", "SetPiezoLimits",
+    "SetSafeTipProps", "SetActiveZController",
+    # pll（36）
+    "ConfigurePLL", "GetPLLStatus", "PLLOnOff", "ConfigurePLLExcitation",
+    "AcquirePLLFreqSweep", "PLLSignalAnalyzer", "GetPLLAddOnOff",
+    "SetPLLAmpCtrlBandwidth", "GetPLLAmpCtrlOnOff", "SetPLLAmpCtrlSetpnt",
+    "GetPLLDemodFilter", "SetPLLDemodFilter", "GetPLLDemodHarmonic",
+    "GetPLLDemodInput", "SetPLLDemodInput", "SetPLLDemodPhasRef",
+    "GetPLLExcRange", "SetPLLFreqExcOverwrite", "GetPLLFreqRange",
+    "SetPLLFreqRange", "PLLFreqShiftAutoCenter", "GetPLLInpCalibr",
+    "SetPLLInpCalibr", "GetPLLInpProps", "SetPLLInpProps", "SetPLLInpRange",
+    "PLLPerfectPLLUpdtZTC", "SetPLLPhasCtrlBandwidth", "GetPLLPhasCtrlOnOff",
+    "GetPLLSignalAnlzrCh", "GetPLLSignalAnlzrFFTProps",
+    "GetPLLSignalAnlzrTimebase", "PLLSignalAnlzrTrigAuto",
+    "SetPLLSignalAnlzrTrig", "GetPLLFreqSwpParams", "StopPLLFreqSwp",
+]
+
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:
 #: 通用注错点给的文案是「连接被对端关闭」，而 Osci1T 那三个技能靠
@@ -269,6 +307,22 @@ PARAM_OVERRIDES: dict[str, dict] = {
     # 同理：±10 V 的中点是 0，通用规则避开 0 于是上下限都成了 5.0 ——
     # 一次「从 5 V sweep 到 5 V」的退化轨迹。
     "RunBiasSweep": {"lower_limit_v": -1.0, "upper_limit_v": 1.0},
+    # 槽位号的中点是 32，而白名单夹具里只有 3 与 5 ⇒ `ok` 那一趟会落在拒绝上，
+    # 下发那一路一条金样都没有。**已审**的槽位走 3。
+    "RunNanonisScript": {"slot": 3},
+    "DeployNanonisScript": {"slot": 3},
+    "LoadScriptLUT": {"slot": 3, "lut_index": 1, "values": "0, 2.5, 5, 7.5, 10"},
+    # 反过来：`LoadNanonisScript` 拒的是**已审**槽位，所以它的成功路要一个**未审**的。
+    "LoadNanonisScript": {"slot": 7, "file_path": "C:/nanonis/scripts/delay.ns"},
+    "SaveNanonisScript": {"file_path": "C:/nanonis/out/slot3.ns"},
+    "SaveNanonisScriptLut": {"file_path": "C:/nanonis/out/slot3_lut.dat"},
+    "SetScriptChannels": {"channels": "0,24"},
+    # ±100 µm 的中点是 0 ⇒ 通用规则给的上下限会撞成同一个数
+    "SetZLimits": {"z_high_limit_m": 5e-7, "z_low_limit_m": -5e-7},
+    # 六个界的中点都是 0 ⇒ 通用规则给的下界与上界撞成同一个数 ⇒  录到的是拒绝
+    "SetPiezoLimits": {"x_low_v": -150.0, "x_high_v": 150.0,
+                       "y_low_v": -150.0, "y_high_v": 150.0,
+                       "z_low_v": -120.0, "z_high_v": 120.0},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -326,6 +380,24 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
     # 颠倒的限值**换过来**而不是拒绝 —— 与频带那条刻意不同
     "RunBiasSweep": {"swapped": {"lower_limit_v": 1.0, "upper_limit_v": -1.0}},
     "BiasPulse": {"relative": {"absolute": False}},
+    # ── 脚本白名单：四种拒绝，每一种说的是不同的话 ──
+    "RunNanonisScript": {"unvetted_slot": {"slot": 7}},
+    "DeployNanonisScript": {"unvetted_slot": {"slot": 7}},
+    "LoadScriptLUT": {
+        "unvetted_slot": {"slot": 7},
+        # 槽位 5 在白名单上，但**没批准写 LUT** —— 与「槽位没过审」是两句话
+        "lut_write_not_allowed": {"slot": 5},
+        # 声明的范围是 [0, 10]（用户审脚本时写定的，因为只有他知道单位）
+        "lut_out_of_range": {"values": "0, 5, 42"},
+        "lut_unparsable": {"values": "0, 一点五"},
+        "lut_empty": {"values": "   "},
+    },
+    # **反的那道闸**：往已审槽位里装别的脚本，会把那份批准变成一句假话
+    "LoadNanonisScript": {"vetted_slot": {"slot": 3}},
+    "SetScriptChannels": {"bad_channels": {"channels": "0, 二十四"}, "empty_channels": {"channels": " "}},
+    # 限值**不启用**时写下去什么也不做 —— 那一支要单独录
+    "SetZLimits": {"not_enabled": {"enable": False}},
+    "SetPiezoLimits": {"inverted_y": {"y_low_v": 150.0, "y_high_v": -150.0}},
 }
 
 
@@ -524,14 +596,46 @@ def _result(r: Any) -> dict:
 PRESET_FIXTURE = {"name": "spec-export", "p_gain": "150p", "i_gain": "150p"}
 NEEDS_PRESET = {"ApplyZCtrlPreset", "ListZCtrlPresets"}
 
+#: 已审脚本槽位的白名单夹具。**空清单是出厂状态**（fail-closed，智能体一个脚本都跑不了），
+#: 于是不摆这一份的话，脚本那 14 个技能录到的全是同一句拒绝 —— 下发那一路一条金样都没有。
+#:
+#: 两条刻意不同：槽位 3 允许写 LUT 且声明了范围 `[0, 10]`，槽位 5 不允许。
+#: 「白名单认的是**这个槽位里的那个脚本**」这条判据只有在两者并存时才看得出来。
+SCRIPT_ALLOWLIST = {
+    "allowed_slots": [
+        {"slot": 3, "name": "延时扫描", "description": "泵浦-探测延时扫描",
+         "allow_lut_write": True, "lut_min": 0.0, "lut_max": 10.0,
+         "notes": "LUT 单位 mm"},
+        {"slot": 5, "name": "针尖成形序列", "description": "固定脉冲串",
+         "allow_lut_write": False},
+    ]
+}
+NEEDS_SCRIPTS = {
+    "ListNanonisScripts", "RunNanonisScript", "DeployNanonisScript",
+    "LoadScriptLUT", "LoadNanonisScript",
+}
+
 
 def _reset_state(name: str) -> None:
-    """把进程级存储摆成这一格要的样子。**每条轨迹都调**，不靠上一格的残留。"""
+    """把进程级状态摆成这一格要的样子。**每条轨迹都调**，不靠上一格的残留。"""
     try:
         import mast.core.zctrl_presets as _zp
         _zp._presets.clear()
         if name in NEEDS_PRESET:
             _zp.upsert_preset(dict(PRESET_FIXTURE))
+    except Exception:  # noqa: BLE001
+        pass
+    # 脚本白名单住在磁盘上（`<project_root>/config/nanonis_scripts.json`），
+    # 而**不是**进程里 —— 它由操作员维护，MAST 没有任何 skill 写它。
+    # 这里写文件而不是打补丁，走的正是那条真路径（包括「文件不存在 = 空清单」）。
+    try:
+        cfg = Path(os.environ["MAST2_PROJECT_ROOT"]) / "config" / _CONFIG_NAME
+        cfg.parent.mkdir(parents=True, exist_ok=True)
+        if name in NEEDS_SCRIPTS:
+            cfg.write_text(json.dumps(SCRIPT_ALLOWLIST, ensure_ascii=False),
+                           encoding="utf-8")
+        elif cfg.exists():
+            cfg.unlink()
     except Exception:  # noqa: BLE001
         pass
 
@@ -576,7 +680,7 @@ def main() -> int:
     out: dict[str, Any] = {}
     missing: list[str] = []
     for name in (BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C
-                 + BATCH_3D + BATCH_3E):
+                 + BATCH_3D + BATCH_3E + BATCH_3F):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

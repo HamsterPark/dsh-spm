@@ -122,6 +122,75 @@ const BATCH_3E = [
 ]
 
 /**
+ * 批 3f：**Nanonis 脚本整族**（白名单是要害）+ PLL 整族 + 仪器限值。
+ *
+ * 脚本那 14 个的判据全在一张操作员维护的白名单上：脚本跑在 RT 控制器上、一次
+ * `safeCall` 都不发，于是本仓每一道闸在它内部都不生效 —— 白名单是**唯一**的屏障。
+ * 而 `LoadNanonisScript` 的闸是**反的**：它拒绝往已审槽位里装别的脚本。
+ *
+ * PLL 那 36 个是 qPlus/nc-AFM 的调频子系统；仪器限值那 6 个补完了
+ * 「能读不能写」的那一族，每一次放宽都留痕。
+ */
+const BATCH_3F = [
+  'ListNanonisScripts',
+  'GetScriptData',
+  'GetScriptChannels',
+  'RunNanonisScript',
+  'StopNanonisScript',
+  'DeployNanonisScript',
+  'UndeployNanonisScript',
+  'LoadScriptLUT',
+  'DeployScriptLUT',
+  'SetScriptChannels',
+  'SetScriptAutosave',
+  'LoadNanonisScript',
+  'SaveNanonisScript',
+  'SaveNanonisScriptLut',
+  'SetZLimits',
+  'SetWithdrawRate',
+  'HomeZController',
+  'SetPiezoLimits',
+  'SetSafeTipProps',
+  'SetActiveZController',
+  'ConfigurePLL',
+  'GetPLLStatus',
+  'PLLOnOff',
+  'ConfigurePLLExcitation',
+  'AcquirePLLFreqSweep',
+  'PLLSignalAnalyzer',
+  'GetPLLAddOnOff',
+  'SetPLLAmpCtrlBandwidth',
+  'GetPLLAmpCtrlOnOff',
+  'SetPLLAmpCtrlSetpnt',
+  'GetPLLDemodFilter',
+  'SetPLLDemodFilter',
+  'GetPLLDemodHarmonic',
+  'GetPLLDemodInput',
+  'SetPLLDemodInput',
+  'SetPLLDemodPhasRef',
+  'GetPLLExcRange',
+  'SetPLLFreqExcOverwrite',
+  'GetPLLFreqRange',
+  'SetPLLFreqRange',
+  'PLLFreqShiftAutoCenter',
+  'GetPLLInpCalibr',
+  'SetPLLInpCalibr',
+  'GetPLLInpProps',
+  'SetPLLInpProps',
+  'SetPLLInpRange',
+  'PLLPerfectPLLUpdtZTC',
+  'SetPLLPhasCtrlBandwidth',
+  'GetPLLPhasCtrlOnOff',
+  'GetPLLSignalAnlzrCh',
+  'GetPLLSignalAnlzrFFTProps',
+  'GetPLLSignalAnlzrTimebase',
+  'PLLSignalAnlzrTrigAuto',
+  'SetPLLSignalAnlzrTrig',
+  'GetPLLFreqSwpParams',
+  'StopPLLFreqSwp',
+]
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -199,7 +268,7 @@ function main(): number {
 
   const names = [
     ...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C,
-    ...BATCH_3D, ...BATCH_3E,
+    ...BATCH_3D, ...BATCH_3E, ...BATCH_3F,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -219,7 +288,8 @@ function main(): number {
     `批 3b 组合 ${BATCH_3B.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3c 长尾 ${BATCH_3C.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3d 锁相族 ${BATCH_3D.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 3e 收口 ${BATCH_3E.filter((n) => byName.has(n)).length} 个\n` +
+    `批 3e 收口 ${BATCH_3E.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3f 脚本/PLL/限值 ${BATCH_3F.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -1683,6 +1683,669 @@ export const BiasPulseSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const ListNanonisScriptsSpec: SkillSpec = {
+  name: "ListNanonisScripts",
+  description: "列出**用户**已经审过、允许自主使用的那些 Nanonis 脚本槽位，连同每一个做什么、接受什么 LUT 范围。想跑任何东西之前先调它：没过审的槽位会被拒绝，而这份名单通常很短。\n\nNanonis 脚本跑在实时控制器上。MAST 的各道安全闸门在脚本**内部不**生效 —— 这正是只有过审槽位才允许运行的原因。",
+  parameters: [],
+  tags: ["script","read","safety"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetScriptDataSpec: SkillSpec = {
+  name: "GetScriptData",
+  description: "读一个 Nanonis 脚本录进 Acquire Buffer 的数据。脚本以实时速度把若干通道写进 buffer 1 或 2；每一次 'sweep' 是脚本里定义的一趟（sweep 从 0 起算）。返回一个由采集通道构成的 2-D 数组。",
+  parameters: [
+    { name: "buffer", type: "int", description: "Acquire Buffer 编号：1 或 2", required: true, minValue: 1, maxValue: 2 },
+    { name: "sweep", type: "int", description: "sweep 序号（0 起算）", required: false, minValue: 0, maxValue: 100000, default: 0 },
+  ],
+  tags: ["script","data","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetScriptChannelsSpec: SkillSpec = {
+  name: "GetScriptChannels",
+  description: "读某个脚本 Acquire Buffer 的通道列表。",
+  parameters: [
+    { name: "buffer", type: "int", description: "Acquire Buffer 编号：1 或 2", required: true, minValue: 1, maxValue: 2 },
+  ],
+  tags: ["script","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const RunNanonisScriptSpec: SkillSpec = {
+  name: "RunNanonisScript",
+  description: "在**实时控制器**上运行一个 Nanonis 脚本。只有用户审过的槽位（config/nanonis_scripts.json）才允许运行 —— 先调 ListNanonisScripts。\n\n**用它之前先读这一段。** 跑起来的脚本是在控制器上执行的，不走 TCP，所以 **MAST 的各层安全在它内部都不生效**：全局的偏压／电流／Z 边界不被强制，运行模式闸门不被咨询，而且 **abort 闸门停不了它**。按 中止 只是让 MAST 不再发命令；它停不了一个已经在控制器上跑起来的脚本。唯一能停它的是 StopNanonisScript。\n\n请先把脚本部署上去（DeployNanonisScript）。如果它带参数，运行之前把参数载入它的 LUT（LoadScriptLUT）。",
+  parameters: [
+    { name: "slot", type: "int", description: "脚本槽位（1 起算）。必须在过审名单里。", required: true, minValue: 1, maxValue: 64 },
+    { name: "wait_until_finished", type: "bool", description: "阻塞直到脚本跑完。对一段有界的序列，通常 True 才对；False 会让它继续跑着 —— 那样一来，停下它就是你的责任。", required: false, default: true },
+  ],
+  tags: ["script","realtime","write","safety"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const StopNanonisScriptSpec: SkillSpec = {
+  name: "StopNanonisScript",
+  description: "停掉正在实时控制器上跑的脚本。这是**唯一**能停下一个正在跑的脚本的东西 —— abort 闸门停不了它，因为脚本并不在发 TCP 调用。因此它从不受闸门管辖、也从不被拒绝，包括在 abort 已经锁住的时候。",
+  parameters: [],
+  tags: ["script","stop","safety"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const DeployNanonisScriptSpec: SkillSpec = {
+  name: "DeployNanonisScript",
+  description: "把一个过审的脚本槽位部署到实时控制器上（编译 + 推送）。部署并不会运行它 —— 之后请调 RunNanonisScript。只有过审的槽位才允许被部署。",
+  parameters: [
+    { name: "slot", type: "int", description: "脚本槽位（1 起算）。必须已过审。", required: true, minValue: 1, maxValue: 64 },
+  ],
+  tags: ["script","realtime","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const UndeployNanonisScriptSpec: SkillSpec = {
+  name: "UndeployNanonisScript",
+  description: "把一个脚本槽位从实时控制器上撤下来。撤掉一个脚本从来不是有风险的那个方向，所以它从不受闸门管辖。",
+  parameters: [
+    { name: "slot", type: "int", description: "脚本槽位（1 起算）", required: true, minValue: 1, maxValue: 64 },
+  ],
+  tags: ["script","realtime","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const LoadScriptLUTSpec: SkillSpec = {
+  name: "LoadScriptLUT",
+  description: "把一组数值载入某个脚本的查找表（Look-Up Table）—— 也就是脚本以实时速度逐项走过的那个数组。延时扫描就是这么工作的：把延时值载进去，脚本自己走完它们。\n\nLUT 是你在这里真正能撰写的**那一样**东西（脚本本身是用户的）。所以它的取值范围由过审条目框定：一个声明了 lut_min/lut_max 的槽位，会拒绝范围之外的值。一个 LUT 以毫米为单位的延时线脚本，喂进去以微米计的数字，就会把台子开到硬限位上 —— 而 MAST 看不到脚本，也就无从知道它想要的是哪一种。",
+  parameters: [
+    { name: "slot", type: "int", description: "这些值是**给哪一个**过审脚本槽位用的", required: true, minValue: 1, maxValue: 64 },
+    { name: "lut_index", type: "int", description: "LUT 编号（1 起算）", required: true, minValue: 1, maxValue: 16 },
+    { name: "values", type: "str", description: "逗号分隔的数值（例如 '0, 0.5, 1.0, 1.5'）", required: true },
+  ],
+  tags: ["script","lut","write","safety"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const DeployScriptLUTSpec: SkillSpec = {
+  name: "DeployScriptLUT",
+  description: "把一个 LUT 部署到实时控制器上，好让正在跑的脚本能逐项走它。请先载入数值（LoadScriptLUT）。",
+  parameters: [
+    { name: "lut_index", type: "int", description: "LUT 编号（1 起算）", required: true, minValue: 1, maxValue: 16 },
+    { name: "wait_until_finished", type: "bool", description: "阻塞直到部署完成", required: false, default: true },
+    { name: "timeout_ms", type: "int", description: "部署超时（ms）；-1 = 一直等下去", unit: "ms", required: false, minValue: -1, maxValue: 600000, default: 10000 },
+  ],
+  tags: ["script","lut","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetScriptChannelsSpec: SkillSpec = {
+  name: "SetScriptChannels",
+  description: "设定某个脚本的 Acquire Buffer 记录哪些信号通道。仅仅是配置 —— 它改变的是「测什么」，绝不改变仪器做什么。",
+  parameters: [
+    { name: "buffer", type: "int", description: "Acquire Buffer 编号：1 或 2", required: true, minValue: 1, maxValue: 2 },
+    { name: "channels", type: "str", description: "信号序号，逗号分隔（例如 '0,24'）", required: true },
+  ],
+  tags: ["script","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const SetScriptAutosaveSpec: SkillSpec = {
+  name: "SetScriptAutosave",
+  description: "运行结束后把脚本 Acquire Buffer 里的数据自动存盘。任何长序列都建议开 —— 缓冲区是有限的，而没存下来的数据就等于没测过。",
+  parameters: [
+    { name: "buffer", type: "int", description: "Acquire Buffer 编号：1 或 2", required: true, minValue: 1, maxValue: 2 },
+    { name: "sweep", type: "int", description: "要保存的 sweep 编号；-1 = 全部 sweep", required: false, minValue: -1, maxValue: 100000, default: -1 },
+    { name: "all_sweeps_same_file", type: "bool", description: "把每一趟 sweep 都放进同一个文件", required: false, default: true },
+    { name: "folder_path", type: "str", description: "Nanonis 机器上的文件夹（留空 = 会话目录）", required: false, default: "" },
+    { name: "basename", type: "str", description: "文件基名", required: false, default: "mast_script" },
+  ],
+  tags: ["script","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const LoadNanonisScriptSpec: SkillSpec = {
+  name: "LoadNanonisScript",
+  description: "把一个 Nanonis 脚本文件载入某个脚本**槽位**。\n\n**它会拒绝载入已在受审白名单上的槽位。** 白名单的含义是「有人读过这个槽位里的脚本并批准了它」。往那个槽位里换一个别的脚本，会把这份批准变成一句假话 —— 而 Nanonis 脚本跑在实时控制器上，MAST 的安全闸门、模式闸门、abort 闸门和 HITL 在那里统统看不见它。\n\n请载入一个**空闲**槽位。agent 载入之后并不能运行它（RunNanonisScript 只允许白名单上的槽位）—— 这正是设计意图。流程是：你在这里载入，由人读过之后把该槽位加进 config/nanonis_scripts.json，只有到那时它才跑得起来。\n\n这里的文件路径是 **NANONIS 机器上的**，不是 MAST 这边的。",
+  parameters: [
+    { name: "slot", type: "int", description: "脚本槽位（**不能**是已经在白名单上的那些）", required: true, minValue: 1, maxValue: 15 },
+    { name: "file_path", type: "str", description: "**NANONIS 机器上** .ns 脚本文件的路径", required: true },
+    { name: "load_session", type: "bool", description: "同时载入该脚本存下来的 session", required: false, default: false },
+  ],
+  tags: ["script","file","advanced","dangerous"],
+  category: "write",
+  safetyLevel: "DANGEROUS",
+}
+
+export const SaveNanonisScriptSpec: SkillSpec = {
+  name: "SaveNanonisScript",
+  description: "把某个槽位里当前的脚本导出成 **NANONIS 机器上**的一个文件。\n\n这件事读的是槽位、**写的是一个文件**。它改变不了仪器的行为 —— 但它会覆盖你给的那个路径上已有的文件，而 MAST 看不到那里原本是什么。请挑一个新路径。\n\n适合把一个受审槽位里实际装着什么，连同实验记录一起归档下来。",
+  parameters: [
+    { name: "slot", type: "int", description: "要读的脚本槽位", required: true, minValue: 1, maxValue: 15 },
+    { name: "file_path", type: "str", description: "**NANONIS 机器上**的目标路径（已存在则会被覆盖）", required: true },
+    { name: "save_session", type: "bool", description: "同时保存该脚本的 session", required: false, default: false },
+  ],
+  tags: ["script","file","advanced"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SaveNanonisScriptLutSpec: SkillSpec = {
+  name: "SaveNanonisScriptLut",
+  description: "把某个脚本槽位的**查找表**（LUT）导出成 Nanonis 机器上的一个文件。\n\nLUT 是脚本接收参数的途径 —— 它是一个受审脚本里 agent 唯一能改的东西（且只能在白名单声明的范围内改）。把它导出来是一次读取；它不改变仪器上的任何东西。它会覆盖给定路径上已有的文件。",
+  parameters: [
+    { name: "slot", type: "int", description: "要保存其 LUT 的脚本槽位", required: true, minValue: 1, maxValue: 15 },
+    { name: "file_path", type: "str", description: "**NANONIS 机器上**的目标路径", required: true },
+  ],
+  tags: ["script","lut","file","advanced"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetZLimitsSpec: SkillSpec = {
+  name: "SetZLimits",
+  description: "设定 Z 控制器的位置上限与下限，单位**米**。\n\n这两个界限规定了 Z 压电伸出与回缩都不得越过的边界 —— 是压电与针尖之间最后一道软件屏障。把它们放宽是合法的（更高的样品、更长的针尖确实需要更多行程），并且会连同改动前后的取值一起**记入**诊断账本。\n\n**限值不处于启用状态时，它们什么也不做**（Nanonis 原文：'When the Z position limits are not enabled, this function has no effect'）。请用 enable=true，或去核对 GetZControllerState.z_limits_enabled。\n\n取值单位是**米**：500 nm 的限值要写成 500n，不是 500。",
+  parameters: [
+    { name: "z_high_limit_m", type: "float", description: "Z 的上界，单位**米**（500 nm = 500n）", unit: "m", required: true, minValue: -0.0001, maxValue: 0.0001 },
+    { name: "z_low_limit_m", type: "float", description: "Z 的下界，单位**米**", unit: "m", required: true, minValue: -0.0001, maxValue: 0.0001 },
+    { name: "enable", type: "bool", description: "同时**启用**这两个限值（不启用它们就没有任何作用）", required: false, default: true },
+  ],
+  tags: ["z","limits","safety","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetWithdrawRateSpec: SkillSpec = {
+  name: "SetWithdrawRate",
+  description: "设定 Z 的退针速率，单位米每秒 —— 也就是 Withdraw（或紧急退针、或 SafeTip）触发时针尖回缩得有多快。\n\n这在两个方向上都是一个安全参数。太**慢**，紧急退针来不及把针尖撤离；太**快**，退针本身就可能把针尖抖松、或者把扫描器激起振铃。Nanonis 的默认值是个合理的起点；要改就得有理由。",
+  parameters: [
+    { name: "rate_m_per_s", type: "float", description: "退针速率，单位 m/s", unit: "m/s", required: true, minValue: 1e-9, maxValue: 0.01 },
+  ],
+  tags: ["z","withdraw","safety","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const HomeZControllerSpec: SkillSpec = {
+  name: "HomeZController",
+  description: "把 Z 移到它配置好的 **HOME** 位置。\n\nHome 是用户设定的一个安全／中性的停放点 —— 调用它之前先用 GetZControllerState.home 读一下，因为这个位置不是 MAST 选的，而一个为另一块样品配的 home 就只是个普通的 Z 位置而已。\n\n这会**移动**压电。若你想让针尖确定无疑地离开表面，请用 Withdraw，不要用 Home —— 退针去的是安全的极端位置，而 home 去的是 home 碰巧在的地方。",
+  parameters: [],
+  tags: ["z","home","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPiezoLimitsSpec: SkillSpec = {
+  name: "SetPiezoLimits",
+  description: "设定压电的 X/Y/Z **电压**限值（并启用它们）。\n\n这些限值以伏特为单位框住扫描器能被驱动到多远，是在量程标定把它们换算成米之前起作用的。它们保护的既是针尖，也同样是压电本身（过压会让它**永久**退极化）。\n\n把它们放宽会连同改动前后的取值一起记入诊断账本。当前值用 GetPiezoConfig 读 —— 并注意这些是**伏特**，不是米；把两者连起来的是量程标定。",
+  parameters: [
+    { name: "x_low_v", type: "float", description: "X 下限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "x_high_v", type: "float", description: "X 上限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "y_low_v", type: "float", description: "Y 下限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "y_high_v", type: "float", description: "Y 上限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "z_low_v", type: "float", description: "Z 下限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "z_high_v", type: "float", description: "Z 上限（V）", unit: "V", required: true, minValue: -300, maxValue: 300 },
+    { name: "enable", type: "bool", description: "启用这些限值（不启用它们就没有任何作用）", required: false, default: true },
+  ],
+  tags: ["piezo","limits","safety","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetSafeTipPropsSpec: SkillSpec = {
+  name: "SetSafeTipProps",
+  description: "配置 SafeTip —— 那套自动的针尖保护系统：它盯着一路信号，一旦越过阈值就退针。\n\nMAST 从前只能**读**这份配置而设不了它，这意味着 agent 明明看得出阈值对当前这根针尖是错的，却拿它没办法。\n\n**threshold 是要紧的那个数。** 定高了，SafeTip 永远不触发 —— 这份保护成了摆设。定低了，它会在噪声上触发，把好好的扫描中止掉。先用 GetSafeTipProps / GetSafeTipSignal 读一下当前值和被盯着的那路信号。\n\nauto_recovery 会在一次 SafeTip 事件之后恢复 Z 控制器，**前提是它原本就是开着的**；auto_pause_scan 则把扫描暂停下来，而不是让它在一个针尖刚被拉离的表面上继续磨下去。",
+  parameters: [
+    { name: "threshold", type: "float", description: "触发阈值，用被盯着那路信号自己的单位", required: true },
+    { name: "auto_recovery", type: "bool", description: "SafeTip 事件之后恢复 Z 控制器（前提是它原本开着）", required: false, default: true },
+    { name: "auto_pause_scan", type: "bool", description: "发生 SafeTip 事件时暂停扫描", required: false, default: true },
+  ],
+  tags: ["safetip","safety","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetActiveZControllerSpec: SkillSpec = {
+  name: "SetActiveZController",
+  description: "选定哪一个 Z 控制器处于**激活**状态。只有在装了不止一个的机器上才有意义 —— 先调 GetZControllerState / ListZControllers。\n\n切换激活的控制器，会改变其余每一个 Z 技能所对话的是哪一个环。弄错了，就意味着你在给一个并没有托着针尖的环设设定值。",
+  parameters: [
+    { name: "controller_index", type: "int", description: "Z 控制器序号（取自控制器列表）", required: true, minValue: 0, maxValue: 15 },
+  ],
+  tags: ["z","controller","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigurePLLSpec: SkillSpec = {
+  name: "ConfigurePLL",
+  description: "配置 PLL 的中心频率、频移与控制器增益。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "center_freq_hz", type: "float", description: "中心频率，单位 Hz", unit: "Hz", required: false },
+    { name: "freq_shift_hz", type: "float", description: "频移，单位 Hz", unit: "Hz", required: false },
+    { name: "amp_p_gain", type: "float", description: "幅度控制器的 P 增益（V/m）", required: false },
+    { name: "amp_time_constant_s", type: "float", description: "幅度控制器的时间常数", unit: "s", required: false },
+    { name: "phas_p_gain", type: "float", description: "相位控制器的 P 增益（Hz/deg）", required: false },
+    { name: "phas_time_constant_s", type: "float", description: "相位控制器的时间常数", unit: "s", required: false },
+  ],
+  tags: ["pll","configure","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLStatusSpec: SkillSpec = {
+  name: "GetPLLStatus",
+  description: "读 PLL 当前状态：频率、增益、excitation。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","status","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const PLLOnOffSpec: SkillSpec = {
+  name: "PLLOnOff",
+  description: "开或关 PLL 输出、相位控制器与幅度控制器。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "output_on", type: "bool", description: "启用 PLL 输出", required: true },
+    { name: "phase_ctrl_on", type: "bool", description: "启用相位控制器", required: false, default: true },
+    { name: "amp_ctrl_on", type: "bool", description: "启用幅度控制器", required: false, default: true },
+  ],
+  tags: ["pll","onoff","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigurePLLExcitationSpec: SkillSpec = {
+  name: "ConfigurePLLExcitation",
+  description: "设置 PLL 的 excitation 幅度与输出量程。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "excitation_v", type: "float", description: "excitation 幅度，单位伏特", unit: "V", required: true, minValue: 0 },
+    { name: "output_range", type: "float", description: "excitation 输出量程", required: false },
+  ],
+  tags: ["pll","excitation","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AcquirePLLFreqSweepSpec: SkillSpec = {
+  name: "AcquirePLLFreqSweep",
+  description: "跑一次 PLL 扫频，找出共振峰。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "num_points", type: "int", description: "频率点数", required: true, minValue: 2, maxValue: 10000 },
+    { name: "period_s", type: "float", description: "每个频率点上的测量时间", unit: "s", required: true, minValue: 0.001 },
+    { name: "settling_time_s", type: "float", description: "设定起始频率之后的等待时间", unit: "s", required: false, minValue: 0, default: 0.1 },
+    { name: "sweep_up", type: "bool", description: "从下限扫到上限", required: false, default: true },
+  ],
+  tags: ["pll","sweep","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const PLLSignalAnalyzerSpec: SkillSpec = {
+  name: "PLLSignalAnalyzer",
+  description: "打开 PLL 信号分析仪，并采集示波器/FFT 数据。",
+  parameters: [
+    { name: "channel_index", type: "int", description: "要分析的信号通道索引", required: true, minValue: 0 },
+    { name: "get_fft", type: "bool", description: "同时采集 FFT 数据", required: false, default: false },
+  ],
+  tags: ["pll","analyzer","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPLLAddOnOffSpec: SkillSpec = {
+  name: "GetPLLAddOnOff",
+  description: "返回 Add external signal to output 是开还是关。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","add","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLAmpCtrlBandwidthSpec: SkillSpec = {
+  name: "SetPLLAmpCtrlBandwidth",
+  description: "设置幅度控制器的带宽。使用当前的 Q factor 与幅度对 excitation 之比（取自之前的一次扫频）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "bandwidth_hz", type: "float", description: "带宽，单位 Hz", unit: "Hz", required: true, minValue: 0 },
+  ],
+  tags: ["pll","amplitude","bandwidth","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLAmpCtrlOnOffSpec: SkillSpec = {
+  name: "GetPLLAmpCtrlOnOff",
+  description: "返回幅度控制器是开还是关。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","amplitude","onoff","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLAmpCtrlSetpntSpec: SkillSpec = {
+  name: "SetPLLAmpCtrlSetpnt",
+  description: "设置幅度控制器的 setpoint，单位米。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "setpoint_m", type: "float", description: "幅度 setpoint，单位米", unit: "m", required: true },
+  ],
+  tags: ["pll","amplitude","setpoint","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLDemodFilterSpec: SkillSpec = {
+  name: "GetPLLDemodFilter",
+  description: "返回 PLL lock-in 之后那个低通滤波器的阶数。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","demod","filter","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLDemodFilterSpec: SkillSpec = {
+  name: "SetPLLDemodFilter",
+  description: "设置 PLL lock-in 之后那个低通滤波器的阶数。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "filter_order", type: "int", description: "滤波器阶数（unsigned int16）", required: true, minValue: 0 },
+  ],
+  tags: ["pll","demod","filter","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLDemodHarmonicSpec: SkillSpec = {
+  name: "GetPLLDemodHarmonic",
+  description: "返回 PLL lock-in 解调器中选中的谐波。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","demod","harmonic","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPLLDemodInputSpec: SkillSpec = {
+  name: "GetPLLDemodInput",
+  description: "返回选中解调器的输入与频率发生器。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","demod","input","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLDemodInputSpec: SkillSpec = {
+  name: "SetPLLDemodInput",
+  description: "设置选中解调器的输入与频率发生器。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "input", type: "int", description: "输入索引（0 = 不改）", required: true },
+    { name: "frequency_generator", type: "int", description: "频率发生器索引（0 = 不改）", required: true },
+  ],
+  tags: ["pll","demod","input","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPLLDemodPhasRefSpec: SkillSpec = {
+  name: "SetPLLDemodPhasRef",
+  description: "设置选中解调器的参考相位。",
+  parameters: [
+    { name: "demodulator_index", type: "int", description: "解调器索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "phase_reference_deg", type: "float", description: "参考相位，单位度", unit: "deg", required: true },
+  ],
+  tags: ["pll","demod","phase","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLExcRangeSpec: SkillSpec = {
+  name: "GetPLLExcRange",
+  description: "返回 excitation 输出量程的索引（0=10V, 1=1V, 2=0.1V, 3=0.01V, 4=0.001V）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","excitation","range","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLFreqExcOverwriteSpec: SkillSpec = {
+  name: "SetPLLFreqExcOverwrite",
+  description: "设置用于覆写 Frequency Shift 和/或 Excitation 的信号。仅在对应控制器未激活时有效。不改则填 -2。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "excitation_overwrite_index", type: "int", description: "excitation 覆写信号的索引（-2 = 不改）", required: true },
+    { name: "frequency_overwrite_index", type: "int", description: "频率覆写信号的索引（-2 = 不改）", required: true },
+  ],
+  tags: ["pll","overwrite","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLFreqRangeSpec: SkillSpec = {
+  name: "GetPLLFreqRange",
+  description: "返回振荡控制模块的频率量程。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","frequency","range","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLFreqRangeSpec: SkillSpec = {
+  name: "SetPLLFreqRange",
+  description: "设置振荡控制模块的频率量程。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "frequency_range_hz", type: "float", description: "频率量程，单位 Hz", unit: "Hz", required: true, minValue: 0 },
+  ],
+  tags: ["pll","frequency","range","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const PLLFreqShiftAutoCenterSpec: SkillSpec = {
+  name: "PLLFreqShiftAutoCenter",
+  description: "频移自动归中：把当前频移加到中心频率上，并把频移复位为零。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","frequency","autocenter","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLInpCalibrSpec: SkillSpec = {
+  name: "GetPLLInpCalibr",
+  description: "返回振荡控制模块的输入标定（m/V）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","input","calibration","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLInpCalibrSpec: SkillSpec = {
+  name: "SetPLLInpCalibr",
+  description: "设置振荡控制模块的输入标定（m/V）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "calibration_m_per_v", type: "float", description: "输入标定，单位 m/V", unit: "m/V", required: true },
+  ],
+  tags: ["pll","input","calibration","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLInpPropsSpec: SkillSpec = {
+  name: "GetPLLInpProps",
+  description: "返回 PLL 的输入属性（差分输入、1/10 分压器）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","input","properties","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPLLInpPropsSpec: SkillSpec = {
+  name: "SetPLLInpProps",
+  description: "设置 PLL 的输入属性（差分输入、1/10 分压器）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "differential_input", type: "bool", description: "启用差分输入", required: true },
+    { name: "divider_1_10", type: "bool", description: "启用 1/10 分压器", required: true },
+  ],
+  tags: ["pll","input","properties","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPLLInpRangeSpec: SkillSpec = {
+  name: "SetPLLInpRange",
+  description: "设置振荡控制模块的输入量程（m）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "input_range_m", type: "float", description: "输入量程，单位米", unit: "m", required: true, minValue: 0 },
+  ],
+  tags: ["pll","input","range","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const PLLPerfectPLLUpdtZTCSpec: SkillSpec = {
+  name: "PLLPerfectPLLUpdtZTC",
+  description: "用 PerfectPLL 算法更新 Z 控制器的时间常数。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","perfectpll","ztc","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPLLPhasCtrlBandwidthSpec: SkillSpec = {
+  name: "SetPLLPhasCtrlBandwidth",
+  description: "设置相位控制器的带宽。使用当前的 Q factor（取自之前的一次扫频）。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "bandwidth_hz", type: "float", description: "带宽，单位 Hz", unit: "Hz", required: true, minValue: 0 },
+  ],
+  tags: ["pll","phase","bandwidth","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLPhasCtrlOnOffSpec: SkillSpec = {
+  name: "GetPLLPhasCtrlOnOff",
+  description: "返回相位控制器是开还是关。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","phase","onoff","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPLLSignalAnlzrChSpec: SkillSpec = {
+  name: "GetPLLSignalAnlzrCh",
+  description: "返回 PLL Signal Analyzer 当前的通道索引。",
+  parameters: [],
+  tags: ["pll","analyzer","channel","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPLLSignalAnlzrFFTPropsSpec: SkillSpec = {
+  name: "GetPLLSignalAnlzrFFTProps",
+  description: "返回 FFT 配置：窗函数、平均模式、加权模式与次数。",
+  parameters: [],
+  tags: ["pll","analyzer","fft","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPLLSignalAnlzrTimebaseSpec: SkillSpec = {
+  name: "GetPLLSignalAnlzrTimebase",
+  description: "返回 PLL Signal Analyzer 的时基索引与刷新率。",
+  parameters: [],
+  tags: ["pll","analyzer","timebase","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const PLLSignalAnlzrTrigAutoSpec: SkillSpec = {
+  name: "PLLSignalAnlzrTrigAuto",
+  description: "把 PLL Signal Analyzer 的触发参数设为预定义值。",
+  parameters: [],
+  tags: ["pll","analyzer","trigger","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPLLSignalAnlzrTrigSpec: SkillSpec = {
+  name: "SetPLLSignalAnlzrTrig",
+  description: "设置 PLL Signal Analyzer 中的触发配置。",
+  parameters: [
+    { name: "trigger_mode", type: "int", description: "触发模式（0=不改，1=Immediate，2=Level）", required: true, minValue: 0, maxValue: 2 },
+    { name: "trigger_source", type: "int", description: "触发源的信号索引", required: true },
+    { name: "trigger_slope", type: "int", description: "触发沿（0=不改，1=Rising，2=Falling）", required: true, minValue: 0, maxValue: 2 },
+    { name: "trigger_level", type: "float", description: "触发电平", required: true },
+    { name: "trigger_position_s", type: "float", description: "触发位置，单位秒", unit: "s", required: true },
+    { name: "arming_mode", type: "int", description: "布防模式（0=不改，1=Manual，2=Automatic）", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["pll","analyzer","trigger","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPLLFreqSwpParamsSpec: SkillSpec = {
+  name: "GetPLLFreqSwpParams",
+  description: "返回扫频参数：点数、周期、建立时间。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","sweep","params","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const StopPLLFreqSwpSpec: SkillSpec = {
+  name: "StopPLLFreqSwp",
+  description: "停止 PLL Frequency Sweep 模块中正在进行的扫描。",
+  parameters: [
+    { name: "modulator_index", type: "int", description: "调制器/PLL 索引（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["pll","sweep","stop","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -1836,7 +2499,63 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   SetAdditionalRealtimeSignals: SetAdditionalRealtimeSignalsSpec,
   SetAcquisitionPeriod: SetAcquisitionPeriodSpec,
   BiasPulse: BiasPulseSpec,
+  ListNanonisScripts: ListNanonisScriptsSpec,
+  GetScriptData: GetScriptDataSpec,
+  GetScriptChannels: GetScriptChannelsSpec,
+  RunNanonisScript: RunNanonisScriptSpec,
+  StopNanonisScript: StopNanonisScriptSpec,
+  DeployNanonisScript: DeployNanonisScriptSpec,
+  UndeployNanonisScript: UndeployNanonisScriptSpec,
+  LoadScriptLUT: LoadScriptLUTSpec,
+  DeployScriptLUT: DeployScriptLUTSpec,
+  SetScriptChannels: SetScriptChannelsSpec,
+  SetScriptAutosave: SetScriptAutosaveSpec,
+  LoadNanonisScript: LoadNanonisScriptSpec,
+  SaveNanonisScript: SaveNanonisScriptSpec,
+  SaveNanonisScriptLut: SaveNanonisScriptLutSpec,
+  SetZLimits: SetZLimitsSpec,
+  SetWithdrawRate: SetWithdrawRateSpec,
+  HomeZController: HomeZControllerSpec,
+  SetPiezoLimits: SetPiezoLimitsSpec,
+  SetSafeTipProps: SetSafeTipPropsSpec,
+  SetActiveZController: SetActiveZControllerSpec,
+  ConfigurePLL: ConfigurePLLSpec,
+  GetPLLStatus: GetPLLStatusSpec,
+  PLLOnOff: PLLOnOffSpec,
+  ConfigurePLLExcitation: ConfigurePLLExcitationSpec,
+  AcquirePLLFreqSweep: AcquirePLLFreqSweepSpec,
+  PLLSignalAnalyzer: PLLSignalAnalyzerSpec,
+  GetPLLAddOnOff: GetPLLAddOnOffSpec,
+  SetPLLAmpCtrlBandwidth: SetPLLAmpCtrlBandwidthSpec,
+  GetPLLAmpCtrlOnOff: GetPLLAmpCtrlOnOffSpec,
+  SetPLLAmpCtrlSetpnt: SetPLLAmpCtrlSetpntSpec,
+  GetPLLDemodFilter: GetPLLDemodFilterSpec,
+  SetPLLDemodFilter: SetPLLDemodFilterSpec,
+  GetPLLDemodHarmonic: GetPLLDemodHarmonicSpec,
+  GetPLLDemodInput: GetPLLDemodInputSpec,
+  SetPLLDemodInput: SetPLLDemodInputSpec,
+  SetPLLDemodPhasRef: SetPLLDemodPhasRefSpec,
+  GetPLLExcRange: GetPLLExcRangeSpec,
+  SetPLLFreqExcOverwrite: SetPLLFreqExcOverwriteSpec,
+  GetPLLFreqRange: GetPLLFreqRangeSpec,
+  SetPLLFreqRange: SetPLLFreqRangeSpec,
+  PLLFreqShiftAutoCenter: PLLFreqShiftAutoCenterSpec,
+  GetPLLInpCalibr: GetPLLInpCalibrSpec,
+  SetPLLInpCalibr: SetPLLInpCalibrSpec,
+  GetPLLInpProps: GetPLLInpPropsSpec,
+  SetPLLInpProps: SetPLLInpPropsSpec,
+  SetPLLInpRange: SetPLLInpRangeSpec,
+  PLLPerfectPLLUpdtZTC: PLLPerfectPLLUpdtZTCSpec,
+  SetPLLPhasCtrlBandwidth: SetPLLPhasCtrlBandwidthSpec,
+  GetPLLPhasCtrlOnOff: GetPLLPhasCtrlOnOffSpec,
+  GetPLLSignalAnlzrCh: GetPLLSignalAnlzrChSpec,
+  GetPLLSignalAnlzrFFTProps: GetPLLSignalAnlzrFFTPropsSpec,
+  GetPLLSignalAnlzrTimebase: GetPLLSignalAnlzrTimebaseSpec,
+  PLLSignalAnlzrTrigAuto: PLLSignalAnlzrTrigAutoSpec,
+  SetPLLSignalAnlzrTrig: SetPLLSignalAnlzrTrigSpec,
+  GetPLLFreqSwpParams: GetPLLFreqSwpParamsSpec,
+  StopPLLFreqSwp: StopPLLFreqSwpSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp"] as const

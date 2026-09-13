@@ -29,6 +29,10 @@ import { ATOM_TRACK } from './atom-track.js'
 import { OSCI } from './osci.js'
 import { SPECTRUM } from './spectrum.js'
 import { BIAS_SWEEP } from './bias-sweep.js'
+import { NANONIS_SCRIPT } from './nanonis-script.js'
+import { SCRIPT_FILES } from './script-files.js'
+import { LIMITS } from './limits.js'
+import { PLL } from './pll.js'
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
@@ -60,6 +64,10 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...OSCI,
   ...SPECTRUM,
   ...BIAS_SWEEP,
+  ...NANONIS_SCRIPT,
+  ...SCRIPT_FILES,
+  ...LIMITS,
+  ...PLL,
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
@@ -92,6 +100,10 @@ export * from './atom-track.js'
 export * from './osci.js'
 export * from './spectrum.js'
 export * from './bias-sweep.js'
+export * from './nanonis-script.js'
+export * from './script-files.js'
+export * from './limits.js'
+export * from './pll.js'
 export * from './tip-xy.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'

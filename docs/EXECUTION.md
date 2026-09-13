@@ -416,6 +416,92 @@ Nanonis 脚本整族，带一张 allowlist。另有两个一技能模块（`GetC
 移过来的不是「一个小技能」，是那个子系统。`StepCoarseXY` 同理——它是
 `RelocateCoarseXY` 的一层薄壳，而那个还没移，移过来就是一个永远调不通的壳。
 
+· **2.25 ✅ 批 3f —— 脚本整族 + PLL 整族 + 仪器限值，56 个技能**
+
+模块 28/165 → **32/165**，技能 151 → **207**（分母 515，过四成）。一次落四个模块：
+`nanonis_script`（11）· `nanonis_script_files`（3）· `pll`（36）· `instrument_limits`（6）。
+
+**这一批的要害是一道与别处都不同的闸。**
+
+Nanonis 的 Script 模块是实时时序器：脚本**编译后部署到 RT 控制器上**，以硬件计时运行，
+一次 TCP 往返都不发。而本仓每一道闸——安全闸、运行模式闸、中止闸、HITL——都坐在
+`safeCall` 那条路上。于是在一个跑起来的脚本内部：
+
+- 全局边界（偏压 ±10 V、设定点、Z、扫描尺寸）**不生效**；
+- **中止闸停不了它**——按下中止只是让本仓不再发命令，脚本照旧在驱动针尖；
+- 能停它的只有 `Script_Stop`（因此它在中止后的放行清单里）。
+
+⇒ 操作员维护的那份已审槽位白名单**就是**屏障，而且是仅有的一道。它有三条纪律，
+每一条都在 `script-allowlist.ts` 里成了一个可拆的函数：**fail-closed**（没文件 /
+读不动 / 格式坏 / 空清单，四件事是同一件事：一个脚本都不许跑）；
+**批准的是「这个槽位里的那个脚本」**；**本仓不写这个文件**。
+
+**而 `LoadNanonisScript` 的闸是反的。** 别处每一道都是「不在白名单上就拒」，
+只有它拒绝往**已审**槽位里装别的脚本——换掉内容会让那份批准变成一句假话。
+往**未审**槽位里装反而放行，因为 `RunNanonisScript` 只跑白名单上的：
+智能体装进去的正是它跑不了的那个。**那不是死胡同，是分工**——机械活归智能体，
+批准归人，而那本来就是白名单存在的全部理由。
+
+一条专门的变异钉着它：把 `return allow.has(slot)` 改成 `!allow.has(slot)`。
+一个字符，而整条纪律反过来。
+
+**D-SKILL-1 这一族最赤裸的一次**：`PLLSignalAnalyzer` 写的是
+`data["osci_data"] = str(rec.return_value)` —— 连形状判据都没有，**整个三段信封的
+Python repr** 直接进模型上下文。此前每一处至少还判一下形状。里面那段 `b''`
+在真机上是几千字节，而 2026-08-14 的「四个技能直接 500」正是它撑炸了 HTTP 序列化。
+
+**另外十格旧仓直接抛** `IndexError`（PLL 的读对空 body 取下标）。金样里记着
+`raised`，轨迹比对会跳过它们 —— 所以这十格由技能级测试单独钉：本仓给一个**值**，
+而且**解不出的字段不写这个键**（`null` 在 JSON 里太容易被读成「关着」）。
+
+**仪器限值那六个补完了「能读不能写」的一族**：旧仓 2026-07-13 清点发现 Z 限值、
+压电电压限值、退针速率、SafeTip 阈值**每一条都读得到、一条都设不了**。
+放宽是合法的（更高的样品、更长的针尖确实需要更多行程），
+所以做法不是禁止，而是 CONFIRM 闸 + **每一次改动连同改前/改后的值与一个显式的
+`widened` 标志留痕**。`widened` 是**三态**的：读不到改前的值时它是 `null` ——
+「没放宽」与「不知道有没有放宽」是两句话。
+
+**「一条编不过的变异，那道闸就永远验不到」第十一次**，而这一次的形状值得单记：
+`zlimits-enabled-is-read-not-inferred` 报 `inconclusive`，构建错在
+**另一行**——
+
+```
+limits.ts(132,7): error TS2367: This comparison appears to be unintentional
+because the types 'true | null' and 'false' have no overlap.
+```
+
+第 132 行是 `enabledNow === false`，而变异改的是第 121 行。原因是
+`enabledNow` 的**流类型**：三态里的 `false` 只从那一支来，拆掉它之后 TS 收窄到
+`true | null`，于是后面那句比较成了编译错。修法与前十次一样：
+**提一个有声明返回类型的函数**（`readEnabled(rec): boolean | null`），
+声明类型挡住了流收窄，变异于是编得过、而且真的变红。
+
+顺带一条自己找出来的松口子：`lutValues` 原先用裸 `Number()`，而
+`Number('0x10')` 给 **16**、Python 的 `float('0x10')` 抛 `ValueError`。
+松的那一侧不是「多认一种写法」——**是一个十六进制写法的 LUT 值被当成十进制那个数
+收下，然后由脚本以 RT 速度逐项走过去**。改成与 `readback.ts` 的 `toFloat` 同一条
+十进制正则（反方向的 `'inf'` / `'1_0'` 见 D-SI-1 / D-SI-2，同一条理由）。
+
+**④验（7 条新的技能级集成测试，共 40 条）**：`SetZLimits` 对真 stmsim 走完
+「读旧值 → 写 → 启用 → 读回」，四次调用的顺序本身是判据；`enable=false` 那一支
+确认**读回启用状态且不自动启用**；PLL 三个读在真机上**不抛**；
+而脚本那道闸**一次 TCP 都不发**就拒——这一条只有在真的能发 TCP 的地方验才算数，
+单测里「没发」和「发不出去」在调用记录上长得一样。
+
+新登记 **D-SKILL-1 补充三 · D-SKILL-3 补充 · D-DIAG-1 · D-PLL-1**
+（共 49 条，其中 2 条已销账）。
+
+**下一段**：剩下的非 numpy 大族，按「模块级完成」挑 ——
+`optional_controllers`（17）· `user_output`（14）· `optional_afm`（14）·
+`sweep`（11）· `optional_multiprobe`（11）· `optional_sweepers`（9）·
+`misc_setters`（8）· `optics_stage`（8）。`user_output` 里有那条被操作员裁决过的
+`UserOut_LimitsSet`（「硬件输出很小，接线时就会注意」），与这一批的 Z 压电限值
+正好是同一条论证的两端 —— 值得和它放在一段里讲。
+
+**仍然卡着的那一档**：`builtins.spectroscopy`（38，numpy）与所有 `paper.*` ——
+它们要 Phase 4 的数值底座（`LoadScanFrameFromFile` / `ComputeDriftVector` /
+`ParseRegions`）。那不是「挑不挑」的问题，是**先有底座**。
+
 2.15 收尾的三个也各卡在一件支撑件上：
 
 | 技能 | 缺的是 |
@@ -431,7 +517,7 @@ Nanonis 脚本整族，带一张 allowlist。另有两个一技能模块（`GetC
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2605 条测试**（另有 **125 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **33 条**对真 stmsim 的集成测试——其中 **13 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+**2850 条测试**（另有 **139 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **40 条**对真 stmsim 的集成测试——其中 **20 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用 / 锁相 8 格应用 + 13 格相位**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。

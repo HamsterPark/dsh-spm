@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 151,
+    "done": 207,
     "partial": 0,
-    "todo": 364
+    "todo": 308
   },
-  "modules_complete": 28,
+  "modules_complete": 32,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -266,8 +266,8 @@
     },
     "builtins.instrument_limits": {
       "total": 6,
-      "done": 0,
-      "complete": false
+      "done": 6,
+      "complete": true
     },
     "builtins.lattice_cell_skill": {
       "total": 1,
@@ -306,13 +306,13 @@
     },
     "builtins.nanonis_script": {
       "total": 11,
-      "done": 0,
-      "complete": false
+      "done": 11,
+      "complete": true
     },
     "builtins.nanonis_script_files": {
       "total": 3,
-      "done": 0,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "builtins.navigation": {
       "total": 1,
@@ -376,8 +376,8 @@
     },
     "builtins.pll": {
       "total": 36,
-      "done": 0,
-      "complete": false
+      "done": 36,
+      "complete": true
     },
     "builtins.qplus_amplitude": {
       "total": 2,
@@ -920,11 +920,11 @@
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "AcquirePSD": {
       "module": "builtins.acquire_psd",
@@ -1730,21 +1730,21 @@
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "ConfigurePLLExcitation": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ConfigurePiController": {
       "module": "builtins.optional_controllers",
@@ -2020,21 +2020,21 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "DeployScriptLUT": {
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "Destripe_MorphOpen": {
       "module": "paper.image_filters",
@@ -2680,151 +2680,151 @@
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLAmpCtrlOnOff": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLDemodFilter": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLDemodHarmonic": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLDemodInput": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLExcRange": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLFreqRange": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLFreqSwpParams": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLInpCalibr": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLInpProps": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLPhasCtrlOnOff": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLSignalAnlzrCh": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLSignalAnlzrFFTProps": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLSignalAnlzrTimebase": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPLLStatus": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "GetPatternCloud": {
       "module": "builtins.pattern",
@@ -3220,21 +3220,21 @@
       "module": "builtins.nanonis_script",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetScriptData": {
       "module": "builtins.nanonis_script",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetSessionPath": {
       "module": "builtins.util",
@@ -3600,11 +3600,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "IdentifyTopology_CARP": {
       "module": "paper.region_analysis",
@@ -3660,11 +3660,11 @@
       "module": "builtins.nanonis_script",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "ListOpticalDevices": {
       "module": "builtins.optics_stage",
@@ -3730,11 +3730,11 @@
       "module": "builtins.nanonis_script_files",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "LoadPiezoHysteresisFile": {
       "module": "builtins.piezo",
@@ -3760,11 +3760,11 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 9,
+      "impl": true,
+      "status": "done"
     },
     "LocateStepEdge": {
       "module": "builtins.step_edge",
@@ -4000,51 +4000,51 @@
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "PLLOnOff": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "PLLPerfectPLLUpdtZTC": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "PLLSignalAnalyzer": {
       "module": "builtins.pll",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "PLLSignalAnlzrTrigAuto": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ParseRegions": {
       "module": "builtins.scan_frame",
@@ -4300,11 +4300,11 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "RunPllPhaseSweep": {
       "module": "builtins.optional_controllers",
@@ -4380,21 +4380,21 @@
       "module": "builtins.nanonis_script_files",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SaveNanonisScriptLut": {
       "module": "builtins.nanonis_script_files",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SaveScan": {
       "module": "builtins.scan_extra",
@@ -4520,11 +4520,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetAdditionalRealtimeSignals": {
       "module": "builtins.bias_sweep",
@@ -4800,121 +4800,121 @@
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLAmpCtrlSetpnt": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLDemodFilter": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLDemodInput": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLDemodPhasRef": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLFreqExcOverwrite": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLFreqRange": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLInpCalibr": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLInpProps": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLInpRange": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLPhasCtrlBandwidth": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPLLSignalAnlzrTrig": {
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPatternCloud": {
       "module": "builtins.pattern",
@@ -4980,11 +4980,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "SetPiezoRange": {
       "module": "builtins.piezo",
@@ -5170,11 +5170,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "SetScanBuffer": {
       "module": "builtins.scan_buffer",
@@ -5200,21 +5200,21 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetScriptChannels": {
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetSessionPath": {
       "module": "builtins.util",
@@ -5390,11 +5390,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "SetZCtrlGain": {
       "module": "builtins.zctrl_gain",
@@ -5410,11 +5410,11 @@
       "module": "builtins.instrument_limits",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "SetZLimitsEnabled": {
       "module": "builtins.zcontrol",
@@ -5630,11 +5630,11 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopOpticalStage": {
       "module": "builtins.optics_stage",
@@ -5650,11 +5650,11 @@
       "module": "builtins.pll",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopPllPhaseSweep": {
       "module": "builtins.optional_controllers",
@@ -5870,11 +5870,11 @@
       "module": "builtins.nanonis_script",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "UnlockNanonisUI": {
       "module": "builtins.util",

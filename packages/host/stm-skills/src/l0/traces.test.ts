@@ -9,13 +9,16 @@
  * 金样由旧仓真实实现跑出来（`tools/spec-export/export_skill_traces.py`），
  * 脚本是**同一份**：成功、按动词首次出现逐个注错、以及第一次调用回空 body。
  */
-import { readFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { emptyHardwareState, type Skill, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'
 import { IMPLEMENTED } from './index.js'
 import { processPresetStore } from './frames.js'
 import { processLockInProfile } from './lockin-presets.js'
+import { scriptAllowlistPath } from './nanonis-script.js'
 
 interface Trace {
   /**
@@ -306,6 +309,26 @@ function withoutEnvelope(name: string, trace: string): Deviation {
   return { data: ours }
 }
 
+/**
+ * D-SKILL-1 **最赤裸的一次**：`PLLSignalAnalyzer` 把
+ * `str(rec.return_value)` 塞进 `data` —— 也就是把整个三段信封的 Python repr
+ * `"('', b'', [0.25, 0.5, 5, 1.0])"` 当成示波器数据交给模型。
+ *
+ * 期望值**从金样那串字符串里把 body 抠出来**，而不是抄一遍：旧仓哪天改了这一处，
+ * 这条登记会跟着变、或者当场变红。
+ */
+function withoutStrEnvelope(name: string, trace: string): Deviation {
+  const want = { ...(golden[name]?.traces[trace]?.data ?? {}) }
+  for (const key of ['osci_data', 'fft_data']) {
+    const s = want[key]
+    if (typeof s !== 'string') continue
+    const at = s.indexOf('[')
+    const end = s.lastIndexOf(']')
+    want[key] = at < 0 || end < at ? [] : (JSON.parse(s.slice(at, end + 1)) as unknown[])
+  }
+  return { data: want }
+}
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   // ── D-SKILL-1 的又一批：空 body 上旧仓交出整个信封 ──
   //
@@ -428,6 +451,20 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   ),
   // ── D-SKILL-1 的又一格：空 body 上旧仓把整个信封塞进 `band_rms` ──
   'GetSpectrumAnalyzerData/empty@0': withoutEnvelope('GetSpectrumAnalyzerData', 'empty@0'),
+  // ── 批 3f：空 body 上的信封又一批（PLL 的 `raw` / 限值那两格的 `before`）──
+  ...Object.fromEntries(
+    ['GetPLLDemodInput', 'GetPLLFreqSwpParams', 'GetPLLInpProps',
+      'GetPLLSignalAnlzrFFTProps', 'GetPLLSignalAnlzrTimebase',
+      'HomeZController', 'SetSafeTipProps',
+    ].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
+  ),
+  // ── D-SKILL-1 **最赤裸的一次**：`str(整个信封)` 被当成示波器数据交给模型 ──
+  ...Object.fromEntries(
+    ['ok', 'mismatch', 'empty@0'].map((t) => [
+      `PLLSignalAnalyzer/${t}`,
+      withoutStrEnvelope('PLLSignalAnalyzer', t),
+    ]),
+  ),
 }
 
 /**
@@ -473,7 +510,15 @@ function stripVolatile(v: unknown): unknown {
 const STAMP_RE = /(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)/g
 function scrubPaths(v: unknown): unknown {
   if (typeof v !== 'string') return v
-  return v.split(process.cwd()).join('<project-root>').replace(STAMP_RE, '$1<stamp>')
+  return v
+    .split(process.cwd())
+    .join('<project-root>')
+    // 脚本白名单的夹具住在一个临时目录里（**不往仓库里写文件**），
+    // 而导出那侧的项目根也是临时目录——两边抹成同一个占位符，
+    // 于是 `allowlist_file` 里**是判据的那部分**（`config/<文件名>`）照旧逐字比。
+    .split(FIXTURE_ROOT)
+    .join('<project-root>')
+    .replace(STAMP_RE, '$1<stamp>')
 }
 
 /**
@@ -506,10 +551,45 @@ const NEEDS_PRESET = new Set(['ApplyZCtrlPreset', 'ListZCtrlPresets'])
  */
 const LOCKIN_FIXTURE = { modFreqHz: 973.0, modAmpV: 0.02, xSignalIndex: null, ySignalIndex: null }
 
+/**
+ * 已审脚本槽位的白名单夹具 —— **住在磁盘上，因为真的那一份也住在磁盘上**。
+ *
+ * 空清单是出厂状态（fail-closed），所以不摆这一份的话，脚本那 14 个技能全都落在
+ * 同一句拒绝上。写进一个**临时目录**而不是仓库：一次跑测试不该在工作树里留下文件，
+ * 而这条路径本身在比对前会被抹成 `<project-root>`（导出那侧也是临时目录）。
+ *
+ * 两条刻意不同：槽位 3 允许写 LUT 且声明了范围 `[0, 10]`，槽位 5 不允许 ——
+ * 「白名单认的是**这个槽位里的那个脚本**」只有在两者并存时才看得出来。
+ */
+const FIXTURE_ROOT = mkdtempSync(join(tmpdir(), 'dsh-spm-traces-'))
+const ALLOWLIST_FIXTURE = {
+  allowed_slots: [
+    {
+      slot: 3, name: '延时扫描', description: '泵浦-探测延时扫描',
+      allow_lut_write: true, lut_min: 0.0, lut_max: 10.0, notes: 'LUT 单位 mm',
+    },
+    { slot: 5, name: '针尖成形序列', description: '固定脉冲串', allow_lut_write: false },
+  ],
+}
+const NEEDS_SCRIPTS = new Set([
+  'ListNanonisScripts', 'RunNanonisScript', 'DeployNanonisScript',
+  'LoadScriptLUT', 'LoadNanonisScript',
+])
+const ALLOWLIST_PATH = join(FIXTURE_ROOT, 'config', 'nanonis_scripts.json')
+mkdirSync(join(FIXTURE_ROOT, 'config'), { recursive: true })
+scriptAllowlistPath.current = (): string => ALLOWLIST_PATH
+
 function resetProcessState(skillName: string): void {
   processPresetStore.clear()
   if (NEEDS_PRESET.has(skillName)) processPresetStore.upsert(PRESET_FIXTURE)
   processLockInProfile.current = LOCKIN_FIXTURE
+  // 「文件不存在 = 空清单」是那条 fail-closed 判据自己的一支，所以这里**删文件**
+  // 而不是写一个空清单：两者在语义上是同一件事，而走真路径才验得到它。
+  if (NEEDS_SCRIPTS.has(skillName)) {
+    writeFileSync(ALLOWLIST_PATH, JSON.stringify(ALLOWLIST_FIXTURE), 'utf8')
+  } else {
+    rmSync(ALLOWLIST_PATH, { force: true })
+  }
 }
 
 const names = Object.keys(IMPLEMENTED).sort()

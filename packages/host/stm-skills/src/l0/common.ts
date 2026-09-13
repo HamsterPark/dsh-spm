@@ -25,7 +25,7 @@
  * 我们这一侧一律走 `scalarFloat`：**取不出数就是 `null`**。与 D-STATE-1 同一个
  * 判据、同一个理由——一个「读数」若不表示测量值，就不该以读数的身份存在。
  */
-import { pyFloatRepr, scalarFloat, type SkillCallRecord, type SkillResultLike } from 'dsh-spm-kernel'
+import { formatG, pyFloatRepr, scalarFloat, type SkillCallRecord, type SkillResultLike } from 'dsh-spm-kernel'
 
 /** 回包的 body。 */
 export function body(rec: SkillCallRecord): readonly unknown[] {
@@ -129,4 +129,14 @@ export function firstTwoFloats(rec: SkillCallRecord): readonly [number, number] 
  */
 export function pyStr(v: unknown): string {
   return typeof v === 'number' ? pyFloatRepr(v) : String(v)
+}
+
+/**
+ * Python 的 `f"{v:g}"`（默认 6 位有效数字）。
+ *
+ * `formatG(v, 6)` 的常用包装 —— 这一族报文里 `{x:g}` 出现得够多，
+ * 每处再写一遍 `6` 只是给「默认精度是几位」多开一个漂移的机会。
+ */
+export function formatG6(v: number): string {
+  return formatG(v, 6)
 }
