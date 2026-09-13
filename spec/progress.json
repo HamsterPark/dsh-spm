@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 110,
-    "partial": 0,
-    "todo": 405
+    "done": 133,
+    "partial": 3,
+    "todo": 379
   },
-  "modules_complete": 19,
+  "modules_complete": 22,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -176,8 +176,8 @@
     },
     "builtins.datalog": {
       "total": 6,
-      "done": 0,
-      "complete": false
+      "done": 6,
+      "complete": true
     },
     "builtins.deltaf_curve": {
       "total": 1,
@@ -276,8 +276,8 @@
     },
     "builtins.lockin": {
       "total": 14,
-      "done": 0,
-      "complete": false
+      "done": 14,
+      "complete": true
     },
     "builtins.lockin_presets_skills": {
       "total": 3,
@@ -286,8 +286,8 @@
     },
     "builtins.marks": {
       "total": 3,
-      "done": 0,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "builtins.misc_setters": {
       "total": 8,
@@ -1020,11 +1020,11 @@
       "module": "builtins.lockin_presets_skills",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
+      "traces": 3,
       "impl": false,
-      "status": "todo"
+      "status": "partial"
     },
     "ApplyZCtrlPreset": {
       "module": "builtins.zctrl_presets_skills",
@@ -1310,11 +1310,11 @@
       "module": "builtins.lockin_presets_skills",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
+      "traces": 1,
       "impl": false,
-      "status": "todo"
+      "status": "partial"
     },
     "AutoProcessScanBatch": {
       "module": "builtins.scan_prep",
@@ -1690,21 +1690,21 @@
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureLockInDemod": {
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureLockInSweep": {
       "module": "builtins.sweep",
@@ -2080,11 +2080,11 @@
       "module": "builtins.marks",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "EmergencyRetract": {
       "module": "builtins.tip",
@@ -2110,11 +2110,11 @@
       "module": "builtins.marks",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ExecuteScanPlan": {
       "module": "composite.execute_scan_plan",
@@ -2400,71 +2400,71 @@
       "module": "builtins.datalog",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodHPFilter": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodHarmonic": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodLPFilter": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodPhasReg": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodPhase": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDemodSignal": {
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDigitalLineTTL": {
       "module": "builtins.user_output",
@@ -2590,11 +2590,11 @@
       "module": "builtins.lockin",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 12,
+      "impl": true,
+      "status": "done"
     },
     "GetLockInSweepLimits": {
       "module": "builtins.sweep",
@@ -3330,11 +3330,11 @@
       "module": "builtins.datalog",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetTemperature": {
       "module": "builtins.temperature",
@@ -3650,11 +3650,11 @@
       "module": "builtins.lockin_presets_skills",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
+      "traces": 1,
       "impl": false,
-      "status": "todo"
+      "status": "partial"
     },
     "ListNanonisScripts": {
       "module": "builtins.nanonis_script",
@@ -3680,11 +3680,11 @@
       "module": "builtins.marks",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ListSignalChannels": {
       "module": "builtins.signals",
@@ -4600,21 +4600,21 @@
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetDemodSyncFilter": {
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetDigitalLineStatus": {
       "module": "builtins.user_output",
@@ -4740,31 +4740,31 @@
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetModPhasReg": {
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetModSignal": {
       "module": "builtins.lockin",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetMotorFreqAmp": {
       "module": "builtins.motor",
@@ -5520,11 +5520,11 @@
       "module": "builtins.datalog",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "StartRfGenerator": {
       "module": "builtins.optional_sweepers",
@@ -5550,11 +5550,11 @@
       "module": "builtins.datalog",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "StartWaveform": {
       "module": "builtins.function_generator",
@@ -5590,11 +5590,11 @@
       "module": "builtins.datalog",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopFolMe": {
       "module": "builtins.folme",
@@ -5710,11 +5710,11 @@
       "module": "builtins.datalog",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopWaveform": {
       "module": "builtins.function_generator",

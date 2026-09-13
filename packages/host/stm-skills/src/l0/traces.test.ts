@@ -87,6 +87,14 @@ function fakeCtx(
   const echo = new Map<string, unknown[]>()
   const safeCall = (method: string, ...args: unknown[]): Promise<SkillCallRecord> => {
     const i = calls.length
+    // **预算，不是优化。** 这个夹具的 `sleep` 返回的是已决议的 Promise（微任务），
+    // 于是一个转不出来的轮询会把事件循环填满，而 vitest 的超时是宏任务、永远轮不上
+    // ——那一趟既不红也不绿，它**挂住**。挂住与通过在退出码上分不开。
+    //
+    // 2026-09-13 变异演练当场撞到：拆掉进针超时那道闸之后这里转了 277 秒，
+    // 撞上演练自己的 120 秒上限，一条本该变红的变异被报成「超时失败」。
+    // 金样里最长的一趟也就几百次调用，5000 是它的十几倍。
+    if (i >= 5000) throw new Error(`轨迹夹具：调用数超过预算（${i}）—— 轮询没有出口`)
     calls.push({ verb: method, args })
     if (i === opts.errorAt) {
       return Promise.resolve({ method, args, error: '模拟故障：连接被对端关闭' })
@@ -263,7 +271,11 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   ...Object.fromEntries(
     ['GetSignalsAddRT', 'GetPointShootProps', 'GetPiezoHVAInfo', 'GetPiezoHVAStatusLED',
       'GetPiezoConfig', 'GetPllConfig', 'GetScanPatternConfig', 'GetSpectroscopyConfig',
-      'GetMiscInstrumentConfig'].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
+      'GetMiscInstrumentConfig',
+      // 锁相解调侧那六个读的 `raw` 兜底也是同一个形状
+      'GetDemodSignal', 'GetDemodPhase', 'GetDemodPhasReg', 'GetDemodHarmonic',
+      'GetDemodLPFilter', 'GetDemodHPFilter',
+    ].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
   ),
   // `GetTipShaperConfig` 还多一句：具名要求恰好 11 个值，而旧仓数到的是**信封的
   // 三段**，我们数到的是**空 body 的 0 个**。那句报文里印着这个数。

@@ -1,4 +1,138 @@
 {
+  "ApplyLockInPreset": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "applied": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "configure_result": {},
+          "name": "didv",
+          "notes": [],
+          "phase_deg": null,
+          "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+          "readback": {},
+          "readback_verified": false,
+          "sources": {
+            "amplitude_v": "仪器档案 lockin_mod_amp_v",
+            "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+          },
+          "unset": [],
+          "usable": true,
+          "values": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0
+          },
+          "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+        },
+        "error": "下发后回读不一致:frequency_hz: 读不回来(回包里没有 frequency_hz);amplitude_v: 读不回来(回包里没有 amplitude)。**不要按已设置继续**。",
+        "runs": [
+          {
+            "params": {
+              "amplitude_v": 0.02,
+              "frequency_hz": 973.0,
+              "mod_on": true
+            },
+            "skill": "ConfigureLockIn"
+          },
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "applied": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "configure_result": {},
+          "name": "didv",
+          "notes": [],
+          "phase_deg": null,
+          "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+          "sources": {
+            "amplitude_v": "仪器档案 lockin_mod_amp_v",
+            "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+          },
+          "unset": [],
+          "usable": true,
+          "values": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0
+          },
+          "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+        },
+        "error": "下发 lock-in 参数组失败:模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "amplitude_v": 0.02,
+              "frequency_hz": 973.0,
+              "mod_on": true
+            },
+            "skill": "ConfigureLockIn"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@1": {
+        "calls": [],
+        "data": {
+          "applied": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0,
+            "mod_on": true
+          },
+          "configure_result": {},
+          "name": "didv",
+          "notes": [],
+          "phase_deg": null,
+          "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+          "readback": {},
+          "readback_verified": false,
+          "sources": {
+            "amplitude_v": "仪器档案 lockin_mod_amp_v",
+            "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+          },
+          "unset": [],
+          "usable": true,
+          "values": {
+            "amplitude_v": 0.02,
+            "frequency_hz": 973.0
+          },
+          "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+        },
+        "error": "下发后回读不一致:回读命令失败:模拟故障：子技能失败;frequency_hz: 读不回来(回包里没有 frequency_hz);amplitude_v: 读不回来(回包里没有 amplitude)。**不要按已设置继续**。",
+        "runs": [
+          {
+            "params": {
+              "amplitude_v": 0.02,
+              "frequency_hz": 973.0,
+              "mod_on": true
+            },
+            "skill": "ConfigureLockIn"
+          },
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ApplyZCtrlPreset": {
     "params": {
       "preset": "spec-export"
@@ -1985,6 +2119,21 @@
       }
     }
   },
+  "AutoPhase": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "x_signal_index": null,
+          "y_signal_index": null
+        },
+        "error": "不知道解调 X/Y 在哪一路 RT 信号上 —— **拒绝对齐相位**。请传 x_signal_index / y_signal_index,或在仪器档案里填 lockin_x_signal_index / lockin_y_signal_index。(不猜:猜错读到的是另一路信号,而算出来的角度看上去一样合理,然后它会被写进硬件。)",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "CheckScanForCrash": {
     "params": {},
     "traces": {
@@ -2236,6 +2385,295 @@
           "status": "ok"
         },
         "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureLockIn": {
+    "params": {
+      "mod_on": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {
+          "amplitude_v": null,
+          "amplitude_written": false,
+          "frequency_hz": null,
+          "frequency_written": false,
+          "mod_on": true,
+          "phase_deg": null,
+          "phase_written": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "off": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {
+          "amplitude_v": null,
+          "amplitude_written": false,
+          "frequency_hz": null,
+          "frequency_written": false,
+          "mod_on": false,
+          "phase_deg": null,
+          "phase_written": false
+        },
+        "error": "",
+        "params": {
+          "mod_on": false
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {
+          "amplitude_v": null,
+          "amplitude_written": false,
+          "frequency_hz": null,
+          "frequency_written": false,
+          "mod_on": true,
+          "phase_deg": null,
+          "phase_written": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "with_values": {
+        "calls": [
+          {
+            "args": [
+              1,
+              973.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqSet"
+          },
+          {
+            "args": [
+              1,
+              0.02
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpSet"
+          },
+          {
+            "args": [
+              1,
+              90.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {
+          "amplitude_v": 0.02,
+          "amplitude_written": true,
+          "frequency_hz": 973.0,
+          "frequency_written": true,
+          "mod_on": true,
+          "phase_deg": 90.0,
+          "phase_written": true
+        },
+        "error": "",
+        "params": {
+          "amplitude_v": 0.02,
+          "frequency_hz": 973.0,
+          "mod_on": true,
+          "phase_deg": 90.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "zero_amplitude": {
+        "calls": [
+          {
+            "args": [
+              1,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffSet"
+          }
+        ],
+        "data": {
+          "amplitude_v": 0.0,
+          "amplitude_written": true,
+          "frequency_hz": null,
+          "frequency_written": false,
+          "mod_on": true,
+          "phase_deg": null,
+          "phase_written": false
+        },
+        "error": "",
+        "params": {
+          "amplitude_v": 0.0,
+          "mod_on": true
+        },
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureLockInDemod": {
+    "params": {},
+    "traces": {
+      "lp_only": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              100.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodLPFilterSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1
+        },
+        "error": "",
+        "params": {
+          "lp_cutoff_hz": 100.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [],
+        "data": {
+          "demodulator": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "phase": {
+        "calls": [
+          {
+            "args": [
+              1,
+              45.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1
+        },
+        "error": "",
+        "params": {
+          "phase_deg": 45.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "signal_and_harmonic": {
+        "calls": [
+          {
+            "args": [
+              1,
+              24
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSignalSet"
+          },
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodHarmonicSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1
+        },
+        "error": "",
+        "params": {
+          "harmonic": 1,
+          "signal_index": 24
+        },
         "success": true,
         "summary": ""
       }
@@ -2864,6 +3302,143 @@
       }
     }
   },
+  "DrawScanMarker": {
+    "params": {
+      "kind": "point",
+      "x_m": 1e-09,
+      "y_m": 1e-09
+    },
+    "traces": {
+      "bad_kind": {
+        "calls": [],
+        "data": {},
+        "error": "kind 必须是 'point' 或 'line'，收到 'square'",
+        "params": {
+          "kind": "square",
+          "x_m": 1e-09,
+          "y_m": 1e-09
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              "",
+              16711680
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointDraw"
+          }
+        ],
+        "data": {
+          "kind": "point",
+          "text": "",
+          "x_m": 1e-09,
+          "y_m": 1e-09
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              "",
+              16711680
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Marks_PointDraw"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "line": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              2e-09,
+              3e-09,
+              16711680
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_LineDraw"
+          }
+        ],
+        "data": {
+          "end": [
+            2e-09,
+            3e-09
+          ],
+          "kind": "line",
+          "start": [
+            1e-09,
+            1e-09
+          ]
+        },
+        "error": "",
+        "params": {
+          "kind": "line",
+          "x2_m": 2e-09,
+          "x_m": 1e-09,
+          "y2_m": 3e-09,
+          "y_m": 1e-09
+        },
+        "success": true,
+        "summary": ""
+      },
+      "line_without_end": {
+        "calls": [],
+        "data": {},
+        "error": "kind='line' 需要 x2_m 与 y2_m（线的终点）",
+        "params": {
+          "kind": "line",
+          "x_m": 1e-09,
+          "y_m": 1e-09
+        },
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              1e-09,
+              "",
+              16711680
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointDraw"
+          }
+        ],
+        "data": {
+          "kind": "point",
+          "text": "",
+          "x_m": 1e-09,
+          "y_m": 1e-09
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "EmergencyRetract": {
     "params": {},
     "traces": {
@@ -3125,6 +3700,107 @@
         ],
         "data": {
           "enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "EraseScanMarkers": {
+    "params": {
+      "index": 4999,
+      "kind": "point"
+    },
+    "traces": {
+      "bad_kind": {
+        "calls": [],
+        "data": {},
+        "error": "kind 必须是 'point' 或 'line'，收到 'square'",
+        "params": {
+          "index": 4999,
+          "kind": "square"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              4999
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsErase"
+          }
+        ],
+        "data": {
+          "action": "erased",
+          "index": 4999,
+          "kind": "point"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              4999
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Marks_PointsErase"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "hide_only": {
+        "calls": [
+          {
+            "args": [
+              4999,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsVisibleSet"
+          }
+        ],
+        "data": {
+          "action": "hidden",
+          "index": 4999,
+          "kind": "point"
+        },
+        "error": "",
+        "params": {
+          "hide_only": true,
+          "index": 4999,
+          "kind": "point"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              4999
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsErase"
+          }
+        ],
+        "data": {
+          "action": "erased",
+          "index": 4999,
+          "kind": "point"
         },
         "error": "",
         "success": true,
@@ -3493,6 +4169,618 @@
       }
     }
   },
+  "GetDataLogStatus": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsGet"
+          }
+        ],
+        "data": {
+          "channels": [
+            3,
+            [
+              2,
+              3
+            ]
+          ],
+          "props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            8,
+            1.75,
+            10,
+            2.25
+          ],
+          "status": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_ChsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsGet"
+          }
+        ],
+        "data": {
+          "channels": [],
+          "props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            8,
+            1.75,
+            10,
+            2.25
+          ],
+          "status": [
+            3,
+            0.5,
+            5,
+            6,
+            1.25,
+            8,
+            1.75,
+            10,
+            2.25,
+            12
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_PropsGet"
+          }
+        ],
+        "data": {
+          "channels": [
+            3,
+            [
+              2,
+              3
+            ]
+          ],
+          "props": [],
+          "status": [
+            3,
+            0.5,
+            5,
+            6,
+            1.25,
+            8,
+            1.75,
+            10,
+            2.25,
+            12
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsGet"
+          }
+        ],
+        "data": {
+          "channels": [
+            3,
+            [
+              2,
+              3
+            ]
+          ],
+          "props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            8,
+            1.75,
+            10,
+            2.25
+          ],
+          "status": [
+            3,
+            0.5,
+            5,
+            6,
+            1.25,
+            8,
+            1.75,
+            10,
+            2.25,
+            12
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodHPFilter": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodHPFilterGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodHPFilterGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodHPFilterGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "hp_cutoff_hz": 0.5,
+          "hp_filter_order": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodHarmonic": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodHarmonicGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodHarmonicGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodHarmonicGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "harmonic": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodLPFilter": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodLPFilterGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodLPFilterGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodLPFilterGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "lp_cutoff_hz": 0.5,
+          "lp_filter_order": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodPhasReg": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "phase_register_index": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodPhase": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetDemodSignal": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSignalGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodSignalGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSignalGet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "signal_index": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetDriftCompensation": {
     "params": {},
     "traces": {
@@ -3665,6 +4953,1131 @@
           "max_age_s": 300,
           "path": null,
           "searched_dirs": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetLockInConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          }
+        ],
+        "raised": "IndexError: list index out of range"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": null,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": null,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": null,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": null,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@8": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": null,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@9": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": null,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModAmpGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterGet"
+          }
+        ],
+        "data": {
+          "amplitude": 0.25,
+          "demod_phase_register": 3,
+          "demod_rt_signals": 3,
+          "demod_sync_filter": 3,
+          "demodulator": 1,
+          "frequency_hz": 0.25,
+          "harmonic": 3,
+          "mod_on": true,
+          "mod_phase_register": 3,
+          "modulated_signal": 3,
+          "modulator": 1,
+          "phase_deg": 0.25
         },
         "error": "",
         "success": true,
@@ -11782,6 +14195,59 @@
       }
     }
   },
+  "GetTcpLogStatus": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_StatusGet"
+          }
+        ],
+        "data": {
+          "status": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TCPLog_StatusGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_StatusGet"
+          }
+        ],
+        "data": {
+          "status": [
+            3
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetTipLift": {
     "params": {},
     "traces": {
@@ -13697,6 +16163,175 @@
           "shape": [
             2,
             2
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ListLockInPresets": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "presets": [
+            {
+              "name": "didv",
+              "notes": [],
+              "phase_deg": null,
+              "phase_note": "调制侧 phase 永不下发:本机 Modulate 区没有该字段,TCP 写恒拒(写同值也拒)。相位在解调侧 Ref. Phase。",
+              "sources": {
+                "amplitude_v": "仪器档案 lockin_mod_amp_v",
+                "frequency_hz": "仪器档案 lockin_mod_freq_hz"
+              },
+              "unset": [],
+              "usable": true,
+              "values": {
+                "amplitude_v": 0.02,
+                "frequency_hz": 973.0
+              },
+              "why": "将下发 frequency_hz=973.0、amplitude_v=0.02"
+            }
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ListScanMarkers": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_LinesGet"
+          }
+        ],
+        "data": {
+          "lines": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "points": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Marks_PointsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_LinesGet"
+          }
+        ],
+        "data": {
+          "lines": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "points": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Marks_LinesGet"
+          }
+        ],
+        "data": {
+          "lines": [],
+          "points": [
+            3,
+            0.5,
+            0.75,
+            6,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_PointsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Marks_LinesGet"
+          }
+        ],
+        "data": {
+          "lines": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "points": [
+            3,
+            0.5,
+            0.75,
+            6,
+            1.25,
+            1.5,
+            1.75
           ]
         },
         "error": "",
@@ -26149,6 +28784,134 @@
       }
     }
   },
+  "SetDemodRTSignals": {
+    "params": {
+      "rt_signals": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "rt_signals": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodRTSignalsSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "rt_signals": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetDemodSyncFilter": {
+    "params": {
+      "sync_filter_on": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "sync_filter_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodSyncFilterSet"
+          }
+        ],
+        "data": {
+          "demodulator": 1,
+          "sync_filter_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetDriftCompensation": {
     "params": {
       "enable": true
@@ -26337,6 +29100,198 @@
         "data": {
           "home_position_m": 5e-07,
           "rel_or_abs": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetModHarmonic": {
+    "params": {
+      "harmonic": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicSet"
+          }
+        ],
+        "data": {
+          "harmonic": 1,
+          "modulator": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModHarmonicSet"
+          }
+        ],
+        "data": {
+          "harmonic": 1,
+          "modulator": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetModPhasReg": {
+    "params": {
+      "phase_register_index": 4
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegSet"
+          }
+        ],
+        "data": {
+          "modulator": 1,
+          "phase_register_index": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              4
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModPhasRegSet"
+          }
+        ],
+        "data": {
+          "modulator": 1,
+          "phase_register_index": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetModSignal": {
+    "params": {
+      "signal_index": 63
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalSet"
+          }
+        ],
+        "data": {
+          "modulator": 1,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_ModSignalSet"
+          }
+        ],
+        "data": {
+          "modulator": 1,
+          "signal_index": 63
         },
         "error": "",
         "success": true,
@@ -28177,6 +31132,264 @@
       }
     }
   },
+  "StartDataLog": {
+    "params": {
+      "channels": "0,14",
+      "duration_s": 10.0
+    },
+    "traces": {
+      "bad_channels": {
+        "calls": [],
+        "data": {},
+        "error": "channels 解析失败：'spec-export'（应为逗号分隔的索引）",
+        "params": {
+          "channels": "spec-export",
+          "duration_s": 10.0
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsSet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              0,
+              10.0,
+              1,
+              "mast_log",
+              "",
+              0,
+              []
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Start"
+          }
+        ],
+        "data": {
+          "averaging": 1,
+          "basename": "mast_log",
+          "channels": [
+            0,
+            14
+          ],
+          "duration_s": 10.0,
+          "mode": "timed"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          }
+        ],
+        "data": {},
+        "error": "DataLog_Open failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_ChsSet"
+          }
+        ],
+        "data": {},
+        "error": "DataLog_ChsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsSet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              0,
+              10.0,
+              1,
+              "mast_log",
+              "",
+              0,
+              []
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "DataLog_PropsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsSet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              0,
+              10.0,
+              1,
+              "mast_log",
+              "",
+              0,
+              []
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_Start"
+          }
+        ],
+        "data": {},
+        "error": "DataLog_Start failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_ChsSet"
+          },
+          {
+            "args": [
+              2,
+              0,
+              0,
+              10.0,
+              1,
+              "mast_log",
+              "",
+              0,
+              []
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Start"
+          }
+        ],
+        "data": {
+          "averaging": 1,
+          "basename": "mast_log",
+          "channels": [
+            0,
+            14
+          ],
+          "duration_s": 10.0,
+          "mode": "timed"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "StartScan": {
     "params": {},
     "traces": {
@@ -28492,6 +31705,185 @@
       }
     }
   },
+  "StartTcpLog": {
+    "params": {
+      "channels": "0,14"
+    },
+    "traces": {
+      "bad_channels": {
+        "calls": [],
+        "data": {},
+        "error": "channels 解析失败：'spec-export'",
+        "params": {
+          "channels": "spec-export"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              2,
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_ChsSet"
+          },
+          {
+            "args": [
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_OversamplSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_Start"
+          }
+        ],
+        "data": {
+          "channels": [
+            0,
+            14
+          ],
+          "oversampling": 10
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              2,
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TCPLog_ChsSet"
+          }
+        ],
+        "data": {},
+        "error": "TCPLog_ChsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              2,
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_ChsSet"
+          },
+          {
+            "args": [
+              10
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TCPLog_OversamplSet"
+          }
+        ],
+        "data": {},
+        "error": "TCPLog_OversamplSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              2,
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_ChsSet"
+          },
+          {
+            "args": [
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_OversamplSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TCPLog_Start"
+          }
+        ],
+        "data": {},
+        "error": "TCPLog_Start failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              2,
+              [
+                0,
+                14
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_ChsSet"
+          },
+          {
+            "args": [
+              10
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_OversamplSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_Start"
+          }
+        ],
+        "data": {
+          "channels": [
+            0,
+            14
+          ],
+          "oversampling": 10
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "StopAutoApproach": {
     "params": {},
     "traces": {
@@ -28538,6 +31930,57 @@
             "error": "",
             "kwargs": {},
             "verb": "AutoApproach_OnOffSet"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "StopDataLog": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "DataLog_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "DataLog_Stop"
           }
         ],
         "data": {
@@ -28704,6 +32147,57 @@
         ],
         "data": {
           "scan_running": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "StopTcpLog": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TCPLog_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TCPLog_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
         },
         "error": "",
         "success": true,

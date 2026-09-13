@@ -309,9 +309,55 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 
 新登记 **D-SKILL-1 补充 · D-JSON-1**（共 37 条，其中 2 条已销账）。
 
-**下一段**：批 3b 真正剩下的那几个（`LoadScanFrameFromFile` / `ComputeDriftVector` /
-`ParseRegions` 卡在 Phase 4 的 numerics 上；`WatchScanLines` 要 GraphExecutor，
-那个已经有了），以及 lockin 14 / datalog 6 / marks 3 这三族。
+· **2.23 ✅ 批 3d —— 锁相整族 + datalog + marks，三个模块收口**
+
+23 个技能，模块 19/165 → **22/165**，技能 110 → **133**。
+锁相是本仓第一个完整移植的**测量子系统**——dI/dV 的全部前提都在它上面。
+
+**贯穿这一族的那句话**：**调制错了信号，曲线依然完美**。一个调制在错误信号上的
+锁相会产出一条完全干净、形状完全像 dI/dV 的曲线，而图上没有任何地方看得出不对。
+所以这一族里最要紧的不是那些 setter，是 `GetLockInConfig` 里的 `modulated_signal`
+**能不能读回来**——旧仓 2026-07-13 之前只有 set 没有 get，于是每一次
+「锁相已配置好」都是这个技能把自己的请求又念了一遍给自己听。
+
+三条判据：
+
+| | |
+|---|---|
+| **先设值，最后才开调制** | 旧仓原先先开，于是隧道结被上一次残留的幅度/频率激励一小段时间（2026-07-03） |
+| **幅度 0 要写得下去** | 那是「开之前先把它变安全」；旧仓那版的 `> 0` 守卫让这件事做不到 |
+| **没写的字段报 `null`** | 旧仓那版无条件报 `phase_deg: 0.0`——一个宣称了某个相位、而那个寄存器它根本没碰过的返回值 |
+
+还有一条是**模型那条路专属**的：`ConfigureLockInDemod` 判「给了没有」用
+`params[k] != null` 而**不是** `k in params`——schema 会把每个可选字段都实例化出来，
+没设的以 `null` 到达，用 `in` 判的话每一个都「给了」，于是把 `null` 送进硬件 setter。
+
+**两处通道解析刻意不同**（D-CHANNELS-1）：撞针检测「认不出就跳过」，数据记录
+「有一个不是整数就整串作废」。登记它是因为「两个看起来一样的函数行为不一样」
+正是将来重构时最想合并的东西——而合并了就会**默默丢掉一路日志通道，几小时后
+才在数据里发现**。
+
+**旧仓自己替 D-READBACK-1 作了证**：`ApplyLockInPreset`（还没落）的源码里写着
+「**用相等比较会把每一次成功写入都判成失败**,这条钉子在测试里立着」——
+与我 09-13 在真 stmsim 上撞到的是同一件事，而那时我还没读到这段。
+
+**「挂住 ≠ 通过」第三次，这次挂住的是演练自己**：整批跑完
+`approach-timeout-not-success` 报失败，但不是「拆掉也没人喊」，是
+**Test timed out in 120000ms** —— 那一条跑了 **277 秒**（别的平均 7 秒）。
+拆掉进针超时那道闸之后轮询转不出来，而 `traces.test.ts` 的夹具是本仓**最后一个
+没有调用预算**的：它的 `sleep` 返回已决议的 Promise（微任务），死循环把事件循环填满，
+vitest 的超时是宏任务、永远轮不上。加 5000 次预算后 **4.73 秒且真的变红**。
+
+表现形式值得记：**一条本该变红的变异被报成了「超时失败」**。三判据挡住了它不被当成
+绿的，但说不出真正的原因——那 277 秒与 7 秒的对比是唯一线索。
+**预算不是优化，是让「挂住」说得出话。**
+
+新登记 **D-SKILL-1 补充二 · D-LOCKIN-1 · D-CHANNELS-1**（共 40 条，其中 2 条已销账）。
+
+**下一段**：锁相参数组三件套（`ListLockInPresets` / `ApplyLockInPreset` / `AutoPhase`）。
+金样已经录好，实现没落 ⇒ 进度表上是 **3 个 `partial`**，这正是那一档该表示的状态。
+`AutoPhase` 自己就够一个课时：噪声底判据（判不了就不写）、缺陷⑪ 的收尾关调制、
+以及中止时**什么都不写**的语义。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -328,7 +374,7 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2342 条测试**（另有 **94 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+**2456 条测试**（另有 **102 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。

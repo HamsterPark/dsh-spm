@@ -838,4 +838,74 @@ function physicallyAbsurdViolations_unused(`,
     replace: '  if (props.length > TIP_SHAPER_PROPS.length) {',
     scope: 'packages/host/stm-skills',
   },
+  // ── 批 3d：锁相与留痕 ──────────────────────────────────────────────
+  {
+    id: 'lockin-values-before-modulation',
+    why: '先设频率/幅度/相位，最后才开调制。倒过来 ⇒ 隧道结被上一次残留的幅度激励一小段时间（2026-07-03 复盘）',
+    file: `${SK}/l0/lockin.ts`,
+    // 把开关**提到最前面**（旧仓那一版就是这样），于是调制会先带着上一次残留的
+    // 幅度/频率打开一小段时间。单行替换，编得过，而且正是那个缺陷的形状。
+    find: "    const modOn = params['mod_on'] === true",
+    replace:
+      "    const modOn = params['mod_on'] === true; await ctx.safeCall('LockIn_ModOnOffSet', 1, modOn ? 1 : 0)",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'lockin-zero-amplitude-is-a-value',
+    why: '幅度 0 是「开之前先把它变安全」，必须写得下去。拆掉 ⇒ 这件事做不到，而调用方以为做到了',
+    file: `${SK}/l0/lockin.ts`,
+    find: "    if (given(params, 'amplitude_v') && n(params, 'amplitude_v') >= 0) {",
+    replace: "    if (given(params, 'amplitude_v') && n(params, 'amplitude_v') > 0) {",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'lockin-unwritten-field-is-null',
+    why: '没写的字段报 null。拆掉 ⇒ 返回值宣称了一个相位，而那个寄存器它根本没碰过',
+    file: `${SK}/l0/lockin.ts`,
+    find: "      phase_deg: phaseWritten ? n(params, 'phase_deg') : null,",
+    replace: "      phase_deg: n(params, 'phase_deg'),",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'lockin-demod-null-means-unset',
+    why: '模型那条路上每个可选字段都以 null 到达。用 `in` 判 ⇒ 把 null 送进硬件 setter（真机上是写坏的写入）',
+    file: `${SK}/l0/lockin.ts`,
+    find: '  p[k] !== undefined && p[k] !== null',
+    replace: '  k in p',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'lockin-readback-unreadable-is-null',
+    why: '六个读回字段读不到时给 null。拆掉 ⇒ 0 被当成读数，而 modulated_signal 读错会让一条完全干净的曲线不是 dI/dV',
+    file: `${SK}/l0/lockin.ts`,
+    find: '      data[key] = failed(rec) ? null : scalarInt(rec.values ?? null)',
+    replace: '      data[key] = scalarInt(rec.values ?? null) ?? 0',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'datalog-channels-are-strict',
+    why: '记的是哪几路，一个记号不是整数就整串作废。拆掉 ⇒ 默默丢掉一路，日志里少一个通道而没人知道',
+    file: `${SK}/l0/datalog-marks.ts`,
+    find: '    if (!/^[+-]?\\d+$/.test(t)) return null',
+    replace: '    if (!/^[+-]?\\d+$/.test(t)) continue',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'datalog-timed-vs-continuous',
+    why: '给了时长就是定时，没给才是连续。拆掉 ⇒ 一次本该定时的日志一直写到磁盘满',
+    file: `${SK}/l0/datalog-marks.ts`,
+    // `void MODE_TIMED` 让它仍被引用 —— 直接删掉那一支会让常量变成未使用、编不过。
+    find: '    const mode = total > 0 ? MODE_TIMED : MODE_CONTINUOUS',
+    replace: '    const mode = (void MODE_TIMED, MODE_CONTINUOUS)',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'marks-line-needs-both-ends',
+    why: '线标记缺终点就拒。拆掉 ⇒ 拿起点当终点画一条零长的线，而留痕的全部意义是「在哪里」',
+    file: `${SK}/l0/datalog-marks.ts`,
+    find: "      if (!(typeof params['x2_m'] === 'number') || !(typeof params['y2_m'] === 'number')) {",
+    replace: '      if (false) {',
+    scope: 'packages/host/stm-skills',
+  },
+
 ]

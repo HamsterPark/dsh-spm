@@ -128,6 +128,21 @@ BATCH_3C = [
     "CheckScanForCrash",
 ]
 
+#: 批 3d：**锁相放大器整族**（14 + 参数组 3），加 datalog 6 / marks 3。
+#: 锁相是本仓第一个完整移植的测量子系统 —— dI/dV 的全部前提都在它上面。
+BATCH_3D = [
+    "GetLockInConfig", "ConfigureLockIn", "ConfigureLockInDemod",
+    "GetDemodSignal", "GetDemodPhase", "GetDemodPhasReg",
+    "GetDemodHarmonic", "GetDemodLPFilter", "GetDemodHPFilter",
+    "SetModSignal", "SetModPhasReg", "SetModHarmonic",
+    "SetDemodSyncFilter", "SetDemodRTSignals", "ListLockInPresets",
+    "ApplyLockInPreset", "AutoPhase", "GetDataLogStatus",
+    "StartDataLog", "StopDataLog", "GetTcpLogStatus",
+    "StartTcpLog", "StopTcpLog", "ListScanMarkers",
+    "DrawScanMarker", "EraseScanMarkers",
+]
+
+
 
 #: 批 3a（扫描主链）。`WaitScanComplete` 在计划里单独占一格：它是第一个**长时**
 #: 技能，抱着 abort、超时、五种 outcome，以及那条硬约束 ——
@@ -214,6 +229,10 @@ PARAM_OVERRIDES: dict[str, dict] = {
         "fast_x": "[0.0, 0.5, 1.0]", "fast_y": "[0.0, 0.25, 0.75]",
         "slow_x": "[0.1, 0.2]", "slow_y": "[0.3, 0.4]",
     },
+    # 逗号分隔的通道索引。通用规则给的 "spec-export" 解析不了 ⇒ `ok` 那一趟录到的
+    # 是解析拒绝，而下发那一路（三次/四次调用）一条金样都没有。
+    "StartDataLog": {"channels": "0,14", "duration_s": 10.0},
+    "StartTcpLog": {"channels": "0,14"},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -230,6 +249,27 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
     "CheckScanForCrash": {
         "blank_channels": {"channels": "  "},
         "junk_channels": {"channels": "0, x, 14;7"},
+    },
+    # 与撞针那边**刻意不同**：这里的通道解析是严格的，一个非整数就整串作废。
+    "StartDataLog": {"bad_channels": {"channels": "spec-export"}},
+    "StartTcpLog": {"bad_channels": {"channels": "spec-export"}},
+    # 线标记要终点；不给就拒（而 `kind` 错了是另一支）
+    "DrawScanMarker": {
+        "line": {"kind": "line", "x2_m": 2e-9, "y2_m": 3e-9},
+        "line_without_end": {"kind": "line"},
+        "bad_kind": {"kind": "square"},
+    },
+    "EraseScanMarkers": {"hide_only": {"hide_only": True}, "bad_kind": {"kind": "square"}},
+    # 调制侧四个字段各写各的：哪个没给就不写哪个
+    "ConfigureLockIn": {
+        "with_values": {"frequency_hz": 973.0, "amplitude_v": 0.02, "phase_deg": 90.0},
+        "zero_amplitude": {"amplitude_v": 0.0},
+        "off": {"mod_on": False},
+    },
+    "ConfigureLockInDemod": {
+        "signal_and_harmonic": {"signal_index": 24, "harmonic": 1},
+        "lp_only": {"lp_cutoff_hz": 100.0},
+        "phase": {"phase_deg": 45.0},
     },
 }
 
@@ -478,7 +518,7 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C:
+    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C + BATCH_3D:
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

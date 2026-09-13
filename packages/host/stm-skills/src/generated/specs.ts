@@ -1189,6 +1189,314 @@ export const CheckScanForCrashSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const GetLockInConfigSpec: SkillSpec = {
+  name: "GetLockInConfig",
+  description: "把 lock-in 完整读回来：开/关、幅度、频率、相位，以及 —— 以前只写不可读的那部分 —— 它调制的到底是哪一路信号、谐波次数、调制器与解调器的相位寄存器、解调器的实时信号及其 sync 滤波器。\n\n相信任何一条 dI/dV 之前，先查 `modulated_signal`：调制错了信号的 lock-in 会给出一条完美干净、却彻头彻尾错误的曲线，而且它没有任何一处看起来是错的。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）；默认取调制器的编号", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","config","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const ConfigureLockInSpec: SkillSpec = {
+  name: "ConfigureLockIn",
+  description: "配置 lock-in 放大器调制的开/关与各项参数。",
+  parameters: [
+    { name: "mod_on", type: "bool", description: "启用或禁用调制", required: true },
+    { name: "amplitude_v", type: "float", description: "调制幅度，单位伏特。省略 = 幅度保持原样。显式写 0 依然有效，而且依然表示 0 V —— 正因如此，本参数绝不能对外声称默认值是 0。", unit: "V", required: false, minValue: 0, maxValue: 1 },
+    { name: "frequency_hz", type: "float", description: "调制频率，单位 Hz。省略 = 频率保持原样。", unit: "Hz", required: false, minValue: 0 },
+    { name: "phase_deg", type: "float", description: "调制相位，单位度。**除非你明确就是要改相位，否则请省略本参数。** 在某些设备上（包括真机），调制器根本没有相位字段，这次写入会被无条件拒绝 —— 你想要的相位几乎一定是 DEMODULATOR 的 Ref. Phase（ConfigureLockInDemod）。省略 = 完全不写调制器的相位寄存器。", unit: "deg", required: false, minValue: -360, maxValue: 360 },
+  ],
+  tags: ["lockin","modulation","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigureLockInDemodSpec: SkillSpec = {
+  name: "ConfigureLockInDemod",
+  description: "配置 lock-in 解调器：信号、谐波、滤波器、相位。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "signal_index", type: "int", description: "解调信号索引（0-127）", required: false, minValue: 0, maxValue: 127 },
+    { name: "harmonic", type: "int", description: "谐波次数（1=基频）", required: false, minValue: 1 },
+    { name: "lp_order", type: "int", description: "低通滤波器阶数（-1=不改，0=关，1-8）", required: false, minValue: -1, maxValue: 8 },
+    { name: "lp_cutoff_hz", type: "float", description: "低通滤波器截止频率（0=不改）", unit: "Hz", required: false, minValue: 0 },
+    { name: "hp_order", type: "int", description: "高通滤波器阶数（-1=不改，0=关，1-8）", required: false, minValue: -1, maxValue: 8 },
+    { name: "hp_cutoff_hz", type: "float", description: "高通滤波器截止频率（0=不改）", unit: "Hz", required: false, minValue: 0 },
+    { name: "phase_deg", type: "float", description: "解调器的参考相位", unit: "deg", required: false, minValue: -360, maxValue: 360 },
+  ],
+  tags: ["lockin","demodulator","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetDemodSignalSpec: SkillSpec = {
+  name: "GetDemodSignal",
+  description: "读某个 lock-in 解调器的解调信号索引（0-127）。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","signal","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetDemodPhaseSpec: SkillSpec = {
+  name: "GetDemodPhase",
+  description: "读某个 lock-in 解调器的参考相位。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","phase","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetDemodPhasRegSpec: SkillSpec = {
+  name: "GetDemodPhasReg",
+  description: "读某个 lock-in 解调器的相位寄存器索引（1-8）。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","phase","register","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetDemodHarmonicSpec: SkillSpec = {
+  name: "GetDemodHarmonic",
+  description: "读某个 lock-in 解调器的谐波次数。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","harmonic","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetDemodLPFilterSpec: SkillSpec = {
+  name: "GetDemodLPFilter",
+  description: "读某个 lock-in 解调器的低通滤波器阶数与截止频率。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","lp","filter","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetDemodHPFilterSpec: SkillSpec = {
+  name: "GetDemodHPFilter",
+  description: "读某个 lock-in 解调器的高通滤波器阶数与截止频率。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+  ],
+  tags: ["lockin","demodulator","hp","filter","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetModSignalSpec: SkillSpec = {
+  name: "SetModSignal",
+  description: "为某个 lock-in 调制器选择被调制的信号（按索引 0-127）。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "signal_index", type: "int", description: "信号索引（0-127），取自 Signals 列表", required: true, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["lockin","modulator","signal","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetModPhasRegSpec: SkillSpec = {
+  name: "SetModPhasReg",
+  description: "把某个 lock-in 调制器指派到一个相位寄存器（1-8）。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "phase_register_index", type: "int", description: "相位寄存器索引（1-8）", required: true, minValue: 1, maxValue: 8 },
+  ],
+  tags: ["lockin","modulator","phase","register","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetModHarmonicSpec: SkillSpec = {
+  name: "SetModHarmonic",
+  description: "设置某个 lock-in 调制器的谐波次数。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "harmonic", type: "int", description: "谐波次数（1 = 基频）", required: true, minValue: 1 },
+  ],
+  tags: ["lockin","modulator","harmonic","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetDemodSyncFilterSpec: SkillSpec = {
+  name: "SetDemodSyncFilter",
+  description: "开/关某个 lock-in 解调器的 sync 滤波器。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "sync_filter_on", type: "bool", description: "True 启用 sync 滤波器，False 禁用", required: true },
+  ],
+  tags: ["lockin","demodulator","sync","filter","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetDemodRTSignalsSpec: SkillSpec = {
+  name: "SetDemodRTSignals",
+  description: "设置某个 lock-in 解调器的 RT 信号（X/Y 或 R/phi）。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（从 1 开始）", required: false, minValue: 1, default: 1 },
+    { name: "rt_signals", type: "int", description: "0 = X/Y，1 = R/phi", required: true, minValue: 0, maxValue: 1 },
+  ],
+  tags: ["lockin","demodulator","rt","signals","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ListLockInPresetsSpec: SkillSpec = {
+  name: "ListLockInPresets",
+  description: "列出 lock-in 常用参数组:每个值是多少、来自哪个档案键、哪些键用户还没填(没填的**不会下发**)。调制侧相位永远不在组里 —— 本机固件不接受写它。",
+  parameters: [],
+  tags: ["lockin","preset","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const ApplyLockInPresetSpec: SkillSpec = {
+  name: "ApplyLockInPreset",
+  description: "按**参数组名**设置 lock-in 调制(频率 / 幅度),数值由代码从用户维护的仪器档案里取出,你不需要也不应该自己写任何数字。\n\n组名:`didv`(dI/dV 常用组)。先用 ListLockInPresets 看里面有什么、哪些键还没配。\n\n**不会下发调制侧相位** —— 本机 Modulate 区没有该字段,固件恒拒写(写同样的值也拒)。要调相位请用 AutoPhase 或 ConfigureLockInDemod,它们写的是解调侧 Ref. Phase。",
+  parameters: [
+    { name: "preset", type: "str", description: "参数组名。目前只有 'didv'。", required: false, default: "didv" },
+    { name: "mod_on", type: "bool", description: "下发后是否打开调制。", required: false, default: true },
+  ],
+  tags: ["lockin","preset","write","readback"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AutoPhaseSpec: SkillSpec = {
+  name: "AutoPhase",
+  description: "自动对齐 lock-in **解调相位**(GUI 上的 Auto 按钮做的事,但那个按钮没有 TCP 命令,所以这里是读 X/Y → 算角 → 写相位)。\n\n两种模式:\n- `signal_to_x`(默认,**隧穿态**用):把 dI/dV 信号转到 X 轴;\n- `crosstalk_to_y`(**退针态**用):把电容串扰转到 Y 轴,信号轴自然对齐 X —— 不用进针就能定相位轴。\n\n取样窗口内平均后再算角;**X/Y 都在噪声底时拒绝**(无信号不给相位角)。写的是解调侧,**绝不碰调制侧相位**(本机固件恒拒写它)。\n\n⚠️ **跑完会把 lock-in 调制关回 OFF**(幅度/频率保留)—— 它是这条链的终端消费者,而调制留着会污染后面每一条电流判据。**要接着测 dI/dV,请先重新 ApplyLockInPreset 打开调制**:调制关着时 lock-in 通道上没有信号,而曲线照样画得出来。",
+  parameters: [
+    { name: "mode", type: "str", description: "signal_to_x=把信号归 X(隧穿态);crosstalk_to_y=把串扰归 Y(退针态)。", required: false, allowedValues: ["signal_to_x","crosstalk_to_y"], default: "signal_to_x" },
+    { name: "window_s", type: "float", description: "取样窗口秒数 —— 窗口内平均再算角,不用单次快照。", required: false, minValue: 0.2, maxValue: 60, default: 3 },
+    { name: "demodulator", type: "int", description: "解调器编号(读/写相位用)。", required: false, minValue: 1, maxValue: 8, default: 1 },
+    { name: "x_signal_index", type: "int", description: "承载解调 X 的 RT 信号索引。留空则取仪器档案 lockin_x_signal_index;两处都没有就**拒绝**(不猜索引 —— 猜错读到的是另一路信号,而算出来的角度看上去一样合理)。", required: false, minValue: 0, maxValue: 127 },
+    { name: "y_signal_index", type: "int", description: "承载解调 Y 的 RT 信号索引;同上。", required: false, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["lockin","phase","auto","didv","write","readback"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetDataLogStatusSpec: SkillSpec = {
+  name: "GetDataLogStatus",
+  description: "读数据记录器的状态（在跑／已停）、它配置的通道，以及它的各项属性。开一次新记录之前先看这个 —— 在一个正在跑的记录之上再开一个，会把前一个丢掉。",
+  parameters: [],
+  tags: ["datalog","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const StartDataLogSpec: SkillSpec = {
+  name: "StartDataLog",
+  description: "把一路或多路信号通道录进一个文件，录固定时长、或一直录到被停止。想**盯着**某个量随时间怎么走时用它，而不是去轮询：热漂移的稳定过程、针尖的缓慢退化、一次长退火期间的电流。\n\n通道序号取自信号目录（0=Current，24=Z，…）—— 拿不准就调 ListSignalNames。录制不会碰仪器；它只读。",
+  parameters: [
+    { name: "channels", type: "str", description: "要录的信号序号，逗号分隔（例如 '0,24'）", required: true },
+    { name: "duration_s", type: "float", description: "录制时长，单位秒。不传（或传 0）则一直录到 StopDataLog 为止。", unit: "s", required: false, minValue: 0, maxValue: 86400, default: 0 },
+    { name: "basename", type: "str", description: "Nanonis 机器上的文件基名", required: false, default: "mast_log" },
+    { name: "averaging", type: "int", description: "每个记录点平均多少个采样", required: false, minValue: 1, maxValue: 100000, default: 1 },
+    { name: "comment", type: "str", description: "存进日志文件头的注释", required: false, default: "" },
+  ],
+  tags: ["datalog","record","monitor"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const StopDataLogSpec: SkillSpec = {
+  name: "StopDataLog",
+  description: "停掉 Nanonis 数据记录器并关闭文件。",
+  parameters: [],
+  tags: ["datalog","record","stop"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const GetTcpLogStatusSpec: SkillSpec = {
+  name: "GetTcpLogStatus",
+  description: "读 TCP 记录器的状态（在流式送出／已停／出错）。",
+  parameters: [],
+  tags: ["tcplog","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const StartTcpLogSpec: SkillSpec = {
+  name: "StartTcpLog",
+  description: "启动 TCP 记录器：把选定的通道通过 TCP 流式送出，而不是录到 Nanonis 机器上的文件里。数据应当送到**这边**来的时候用它。只读 —— 不碰任何硬件。",
+  parameters: [
+    { name: "channels", type: "str", description: "要流式送出的信号序号，逗号分隔", required: true },
+    { name: "oversampling", type: "int", description: "每个送出点平均多少个采样", required: false, minValue: 1, maxValue: 100000, default: 10 },
+  ],
+  tags: ["tcplog","record","stream"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const StopTcpLogSpec: SkillSpec = {
+  name: "StopTcpLog",
+  description: "停掉 Nanonis TCP 记录器的数据流。",
+  parameters: [],
+  tags: ["tcplog","record","stop"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const ListScanMarkersSpec: SkillSpec = {
+  name: "ListScanMarkers",
+  description: "列出 Nanonis 扫描帧上的点标记与线标记及其坐标。挑下一个位置之前，用它回想一下你已经在哪儿测过了。",
+  parameters: [],
+  tags: ["marks","annotation","scan","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const DrawScanMarkerSpec: SkillSpec = {
+  name: "DrawScanMarker",
+  description: "在 Nanonis 扫描帧上画一个**点**或一条**线**标记。用它记录你**在哪里**做过什么 —— 标出每一个 STS 位置、你选中的平坦区域、你发现的一个缺陷、你取剖面所沿的那条线。坐标是扫描器坐标系下的米（和 MoveToXY 及各谱学技能用的是同一套），所以你可以用测量时的精确坐标去标一条谱。\n\n画标记只碰显示 —— 它什么都不移动。",
+  parameters: [
+    { name: "kind", type: "str", description: "'point' 或 'line'", required: true, allowedValues: ["point","line"] },
+    { name: "x_m", type: "float", description: "点的 X，或线的**起点** X（m，扫描器坐标系）", unit: "m", required: true },
+    { name: "y_m", type: "float", description: "点的 Y，或线的**起点** Y（m，扫描器坐标系）", unit: "m", required: true },
+    { name: "x2_m", type: "float", description: "线的**终点** X（m）。kind='line' 时必填。", unit: "m", required: false },
+    { name: "y2_m", type: "float", description: "线的**终点** Y（m）。kind='line' 时必填。", unit: "m", required: false },
+    { name: "text", type: "str", description: "显示在标记旁边的标签（仅点标记有）", required: false, default: "" },
+    { name: "color", type: "str", description: "red/green/blue/yellow/cyan/magenta/white/black/orange，或 0xRRGGBB", required: false, default: "red" },
+  ],
+  tags: ["marks","annotation","scan"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const EraseScanMarkersSpec: SkillSpec = {
+  name: "EraseScanMarkers",
+  description: "擦掉一个标记（或者只隐藏、不删除）。index=-1 会擦掉该类型的**全部**标记。擦标记只碰显示。",
+  parameters: [
+    { name: "kind", type: "str", description: "'point' 或 'line'", required: true, allowedValues: ["point","line"] },
+    { name: "index", type: "int", description: "标记序号；-1 = 该类型的全部", required: true, minValue: -1, maxValue: 10000 },
+    { name: "hide_only", type: "bool", description: "True = 隐藏但保留；False = 擦掉它", required: false, default: false },
+  ],
+  tags: ["marks","annotation","scan"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -1301,7 +1609,33 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetSpectroscopyConfig: GetSpectroscopyConfigSpec,
   GetTipShaperConfig: GetTipShaperConfigSpec,
   CheckScanForCrash: CheckScanForCrashSpec,
+  GetLockInConfig: GetLockInConfigSpec,
+  ConfigureLockIn: ConfigureLockInSpec,
+  ConfigureLockInDemod: ConfigureLockInDemodSpec,
+  GetDemodSignal: GetDemodSignalSpec,
+  GetDemodPhase: GetDemodPhaseSpec,
+  GetDemodPhasReg: GetDemodPhasRegSpec,
+  GetDemodHarmonic: GetDemodHarmonicSpec,
+  GetDemodLPFilter: GetDemodLPFilterSpec,
+  GetDemodHPFilter: GetDemodHPFilterSpec,
+  SetModSignal: SetModSignalSpec,
+  SetModPhasReg: SetModPhasRegSpec,
+  SetModHarmonic: SetModHarmonicSpec,
+  SetDemodSyncFilter: SetDemodSyncFilterSpec,
+  SetDemodRTSignals: SetDemodRTSignalsSpec,
+  ListLockInPresets: ListLockInPresetsSpec,
+  ApplyLockInPreset: ApplyLockInPresetSpec,
+  AutoPhase: AutoPhaseSpec,
+  GetDataLogStatus: GetDataLogStatusSpec,
+  StartDataLog: StartDataLogSpec,
+  StopDataLog: StopDataLogSpec,
+  GetTcpLogStatus: GetTcpLogStatusSpec,
+  StartTcpLog: StartTcpLogSpec,
+  StopTcpLog: StopTcpLogSpec,
+  ListScanMarkers: ListScanMarkersSpec,
+  DrawScanMarker: DrawScanMarkerSpec,
+  EraseScanMarkers: EraseScanMarkersSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash"] as const

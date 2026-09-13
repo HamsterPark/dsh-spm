@@ -626,3 +626,56 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 
 **边界**：哪天这个参数变成「模型会写很长的 JSON」的那一类，位置就重新有价值了，
 那时该做的不是抄位置，是把参数拆细。
+
+## D-SKILL-1 补充二 · 锁相解调侧六个读的 `raw` 兜底（批 3d）
+
+| | |
+|---|---|
+| **Python** | 解不出来时 `data = {demodulator, raw: decode_reply(parsed)}`，而空 body 上 `decode_reply` 交出整个信封 |
+| **我们** | 同样走 `raw` 兜底，只是 `raw` 里是 body（`[]`） |
+| **影响面** | `GetDemodSignal` / `GetDemodPhase` / `GetDemodPhasReg` / `GetDemodHarmonic` / `GetDemodLPFilter` / `GetDemodHPFilter` 各一条 `empty@0` |
+| **测试** | 与批 3c 同一个 `withoutEnvelope(...)`，期望值从金样算出来 |
+
+**`raw` 兜底这件事本身是对的，照移了**：解不出来时交出原始 body，与「我看懂了，它是空的」
+是两回事——后者会被当成一个读数。这一条差的只是 `raw` 里装的是信封还是 body。
+
+## D-LOCKIN-1 · 调制侧 phase **永不下发**，而这条判据落在调用序列上
+
+| | |
+|---|---|
+| **Python** | `lockin_presets` 的 `_PROFILE_KEYS` 里**没有** phase；`ApplyLockInPreset` 里有一句 `assert "phase_deg" not in call_params` |
+| **我们** | `ConfigureLockIn` **仍然支持** `phase_deg` 参数（给了就写），与旧仓一致 |
+| **测试** | 金样 `ConfigureLockIn/with_values` 里 `LockIn_ModPhasSet` 确实发了 |
+
+**这不是一条偏差，是一条要写下来免得将来被"优化"掉的事实**：
+
+旧仓 2026-08-05 真机实测（全分辨率截图 + TCP）三条硬事实——
+
+1. 被拒的**只有** `lockin.modphasset` 一条命令（解调侧 phase 写得进、频率与幅度都写得进
+   ⇒ 不是家族锁也不是模块锁）；
+2. Lock-In 面板的 **Modulate 区根本没有 phase 字段**。「Parameter is Locked」不是谁锁了
+   一个标定量，是**该参数在本机配置下不存在于操作面、固件恒拒写**；
+3. **写同值也被拒** —— 拒绝由写入动作本身触发，与值无关。
+
+⇒ 挑不出「更好的相位值」来绕过它；唯一有用的动作是**这条命令根本不出现在调用序列里**。
+所以 `lockin_presets` 那一组永不下发它，而 `ConfigureLockIn` 这个**逐字段技能**保留它——
+两者不矛盾：参数组是「代替用户做决定」，技能是「用户明确要求」。
+
+**补 `ApplyLockInPreset` 的时候这一条必须一起补**（那个 `assert` 就是它的执法者），
+而且判据要落在**调用序列**上，不落在参数值上。
+
+## D-CHANNELS-1 · 两处通道解析**刻意不同**
+
+| | |
+|---|---|
+| `crash-check.ts` 的 `parseChannels` | 认不出的记号**跳过**，全不认就回落到默认 `0,14` |
+| `datalog-marks.ts` 的 `logChannels` | 有一个记号不是整数，**整串作废**（`null` ⇒ 拒绝） |
+
+两边都逐字照移了旧仓，而**把它们统一成一个函数是错的**：
+
+- 撞针检测少探一路无所谓——剩下那几路照样回答得了「撞没撞」，而一个错字让整次检测
+  不做，代价大得多；
+- 数据记录记的是**哪几路**。默默丢掉一路，会让日志里少一个通道**而没人知道**，
+  几小时之后才在数据里发现。
+
+登记它，是因为「两个看起来一样的函数行为不一样」正是将来有人做重构时最想合并的东西。

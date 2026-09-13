@@ -88,6 +88,24 @@ const BATCH_3C = [
 ]
 
 /**
+ * 批 3d：**锁相放大器整族**，加 datalog / marks 两个小模块。
+ *
+ * 锁相是本仓第一个完整移植的**测量子系统**（dI/dV 的全部前提都在它上面），
+ * 而它的参数组与 Z 参数组是同一条纪律：模型说名字，代码写数字。
+ */
+const BATCH_3D = [
+  'GetLockInConfig', 'ConfigureLockIn', 'ConfigureLockInDemod',
+  'GetDemodSignal', 'GetDemodPhase', 'GetDemodPhasReg',
+  'GetDemodHarmonic', 'GetDemodLPFilter', 'GetDemodHPFilter',
+  'SetModSignal', 'SetModPhasReg', 'SetModHarmonic',
+  'SetDemodSyncFilter', 'SetDemodRTSignals', 'ListLockInPresets',
+  'ApplyLockInPreset', 'AutoPhase', 'GetDataLogStatus',
+  'StartDataLog', 'StopDataLog', 'GetTcpLogStatus',
+  'StartTcpLog', 'StopTcpLog', 'ListScanMarkers',
+  'DrawScanMarker', 'EraseScanMarkers',
+]
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -163,7 +181,7 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C]
+  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C, ...BATCH_3D]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 
