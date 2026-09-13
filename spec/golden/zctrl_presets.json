@@ -1,0 +1,688 @@
+{
+  "_note": "由 tools/spec-export/export_zctrl_presets.py 生成——驱动旧仓真实的 zctrl_presets.resolve 与三件套技能。",
+  "apply": {
+    "approach": {
+      "data": {
+        "applied": {
+          "gains": {
+            "i_gain": 1.8e-07,
+            "p_gain": 3e-12,
+            "time_constant_s": 1.6666666666666667e-05
+          },
+          "setpoint_a": 5e-11
+        },
+        "message": "已按参数组 'approach' 设置 Z 控制器,写入后回读已确认:\np_gain = 3pm ← 仪器档案 approach_p_gain_m\ni_gain = 180nm/s ← 仪器档案 approach_i_gain_m_per_s\ntime_constant_s = 16.6667us ← 由 P/I 导出\nsetpoint_a = 50pA ← 仪器档案 approach_setpoint_a",
+        "notes": [],
+        "preset": "approach",
+        "sources": {
+          "i_gain": "仪器档案 approach_i_gain_m_per_s",
+          "p_gain": "仪器档案 approach_p_gain_m",
+          "setpoint_a": "仪器档案 approach_setpoint_a"
+        },
+        "trace": [
+          "p_gain = 3pm ← 仪器档案 approach_p_gain_m",
+          "i_gain = 180nm/s ← 仪器档案 approach_i_gain_m_per_s",
+          "time_constant_s = 16.6667us ← 由 P/I 导出",
+          "setpoint_a = 50pA ← 仪器档案 approach_setpoint_a"
+        ]
+      },
+      "error": "",
+      "preset": "approach",
+      "runs": [
+        {
+          "params": {
+            "i_gain": 1.8e-07,
+            "p_gain": 3e-12,
+            "time_constant_s": 1.6666666666666667e-05
+          },
+          "skill": "SetZCtrlGain"
+        },
+        {
+          "params": {
+            "setpoint_a": 5e-11
+          },
+          "skill": "SetSetpoint"
+        }
+      ],
+      "success": true
+    },
+    "custom_no_setpoint": {
+      "data": {
+        "applied": {
+          "gains": {
+            "i_gain": 1.8000000000000002e-07,
+            "p_gain": 3e-12,
+            "time_constant_s": 1.6666666666666664e-05
+          }
+        },
+        "message": "已按参数组 'gentle' 设置 Z 控制器,写入后回读已确认:\np_gain = 3pm ← 自定义参数组 'gentle'\ni_gain = 180nm/s ← 自定义参数组 'gentle'\ntime_constant_s = 16.6667us ← 由 P/I 导出\nsetpoint_a = 未配置(保持当前值,不下发)",
+        "notes": [],
+        "preset": "gentle",
+        "sources": {
+          "i_gain": "自定义参数组 'gentle'",
+          "p_gain": "自定义参数组 'gentle'",
+          "setpoint_a": "自定义参数组 'gentle'"
+        },
+        "trace": [
+          "p_gain = 3pm ← 自定义参数组 'gentle'",
+          "i_gain = 180nm/s ← 自定义参数组 'gentle'",
+          "time_constant_s = 16.6667us ← 由 P/I 导出",
+          "setpoint_a = 未配置(保持当前值,不下发)"
+        ]
+      },
+      "error": "",
+      "preset": "gentle",
+      "runs": [
+        {
+          "params": {
+            "i_gain": 1.8000000000000002e-07,
+            "p_gain": 3e-12,
+            "time_constant_s": 1.6666666666666664e-05
+          },
+          "skill": "SetZCtrlGain"
+        }
+      ],
+      "success": true
+    },
+    "custom_with_setpoint": {
+      "data": {
+        "applied": {
+          "gains": {
+            "i_gain": 2.0000000000000002e-07,
+            "p_gain": 5e-12,
+            "time_constant_s": 2.4999999999999998e-05
+          },
+          "setpoint_a": 1.5e-10
+        },
+        "message": "已按参数组 'firm' 设置 Z 控制器,写入后回读已确认:\np_gain = 5pm ← 自定义参数组 'firm'\ni_gain = 200nm/s ← 自定义参数组 'firm'\ntime_constant_s = 25us ← 由 P/I 导出\nsetpoint_a = 150pA ← 自定义参数组 'firm'\n带设定点的一组",
+        "notes": [
+          "带设定点的一组"
+        ],
+        "preset": "firm",
+        "sources": {
+          "i_gain": "自定义参数组 'firm'",
+          "p_gain": "自定义参数组 'firm'",
+          "setpoint_a": "自定义参数组 'firm'"
+        },
+        "trace": [
+          "p_gain = 5pm ← 自定义参数组 'firm'",
+          "i_gain = 200nm/s ← 自定义参数组 'firm'",
+          "time_constant_s = 25us ← 由 P/I 导出",
+          "setpoint_a = 150pA ← 自定义参数组 'firm'"
+        ]
+      },
+      "error": "",
+      "preset": "firm",
+      "runs": [
+        {
+          "params": {
+            "i_gain": 2.0000000000000002e-07,
+            "p_gain": 5e-12,
+            "time_constant_s": 2.4999999999999998e-05
+          },
+          "skill": "SetZCtrlGain"
+        },
+        {
+          "params": {
+            "setpoint_a": 1.5e-10
+          },
+          "skill": "SetSetpoint"
+        }
+      ],
+      "success": true
+    },
+    "gain_write_fails": {
+      "data": {
+        "preset": "firm",
+        "trace": [
+          "p_gain = 5pm ← 自定义参数组 'firm'",
+          "i_gain = 200nm/s ← 自定义参数组 'firm'",
+          "time_constant_s = 25us ← 由 P/I 导出",
+          "setpoint_a = 150pA ← 自定义参数组 'firm'"
+        ]
+      },
+      "error": "参数组 'firm' 的增益写入失败: 模拟故障：写后回读不一致",
+      "preset": "firm",
+      "runs": [
+        {
+          "params": {
+            "i_gain": 2.0000000000000002e-07,
+            "p_gain": 5e-12,
+            "time_constant_s": 2.4999999999999998e-05
+          },
+          "skill": "SetZCtrlGain"
+        }
+      ],
+      "success": false
+    },
+    "scan_without_frame": {
+      "data": {},
+      "error": "读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。",
+      "preset": "scan",
+      "runs": [],
+      "success": false
+    },
+    "setpoint_write_fails": {
+      "data": {
+        "applied": {
+          "gains": {
+            "i_gain": 2.0000000000000002e-07,
+            "p_gain": 5e-12,
+            "time_constant_s": 2.4999999999999998e-05
+          }
+        },
+        "preset": "firm",
+        "trace": [
+          "p_gain = 5pm ← 自定义参数组 'firm'",
+          "i_gain = 200nm/s ← 自定义参数组 'firm'",
+          "time_constant_s = 25us ← 由 P/I 导出",
+          "setpoint_a = 150pA ← 自定义参数组 'firm'"
+        ]
+      },
+      "error": "参数组 'firm' 的增益已写入,但设定点写入失败: 模拟故障：写后回读不一致",
+      "preset": "firm",
+      "runs": [
+        {
+          "params": {
+            "i_gain": 2.0000000000000002e-07,
+            "p_gain": 5e-12,
+            "time_constant_s": 2.4999999999999998e-05
+          },
+          "skill": "SetZCtrlGain"
+        },
+        {
+          "params": {
+            "setpoint_a": 1.5e-10
+          },
+          "skill": "SetSetpoint"
+        }
+      ],
+      "success": false
+    },
+    "tier_without_gains": {
+      "data": {},
+      "error": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。",
+      "preset": "highres",
+      "runs": [],
+      "success": false
+    },
+    "unknown_name": {
+      "data": {},
+      "error": "没有名为 'nope' 的参数组。当前可用: 'approach', 'scan', 'slow', 'atomic_verify', 'atomic', 'highres', 'roi', 'survey', 'gentle'。(用 ListZCtrlPresets 查看每一组的具体数值。)",
+      "preset": "nope",
+      "runs": [],
+      "success": false
+    }
+  },
+  "available_names": {
+    "empty": [
+      "approach",
+      "scan",
+      "slow",
+      "atomic_verify",
+      "atomic",
+      "highres",
+      "roi",
+      "survey"
+    ],
+    "with_two_customs": [
+      "approach",
+      "scan",
+      "slow",
+      "atomic_verify",
+      "atomic",
+      "highres",
+      "roi",
+      "survey",
+      "gentle",
+      "firm"
+    ]
+  },
+  "constants": {
+    "factory_tier_gains": [
+      {
+        "name": "slow",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      },
+      {
+        "name": "atomic_verify",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      },
+      {
+        "name": "atomic",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      },
+      {
+        "name": "highres",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      },
+      {
+        "name": "roi",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      },
+      {
+        "name": "survey",
+        "p_gain": null,
+        "setpoint_a": null,
+        "time_constant_s": null
+      }
+    ],
+    "source_tier_factory": "tier-factory",
+    "source_tier_operator": "tier-operator",
+    "tier_names": [
+      "slow",
+      "atomic_verify",
+      "atomic",
+      "highres",
+      "roi",
+      "survey"
+    ]
+  },
+  "list": {
+    "no_profile_two_customs": {
+      "data": {
+        "note": "'scan' 按当前扫描帧尺寸选档,所以这里不显示它的具体数值 —— 应用时才确定。",
+        "presets": [
+          {
+            "kind": "reserved",
+            "name": "approach",
+            "usable": false,
+            "why": "进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+          },
+          {
+            "kind": "reserved",
+            "name": "scan",
+            "usable": false,
+            "why": "读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "slow",
+            "usable": false,
+            "why": "扫描档位 'slow' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "atomic_verify",
+            "usable": false,
+            "why": "扫描档位 'atomic_verify' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "atomic",
+            "usable": false,
+            "why": "扫描档位 'atomic' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "highres",
+            "usable": false,
+            "why": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "roi",
+            "usable": false,
+            "why": "扫描档位 'roi' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "survey",
+            "usable": false,
+            "why": "扫描档位 'survey' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "i_gain": "180nm/s",
+            "kind": "custom",
+            "name": "gentle",
+            "p_gain": "3pm",
+            "setpoint_a": null,
+            "sources": {
+              "i_gain": "自定义参数组 'gentle'",
+              "p_gain": "自定义参数组 'gentle'",
+              "setpoint_a": "自定义参数组 'gentle'"
+            },
+            "time_constant_s": "16.6667us",
+            "usable": true
+          },
+          {
+            "i_gain": "200nm/s",
+            "kind": "custom",
+            "name": "firm",
+            "p_gain": "5pm",
+            "setpoint_a": "150pA",
+            "sources": {
+              "i_gain": "自定义参数组 'firm'",
+              "p_gain": "自定义参数组 'firm'",
+              "setpoint_a": "自定义参数组 'firm'"
+            },
+            "time_constant_s": "25us",
+            "usable": true
+          }
+        ]
+      },
+      "success": true
+    },
+    "profile_configured": {
+      "data": {
+        "note": "'scan' 按当前扫描帧尺寸选档,所以这里不显示它的具体数值 —— 应用时才确定。",
+        "presets": [
+          {
+            "i_gain": "180nm/s",
+            "kind": "reserved",
+            "name": "approach",
+            "p_gain": "3pm",
+            "setpoint_a": "50pA",
+            "sources": {
+              "i_gain": "仪器档案 approach_i_gain_m_per_s",
+              "p_gain": "仪器档案 approach_p_gain_m",
+              "setpoint_a": "仪器档案 approach_setpoint_a"
+            },
+            "time_constant_s": "16.6667us",
+            "usable": true
+          },
+          {
+            "kind": "reserved",
+            "name": "scan",
+            "usable": false,
+            "why": "读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "slow",
+            "usable": false,
+            "why": "扫描档位 'slow' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "atomic_verify",
+            "usable": false,
+            "why": "扫描档位 'atomic_verify' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "atomic",
+            "usable": false,
+            "why": "扫描档位 'atomic' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "highres",
+            "usable": false,
+            "why": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "roi",
+            "usable": false,
+            "why": "扫描档位 'roi' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          },
+          {
+            "kind": "scan-tier",
+            "name": "survey",
+            "usable": false,
+            "why": "扫描档位 'survey' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+          }
+        ]
+      },
+      "success": true
+    }
+  },
+  "resolve": {
+    "approach_configured": {
+      "error": "",
+      "frame_size_m": null,
+      "gain_params": {
+        "i_gain": 1.8e-07,
+        "p_gain": 3e-12,
+        "time_constant_s": 1.6666666666666667e-05
+      },
+      "has_profile": true,
+      "i_gain": 1.8e-07,
+      "name": "approach",
+      "notes": [],
+      "ok": true,
+      "p_gain": 3e-12,
+      "preset_names": [],
+      "resolved_name": "approach",
+      "setpoint_a": 5e-11,
+      "sources": {
+        "i_gain": "仪器档案 approach_i_gain_m_per_s",
+        "p_gain": "仪器档案 approach_p_gain_m",
+        "setpoint_a": "仪器档案 approach_setpoint_a"
+      },
+      "time_constant_s": 1.6666666666666667e-05,
+      "trace_lines": [
+        "p_gain = 3pm ← 仪器档案 approach_p_gain_m",
+        "i_gain = 180nm/s ← 仪器档案 approach_i_gain_m_per_s",
+        "time_constant_s = 16.6667us ← 由 P/I 导出",
+        "setpoint_a = 50pA ← 仪器档案 approach_setpoint_a"
+      ]
+    },
+    "approach_half_configured": {
+      "error": "进针参数组尚未配置(I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。",
+      "frame_size_m": null,
+      "has_profile": true,
+      "name": "approach",
+      "ok": false,
+      "preset_names": []
+    },
+    "approach_missing": {
+      "error": "进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "approach",
+      "ok": false,
+      "preset_names": []
+    },
+    "approach_no_setpoint": {
+      "error": "",
+      "frame_size_m": null,
+      "gain_params": {
+        "i_gain": 1.8e-07,
+        "p_gain": 3e-12,
+        "time_constant_s": 1.6666666666666667e-05
+      },
+      "has_profile": true,
+      "i_gain": 1.8e-07,
+      "name": "approach",
+      "notes": [],
+      "ok": true,
+      "p_gain": 3e-12,
+      "preset_names": [],
+      "resolved_name": "approach",
+      "setpoint_a": null,
+      "sources": {
+        "i_gain": "仪器档案 approach_i_gain_m_per_s",
+        "p_gain": "仪器档案 approach_p_gain_m",
+        "setpoint_a": "仪器档案 approach_setpoint_a"
+      },
+      "time_constant_s": 1.6666666666666667e-05,
+      "trace_lines": [
+        "p_gain = 3pm ← 仪器档案 approach_p_gain_m",
+        "i_gain = 180nm/s ← 仪器档案 approach_i_gain_m_per_s",
+        "time_constant_s = 16.6667us ← 由 P/I 导出",
+        "setpoint_a = 未配置(保持当前值,不下发)"
+      ]
+    },
+    "blank_name": {
+      "error": "没有名为 '' 的参数组。当前可用: 'approach', 'scan', 'slow', 'atomic_verify', 'atomic', 'highres', 'roi', 'survey', 'gentle'。(用 ListZCtrlPresets 查看每一组的具体数值。)",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "   ",
+      "ok": false,
+      "preset_names": [
+        "gentle"
+      ]
+    },
+    "custom": {
+      "error": "",
+      "frame_size_m": null,
+      "gain_params": {
+        "i_gain": 1.8000000000000002e-07,
+        "p_gain": 3e-12,
+        "time_constant_s": 1.6666666666666664e-05
+      },
+      "has_profile": false,
+      "i_gain": 1.8000000000000002e-07,
+      "name": "gentle",
+      "notes": [],
+      "ok": true,
+      "p_gain": 3e-12,
+      "preset_names": [
+        "gentle"
+      ],
+      "resolved_name": "gentle",
+      "setpoint_a": null,
+      "sources": {
+        "i_gain": "自定义参数组 'gentle'",
+        "p_gain": "自定义参数组 'gentle'",
+        "setpoint_a": "自定义参数组 'gentle'"
+      },
+      "time_constant_s": 1.6666666666666664e-05,
+      "trace_lines": [
+        "p_gain = 3pm ← 自定义参数组 'gentle'",
+        "i_gain = 180nm/s ← 自定义参数组 'gentle'",
+        "time_constant_s = 16.6667us ← 由 P/I 导出",
+        "setpoint_a = 未配置(保持当前值,不下发)"
+      ]
+    },
+    "custom_case_insensitive": {
+      "error": "",
+      "frame_size_m": null,
+      "gain_params": {
+        "i_gain": 1.8000000000000002e-07,
+        "p_gain": 3e-12,
+        "time_constant_s": 1.6666666666666664e-05
+      },
+      "has_profile": false,
+      "i_gain": 1.8000000000000002e-07,
+      "name": "GENTLE",
+      "notes": [],
+      "ok": true,
+      "p_gain": 3e-12,
+      "preset_names": [
+        "gentle"
+      ],
+      "resolved_name": "gentle",
+      "setpoint_a": null,
+      "sources": {
+        "i_gain": "自定义参数组 'gentle'",
+        "p_gain": "自定义参数组 'gentle'",
+        "setpoint_a": "自定义参数组 'gentle'"
+      },
+      "time_constant_s": 1.6666666666666664e-05,
+      "trace_lines": [
+        "p_gain = 3pm ← 自定义参数组 'gentle'",
+        "i_gain = 180nm/s ← 自定义参数组 'gentle'",
+        "time_constant_s = 16.6667us ← 由 P/I 导出",
+        "setpoint_a = 未配置(保持当前值,不下发)"
+      ]
+    },
+    "custom_with_setpoint_and_note": {
+      "error": "",
+      "frame_size_m": null,
+      "gain_params": {
+        "i_gain": 2.0000000000000002e-07,
+        "p_gain": 5e-12,
+        "time_constant_s": 2.4999999999999998e-05
+      },
+      "has_profile": false,
+      "i_gain": 2.0000000000000002e-07,
+      "name": "firm",
+      "notes": [
+        "带设定点的一组"
+      ],
+      "ok": true,
+      "p_gain": 5e-12,
+      "preset_names": [
+        "gentle",
+        "firm"
+      ],
+      "resolved_name": "firm",
+      "setpoint_a": 1.5e-10,
+      "sources": {
+        "i_gain": "自定义参数组 'firm'",
+        "p_gain": "自定义参数组 'firm'",
+        "setpoint_a": "自定义参数组 'firm'"
+      },
+      "time_constant_s": 2.4999999999999998e-05,
+      "trace_lines": [
+        "p_gain = 5pm ← 自定义参数组 'firm'",
+        "i_gain = 200nm/s ← 自定义参数组 'firm'",
+        "time_constant_s = 25us ← 由 P/I 导出",
+        "setpoint_a = 150pA ← 自定义参数组 'firm'"
+      ]
+    },
+    "empty_name": {
+      "error": "没有名为 '' 的参数组。当前可用: 'approach', 'scan', 'slow', 'atomic_verify', 'atomic', 'highres', 'roi', 'survey', 'gentle'。(用 ListZCtrlPresets 查看每一组的具体数值。)",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "",
+      "ok": false,
+      "preset_names": [
+        "gentle"
+      ]
+    },
+    "scan_frame_2um": {
+      "error": "扫描档位 'survey' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。",
+      "frame_size_m": 2e-06,
+      "has_profile": false,
+      "name": "scan",
+      "ok": false,
+      "preset_names": []
+    },
+    "scan_frame_50nm": {
+      "error": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。",
+      "frame_size_m": 5e-08,
+      "has_profile": false,
+      "name": "scan",
+      "ok": false,
+      "preset_names": []
+    },
+    "scan_no_frame": {
+      "error": "读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "scan",
+      "ok": false,
+      "preset_names": []
+    },
+    "tier_by_name": {
+      "error": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "highres",
+      "ok": false,
+      "preset_names": []
+    },
+    "tier_by_name_case": {
+      "error": "扫描档位 'survey' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "SURVEY",
+      "ok": false,
+      "preset_names": []
+    },
+    "unknown": {
+      "error": "没有名为 'nope' 的参数组。当前可用: 'approach', 'scan', 'slow', 'atomic_verify', 'atomic', 'highres', 'roi', 'survey', 'gentle'。(用 ListZCtrlPresets 查看每一组的具体数值。)",
+      "frame_size_m": null,
+      "has_profile": false,
+      "name": "nope",
+      "ok": false,
+      "preset_names": [
+        "gentle"
+      ]
+    }
+  }
+}

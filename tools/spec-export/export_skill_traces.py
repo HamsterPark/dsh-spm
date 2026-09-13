@@ -106,6 +106,12 @@ BATCH_2 = [
     "AutoApproach", "ApproachTip",
 ]
 
+#: 批 2b：Z 参数组三件套里剩下的两个。
+#:
+#: `CreateZCtrlPreset` 在批 2 里就落了，但**建完没人用** —— 它自己的报文写着
+#: 「用 ApplyZCtrlPreset('x') 应用它」，而那个技能当时还不存在。
+BATCH_2B = ["ApplyZCtrlPreset", "ListZCtrlPresets"]
+
 #: 批 3a（扫描主链）。`WaitScanComplete` 在计划里单独占一格：它是第一个**长时**
 #: 技能，抱着 abort、超时、五种 outcome，以及那条硬约束 ——
 #: 「dsh 超时也触发 signal，**绝不把仪器留在运动中**」。
@@ -369,7 +375,32 @@ def _result(r: Any) -> dict:
     }
 
 
-def _trace(skill: Any, params: dict, table: dict, **kw) -> dict:
+#: 每条轨迹跑之前要摆好的**进程级状态**。
+#:
+#: 参数组存储是模块级的，于是 `CreateZCtrlPreset` 那一格建的 `spec-export`
+#: 会一直活到 `ApplyZCtrlPreset` 那一格 —— 后者因此「成功」了，而它成功的原因
+#: **不在它自己的轨迹里**。这是同一个「轨迹之间串状态」的坑在本仓工具里的第四次
+#: （前三次都是组合技能的断点）。
+#:
+#: 与其靠批次顺序，不如把前置**写出来**：这一格要什么，这里就摆什么。
+#: 金样于是自带它的前提，TS 那侧照着摆就能复现。
+PRESET_FIXTURE = {"name": "spec-export", "p_gain": "150p", "i_gain": "150p"}
+NEEDS_PRESET = {"ApplyZCtrlPreset", "ListZCtrlPresets"}
+
+
+def _reset_state(name: str) -> None:
+    """把进程级存储摆成这一格要的样子。**每条轨迹都调**，不靠上一格的残留。"""
+    try:
+        import mast.core.zctrl_presets as _zp
+        _zp._presets.clear()
+        if name in NEEDS_PRESET:
+            _zp.upsert_preset(dict(PRESET_FIXTURE))
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _trace(skill: Any, params: dict, table: dict, *, _name: str = "", **kw) -> dict:
+    _reset_state(_name)
     # ⚠️ 每条轨迹**从零开始**。组合技能（`WaitScanComplete` / `SetBiasRamp`）会往
     # `experiments/composite_progress/` 落断点，而假 context 没有 `run_id`，于是所有
     # 轨迹共用同一个文件——上一条留下的进度会被下一条捡起来**续跑**。
@@ -407,7 +438,7 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2 + BATCH_3A + BATCH_3B:
+    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B:
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
@@ -418,7 +449,7 @@ def main() -> int:
         params = _params_for(name, SkillRegistry._get_metadata_raw(cls))
 
         print(f"  … {name}", file=sys.stderr, flush=True)
-        traces: dict[str, Any] = {"ok": _trace(skill, params, table)}
+        traces: dict[str, Any] = {"ok": _trace(skill, params, table, _name=name)}
         # **注错点从成功那一趟派生**，取每个动词的**首次与末次**出现：
         #
         # 只取首次是不够的 —— `SetSetpoint` 的序列是
@@ -434,18 +465,18 @@ def main() -> int:
             last[c["verb"]] = i
         points = sorted(set(first.values()) | set(last.values()))
         for i in points[:MAX_ERROR_POINTS]:
-            traces[f"err@{i}"] = _trace(skill, params, table, error_at=i)
+            traces[f"err@{i}"] = _trace(skill, params, table, _name=name, error_at=i)
         n_calls = len(traces["ok"]["calls"])
         if n_calls > 0:
-            traces["empty@0"] = _trace(skill, params, table, empty_at=0)
+            traces["empty@0"] = _trace(skill, params, table, _name=name, empty_at=0)
         # **回读回来但对不上**——写后回读这一族最要命的一条分支。
         # 关掉回显即可：写进去什么，读回来是另一个数，正是硬件没接受这个值的形状。
         verbs = {c["verb"] for c in traces["ok"]["calls"]}
         if any(v.endswith("Set") for v in verbs) and any(v.endswith("Get") for v in verbs):
-            traces["mismatch"] = _trace(skill, params, table, no_echo=True)
+            traces["mismatch"] = _trace(skill, params, table, _name=name, no_echo=True)
         n_runs = len(traces["ok"].get("runs") or [])
         for i in range(n_runs):
-            traces[f"runerr@{i}"] = _trace(skill, params, table, run_error_at=i)
+            traces[f"runerr@{i}"] = _trace(skill, params, table, _name=name, run_error_at=i)
 
         out[name] = {"params": _jsonable(params), "traces": traces}
 

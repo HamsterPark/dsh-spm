@@ -37,6 +37,15 @@ export interface ScanTier {
   readonly upperSizeM: number | null
   readonly pixels: number
   readonly lineTimeS: number
+
+  // ── 下面三个出厂表**一律不填**（旧仓也是 `None`）───────────────────────
+  //
+  // 它们是给**操作员编辑过的**档位表用的：只有人填了 P 与 T，
+  // `ApplyZCtrlPreset('<档名>')` 才解析得出增益，否则它如实拒绝并说去哪儿填。
+  // 出厂值不提供增益是有意的 —— 一台仪器的 Z 增益不可能有出厂默认。
+  readonly pGain?: number
+  readonly timeConstantS?: number
+  readonly setpointA?: number
 }
 
 /**
@@ -79,6 +88,11 @@ export function tierForSize(sizeM: number | null | undefined): ScanTier {
     if (size <= tier.upperSizeM * (1 + BOUND_REL_TOL)) return tier
   }
   return FACTORY_TIERS[FACTORY_TIERS.length - 1] as ScanTier
+}
+
+/** 当前生效表的档名（给 `purpose` 枚举、参数组名冲突检查、UI 下拉用）。 */
+export function tierNames(): string[] {
+  return FACTORY_TIERS.map((t) => t.name)
 }
 
 /** 按档名取档（`purpose` 强制换档用）。找不到返回 `null`。 */

@@ -49,12 +49,16 @@ import {
   type SkillResultLike,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
+import type { PresetSkillDeps } from '../l0/zctrl-presets.js'
+import { applyApproachPreset, restoreZctrl } from './approach-preset.js'
 
 export interface ApproachTipDeps {
   /** 逃逸闸。默认用进程那一把——记的一侧与读的一侧必须是同一个实例。 */
   readonly latch?: ApproachRefusalLatch
   readonly engageBudgetS?: number
   readonly engageIntervalS?: number
+  /** 进针参数组的两路真源。没接 = 档案没配，如实跳过切换。 */
+  readonly presets?: PresetSkillDeps
 }
 
 /**
@@ -107,6 +111,7 @@ class Tip {
   readonly #ctx: SkillContext
   readonly #settleS: number
   readonly #latch: ApproachRefusalLatch
+  readonly #presets: PresetSkillDeps
   readonly #budgetS: number
   readonly #intervalS: number
   readonly #steps: StepNote[] = []
@@ -118,13 +123,34 @@ class Tip {
     this.#latch = d.latch ?? processApproachRefusalLatch
     this.#budgetS = d.engageBudgetS ?? 20.0
     this.#intervalS = d.engageIntervalS ?? 1.0
+    this.#presets = d.presets ?? {}
   }
 
   get #scope(): string {
     return chainScope(this.#ctx)
   }
 
+  /**
+   * 切进针参数组 → 跑 → **无论如何放回去**。
+   *
+   * 套在最外层而不是只套在 `AutoApproach` 上，是因为**第一相就可能进成**
+   * （`TryEngageController` 直接建立隧穿，根本不走粗动）。那一段同样受增益快慢
+   * 影响，而它整段都在 `AutoApproach` 之外。
+   *
+   * 嵌套是免费的：里层看到增益已经是进针组的值，就不写、也不需要放回。
+   */
   async run(): Promise<SkillResultLike> {
+    const [snapshot, note] = await applyApproachPreset(this.#ctx, this.#presets, 'ApproachTip')
+    let res: SkillResultLike
+    try {
+      res = await this.#approach()
+    } finally {
+      Object.assign(note, await restoreZctrl(this.#ctx, snapshot, 'ApproachTip'))
+    }
+    return { ...res, data: { ...(res.data ?? {}), ...note } }
+  }
+
+  async #approach(): Promise<SkillResultLike> {
     // ── 第一相：安全 engage（反馈开，不动马达）。顺带认出「已经在隧穿」。 ──
     const eng = await this.#ctx.runSkill('TryEngageController', { settle_s: this.#settleS })
     const engData = (eng.data ?? {}) as Record<string, unknown>

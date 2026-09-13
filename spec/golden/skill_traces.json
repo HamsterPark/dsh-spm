@@ -1,4 +1,75 @@
 {
+  "ApplyZCtrlPreset": {
+    "params": {
+      "preset": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "applied": {
+            "gains": {
+              "i_gain": 1.5e-10,
+              "p_gain": 1.5e-10,
+              "time_constant_s": 1.0
+            }
+          },
+          "message": "已按参数组 'spec-export' 设置 Z 控制器,写入后回读已确认:\np_gain = 150pm ← 自定义参数组 'spec-export'\ni_gain = 150pm/s ← 自定义参数组 'spec-export'\ntime_constant_s = 1000ms ← 由 P/I 导出\nsetpoint_a = 未配置(保持当前值,不下发)",
+          "notes": [],
+          "preset": "spec-export",
+          "sources": {
+            "i_gain": "自定义参数组 'spec-export'",
+            "p_gain": "自定义参数组 'spec-export'",
+            "setpoint_a": "自定义参数组 'spec-export'"
+          },
+          "trace": [
+            "p_gain = 150pm ← 自定义参数组 'spec-export'",
+            "i_gain = 150pm/s ← 自定义参数组 'spec-export'",
+            "time_constant_s = 1000ms ← 由 P/I 导出",
+            "setpoint_a = 未配置(保持当前值,不下发)"
+          ]
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "i_gain": 1.5e-10,
+              "p_gain": 1.5e-10,
+              "time_constant_s": 1.0
+            },
+            "skill": "SetZCtrlGain"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "preset": "spec-export",
+          "trace": [
+            "p_gain = 150pm ← 自定义参数组 'spec-export'",
+            "i_gain = 150pm/s ← 自定义参数组 'spec-export'",
+            "time_constant_s = 1000ms ← 由 P/I 导出",
+            "setpoint_a = 未配置(保持当前值,不下发)"
+          ]
+        },
+        "error": "参数组 'spec-export' 的增益写入失败: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "i_gain": 1.5e-10,
+              "p_gain": 1.5e-10,
+              "time_constant_s": 1.0
+            },
+            "skill": "SetZCtrlGain"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ApproachTip": {
     "params": {},
     "traces": {
@@ -6186,6 +6257,84 @@
           "declared_n": 4,
           "n_channels": 2,
           "truncated": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ListZCtrlPresets": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "note": "'scan' 按当前扫描帧尺寸选档,所以这里不显示它的具体数值 —— 应用时才确定。",
+          "presets": [
+            {
+              "kind": "reserved",
+              "name": "approach",
+              "usable": false,
+              "why": "进针参数组尚未配置(P 增益, I 增益 为空)。请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。"
+            },
+            {
+              "kind": "reserved",
+              "name": "scan",
+              "usable": false,
+              "why": "读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "slow",
+              "usable": false,
+              "why": "扫描档位 'slow' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "atomic_verify",
+              "usable": false,
+              "why": "扫描档位 'atomic_verify' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "atomic",
+              "usable": false,
+              "why": "扫描档位 'atomic' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "highres",
+              "usable": false,
+              "why": "扫描档位 'highres' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "roi",
+              "usable": false,
+              "why": "扫描档位 'roi' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "kind": "scan-tier",
+              "name": "survey",
+              "usable": false,
+              "why": "扫描档位 'survey' 没有配置 P 增益/时间常数。请在「设置 → 扫描档位表」里补上,或改用别的参数组。"
+            },
+            {
+              "i_gain": "150pm/s",
+              "kind": "custom",
+              "name": "spec-export",
+              "p_gain": "150pm",
+              "setpoint_a": null,
+              "sources": {
+                "i_gain": "自定义参数组 'spec-export'",
+                "p_gain": "自定义参数组 'spec-export'",
+                "setpoint_a": "自定义参数组 'spec-export'"
+              },
+              "time_constant_s": "1000ms",
+              "usable": true
+            }
+          ]
         },
         "error": "",
         "success": true,

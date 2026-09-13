@@ -10,7 +10,7 @@ import {
   PresetStore,
   encodeNpyFloat64,
   parseFrameGrab,
-  presetTraceLines,
+  resolvePreset,
   type Skill,
   type SkillCallRecord,
   type SkillContext,
@@ -334,7 +334,7 @@ export function makeCreateZCtrlPreset(deps: PresetDeps = {}): Skill {
         if (e instanceof PresetRejected) return { success: false, error: e.message }
         throw e
       }
-      const trace = presetTraceLines(stored)
+      const trace = resolvePreset(stored.name, { presets: store.list() }).traceLines()
       return {
         success: true,
         data: {

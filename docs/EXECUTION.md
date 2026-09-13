@@ -229,9 +229,52 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 
 新登记 **D-FRAME-1/2 · D-PRESET-1/2/3**（共 34 条）。
 
-**下一段**：`ApplyZCtrlPreset` / `ListZCtrlPresets`，连着 D-APPROACH-1 欠的那笔
-`finally: restore_zctrl`。三者是同一笔债的三面：存储与校验本段已经就位，
-`resolve` 的另外三路（仪器档案 / 按帧宽选档 / 档名）跟着 `ApplyZCtrlPreset` 一起落。
+· **2.21 ✅ `ApplyZCtrlPreset` + `ListZCtrlPresets` + 进针参数组的放回**
+—— Z 参数组三件套齐了，D-APPROACH-1 与 D-PRESET-1 **同时销账**。
+
+这一段的产品是一条**没有数字的路**：模型说 `ApplyZCtrlPreset('approach')`，
+代码去用户维护的地方把值取出来、校验、写下去、读回来、在 TS 里比对。整条路上
+**一个数字参数都没有**，于是也就没有地方让一个丢掉的指数落进去（2026-08-03
+`p_gain=3` 那次，三米的比例增益）。
+
+`resolvePreset` 四路全移，且**是纯函数**——旧仓在内核里发 `Scan_FrameGet` 问帧宽，
+本仓把那次读留在技能层、帧宽当**值**传进来。判据进内核、动作留外面。
+
+**这一段最重要的收获不在计划里**：第一条「技能 ↔ 真 stmsim」的缝（上一段刚建的）
+照出了一个**每一次真机写入都会犯**的移植错。
+
+| | |
+|---|---|
+| 旧仓 | `values_match(requested, actual, rel_tol=1e-3)` |
+| 我写的 | `readback === requested`（**精确相等**） |
+| 后果 | Nanonis 按 float32 打包，`3e-12` 回来是 `2.9999999880125916e-12` ⇒ 真机上**每一次** `SetZCtrlGain` / `SetSetpoint` 都判「写后回读不一致」、回滚、并叫人别进针 |
+| 报文 | 「p_gain: 请求 3e-12, 读回 2.9999999880125916e-12(**相差 1 倍**)」 |
+
+「相差 1 倍」——那句话自己就说清了它在拒绝什么：**什么都没差**。
+
+**两套金样为什么都照不出来**：它们的回包都由我决定。合成器精确回显，手写脚本也
+精确回显。**一个「在两套自己造的回包上都对」的解析器，仍然可以在真东西上一次都
+对不上。** 这就是 DoD ④ 要那条缝的全部理由，而它在落地的第二天就还本了。
+
+补上 `kernel/src/readback.ts`（`valuesMatch` + 那份 2026-08-03 的事故说明），
+新登记 **D-READBACK-1**，并加一条对真 stmsim 的集成测试专门钉这一件事。
+
+**缺陷⑫ 的 `finally` 也还了**：`applyApproachPreset` / `restoreZctrl` 套在
+`AutoApproach` 与 `ApproachTip` 外层。中止时**更要**放回去——与「中止不动手」
+（缺陷⑪）刻意相反。唯一的例外照移：**软停时不还设定点**（改增益不命令位移，
+改设定点会让针尖移动，而软停只停不动），于是软停后现场是「增益=调用前、
+设定点=进针组的值」，这个**组合**要说出来。
+
+**第四次撞上「编不过的变异红不算数」**：四条新变异里有三条拆掉之后类型收窄失效。
+修法还是那条——**提成带返回类型的函数**（`bothNumbers` / `tierGains` / `usableSize`）。
+另有一条 `readback-uses-tolerance` 改打在**容差那个数**上（`1e-3 → 0`）而不是那个
+`if` 上：`isClose` 会变成未使用的函数。**一道闸如果拆不开试一次，它就没被验过。**
+
+新登记 **D-READBACK-1**，销账 **D-APPROACH-1 · D-PRESET-1**（共 35 条，其中 2 条已销账）。
+
+**下一段**：批 3b 的其余扫描族（`LoadScanFrameFromFile` / `CheckScanForCrash` /
+`ComputeDriftVector` / `ParseRegions` / `WatchScanLines` …，≈45 个），
+以及 `DeleteZCtrlPreset`（三件套里唯一还没落的那个，删一组）。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -239,7 +282,7 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 |---|---|
 | ~~`SafeRetract`~~ | ✅ 连 `tip_park` 判定机一起移植（26 条网格金样） |
 | ~~`TryEngageController`~~ | ✅ 决策点三种处境各一条测试（变异照出来的洞） |
-| ~~`CreateZCtrlPreset`~~ | ✅ 参数组存储 + 校验（28 格 + 6 格金样）；`resolve` 只移植自定义组那一路，见 D-PRESET-1 |
+| ~~`CreateZCtrlPreset`~~ | ✅ 参数组存储 + 校验（28 格 + 6 格金样）；`resolve` 四路已于 2.21 补齐 |
 | ~~`GetLatestScanFile`~~ | ✅ 会话目录问仪器 + 递归找最新；候选目录只留两个来源，见 D-FRAME-1 |
 | `AutoApproach` / `ApproachTip` | ~~GraphExecutor~~ ✅ 已就位；仍需**会收敛的物理脚本** = stmsim（DoD ④） |
 
@@ -248,9 +291,9 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2123 条测试**（另有 **79 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **23 条**对真 stmsim 的集成测试——其中 3 条是第一批**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
+**2193 条测试**（另有 **88 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.1`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
-+ **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)`**，重跑逐字节相同）；
++ **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
 
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支

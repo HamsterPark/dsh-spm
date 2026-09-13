@@ -18,6 +18,7 @@ import { SCAN_CHAIN } from './scan.js'
 import { ConfigureScan } from './configure-scan.js'
 import { StartScan } from './start-scan.js'
 import { FRAMES_PRESETS } from './frames.js'
+import { ZCTRL_PRESETS } from './zctrl-presets.js'
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
@@ -38,6 +39,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ConfigureScan,
   StartScan,
   ...FRAMES_PRESETS,
+  ...ZCTRL_PRESETS,
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
@@ -59,6 +61,7 @@ export * from './scan.js'
 export * from './configure-scan.js'
 export * from './start-scan.js'
 export * from './frames.js'
+export * from './zctrl-presets.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'
 export * from '../composite/set-bias-ramp.js'

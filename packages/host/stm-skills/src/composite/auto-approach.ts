@@ -44,6 +44,8 @@ import {
   type StepResult,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
+import type { PresetSkillDeps } from '../l0/zctrl-presets.js'
+import { applyApproachPreset, restoreZctrl, type ZctrlNote } from './approach-preset.js'
 
 const PHASE_OPEN = '_phase_open_module'
 const PHASE_START = '_phase_start_approach'
@@ -80,17 +82,21 @@ export interface ApproachKnobs {
   readonly zSampleEveryS?: number
   readonly engageBudgetS?: number
   readonly engageIntervalS?: number
+  /** 进针参数组的两路真源（自定义组存储 + 仪器档案）。没接 = 档案没配，如实跳过切换。 */
+  readonly presets?: PresetSkillDeps
 }
 
 class Approach {
   readonly #ctx: SkillContext
   readonly #timeoutS: number
-  readonly #k: Required<ApproachKnobs>
+  readonly #k: Required<Omit<ApproachKnobs, 'presets'>>
+  readonly #knobs: ApproachKnobs
   readonly #stopFailures: string[] = []
   #ex!: GraphExecutor
 
   constructor(ctx: SkillContext, params: Readonly<Record<string, unknown>>, knobs: ApproachKnobs) {
     this.#ctx = ctx
+    this.#knobs = knobs
     const t = params['wait_timeout_s']
     this.#timeoutS = typeof t === 'number' && Number.isFinite(t) ? t : DEFAULT_WAIT_TIMEOUT_S
     this.#k = {
@@ -107,30 +113,48 @@ class Approach {
   }
 
   async run(): Promise<SkillResultLike> {
-    this.#ex = new GraphExecutor('AutoApproach', {
-      now: () => this.#ctx.now(),
-      run: (skill) => this.#phase(skill),
-      checkAbort: () => this.#ctx.signal.aborted,
-    })
-    this.#ex.setPartialDefault('approach_started', false)
+    // 缺陷⑫：进针前切到进针参数组，**结束时放回去** —— 中止时更要放。
+    // 切失败不该把进针带走，所以它永不抛，只留痕。
+    const [snapshot, presetNote] = await applyApproachPreset(
+      this.#ctx,
+      this.#knobs.presets ?? {},
+      'AutoApproach',
+    )
+    let restoreNote: ZctrlNote = {}
+    try {
+      this.#ex = new GraphExecutor('AutoApproach', {
+        now: () => this.#ctx.now(),
+        run: (skill) => this.#phase(skill),
+        checkAbort: () => this.#ctx.signal.aborted,
+      })
+      this.#ex.setPartialDefault('approach_started', false)
 
-    const allGood = await this.#ex.runPlan(PLAN)
+      const allGood = await this.#ex.runPlan(PLAN)
 
-    const p = this.#ex.progress
-    const finalRunning = p.partialData['final_running']
-    const data: Record<string, unknown> = {
-      approach_started: p.partialData['approach_started'] === true,
-      running: typeof finalRunning === 'boolean' ? finalRunning : null,
-      wait_progress: p.partialData['wait_progress'] ?? null,
-      _progress: progressToDict(p),
-      // 缺陷⑬：「用户喊停」与「它自己失败了」是两句话，而下游要判这件事不能去猜
-      // `error` 的措辞（那正是 #46）。
-      ...abortFacts(p),
+      const p = this.#ex.progress
+      const finalRunning = p.partialData['final_running']
+      // `finally` 的语义写成显式的一句：**跑完与跑砸走同一条放回路**。
+      restoreNote = await restoreZctrl(this.#ctx, snapshot, 'AutoApproach')
+      const data: Record<string, unknown> = {
+        approach_started: p.partialData['approach_started'] === true,
+        running: typeof finalRunning === 'boolean' ? finalRunning : null,
+        wait_progress: p.partialData['wait_progress'] ?? null,
+        _progress: progressToDict(p),
+        // 缺陷⑬：「用户喊停」与「它自己失败了」是两句话，而下游要判这件事不能去猜
+        // `error` 的措辞（那正是 #46）。
+        ...abortFacts(p),
+        ...presetNote,
+        ...restoreNote,
+      }
+      if (!allGood) {
+        return { success: false, error: p.abortedReason || 'AutoApproach aborted', data }
+      }
+      return { success: true, data }
+    } catch (exc) {
+      // 图本身炸了也要放回去 —— 这一条正是缺陷⑫ 的全部内容。
+      await restoreZctrl(this.#ctx, snapshot, 'AutoApproach')
+      throw exc
     }
-    if (!allGood) {
-      return { success: false, error: p.abortedReason || 'AutoApproach aborted', data }
-    }
-    return { success: true, data }
   }
 
   #phase(skillName: string): Promise<StepResult> {

@@ -704,4 +704,84 @@ function physicallyAbsurdViolations_unused(`,
     replace: '  if (decpt > -6 && decpt <= 21) {',
     scope: 'packages/host',
   },
+  // ── 写后回读 / 参数组的解析与放回 ──────────────────────────────────
+  {
+    id: 'readback-tolerance-is-load-bearing',
+    // 变异打在**容差这个数**上而不是那个 `if` 上：把 `isClose(...)` 换成 `===`
+    // 会让 `isClose` 变成未使用的函数、`tsc` 报错，于是那条变异永远编不过
+    // （「一道闸如果拆不开试一次，它就没被验过」，本仓第四次）。
+    // 而 relTol = 0 时 `isClose` 本来就退化成精确相等 —— 同一个缺陷，编得过。
+    why: '写后回读比对留 1e-3 相对容差。归零 ⇒ 退化成精确相等，真机上每一次写增益都判「不一致」、回滚、并叫人别进针，而报文里写着「相差 1 倍」',
+    file: `${K}/readback.ts`,
+    find: 'export const READBACK_REL_TOL = 1e-3',
+    replace: 'export const READBACK_REL_TOL = 0',
+    scope: 'packages/host',
+  },
+  {
+    id: 'readback-rejects-unreadable',
+    // 这道闸原先写在 `valuesMatch` 的 `if` 里，下游的类型收窄挂在它身上 ⇒
+    // 改成永远为假就编不过。提成 `bothNumbers` 之后它拆得开了
+    // （同 `knownHalfRange` / `checkFrameReadback` 那条规则，本仓第四次）。
+    why: '「读不到」不是「一样」。拆掉 ⇒ 一个 null 回读被当成「硬件收下了」，而那正是回读这件事要防的东西',
+    file: `${K}/readback.ts`,
+    find: '  return a === null || b === null ? null : [a, b]',
+    replace: '  return [a as number, b as number]',
+    scope: 'packages/host',
+  },
+  {
+    id: 'preset-approach-needs-profile',
+    why: '进针参数只由用户输入。拆掉 ⇒ 编一组「常见值」顶上，以本机标定的名义跑一次真实的进针',
+    file: `${K}/zctrl-preset.ts`,
+    find: '  if (missing.length > 0) {',
+    replace: '  if (false && missing.length > 0) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'preset-scan-needs-frame-size',
+    why: '读不到帧宽就拒，不挑一档。拆掉 ⇒ 用一组不对的增益扫一整帧，而没人知道它是怎么选中的',
+    file: `${K}/zctrl-preset.ts`,
+    find: '  return size === null || size === undefined || !Number.isFinite(size) ? null : size',
+    replace: '  return (size ?? 0) as number',
+    scope: 'packages/host',
+  },
+  {
+    id: 'preset-tier-needs-gains',
+    why: '档位表没配 P/T 就拒。拆掉 ⇒ undefined 当增益写进硬件（出厂表六档全是空的，这条路每次都会走到）',
+    file: `${K}/zctrl-preset.ts`,
+    find: '  return p === undefined || p === null || t === undefined || t === null ? null : [p, t]',
+    replace: '  return [(p ?? 0) as number, (t ?? 1) as number]',
+    scope: 'packages/host',
+  },
+  {
+    id: 'apply-preset-stops-on-gain-failure',
+    why: '增益没写进去就不写设定点。拆掉 ⇒ 半组参数落地：增益是旧的、设定点是新的，而返回值看起来只是「设定点失败」',
+    file: `${SK}/l0/zctrl-presets.ts`,
+    find: '      if (!gainRes.success) {',
+    replace: '      if (false && !gainRes.success) {',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'approach-preset-restores',
+    why: '缺陷⑫：进针改过的增益必须放回去。拆掉 ⇒ 进针组的快增益一路带进成像，而没人知道它是谁改的',
+    file: `${SK}/composite/approach-preset.ts`,
+    find: "      const res = await ctx.runSkill('SetZCtrlGain', { ...snapshot.gains })",
+    replace: '      const res: SkillResultLike = { success: true }',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'approach-preset-soft-stop-keeps-setpoint',
+    why: '软停时**不还设定点**（缺陷⑬ 要求四）。拆掉 ⇒ 一个刚被叫停的流程以「归还」的名义再动一次针',
+    file: `${SK}/composite/approach-preset.ts`,
+    find: '    if (sp !== null && operatorStopped(ctx)) {',
+    replace: '    if (false && sp !== null && operatorStopped(ctx)) {',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'approach-preset-snapshot-on-failure',
+    why: '切参数组失败也要返回快照 ——「调用失败」不等于「什么都没改」。拆掉 ⇒ 写了一半的参数组永远放不回去',
+    file: `${SK}/composite/approach-preset.ts`,
+    find: '    return [{ gains: before, setpointA: spBefore }, note]',
+    replace: '    return [ok ? { gains: before, setpointA: spBefore } : null, note]',
+    scope: 'packages/host/stm-skills',
+  },
 ]

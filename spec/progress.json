@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 80,
+    "done": 82,
     "partial": 0,
-    "todo": 435
+    "todo": 433
   },
-  "modules_complete": 11,
+  "modules_complete": 12,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -571,8 +571,8 @@
     },
     "builtins.zctrl_presets_skills": {
       "total": 3,
-      "done": 1,
-      "complete": false
+      "done": 3,
+      "complete": true
     },
     "composite.achieve_atomic": {
       "total": 1,
@@ -1030,11 +1030,11 @@
       "module": "builtins.zctrl_presets_skills",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 2,
+      "impl": true,
+      "status": "done"
     },
     "ApproachTip": {
       "module": "builtins.approach",
@@ -3700,11 +3700,11 @@
       "module": "builtins.zctrl_presets_skills",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "LoadLayout": {
       "module": "builtins.util",

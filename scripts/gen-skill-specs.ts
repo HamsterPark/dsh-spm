@@ -55,6 +55,16 @@ const BATCH_2 = [
 ]
 
 /**
+ * 批 2b：Z 参数组三件套里剩下的两个。
+ *
+ * `CreateZCtrlPreset` 在批 2 里就落了（模型唯一能写数字的那一处），但**建完没人用**
+ * ——它自己的报文写着「用 ApplyZCtrlPreset('x') 应用它」，而那个技能当时还不存在。
+ * 这两个补上之后，进针参数组的「切过去 → 跑 → finally 放回」（D-APPROACH-1 欠的那笔）
+ * 才谈得上补。
+ */
+const BATCH_2B = ['ApplyZCtrlPreset', 'ListZCtrlPresets']
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -130,7 +140,7 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2, ...BATCH_3A, ...BATCH_3B]
+  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 
@@ -144,6 +154,7 @@ function main(): number {
     `//\n` +
     `// 批 1 只读 L0 ${BATCH_1.filter((n) => byName.has(n)).length} 个 · ` +
     `批 2 写/硬闸/DANGEROUS/L1 ${BATCH_2.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 2b 参数组 ${BATCH_2B.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3a 扫描主链 ${BATCH_3A.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3b 组合 ${BATCH_3B.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0

@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { emptyHardwareState, type Skill, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'
 import { IMPLEMENTED } from './index.js'
+import { processPresetStore } from './frames.js'
 
 interface Trace {
   readonly success?: boolean
@@ -199,9 +200,6 @@ function dropPath(obj: unknown, path: string): boolean {
   return true
 }
 
-/** D-APPROACH-1 的三行留痕。 */
-const ZCTRL_PRESET_FIELDS = ['zctrl_preset', 'zctrl_preset_applied', 'zctrl_preset_note']
-
 /**
  * D-SCAN-5：那句报文里印的是「读回的 GET 值」，而读不到时 Python 印 `None`、
  * JS 印 `null`。为了逐字去伪造一个 Python 字面量，等于让诊断指向一个不存在的语言
@@ -254,14 +252,6 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       { absent: ['_progress.partial_data.aborted'] },
     ]),
   ),
-  // ── D-APPROACH-1：进针参数组的切换与放回不移植 ──
-  //
-  // 旧仓 `run_composite` 会 apply_approach_preset → 跑图 → finally: restore_zctrl，
-  // 并把三个 `zctrl_preset*` 字段放进 data。它依赖 `zctrl_presets` 参数组存储，
-  // 本仓还没有（那份存储也是 `CreateZCtrlPreset` 卡着的东西，两者该一起落）。
-  //
-  // 导出机上**没配参数组**，所以金样里那三个字段记的正是「没切、沿用当前增益」——
-  // 也就是本仓现在的行为。差的只是那三行留痕。
   // ── D-SCAN-4：扫描进度视觉监视器不移植 ──
   //
   // 旧仓 `StartScan` 起扫之后拉起一个守护线程，在 12.5 %…100 % 抓部分帧、跑 M12、
@@ -286,30 +276,15 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       },
     ]),
   ),
-  // D-APPROACH-1 同样适用于 `ApproachTip`：它也套了一层进针参数组的切换与放回
-  // （理由是**第一相就可能进成**，那一段整个在 AutoApproach 之外）。
-  ...Object.fromEntries(
-    ['ok', 'empty@0', 'mismatch', 'runerr@0', 'err@0'].map((t) => [
-      `ApproachTip/${t}`,
-      { absent: ZCTRL_PRESET_FIELDS },
-    ]),
-  ),
   // `err@0` / `err@1` 在开模块或起跑那一步就中止了，**根本没进等待相**，
   // 所以它们的金样里没有 crosstalk 那一格——`absent` 会先断言路径存在，
   // 一刀切地登记会被它当场判成过期（确实被判了一次）。
-  ...Object.fromEntries(
-    ['err@0', 'err@1'].map((t) => [
-      `AutoApproach/${t}`,
-      { absent: ZCTRL_PRESET_FIELDS },
-    ]),
-  ),
   ...Object.fromEntries(
     ['ok', 'empty@0', 'mismatch', 'runerr@0', 'err@2', 'err@3',
       'err@17', 'err@18', 'err@19'].map((t) => [
       `AutoApproach/${t}`,
       {
         absent: [
-          ...ZCTRL_PRESET_FIELDS,
           // D-APPROACH-2：串扰报告不移植。它每 15 s 读一次 lock-in X 报「≈还剩多少步」，
           // **不驱动任何决策**（旧仓自己的注释写着），而 lock-in 链路本仓还没有。
           // 金样里它那一格记的正好是「调制关着所以这条报告永远是这一句」——
@@ -377,6 +352,26 @@ function scrubPaths(v: unknown): unknown {
   return v.split(process.cwd()).join('<project-root>').replace(STAMP_RE, '$1<stamp>')
 }
 
+/**
+ * 每条轨迹跑之前把**进程级存储**摆成金样那一格的前提。
+ *
+ * 参数组存储活在进程里（它就该活在进程里——一次调用建的组，下一次调用要能用），
+ * 于是 `CreateZCtrlPreset` 那一格建的 `spec-export` 会漏给后面每一格。导出脚本那侧
+ * 也踩到了同一件事：`ApplyZCtrlPreset/ok` 曾经「成功」，而它成功的原因不在它自己的
+ * 轨迹里，只在批次顺序里。
+ *
+ * 两侧现在都**显式摆**（`export_skill_traces.py` 的 `_reset_state`），值一样、
+ * 名字一样。TS 这边还多一层需要：`names` 是**按字母排的**，`ApplyZCtrlPreset`
+ * 跑在 `CreateZCtrlPreset` 前面——靠顺序在这里连碰巧都碰不上。
+ */
+const PRESET_FIXTURE = { name: 'spec-export', p_gain: '150p', i_gain: '150p' }
+const NEEDS_PRESET = new Set(['ApplyZCtrlPreset', 'ListZCtrlPresets'])
+
+function resetProcessState(skillName: string): void {
+  processPresetStore.clear()
+  if (NEEDS_PRESET.has(skillName)) processPresetStore.upsert(PRESET_FIXTURE)
+}
+
 const names = Object.keys(IMPLEMENTED).sort()
 
 describe('轨迹金样：批 1/2 逐条对旧仓', () => {
@@ -394,6 +389,7 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
         if (want.raised !== undefined) continue
 
         it(`${traceName}：动词序列与返回都相等`, async () => {
+          resetProcessState(name)
           const { ctx, calls } = fakeCtx(optsOf(traceName))
           const got = await skill.execute(ctx, entry.params)
 

@@ -9,7 +9,7 @@
  * 下游 `z_controller_on: false` 正是 `TryEngageController` 建议**粗进针**的依据 ——
  * 一个错了就变成撞针的判断。所以这几个技能读回来核对，不符就**还原**。
  */
-import { pyFloatRepr, formatG, type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
+import { valuesMatch, type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { body, fail, int, num, numList, ok } from './common.js'
 import { lastString } from './reads-hw.js'
@@ -90,12 +90,6 @@ export const ZControllerOnOff: Skill = {
 
 // ── 设定点 ──────────────────────────────────────────────────────────────────
 
-/** 「相差 N 倍」——量级错的那一句。 */
-function ratioNote(requested: number, readback: number): string {
-  if (requested === 0) return ''
-  return `(相差 ${formatG(readback / requested, 3)} 倍)`
-}
-
 export const SetSetpoint: Skill = {
   spec: S.SetSetpointSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
@@ -119,7 +113,8 @@ export const SetSetpoint: Skill = {
       })
     }
     const readback = num(after, 0)
-    if (readback !== null && readback === requested) {
+    const m = valuesMatch(requested, readback)
+    if (m.ok) {
       return ok({ setpoint_a: requested, readback, readback_ok: true })
     }
 
@@ -130,10 +125,8 @@ export const SetSetpoint: Skill = {
       restored = back.error === undefined || back.error === ''
     }
     return fail(
-      `写后回读不一致 —— 硬件里的设定点不是刚才请求的值: ` +
-        `请求 ${pyFloatRepr(requested)}, 读回 ${readback === null ? 'None' : pyFloatRepr(readback)}` +
-        `${readback === null ? '' : ratioNote(requested, readback)}。` +
-        `${restored ? '已还原为写入前的值。' : ''}` +
+      `写后回读不一致 —— 硬件里的设定点不是刚才请求的值: ${m.detail}。` +
+        `${restored ? '已还原为写入前的值。' : '无法还原为写入前的值。'}` +
         `**不要进针**,先在 Nanonis 面板上人工核对设定点。`,
       { requested, readback, readback_ok: false, prior, restored },
     )
@@ -181,8 +174,11 @@ export const SetZCtrlGain: Skill = {
       time_constant_s: num(after, 1),
       i_gain: num(after, 2),
     }
-    const bad = GAIN_FIELDS.filter((k) => readback[k] === null || readback[k] !== requested[k])
-    if (bad.length === 0) {
+    // 判断在**这里**算，绝不是把两个数摆进返回值里问下游一不一样 ——
+    // 见 `valuesMatch` 抬头那份 2026-08-03 的报告：被问的那个正是弄错的那个。
+    const mismatches = GAIN_FIELDS.map((k) => ({ k, m: valuesMatch(requested[k], readback[k]) }))
+      .filter((x) => !x.m.ok)
+    if (mismatches.length === 0) {
       return ok({ ...requested, readback, readback_ok: true })
     }
 
@@ -196,16 +192,7 @@ export const SetZCtrlGain: Skill = {
       )
       restored = back.error === undefined || back.error === ''
     }
-    const detail = bad
-      .map((k) => {
-        const r = readback[k]
-        return (
-          `${k}: 请求 ${pyFloatRepr(requested[k])}, ` +
-          `读回 ${r === null ? 'None' : pyFloatRepr(r)}` +
-          `${r === null ? '' : ratioNote(requested[k], r)}`
-        )
-      })
-      .join('; ')
+    const detail = mismatches.map((x) => `${x.k}: ${x.m.detail}`).join('; ')
     return fail(
       `写后回读不一致 —— 硬件里的增益不是刚才请求的值: ${detail}。` +
         `${restored ? '已还原为写入前的值。' : ''}` +

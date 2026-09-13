@@ -17,6 +17,7 @@
  * `ConfigureScan` 的两道帧闸是同一条纪律。
  */
 import { SIParseError, formatSi, parseSi, pyFloatRepr } from './si.js'
+import { tierByName, tierForSize, tierNames, type ScanTier } from './scan-policy.js'
 
 export const PRESET_APPROACH = 'approach'
 export const PRESET_SCAN = 'scan'
@@ -214,34 +215,239 @@ export class PresetStore {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// 解析：一个**名字** → 一组数字 + 每个数字的来历
+// ─────────────────────────────────────────────────────────────────────────
+
 /**
- * 一组自定义参数的**来历行**——每个数字都说清自己从哪儿来。
+ * 一个数字是从哪儿来的。UI 与测试都断言这几个值。
  *
- * 操作员得能在不读代码的情况下回答「这个环为什么是**这个**值」，而一个没有来历的
- * 数字没人核得动。
- *
- * 只覆盖**自定义组**这一路：保留名 `approach`（仪器档案）、`scan` 与档名（扫描
- * 档位表）的解析要连 `ApplyZCtrlPreset` 一起落，见 `spec/deviations.md` D-PRESET-1。
- * 这里不写那三条分支，是因为本仓现在没有任何调用方会走到它们——而它们各自的
- * 「去哪儿改」报文写错了比没有更坏。
- *
- * `time_constant_s` **是算出来的**：Nanonis 吃 (P, T, I) 而 T = P / I。把 T 也存下来
- * 只会让它和定义它的那一对漂移开。
+ * 出厂档位表**不带增益**（`p_gain` / `time_constant_s` 都空），所以出厂配置下
+ * `tier-factory` 这一支解析不出东西、只会拒——这不是「还没接线」，是**没配就该拒**：
+ * 一台仪器的 Z 增益不可能有出厂默认值。
  */
-export function presetTraceLines(item: StoredPreset): string[] {
-  const p = parseSi(item.p_gain, 'p_gain')
-  const i = parseSi(item.i_gain, 'i_gain')
-  const origin = `自定义参数组 '${item.name}'`
-  const rows = [
-    `p_gain = ${formatSi(p)}m ← ${origin}`,
-    `i_gain = ${formatSi(i)}m/s ← ${origin}`,
-    `time_constant_s = ${formatSi(p / i)}s ← 由 P/I 导出`,
-  ]
-  const sp = item.setpoint_a
-  rows.push(
-    sp === undefined || sp === ''
-      ? 'setpoint_a = 未配置(保持当前值,不下发)'
-      : `setpoint_a = ${formatSi(parseSi(sp, 'setpoint_a'))}A ← ${origin}`,
+export const SOURCE_TIER_OPERATOR = 'tier-operator'
+export const SOURCE_TIER_FACTORY = 'tier-factory'
+
+/**
+ * 进针参数，取自**仪器档案**（用户在设置界面填，不经模型）。
+ *
+ * 三个都可能是 `null` = 没填。**读不到就拒**，绝不拿一组「常见值」顶上：
+ * 编一个出来会以本机标定的名义跑一次真实的进针。
+ */
+export interface ApproachProfile {
+  readonly pGainM: number | null
+  readonly iGainMPerS: number | null
+  readonly setpointA: number | null
+}
+
+/** 一组解析好的参数，**连同每个数字的来历**。 */
+export class ResolvedPreset {
+  readonly timeConstantS: number
+
+  constructor(
+    readonly name: string,
+    readonly pGain: number,
+    readonly iGain: number,
+    readonly setpointA: number | null,
+    readonly sources: Readonly<Record<string, string>>,
+    readonly notes: readonly string[] = [],
+  ) {
+    // **派生的，不存**：Nanonis 吃 (P, T, I) 而 T = P / I，把 T 也存下来只会让它
+    // 和定义它的那一对漂移开。
+    this.timeConstantS = pGain / iGain
+  }
+
+  /** 正好是 `SetZCtrlGain` 的入参。**参数顺序只在这一处**。 */
+  gainParams(): { p_gain: number; time_constant_s: number; i_gain: number } {
+    return { p_gain: this.pGain, time_constant_s: this.timeConstantS, i_gain: this.iGain }
+  }
+
+  /**
+   * 给人读的来历 —— **每个数字都说清自己从哪儿来**。
+   *
+   * 操作员得能在不读代码的情况下回答「这个环为什么是**这个**值」，
+   * 而一个没有来历的数字没人核得动。
+   */
+  traceLines(): string[] {
+    const rows = [
+      `p_gain = ${formatSi(this.pGain)}m ← ${this.sources['p_gain'] ?? '?'}`,
+      `i_gain = ${formatSi(this.iGain)}m/s ← ${this.sources['i_gain'] ?? '?'}`,
+      `time_constant_s = ${formatSi(this.timeConstantS)}s ← 由 P/I 导出`,
+    ]
+    rows.push(
+      this.setpointA === null
+        ? 'setpoint_a = 未配置(保持当前值,不下发)'
+        : `setpoint_a = ${formatSi(this.setpointA)}A ← ${this.sources['setpoint_a'] ?? '?'}`,
+    )
+    return rows
+  }
+}
+
+/**
+ * 解析要的四样东西。**全是值，不是 I/O** —— `scan` 别名要的帧宽由调用方读好传进来。
+ *
+ * 旧仓是 `resolve(name, context=...)`，在内核里发 `Scan_FrameGet`。本仓把那一次读
+ * 留在技能层：判据进内核、动作留外面，这样 `resolve` 的每一支都测得动，
+ * 而「读不到帧宽」这件事也就有了一个**明确的值**（`null`）而不是一次异常。
+ */
+export interface PresetSources {
+  /** 仪器档案里的进针参数。没接就是没配。 */
+  readonly approach?: ApproachProfile | null
+  /** 自定义组。 */
+  readonly presets?: readonly StoredPreset[]
+  /** 当前扫描帧宽（米）。`scan` 别名要它；**读不到给 `null`**。 */
+  readonly frameSizeM?: number | null
+}
+
+/** 现在 `resolve` 认的全部名字，保留名在前。 */
+export function availableNames(presets: readonly StoredPreset[] = []): string[] {
+  const names = [...RESERVED_NAMES, ...tierNames(), ...presets.map((p) => p.name)]
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const n of names) {
+    const k = n.toLowerCase()
+    if (seen.has(k)) continue
+    seen.add(k)
+    out.push(n)
+  }
+  return out
+}
+
+function fromProfile(p: ApproachProfile | null | undefined): ResolvedPreset {
+  const missing: string[] = []
+  if (p?.pGainM === null || p?.pGainM === undefined) missing.push('P 增益')
+  if (p?.iGainMPerS === null || p?.iGainMPerS === undefined) missing.push('I 增益')
+  if (missing.length > 0) {
+    // **如实失败并说去哪儿改。** 对一句明确的「应用进针参数」什么都不做还报成功，
+    // 是一次假成功。
+    throw new PresetRejected(
+      `进针参数组尚未配置(${missing.join(', ')} 为空)。` +
+        '请在「设置 → 仪器档案 → 进针参数」里填写 —— 这组数只由用户输入,不经模型。',
+    )
+  }
+  return new ResolvedPreset(
+    PRESET_APPROACH,
+    p!.pGainM as number,
+    p!.iGainMPerS as number,
+    p!.setpointA,
+    {
+      p_gain: '仪器档案 approach_p_gain_m',
+      i_gain: '仪器档案 approach_i_gain_m_per_s',
+      setpoint_a: '仪器档案 approach_setpoint_a',
+    },
   )
-  return rows
+}
+
+/**
+ * 这一档配了增益吗。配了给 `[P, T]`，没配给 `null`。
+ *
+ * 提成函数而不是写在 `if` 里，是为了让这道闸**拆得开**：判断写在 `if` 里时
+ * 下游的类型收窄挂在它身上，把它改成永远为假会让 `tsc` 直接报错，而一条编不过的
+ * 变异什么都没验。
+ */
+function tierGains(tier: ScanTier): [number, number] | null {
+  const p = tier.pGain
+  const t = tier.timeConstantS
+  return p === undefined || p === null || t === undefined || t === null ? null : [p, t]
+}
+
+function fromTier(tier: ScanTier, label: string): ResolvedPreset {
+  const name = tier.name || label
+  const gains = tierGains(tier)
+  if (gains === null) {
+    throw new PresetRejected(
+      `扫描档位 '${name}' 没有配置 P 增益/时间常数。` +
+        '请在「设置 → 扫描档位表」里补上,或改用别的参数组。',
+    )
+  }
+  const [p, t] = gains
+  if (t <= 0) {
+    throw new PresetRejected(`扫描档位 '${name}' 的时间常数为 0,无法导出 I = P/T。`)
+  }
+  // 出厂表永远走不到这里（三个增益字段都空），能走到的只有操作员编辑过的档。
+  const origin = `扫描档位表 '${name}'(${SOURCE_TIER_OPERATOR})`
+  return new ResolvedPreset(name, p, p / t, tier.setpointA ?? null, {
+    p_gain: origin,
+    i_gain: `${origin},I = P/T 导出`,
+    setpoint_a: origin,
+  })
+}
+
+function fromCustom(item: StoredPreset): ResolvedPreset {
+  const origin = `自定义参数组 '${item.name}'`
+  return new ResolvedPreset(
+    item.name,
+    parseSi(item.p_gain, 'p_gain'),
+    parseSi(item.i_gain, 'i_gain'),
+    item.setpoint_a === undefined || item.setpoint_a === ''
+      ? null
+      : parseSi(item.setpoint_a, 'setpoint_a'),
+    { p_gain: origin, i_gain: origin, setpoint_a: origin },
+    item.note !== undefined && item.note !== '' ? [item.note] : [],
+  )
+}
+
+/** 读到的帧宽。读不到、或者读到一个不是有限数的东西，都给 `null`。 */
+function usableSize(size: number | null | undefined): number | null {
+  return size === null || size === undefined || !Number.isFinite(size) ? null : size
+}
+
+function unknownMessage(wanted: string, presets: readonly StoredPreset[]): string {
+  return (
+    `没有名为 '${wanted}' 的参数组。当前可用: ` +
+    availableNames(presets)
+      .map((n) => `'${n}'`)
+      .join(', ') +
+    '。(用 ListZCtrlPresets 查看每一组的具体数值。)'
+  )
+}
+
+/**
+ * 一个**名字** → 一组数字。解析不出来抛 {@link PresetRejected}。
+ *
+ * 四路各有自己的真源，**没有一路是新开的存储**：
+ *
+ * | 名字 | 取自 |
+ * |---|---|
+ * | `approach` | 仪器档案（用户填） |
+ * | `scan` | 按**当前帧宽**选中的那一档（与 `ScanAt` 同源） |
+ * | 档名 | 扫描档位表 |
+ * | 自定义名 | 参数组存储（模型唯一能写的那一处） |
+ *
+ * 诱人的设计是建一张「名 → 增益」的表。那会是一份**第二真源**：操作员在档位表里
+ * 把 50 n 改成 180 n，下一次扫描却还用旧值。所以这里只解析，不存。
+ */
+export function resolvePreset(name: unknown, src: PresetSources = {}): ResolvedPreset {
+  const presets = src.presets ?? []
+  const wanted = String(name ?? '').trim()
+  if (!wanted) throw new PresetRejected(unknownMessage('', presets))
+  const lowered = wanted.toLowerCase()
+
+  if (lowered === PRESET_APPROACH) return fromProfile(src.approach ?? null)
+
+  if (lowered === PRESET_SCAN) {
+    const size = usableSize(src.frameSizeM)
+    if (size === null) {
+      // **读不到 ≠ 挑一档**。挑错档等于用一组不对的增益扫一整帧。
+      throw new PresetRejected(
+        '读不到当前扫描帧的尺寸,无法确定该用哪一档扫图参数。' +
+          '请直接指定档名(见 ListZCtrlPresets),或先设置扫描范围。',
+      )
+    }
+    const res = fromTier(tierForSize(size), PRESET_SCAN)
+    return new ResolvedPreset(res.name, res.pGain, res.iGain, res.setpointA, res.sources, [
+      ...res.notes,
+      `'scan' 按当前帧宽 ${formatSi(size)}m 选中档位 '${res.name}'`,
+    ])
+  }
+
+  const tier = tierByName(wanted)
+  if (tier !== null) return fromTier(tier, wanted)
+
+  for (const item of presets) {
+    if (item.name.toLowerCase() === lowered) return fromCustom(item)
+  }
+
+  throw new PresetRejected(unknownMessage(wanted, presets))
 }

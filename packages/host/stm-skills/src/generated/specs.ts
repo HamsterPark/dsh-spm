@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -775,6 +775,26 @@ export const ApproachTipSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const ApplyZCtrlPresetSpec: SkillSpec = {
+  name: "ApplyZCtrlPreset",
+  description: "按**参数组名**把 Z 控制器参数(P/I 增益 + 设定点)写进硬件。\n\n**这是设置 Z 参数的首选方式**,优先于 SetZCtrlGain / SetSetpoint:具体数值由代码从用户维护的存储里取出并写入,你只需要说用哪一组,不需要(也不应该)自己写出任何数字。\n\n常用组名:\n- `approach` —— 进针参数(来自仪器档案,用户填写)\n- `scan` —— 扫图参数(按当前扫描帧尺寸自动选档,与 ScanAt 同源)\n- 也可以直接用扫描档名(如 `atomic`)或自定义组名\n\n用 ListZCtrlPresets 查看当前可用的全部组名与数值。写入后会自动回读比对,不一致会报失败。",
+  parameters: [
+    { name: "preset", type: "str", description: "参数组名,如 'approach' / 'scan' / 档名 / 自定义组名。不确定有哪些就先调 ListZCtrlPresets。", required: true },
+  ],
+  tags: ["z","gain","setpoint","preset","write","readback"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ListZCtrlPresetsSpec: SkillSpec = {
+  name: "ListZCtrlPresets",
+  description: "列出当前可用的全部 Z 参数组名及其数值与来源。在调用 ApplyZCtrlPreset 之前不确定有哪些组时使用。",
+  parameters: [],
+  tags: ["z","gain","preset","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
 export const ConfigureScanSpec: SkillSpec = {
   name: "ConfigureScan",
   description: "配置扫描框：中心、尺寸、角度，以及采集通道。默认还会顺带设置由 line_time_s 推导出的扫描速度（线速度 = width_m / line_time_s）；传 set_scan_speed=False 则保持当前扫描速度不动。",
@@ -946,6 +966,8 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   CreateZCtrlPreset: CreateZCtrlPresetSpec,
   AutoApproach: AutoApproachSpec,
   ApproachTip: ApproachTipSpec,
+  ApplyZCtrlPreset: ApplyZCtrlPresetSpec,
+  ListZCtrlPresets: ListZCtrlPresetsSpec,
   ConfigureScan: ConfigureScanSpec,
   SetScanSpeed: SetScanSpeedSpec,
   StartScan: StartScanSpec,
