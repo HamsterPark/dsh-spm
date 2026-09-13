@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 82,
+    "done": 110,
     "partial": 0,
-    "todo": 433
+    "todo": 405
   },
-  "modules_complete": 12,
+  "modules_complete": 19,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -161,8 +161,8 @@
     },
     "builtins.current": {
       "total": 4,
-      "done": 2,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "builtins.current_monitor": {
       "total": 1,
@@ -211,8 +211,8 @@
     },
     "builtins.folme": {
       "total": 8,
-      "done": 5,
-      "complete": false
+      "done": 8,
+      "complete": true
     },
     "builtins.force_inversion": {
       "total": 1,
@@ -261,8 +261,8 @@
     },
     "builtins.imaging": {
       "total": 7,
-      "done": 5,
-      "complete": false
+      "done": 7,
+      "complete": true
     },
     "builtins.instrument_limits": {
       "total": 6,
@@ -366,8 +366,8 @@
     },
     "builtins.piezo": {
       "total": 13,
-      "done": 7,
-      "complete": false
+      "done": 13,
+      "complete": true
     },
     "builtins.piezo_range_check": {
       "total": 1,
@@ -391,8 +391,8 @@
     },
     "builtins.readback": {
       "total": 7,
-      "done": 1,
-      "complete": false
+      "done": 7,
+      "complete": true
     },
     "builtins.safety_hw": {
       "total": 4,
@@ -416,7 +416,7 @@
     },
     "builtins.scan_frame": {
       "total": 5,
-      "done": 1,
+      "done": 2,
       "complete": false
     },
     "builtins.scan_intel_selfcheck": {
@@ -446,8 +446,8 @@
     },
     "builtins.signals": {
       "total": 4,
-      "done": 3,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "builtins.slow_drift_skill": {
       "total": 1,
@@ -556,8 +556,8 @@
     },
     "builtins.util": {
       "total": 12,
-      "done": 5,
-      "complete": false
+      "done": 12,
+      "complete": true
     },
     "builtins.zcontrol": {
       "total": 15,
@@ -1490,11 +1490,11 @@
       "module": "builtins.scan_frame",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "CheckTipCrashByAmplitude": {
       "module": "builtins.qplus_amplitude",
@@ -2380,21 +2380,21 @@
       "module": "builtins.current",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetCurrentGains": {
       "module": "builtins.current",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDataLogStatus": {
       "module": "builtins.datalog",
@@ -2630,11 +2630,11 @@
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 14,
+      "impl": true,
+      "status": "done"
     },
     "GetMotorFreqAmp": {
       "module": "builtins.motor",
@@ -2860,31 +2860,31 @@
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 10,
+      "impl": true,
+      "status": "done"
     },
     "GetPiezoHVAInfo": {
       "module": "builtins.piezo",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPiezoHVAStatusLED": {
       "module": "builtins.piezo",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPiezoSensitivity": {
       "module": "builtins.piezo",
@@ -2920,11 +2920,11 @@
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 11,
+      "impl": true,
+      "status": "done"
     },
     "GetPllSignalAnalyzerData": {
       "module": "builtins.optional_controllers",
@@ -2960,11 +2960,11 @@
       "module": "builtins.folme",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPreamp": {
       "module": "builtins.optional_controllers",
@@ -3020,11 +3020,11 @@
       "module": "builtins.util",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetRfGeneratorStatus": {
       "module": "builtins.optional_sweepers",
@@ -3190,11 +3190,11 @@
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetScanSpeed": {
       "module": "builtins.scan_extra",
@@ -3290,21 +3290,21 @@
       "module": "builtins.signals",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetSpectroscopyConfig": {
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 11,
+      "impl": true,
+      "status": "done"
     },
     "GetSpectroscopyStatus": {
       "module": "builtins.spectroscopy_sync",
@@ -3370,11 +3370,11 @@
       "module": "builtins.readback",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetTipSpeed": {
       "module": "builtins.folme",
@@ -3710,11 +3710,11 @@
       "module": "builtins.util",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "LoadMultiPassConfig": {
       "module": "builtins.advanced_ops",
@@ -3740,11 +3740,11 @@
       "module": "builtins.piezo",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "LoadScanFrameFromFile": {
       "module": "builtins.scan_frame",
@@ -4360,11 +4360,11 @@
       "module": "builtins.util",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SaveMultiPassConfig": {
       "module": "builtins.advanced_ops",
@@ -4410,11 +4410,11 @@
       "module": "builtins.util",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ScanAt": {
       "module": "composite.scan_at",
@@ -4430,21 +4430,21 @@
       "module": "builtins.imaging",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ScanBackgroundPaste": {
       "module": "builtins.imaging",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ScanIntelSelfCheck": {
       "module": "builtins.scan_intel_selfcheck",
@@ -4960,21 +4960,21 @@
       "module": "builtins.piezo",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPiezoHysteresisValues": {
       "module": "builtins.piezo",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetPiezoLimits": {
       "module": "builtins.instrument_limits",
@@ -5000,11 +5000,11 @@
       "module": "builtins.piezo",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPiezoTilt": {
       "module": "builtins.piezo",
@@ -5040,21 +5040,21 @@
       "module": "builtins.folme",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPointShootOnOff": {
       "module": "builtins.folme",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPointShootProps": {
       "module": "builtins.misc_setters",
@@ -5090,21 +5090,21 @@
       "module": "builtins.util",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetRTOversample": {
       "module": "builtins.util",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetSTSAdvancedProps": {
       "module": "builtins.spectroscopy",
@@ -5880,11 +5880,11 @@
       "module": "builtins.util",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "UnmixSpectra": {
       "module": "paper.spectral_unmix",

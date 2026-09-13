@@ -65,6 +65,29 @@ const BATCH_2 = [
 const BATCH_2B = ['ApplyZCtrlPreset', 'ListZCtrlPresets']
 
 /**
+ * 批 3c：**收口整模块**的 L0 长尾，加一个真判据。
+ *
+ * 选的标准不是「容易」，是**模块级完成**（DoD §8.5 ⑧：该 .py 全部名字 done）。
+ * 一个半完成的模块在进度表上是 `complete: false`，而它离完成差几个纯机械件时，
+ * 那几个件的价值就等于整个模块的价值。七个模块在这一批里收口。
+ *
+ * `CheckScanForCrash` 是例外，它是这一批唯一带判据的：撞针检测
+ * （方差接近零 / NaN），而且 `status` 三态——**读不到就是 skipped，永远不是 ok**。
+ */
+const BATCH_3C = [
+  'GetSignalsAddRT', 'GetCurrentBEEM', 'GetCurrentGains',
+  'ScanBackgroundDelete', 'ScanBackgroundPaste', 'GetPointShootProps',
+  'SetPointShootExperiment', 'SetPointShootOnOff', 'GetRTOversample',
+  'SetRTFreq', 'SetRTOversample', 'LoadLayout',
+  'SaveLayout', 'SaveSettings', 'UnlockNanonisUI',
+  'GetPiezoHVAInfo', 'GetPiezoHVAStatusLED', 'LoadPiezoHysteresisFile',
+  'SetPiezoHysteresisOnOff', 'SetPiezoHysteresisValues', 'SetPiezoSensitivity',
+  'GetMiscInstrumentConfig', 'GetPiezoConfig', 'GetPllConfig',
+  'GetScanPatternConfig', 'GetSpectroscopyConfig', 'GetTipShaperConfig',
+  'CheckScanForCrash',
+]
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -140,7 +163,7 @@ function main(): number {
   const byName = new Map(all.map((s) => [s.name, s]))
   const traced = new Set(Object.keys(JSON.parse(readFileSync(TRACES, 'utf8')) as object))
 
-  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B]
+  const names = [...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
 

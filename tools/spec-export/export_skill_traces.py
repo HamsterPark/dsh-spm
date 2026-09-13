@@ -112,6 +112,23 @@ BATCH_2 = [
 #: 「用 ApplyZCtrlPreset('x') 应用它」，而那个技能当时还不存在。
 BATCH_2B = ["ApplyZCtrlPreset", "ListZCtrlPresets"]
 
+#: 批 3c：**收口整模块**的 L0 长尾（七个模块在这一批里从半完成变成完成），
+#: 加一个真判据 `CheckScanForCrash`（方差接近零 / NaN ⇒ 撞针；`status` 三态，
+#: **读不到就是 skipped，永远不是 ok**）。
+BATCH_3C = [
+    "GetSignalsAddRT", "GetCurrentBEEM", "GetCurrentGains",
+    "ScanBackgroundDelete", "ScanBackgroundPaste", "GetPointShootProps",
+    "SetPointShootExperiment", "SetPointShootOnOff", "GetRTOversample",
+    "SetRTFreq", "SetRTOversample", "LoadLayout",
+    "SaveLayout", "SaveSettings", "UnlockNanonisUI",
+    "GetPiezoHVAInfo", "GetPiezoHVAStatusLED", "LoadPiezoHysteresisFile",
+    "SetPiezoHysteresisOnOff", "SetPiezoHysteresisValues", "SetPiezoSensitivity",
+    "GetMiscInstrumentConfig", "GetPiezoConfig", "GetPllConfig",
+    "GetScanPatternConfig", "GetSpectroscopyConfig", "GetTipShaperConfig",
+    "CheckScanForCrash",
+]
+
+
 #: 批 3a（扫描主链）。`WaitScanComplete` 在计划里单独占一格：它是第一个**长时**
 #: 技能，抱着 abort、超时、五种 outcome，以及那条硬约束 ——
 #: 「dsh 超时也触发 signal，**绝不把仪器留在运动中**」。
@@ -191,6 +208,29 @@ PARAM_OVERRIDES: dict[str, dict] = {
     # 缺省 1800 s = 30 分钟。假钟不占墙钟，但每半秒一次轮询会录出 3600 条调用。
     # 给一个短的：录的是**形状**（模块报在跑、压电纹丝不动、到点停机），不是时长。
     "AutoApproach": {"wait_timeout_s": 5.0},
+    # 四个参数都是**浮点数的 JSON 列表**，通用规则给的 "spec-export" 解析不了 ——
+    # 于是 `ok` 那一趟录到的是解析拒绝，成功那一路一条金样都没有。
+    "SetPiezoHysteresisValues": {
+        "fast_x": "[0.0, 0.5, 1.0]", "fast_y": "[0.0, 0.25, 0.75]",
+        "slow_x": "[0.1, 0.2]", "slow_y": "[0.3, 0.4]",
+    },
+}
+
+#: 额外的入参组合，各录成一条独立轨迹。
+#:
+#: 通用驱动只跑一组参数，而有些分支**由参数决定**而不是由回包决定 ——
+#: 「JSON 解析不了」「通道清单是空的」这一类。注错与空 body 那两套开关碰不到它们。
+EXTRA_PARAMS: dict[str, dict[str, dict]] = {
+    "SetPiezoHysteresisValues": {
+        "bad_json": {"fast_x": "不是 JSON", "fast_y": "[]",
+                     "slow_x": "[]", "slow_y": "[]"},
+    },
+    # 撞针检测里由参数决定的两支：清单全是空白（回落到默认 0,14）、
+    # 以及夹着非法记号（**跳过它继续**，不是整趟失败）。
+    "CheckScanForCrash": {
+        "blank_channels": {"channels": "  "},
+        "junk_channels": {"channels": "0, x, 14;7"},
+    },
 }
 
 
@@ -438,7 +478,7 @@ def main() -> int:
 
     out: dict[str, Any] = {}
     missing: list[str] = []
-    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B:
+    for name in BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C:
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
@@ -477,6 +517,14 @@ def main() -> int:
         n_runs = len(traces["ok"].get("runs") or [])
         for i in range(n_runs):
             traces[f"runerr@{i}"] = _trace(skill, params, table, _name=name, run_error_at=i)
+        # 由**参数**而不是回包决定的分支。
+        # 这一格的入参**记在它自己那条轨迹里**：整个技能只有一份 `params` 的话，
+        # 重放的那一侧会拿基准参数去跑它，于是比的是另一件事（而且会绿）。
+        for case, extra in (EXTRA_PARAMS.get(name) or {}).items():
+            merged = {**params, **extra}
+            tr = _trace(skill, merged, table, _name=name)
+            tr["params"] = _jsonable(merged)
+            traces[case] = tr
 
         out[name] = {"params": _jsonable(params), "traces": traces}
 

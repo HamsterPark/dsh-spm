@@ -272,9 +272,46 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 
 新登记 **D-READBACK-1**，销账 **D-APPROACH-1 · D-PRESET-1**（共 35 条，其中 2 条已销账）。
 
-**下一段**：批 3b 的其余扫描族（`LoadScanFrameFromFile` / `CheckScanForCrash` /
-`ComputeDriftVector` / `ParseRegions` / `WatchScanLines` …，≈45 个），
-以及 `DeleteZCtrlPreset`（三件套里唯一还没落的那个，删一组）。
+· **2.22 ✅ 批 3c —— 28 个 L0 长尾，七个模块收口**
+
+选的标准不是「容易」，是**模块级完成**（DoD §8.5 ⑧）。一个半完成的模块在进度表上
+是 `complete: false`，而它离完成差几个纯机械件时，那几个件的价值等于整个模块的价值。
+`signals` / `current` / `imaging` / `folme` / `util` / `piezo` / `readback` 七个模块
+在这一批里从半完成变成完成：**模块 12/165 → 19/165**，技能 82 → 110。
+
+里面只有一个带判据：**`CheckScanForCrash`**。判据本身很钝（方差接近零、或出现 NaN），
+钝是对的——撞针之后的帧不是「有点怪」，是**没有信号了**。三条纪律：
+
+| | |
+|---|---|
+| `status` 三态 | 一路都没读到是 `skipped`，**永远不是 `ok`**。「我没发现撞针」与「我没能看」是两句话，而下游拿它决定要不要接着扫 |
+| 默认探两路 | `0,14` = 形貌 + Z-controller。**撞针会把 Z 压平，哪怕通道 0 看起来还说得过去** |
+| 一路坏掉不带走整趟 | 读某一路抛了就记它自己一个 `error`，接着读下一路 |
+
+**移植时自己抓到的一处**：`np.ptp` 对**全 NaN** 的帧给 NaN，而我第一版让它给 `null`
+⇒ 判成 `no_data`。一整帧 NaN 正是撞针最典型的样子，那样会让**最该报警的那一帧变成
+最安静的那一帧**。
+
+**金样照出来的三处**：
+
+1. `String(1.0)` 在 JS 是 `'1'`，Python 的 `str(1.0)` 是 `'1.0'`——补 `pyStr`
+   （`pyFloatRepr` 那一族的第三次出现）；
+2. `Motor_FreqAmpGet` 的轴参数**不是可选的**。旧仓裸调时抛 TypeError，被连接池
+   一揽子的 except 变成**这一个字段**上的错误串，于是那一格从来没有携带过读数——
+   而没人发现，因为「单字段错误」看起来和「那个模块没装」一模一样（2026-07-31）；
+3. `ScanBackgroundDelete/Paste` 的 `timed_out` 要读 body 的第 0 位。旧仓读的是
+   **信封**的第 0 位（成功时永远是空 error 串），于是它**永远是 False**，真超时也是。
+
+**导出脚本补了一条真源**：有些分支由**参数**决定而不是由回包决定
+（「不是 JSON」「通道清单是空的」）。原先整个技能共用一份 `params`，重放那一侧会拿
+基准参数去跑这些格——**比的是另一件事，而且会绿**。现在这类轨迹把自己的入参记在
+自己那条里。
+
+新登记 **D-SKILL-1 补充 · D-JSON-1**（共 37 条，其中 2 条已销账）。
+
+**下一段**：批 3b 真正剩下的那几个（`LoadScanFrameFromFile` / `ComputeDriftVector` /
+`ParseRegions` 卡在 Phase 4 的 numerics 上；`WatchScanLines` 要 GraphExecutor，
+那个已经有了），以及 lockin 14 / datalog 6 / marks 3 这三族。
 
 2.15 收尾的三个也各卡在一件支撑件上：
 
@@ -291,7 +328,7 @@ agent 直接调 `AutoApproach`，而那正是它刚拒绝的那个粗进针。�
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
 仓库现状：14 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2193 条测试**（另有 **88 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+**2342 条测试**（另有 **94 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **25 条**对真 stmsim 的集成测试——其中 5 条是**技能级**的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。

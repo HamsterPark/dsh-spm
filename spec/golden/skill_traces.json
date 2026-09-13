@@ -1985,6 +1985,262 @@
       }
     }
   },
+  "CheckScanForCrash": {
+    "params": {},
+    "traces": {
+      "blank_channels": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "ok",
+            "ch14": "ok"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "params": {
+          "channels": "  "
+        },
+        "success": true,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "no_data",
+            "ch14": "ok"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "no_data",
+            "ch14": "ok"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "ok",
+            "ch14": "no_data"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "junk_channels": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              7,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14,
+            7
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "ok",
+            "ch14": "ok",
+            "ch7": "ok"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "params": {
+          "channels": "0, x, 14;7"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channels_probed": [
+            0,
+            14
+          ],
+          "crash_channel": null,
+          "crash_indicator": false,
+          "data_range": null,
+          "per_channel": {
+            "ch0": "ok",
+            "ch14": "ok"
+          },
+          "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "ConfigureScan": {
     "params": {
       "center_x_m": 1e-09,
@@ -3133,6 +3389,110 @@
       }
     }
   },
+  "GetCurrentBEEM": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_BEEMGet"
+          }
+        ],
+        "data": {
+          "beem_current_a": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_BEEMGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_BEEMGet"
+          }
+        ],
+        "data": {
+          "beem_current_a": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetCurrentGains": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          }
+        ],
+        "data": {},
+        "error": "",
+        "success": true,
+        "summary": "读回增益档"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          }
+        ],
+        "data": {
+          "gain_index": 6,
+          "gains": [
+            "Sig2A",
+            "Sig2B"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "读回增益档"
+      }
+    }
+  },
   "GetDriftCompensation": {
     "params": {},
     "traces": {
@@ -3312,6 +3672,2818 @@
       }
     }
   },
+  "GetMiscInstrumentConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_range"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": null,
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "current_calibration"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": null,
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@10": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "folme_ps_props"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": null,
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@11": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "fungen2_idle"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": null,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "current_gains"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": null,
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "atom_track"
+          ],
+          "atom_track": null,
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "motor_freq_amp"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": null,
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_sweep_limits"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": null,
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "gen_sweep_limits"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": null,
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "gen_sweep_signals"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": null,
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@8": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "folme_oversampling"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": null,
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@9": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "folme_ps_experiment"
+          ],
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": null,
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_GainsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AtomTrack_PropsGet"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_LimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "GenSwp_SwpSignalListGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_OversamplGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_IdleGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_ChGet"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalGet"
+          }
+        ],
+        "data": {
+          "atom_track": [
+            0.25,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ],
+          "bias_range": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6
+          ],
+          "bias_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "current_calibration": [
+            0.25,
+            0.5
+          ],
+          "current_gains": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10
+          ],
+          "folme_oversampling": [
+            3,
+            0.5
+          ],
+          "folme_ps_experiment": [
+            3,
+            4,
+            5,
+            [
+              "Sig3A",
+              "Sig3B"
+            ]
+          ],
+          "folme_ps_props": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ],
+          "fungen2_idle": 0.25,
+          "fungen2_signal": 3,
+          "gen_sweep_limits": [
+            0.25,
+            0.5
+          ],
+          "gen_sweep_signals": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ]
+          ],
+          "lockin_freqswp_signal": 3,
+          "motor_freq_amp": [
+            0.25,
+            0.5
+          ],
+          "osci1t_channel": 3,
+          "osci1t_trigger": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetMotorFreqAmp": {
     "params": {},
     "traces": {
@@ -3441,6 +6613,1281 @@
           "step_counter_x": 3,
           "step_counter_y": 4,
           "step_counter_z": 5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPiezoConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "range"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": null,
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "calibration"
+          ],
+          "calibration": null,
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "sensitivity"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": null,
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "hysteresis_on"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": null,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "hysteresis_values"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": null,
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "xyz_limits"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": null
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "drift_comp"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": null,
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "tilt"
+          ],
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": null,
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_CalibrGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_XYZLimitsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_DriftCompGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {
+          "calibration": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "drift_comp": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            7,
+            8,
+            9,
+            2.0
+          ],
+          "hysteresis_on": 3,
+          "hysteresis_values": [
+            3,
+            [
+              1.5,
+              1.75
+            ],
+            5,
+            [
+              3.5,
+              3.75
+            ],
+            7,
+            [
+              5.5,
+              5.75
+            ],
+            9,
+            [
+              7.5,
+              7.75
+            ]
+          ],
+          "range": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "sensitivity": [
+            0.25,
+            0.5,
+            0.75
+          ],
+          "tilt": [
+            0.25,
+            0.5
+          ],
+          "xyz_limits": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPiezoHVAInfo": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HVAInfoGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HVAInfoGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HVAInfoGet"
+          }
+        ],
+        "data": {
+          "aux_enabled": true,
+          "gain_aux": 0.25,
+          "gain_x": 0.5,
+          "gain_y": 0.75,
+          "gain_z": 1.0,
+          "xy_enabled": true,
+          "z_enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetPiezoHVAStatusLED": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HVAStatusLEDGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HVAStatusLEDGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HVAStatusLEDGet"
+          }
+        ],
+        "data": {
+          "high_temperature": true,
+          "hv_supply": true,
+          "output_connector": true,
+          "overheated": true
         },
         "error": "",
         "success": true,
@@ -3622,6 +8069,1084 @@
       }
     }
   },
+  "GetPllConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "excitation_on"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": null,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "amp_ctrl_setpoint"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": null,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "amp_ctrl_bandwidth"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": null,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "phase_ctrl_bandwidth"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": null
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "freq_exc_overwrite"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": null,
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "demod_phase_ref"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": null,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "demod_harmonic"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": null,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "input_range"
+          ],
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": null,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@8": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "add_on_off"
+          ],
+          "add_on_off": null,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_PhasCtrlBandwidthGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqExcOverwriteGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodPhasRefGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_InpRangeGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffGet"
+          }
+        ],
+        "data": {
+          "add_on_off": 3,
+          "amp_ctrl_bandwidth": 0.25,
+          "amp_ctrl_setpoint": 0.25,
+          "demod_harmonic": 3,
+          "demod_phase_ref": 0.25,
+          "demodulator": 1,
+          "excitation_on": 3,
+          "freq_exc_overwrite": [
+            3,
+            4
+          ],
+          "input_range": 0.25,
+          "modulator": 1,
+          "phase_ctrl_bandwidth": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetPointShootOnOff": {
     "params": {},
     "traces": {
@@ -3677,6 +9202,67 @@
       }
     }
   },
+  "GetPointShootProps": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "auto_resume": true,
+          "basename": "1.0",
+          "basename_size": 5,
+          "ext_vi_path": "1.5",
+          "ext_vi_path_size": 7,
+          "pre_measure_delay_s": 1.75,
+          "use_own_basename": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetRTFreq": {
     "params": {},
     "traces": {
@@ -3721,6 +9307,57 @@
         ],
         "data": {
           "rt_frequency_hz": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetRTOversample": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTOversamplGet"
+          }
+        ],
+        "data": {
+          "rt_oversampling": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_RTOversamplGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTOversamplGet"
+          }
+        ],
+        "data": {
+          "rt_oversampling": 3
         },
         "error": "",
         "success": true,
@@ -3993,6 +9630,274 @@
           "center_y_m": 0.5,
           "height_m": 1.0,
           "width_m": 0.75
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetScanPatternConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_GridGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_LineGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ],
+          "grid": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "line": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Pattern_GridGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_LineGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "grid"
+          ],
+          "experiment": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ],
+          "grid": null,
+          "line": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_GridGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Pattern_LineGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "line"
+          ],
+          "experiment": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ],
+          "grid": [
+            3,
+            4,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "line": null
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_GridGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_LineGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "experiment"
+          ],
+          "experiment": null,
+          "grid": [
+            3,
+            4,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "line": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_GridGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_LineGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ],
+          "grid": [
+            3,
+            4,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75
+          ],
+          "line": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25
+          ]
         },
         "error": "",
         "success": true,
@@ -4368,6 +10273,1515 @@
       }
     }
   },
+  "GetSignalsAddRT": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_AddRTGet"
+          }
+        ],
+        "data": {
+          "raw": [
+            "",
+            "<bytes 0>",
+            []
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_AddRTGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_AddRTGet"
+          }
+        ],
+        "data": {
+          "available_rt_signals": [
+            "Sig2A",
+            "Sig2B"
+          ],
+          "internal_23_signal": "1.25",
+          "internal_24_signal": "1.75",
+          "num_rt_signals": 4,
+          "raw": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSpectroscopyConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_props"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": null,
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_adv_props"
+          ],
+          "bias_adv_props": null,
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_mls_mode"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": null,
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_mls_values"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": null,
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "bias_status"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": null,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "z_props"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": null,
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "z_adv_props"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": null,
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "z_retract_delay"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": null,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@8": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "z_status"
+          ],
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": null
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSValsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelayGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_StatusGet"
+          }
+        ],
+        "data": {
+          "bias_adv_props": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bias_mls_mode": [
+            3,
+            0.5
+          ],
+          "bias_mls_values": [
+            3,
+            0.5,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0
+          ],
+          "bias_props": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            [
+              "Sig6A",
+              "Sig6B"
+            ],
+            10,
+            11,
+            [
+              "Sig9A",
+              "Sig9B"
+            ],
+            13,
+            14,
+            [
+              "Sig12A",
+              "Sig12B"
+            ]
+          ],
+          "bias_status": 0.25,
+          "which": "both",
+          "z_adv_props": [
+            0.25,
+            4,
+            5,
+            6
+          ],
+          "z_props": [
+            3,
+            4,
+            5,
+            6,
+            [
+              "Sig4A",
+              "Sig4B"
+            ],
+            8,
+            9,
+            [
+              "Sig7A",
+              "Sig7B"
+            ],
+            11,
+            12
+          ],
+          "z_retract_delay": 0.25,
+          "z_status": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetTipLift": {
     "params": {},
     "traces": {
@@ -4410,6 +11824,95 @@
         ],
         "data": {
           "tip_lift_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetTipShaperConfig": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "props": [
+            "",
+            "<bytes 0>",
+            []
+          ],
+          "props_named": null,
+          "props_named_error": "本机返回 3 个值，而协议 (TCP-reference/tcp_protocol.txt, TipShaper.PropsGet) 定义了 11 个 —— 字段顺序无法确证，故不做具名。请对着协议原文人工核对 props。"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "_unreadable": [
+            "props"
+          ],
+          "props": null
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "props": [
+            0.25,
+            4,
+            0.75,
+            1.0,
+            1.25,
+            1.5,
+            1.75,
+            2.0,
+            2.25,
+            2.5,
+            13
+          ],
+          "props_named": {
+            "bias_lift_v": 1.5,
+            "bias_settling_s": 1.75,
+            "bias_v": 0.75,
+            "change_bias": true,
+            "change_bias_raw": 4,
+            "end_wait_s": 2.5,
+            "lift_height_m": 2.0,
+            "lift_time_1_s": 1.25,
+            "lift_time_2_s": 2.25,
+            "restore_feedback": true,
+            "restore_feedback_raw": 13,
+            "switch_off_delay_s": 0.25,
+            "tip_lift_m": 1.0
+          }
         },
         "error": "",
         "success": true,
@@ -6335,6 +13838,127 @@
               "usable": true
             }
           ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "LoadLayout": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_LayoutLoad"
+          }
+        ],
+        "data": {
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_LayoutLoad"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_LayoutLoad"
+          }
+        ],
+        "data": {
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "LoadPiezoHysteresisFile": {
+    "params": {
+      "file_path": "spec-export"
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              "spec-export"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystFileLoad"
+          }
+        ],
+        "data": {
+          "file_path": "spec-export"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              "spec-export"
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HystFileLoad"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              "spec-export"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystFileLoad"
+          }
+        ],
+        "data": {
+          "file_path": "spec-export"
         },
         "error": "",
         "success": true,
@@ -17577,6 +25201,68 @@
       }
     }
   },
+  "SaveLayout": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_LayoutSave"
+          }
+        ],
+        "data": {
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_LayoutSave"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_LayoutSave"
+          }
+        ],
+        "data": {
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SaveScan": {
     "params": {},
     "traces": {
@@ -17675,6 +25361,197 @@
         ],
         "data": {
           "saved_path": null,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SaveSettings": {
+    "params": {
+      "action": "save"
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_SettingsSave"
+          }
+        ],
+        "data": {
+          "action": "save",
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_SettingsSave"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              "",
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_SettingsSave"
+          }
+        ],
+        "data": {
+          "action": "save",
+          "file_path": "",
+          "use_session": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ScanBackgroundDelete": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BackgroundDelete"
+          }
+        ],
+        "data": {
+          "delete_all": false,
+          "timed_out": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BackgroundDelete"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BackgroundDelete"
+          }
+        ],
+        "data": {
+          "delete_all": false,
+          "timed_out": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ScanBackgroundPaste": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BackgroundPaste"
+          }
+        ],
+        "data": {
+          "timed_out": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BackgroundPaste"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BackgroundPaste"
+          }
+        ],
+        "data": {
           "timed_out": true
         },
         "error": "",
@@ -18482,6 +26359,205 @@
       }
     }
   },
+  "SetPiezoHysteresisOnOff": {
+    "params": {
+      "enable": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffSet"
+          }
+        ],
+        "data": {
+          "enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystOnOffSet"
+          }
+        ],
+        "data": {
+          "enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPiezoHysteresisValues": {
+    "params": {
+      "fast_x": "[0.0, 0.5, 1.0]",
+      "fast_y": "[0.0, 0.25, 0.75]",
+      "slow_x": "[0.1, 0.2]",
+      "slow_y": "[0.3, 0.4]"
+    },
+    "traces": {
+      "bad_json": {
+        "calls": [],
+        "data": {},
+        "error": "Invalid JSON in hysteresis points: Expecting value: line 1 column 1 (char 0)",
+        "params": {
+          "fast_x": "不是 JSON",
+          "fast_y": "[]",
+          "slow_x": "[]",
+          "slow_y": "[]"
+        },
+        "success": false,
+        "summary": ""
+      },
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              3,
+              [
+                0.0,
+                0.5,
+                1.0
+              ],
+              3,
+              [
+                0.0,
+                0.25,
+                0.75
+              ],
+              2,
+              [
+                0.1,
+                0.2
+              ],
+              2,
+              [
+                0.3,
+                0.4
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsSet"
+          }
+        ],
+        "data": {
+          "fast_axis_points": 3,
+          "slow_axis_points": 2
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              3,
+              [
+                0.0,
+                0.5,
+                1.0
+              ],
+              3,
+              [
+                0.0,
+                0.25,
+                0.75
+              ],
+              2,
+              [
+                0.1,
+                0.2
+              ],
+              2,
+              [
+                0.3,
+                0.4
+              ]
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_HystValsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              3,
+              [
+                0.0,
+                0.5,
+                1.0
+              ],
+              3,
+              [
+                0.0,
+                0.25,
+                0.75
+              ],
+              2,
+              [
+                0.1,
+                0.2
+              ],
+              2,
+              [
+                0.3,
+                0.4
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_HystValsSet"
+          }
+        ],
+        "data": {
+          "fast_axis_points": 3,
+          "slow_axis_points": 2
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetPiezoRange": {
     "params": {
       "range_x_m": 0.0005000000005,
@@ -18553,6 +26629,77 @@
       }
     }
   },
+  "SetPiezoSensitivity": {
+    "params": {
+      "sens_x": 0.0005000000005,
+      "sens_y": 0.0005000000005,
+      "sens_z": 0.0005000000005
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0005000000005,
+              0.0005000000005,
+              0.0005000000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensSet"
+          }
+        ],
+        "data": {
+          "sens_x": 0.0005000000005,
+          "sens_y": 0.0005000000005,
+          "sens_z": 0.0005000000005
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0005000000005,
+              0.0005000000005,
+              0.0005000000005
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_SensSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0005000000005,
+              0.0005000000005,
+              0.0005000000005
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_SensSet"
+          }
+        ],
+        "data": {
+          "sens_x": 0.0005000000005,
+          "sens_y": 0.0005000000005,
+          "sens_z": 0.0005000000005
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetPiezoTilt": {
     "params": {
       "tilt_x_deg": 1.0,
@@ -18611,6 +26758,242 @@
         "data": {
           "tilt_x_deg": 1.0,
           "tilt_y_deg": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPointShootExperiment": {
+    "params": {
+      "experiment_index": 0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpSet"
+          }
+        ],
+        "data": {
+          "experiment_index": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSExpSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSExpSet"
+          }
+        ],
+        "data": {
+          "experiment_index": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetPointShootOnOff": {
+    "params": {
+      "enable": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSOnOffSet"
+          }
+        ],
+        "data": {
+          "enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSOnOffSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSOnOffSet"
+          }
+        ],
+        "data": {
+          "enabled": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetRTFreq": {
+    "params": {
+      "frequency_hz": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTFreqSet"
+          }
+        ],
+        "data": {
+          "rt_frequency_hz": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_RTFreqSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTFreqSet"
+          }
+        ],
+        "data": {
+          "rt_frequency_hz": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetRTOversample": {
+    "params": {
+      "oversampling": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTOversamplSet"
+          }
+        ],
+        "data": {
+          "rt_oversampling": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_RTOversamplSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_RTOversamplSet"
+          }
+        ],
+        "data": {
+          "rt_oversampling": 1
         },
         "error": "",
         "success": true,
@@ -20972,6 +29355,57 @@
           "peak_current_a": 0.25,
           "setpoint_a": 0.25,
           "z_controller_on": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "UnlockNanonisUI": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_UnLock"
+          }
+        ],
+        "data": {
+          "locked": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Util_UnLock"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Util_UnLock"
+          }
+        ],
+        "data": {
+          "locked": false
         },
         "error": "",
         "success": true,

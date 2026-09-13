@@ -25,7 +25,7 @@
  * 我们这一侧一律走 `scalarFloat`：**取不出数就是 `null`**。与 D-STATE-1 同一个
  * 判据、同一个理由——一个「读数」若不表示测量值，就不该以读数的身份存在。
  */
-import { scalarFloat, type SkillCallRecord, type SkillResultLike } from 'dsh-spm-kernel'
+import { pyFloatRepr, scalarFloat, type SkillCallRecord, type SkillResultLike } from 'dsh-spm-kernel'
 
 /** 回包的 body。 */
 export function body(rec: SkillCallRecord): readonly unknown[] {
@@ -118,4 +118,15 @@ export function firstTwoFloats(rec: SkillCallRecord): readonly [number, number] 
     if (out.length === 2) break
   }
   return out.length >= 2 ? [out[0]!, out[1]!] : null
+}
+
+/**
+ * Python 的 `str(x)`。
+ *
+ * 对**浮点数**，Python 的 `str` 与 `repr` 是同一个东西（`str(1.0)` = `'1.0'`），
+ * 而 JS 的 `String(1.0)` 给 `'1'`。协议里声明成字符串的位置上，仪器偶尔回一个数
+ * （或者合成回包给一个数），两边就此分岔——而这些串是要印给模型看的。
+ */
+export function pyStr(v: unknown): string {
+  return typeof v === 'number' ? pyFloatRepr(v) : String(v)
 }

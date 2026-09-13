@@ -891,6 +891,304 @@ export const SetBiasRampSpec: SkillSpec = {
   safetyLevel: "CONFIRM",
 }
 
+export const GetSignalsAddRTSpec: SkillSpec = {
+  name: "GetSignalsAddRT",
+  description: "读可用的附加 RT 信号列表，以及当前指派给 Internal 23 与 Internal 24 的名字。",
+  parameters: [],
+  tags: ["signals","rt","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetCurrentBEEMSpec: SkillSpec = {
+  name: "GetCurrentBEEM",
+  description: "从 Current 模块读取 BEEM 电流值。",
+  parameters: [],
+  tags: ["current","beem","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetCurrentGainsSpec: SkillSpec = {
+  name: "GetCurrentGains",
+  description: "读回电流前放的增益档位表、当前档位与该档的满量程(安培)。只读,不改硬件。增益名是跨阻(V/A),满量程 = 10 V / 跨阻。",
+  parameters: [],
+  tags: ["read","readback","current","preamp","gain"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const ScanBackgroundDeleteSpec: SkillSpec = {
+  name: "ScanBackgroundDelete",
+  description: "删除最近一次、或全部已粘贴的 scan background。",
+  parameters: [
+    { name: "wait_until_deleted", type: "bool", description: "等到数据删除完成再返回", required: false, default: true },
+    { name: "timeout_ms", type: "int", description: "超时时长，单位毫秒（-1 = 无限等待）", required: false, default: -1 },
+    { name: "delete_all", type: "bool", description: "True=删除全部 background，False=只删最近一次", required: false, default: false },
+  ],
+  tags: ["scan","background","delete","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ScanBackgroundPasteSpec: SkillSpec = {
+  name: "ScanBackgroundPaste",
+  description: "把当前的扫描数据缓冲粘贴到 background。",
+  parameters: [
+    { name: "wait_until_pasted", type: "bool", description: "等到数据粘贴完成再返回", required: false, default: true },
+    { name: "timeout_ms", type: "int", description: "超时时长，单位毫秒（-1 = 无限等待）", required: false, default: -1 },
+  ],
+  tags: ["scan","background","paste","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetPointShootPropsSpec: SkillSpec = {
+  name: "GetPointShootProps",
+  description: "读取 Point & Shoot 配置：auto-resume、basename、外部 VI 路径、测量前延时。",
+  parameters: [],
+  tags: ["folme","point_shoot","config","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetPointShootExperimentSpec: SkillSpec = {
+  name: "SetPointShootExperiment",
+  description: "选择 Follow-Me 模式下 Point & Shoot 要运行哪个 experiment。",
+  parameters: [
+    { name: "experiment_index", type: "int", description: "要选择的 Point & Shoot experiment 的索引", required: true, minValue: 0 },
+  ],
+  tags: ["folme","point_shoot","experiment","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPointShootOnOffSpec: SkillSpec = {
+  name: "SetPointShootOnOff",
+  description: "启用或禁用 Follow-Me 模式下的 Point & Shoot。",
+  parameters: [
+    { name: "enable", type: "bool", description: "True 为启用 Point & Shoot，False 为禁用", required: true },
+  ],
+  tags: ["folme","point_shoot","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetRTOversampleSpec: SkillSpec = {
+  name: "GetRTOversample",
+  description: "读 TCP Receiver 里的实时过采样值。",
+  parameters: [],
+  tags: ["util","rt","oversampling","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetRTFreqSpec: SkillSpec = {
+  name: "SetRTFreq",
+  description: "设定实时控制器频率，单位 Hz。",
+  parameters: [
+    { name: "frequency_hz", type: "float", description: "RT 频率，单位 Hz", unit: "Hz", required: true, minValue: 0 },
+  ],
+  tags: ["util","rt","frequency","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetRTOversampleSpec: SkillSpec = {
+  name: "SetRTOversample",
+  description: "设定 TCP Receiver 里的实时过采样值。",
+  parameters: [
+    { name: "oversampling", type: "int", description: "RT 过采样值", required: true, minValue: 1 },
+  ],
+  tags: ["util","rt","oversampling","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const LoadLayoutSpec: SkillSpec = {
+  name: "LoadLayout",
+  description: "从 .ini 文件载入一份 Nanonis 布局。",
+  parameters: [
+    { name: "file_path", type: "str", description: "布局 .ini 文件的路径（use_session=True 时忽略）", required: false, default: "" },
+    { name: "use_session", type: "bool", description: "从当前会话文件载入布局", required: false, default: false },
+  ],
+  tags: ["util","layout","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SaveLayoutSpec: SkillSpec = {
+  name: "SaveLayout",
+  description: "把当前 Nanonis 布局存到 .ini 文件。",
+  parameters: [
+    { name: "file_path", type: "str", description: "布局 .ini 文件的路径（use_session=True 时忽略）", required: false, default: "" },
+    { name: "use_session", type: "bool", description: "把布局存到当前会话文件", required: false, default: false },
+  ],
+  tags: ["util","layout","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SaveSettingsSpec: SkillSpec = {
+  name: "SaveSettings",
+  description: "把 Nanonis 设置存到 .ini 文件，或从 .ini 文件载入。",
+  parameters: [
+    { name: "action", type: "str", description: "'save' 或 'load'", required: true, allowedValues: ["save","load"] },
+    { name: "file_path", type: "str", description: "设置 .ini 文件的路径（use_session=True 时忽略）", required: false, default: "" },
+    { name: "use_session", type: "bool", description: "用当前会话文件，而不是 file_path", required: false, default: false },
+  ],
+  tags: ["util","settings","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const UnlockNanonisUISpec: SkillSpec = {
+  name: "UnlockNanonisUI",
+  description: "解锁 Nanonis 界面（关掉 Lock 模态窗口）。",
+  parameters: [],
+  tags: ["util","unlock","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const GetPiezoHVAInfoSpec: SkillSpec = {
+  name: "GetPiezoHVAInfo",
+  description: "读取 AUX、X、Y、Z 各轴的 HVA gain 回读信息，以及它们的启用状态。",
+  parameters: [],
+  tags: ["piezo","hva","gain","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPiezoHVAStatusLEDSpec: SkillSpec = {
+  name: "GetPiezoHVAStatusLED",
+  description: "读取 HVA 的 LED 状态：过热、HV 供电、高温、输出接口。",
+  parameters: [],
+  tags: ["piezo","hva","status","led","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const LoadPiezoHysteresisFileSpec: SkillSpec = {
+  name: "LoadPiezoHysteresisFile",
+  description: "在 Piezo Configuration 模块中，从一个 .csv 文件载入并应用两个轴的 hysteresis 补偿值。",
+  parameters: [
+    { name: "file_path", type: "str", description: ".csv hysteresis 文件的路径", required: true },
+  ],
+  tags: ["piezo","hysteresis","file","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPiezoHysteresisOnOffSpec: SkillSpec = {
+  name: "SetPiezoHysteresisOnOff",
+  description: "启用或禁用 Piezo Configuration 中的 hysteresis 补偿。",
+  parameters: [
+    { name: "enable", type: "bool", description: "True 为启用 hysteresis 补偿，False 为禁用", required: true },
+  ],
+  tags: ["piezo","hysteresis","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPiezoHysteresisValuesSpec: SkillSpec = {
+  name: "SetPiezoHysteresisValues",
+  description: "在 Piezo Calibration 模块中，为 fast 轴与 slow 轴设置并应用 hysteresis 补偿点。",
+  parameters: [
+    { name: "fast_x", type: "str", description: "fast 轴 X 的 hysteresis 补偿点，用浮点数 JSON 列表表示", required: true },
+    { name: "fast_y", type: "str", description: "fast 轴 Y 的 hysteresis 补偿点，用浮点数 JSON 列表表示", required: true },
+    { name: "slow_x", type: "str", description: "slow 轴 X 的 hysteresis 补偿点，用浮点数 JSON 列表表示", required: true },
+    { name: "slow_y", type: "str", description: "slow 轴 Y 的 hysteresis 补偿点，用浮点数 JSON 列表表示", required: true },
+  ],
+  tags: ["piezo","hysteresis","calibration","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPiezoSensitivitySpec: SkillSpec = {
+  name: "SetPiezoSensitivity",
+  description: "设置全部 3 个轴的 piezo sensitivity（m/V）。改 sensitivity 的同时也会改量程（HV gain 不变）。",
+  parameters: [
+    { name: "sens_x", type: "float", description: "X 轴的 sensitivity（m/V）", unit: "m/V", required: true, minValue: 1e-12, maxValue: 0.001 },
+    { name: "sens_y", type: "float", description: "Y 轴的 sensitivity（m/V）", unit: "m/V", required: true, minValue: 1e-12, maxValue: 0.001 },
+    { name: "sens_z", type: "float", description: "Z 轴的 sensitivity（m/V）", unit: "m/V", required: true, minValue: 1e-12, maxValue: 0.001 },
+  ],
+  tags: ["piezo","sensitivity","calibration","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetMiscInstrumentConfigSpec: SkillSpec = {
+  name: "GetMiscInstrumentConfig",
+  description: "回读那些不归属于某个更大子系统的设置：**偏压量程**、电流前放的标定与可用增益档、原子跟踪器的参数、粗动马达的频率／幅度、偏压扫描器与通用扫描器的限值、Follow-Me 的过采样与 point-&-shoot 设置、函数发生器的空闲值与所驱动的信号，以及 1 通道示波器的通道。\n\n单看每一项都很小；合起来，它们是其余每一个读数被缩放所依据的那些数字。尤其是电流**标定**：它错了，MAST 有史以来报出的每一个电流都会差一个固定倍数，而且悄无声息。",
+  parameters: [],
+  tags: ["read","readback","verify","calibration"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPiezoConfigSpec: SkillSpec = {
+  name: "GetPiezoConfig",
+  description: "回读压电：它的**量程**、标定、灵敏度、迟滞校正（开／关及其系数）、漂移补偿、倾斜，以及 **XYZ 电压限值**。\n\n量程和限值是把一个下达的电压变成一段距离、并框住它能走多远的那两样东西。MAST 从前能设量程却读不回来 —— 也就是说，它算出的每一个位置，都建立在一个它无从核对的数字上。",
+  parameters: [],
+  tags: ["piezo","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetPllConfigSpec: SkillSpec = {
+  name: "GetPllConfig",
+  description: "回读 PLL：**激励输出是否开着**、幅度控制器的设定值与带宽、相位控制器的带宽、解调器的相位参考与谐波次数、输入量程，以及频率／激励的覆写。\n\n`excitation_on` 是最该先看的一项：MAST 从前能把 PLL 激励打开，却没有任何办法问它到底开没开。一路被忘在开启状态的激励，意味着你以为静止的悬臂其实正在被驱动。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器序号", required: false, minValue: 1, maxValue: 8, default: 1 },
+    { name: "demodulator", type: "int", description: "解调器序号", required: false, minValue: 1, maxValue: 8, default: 1 },
+  ],
+  tags: ["pll","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetScanPatternConfigSpec: SkillSpec = {
+  name: "GetScanPatternConfig",
+  description: "回读图案模块：网格定义、线定义，以及图案实验的属性（跑哪个实验、文件基名、测量前延时）。\n\n一个跑在错误网格上的网格实验，就是在错误的地方测上好几个小时 —— 而这个网格此前是只写的。",
+  parameters: [],
+  tags: ["pattern","grid","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSpectroscopyConfigSpec: SkillSpec = {
+  name: "GetSpectroscopyConfig",
+  description: "回读谱学配置 —— 偏压谱、Z 谱，或两者都读：扫描属性、高级属性（Z 控制器是否保持、终点 Z、是否记录终点 Z）、多线段（MLS）模式及其分段取值，以及 Z 谱的退针延时。\n\n用它在跑之前确认一次谱学确实是按你要的那样设好的。一张糟糕的 MLS 分段表、或一个没料到的「Z 控制器保持开启」，都不会报错 —— 它只是产出一条含义与你所想不同的曲线。",
+  parameters: [
+    { name: "which", type: "str", description: "bias | z | both", required: false, allowedValues: ["bias","z","both"], default: "both" },
+  ],
+  tags: ["spectroscopy","sts","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetTipShaperConfigSpec: SkillSpec = {
+  name: "GetTipShaperConfig",
+  description: "回读 tip-shaper 配置：关断延时、是否改变偏压、所用的偏压与 lift、下压／回撤速度、各段等待时间，以及事后是否恢复反馈。\n\n**请用 `props_named`** —— 同一批数值，按协议自己的字段名索引（`bias_v`、`tip_lift_m`、`lift_height_m`……）。`props` 是原始的 11 元素线上数组，保留下来作为证据；**不要**靠猜顺序去下标取值。它把**电压**和 **Z 抬升**混在一起，所以错一位就会把一个偏压读成一个高度。`props_named` 为 null 时，说明仪器返回的值个数出乎意料，`props_named_error` 会说明这一点 —— 那种情况下请把顺序当作未知。\n\n在 TipShape **之前**读这个。修针是蓄意把针尖**扎进**表面 —— 这些参数就是「一次受控的轻戳」与「一根埋进去的针」之间的分界，而在此之前 MAST 能设它们却看不到它们。",
+  parameters: [],
+  tags: ["tip","tipshaper","read","readback","verify"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const CheckScanForCrashSpec: SkillSpec = {
+  name: "CheckScanForCrash",
+  description: "从刚采到的这一帧里检测撞针：抓取几路探针通道，只要有任何一路的方差接近零、或出现 NaN，就标记为撞针。返回 crash_indicator + status（ok/crash/skipped）+ 每路通道的判语。Channels = 逗号分隔的索引列表（默认 '0,14'：形貌 + Z-controller 信号 —— 撞针会把 Z 压平，哪怕通道 0 看起来还说得过去）。",
+  parameters: [
+    { name: "channels", type: "str", description: "要探测的采集通道索引，逗号分隔", required: false, default: "0,14" },
+    { name: "direction", type: "int", description: "1 = 正扫，0 = 反扫", required: false, allowedValues: [0,1], default: 1 },
+  ],
+  tags: ["scan","crash","safety","analysis","g1"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -975,7 +1273,35 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   SaveScan: SaveScanSpec,
   GrabScanFrameData: GrabScanFrameDataSpec,
   SetBiasRamp: SetBiasRampSpec,
+  GetSignalsAddRT: GetSignalsAddRTSpec,
+  GetCurrentBEEM: GetCurrentBEEMSpec,
+  GetCurrentGains: GetCurrentGainsSpec,
+  ScanBackgroundDelete: ScanBackgroundDeleteSpec,
+  ScanBackgroundPaste: ScanBackgroundPasteSpec,
+  GetPointShootProps: GetPointShootPropsSpec,
+  SetPointShootExperiment: SetPointShootExperimentSpec,
+  SetPointShootOnOff: SetPointShootOnOffSpec,
+  GetRTOversample: GetRTOversampleSpec,
+  SetRTFreq: SetRTFreqSpec,
+  SetRTOversample: SetRTOversampleSpec,
+  LoadLayout: LoadLayoutSpec,
+  SaveLayout: SaveLayoutSpec,
+  SaveSettings: SaveSettingsSpec,
+  UnlockNanonisUI: UnlockNanonisUISpec,
+  GetPiezoHVAInfo: GetPiezoHVAInfoSpec,
+  GetPiezoHVAStatusLED: GetPiezoHVAStatusLEDSpec,
+  LoadPiezoHysteresisFile: LoadPiezoHysteresisFileSpec,
+  SetPiezoHysteresisOnOff: SetPiezoHysteresisOnOffSpec,
+  SetPiezoHysteresisValues: SetPiezoHysteresisValuesSpec,
+  SetPiezoSensitivity: SetPiezoSensitivitySpec,
+  GetMiscInstrumentConfig: GetMiscInstrumentConfigSpec,
+  GetPiezoConfig: GetPiezoConfigSpec,
+  GetPllConfig: GetPllConfigSpec,
+  GetScanPatternConfig: GetScanPatternConfigSpec,
+  GetSpectroscopyConfig: GetSpectroscopyConfigSpec,
+  GetTipShaperConfig: GetTipShaperConfigSpec,
+  CheckScanForCrash: CheckScanForCrashSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp"] as const

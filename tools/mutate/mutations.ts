@@ -784,4 +784,58 @@ function physicallyAbsurdViolations_unused(`,
     replace: '    return [ok ? { gains: before, setpointA: spBefore } : null, note]',
     scope: 'packages/host/stm-skills',
   },
+  // ── 批 3c：撞针判据与聚合读 ────────────────────────────────────────
+  {
+    id: 'crash-status-is-three-valued',
+    why: '一路都没读到是 skipped，不是 ok。拆掉 ⇒ 「我没能看」被说成「我没发现撞针」，而下游拿它决定要不要接着扫',
+    file: `${K}/crash-check.ts`,
+    // `void readableAny` 是为了让它仍被引用 —— 本仓开着 `noUnusedParameters`，
+    // 直接删掉那一支会让参数变成未使用、`tsc` 报错、演练判 inconclusive。
+    find: "  return crash ? 'crash' : readableAny ? 'ok' : 'skipped'",
+    replace: "  return crash ? 'crash' : (void readableAny, 'ok')",
+    scope: 'packages/host',
+  },
+  {
+    id: 'crash-nan-is-a-crash',
+    why: '一整帧 NaN 就是撞针最典型的样子。只看极差 ⇒ NaN < eps 为假，最该报警的那一帧变成最安静的那一帧',
+    file: `${K}/crash-check.ts`,
+    // `||` 换 `&&` 而不是把 `hasNan` 整个删掉：后者让它变成未使用的变量、编不过。
+    find: '    if (hasNan || range < CRASH_RANGE_EPS) {',
+    replace: '    if (hasNan && range < CRASH_RANGE_EPS) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'crash-bad-channel-token-skipped',
+    why: '通道清单里夹了个错字，跳过它继续。拆掉 ⇒ 一个错字让整次撞针检测不做，而它本来只是少探一路',
+    file: `${K}/crash-check.ts`,
+    find: '    if (!/^[+-]?\\d+$/.test(t)) continue',
+    replace: '    if (Number.isNaN(Number(t))) continue',
+    scope: 'packages/host',
+  },
+  {
+    id: 'readmany-lists-unreadable',
+    why: '聚合读里读不到的那几格要单列。拆掉 ⇒ null 既可能是「没配」也可能是「没问到」，而两者长得一模一样',
+    file: `${SK}/l0/reads-config.ts`,
+    find: "  if (failed.length > 0) out['_unreadable'] = failed",
+    replace: '  void failed',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'readmany-one-failure-keeps-the-batch',
+    why: '一格读失败只置空它自己。拆掉 ⇒ 一个没装的模块把整批设置全带走，而其余十几格本来都读到了',
+    file: `${SK}/l0/reads-config.ts`,
+    find: '      failed.push(key)',
+    replace: "      return { success: false, error: rec.error ?? '' }",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'tipshaper-naming-is-all-or-nothing',
+    why: '长度对不上就一个都不具名。拆掉 ⇒ 「能对上几个先对几个」看起来很权威，而分歧点之后每个字段都悄悄错位',
+    file: `${SK}/l0/reads-config.ts`,
+    // 变异改成「只在**多**的时候拒」，于是少的那一侧会「能对上几个先对几个」——
+    // 那正是这段注释说的更坏的失败，而且它编得过。
+    find: '  if (props.length !== TIP_SHAPER_PROPS.length) {',
+    replace: '  if (props.length > TIP_SHAPER_PROPS.length) {',
+    scope: 'packages/host/stm-skills',
+  },
 ]

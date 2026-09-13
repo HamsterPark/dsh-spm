@@ -17,6 +17,14 @@ import { IMPLEMENTED } from './index.js'
 import { processPresetStore } from './frames.js'
 
 interface Trace {
+  /**
+   * 这条轨迹**自己的**入参，只有与技能基准参数不同时才有。
+   *
+   * 有些分支由参数决定而不是由回包决定（`SetPiezoHysteresisValues` 的
+   * 「不是 JSON」、`CheckScanForCrash` 的通道清单）。整个技能共用一份参数的话，
+   * 重放这一侧会拿基准参数去跑它 —— 比的是另一件事，**而且会绿**。
+   */
+  readonly params?: Record<string, unknown>
   readonly success?: boolean
   readonly error?: string
   readonly summary?: string
@@ -214,7 +222,60 @@ function startScanNullRendering(trace: string): { error?: string } {
   return ours === want ? {} : { error: ours }
 }
 
+
+/**
+ * D-SKILL-1 在**空 body** 上的又一批：旧仓把整个回包信封
+ * `["", "<bytes 0>", []]` 当成读数交了出去，而本仓在 wire 层就把信封拆了，
+ * 手上只有 body（`[]`）。
+ *
+ * 期望值**从金样算出来**而不是抄一遍（同 D-SCAN-5 的理由）：差异就是这一条替换，
+ * 看得见；旧仓哪天把它修了，这里会跟着变，不会悄悄过期。
+ */
+const ENVELOPE = ['', '<bytes 0>', []]
+
+function isEnvelope(v: unknown): boolean {
+  return JSON.stringify(v) === JSON.stringify(ENVELOPE)
+}
+
+/** 递归把「信封」换成「空 body」。 */
+function envelopeToBody(v: unknown): unknown {
+  if (isEnvelope(v)) return []
+  if (Array.isArray(v)) return v.map(envelopeToBody)
+  if (v !== null && typeof v === 'object') {
+    return Object.fromEntries(
+      Object.entries(v as Record<string, unknown>).map(([k, x]) => [k, envelopeToBody(x)]),
+    )
+  }
+  return v
+}
+
+/** 金样里含信封的那一格 → 我们这一侧应该是什么。 */
+function withoutEnvelope(name: string, trace: string): Deviation {
+  const want = golden[name]?.traces[trace]?.data ?? {}
+  const ours = envelopeToBody(want) as Record<string, unknown>
+  return { data: ours }
+}
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
+  // ── D-SKILL-1 的又一批：空 body 上旧仓交出整个信封 ──
+  //
+  // 四个单动词读把它塞进 `raw`，六个聚合读把它塞进那一格。我们手上只有 body。
+  ...Object.fromEntries(
+    ['GetSignalsAddRT', 'GetPointShootProps', 'GetPiezoHVAInfo', 'GetPiezoHVAStatusLED',
+      'GetPiezoConfig', 'GetPllConfig', 'GetScanPatternConfig', 'GetSpectroscopyConfig',
+      'GetMiscInstrumentConfig'].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
+  ),
+  // `GetTipShaperConfig` 还多一句：具名要求恰好 11 个值，而旧仓数到的是**信封的
+  // 三段**，我们数到的是**空 body 的 0 个**。那句报文里印着这个数。
+  'GetTipShaperConfig/empty@0': {
+    data: (() => {
+      const d = withoutEnvelope('GetTipShaperConfig', 'empty@0').data as Record<string, unknown>
+      return { ...d, props_named_error: String(d['props_named_error']).replace('本机返回 3 个值', '本机返回 0 个值') }
+    })(),
+  },
+  // `GetRTOversample` 那一格旧仓把解不出的信封折成了 **0**。
+  // 「读不到」不是「零」——这一条本仓刻意答 `null`。
+  'GetRTOversample/empty@0': { data: { rt_oversampling: null } },
   // ── D-SKILL-1：信封不当读数 ──
   'GetBiasCalibration/empty@0': { data: { calibration: null, offset: 0 } },
   'GetSetpoint/empty@0': { data: { setpoint_a: null } },
@@ -391,7 +452,7 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
         it(`${traceName}：动词序列与返回都相等`, async () => {
           resetProcessState(name)
           const { ctx, calls } = fakeCtx(optsOf(traceName))
-          const got = await skill.execute(ctx, entry.params)
+          const got = await skill.execute(ctx, want.params ?? entry.params)
 
           const dev = DEVIATIONS[`${name}/${traceName}`]
           if (dev?.callsDifferBecause === undefined) {
