@@ -19,7 +19,7 @@
  */
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body } from './common.js'
+import { cell } from './common.js'
 
 /**
  * 一格的值：body **只有一个元素时摊成标量**，否则原样给数组；读不到给 `null`。
@@ -27,10 +27,7 @@ import { body } from './common.js'
  * 摊平是照旧仓来的（`hysteresis_on` 是一个数，不是 `[3]`）。它也确实是对的：
  * 一个单值读回来的「一元数组」是**传输的形状**，不是那个量的形状。
  */
-function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 /**
  * 跑一串读，把结果按键装起来。**永远 success**——「问了一圈」这件事本身成立，

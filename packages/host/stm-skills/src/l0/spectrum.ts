@@ -24,7 +24,7 @@
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import { formatG } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok } from './common.js'
+import { cell, fail, ok } from './common.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 
@@ -63,10 +63,7 @@ const CURSOR_BAND = 0
  * 里面那段 bytes 还让 HTTP 层序列化炸掉（真机 2026-08-14：四个技能直接 500）。
  * 我们这一侧 `values` 就是 body，信封在线协议层已经没了。
  */
-function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 export const ConfigureSpectrumAnalyzer: Skill = {
   spec: S.ConfigureSpectrumAnalyzerSpec,

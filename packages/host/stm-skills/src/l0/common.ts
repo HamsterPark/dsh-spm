@@ -140,3 +140,32 @@ export function pyStr(v: unknown): string {
 export function formatG6(v: number): string {
   return formatG(v, 6)
 }
+
+/**
+ * 回包**真正携带的值**：body 只有一个元素就解一层，否则原样给出；**读不到给 `null`**。
+ *
+ * ## 这个函数在本仓一度有**十份**私有拷贝
+ *
+ * 旧仓 `io/nanonis_files.decode_reply` 的注释写着：
+ *
+ * > 这份逻辑原本叫 `readback._decode_nanonis`，是这一族里**唯一做对了的**那一份……
+ * > 另外五处 `_rv` 当时只写了 `return record.return_value`，同一个错一直留到
+ * > 2026-08-13 的只读全扫才被量出来。**提到这里是为了让它只有一份。**
+ *
+ * 本仓把那句预言**从零复现了一遍**：批 3c–3i 里十个文件各自写了一份，
+ * 而且**其中三份带 `failed → null` 的守卫，七份没有**。谁都没抄谁——
+ * 每个文件都只是本地需要它，而没有人看得见另外九个。
+ *
+ * 收成一份时取**带守卫**的那一版，理由是它分得开两件事：
+ * 一次失败的读给 `null`（读不到），一个空 body 给 `[]`（读到了，是空的）。
+ * 不带守卫的那七处把前者也压成 `[]` —— 而 1349 条轨迹金样证明了那七处的调用方
+ * 本来就先判过 `error`，所以这次收拢是**保行为的**（改完金样一格没变）。
+ *
+ * ⚠️ 单元素解一层的理由：**一个设定点是一个数，不是一个只有一个数的表**；
+ * 多元素（增益、限值）保持成表。
+ */
+export function cell(rec: SkillCallRecord): unknown {
+  if (rec.error !== undefined && rec.error !== '') return null
+  const b = body(rec)
+  return b.length === 1 ? b[0] : [...b]
+}

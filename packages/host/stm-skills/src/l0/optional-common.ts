@@ -14,7 +14,7 @@
  * 这一批没合并只是因为那四个文件属于别的支线，跨界改会在合并时打架。
  */
 import type { SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
-import { body, ok } from './common.js'
+import { cell, ok } from './common.js'
 
 /** 一次调用失败了吗。 */
 export const failed = (rec: SkillCallRecord): boolean =>
@@ -26,10 +26,7 @@ export const failed = (rec: SkillCallRecord): boolean =>
  * 一个设定点是**一个数**，不是一个只有一个数的表；而增益、限值那几项是多个数，
  * 得保持成表。
  */
-export function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 /**
  * 一组各自独立的读，**一个读不到不连累其余**：那一格给 `null`，别的照常交出去。

@@ -19,7 +19,7 @@
  */
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok } from './common.js'
+import { cell, fail, ok } from './common.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 
@@ -38,10 +38,7 @@ const str = (p: Readonly<Record<string, unknown>>, k: string, dflt: string): str
  * 另外五份把三段信封整个交出去，一直留到 2026-08-13 的真机只读全扫才被量出来。
  * 我们这一侧 `values` 就是 body，信封在线协议层已经没了。
  */
-function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 // ── 三个带回读的 ───────────────────────────────────────────────────────────
 

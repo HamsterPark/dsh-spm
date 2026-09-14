@@ -28,8 +28,8 @@
  */
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { fail, formatG6, ok } from './common.js'
-import { cell, f, failed, given, i, multiRead, offByDefault, onByDefault, step } from './optional-common.js'
+import { cell, fail, formatG6, ok } from './common.js'
+import { f, failed, given, i, multiRead, offByDefault, onByDefault, step } from './optional-common.js'
 
 // ── 通用 PI 控制器 · V5e（带下标）────────────────────────────────────────────
 

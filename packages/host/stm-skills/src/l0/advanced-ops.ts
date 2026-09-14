@@ -28,7 +28,7 @@
  */
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok } from './common.js'
+import { body, cell, fail, ok } from './common.js'
 import { verifyZController } from './verify.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
@@ -37,11 +37,7 @@ const f = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number =>
 const str = (p: Readonly<Record<string, unknown>>, k: string): string =>
   typeof p[k] === 'string' ? p[k] : ''
 
-function cell(rec: SkillCallRecord): unknown {
-  if (failed(rec)) return null
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 /** `Scan_Action` 的「停」。 */
 const SCAN_STOP = 1

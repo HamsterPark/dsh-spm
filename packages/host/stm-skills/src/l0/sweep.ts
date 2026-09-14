@@ -34,7 +34,7 @@
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import { channelIdsFromBuffer, scalarInt } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok, pyStr } from './common.js'
+import { body, cell, fail, ok, pyStr } from './common.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 const f = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number =>
@@ -43,10 +43,7 @@ const int = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number 
   typeof p[k] === 'number' && Number.isFinite(p[k] as number) ? Math.trunc(p[k] as number) : dflt
 
 /** `decode_reply`：body 只有一个元素就解一层，否则原样。 */
-function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 const at = (rec: SkillCallRecord, i: number): number | null => {
   const v = body(rec)[i]
   return typeof v === 'number' && Number.isFinite(v) ? v : null

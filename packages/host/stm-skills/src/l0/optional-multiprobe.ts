@@ -21,8 +21,8 @@
  */
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { fail, formatG6, ok, pyExp } from './common.js'
-import { cell, f, failed, given, i, offByDefault, onByDefault, step } from './optional-common.js'
+import { cell, fail, formatG6, ok, pyExp } from './common.js'
+import { f, failed, given, i, offByDefault, onByDefault, step } from './optional-common.js'
 
 /** 每一条 `MProbe*` 的第一个实参。**必填，没有缺省。** */
 const probeOf = (p: Readonly<Record<string, unknown>>): number => i(p, 'probe')

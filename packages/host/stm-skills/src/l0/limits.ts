@@ -30,7 +30,7 @@
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import { scalarFloat } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, formatG6, ok, pyExp } from './common.js'
+import { body, cell, fail, formatG6, ok, pyExp } from './common.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 const f = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number =>
@@ -57,11 +57,7 @@ export function floatsOf(rec: SkillCallRecord, n: number): number[] | null {
 }
 
 /** `decode_reply` 的等价物：body 只有一个元素就解一层，否则原样。读不到给 `null`。 */
-function cell(rec: SkillCallRecord): unknown {
-  if (failed(rec)) return null
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 /**
  * 限值**当前启用着吗**。三态：读到 `true` / 读到 `false` / **读不到 `null`**。

@@ -26,7 +26,7 @@
  */
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok } from './common.js'
+import { body, cell, fail, ok } from './common.js'
 
 type Exec = (ctx: SkillContext, params: Readonly<Record<string, unknown>>) => Promise<SkillResultLike>
 
@@ -47,10 +47,7 @@ const at = (rec: SkillCallRecord, i: number): number | null => {
 }
 
 /** `decode_reply`：body 只有一个元素就解一层，否则原样给出。 */
-function cell(rec: SkillCallRecord): unknown {
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 // ── 配置与状态 ─────────────────────────────────────────────────────────────
 

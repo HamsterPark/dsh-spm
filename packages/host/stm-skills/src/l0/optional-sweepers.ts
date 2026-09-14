@@ -20,10 +20,8 @@
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import { formatG } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { fail, formatG6, ok, pyStr } from './common.js'
-import {
-  cell, f, failed, given, i, offByDefault, onByDefault, signalChannels, step,
-} from './optional-common.js'
+import { cell, fail, formatG6, ok, pyStr } from './common.js'
+import { f, failed, given, i, offByDefault, onByDefault, signalChannels, step } from './optional-common.js'
 
 /** `APRFGen_FreqSwpStart(Direction)`：0 = 向下，1 = 向上。 */
 const DIRECTIONS: Readonly<Record<string, number>> = { up: 1, down: 0 }

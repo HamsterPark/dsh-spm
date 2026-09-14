@@ -19,7 +19,7 @@
  */
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { body, fail, ok, pyExp } from './common.js'
+import { cell, fail, ok, pyExp } from './common.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 const f = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number =>
@@ -34,11 +34,7 @@ const POLARITY: Readonly<Record<string, number>> = { low_active: 0, high_active:
 const RUNNING = 1
 
 /** `decode_reply`：body 只有一个元素就解一层，否则原样。读不到给 `null`。 */
-function cell(rec: SkillCallRecord): unknown {
-  if (failed(rec)) return null
-  const b = body(rec)
-  return b.length === 1 ? b[0] : [...b]
-}
+
 
 /**
  * 回包里第一个**整数**（广度优先，布尔算整数）。

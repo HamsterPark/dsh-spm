@@ -20,8 +20,8 @@
  */
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { fail, ok } from './common.js'
-import { cell, f, failed, given, i, offByDefault, onByDefault, step } from './optional-common.js'
+import { cell, fail, ok } from './common.js'
+import { f, failed, given, i, offByDefault, onByDefault, step } from './optional-common.js'
 
 /** `OsciHR_TrigModeSet(Trigger_mode)`：0=立即，1=电平，2=数字。 */
 const TRIG_MODES: Readonly<Record<string, number>> = { immediate: 0, level: 1, digital: 2 }
