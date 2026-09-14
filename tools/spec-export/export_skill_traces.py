@@ -197,6 +197,14 @@ BATCH_3F = [
     "SetPLLSignalAnlzrTrig", "GetPLLFreqSwpParams", "StopPLLFreqSwp",
 ]
 
+#: 批 3g / 3h / 3i —— **三条并行支线各占一个常量**。
+#:
+#: 分开而不是合成一张表，是为了让三份改动落在**不同的行**上：
+#: 同一个文件、互不重叠的区段，git 合并时不需要有人去猜谁的对。
+BATCH_3G: list[str] = []   # optional_* 五族
+BATCH_3H: list[str] = []   # 输出 / 扫频 / 图样 / 函数发生器
+BATCH_3I: list[str] = []   # 光学台 / 杂项 setter / 单件
+
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:
 #: 通用注错点给的文案是「连接被对端关闭」，而 Osci1T 那三个技能靠
@@ -680,7 +688,8 @@ def main() -> int:
     out: dict[str, Any] = {}
     missing: list[str] = []
     for name in (BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C
-                 + BATCH_3D + BATCH_3E + BATCH_3F):
+                 + BATCH_3D + BATCH_3E + BATCH_3F
+                 + BATCH_3G + BATCH_3H + BATCH_3I):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

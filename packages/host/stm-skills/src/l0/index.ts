@@ -33,6 +33,9 @@ import { NANONIS_SCRIPT } from './nanonis-script.js'
 import { SCRIPT_FILES } from './script-files.js'
 import { LIMITS } from './limits.js'
 import { PLL } from './pll.js'
+// ── 批 3g（optional_* 五族）在这一行下面加 import ──
+// ── 批 3h（输出 / 扫频 / 图样）在这一行下面加 import ──
+// ── 批 3i（光学台 / 杂项 setter / 单件）在这一行下面加 import ──
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
 import { WaitScanComplete } from '../composite/wait-scan-complete.js'
 import { SetBiasRamp } from '../composite/set-bias-ramp.js'
@@ -68,6 +71,9 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...SCRIPT_FILES,
   ...LIMITS,
   ...PLL,
+  // ── 批 3g 在这一行下面展开 ──
+  // ── 批 3h 在这一行下面展开 ──
+  // ── 批 3i 在这一行下面展开 ──
   WaitScanComplete,
   SetBiasRamp,
   AutoApproach,
@@ -104,6 +110,9 @@ export * from './nanonis-script.js'
 export * from './script-files.js'
 export * from './limits.js'
 export * from './pll.js'
+// ── 批 3g 在这一行下面 re-export ──
+// ── 批 3h 在这一行下面 re-export ──
+// ── 批 3i 在这一行下面 re-export ──
 export * from './tip-xy.js'
 export * from './verify.js'
 export * from '../composite/wait-scan-complete.js'

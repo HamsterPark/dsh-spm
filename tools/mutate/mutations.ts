@@ -1214,4 +1214,9 @@ function physicallyAbsurdViolations_unused(`,
     replace: 'export const TIP_XY_MAX_M = 1e30',
     scope: 'packages/host/stm-skills',
   },
+  // ── 批 3g（optional_* 五族）的演练写在这一行下面 ──
+
+  // ── 批 3h（输出 / 扫频 / 图样）的演练写在这一行下面 ──
+
+  // ── 批 3i（光学台 / 杂项 setter / 单件）的演练写在这一行下面 ──
 ]

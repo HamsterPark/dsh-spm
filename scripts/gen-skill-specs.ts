@@ -191,6 +191,15 @@ const BATCH_3F = [
 ]
 
 /**
+ * 批 3g / 3h / 3i —— 三条并行支线各占一个常量（同 `export_skill_traces.py`）。
+ *
+ * 分开而不是合成一张表：三份改动落在**不同的行**上，合并时不需要有人去猜谁的对。
+ */
+const BATCH_3G: string[] = []   // optional_* 五族
+const BATCH_3H: string[] = []   // 输出 / 扫频 / 图样 / 函数发生器
+const BATCH_3I: string[] = []   // 光学台 / 杂项 setter / 单件
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -269,6 +278,7 @@ function main(): number {
   const names = [
     ...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C,
     ...BATCH_3D, ...BATCH_3E, ...BATCH_3F,
+    ...BATCH_3G, ...BATCH_3H, ...BATCH_3I,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -289,7 +299,10 @@ function main(): number {
     `批 3c 长尾 ${BATCH_3C.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3d 锁相族 ${BATCH_3D.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3e 收口 ${BATCH_3E.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 3f 脚本/PLL/限值 ${BATCH_3F.filter((n) => byName.has(n)).length} 个\n` +
+    `批 3f 脚本/PLL/限值 ${BATCH_3F.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3g ${BATCH_3G.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3h ${BATCH_3H.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3i ${BATCH_3I.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +
