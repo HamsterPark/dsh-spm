@@ -118,6 +118,12 @@ importers:
 
   packages/host/kernel: {}
 
+  packages/host/numerics:
+    dependencies:
+      dsh-spm-kernel:
+        specifier: workspace:*
+        version: link:../kernel
+
   packages/host/stm-records:
     dependencies:
       dsh-spm-compat:

@@ -20,6 +20,7 @@ const WORKSPACE_ALIAS = {
   'dsh-spm-instrument-watchdog': fileURLToPath(new URL('./packages/instrument/instrument-watchdog/src/index.ts', import.meta.url)),
   'dsh-spm-kernel': fileURLToPath(new URL('./packages/host/kernel/src/index.ts', import.meta.url)),
   'dsh-spm-nanonis-wire': fileURLToPath(new URL('./packages/instrument/nanonis-wire/src/index.ts', import.meta.url)),
+  'dsh-spm-numerics': fileURLToPath(new URL('./packages/host/numerics/src/index.ts', import.meta.url)),
   'dsh-spm-stm-records': fileURLToPath(new URL('./packages/host/stm-records/src/index.ts', import.meta.url)),
   'dsh-spm-stm-safety': fileURLToPath(new URL('./packages/host/stm-safety/src/index.ts', import.meta.url)),
   'dsh-spm-stm-skills': fileURLToPath(new URL('./packages/host/stm-skills/src/index.ts', import.meta.url)),
