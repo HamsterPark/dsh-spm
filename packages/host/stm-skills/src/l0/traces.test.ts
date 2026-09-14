@@ -465,6 +465,34 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       withoutStrEnvelope('PLLSignalAnalyzer', t),
     ]),
   ),
+  // ── 批 3g：空 body 上的信封又一批（`optional_*` 五族的聚合读）──
+  //
+  // 这一族全走 `_multi_read` / 逐格 `_rv`：旧仓在空 body 上把整个三段信封
+  // `["", "<bytes 0>", []]` 当成那一格的读数交出去，我们手上只有 body（`[]`）。
+  ...Object.fromEntries(
+    ['GetPiController', 'GetGenericPiController', 'GetPreamp', 'GetPllZoomFftData',
+      'GetPllSignalAnalyzerData', 'GetOcSync', 'GetTipRecorderData',
+      'GetKelvinController', 'GetCpdCompensation', 'GetInterferometer',
+      'GetBeamDeflection', 'GetLaser',
+      'GetProbeZController', 'GetProbeBias', 'GetProbeCurrent',
+      'GetHighSpeedSweepStatus', 'GetRfGeneratorStatus',
+      'GetHighResScopeData', 'GetHighResScopeStatus',
+      'RunHighSpeedSweep', 'RunPllPhaseSweep',
+    ].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
+  ),
+  // ── 批 3g · D-ZERO-1 第四次：`num_sweeps = 0` 那个无限标志翻不起来 ──
+  //
+  // 声明写着「0 = 一直连续扫到被停止为止」、`min_value = 0`，代码里也有
+  // `1 if n == 0 else 0` 这一支 —— 而 `or 1` 让 `n` 永远不可能是 0，
+  // 于是那个分支是死的，一次「扫到我喊停」的请求安安静静地变成**扫一次**。
+  //
+  // 期望值**从金样算出来**：旧仓哪天把 `or 1` 去掉，这条登记会当场变红。
+  'ConfigureHighSpeedSweep/infinite': {
+    calls: (golden['ConfigureHighSpeedSweep']?.traces['infinite']?.calls ?? []).map((c) => [
+      c.verb,
+      c.verb === 'HSSwp_NumSweepsSet' ? [c.args[0], 1] : c.args,
+    ]),
+  },
 }
 
 /**
