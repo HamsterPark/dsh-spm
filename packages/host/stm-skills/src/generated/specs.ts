@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 0 个 · 批 3i 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 0 个 · 批 3h 0 个 · 批 3i 11 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -2346,726 +2346,140 @@ export const StopPLLFreqSwpSpec: SkillSpec = {
   safetyLevel: "CONFIRM",
 }
 
-export const ConfigurePiControllerSpec: SkillSpec = {
-  name: "ConfigurePiController",
-  description: "配置一个通用 PI 控制器（V5e）：它**监视**哪个信号（输入）、**驱动**哪个信号（控制信号）、设定值、增益，以及输出限值。\n\n输出限值是这里最要紧的参数。这个环会毫无边界地驱动它的控制信号，直到输入达到设定值为止 —— 如果设定值根本到不了（传感器坏了、符号弄反了），它就会一路驱动到限值并停在那儿。把限值设成输出可以安全占据的范围，不要设成硬件最大值。\n\nslope 会把环的作用方向反过来。slope 弄错的环不会振荡 —— 它会朝**背离**设定值的方向一路跑到限值。\n\n配置并不会闭合这个环；闭合是 SetPiControllerOnOff 的事。",
+export const SetWaveformSignalSpec: SkillSpec = {
+  name: "SetWaveformSignal",
+  description: "选定一个函数发生器通道**驱动哪一路信号**。\n\n这个参数决定了波形实际上在做什么。同样一个 1 V 正弦波，接在空闲输出上是无害的测试信号，接在隧道结上就是 1 V 的偏压调制 —— 发生器分不出这两者的区别。先用 GetMiscInstrumentConfig.fungen2_signal 读一下当前的指派。\n\n波形本身用 ConfigureWaveform 配置；用 StartWaveform 启动。",
   parameters: [
-    { name: "controller_index", type: "int", description: "第几个 PI 控制器（0 起算）", required: true, minValue: 0, maxValue: 15 },
-    { name: "input_index", type: "int", description: "环所**监视**的信号", required: true, minValue: 0, maxValue: 127 },
-    { name: "control_signal_index", type: "int", description: "环所**驱动**的信号", required: true, minValue: 0, maxValue: 127 },
-    { name: "setpoint", type: "float", description: "输入信号的目标值", required: true },
-    { name: "output_lower_limit", type: "float", description: "环可以把输出驱动到的最低值", required: true },
-    { name: "output_upper_limit", type: "float", description: "环可以把输出驱动到的最高值", required: true },
-    { name: "p_gain", type: "float", description: "比例增益", required: false, minValue: 0, default: 1 },
-    { name: "i_gain", type: "float", description: "积分增益", required: false, minValue: 0, default: 0 },
-    { name: "slope", type: "int", description: "0 = 负，1 = 正。slope **弄错**会让输出一路跑到限值。", required: false, minValue: 0, maxValue: 1, default: 0 },
+    { name: "channel", type: "int", description: "函数发生器通道（1 起算）", required: true, minValue: 1, maxValue: 2 },
+    { name: "signal_index", type: "int", description: "该通道驱动的信号（来自 ListSignalNames）", required: true, minValue: 0, maxValue: 127 },
   ],
-  tags: ["pi_controller","feedback","optional-hardware"],
+  tags: ["fungen","waveform","write"],
   category: "write",
   safetyLevel: "CONFIRM",
 }
 
-export const SetPiControllerOnOffSpec: SkillSpec = {
-  name: "SetPiControllerOnOff",
-  description: "闭合或断开一个通用 PI 控制环（V5e）。\n\n闭合时是 DANGEROUS。从那一刻起，这个环就会自主地**驱动它的输出** —— 而这个输出可能是一块压电、是偏压、是加热器、是激光。模块本身并不知道是哪一个。先调 GetPiController 读一下这个环实际接的是什么、它的输出限值是多少。\n\n断开这个环是安全的，输出会停在环最后放它的地方 —— 它并不会被送回任何静止值。",
+export const SetLockInDemodPhaseRegisterSpec: SkillSpec = {
+  name: "SetLockInDemodPhaseRegister",
+  description: "设定某个锁相解调器参考**哪一个相位寄存器**。\n\n解调器的相位必须参考到产生该信号的那个调制上。指到错的寄存器不会失败 —— 它会把 X 转到 Y 里去，于是一条 dI/dV 就变成了一个看起来像 dI/dV、实际不是的东西。用 GetLockInConfig 读回来核对。",
   parameters: [
-    { name: "controller_index", type: "int", description: "第几个 PI 控制器（0 起算）", required: true, minValue: 0, maxValue: 15 },
-    { name: "on", type: "bool", description: "True = 闭合此环（它随即开始驱动）", required: true },
+    { name: "demodulator", type: "int", description: "解调器编号（1 起算）", required: true, minValue: 1, maxValue: 8 },
+    { name: "phase_register", type: "int", description: "相位寄存器序号", required: true, minValue: 0, maxValue: 8 },
   ],
-  tags: ["pi_controller","feedback","dangerous","optional-hardware"],
+  tags: ["lockin","demod","write"],
   category: "write",
-  safetyLevel: "DANGEROUS",
-}
-
-export const GetPiControllerSpec: SkillSpec = {
-  name: "GetPiController",
-  description: "读一个通用 PI 控制器（V5e）：它是否闭合、监视哪个信号、**驱动哪个信号**、它的设定值、增益与输出限值。\n\n闭合任何一个不是你自己配的环之前，先读这个。控制信号才是要紧的那一项 —— 那是环将要去移动的东西。",
-  parameters: [
-    { name: "controller_index", type: "int", description: "第几个 PI 控制器（0 起算）", required: true, minValue: 0, maxValue: 15 },
-  ],
-  tags: ["pi_controller","feedback","read","optional-hardware"],
-  category: "read",
   safetyLevel: "AUTO",
 }
 
-export const SetGenericPiOutputSpec: SkillSpec = {
-  name: "SetGenericPiOutput",
-  description: "直接设定 V5 通用 PI 控制器的模拟输出，用它**自己的物理单位**（不是伏特 —— 模块会套用它自己的标定）。\n\n当心：这是直接写到一个 MAST 看不见其接线的物理输出上。先读 GetGenericPiController —— 它会报出这个输出的名称、单位与限值，那是你弄清自己将要驱动什么的唯一途径。\n\n直接写输出只有在环**断开**时才讲得通。环闭合时，控制器会在下一拍就把你设的值覆盖掉。\n\n这是 V5 模块。V5e 机箱上请改用 ConfigurePiController；这里报错就说明你手上是另一代。",
+export const SetLockInFrequencySweepSignalSpec: SkillSpec = {
+  name: "SetLockInFrequencySweepSignal",
+  description: "选定锁相**频率扫描**扫的是哪一路信号。\n\n这个扫描会把你点名的东西在整个频率范围内驱动一遍 —— 找共振就是这么找的。点错信号，就是在驱动错的东西。当前值用 GetMiscInstrumentConfig.lockin_freqswp_signal 读。",
   parameters: [
-    { name: "value", type: "float", description: "输出值，用该输出**自己的**物理单位（见 GetGenericPiController）", required: true },
+    { name: "signal_index", type: "int", description: "要扫的信号（来自 ListSignalNames）", required: true, minValue: 0, maxValue: 127 },
   ],
-  tags: ["pi_controller","output","optional-hardware"],
+  tags: ["lockin","sweep","write"],
   category: "write",
   safetyLevel: "CONFIRM",
 }
 
-export const GetGenericPiControllerSpec: SkillSpec = {
-  name: "GetGenericPiController",
-  description: "读 V5 通用 PI 控制器：环的状态、设定值与增益、模拟输出的当前值，以及 —— 写任何东西之前你都需要的那一项 —— 输出的**名称、单位与限值**。",
-  parameters: [],
-  tags: ["pi_controller","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigurePreampSpec: SkillSpec = {
-  name: "ConfigurePreamp",
-  description: "设定 MCVA5 前置放大器某个通道的增益、耦合方式（AC/DC）与输入模式。\n\n改前放增益，会改变同一个物理电流**读出来是多少**。Z 控制器闭合时，反馈环会把这看成电流突变，并据此**移动针尖**。改增益之前先退针，或者先断开 Z 环。\n\n前放编号与通道编号沿用 MCVA5 自己的编号方式。",
+export const SetPllExcitationAddSpec: SkillSpec = {
+  name: "SetPllExcitationAdd",
+  description: "把 PLL 的激励信号叠加到它的输出上（或停止叠加）。\n\nAdd 开着时，调制器的激励会到达悬臂／音叉 —— 探针正在被**驱动**。关掉时，环仍然在跟踪，但什么都不驱动。当前状态用 GetPllConfig.add_on_off 读。",
   parameters: [
-    { name: "preamp", type: "int", description: "前放编号（MCVA5 编号方式）", required: true, minValue: 0, maxValue: 7 },
-    { name: "channel", type: "int", description: "该前放上的通道号", required: true, minValue: 0, maxValue: 7 },
-    { name: "gain", type: "int", description: "增益档位序号 —— 不传则保持不变", required: false, minValue: 0, maxValue: 31 },
-    { name: "coupling", type: "int", description: "耦合方式序号（AC/DC）—— 不传则保持不变", required: false, minValue: 0, maxValue: 7 },
-    { name: "input_mode", type: "int", description: "输入模式序号 —— 不传则保持不变", required: false, minValue: 0, maxValue: 7 },
+    { name: "modulator", type: "int", description: "调制器序号", required: true, minValue: 1, maxValue: 8 },
+    { name: "add", type: "bool", description: "True = 激励会到达输出", required: true },
   ],
-  tags: ["preamp","mcva5","gain","optional-hardware"],
+  tags: ["pll","excitation","write"],
   category: "write",
   safetyLevel: "CONFIRM",
 }
 
-export const GetPreampSpec: SkillSpec = {
-  name: "GetPreamp",
-  description: "读 MCVA5 前置放大器某个通道：它的增益、耦合方式与输入模式。解读任何电流之前先读增益 —— 没有它，ADC 报出来的数字什么也不是。",
+export const SetPllDemodHarmonicSpec: SkillSpec = {
+  name: "SetPllDemodHarmonic",
+  description: "设定某个 PLL 解调器锁到**第几次谐波**（1 = 基频）。\n\n更高次谐波携带的是关于针尖-样品相互作用的另一类信息，而一个锁在根本不存在的谐波上的解调器，会非常自信地报出噪声。用 GetPllConfig.demod_harmonic 读回来核对。",
   parameters: [
-    { name: "preamp", type: "int", description: "前放编号", required: true, minValue: 0, maxValue: 7 },
-    { name: "channel", type: "int", description: "通道号", required: true, minValue: 0, maxValue: 7 },
+    { name: "demodulator", type: "int", description: "解调器序号", required: true, minValue: 1, maxValue: 8 },
+    { name: "harmonic", type: "int", description: "谐波次数（1 = 基频）", required: true, minValue: 1, maxValue: 16 },
   ],
-  tags: ["preamp","mcva5","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const RunPllZoomFftSpec: SkillSpec = {
-  name: "RunPllZoomFft",
-  description: "打开 PLL Zoom-FFT 并在某个通道上启动它，带窗函数与平均。只读 —— FFT 不驱动任何东西。\n\n用它来看噪声本底和共振附近的杂散峰：zoom FFT 能分辨出普通频谱糊掉的那些结构。restart_averaging=true 会把旧的平均丢掉，改动过针尖或驱动之后你正需要这么做。",
-  parameters: [
-    { name: "channel_index", type: "int", description: "要分析的 PLL 通道", required: true, minValue: 0, maxValue: 127 },
-    { name: "fft_window", type: "int", description: "FFT 窗类型序号（0 = 矩形窗；通常该用 Hann）", required: false, minValue: 0, maxValue: 8, default: 1 },
-    { name: "averaging_mode", type: "int", description: "平均模式序号", required: false, minValue: 0, maxValue: 4, default: 0 },
-    { name: "weighting_mode", type: "int", description: "加权模式序号", required: false, minValue: 0, maxValue: 4, default: 0 },
-    { name: "count", type: "int", description: "平均次数", required: false, minValue: 1, maxValue: 10000, default: 10 },
-    { name: "restart_averaging", type: "bool", description: "丢弃已有的平均", required: false, default: true },
-  ],
-  tags: ["pll","fft","read","optional-hardware"],
+  tags: ["pll","demod","write"],
   category: "write",
   safetyLevel: "AUTO",
 }
 
-export const GetPllZoomFftDataSpec: SkillSpec = {
-  name: "GetPllZoomFftData",
-  description: "读 PLL Zoom-FFT 的频谱及其当前设置。",
-  parameters: [],
-  tags: ["pll","fft","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const RunPllPhaseSweepSpec: SkillSpec = {
-  name: "RunPllPhaseSweep",
-  description: "在一个调制器上扫 PLL 的相位，并（可选地）返回得到的曲线。\n\n这是你找出 PLL 实际锁在哪个相位上的办法。扫描期间它**驱动激励** —— 一根悬臂或音叉会在整段扫描里被摇动 —— 但它不移动针尖。StopPllPhaseSweep 能中止它，按 中止 也能。",
+export const ConfigureScopeTriggerSpec: SkillSpec = {
+  name: "ConfigureScopeTrigger",
+  description: "设定 1 通道示波器的触发：模式、沿、电平与迟滞。只读 —— 示波器做的是数字化，它不驱动任何东西。\n\n电平用的是被触发通道自己的物理单位。迟滞的作用，是让一路有噪声的信号不会在阈值附近每抖一下就重新触发一次。",
   parameters: [
-    { name: "modulator_index", type: "int", description: "第几个 PLL 调制器（0 起算）", required: false, minValue: 0, maxValue: 7, default: 0 },
-    { name: "get_data", type: "bool", description: "是否返回扫描曲线", required: false, default: true },
-  ],
-  tags: ["pll","phase","sweep","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const StopPllPhaseSweepSpec: SkillSpec = {
-  name: "StopPllPhaseSweep",
-  description: "停止一次正在跑的 PLL 相位扫描。永远允许，包括在 abort 之后。",
-  parameters: [
-    { name: "modulator_index", type: "int", description: "第几个 PLL 调制器（0 起算）", required: false, minValue: 0, maxValue: 7, default: 0 },
-  ],
-  tags: ["pll","phase","stop","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigurePllSignalAnalyzerSpec: SkillSpec = {
-  name: "ConfigurePllSignalAnalyzer",
-  description: "配置 PLL 信号分析仪：用哪个通道、时基，以及 FFT 窗／平均。它就是架在 PLL 自身信号上的一台示波器 + FFT —— 只读，不驱动任何东西。\n\n用 GetPllSignalAnalyzerData 把时域波形和频谱一起取回来。",
-  parameters: [
-    { name: "channel_index", type: "int", description: "要分析的 PLL 通道", required: true, minValue: 0, maxValue: 127 },
-    { name: "timebase", type: "float", description: "时基 —— 不传则保持不变", required: false },
-    { name: "update_rate", type: "int", description: "刷新率 —— 不传则保持不变", required: false, minValue: 1 },
-    { name: "fft_window", type: "int", description: "FFT 窗类型序号", required: false, minValue: 0, maxValue: 8, default: 1 },
-    { name: "averaging_mode", type: "int", description: "平均模式序号", required: false, minValue: 0, maxValue: 4, default: 0 },
-    { name: "weighting_mode", type: "int", description: "加权模式序号", required: false, minValue: 0, maxValue: 4, default: 0 },
-    { name: "count", type: "int", description: "平均次数", required: false, minValue: 1, maxValue: 10000, default: 10 },
-  ],
-  tags: ["pll","analyzer","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const GetPllSignalAnalyzerDataSpec: SkillSpec = {
-  name: "GetPllSignalAnalyzerData",
-  description: "读 PLL 信号分析仪：示波器时域波形**和** FFT 频谱，外加触发状态。\n\nrearm=true 会在读之前重新武装触发 —— 触发不是自由运行时就该这么做，否则你拿回来的是上一次的捕获。",
-  parameters: [
-    { name: "rearm", type: "bool", description: "先重新武装触发", required: false, default: false },
-  ],
-  tags: ["pll","analyzer","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureOcSyncSpec: SkillSpec = {
-  name: "ConfigureOcSync",
-  description: "设定 OC Sync 模块的开／关相位角，单位是**度**。它们把振荡控制的输出闸门化，使其只在振荡的某个相位窗内触发 —— 这是在振荡探针上做相位分辨（pump-probe 式）测量的基础。\n\nlink_channels 会把通道 2 的角度绑到通道 1 上。",
-  parameters: [
-    { name: "ch1_on_deg", type: "float", description: "通道 1 的 ON 相位角", unit: "deg", required: true, minValue: -360, maxValue: 360 },
-    { name: "ch1_off_deg", type: "float", description: "通道 1 的 OFF 相位角", unit: "deg", required: true, minValue: -360, maxValue: 360 },
-    { name: "ch2_on_deg", type: "float", description: "通道 2 的 ON 相位角", unit: "deg", required: true, minValue: -360, maxValue: 360 },
-    { name: "ch2_off_deg", type: "float", description: "通道 2 的 OFF 相位角", unit: "deg", required: true, minValue: -360, maxValue: 360 },
-    { name: "link_channels", type: "bool", description: "把通道 2 的角度绑到通道 1 上", required: false, default: false },
-  ],
-  tags: ["oc_sync","phase","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetOcSyncSpec: SkillSpec = {
-  name: "GetOcSync",
-  description: "读 OC Sync 模块的相位角与通道绑定关系。",
-  parameters: [],
-  tags: ["oc_sync","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureTipRecorderSpec: SkillSpec = {
-  name: "ConfigureTipRecorder",
-  description: "设定针尖移动记录器的缓冲区大小，并可选地清空它。\n\n这个记录器把每一次针尖移动都记进一个环形缓冲区 —— 它是你重建针尖**去过哪里**的依据，而那正是一次无人值守运行出岔子之后你想要的东西。清空会把这段历史丢掉，所以要清就在一次运行**开始时**清，而不是在诊断它的时候清。",
-  parameters: [
-    { name: "buffer_size", type: "int", description: "保留多少次针尖移动", required: true, minValue: 1, maxValue: 1000000 },
-    { name: "clear", type: "bool", description: "清空缓冲区（会把移动历史丢掉）", required: false, default: false },
-  ],
-  tags: ["tip_recorder","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const GetTipRecorderDataSpec: SkillSpec = {
-  name: "GetTipRecorderData",
-  description: "从针尖记录器的缓冲区里读出记录下来的针尖移动历史。用它重建针尖去了哪里 —— 一次无人值守运行停在意料之外的地方时，这是第一个该看的东西。",
-  parameters: [],
-  tags: ["tip_recorder","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureKelvinControllerSpec: SkillSpec = {
-  name: "ConfigureKelvinController",
-  description: "配置 Kelvin(KPFM)控制器：它伺服的解调信号、P 增益与时间常数、设定值、AC 调制，以及**偏压限值**。\n\n偏压限值是这里最要紧的参数。Kelvin 环靠驱动 DC 偏压把静电力归零 —— 环没调好或信号有噪声时它会一直驱动下去，而限值就是唯一能阻止它在针尖处于隧穿距离时把偏压推到轨上的东西。把限值设成你真正预期 CPD 会落在的范围（通常一两伏），不要设成硬件最大值。\n\n配置**不会**打开这个环 —— 打开是 SetKelvinControllerOnOff 的事。",
-  parameters: [
-    { name: "bias_high_limit_v", type: "float", description: "Kelvin 环可以把偏压驱动到的上界", unit: "V", required: true, minValue: -10, maxValue: 10 },
-    { name: "bias_low_limit_v", type: "float", description: "Kelvin 环可以把偏压驱动到的下界", unit: "V", required: true, minValue: -10, maxValue: 10 },
-    { name: "setpoint", type: "float", description: "环的设定值（通常为 0 —— 把力归零）", required: false, default: 0 },
-    { name: "p_gain", type: "float", description: "比例增益", required: false, minValue: 0, default: 1 },
-    { name: "time_constant_s", type: "float", description: "积分时间常数", unit: "s", required: false, minValue: 0.000001, maxValue: 100, default: 0.01 },
-    { name: "slope", type: "int", description: "环的斜率：0 = 负，1 = 正", required: false, minValue: 0, maxValue: 1, default: 0 },
-    { name: "control_signal_index", type: "int", description: "环所伺服的解调信号", required: false, minValue: 0, maxValue: 127, default: 0 },
-    { name: "modulation_frequency_hz", type: "float", description: "AC 调制频率", unit: "Hz", required: false, minValue: 0, maxValue: 1000000, default: 1000 },
-    { name: "modulation_amplitude", type: "float", description: "AC 调制幅度（V）", unit: "V", required: false, minValue: 0, maxValue: 10, default: 0.1 },
-    { name: "modulation_phase_deg", type: "float", description: "AC 调制相位", unit: "deg", required: false, minValue: -360, maxValue: 360, default: 0 },
-  ],
-  tags: ["kpfm","kelvin","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const SetKelvinControllerOnOffSpec: SkillSpec = {
-  name: "SetKelvinControllerOnOff",
-  description: "打开或关闭 Kelvin(KPFM)反馈环，连同它的 AC 调制一起。\n\n打开时须当心：从那一刻起，这个环就会在针尖处于工作距离的情况下，持续地、自主地**驱动偏压**。环没调好、或解调信号有噪声，它会把偏压一路推到 ConfigureKelvinController 所设的限值为止 —— 所以先把那些限值设好，而且要设紧。关闭则永远是安全的，偏压会停在环最后放它的地方（用 GetBias 读回）。",
-  parameters: [
-    { name: "on", type: "bool", description: "True = 闭合 Kelvin 环（它随即开始驱动偏压）", required: true },
-    { name: "modulation_on", type: "bool", description: "AC 调制随之一起开关", required: false, default: true },
-    { name: "ac_mode", type: "bool", description: "AC 模式（相对 DC）", required: false, default: true },
-  ],
-  tags: ["kpfm","kelvin","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetKelvinControllerSpec: SkillSpec = {
-  name: "GetKelvinController",
-  description: "读 Kelvin 控制器：环是否闭合、它的设定值、增益、偏压限值、调制参数，以及解调幅度。读一下幅度就能判断这个环有没有东西可伺服 —— 幅度接近零意味着环在追噪声。",
-  parameters: [],
-  tags: ["kpfm","kelvin","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const RunCpdCompensationSpec: SkillSpec = {
-  name: "RunCpdCompensation",
-  description: "打开 CPD 补偿模块并运行它：它会在给定范围内**扫描偏压**以直接找出接触电位差的抛物线，而不是像 Kelvin 环那样伺服到它。\n\n当心：这会在针尖处于工作距离时把偏压扫过 ±range_v。range_v 是**以零为中心的半幅** —— range_v=2 表示从 -2 V 扫到 +2 V。把它限制在 CPD 实际所在的那一两伏内；近距离下做大范围扫描，你就不是在测量样品，而是在改造它。\n\n用 GetCpdCompensation 读结果。",
-  parameters: [
-    { name: "range_v", type: "float", description: "要扫描的偏压**半幅**（以零为中心的 ±range_v）", unit: "V", required: true, minValue: 0.01, maxValue: 10 },
-    { name: "speed_hz", type: "float", description: "扫描速度", unit: "Hz", required: false, minValue: 0.01, maxValue: 100000, default: 100 },
-    { name: "averaging", type: "int", description: "每点平均次数", required: false, minValue: 1, maxValue: 10000, default: 1 },
-  ],
-  tags: ["kpfm","cpd","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetCpdCompensationSpec: SkillSpec = {
-  name: "GetCpdCompensation",
-  description: "读 CPD 补偿模块测得的接触电位差，以及它当前的参数。",
-  parameters: [],
-  tags: ["kpfm","cpd","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureInterferometerSpec: SkillSpec = {
-  name: "ConfigureInterferometer",
-  description: "配置干涉式偏转探测器：它的 PI 环增益与符号，以及工作点压电电压。\n\nnull_deflection=true 会额外跑一次归零偏转例程，把干涉仪压电移到能让悬臂落在干涉条纹最陡（最灵敏）那一段的位置。信任任何偏转读数之前先做这一步 —— 偏离条纹时，探测器既不灵敏又非线性。",
-  parameters: [
-    { name: "integral", type: "float", description: "PI 积分增益", required: false, default: 1 },
-    { name: "proportional", type: "float", description: "PI 比例增益", required: false, default: 1 },
-    { name: "sign", type: "int", description: "环的符号：0 = 负，1 = 正", required: false, minValue: 0, maxValue: 1, default: 0 },
-    { name: "w_piezo", type: "float", description: "工作点压电电压", unit: "V", required: false, default: 0 },
-    { name: "null_deflection", type: "bool", description: "跑归零偏转例程（停在最陡的条纹上）", required: false, default: false },
-  ],
-  tags: ["interferometer","afm","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const SetInterferometerOnOffSpec: SkillSpec = {
-  name: "SetInterferometerOnOff",
-  description: "打开或关闭干涉仪的 PI 控制环。reset=true 会先复位这个环的积分器 —— 如果环已经积分饱和、卡在轨上，就该这么做。",
-  parameters: [
-    { name: "on", type: "bool", description: "True = 闭合这个环", required: true },
-    { name: "reset", type: "bool", description: "开关之前先复位这个环", required: false, default: false },
-  ],
-  tags: ["interferometer","afm","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetInterferometerSpec: SkillSpec = {
-  name: "GetInterferometer",
-  description: "读干涉仪：当前的偏转值、它的环是否闭合、它的增益，以及压电工作点。",
-  parameters: [],
-  tags: ["interferometer","afm","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureBeamDeflectionSpec: SkillSpec = {
-  name: "ConfigureBeamDeflection",
-  description: "设定**一条**光杠杆偏转轴的标定：vertical（法向力）、horizontal（横向力／摩擦力），或强度和 sum。\n\n标定把光电二极管的伏特换算成物理单位（偏转的 N/m、力的 nN）。AFM 下游报出来的每一个力的数值都被它缩放过 —— 标定错了不会失败，它只会安静地让此后每一个力都差一个固定倍数。",
-  parameters: [
-    { name: "axis", type: "str", description: "vertical（法向）、horizontal（横向），或 sum（强度）", required: true, allowedValues: ["vertical","horizontal","sum"] },
-    { name: "name", type: "str", description: "在 Nanonis 里显示的信号名", required: true },
-    { name: "units", type: "str", description: "标定之后的物理单位（例如 'nN'、'nm'）", required: true },
-    { name: "calibration", type: "float", description: "每伏对应多少物理单位", required: true },
-    { name: "offset", type: "float", description: "以物理单位表示的偏置", required: false, default: 0 },
-  ],
-  tags: ["beam_deflection","afm","calibration","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetBeamDeflectionSpec: SkillSpec = {
-  name: "GetBeamDeflection",
-  description: "读光杠杆偏转探测器三条轴（vertical、horizontal、sum）的配置：名称、单位、标定与偏置。信任任何力的数值之前，先核一下标定。",
-  parameters: [],
-  tags: ["beam_deflection","afm","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const AutoZeroBeamDeflectionSpec: SkillSpec = {
-  name: "AutoZeroBeamDeflection",
-  description: "自动归零光杠杆偏转信号：测出它当前的值，并把它作为偏置扣掉，于是「零偏转」就等于悬臂当前的静止位置。\n\n做这件事时针尖必须**已退针**、悬臂处于自由状态。在接触状态下自动归零，等于把带载的偏转定义成了零 —— 此后你测到的每一个力，都会被你原本就施加着的那份载荷偏移掉。",
-  parameters: [
-    { name: "deflection_signal", type: "int", description: "要归零的偏转信号序号", required: false, minValue: 0, maxValue: 127, default: 0 },
-  ],
-  tags: ["beam_deflection","afm","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const SetLaserOnOffSpec: SkillSpec = {
-  name: "SetLaserOnOff",
-  description: "打开或关闭激光。\n\n打开时是 DANGEROUS。激光既是对眼睛的危害，也是结区的一份热负载；MAST 看不到快门是否关着、显微镜旁有没有人、光束打向哪里。只有在用户要求时才打开它。\n\n关闭则永远允许 —— 包括在 abort 之后：对激光而言，「关」毫无歧义地就是安全态。",
-  parameters: [
-    { name: "on", type: "bool", description: "True = 激光开", required: true },
-  ],
-  tags: ["laser","optical","dangerous","optional-hardware"],
-  category: "write",
-  safetyLevel: "DANGEROUS",
-}
-
-export const SetLaserPowerSpec: SkillSpec = {
-  name: "SetLaserPower",
-  description: "设定激光的功率设定值。**不会**打开激光 —— 那是 SetLaserOnOff 的事。趁激光关着的时候设功率，是预置一个值的安全做法：设好、用 GetLaser 读回、再打开。",
-  parameters: [
-    { name: "setpoint", type: "float", description: "激光功率设定值（用激光模块自己的单位）", required: true, minValue: 0 },
-  ],
-  tags: ["laser","optical","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetLaserSpec: SkillSpec = {
-  name: "GetLaser",
-  description: "读激光：它是否处于开启状态、实测功率，以及设定值。在假定激光是关着的之前，先读这一条。",
-  parameters: [],
-  tags: ["laser","optical","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const SetProbeZControllerSpec: SkillSpec = {
-  name: "SetProbeZController",
-  description: "设定**某一根**探针的 Z 控制器：开／关它，并设定它的设定值与增益。\n\n当心。把一根探针的 Z 环打开、而设定值又是它根本达不到的，会把那根探针**扎进样品**。把它关掉则会让探针停在当前 Z 上、没有任何东西托着它 —— 想让探针处于安全状态，请用 WithdrawProbe，而不是关掉。\n\n这个技能只作用于你点名的那根探针，别的一根都不动。普通的 ZController 技能作用于**主**通道，那是某一根特定的探针 —— 除非它恰好就是当前的扫描探针，否则不是这一根。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "on", type: "bool", description: "闭合这根探针的 Z 反馈环", required: true },
-    { name: "setpoint", type: "float", description: "Z 控制器设定值（电流，单位 A）—— 不传则保持不变", unit: "A", required: false },
-    { name: "p_gain", type: "float", description: "比例增益 —— 不传则保持不变", required: false, minValue: 0 },
-    { name: "i_gain", type: "float", description: "积分增益 —— 不传则保持不变", required: false, minValue: 0 },
-  ],
-  tags: ["multiprobe","zcontroller","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetProbeZControllerSpec: SkillSpec = {
-  name: "GetProbeZController",
-  description: "读**某一根**探针的 Z 控制器：它是否开着、它的设定值、增益、Z 位置与 Z 限值。移动那根探针之前先读这个。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-  ],
-  tags: ["multiprobe","zcontroller","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const WithdrawProbeSpec: SkillSpec = {
-  name: "WithdrawProbe",
-  description: "退回**某一根**探针：关掉它的 Z 控制器，并把它的 Z 驱到安全（完全退出）的那一端。\n\n这是一根探针的**安全**状态，而且永远允许 —— 包括在 abort 之后。拿不准某根探针的状态，就把它退回来。普通的 Withdraw 技能只作用于主通道；在多探针装置上，你进过针的每一根探针都必须各自退回。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-  ],
-  tags: ["multiprobe","withdraw","safe","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureProbeScannerSpec: SkillSpec = {
-  name: "ConfigureProbeScanner",
-  description: "设定**某一根**探针的扫描器标定（X/Y/Z 系数）与移动速度。\n\n标定把下达的伏特换算成米。它不是一个装点门面的设置：X 系数错了，就意味着 MoveProbeXY 走的距离和你要的不一样（方向倒是一样），而且不会报错 —— 在多探针装置上，这意味着把一根探针开进另一根里去。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "speed", type: "float", description: "扫描器移动速度（m/s）—— 不传则保持不变", unit: "m/s", required: false, minValue: 0 },
-    { name: "factor_x", type: "float", description: "X 标定系数 —— 不传则保持不变", required: false },
-    { name: "factor_y", type: "float", description: "Y 标定系数 —— 不传则保持不变", required: false },
-    { name: "factor_z", type: "float", description: "Z 标定系数 —— 不传则保持不变", required: false },
-  ],
-  tags: ["multiprobe","scanner","calibration","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const MoveProbeXYSpec: SkillSpec = {
-  name: "MoveProbeXY",
-  description: "把**某一根**探针移动到一个绝对 (X, Y) 位置，单位**米**。\n\nDANGEROUS。这会真的驱动一根针尖横穿样品。在多探针装置上，各根探针共用同一个表面、彼此可能只隔几微米 —— 一次按错误探针的坐标系算出来的移动、或者用错扫描器标定的移动，会把一根针尖开进另一根里、或者开上一道台阶边。\n\n坐标单位是**米**：100 nm 是 100n，不是 100。先用 GetProbeZController 加扫描器自己的 XY 读取接口读一下当前位置，并且优先用小步的相对移动。StopProbeScanner 能中止一次正在进行的移动，按 中止 也能。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "x_m", type: "float", description: "绝对 X，单位**米**（100 nm = 100n）", unit: "m", required: true, minValue: -0.001, maxValue: 0.001 },
-    { name: "y_m", type: "float", description: "绝对 Y，单位**米**（100 nm = 100n）", unit: "m", required: true, minValue: -0.001, maxValue: 0.001 },
-  ],
-  tags: ["multiprobe","scanner","motion","dangerous","optional-hardware"],
-  category: "write",
-  safetyLevel: "DANGEROUS",
-}
-
-export const StopProbeScannerSpec: SkillSpec = {
-  name: "StopProbeScanner",
-  description: "立即停止**某一根**探针的扫描器运动。永远允许，包括在 abort 之后。停止只是中止这次移动 —— 它**不会**把探针退回来；要退请用 WithdrawProbe。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-  ],
-  tags: ["multiprobe","scanner","stop","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const SetProbeBiasSpec: SkillSpec = {
-  name: "SetProbeBias",
-  description: "设定**某一根**探针的偏压，单位**伏特**。\n\n每根探针都有自己的偏压。设 probe 1 的偏压不会改变 probe 0 的 —— 而普通的 SetBias 技能作用于主通道，那是某一根特定的探针，未必是你心里想的那一根。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "bias_v", type: "float", description: "偏压，单位**伏特**", unit: "V", required: true, minValue: -10, maxValue: 10 },
-  ],
-  tags: ["multiprobe","bias","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const PulseProbeBiasSpec: SkillSpec = {
-  name: "PulseProbeBias",
-  description: "在**某一根**探针上施加一次偏压**脉冲**：跳到某个值、维持一段设定的宽度，然后回来。\n\n当心。偏压脉冲正是你用来**蓄意改造**针尖或表面的手段 —— 它是 TipPulse 的多探针版本。它会钝化针尖、挖出一个坑、或者挪动一个吸附物，而且是故意的。宽度单位是**秒**（1 ms = 0.001）。\n\nhold_z=true 会在脉冲期间冻结 Z 控制器（标准做法 —— 反馈环绝不能去追那个电流尖峰）。relative=true 让这个值成为相对当前偏压的偏移量，而不是绝对值。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "value_v", type: "float", description: "脉冲偏压，单位**伏特**（绝对值；relative 时则为偏移量）", unit: "V", required: true, minValue: -10, maxValue: 10 },
-    { name: "width_s", type: "float", description: "脉冲宽度，单位**秒**（1 ms = 0.001）", unit: "s", required: true, minValue: 0.000001, maxValue: 10 },
-    { name: "hold_z", type: "bool", description: "脉冲期间冻结 Z 控制器（标准做法）", required: false, default: true },
-    { name: "relative", type: "bool", description: "value_v 是相对当前偏压的偏移量", required: false, default: false },
-    { name: "wait", type: "bool", description: "阻塞直到脉冲结束", required: false, default: true },
-  ],
-  tags: ["multiprobe","bias","pulse","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const GetProbeBiasSpec: SkillSpec = {
-  name: "GetProbeBias",
-  description: "读**某一根**探针的偏压、它的量程设置与标定。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-  ],
-  tags: ["multiprobe","bias","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const GetProbeCurrentSpec: SkillSpec = {
-  name: "GetProbeCurrent",
-  description: "读**某一根**探针的隧道电流（单位安培）及其可用的前放增益档。用这个逐探针的读数来判断那一根特定探针是否处在隧穿距离内 —— 主 Current 通道只报其中一根。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-  ],
-  tags: ["multiprobe","current","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureProbeCurrentGainSpec: SkillSpec = {
-  name: "ConfigureProbeCurrentGain",
-  description: "设定**某一根**探针的电流前放增益与滤波器，用的是该探针自己那份增益表里的**序号**（表用 GetProbeCurrent 读）。\n\n改增益会改变同一个电流**读出来是多少**。要做就在 Z 控制器关闭、或探针已退回的状态下做：环闭合时，一次增益改变在反馈看来就是电流突变，而环的回应是去移动这根探针。",
-  parameters: [
-    { name: "probe", type: "int", description: "**哪一根探针**（扫描器序号，0 起算）。必填 —— 没有默认值，因为默认下去会撞坏错的那根针尖。", required: true, minValue: 0, maxValue: 7 },
-    { name: "gain_index", type: "int", description: "这根探针增益表里的序号（表来自 GetProbeCurrent）", required: true, minValue: 0, maxValue: 31 },
-    { name: "filter_index", type: "int", description: "这根探针滤波器表里的序号", required: false, minValue: 0, maxValue: 31, default: 0 },
-  ],
-  tags: ["multiprobe","current","gain","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const ConfigureHighSpeedSweepSpec: SkillSpec = {
-  name: "ConfigureHighSpeedSweep",
-  description: "配置高速扫频器（High-Speed Sweeper）：扫哪个信号、扫什么范围、多少个点、时序，以及记录哪些通道。\n\n**用它之前先读这一段。** 被扫的信号是按**序号**从可扫信号表里挑的 —— 调 GetHighSpeedSweepStatus 才看得到那张表。HSSwp 你点名什么它就扫什么：偏压、一块压电、一路输出。它既不知道也不在乎是哪一个。序号点错，就是在高速驱动错误的东西。\n\nrelative_limits=true 会让 start/stop 变成相对该信号当前值的**偏移量**（例如在当前偏压附近 ±0.5 V）；false 则是绝对值。把这个弄反，是扫到一个你从没打算去的值的经典途径。\n\nz_controller_off=true 会在整段扫描期间抬掉 Z 反馈 —— 做谱学时这是对的（针尖绝不能去追电流），而如果被扫的信号会牵动 Z，它就是一份撞针风险。配置本身还什么都不改变；真正执行的是 RunHighSpeedSweep。",
-  parameters: [
-    { name: "sweep_signal_index", type: "int", description: "**可扫信号表**里的序号（不是通用信号目录）", required: true, minValue: 0, maxValue: 127 },
-    { name: "start", type: "float", description: "扫描起点（绝对值；relative_limits 时则为偏移量）", required: true },
-    { name: "stop", type: "float", description: "扫描终点（绝对值；relative_limits 时则为偏移量）", required: true },
-    { name: "relative_limits", type: "bool", description: "start/stop 是相对该信号**当前**值的偏移量", required: false, default: false },
-    { name: "points", type: "int", description: "每次扫描的点数", required: false, minValue: 2, maxValue: 100000, default: 256 },
-    { name: "acquire_channels", type: "str", description: "扫描期间要记录的信号序号，逗号分隔（例如 '0,24'）", required: true },
-    { name: "settling_time_s", type: "float", description: "每点的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 10, default: 0.0001 },
-    { name: "integration_time_s", type: "float", description: "每点的积分时间", unit: "s", required: false, minValue: 0, maxValue: 10, default: 0.0001 },
-    { name: "initial_settling_time_s", type: "float", description: "第一个点之前的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 0.001 },
-    { name: "max_slew_time_s", type: "float", description: "允许用来爬到起始值的最长时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 1 },
-    { name: "backward_sweep", type: "bool", description: "同时反向扫一遍（stop → start）", required: false, default: true },
-    { name: "num_sweeps", type: "int", description: "平均多少次扫描（0 = 一直连续扫到被停止为止）", required: false, minValue: 0, maxValue: 10000, default: 1 },
-    { name: "z_controller_off", type: "bool", description: "扫描期间抬掉 Z 反馈（做谱学时是对的；如果被扫信号会牵动 Z，则是一份撞针风险）", required: false, default: false },
-    { name: "z_offset_m", type: "float", description: "控制器关闭期间施加的 Z 偏移", unit: "m", required: false, minValue: -0.000001, maxValue: 0.000001, default: 0 },
-  ],
-  tags: ["sweep","hs_sweeper","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const RunHighSpeedSweepSpec: SkillSpec = {
-  name: "RunHighSpeedSweep",
-  description: "执行由 ConfigureHighSpeedSweep 配好的那次扫描。它会把你点名的那路信号 —— 偏压、一块压电、一路输出 —— 从起点**驱动**到终点，而且很快。\n\n当心：扫频器对信号本身是不可知的。它会毫不犹豫地把一块压电开到硬限位上、或者把偏压拉过一个会毁掉针尖的范围，因为它就是被这么吩咐的。永远先 ConfigureHighSpeedSweep，并核对你点的到底是什么。\n\nwait=true 会阻塞到扫描结束（或 timeout_s 到期）并返回数据；wait=false 立刻返回，之后由你用 GetHighSpeedSweepStatus 轮询。StopHighSpeedSweep 能中止它，按 中止 也能。",
-  parameters: [
-    { name: "wait", type: "bool", description: "阻塞直到扫描结束", required: false, default: true },
-    { name: "timeout_s", type: "float", description: "wait=true 时最多等多久", unit: "s", required: false, minValue: 1, maxValue: 3600, default: 60 },
-  ],
-  tags: ["sweep","hs_sweeper","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const StopHighSpeedSweepSpec: SkillSpec = {
-  name: "StopHighSpeedSweep",
-  description: "立即停止正在跑的高速扫描。永远允许 —— 包括在 abort 之后，那正是「停止」这件事存在的意义。",
-  parameters: [],
-  tags: ["sweep","hs_sweeper","stop","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const GetHighSpeedSweepStatusSpec: SkillSpec = {
-  name: "GetHighSpeedSweepStatus",
-  description: "读高速扫频器的状态：是否有扫描在跑、当前的扫描信号与限值，以及**可扫信号表**。\n\n请在 ConfigureHighSpeedSweep **之前**调它 —— 扫描信号是按序号从那张表里挑的，而那张表不是通用信号目录。序号靠猜，就是在扫错东西。",
-  parameters: [],
-  tags: ["sweep","hs_sweeper","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureRfGeneratorSpec: SkillSpec = {
-  name: "ConfigureRfGenerator",
-  description: "设定 RF 源的频率与功率，但**不**打开输出。用它来预置一组设置、核对一遍，然后才调 StartRfGenerator。\n\npower_dbm 的单位是 dBm，这是一个**对数**标度：+10 dBm 是 0 dBm 的十倍功率，不是多百分之十。频率单位是 Hz —— 2.5 GHz 要写成 2.5e9，写 2.5 就是 2.5 Hz，而且不会有任何提示。",
-  parameters: [
-    { name: "frequency_hz", type: "float", description: "RF 频率，单位**赫兹**（2.5 GHz = 2.5e9）", unit: "Hz", required: true, minValue: 0, maxValue: 40000000000 },
-    { name: "power_dbm", type: "float", description: "RF 功率，单位 dBm（对数标度）", unit: "dBm", required: true, minValue: -100, maxValue: 30 },
-  ],
-  tags: ["rf","aprf_gen","optional-hardware"],
-  category: "write",
-  safetyLevel: "CONFIRM",
-}
-
-export const StartRfGeneratorSpec: SkillSpec = {
-  name: "StartRfGenerator",
-  description: "以当前配置好的频率与功率打开 RF 输出。\n\nDANGEROUS：打进隧道结里的 dBm 就是**能量**。RF 功率会耦合进针尖和样品，量够大就会改变、乃至毁掉这两者。先调 ConfigureRfGenerator 并确认那些数字 —— GetRfGeneratorStatus 显示的才是实际设进去的值。\n\nStopRfGenerator 能切断它，按 中止 也能。",
-  parameters: [],
-  tags: ["rf","aprf_gen","dangerous","optional-hardware"],
-  category: "write",
-  safetyLevel: "DANGEROUS",
-}
-
-export const StopRfGeneratorSpec: SkillSpec = {
-  name: "StopRfGenerator",
-  description: "停掉任何正在跑的 RF 扫描，**并且**关闭 RF 输出。永远允许，包括在 abort 之后。两件事都做，且按这个顺序 —— 只停扫描而不切断输出，会让 RF 停在扫描走到的那个值上继续输出。",
-  parameters: [],
-  tags: ["rf","aprf_gen","stop","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const RunRfFrequencySweepSpec: SkillSpec = {
-  name: "RunRfFrequencySweep",
-  description: "以当前功率把 RF 频率从一端扫到另一端，每个点驻留一段时间。\n\nDANGEROUS，理由与 StartRfGenerator 相同 —— 整段扫描期间它都在往外发 RF。请先用 ConfigureRfGenerator 把功率设好。\n\n限值单位是**赫兹**。dwell_s 是每点的驻留时间；points 是点数。总时长 ≈ points × dwell_s × repetitions。auto_off=true 会在扫描结束时切断 RF —— 除非你特别希望输出停在末频率上继续，否则就让它开着。",
-  parameters: [
-    { name: "lower_hz", type: "float", description: "扫描下限，单位**赫兹**", unit: "Hz", required: true, minValue: 0, maxValue: 40000000000 },
-    { name: "upper_hz", type: "float", description: "扫描上限，单位**赫兹**", unit: "Hz", required: true, minValue: 0, maxValue: 40000000000 },
-    { name: "points", type: "int", description: "整段扫描的点数", required: false, minValue: 2, maxValue: 100000, default: 101 },
-    { name: "dwell_s", type: "float", description: "每个点的驻留时间", unit: "s", required: false, minValue: 0.000001, maxValue: 60, default: 0.01 },
-    { name: "repetitions", type: "int", description: "这段扫描重复多少遍", required: false, minValue: 1, maxValue: 10000, default: 1 },
-    { name: "direction", type: "str", description: "up（lower→upper）或 down", required: false, allowedValues: ["up","down"], default: "up" },
-    { name: "auto_off", type: "bool", description: "扫描结束时关闭 RF 输出", required: false, default: true },
-  ],
-  tags: ["rf","aprf_gen","sweep","dangerous","optional-hardware"],
-  category: "write",
-  safetyLevel: "DANGEROUS",
-}
-
-export const GetRfGeneratorStatusSpec: SkillSpec = {
-  name: "GetRfGeneratorStatus",
-  description: "读 RF 源的频率、功率，以及 —— 真正要紧的那一项 —— **输出是否开着**。在假定 RF 是关的之前，先核这一条。",
-  parameters: [],
-  tags: ["rf","aprf_gen","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureHighResScopeSpec: SkillSpec = {
-  name: "ConfigureHighResScope",
-  description: "配置高分辨率示波器（OsciHR）：用哪个信号、采多少点、过采样，以及触发。\n\n配置示波器不会碰仪器 —— 它只决定**什么被数字化**。没有东西会动，也没有东西被施加出去。\n\ntrigger_mode 为 'immediate' 时，一 Run 就立刻捕获；'level' 会等 trigger_channel 按给定方向穿过 trigger_level；'digital' 则等一条数字线。信号序号来自信号目录（ListSignalNames）。",
-  parameters: [
-    { name: "signal_index", type: "int", description: "要数字化的信号（来自 ListSignalNames）", required: true, minValue: 0, maxValue: 127 },
-    { name: "samples", type: "int", description: "每次采集捕获的点数", required: false, minValue: 1, maxValue: 1000000, default: 1024 },
-    { name: "oversampling_index", type: "int", description: "过采样序号（0 = 不过采样；越高平均越多、越慢）", required: false, minValue: 0, maxValue: 10, default: 0 },
-    { name: "trigger_mode", type: "str", description: "immediate | level | digital", required: false, allowedValues: ["immediate","level","digital"], default: "immediate" },
-    { name: "trigger_channel", type: "int", description: "触发源通道（level 模式用）", required: false, minValue: 0, maxValue: 127, default: 0 },
-    { name: "trigger_level", type: "float", description: "触发阈值，用触发通道自己的物理单位", required: false, default: 0 },
-    { name: "trigger_slope", type: "str", description: "rising | falling", required: false, allowedValues: ["falling","rising"], default: "rising" },
-    { name: "trigger_hysteresis", type: "float", description: "触发迟滞（防止在噪声上反复触发）", required: false, minValue: 0, default: 0 },
-    { name: "osci_index", type: "int", description: "第几个 OsciHR 实例（0 起算）", required: false, minValue: 0, maxValue: 7, default: 0 },
-  ],
-  tags: ["oscilloscope","osci_hr","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const RunHighResScopeSpec: SkillSpec = {
-  name: "RunHighResScope",
-  description: "启动高分辨率示波器（并重新武装它的触发）。之后调 GetHighResScopeData 把波形取回来。\n\n对仪器而言这是只读的：跑示波器是把一个信号数字化，它不驱动任何东西。",
-  parameters: [
-    { name: "rearm", type: "bool", description: "启动前先重新武装触发", required: false, default: true },
-  ],
-  tags: ["oscilloscope","osci_hr","optional-hardware"],
-  category: "write",
-  safetyLevel: "AUTO",
-}
-
-export const GetHighResScopeDataSpec: SkillSpec = {
-  name: "GetHighResScopeData",
-  description: "读高分辨率示波器捕获到的波形，并可选地读它的功率谱密度。\n\nwait_for_trigger=true 会在示波器上**阻塞**，直到下一次触发发生、或 timeout_s 到期 —— 触发是 level/digital 时，请在 RunHighResScope 之后这样用。timeout_s 给短了你会拿到一个错误，而不是半条波形。",
-  parameters: [
-    { name: "wait_for_trigger", type: "bool", description: "等下一次触发，而不是取当前缓冲区", required: false, default: true },
-    { name: "timeout_s", type: "float", description: "等触发最多等多久", unit: "s", required: false, minValue: 0.1, maxValue: 600, default: 10 },
-    { name: "include_psd", type: "bool", description: "同时读 PSD 部分", required: false, default: false },
-    { name: "osci_index", type: "int", description: "第几个 OsciHR 实例（0 起算）", required: false, minValue: 0, maxValue: 7, default: 0 },
-  ],
-  tags: ["oscilloscope","osci_hr","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const GetHighResScopeStatusSpec: SkillSpec = {
-  name: "GetHighResScopeStatus",
-  description: "回读高分辨率示波器当前的配置：通道、采样点数、过采样与触发模式。在信任一次由别人（或 Nanonis 界面）设好的捕获之前先读它。",
-  parameters: [
-    { name: "osci_index", type: "int", description: "第几个 OsciHR 实例（0 起算）", required: false, minValue: 0, maxValue: 7, default: 0 },
-  ],
-  tags: ["oscilloscope","osci_hr","read","optional-hardware"],
-  category: "read",
-  safetyLevel: "AUTO",
-}
-
-export const ConfigureDualScopeSpec: SkillSpec = {
-  name: "ConfigureDualScope",
-  description: "配置 2 通道示波器：两路信号、时基，以及触发。需要把两个信号放在**同一条**时基上互相对照时用它（一对 pump-probe、电流对偏压、锁相的 X/Y）。\n\ntimebase_index 是从 Nanonis 固定的时基表里挑一项，它**不是**以秒为单位的时间。配置示波器不驱动任何东西。",
-  parameters: [
-    { name: "channel_a", type: "int", description: "通道 A 的信号序号", required: true, minValue: 0, maxValue: 127 },
-    { name: "channel_b", type: "int", description: "通道 B 的信号序号", required: true, minValue: 0, maxValue: 127 },
-    { name: "timebase_index", type: "int", description: "时基序号（0 起算，取自 Nanonis 的固定表 —— 不是秒）", required: false, minValue: 0, maxValue: 15, default: 0 },
-    { name: "trigger_mode", type: "int", description: "0 = immediate，1 = level，2 = auto", required: false, minValue: 0, maxValue: 2, default: 0 },
-    { name: "trigger_channel", type: "int", description: "触发源：0 = 通道 A，1 = 通道 B", required: false, minValue: 0, maxValue: 1, default: 0 },
+    { name: "trigger_mode", type: "int", description: "0 = immediate，1 = level，2 = auto", required: false, minValue: 0, maxValue: 2, default: 1 },
     { name: "trigger_slope", type: "int", description: "0 = 下降沿，1 = 上升沿", required: false, minValue: 0, maxValue: 1, default: 1 },
-    { name: "trigger_level", type: "float", description: "触发阈值，用触发通道自己的单位", required: false, default: 0 },
-    { name: "trigger_hysteresis", type: "float", description: "触发迟滞", required: false, minValue: 0, default: 0 },
-    { name: "trigger_position", type: "float", description: "触发点在记录中的位置（0..1）", required: false, minValue: 0, maxValue: 1, default: 0 },
+    { name: "trigger_level", type: "float", description: "阈值，用该通道自己的单位", required: false, default: 0 },
+    { name: "trigger_hysteresis", type: "float", description: "迟滞（防止在噪声上反复触发）", required: false, minValue: 0, default: 0 },
   ],
-  tags: ["oscilloscope","osci_2t","optional-hardware"],
+  tags: ["oscilloscope","trigger","write"],
   category: "write",
   safetyLevel: "AUTO",
 }
 
-export const GetDualScopeDataSpec: SkillSpec = {
-  name: "GetDualScopeData",
-  description: "跑 2 通道示波器并把两路波形都读回来。先调 ConfigureDualScope 选定信号与时基。\n\n返回的通道 A 与通道 B 共用一条时间轴。",
+export const SetPatternExperimentSpec: SkillSpec = {
+  name: "SetPatternExperiment",
+  description: "选定一个图案（网格／线／点云）在每个点上跑**哪一个实验**，外加文件基名与测量前延时。\n\n这个参数是把一组坐标变成一次测量的那一项。一个指向错误实验的网格会跑上几个小时，并在每一个点上产出错的东西 —— 而它此前是只读的（GetScanPatternConfig 看得见它；没有任何东西设得了它）。\n\n`pre_measure_delay_s` 是每个点测量之前的稳定时间；给短了，每条曲线都会拖着「走到这里」那段移动的尾巴。",
   parameters: [
-    { name: "run_first", type: "bool", description: "读之前先启动一次新的采集", required: false, default: true },
-    { name: "data_to_get", type: "int", description: "0 = 当前缓冲区，1 = 下一次触发，2 = 等待下一次触发", required: false, minValue: 0, maxValue: 2, default: 1 },
+    { name: "experiment", type: "int", description: "实验序号（每个点上跑哪一种测量）", required: true, minValue: 0, maxValue: 31 },
+    { name: "basename", type: "str", description: "存盘数据的文件基名", required: false, default: "mast_pattern" },
+    { name: "pre_measure_delay_s", type: "float", description: "每个点测量之前的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 0.1 },
+    { name: "save_scan_channels", type: "bool", description: "每个点上同时保存扫描通道", required: false, default: false },
+    { name: "external_vi_path", type: "str", description: "外部 VI 路径（不用就留空）", required: false, default: "" },
   ],
-  tags: ["oscilloscope","osci_2t","read","optional-hardware"],
+  tags: ["pattern","grid","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPointShootPropsSpec: SkillSpec = {
+  name: "SetPointShootProps",
+  description: "配置 Follow-Me 的 point-and-shoot：测完之后扫描是否自动续跑、文件基名，以及测量前延时。\n\n`auto_resume` 是值得想一想的那一个。开着的话，每做完一次 point-and-shoot 测量扫描就会接着跑 —— 做普查时你要的正是这个，而如果那次测量可能改变了针尖，你要的就不是这个。",
+  parameters: [
+    { name: "auto_resume", type: "bool", description: "每次点测之后续跑扫描", required: true },
+    { name: "basename", type: "str", description: "文件基名", required: false, default: "mast_ps" },
+    { name: "use_own_basename", type: "bool", description: "用上面这个基名，而不是本次会话的基名", required: false, default: true },
+    { name: "pre_measure_delay_s", type: "float", description: "每次测量之前的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 0.1 },
+    { name: "external_vi_path", type: "str", description: "外部 VI 路径（不用就留空）", required: false, default: "" },
+  ],
+  tags: ["folme","point-and-shoot","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ReadTipOscillationAmplitudeSpec: SkillSpec = {
+  name: "ReadTipOscillationAmplitude",
+  description: "读取 qPlus 振荡振幅（OCD1 Amplitude 等通道）。可作为**独立于电流**的针尖状态判据：针尖接触表面后振幅会被阻尼到接近 0，退针后才恢复。没有 qPlus 的机器上返回 status='unavailable'（这不是故障）。",
+  parameters: [
+    { name: "signal_index", type: "int", description: "显式指定振幅信号索引；-1 = 按通道名自动查找。自动查找不到时返回 unavailable，不会猜一个索引。", required: false, default: -1 },
+    { name: "set_baseline", type: "bool", description: "True = 把这次读数记为「自由振荡基线」。**只应在确认针尖未接触表面时调用**（进针前、或退针之后）。基线是撞针判据的分母。", required: false, default: false },
+  ],
+  tags: ["qplus","afm","read","tip"],
   category: "read",
   safetyLevel: "AUTO",
 }
 
-export const ConfigureSignalChartSpec: SkillSpec = {
-  name: "ConfigureSignalChart",
-  description: "打开 Signal Chart 并设定它显示哪两路信号。这是 Nanonis 机器上的一个**显示**模块 —— 它改变的是用户在那边看到的东西，与测量本身无关。",
+export const CheckTipCrashByAmplitudeSpec: SkillSpec = {
+  name: "CheckTipCrashByAmplitude",
+  description: "用 qPlus 振幅判断针尖是否已接触表面（撞针）。判据：振幅低于自由振荡基线的 10%。**这是对电流类判据的补充，不替代它们。**status ∈ ok|crash|unavailable|no_baseline —— 后两者是「判断不了」，不是「没撞」。",
   parameters: [
-    { name: "channel_a", type: "int", description: "图表 A 的信号序号", required: true, minValue: 0, maxValue: 127 },
-    { name: "channel_b", type: "int", description: "图表 B 的信号序号", required: true, minValue: 0, maxValue: 127 },
+    { name: "signal_index", type: "int", description: "显式振幅信号索引；-1 = 自动查找。", required: false, default: -1 },
   ],
-  tags: ["signal_chart","display","optional-hardware"],
-  category: "write",
+  tags: ["qplus","afm","crash","tip","safety"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const CheckPiezoRangeSpec: SkillSpec = {
+  name: "CheckPiezoRange",
+  description: "读扫描器真实的 XY/Z 压电量程，并与配置里的安全限值（SafetyLimits.xy_max_m）比对。报 ok / mismatch / unknown —— 从不改变任何东西。换过制冷剂、换过扫描器、或做过任何一次压电重标定之后都跑一下：配置里的量程比真实量程大，会让选点器提出针尖根本到不了的目标，接着那次移动会以一个重试也修不好的超时告终。",
+  parameters: [
+    { name: "tolerance_frac", type: "float", description: "相对差超过它就报 mismatch。出厂 0.02(2%) —— 比读数抖动大得多,比 2026-08-16 那次的 23% 小得多。", required: false, minValue: 0, maxValue: 1, default: 0.02 },
+  ],
+  tags: ["piezo","range","safety","read","selfcheck"],
+  category: "read",
   safetyLevel: "AUTO",
 }
 
@@ -3278,65 +2692,18 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   SetPLLSignalAnlzrTrig: SetPLLSignalAnlzrTrigSpec,
   GetPLLFreqSwpParams: GetPLLFreqSwpParamsSpec,
   StopPLLFreqSwp: StopPLLFreqSwpSpec,
-  ConfigurePiController: ConfigurePiControllerSpec,
-  SetPiControllerOnOff: SetPiControllerOnOffSpec,
-  GetPiController: GetPiControllerSpec,
-  SetGenericPiOutput: SetGenericPiOutputSpec,
-  GetGenericPiController: GetGenericPiControllerSpec,
-  ConfigurePreamp: ConfigurePreampSpec,
-  GetPreamp: GetPreampSpec,
-  RunPllZoomFft: RunPllZoomFftSpec,
-  GetPllZoomFftData: GetPllZoomFftDataSpec,
-  RunPllPhaseSweep: RunPllPhaseSweepSpec,
-  StopPllPhaseSweep: StopPllPhaseSweepSpec,
-  ConfigurePllSignalAnalyzer: ConfigurePllSignalAnalyzerSpec,
-  GetPllSignalAnalyzerData: GetPllSignalAnalyzerDataSpec,
-  ConfigureOcSync: ConfigureOcSyncSpec,
-  GetOcSync: GetOcSyncSpec,
-  ConfigureTipRecorder: ConfigureTipRecorderSpec,
-  GetTipRecorderData: GetTipRecorderDataSpec,
-  ConfigureKelvinController: ConfigureKelvinControllerSpec,
-  SetKelvinControllerOnOff: SetKelvinControllerOnOffSpec,
-  GetKelvinController: GetKelvinControllerSpec,
-  RunCpdCompensation: RunCpdCompensationSpec,
-  GetCpdCompensation: GetCpdCompensationSpec,
-  ConfigureInterferometer: ConfigureInterferometerSpec,
-  SetInterferometerOnOff: SetInterferometerOnOffSpec,
-  GetInterferometer: GetInterferometerSpec,
-  ConfigureBeamDeflection: ConfigureBeamDeflectionSpec,
-  GetBeamDeflection: GetBeamDeflectionSpec,
-  AutoZeroBeamDeflection: AutoZeroBeamDeflectionSpec,
-  SetLaserOnOff: SetLaserOnOffSpec,
-  SetLaserPower: SetLaserPowerSpec,
-  GetLaser: GetLaserSpec,
-  SetProbeZController: SetProbeZControllerSpec,
-  GetProbeZController: GetProbeZControllerSpec,
-  WithdrawProbe: WithdrawProbeSpec,
-  ConfigureProbeScanner: ConfigureProbeScannerSpec,
-  MoveProbeXY: MoveProbeXYSpec,
-  StopProbeScanner: StopProbeScannerSpec,
-  SetProbeBias: SetProbeBiasSpec,
-  PulseProbeBias: PulseProbeBiasSpec,
-  GetProbeBias: GetProbeBiasSpec,
-  GetProbeCurrent: GetProbeCurrentSpec,
-  ConfigureProbeCurrentGain: ConfigureProbeCurrentGainSpec,
-  ConfigureHighSpeedSweep: ConfigureHighSpeedSweepSpec,
-  RunHighSpeedSweep: RunHighSpeedSweepSpec,
-  StopHighSpeedSweep: StopHighSpeedSweepSpec,
-  GetHighSpeedSweepStatus: GetHighSpeedSweepStatusSpec,
-  ConfigureRfGenerator: ConfigureRfGeneratorSpec,
-  StartRfGenerator: StartRfGeneratorSpec,
-  StopRfGenerator: StopRfGeneratorSpec,
-  RunRfFrequencySweep: RunRfFrequencySweepSpec,
-  GetRfGeneratorStatus: GetRfGeneratorStatusSpec,
-  ConfigureHighResScope: ConfigureHighResScopeSpec,
-  RunHighResScope: RunHighResScopeSpec,
-  GetHighResScopeData: GetHighResScopeDataSpec,
-  GetHighResScopeStatus: GetHighResScopeStatusSpec,
-  ConfigureDualScope: ConfigureDualScopeSpec,
-  GetDualScopeData: GetDualScopeDataSpec,
-  ConfigureSignalChart: ConfigureSignalChartSpec,
+  SetWaveformSignal: SetWaveformSignalSpec,
+  SetLockInDemodPhaseRegister: SetLockInDemodPhaseRegisterSpec,
+  SetLockInFrequencySweepSignal: SetLockInFrequencySweepSignalSpec,
+  SetPllExcitationAdd: SetPllExcitationAddSpec,
+  SetPllDemodHarmonic: SetPllDemodHarmonicSpec,
+  ConfigureScopeTrigger: ConfigureScopeTriggerSpec,
+  SetPatternExperiment: SetPatternExperimentSpec,
+  SetPointShootProps: SetPointShootPropsSpec,
+  ReadTipOscillationAmplitude: ReadTipOscillationAmplitudeSpec,
+  CheckTipCrashByAmplitude: CheckTipCrashByAmplitudeSpec,
+  CheckPiezoRange: CheckPiezoRangeSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","ConfigurePiController","SetPiControllerOnOff","GetPiController","SetGenericPiOutput","GetGenericPiController","ConfigurePreamp","GetPreamp","RunPllZoomFft","GetPllZoomFftData","RunPllPhaseSweep","StopPllPhaseSweep","ConfigurePllSignalAnalyzer","GetPllSignalAnalyzerData","ConfigureOcSync","GetOcSync","ConfigureTipRecorder","GetTipRecorderData","ConfigureKelvinController","SetKelvinControllerOnOff","GetKelvinController","RunCpdCompensation","GetCpdCompensation","ConfigureInterferometer","SetInterferometerOnOff","GetInterferometer","ConfigureBeamDeflection","GetBeamDeflection","AutoZeroBeamDeflection","SetLaserOnOff","SetLaserPower","GetLaser","SetProbeZController","GetProbeZController","WithdrawProbe","ConfigureProbeScanner","MoveProbeXY","StopProbeScanner","SetProbeBias","PulseProbeBias","GetProbeBias","GetProbeCurrent","ConfigureProbeCurrentGain","ConfigureHighSpeedSweep","RunHighSpeedSweep","StopHighSpeedSweep","GetHighSpeedSweepStatus","ConfigureRfGenerator","StartRfGenerator","StopRfGenerator","RunRfFrequencySweep","GetRfGeneratorStatus","ConfigureHighResScope","RunHighResScope","GetHighResScopeData","GetHighResScopeStatus","ConfigureDualScope","GetDualScopeData","ConfigureSignalChart"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange"] as const
