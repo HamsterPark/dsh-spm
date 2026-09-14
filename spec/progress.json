@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 207,
+    "done": 218,
     "partial": 0,
-    "todo": 308
+    "todo": 297
   },
-  "modules_complete": 32,
+  "modules_complete": 35,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -291,8 +291,8 @@
     },
     "builtins.misc_setters": {
       "total": 8,
-      "done": 0,
-      "complete": false
+      "done": 8,
+      "complete": true
     },
     "builtins.monitor_current_fft": {
       "total": 1,
@@ -371,8 +371,8 @@
     },
     "builtins.piezo_range_check": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.pll": {
       "total": 36,
@@ -381,8 +381,8 @@
     },
     "builtins.qplus_amplitude": {
       "total": 2,
-      "done": 0,
-      "complete": false
+      "done": 2,
+      "complete": true
     },
     "builtins.quiet_drift": {
       "total": 1,
@@ -1480,11 +1480,11 @@
       "module": "builtins.piezo_range_check",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "CheckScanForCrash": {
       "module": "builtins.scan_frame",
@@ -1500,11 +1500,11 @@
       "module": "builtins.qplus_amplitude",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ClassifyUnexplainedCurrent": {
       "module": "builtins.current_origin",
@@ -1850,11 +1850,11 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureSignalChart": {
       "module": "builtins.optional_scopes",
@@ -4200,11 +4200,11 @@
       "module": "builtins.qplus_amplitude",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ReconcileSafetyEnvelope": {
       "module": "builtins.envelope_reconcile_skill",
@@ -4710,21 +4710,21 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetLockInFrequencySweepSignal": {
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetMlsLockinPerSegment": {
       "module": "builtins.spectroscopy_sync",
@@ -4930,11 +4930,11 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetPatternLine": {
       "module": "builtins.pattern",
@@ -5020,21 +5020,21 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPllExcitationAdd": {
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPointShootExperiment": {
       "module": "builtins.folme",
@@ -5060,11 +5060,11 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetProbeBias": {
       "module": "builtins.optional_multiprobe",
@@ -5380,11 +5380,11 @@
       "module": "builtins.misc_setters",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetWithdrawRate": {
       "module": "builtins.instrument_limits",

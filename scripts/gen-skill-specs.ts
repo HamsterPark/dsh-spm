@@ -197,7 +197,19 @@ const BATCH_3F = [
  */
 const BATCH_3G: string[] = []   // optional_* 五族
 const BATCH_3H: string[] = []   // 输出 / 扫频 / 图样 / 函数发生器
-const BATCH_3I: string[] = []   // 光学台 / 杂项 setter / 单件
+const BATCH_3I: string[] = [
+  'SetWaveformSignal',
+  'SetLockInDemodPhaseRegister',
+  'SetLockInFrequencySweepSignal',
+  'SetPllExcitationAdd',
+  'SetPllDemodHarmonic',
+  'ConfigureScopeTrigger',
+  'SetPatternExperiment',
+  'SetPointShootProps',
+  'ReadTipOscillationAmplitude',
+  'CheckTipCrashByAmplitude',
+  'CheckPiezoRange',
+]   // 杂项 setter / qPlus 振幅 / 压电范围对账
 
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。

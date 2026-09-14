@@ -203,7 +203,17 @@ BATCH_3F = [
 #: 同一个文件、互不重叠的区段，git 合并时不需要有人去猜谁的对。
 BATCH_3G: list[str] = []   # optional_* 五族
 BATCH_3H: list[str] = []   # 输出 / 扫频 / 图样 / 函数发生器
-BATCH_3I: list[str] = []   # 光学台 / 杂项 setter / 单件
+BATCH_3I: list[str] = [
+    # misc_setters（8）—— 2026-07-13 清点里「读得到、设不了」的最后八个
+    "SetWaveformSignal", "SetLockInDemodPhaseRegister",
+    "SetLockInFrequencySweepSignal", "SetPllExcitationAdd",
+    "SetPllDemodHarmonic", "ConfigureScopeTrigger",
+    "SetPatternExperiment", "SetPointShootProps",
+    # qplus_amplitude（2）—— 独立于电流的撞针判据，三态
+    "ReadTipOscillationAmplitude", "CheckTipCrashByAmplitude",
+    # piezo_range_check（1）—— 配置说的和仪器说的是不是同一个数
+    "CheckPiezoRange",
+]   # 光学台 / 杂项 setter / 单件
 
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:

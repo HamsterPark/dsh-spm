@@ -2941,6 +2941,79 @@
       }
     }
   },
+  "CheckPiezoRange": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          }
+        ],
+        "data": {
+          "configured_half_xy_m": 1.5e-06,
+          "instrument_half_x_m": null,
+          "instrument_half_y_m": null,
+          "instrument_half_z_m": null,
+          "tolerance_frac": 0.02,
+          "undecidable": "读不到扫描器的压电范围(Piezo_RangeGet: 返回值里没有数字) —— **判不了,不是「一致」**。",
+          "verdict": "unknown"
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电范围对账:**判不了** —— 仪器那边读不到。"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          }
+        ],
+        "data": {
+          "configured_half_xy_m": 1.5e-06,
+          "instrument_half_x_m": null,
+          "instrument_half_y_m": null,
+          "instrument_half_z_m": null,
+          "tolerance_frac": 0.02,
+          "undecidable": "读不到扫描器的压电范围(Piezo_RangeGet: 模拟故障：连接被对端关闭) —— **判不了,不是「一致」**。",
+          "verdict": "unknown"
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电范围对账:**判不了** —— 仪器那边读不到。"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_RangeGet"
+          }
+        ],
+        "data": {
+          "configured_exceeds_instrument": false,
+          "configured_half_xy_m": 1.5e-06,
+          "instrument_half_x_m": 0.125,
+          "instrument_half_y_m": 0.25,
+          "instrument_half_z_m": 0.375,
+          "min_instrument_half_m": 0.125,
+          "relative_difference": 0.999988,
+          "tolerance_frac": 0.02,
+          "verdict": "mismatch"
+        },
+        "error": "",
+        "success": true,
+        "summary": "压电范围 **对不上**:仪器半程 125000000.0 nm(X 125000000.0 / Y 250000000.0),而配置 xy_max_m = 1500.0 nm —— 差 100.0%。 配置比仪器小 —— 不会撞限位,但会白白浪费可用面积。"
+      }
+    }
+  },
   "CheckScanForCrash": {
     "params": {},
     "traces": {
@@ -3190,6 +3263,166 @@
             "ch14": "ok"
           },
           "status": "ok"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "CheckTipCrashByAmplitude": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "crash_indicator": null,
+          "excitation_on": null,
+          "note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "crash_indicator": null,
+          "excitation_on": null,
+          "note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          }
+        ],
+        "data": {
+          "crash_indicator": null,
+          "excitation_on": null,
+          "note": "读不到 PLL 激励状态 —— **判不了**是否撞针。音叉有没有被驱动不知道的时候,振幅读数不代表任何东西。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          }
+        ],
+        "data": {
+          "crash_indicator": null,
+          "note": "信号表里没有振荡振幅通道 —— 这台机器很可能没有 qPlus 传感器。这不是故障，只是这条判据用不上。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_ExcitationGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          }
+        ],
+        "data": {
+          "crash_indicator": null,
+          "note": "信号表里没有振荡振幅通道 —— 这台机器很可能没有 qPlus 传感器。这不是故障，只是这条判据用不上。",
+          "status": "unavailable"
         },
         "error": "",
         "success": true,
@@ -4412,6 +4645,74 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "ConfigureScopeTrigger": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigSet"
+          }
+        ],
+        "data": {
+          "trigger_level": 0.0,
+          "trigger_mode": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "示波器触发已配置"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              0.0,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Osci1T_TrigSet"
+          }
+        ],
+        "data": {},
+        "error": "Osci1T_TrigSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Osci1T_TrigSet"
+          }
+        ],
+        "data": {
+          "trigger_level": 0.0,
+          "trigger_mode": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": "示波器触发已配置"
       }
     }
   },
@@ -22920,6 +23221,65 @@
       }
     }
   },
+  "ReadTipOscillationAmplitude": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          }
+        ],
+        "data": {
+          "amplitude": null,
+          "note": "信号表里没有振荡振幅通道 —— 这台机器很可能没有 qPlus 传感器。这不是故障，只是这条判据用不上。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          }
+        ],
+        "data": {
+          "amplitude": null,
+          "note": "信号表里没有振荡振幅通道 —— 这台机器很可能没有 qPlus 传感器。这不是故障，只是这条判据用不上。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          }
+        ],
+        "data": {
+          "amplitude": null,
+          "note": "信号表里没有振荡振幅通道 —— 这台机器很可能没有 qPlus 传感器。这不是故障，只是这条判据用不上。",
+          "status": "unavailable"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "RunBiasSweep": {
     "params": {
       "lower_limit_v": -1.0,
@@ -34520,6 +34880,130 @@
       }
     }
   },
+  "SetLockInDemodPhaseRegister": {
+    "params": {
+      "demodulator": 4,
+      "phase_register": 4
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegSet"
+          }
+        ],
+        "data": {
+          "demodulator": 4,
+          "phase_register": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": "解调器 4 的相位寄存器 = 4"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              4
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegSet"
+          }
+        ],
+        "data": {},
+        "error": "LockIn_DemodPhasRegSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              4,
+              4
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockIn_DemodPhasRegSet"
+          }
+        ],
+        "data": {
+          "demodulator": 4,
+          "phase_register": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": "解调器 4 的相位寄存器 = 4"
+      }
+    }
+  },
+  "SetLockInFrequencySweepSignal": {
+    "params": {
+      "signal_index": 63
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalSet"
+          }
+        ],
+        "data": {
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "锁相频率扫描的信号 = 63"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalSet"
+          }
+        ],
+        "data": {},
+        "error": "LockInFreqSwp_SignalSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "LockInFreqSwp_SignalSet"
+          }
+        ],
+        "data": {
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "锁相频率扫描的信号 = 63"
+      }
+    }
+  },
   "SetModHarmonic": {
     "params": {
       "harmonic": 1
@@ -35653,6 +36137,181 @@
       }
     }
   },
+  "SetPatternExperiment": {
+    "params": {
+      "experiment": 15
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              15,
+              "mast_pattern",
+              "",
+              0.1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": 15,
+          "readback": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "图案实验 = 15"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              15,
+              "mast_pattern",
+              "",
+              0.1,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Pattern_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "Pattern_PropsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              15,
+              "mast_pattern",
+              "",
+              0.1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": 15,
+          "readback": null
+        },
+        "error": "",
+        "success": true,
+        "summary": "图案实验 = 15"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [
+              15,
+              "mast_pattern",
+              "",
+              0.1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": 15,
+          "readback": [
+            3,
+            4,
+            [
+              "Sig2A",
+              "Sig2B"
+            ],
+            6,
+            1.25,
+            8,
+            1.75,
+            2.0,
+            11
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "图案实验 = 15"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              15,
+              "mast_pattern",
+              "",
+              0.1,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Pattern_PropsGet"
+          }
+        ],
+        "data": {
+          "experiment": 15,
+          "readback": [
+            15,
+            "mast_pattern",
+            "",
+            0.1,
+            0
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "图案实验 = 15"
+      }
+    }
+  },
   "SetPiezoHysteresisOnOff": {
     "params": {
       "enable": true
@@ -36395,6 +37054,136 @@
       }
     }
   },
+  "SetPllDemodHarmonic": {
+    "params": {
+      "demodulator": 4,
+      "harmonic": 8
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              8
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicSet"
+          }
+        ],
+        "data": {
+          "demodulator": 4,
+          "harmonic": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "PLL 解调器 4 锁定 8 次谐波"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              8
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicSet"
+          }
+        ],
+        "data": {},
+        "error": "PLL_DemodHarmonicSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              4,
+              8
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_DemodHarmonicSet"
+          }
+        ],
+        "data": {
+          "demodulator": 4,
+          "harmonic": 8
+        },
+        "error": "",
+        "success": true,
+        "summary": "PLL 解调器 4 锁定 8 次谐波"
+      }
+    }
+  },
+  "SetPllExcitationAdd": {
+    "params": {
+      "add": true,
+      "modulator": 4
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffSet"
+          }
+        ],
+        "data": {
+          "add": true,
+          "modulator": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": "PLL 调制器 4 的激励已接入输出"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              4,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffSet"
+          }
+        ],
+        "data": {},
+        "error": "PLL_AddOnOffSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              4,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AddOnOffSet"
+          }
+        ],
+        "data": {
+          "add": true,
+          "modulator": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": "PLL 调制器 4 的激励已接入输出"
+      }
+    }
+  },
   "SetPointShootExperiment": {
     "params": {
       "experiment_index": 0
@@ -36510,6 +37299,171 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetPointShootProps": {
+    "params": {
+      "auto_resume": true
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              "mast_ps",
+              "",
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "auto_resume": true,
+          "readback": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "point-and-shoot 已配置（扫描自动续跑）"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              "mast_ps",
+              "",
+              0.1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsSet"
+          }
+        ],
+        "data": {},
+        "error": "FolMe_PSPropsSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              "mast_ps",
+              "",
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "auto_resume": true,
+          "readback": null
+        },
+        "error": "",
+        "success": true,
+        "summary": "point-and-shoot 已配置（扫描自动续跑）"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              "mast_ps",
+              "",
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "auto_resume": true,
+          "readback": [
+            3,
+            4,
+            5,
+            1.0,
+            7,
+            1.5,
+            1.75
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "point-and-shoot 已配置（扫描自动续跑）"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              "mast_ps",
+              "",
+              0.1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_PSPropsGet"
+          }
+        ],
+        "data": {
+          "auto_resume": true,
+          "readback": [
+            1,
+            1,
+            "mast_ps",
+            "",
+            0.1
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "point-and-shoot 已配置（扫描自动续跑）"
       }
     }
   },
@@ -37939,6 +38893,150 @@
         "error": "",
         "success": true,
         "summary": ""
+      }
+    }
+  },
+  "SetWaveformSignal": {
+    "params": {
+      "channel": 1,
+      "signal_index": 63
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          }
+        ],
+        "data": {
+          "channel": 1,
+          "readback": 3,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "函数发生器通道 1 现在驱动信号 63"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalSet"
+          }
+        ],
+        "data": {},
+        "error": "FunGen2Ch_SignalSet failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          }
+        ],
+        "data": {
+          "channel": 1,
+          "readback": null,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "函数发生器通道 1 现在驱动信号 63"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          }
+        ],
+        "data": {
+          "channel": 1,
+          "readback": 3,
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "函数发生器通道 1 现在驱动信号 63"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              63
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalSet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FunGen2Ch_SignalGet"
+          }
+        ],
+        "data": {
+          "channel": 1,
+          "readback": [
+            1,
+            63
+          ],
+          "signal_index": 63
+        },
+        "error": "",
+        "success": true,
+        "summary": "函数发生器通道 1 现在驱动信号 63"
       }
     }
   },

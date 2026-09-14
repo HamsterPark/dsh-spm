@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 0 个 · 批 3h 0 个 · 批 3i 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 0 个 · 批 3h 0 个 · 批 3i 11 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -2346,6 +2346,143 @@ export const StopPLLFreqSwpSpec: SkillSpec = {
   safetyLevel: "CONFIRM",
 }
 
+export const SetWaveformSignalSpec: SkillSpec = {
+  name: "SetWaveformSignal",
+  description: "选定一个函数发生器通道**驱动哪一路信号**。\n\n这个参数决定了波形实际上在做什么。同样一个 1 V 正弦波，接在空闲输出上是无害的测试信号，接在隧道结上就是 1 V 的偏压调制 —— 发生器分不出这两者的区别。先用 GetMiscInstrumentConfig.fungen2_signal 读一下当前的指派。\n\n波形本身用 ConfigureWaveform 配置；用 StartWaveform 启动。",
+  parameters: [
+    { name: "channel", type: "int", description: "函数发生器通道（1 起算）", required: true, minValue: 1, maxValue: 2 },
+    { name: "signal_index", type: "int", description: "该通道驱动的信号（来自 ListSignalNames）", required: true, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["fungen","waveform","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetLockInDemodPhaseRegisterSpec: SkillSpec = {
+  name: "SetLockInDemodPhaseRegister",
+  description: "设定某个锁相解调器参考**哪一个相位寄存器**。\n\n解调器的相位必须参考到产生该信号的那个调制上。指到错的寄存器不会失败 —— 它会把 X 转到 Y 里去，于是一条 dI/dV 就变成了一个看起来像 dI/dV、实际不是的东西。用 GetLockInConfig 读回来核对。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器编号（1 起算）", required: true, minValue: 1, maxValue: 8 },
+    { name: "phase_register", type: "int", description: "相位寄存器序号", required: true, minValue: 0, maxValue: 8 },
+  ],
+  tags: ["lockin","demod","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const SetLockInFrequencySweepSignalSpec: SkillSpec = {
+  name: "SetLockInFrequencySweepSignal",
+  description: "选定锁相**频率扫描**扫的是哪一路信号。\n\n这个扫描会把你点名的东西在整个频率范围内驱动一遍 —— 找共振就是这么找的。点错信号，就是在驱动错的东西。当前值用 GetMiscInstrumentConfig.lockin_freqswp_signal 读。",
+  parameters: [
+    { name: "signal_index", type: "int", description: "要扫的信号（来自 ListSignalNames）", required: true, minValue: 0, maxValue: 127 },
+  ],
+  tags: ["lockin","sweep","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPllExcitationAddSpec: SkillSpec = {
+  name: "SetPllExcitationAdd",
+  description: "把 PLL 的激励信号叠加到它的输出上（或停止叠加）。\n\nAdd 开着时，调制器的激励会到达悬臂／音叉 —— 探针正在被**驱动**。关掉时，环仍然在跟踪，但什么都不驱动。当前状态用 GetPllConfig.add_on_off 读。",
+  parameters: [
+    { name: "modulator", type: "int", description: "调制器序号", required: true, minValue: 1, maxValue: 8 },
+    { name: "add", type: "bool", description: "True = 激励会到达输出", required: true },
+  ],
+  tags: ["pll","excitation","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPllDemodHarmonicSpec: SkillSpec = {
+  name: "SetPllDemodHarmonic",
+  description: "设定某个 PLL 解调器锁到**第几次谐波**（1 = 基频）。\n\n更高次谐波携带的是关于针尖-样品相互作用的另一类信息，而一个锁在根本不存在的谐波上的解调器，会非常自信地报出噪声。用 GetPllConfig.demod_harmonic 读回来核对。",
+  parameters: [
+    { name: "demodulator", type: "int", description: "解调器序号", required: true, minValue: 1, maxValue: 8 },
+    { name: "harmonic", type: "int", description: "谐波次数（1 = 基频）", required: true, minValue: 1, maxValue: 16 },
+  ],
+  tags: ["pll","demod","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const ConfigureScopeTriggerSpec: SkillSpec = {
+  name: "ConfigureScopeTrigger",
+  description: "设定 1 通道示波器的触发：模式、沿、电平与迟滞。只读 —— 示波器做的是数字化，它不驱动任何东西。\n\n电平用的是被触发通道自己的物理单位。迟滞的作用，是让一路有噪声的信号不会在阈值附近每抖一下就重新触发一次。",
+  parameters: [
+    { name: "trigger_mode", type: "int", description: "0 = immediate，1 = level，2 = auto", required: false, minValue: 0, maxValue: 2, default: 1 },
+    { name: "trigger_slope", type: "int", description: "0 = 下降沿，1 = 上升沿", required: false, minValue: 0, maxValue: 1, default: 1 },
+    { name: "trigger_level", type: "float", description: "阈值，用该通道自己的单位", required: false, default: 0 },
+    { name: "trigger_hysteresis", type: "float", description: "迟滞（防止在噪声上反复触发）", required: false, minValue: 0, default: 0 },
+  ],
+  tags: ["oscilloscope","trigger","write"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const SetPatternExperimentSpec: SkillSpec = {
+  name: "SetPatternExperiment",
+  description: "选定一个图案（网格／线／点云）在每个点上跑**哪一个实验**，外加文件基名与测量前延时。\n\n这个参数是把一组坐标变成一次测量的那一项。一个指向错误实验的网格会跑上几个小时，并在每一个点上产出错的东西 —— 而它此前是只读的（GetScanPatternConfig 看得见它；没有任何东西设得了它）。\n\n`pre_measure_delay_s` 是每个点测量之前的稳定时间；给短了，每条曲线都会拖着「走到这里」那段移动的尾巴。",
+  parameters: [
+    { name: "experiment", type: "int", description: "实验序号（每个点上跑哪一种测量）", required: true, minValue: 0, maxValue: 31 },
+    { name: "basename", type: "str", description: "存盘数据的文件基名", required: false, default: "mast_pattern" },
+    { name: "pre_measure_delay_s", type: "float", description: "每个点测量之前的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 0.1 },
+    { name: "save_scan_channels", type: "bool", description: "每个点上同时保存扫描通道", required: false, default: false },
+    { name: "external_vi_path", type: "str", description: "外部 VI 路径（不用就留空）", required: false, default: "" },
+  ],
+  tags: ["pattern","grid","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetPointShootPropsSpec: SkillSpec = {
+  name: "SetPointShootProps",
+  description: "配置 Follow-Me 的 point-and-shoot：测完之后扫描是否自动续跑、文件基名，以及测量前延时。\n\n`auto_resume` 是值得想一想的那一个。开着的话，每做完一次 point-and-shoot 测量扫描就会接着跑 —— 做普查时你要的正是这个，而如果那次测量可能改变了针尖，你要的就不是这个。",
+  parameters: [
+    { name: "auto_resume", type: "bool", description: "每次点测之后续跑扫描", required: true },
+    { name: "basename", type: "str", description: "文件基名", required: false, default: "mast_ps" },
+    { name: "use_own_basename", type: "bool", description: "用上面这个基名，而不是本次会话的基名", required: false, default: true },
+    { name: "pre_measure_delay_s", type: "float", description: "每次测量之前的稳定时间", unit: "s", required: false, minValue: 0, maxValue: 60, default: 0.1 },
+    { name: "external_vi_path", type: "str", description: "外部 VI 路径（不用就留空）", required: false, default: "" },
+  ],
+  tags: ["folme","point-and-shoot","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ReadTipOscillationAmplitudeSpec: SkillSpec = {
+  name: "ReadTipOscillationAmplitude",
+  description: "读取 qPlus 振荡振幅（OCD1 Amplitude 等通道）。可作为**独立于电流**的针尖状态判据：针尖接触表面后振幅会被阻尼到接近 0，退针后才恢复。没有 qPlus 的机器上返回 status='unavailable'（这不是故障）。",
+  parameters: [
+    { name: "signal_index", type: "int", description: "显式指定振幅信号索引；-1 = 按通道名自动查找。自动查找不到时返回 unavailable，不会猜一个索引。", required: false, default: -1 },
+    { name: "set_baseline", type: "bool", description: "True = 把这次读数记为「自由振荡基线」。**只应在确认针尖未接触表面时调用**（进针前、或退针之后）。基线是撞针判据的分母。", required: false, default: false },
+  ],
+  tags: ["qplus","afm","read","tip"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const CheckTipCrashByAmplitudeSpec: SkillSpec = {
+  name: "CheckTipCrashByAmplitude",
+  description: "用 qPlus 振幅判断针尖是否已接触表面（撞针）。判据：振幅低于自由振荡基线的 10%。**这是对电流类判据的补充，不替代它们。**status ∈ ok|crash|unavailable|no_baseline —— 后两者是「判断不了」，不是「没撞」。",
+  parameters: [
+    { name: "signal_index", type: "int", description: "显式振幅信号索引；-1 = 自动查找。", required: false, default: -1 },
+  ],
+  tags: ["qplus","afm","crash","tip","safety"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const CheckPiezoRangeSpec: SkillSpec = {
+  name: "CheckPiezoRange",
+  description: "读扫描器真实的 XY/Z 压电量程，并与配置里的安全限值（SafetyLimits.xy_max_m）比对。报 ok / mismatch / unknown —— 从不改变任何东西。换过制冷剂、换过扫描器、或做过任何一次压电重标定之后都跑一下：配置里的量程比真实量程大，会让选点器提出针尖根本到不了的目标，接着那次移动会以一个重试也修不好的超时告终。",
+  parameters: [
+    { name: "tolerance_frac", type: "float", description: "相对差超过它就报 mismatch。出厂 0.02(2%) —— 比读数抖动大得多,比 2026-08-16 那次的 23% 小得多。", required: false, minValue: 0, maxValue: 1, default: 0.02 },
+  ],
+  tags: ["piezo","range","safety","read","selfcheck"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -2555,7 +2692,18 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   SetPLLSignalAnlzrTrig: SetPLLSignalAnlzrTrigSpec,
   GetPLLFreqSwpParams: GetPLLFreqSwpParamsSpec,
   StopPLLFreqSwp: StopPLLFreqSwpSpec,
+  SetWaveformSignal: SetWaveformSignalSpec,
+  SetLockInDemodPhaseRegister: SetLockInDemodPhaseRegisterSpec,
+  SetLockInFrequencySweepSignal: SetLockInFrequencySweepSignalSpec,
+  SetPllExcitationAdd: SetPllExcitationAddSpec,
+  SetPllDemodHarmonic: SetPllDemodHarmonicSpec,
+  ConfigureScopeTrigger: ConfigureScopeTriggerSpec,
+  SetPatternExperiment: SetPatternExperimentSpec,
+  SetPointShootProps: SetPointShootPropsSpec,
+  ReadTipOscillationAmplitude: ReadTipOscillationAmplitudeSpec,
+  CheckTipCrashByAmplitude: CheckTipCrashByAmplitudeSpec,
+  CheckPiezoRange: CheckPiezoRangeSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange"] as const
