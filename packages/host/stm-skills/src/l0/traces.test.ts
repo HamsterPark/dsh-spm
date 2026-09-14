@@ -458,6 +458,17 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       'HomeZController', 'SetSafeTipProps',
     ].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
   ),
+  // ── 批 3h：空 body 上的信封又一批 ──
+  //
+  // 扫频与图样那一族的读都是「解得出就换掉 data，解不出就留 `raw`」，而空 body 上
+  // 旧仓的 `decode_reply` 把整个信封当成 `raw` 交了出去。`WaitForScanEndBlocking`
+  // 的 `result` 同理。我们这一侧信封在 wire 层就没了，手上只有 body。
+  ...Object.fromEntries(
+    ['GenSwpAcqChsGet', 'GenSwpPropsGet', 'GenSwpSwpSignalGet',
+      'GetLockInSweepLimits', 'GetLockInSweepProps',
+      'GetPatternCloud', 'GetPatternProps', 'WaitForScanEndBlocking',
+    ].map((n) => [`${n}/empty@0`, withoutEnvelope(n, 'empty@0')]),
+  ),
   // ── D-SKILL-1 **最赤裸的一次**：`str(整个信封)` 被当成示波器数据交给模型 ──
   ...Object.fromEntries(
     ['ok', 'mismatch', 'empty@0'].map((t) => [

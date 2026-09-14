@@ -40,6 +40,12 @@ import { OPTIONAL_MULTIPROBE } from './optional-multiprobe.js'
 import { OPTIONAL_SWEEPERS } from './optional-sweepers.js'
 import { OPTIONAL_SCOPES } from './optional-scopes.js'
 // ── 批 3h（输出 / 扫频 / 图样）在这一行下面加 import ──
+import { USER_OUTPUT } from './user-output.js'
+import { SWEEP } from './sweep.js'
+import { PATTERN } from './pattern.js'
+import { WAVEFORM } from './waveform.js'
+import { SPECTROSCOPY_SYNC } from './spectroscopy-sync.js'
+import { ADVANCED_OPS } from './advanced-ops.js'
 // ── 批 3i（光学台 / 杂项 setter / 单件）在这一行下面加 import ──
 import { MISC_SETTERS } from './misc-setters.js'
 import { QPLUS } from './qplus.js'
@@ -86,6 +92,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...OPTIONAL_SWEEPERS,
   ...OPTIONAL_SCOPES,
   // ── 批 3h 在这一行下面展开 ──
+  ...USER_OUTPUT,
+  ...SWEEP,
+  ...PATTERN,
+  ...WAVEFORM,
+  ...SPECTROSCOPY_SYNC,
+  ...ADVANCED_OPS,
   // ── 批 3i 在这一行下面展开 ──
   ...MISC_SETTERS,
   ...QPLUS,
@@ -134,6 +146,12 @@ export * from './optional-multiprobe.js'
 export * from './optional-sweepers.js'
 export * from './optional-scopes.js'
 // ── 批 3h 在这一行下面 re-export ──
+export * from './user-output.js'
+export * from './sweep.js'
+export * from './pattern.js'
+export * from './waveform.js'
+export * from './spectroscopy-sync.js'
+export * from './advanced-ops.js'
 // ── 批 3i 在这一行下面 re-export ──
 export * from './misc-setters.js'
 export * from './qplus.js'

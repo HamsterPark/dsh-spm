@@ -229,7 +229,56 @@ BATCH_3G: list[str] = [
     "GetHighResScopeStatus", "ConfigureDualScope", "GetDualScopeData",
     "ConfigureSignalChart",
 ]
-BATCH_3H: list[str] = []   # 输出 / 扫频 / 图样 / 函数发生器
+BATCH_3H: list[str] = [
+    "GetUserOutputLimits",
+    "GetUserOutputMode",
+    "GetUserOutputMonitorChannel",
+    "GetDigitalLineTTL",
+    "GetCalculatedOutputConfig",
+    "SetUserOutput",
+    "SetUserOutputMode",
+    "SetUserOutputMonitorChannel",
+    "SetUserOutputLimits",
+    "SetUserOutputCalibration",
+    "ConfigureCalculatedOutput",
+    "PulseDigitalLine",
+    "SetDigitalLineStatus",
+    "ConfigureDigitalLine",
+    "ConfigureBiasSweep",
+    "AcquireBiasSweep",
+    "ConfigureLockInSweep",
+    "AcquireLockInSweep",
+    "GetLockInSweepLimits",
+    "GetLockInSweepProps",
+    "GetLockInSweepSignal",
+    "GenSwpAcqChsGet",
+    "GenSwpPropsGet",
+    "GenSwpStop",
+    "GenSwpSwpSignalGet",
+    "OpenPatternExperiment",
+    "PausePatternExperiment",
+    "SetPatternLine",
+    "SetPatternCloud",
+    "GetPatternCloud",
+    "GetPatternProps",
+    "ConfigureWaveform",
+    "StartWaveform",
+    "StopWaveform",
+    "GetWaveformStatus",
+    "SetWaveformIdleValue",
+    "SetWaveformChannelOnOff",
+    "SetSpectroscopyTtlSync",
+    "SetSpectroscopyPulseSync",
+    "SetSpectroscopyZControl",
+    "SetZSpectroscopySecondRetract",
+    "SetMlsLockinPerSegment",
+    "GetSpectroscopyStatus",
+    "QuitNanonis",
+    "SetMultiPass",
+    "LoadMultiPassConfig",
+    "SaveMultiPassConfig",
+    "WaitForScanEndBlocking",
+]   # 输出 / 扫频 / 图样 / 函数发生器
 BATCH_3I: list[str] = [
     # misc_setters（8）—— 2026-07-13 清点里「读得到、设不了」的最后八个
     "SetWaveformSignal", "SetLockInDemodPhaseRegister",
@@ -379,6 +428,22 @@ PARAM_OVERRIDES: dict[str, dict] = {
     "ConfigureHighSpeedSweep": {"acquire_channels": "0,14", "start": -1.0, "stop": 1.0},
     # 三项全是可选 ⇒ 一个都没给 ⇒ `ok` 录到的是「至少要给一个」
     "ConfigurePreamp": {"gain": 2},
+    # ── 批 3h ──────────────────────────────────────────────────────────────
+    # 合成回包给的物理限值是 [0.25, 0.5]（`UserOut_LimitsGet` 的 `["f","f"]`），
+    # 而通用规则给的 value=1 落在界外 ⇒ **`ok` 那一趟录到的是拒绝**，
+    # 下发那一路一条金样都没有。给一个界内的值；越界那支进 EXTRA_PARAMS。
+    "SetUserOutput": {"value": 0.3},
+    # 逗号分隔的 1..8 行号；通用规则给的 "spec-export" 解析不了
+    "PulseDigitalLine": {"lines": "1,2"},
+    # 坐标是**浮点数的 JSON 数组**
+    "SetPatternCloud": {"x_coords": "[1e-9, 2e-9]", "y_coords": "[3e-9, 4e-9]"},
+    # 两个同步开关一个都不给 ⇒ 拒绝。给一个，另一支进 EXTRA_PARAMS
+    "SetSpectroscopyPulseSync": {"digital_sync": 1},
+    # ±10 V / ±100 kHz 的中点都被通用规则避开成同一个数 ⇒ 扫一个零宽的区间
+    "ConfigureBiasSweep": {"lower_v": -1.0, "upper_v": 1.0},
+    "ConfigureLockInSweep": {"lower_hz": 100.0, "upper_hz": 2000.0},
+    # 给个名字，「配置成了但命名失败」那一支才存在（由 err@1 走到）
+    "ConfigureCalculatedOutput": {"name": "diff"},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -514,6 +579,50 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
         "speed_only": {"speed": 1e-7},
     },
     "PulseProbeBias": {"relative_no_hold": {"relative": True, "hold_z": False}},
+    # ── 批 3h ──────────────────────────────────────────────────────────────
+    # 用户输出的安全包络**由仪器给**，不是本仓编的：越界拒、贴着上界放行
+    "SetUserOutput": {
+        "out_of_range": {"value": 1.0},
+        "at_upper_edge": {"value": 0.5},
+    },
+    "PulseDigitalLine": {
+        "bad_lines": {"lines": "spec-export"},
+        "line_out_of_range": {"lines": "1,9"},
+    },
+    "SetPatternCloud": {
+        # **合法 JSON 还不够**：`"5"` 解出来是整数 5，旧仓那一版随后 len() 抛
+        # TypeError ⇒ 到不了 SkillResult，是一次死掉的回合。而模型少写一对方括号
+        # 正是最可能的那个错。
+        "json_not_a_list": {"x_coords": "5", "y_coords": "5"},
+        "length_mismatch": {"x_coords": "[1e-9, 2e-9]", "y_coords": "[3e-9]"},
+        "bad_json": {"x_coords": "不是 JSON", "y_coords": "[]"},
+    },
+    "ConfigureWaveform": {
+        # 2 通道那支收的是**周期**不是频率 —— 这一格钉的就是那次换算
+        "two_channel": {"generator": "2ch", "channel": 1, "shape": "square"},
+        "bad_generator": {"generator": "3ch"},
+        "bad_shape": {"generator": "2ch", "shape": "noise"},
+    },
+    "StartWaveform": {"two_channel": {"generator": "2ch"}, "burst": {"periods": 5}},
+    "StopWaveform": {"two_channel": {"generator": "2ch"}},
+    "GetWaveformStatus": {"two_channel": {"generator": "2ch"}},
+    "SetWaveformIdleValue": {"two_channel": {"generator": "2ch"}},
+    "GetSpectroscopyStatus": {"bias_only": {"which": "bias"}, "z_only": {"which": "z"}},
+    "SetSpectroscopyTtlSync": {
+        "z_side": {"which": "z"},
+        # line = 0 是「关掉同步」，报文因此换一句话
+        "disable": {"line": 0},
+    },
+    "SetSpectroscopyPulseSync": {
+        "nothing_given": {"digital_sync": None},
+        "pulse_sequence": {"digital_sync": None, "pulse_sequence_nr": 2, "pulse_periods": 3},
+        "both": {"digital_sync": 1, "pulse_sequence_nr": 2},
+    },
+    "SetMultiPass": {"off": {"on": False}},
+    "PausePatternExperiment": {"resume": {"pause": False}},
+    "SetSpectroscopyZControl": {"alternate_off": {"use_alternate_setpoint": False}},
+    "SetZSpectroscopySecondRetract": {"disable": {"enable": False}},
+    "SetMlsLockinPerSegment": {"disable": {"enable": False}},
 }
 
 
@@ -644,6 +753,15 @@ class _FakeContext:
             "error": rec.error,
         })
         return rec
+
+    def check_abort(self) -> bool:
+        """没有中止。**真 context 有这个方法，假的也得有。**
+
+        旧仓有的技能是 ``getattr(context, "check_abort", None)`` 探着调，有的
+        （``WaitForScanEndBlocking``）直接调。缺了它，后者在导出时抛
+        ``AttributeError`` —— 而那是夹具的毛病，不是技能的判据。
+        """
+        return False
 
     def run(self, skill_name: str, params: dict, version: str | None = None) -> SkillResult:
         i = len(self.runs)

@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 276,
+    "done": 324,
     "partial": 0,
-    "todo": 239
+    "todo": 191
   },
-  "modules_complete": 40,
+  "modules_complete": 45,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -26,8 +26,8 @@
     },
     "builtins.advanced_ops": {
       "total": 5,
-      "done": 0,
-      "complete": false
+      "done": 5,
+      "complete": true
     },
     "builtins.approach": {
       "total": 5,
@@ -241,8 +241,8 @@
     },
     "builtins.function_generator": {
       "total": 6,
-      "done": 0,
-      "complete": false
+      "done": 6,
+      "complete": true
     },
     "builtins.hardware_events": {
       "total": 1,
@@ -361,7 +361,7 @@
     },
     "builtins.pattern": {
       "total": 7,
-      "done": 0,
+      "done": 6,
       "complete": false
     },
     "builtins.piezo": {
@@ -466,8 +466,8 @@
     },
     "builtins.spectroscopy_sync": {
       "total": 6,
-      "done": 0,
-      "complete": false
+      "done": 6,
+      "complete": true
     },
     "builtins.spectrum_analyzer": {
       "total": 3,
@@ -491,8 +491,8 @@
     },
     "builtins.sweep": {
       "total": 11,
-      "done": 0,
-      "complete": false
+      "done": 11,
+      "complete": true
     },
     "builtins.temperature": {
       "total": 1,
@@ -551,8 +551,8 @@
     },
     "builtins.user_output": {
       "total": 14,
-      "done": 0,
-      "complete": false
+      "done": 14,
+      "complete": true
     },
     "builtins.util": {
       "total": 12,
@@ -880,11 +880,11 @@
       "module": "builtins.sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "AcquireDeltaFCurve": {
       "module": "builtins.deltaf_curve",
@@ -900,11 +900,11 @@
       "module": "builtins.sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "AcquireOsciTrace": {
       "module": "builtins.acquire_osci_trace",
@@ -1610,31 +1610,31 @@
       "module": "builtins.sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureCalculatedOutput": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureDigitalLine": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureDualScope": {
       "module": "builtins.optional_scopes",
@@ -1710,11 +1710,11 @@
       "module": "builtins.sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureOcSync": {
       "module": "builtins.optional_controllers",
@@ -1890,11 +1890,11 @@
       "module": "builtins.function_generator",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureZSpectr": {
       "module": "builtins.spectroscopy",
@@ -2250,41 +2250,41 @@
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GenSwpPropsGet": {
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GenSwpStop": {
       "module": "builtins.sweep",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GenSwpSwpSignalGet": {
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetAcqPeriod": {
       "module": "builtins.util",
@@ -2340,11 +2340,11 @@
       "module": "builtins.user_output",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetChamberPressure": {
       "module": "builtins.chamber",
@@ -2470,11 +2470,11 @@
       "module": "builtins.user_output",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetDriftCompensation": {
       "module": "builtins.piezo",
@@ -2600,31 +2600,31 @@
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetLockInSweepProps": {
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetLockInSweepSignal": {
       "module": "builtins.sweep",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetMiscInstrumentConfig": {
       "module": "builtins.readback",
@@ -2830,21 +2830,21 @@
       "module": "builtins.pattern",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPatternProps": {
       "module": "builtins.pattern",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetPiController": {
       "module": "builtins.optional_controllers",
@@ -3310,11 +3310,11 @@
       "module": "builtins.spectroscopy_sync",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetSpectrumAnalyzerData": {
       "module": "builtins.spectrum_analyzer",
@@ -3390,41 +3390,41 @@
       "module": "builtins.user_output",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetUserOutputMode": {
       "module": "builtins.user_output",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetUserOutputMonitorChannel": {
       "module": "builtins.user_output",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "GetWaveformStatus": {
       "module": "builtins.function_generator",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetWithdrawRate": {
       "module": "builtins.zcontrol",
@@ -3720,11 +3720,11 @@
       "module": "builtins.advanced_ops",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "LoadNanonisScript": {
       "module": "builtins.nanonis_script_files",
@@ -3940,11 +3940,11 @@
       "module": "builtins.pattern",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "OpticalStageGetPos": {
       "module": "builtins.optics_stage",
@@ -4060,11 +4060,11 @@
       "module": "builtins.pattern",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "PokeConditionTip": {
       "module": "composite.prepare_noble_tip",
@@ -4130,11 +4130,11 @@
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "PulseProbeBias": {
       "module": "builtins.optional_multiprobe",
@@ -4170,11 +4170,11 @@
       "module": "builtins.advanced_ops",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "ReadCalibrations": {
       "module": "builtins.calibration_readout",
@@ -4370,11 +4370,11 @@
       "module": "builtins.advanced_ops",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SaveNanonisScript": {
       "module": "builtins.nanonis_script_files",
@@ -4620,11 +4620,11 @@
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetDriftCompensation": {
       "module": "builtins.piezo",
@@ -4730,11 +4730,11 @@
       "module": "builtins.spectroscopy_sync",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetModHarmonic": {
       "module": "builtins.lockin",
@@ -4780,11 +4780,11 @@
       "module": "builtins.advanced_ops",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetOsciTimebase": {
       "module": "builtins.acquire_osci_trace",
@@ -4920,11 +4920,11 @@
       "module": "builtins.pattern",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "SetPatternExperiment": {
       "module": "builtins.misc_setters",
@@ -4940,11 +4940,11 @@
       "module": "builtins.pattern",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPiControllerOnOff": {
       "module": "builtins.optional_controllers",
@@ -5240,31 +5240,31 @@
       "module": "builtins.spectroscopy_sync",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "SetSpectroscopyTtlSync": {
       "module": "builtins.spectroscopy_sync",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "SetSpectroscopyZControl": {
       "module": "builtins.spectroscopy_sync",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "SetSpectrumAnalyzerBand": {
       "module": "builtins.spectrum_analyzer",
@@ -5310,71 +5310,71 @@
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "SetUserOutputCalibration": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetUserOutputLimits": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetUserOutputMode": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetUserOutputMonitorChannel": {
       "module": "builtins.user_output",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetWaveformChannelOnOff": {
       "module": "builtins.function_generator",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetWaveformIdleValue": {
       "module": "builtins.function_generator",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetWaveformSignal": {
       "module": "builtins.misc_setters",
@@ -5490,11 +5490,11 @@
       "module": "builtins.spectroscopy_sync",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ShapeTipOnSurface": {
       "module": "composite.shape_tip_on_surface",
@@ -5560,11 +5560,11 @@
       "module": "builtins.function_generator",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "StepCoarseXY": {
       "module": "builtins.coarse_nudge",
@@ -5720,11 +5720,11 @@
       "module": "builtins.function_generator",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "StopZSpectr": {
       "module": "builtins.spectroscopy",
@@ -5920,11 +5920,11 @@
       "module": "builtins.advanced_ops",
       "category": "read",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "WaitForThermalSettle": {
       "module": "builtins.thermal_settle",
