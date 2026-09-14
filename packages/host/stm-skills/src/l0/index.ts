@@ -34,6 +34,11 @@ import { SCRIPT_FILES } from './script-files.js'
 import { LIMITS } from './limits.js'
 import { PLL } from './pll.js'
 // ── 批 3g（optional_* 五族）在这一行下面加 import ──
+import { OPTIONAL_CONTROLLERS } from './optional-controllers.js'
+import { OPTIONAL_AFM } from './optional-afm.js'
+import { OPTIONAL_MULTIPROBE } from './optional-multiprobe.js'
+import { OPTIONAL_SWEEPERS } from './optional-sweepers.js'
+import { OPTIONAL_SCOPES } from './optional-scopes.js'
 // ── 批 3h（输出 / 扫频 / 图样）在这一行下面加 import ──
 // ── 批 3i（光学台 / 杂项 setter / 单件）在这一行下面加 import ──
 // L1：装在 GraphExecutor 上的组合技能（不在 l0/ 里，但同一张登记表）
@@ -72,6 +77,11 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...LIMITS,
   ...PLL,
   // ── 批 3g 在这一行下面展开 ──
+  ...OPTIONAL_CONTROLLERS,
+  ...OPTIONAL_AFM,
+  ...OPTIONAL_MULTIPROBE,
+  ...OPTIONAL_SWEEPERS,
+  ...OPTIONAL_SCOPES,
   // ── 批 3h 在这一行下面展开 ──
   // ── 批 3i 在这一行下面展开 ──
   WaitScanComplete,
@@ -111,6 +121,12 @@ export * from './script-files.js'
 export * from './limits.js'
 export * from './pll.js'
 // ── 批 3g 在这一行下面 re-export ──
+export * from './optional-common.js'
+export * from './optional-controllers.js'
+export * from './optional-afm.js'
+export * from './optional-multiprobe.js'
+export * from './optional-sweepers.js'
+export * from './optional-scopes.js'
 // ── 批 3h 在这一行下面 re-export ──
 // ── 批 3i 在这一行下面 re-export ──
 export * from './tip-xy.js'

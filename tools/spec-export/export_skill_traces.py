@@ -201,7 +201,34 @@ BATCH_3F = [
 #:
 #: 分开而不是合成一张表，是为了让三份改动落在**不同的行**上：
 #: 同一个文件、互不重叠的区段，git 合并时不需要有人去猜谁的对。
-BATCH_3G: list[str] = []   # optional_* 五族
+BATCH_3G: list[str] = [
+    # optional_controllers（17）—— 两代通用 PI、MCVA5 前放、PLL 分析、OC Sync、针尖记录器
+    "ConfigurePiController", "SetPiControllerOnOff", "GetPiController",
+    "SetGenericPiOutput", "GetGenericPiController",
+    "ConfigurePreamp", "GetPreamp",
+    "RunPllZoomFft", "GetPllZoomFftData", "RunPllPhaseSweep", "StopPllPhaseSweep",
+    "ConfigurePllSignalAnalyzer", "GetPllSignalAnalyzerData",
+    "ConfigureOcSync", "GetOcSync", "ConfigureTipRecorder", "GetTipRecorderData",
+    # optional_afm（14）—— KPFM / CPD / 干涉仪 / 光杠杆 / 激光
+    "ConfigureKelvinController", "SetKelvinControllerOnOff", "GetKelvinController",
+    "RunCpdCompensation", "GetCpdCompensation",
+    "ConfigureInterferometer", "SetInterferometerOnOff", "GetInterferometer",
+    "ConfigureBeamDeflection", "GetBeamDeflection", "AutoZeroBeamDeflection",
+    "SetLaserOnOff", "SetLaserPower", "GetLaser",
+    # optional_multiprobe（11）—— N 个各自能扎针的扫描器
+    "SetProbeZController", "GetProbeZController", "WithdrawProbe",
+    "ConfigureProbeScanner", "MoveProbeXY", "StopProbeScanner",
+    "SetProbeBias", "PulseProbeBias", "GetProbeBias",
+    "GetProbeCurrent", "ConfigureProbeCurrentGain",
+    # optional_sweepers（9）—— 高速扫描器与 RF 源
+    "ConfigureHighSpeedSweep", "RunHighSpeedSweep", "StopHighSpeedSweep",
+    "GetHighSpeedSweepStatus", "ConfigureRfGenerator", "StartRfGenerator",
+    "StopRfGenerator", "RunRfFrequencySweep", "GetRfGeneratorStatus",
+    # optional_scopes（7）—— OsciHR / Osci2T / Signal Chart
+    "ConfigureHighResScope", "RunHighResScope", "GetHighResScopeData",
+    "GetHighResScopeStatus", "ConfigureDualScope", "GetDualScopeData",
+    "ConfigureSignalChart",
+]
 BATCH_3H: list[str] = []   # 输出 / 扫频 / 图样 / 函数发生器
 BATCH_3I: list[str] = []   # 光学台 / 杂项 setter / 单件
 
@@ -331,6 +358,17 @@ PARAM_OVERRIDES: dict[str, dict] = {
     "SetPiezoLimits": {"x_low_v": -150.0, "x_high_v": 150.0,
                        "y_low_v": -150.0, "y_high_v": 150.0,
                        "z_low_v": -120.0, "z_high_v": 120.0},
+    # ── 批 3g：五处「上下界撞成同一个数 ⇒ ok 那一趟录到的是拒绝」──
+    #
+    # 通用规则给 min/max 取中点，而这几对界的中点相同 ⇒ `lo >= hi` 恒成立。
+    # 不给的话下发那一路一条金样都没有；反过来的那一支在 EXTRA_PARAMS 里单录。
+    "ConfigurePiController": {"output_lower_limit": -1.0, "output_upper_limit": 1.0},
+    "ConfigureKelvinController": {"bias_low_limit_v": -2.0, "bias_high_limit_v": 2.0},
+    "RunRfFrequencySweep": {"lower_hz": 1.0e9, "upper_hz": 2.0e9},
+    # `_channels` 严格到整数，通用规则给的 "spec-export" 解析不了
+    "ConfigureHighSpeedSweep": {"acquire_channels": "0,14", "start": -1.0, "stop": 1.0},
+    # 三项全是可选 ⇒ 一个都没给 ⇒ `ok` 录到的是「至少要给一个」
+    "ConfigurePreamp": {"gain": 2},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -406,6 +444,66 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
     # 限值**不启用**时写下去什么也不做 —— 那一支要单独录
     "SetZLimits": {"not_enabled": {"enable": False}},
     "SetPiezoLimits": {"inverted_y": {"y_low_v": 150.0, "y_high_v": -150.0}},
+    # ── 批 3g ──
+    # 反过来的一对界：**环会立刻把输出推到轨上**，所以这三处是拒，不是换过来
+    "ConfigurePiController": {"inverted_limits": {"output_lower_limit": 1.0, "output_upper_limit": -1.0}},
+    "ConfigureKelvinController": {
+        "inverted_limits": {"bias_low_limit_v": 2.0, "bias_high_limit_v": -2.0},
+        # 五个可选的整定项：给了才写 —— 一个都不给时那四条 Set 照样发（各有缺省）
+        "tuned": {"p_gain": 3.0, "time_constant_s": 0.02, "setpoint": 0.15,
+                  "modulation_frequency_hz": 973.0, "modulation_amplitude": 0.05},
+    },
+    "RunRfFrequencySweep": {
+        "inverted_limits": {"lower_hz": 2.0e9, "upper_hz": 1.0e9},
+        # auto_off=False ⇒ 扫完输出**保持开着**，那句话必须出现在 summary 里
+        "stay_on": {"auto_off": False},
+        "downward": {"direction": "down"},
+    },
+    "ConfigureHighSpeedSweep": {
+        "bad_channels": {"acquire_channels": "spec-export"},
+        "empty_channels": {"acquire_channels": "  "},
+        # num_sweeps=0 ⇒ 无限标志位翻起来（`HSSwp_NumSweepsSet(max(n,1), n==0)`）
+        "infinite": {"num_sweeps": 0},
+        "z_off": {"z_controller_off": True},
+    },
+    # 三项各写各的，一个都不给就拒
+    "ConfigurePreamp": {
+        "coupling_only": {"gain": None, "coupling": 1},
+        "all_three": {"gain": 2, "coupling": 1, "input_mode": 0},
+        "none_given": {"gain": None},
+    },
+    # 三条轴各一条字面动词，第四种是拒
+    "ConfigureBeamDeflection": {
+        "horizontal": {"axis": "horizontal"},
+        "sum": {"axis": "sum"},
+        "bad_axis": {"axis": "diagonal"},
+    },
+    # 三种触发模式发的是三串不同的动词
+    "ConfigureHighResScope": {
+        "level_trigger": {"trigger_mode": "level", "trigger_level": 5e-11,
+                          "trigger_slope": "falling"},
+        "digital_trigger": {"trigger_mode": "digital", "trigger_slope": "falling"},
+    },
+    # PSD 那一读失败**不许把已经拿到的曲线扔掉**
+    "GetHighResScopeData": {"with_psd": {"include_psd": True}},
+    "GetPllSignalAnalyzerData": {"rearmed": {"rearm": True}},
+    "SetKelvinControllerOnOff": {"no_modulation": {"modulation_on": False}},
+    "SetInterferometerOnOff": {"with_reset": {"reset": True}},
+    "ConfigureInterferometer": {"nulled": {"null_deflection": True}},
+    "ConfigureTipRecorder": {"cleared": {"clear": True}},
+    "GetDualScopeData": {"no_run": {"run_first": False}},
+    "RunHighResScope": {"no_rearm": {"rearm": False}},
+    "RunHighSpeedSweep": {"background": {"wait": False}},
+    # 给了一半就要把另一半**读回来保住** —— 省掉的 I 增益被清零就是一个死环
+    "SetProbeZController": {
+        "p_only": {"p_gain": 5.0},
+        "setpoint_only": {"setpoint": 2e-10},
+    },
+    "ConfigureProbeScanner": {
+        "x_only": {"factor_x": 1.05},
+        "speed_only": {"speed": 1e-7},
+    },
+    "PulseProbeBias": {"relative_no_hold": {"relative": True, "hold_z": False}},
 }
 
 

@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 207,
+    "done": 265,
     "partial": 0,
-    "todo": 308
+    "todo": 250
   },
-  "modules_complete": 32,
+  "modules_complete": 37,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -336,28 +336,28 @@
     },
     "builtins.optional_afm": {
       "total": 14,
-      "done": 0,
-      "complete": false
+      "done": 14,
+      "complete": true
     },
     "builtins.optional_controllers": {
       "total": 17,
-      "done": 0,
-      "complete": false
+      "done": 17,
+      "complete": true
     },
     "builtins.optional_multiprobe": {
       "total": 11,
-      "done": 0,
-      "complete": false
+      "done": 11,
+      "complete": true
     },
     "builtins.optional_scopes": {
       "total": 7,
-      "done": 0,
-      "complete": false
+      "done": 7,
+      "complete": true
     },
     "builtins.optional_sweepers": {
       "total": 9,
-      "done": 0,
-      "complete": false
+      "done": 9,
+      "complete": true
     },
     "builtins.pattern": {
       "total": 7,
@@ -1340,11 +1340,11 @@
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "AutonomousSurvey_Scanbot": {
       "module": "paper.autonomous",
@@ -1600,11 +1600,11 @@
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureBiasSweep": {
       "module": "builtins.sweep",
@@ -1640,51 +1640,51 @@
       "module": "builtins.optional_scopes",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureHighResScope": {
       "module": "builtins.optional_scopes",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureHighSpeedSweep": {
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 14,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureInterferometer": {
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureKelvinController": {
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 9,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureLockIn": {
       "module": "builtins.lockin",
@@ -1720,11 +1720,11 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigurePLL": {
       "module": "builtins.pll",
@@ -1750,61 +1750,61 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "ConfigurePllSignalAnalyzer": {
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ConfigurePreamp": {
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureProbeCurrentGain": {
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureProbeScanner": {
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureRfGenerator": {
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureSTS": {
       "module": "builtins.spectroscopy",
@@ -1860,11 +1860,11 @@
       "module": "builtins.optional_scopes",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureSpectrumAnalyzer": {
       "module": "builtins.spectrum_analyzer",
@@ -1880,11 +1880,11 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "ConfigureWaveform": {
       "module": "builtins.function_generator",
@@ -2310,11 +2310,11 @@
       "module": "builtins.optional_afm",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetBias": {
       "module": "builtins.bias",
@@ -2360,11 +2360,11 @@
       "module": "builtins.optional_afm",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetCurrent": {
       "module": "builtins.bias",
@@ -2490,51 +2490,51 @@
       "module": "builtins.optional_scopes",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetGenericPiController": {
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "GetHighResScopeData": {
       "module": "builtins.optional_scopes",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetHighResScopeStatus": {
       "module": "builtins.optional_scopes",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetHighSpeedSweepStatus": {
       "module": "builtins.optional_sweepers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "GetHomeProps": {
       "module": "builtins.zcontrol",
@@ -2550,31 +2550,31 @@
       "module": "builtins.optional_afm",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetKelvinController": {
       "module": "builtins.optional_afm",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 10,
+      "impl": true,
+      "status": "done"
     },
     "GetLaser": {
       "module": "builtins.optional_afm",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetLatestScanFile": {
       "module": "builtins.scan_extra",
@@ -2660,11 +2660,11 @@
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetOsciTimebases": {
       "module": "builtins.acquire_osci_trace",
@@ -2850,11 +2850,11 @@
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "GetPiezoConfig": {
       "module": "builtins.readback",
@@ -2930,21 +2930,21 @@
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetPllZoomFftData": {
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetPointShootOnOff": {
       "module": "builtins.folme",
@@ -2970,41 +2970,41 @@
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetProbeBias": {
       "module": "builtins.optional_multiprobe",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "GetProbeCurrent": {
       "module": "builtins.optional_multiprobe",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetProbeZController": {
       "module": "builtins.optional_multiprobe",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "GetRTFreq": {
       "module": "builtins.util",
@@ -3030,11 +3030,11 @@
       "module": "builtins.optional_sweepers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "GetSTSAltZCtrl": {
       "module": "builtins.spectroscopy",
@@ -3360,11 +3360,11 @@
       "module": "builtins.optional_controllers",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "GetTipShaperConfig": {
       "module": "builtins.readback",
@@ -3920,11 +3920,11 @@
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "MoveToXY": {
       "module": "builtins.navigation",
@@ -4140,11 +4140,11 @@
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "PumpProbeScan": {
       "module": "builtins.optics_pump_probe",
@@ -4260,11 +4260,11 @@
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "RunGridExperiment": {
       "module": "builtins.pattern",
@@ -4280,21 +4280,21 @@
       "module": "builtins.optional_scopes",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "RunHighSpeedSweep": {
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "RunNanonisScript": {
       "module": "builtins.nanonis_script",
@@ -4310,31 +4310,31 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "RunPllZoomFft": {
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "RunRfFrequencySweep": {
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "STSConditionSeries": {
       "module": "composite.sts_condition_series",
@@ -4650,11 +4650,11 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetHomeProps": {
       "module": "builtins.zcontrol",
@@ -4670,41 +4670,41 @@
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "SetKelvinControllerOnOff": {
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetLaserOnOff": {
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetLaserPower": {
       "module": "builtins.optional_afm",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetLockInDemodPhaseRegister": {
       "module": "builtins.misc_setters",
@@ -4950,11 +4950,11 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetPiezoHysteresisOnOff": {
       "module": "builtins.piezo",
@@ -5070,21 +5070,21 @@
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "SetProbeZController": {
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "SetRTFreq": {
       "module": "builtins.util",
@@ -5530,11 +5530,11 @@
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "dangerous",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StartScan": {
       "module": "builtins.imaging",
@@ -5610,11 +5610,11 @@
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopMotor": {
       "module": "builtins.motor",
@@ -5660,31 +5660,31 @@
       "module": "builtins.optional_controllers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopProbeScanner": {
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "StopRfGenerator": {
       "module": "builtins.optional_sweepers",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "StopSTS": {
       "module": "builtins.spectroscopy",
@@ -5960,11 +5960,11 @@
       "module": "builtins.optional_multiprobe",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "WithdrawTip": {
       "module": "builtins.approach",
