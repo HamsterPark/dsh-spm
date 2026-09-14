@@ -716,6 +716,7 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 | `spectrum_analyzer.averaging_mode` | 同上 | **不平均（0）选不出来** |
 | `bias_sweep.sweep_direction` | `int(params.get(k, 1) or 1)` | **「上限→下限」一次也选不出来** |
 | `bias_pulse.z_hold` | 本仓的 `i()` 早期版本 | `0 = 不变` 被顶成 `1 = 保持` |
+| `optional_sweepers.num_sweeps` | `int(params.get(k, 1) or 1)` | **「一直扫到被停止」整个模式选不出来** —— 见 D-INFINITE-1，那一处丢的不是档位是**模式** |
 
 **TS**：这四处都改成「给了就用，`0` 也算给了」。而**步数 / 周期**那两处保持原样——
 它们的 `min` 是 2 与 1，`0` 本来就不合法，把它顶成缺省是对的。
@@ -823,6 +824,10 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 落盘由宿主接——同 D-PRESET-2（参数组存储在进程里，落盘由宿主接）那条：
 一个技能不该自己决定往哪个目录写文件。
 
+**批 3h / 3i 又添了八处用例**（`user_output` 的限值放宽留痕、`advanced_ops` 的
+「停扫失败不拦着退针，只留一条痕」、qPlus 基线落盘…）。这条至此覆盖本仓全部
+「该留下证据」的位置。
+
 **为什么必须有**：脚本那一族的留痕不是日志，是**证据**。本仓看不见脚本内部
 （它跑在 RT 控制器上），所以「哪个槽位、哪份配方、用的哪串 LUT」这条记录
 是事后唯一能拿到的东西。金样只录返回值，录不到它 —— 所以它由技能级测试单独钉。
@@ -841,3 +846,153 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 
 接上去的条件很明确：等有一个技能真的要问「当前这支音叉的 Q 是多少」的时候。
 到那时这条要销账。
+
+## D-INFINITE-1 · 两个「无限」旋钮，两个**相反**的决定
+
+| | |
+|---|---|
+| `HSSwp.num_sweeps = 0` | 声明里逐字写着「**0 = 一直连续扫到被停止为止**」，`min_value = 0`，代码里 `1 if n == 0 else 0` 那一支也写好了 —— 而 `int(params.get(k, 1) or 1)` 让 `n` **永远不是 0**，那一支是**死分支** |
+| `APRFGen.Infinite` | 旧仓**永远写 0**，注释写死了「an agent must never start an unbounded RF sweep」 |
+
+**TS**：前者放行 `0`（无限标志真的翻得起来），后者照旧焊死 `0`。
+**测试**：`optional-modules.test.ts` → `num_sweeps = 0 是「一直扫」，不是「扫一次」`；
+`traces.test.ts` 的 `ConfigureHighSpeedSweep/infinite`（期望值从金样算出来）。
+
+**分辨这两个的唯一办法是问：停得下来吗。**
+
+- `StopHighSpeedSweep` 存在，而且 `HSSwp_Stop` 在**中止后的放行清单里** ⇒ 一次无限扫描
+  随时叫得停 ⇒ 敢让 `0` 过去。**停得下来，才敢让它无限**——这是那个决定的前提，
+  不是补充说明。
+- RF 那边即使停得下来，**已经灌进隧道结里的功率停不回来**。
+
+⚠️ 登记它是因为**它们看起来是同一个旋钮**：同一份代码里两个叫 "Infinite" 的位、
+同样的 0/1、同样的「要不要一直跑下去」。一个是缺陷，一个是纪律。
+下一个做重构的人最想做的事正是把它们统一——与 D-CHANNELS-1 同一条理由。
+
+## D-SKILL-1 补充四 · 空 body 上的信封又 **34 格**（批 3g / 3h / 3i）
+
+旧仓这三批全走 `_multi_read` / 逐格 `_rv`，于是空 body 上把整个三段信封
+`["", "<bytes 0>", []]` 当成那一格的读数交出去。本仓信封在 wire 层就没了，手上只有 `[]`。
+
+逐格登记在 `traces.test.ts` 的 `DEVIATIONS` 里（用现成的 `withoutEnvelope`，
+**期望值从金样算出来，不是抄一遍**）：
+
+- **批 3g（21 格）**：`GetPiController` `GetGenericPiController` `GetPreamp`
+  `GetPllZoomFftData` `GetPllSignalAnalyzerData` `GetOcSync` `GetTipRecorderData`
+  `GetKelvinController` `GetCpdCompensation` `GetInterferometer` `GetBeamDeflection`
+  `GetLaser` `GetProbeZController` `GetProbeBias` `GetProbeCurrent`
+  `GetHighSpeedSweepStatus` `GetRfGeneratorStatus` `GetHighResScopeData`
+  `GetHighResScopeStatus` `RunHighSpeedSweep` `RunPllPhaseSweep`
+- **批 3h（8 格）**：`GenSwpAcqChsGet` `GenSwpPropsGet` `GenSwpSwpSignalGet`
+  `GetLockInSweepLimits` `GetLockInSweepProps` `GetPatternCloud` `GetPatternProps`
+  `WaitForScanEndBlocking`
+- **批 3i（5 格）**：见 `docs/handoff/batch-3i.md`
+
+**这一族至此 60+ 格。** 它不是「旧仓某处写错了」，是**一个没有单一真源的解析动作
+被手写了几十遍**——本仓自己也复现过一次（见 `common.ts` 的 `cell`）。
+
+## D-PIEZO-1 · `checkPiezoRange` 这个名字在本仓有**两个**
+
+| | |
+|---|---|
+| `configure-scan.ts` 的私有 `checkPiezoRange` | 「**这一帧**超不超压电半程」——输入是帧的中心/宽高/角度 |
+| `piezo-reconcile.ts` / `CheckPiezoRange` 技能 | 「**配置里的限值**与仪器报的量程对不对得上」——输入是 `SafetyLimits.xy_max_m` 与 `Piezo_RangeGet` |
+
+**测试**：`packages/host/kernel/src/piezo-reconcile.test.ts`（整份）。两者调用点互不相交。
+
+**为什么有意**：与 **D-CHANNELS-1** 完全同一条理由——「两个看起来一样的东西，
+正是将来有人重构时最想合并的东西」。合并的代价是：帧闸会开始拿**配置**的限值去判
+一个**帧**，而那个配置正是 2026-08-16 事故里比实际大 23 % 的那个数。
+
+**没有改名**（旧仓那个是私有的、只有一个调用点），只把差异登记下来。
+上一次（D-CHANNELS-1）的教训是「行为不一样的两个函数最想被合并」；
+这一次是它的**前一步**——**名字一样的两件事，连发现它们不一样都要先花一分钟。**
+
+## D-QPLUS-1 · 振幅判据要**两条证据**，而基线住在进程里
+
+| | |
+|---|---|
+| **Python** | 基线写进 `instrument_profile`；两个键必须在 `_CONFIG_SPEC` 里注册过，否则 `sanitize()` **静默丢掉**，读回来永远 `None`，撞针探测器**永久停在 `no_baseline`** |
+| **TS** | `processQPlusBaseline`（显式对象，无 sanitize 过滤），落盘由宿主接；落盘失败**只记不抛**（同 D-PRESET-2） |
+| **测试** | `tail-l0i.test.ts` → `取基线` / `落盘失败只记不抛` |
+
+**缺陷⑰（真机实测）**：本机 STM 模式下 `excitation_on = 0` / `excitation_v = 0 V`，
+而振幅通道上那 7–8 pm 是**未驱动解调器的噪声底**——拿它跟自由振荡基线比
+**永远比出「塌了」**。所以判据要**两条证据**：开关开着**并且**幅度 > 0。
+
+代价说清：PLL 读不回来的机器上这条判据**不可用**（四态里的 `unavailable`）。
+收益是它不再永远误报。**后者是实测发生的，前者是假设的。**
+
+## D-LIMITS-1 · 生效限值**由外面注入**，不读类默认值
+
+| | |
+|---|---|
+| **Python** | `_get_effective_limits(SafetyLimits())` —— 配置 + 管理员覆写 + 仪器事实收紧 |
+| **TS** | `deps.effectiveLimits?.()`，没接退回 `DEFAULT_SAFETY_LIMITS` |
+| **测试** | `tail-l0i.test.ts` → `没接生效限值 ⇒ 退回出厂默认` |
+
+旧仓那句话值得抄在这里：**直接读类默认值会绕过管理员覆写，于是报出来的数和实际
+生效的数不是同一个——一个对账工具报错数字，比不对账更坏。**
+
+本仓现在退回的正是出厂默认 `xy_max_m = 1.5e-6`，而**那就是 2026-08-16 事故里的那个数**；
+宿主把生效限值接上之后这里自动跟着对。
+
+## D-NUM-1 · 一个仓里只能有一个 `sum`，而它不是 numpy 的那个
+
+| | |
+|---|---|
+| **numpy** | `np.sum` 用成对求和（pairwise） |
+| **本仓** | `pySum`（CPython 3.12+ 的 Neumaier 补偿求和，`kernel/src/si.ts`） |
+| **测试** | `numerics.test.ts` → `三种求和算法给三个答案` |
+
+**不是选哪个更准的问题**：技能金样那一侧要的是 CPython 的答案（`AutoPhase` 的
+`x_mean` 就卡在这一位上，2026-09-13）。**一个仓里只能有一个 `sum`**，
+否则「均值」会随调用方而变。代价是数值层对 numpy 的比对必须带容差 ——
+那条容差写明是 `8·eps·log₂N`（实测 N=2048 时相对差 `1.8e-16`，界 `2.4e-15`）。
+
+## D-NUM-2 · scipy 与 numpy 把 `reflect` / `mirror` 这两个名字**拧着用**
+
+| scipy 的名字 | 序列 | `numpy.pad` 管它叫 |
+|---|---|---|
+| `reflect` | `d c b a │ a b c d` —— 边界元素**重复** | `symmetric` |
+| `mirror` | `d c b │ a b c d` —— 边界元素**不重复** | `reflect` |
+
+**TS 按 scipy 的命名**（被移植的那一侧调的是 scipy）。五种模式各有金样。
+
+认错了**不报错**，只让图像四条边各差一点——而扣背景、找台阶、算漂移
+全都从边上开始受影响。
+
+## D-NUM-3 · 相位互相关的**符号就是漂移方向**
+
+`phaseCrossCorrelation(reference, moving)` 给的是**「把 moving 移动多少才能对上
+reference」**，与 skimage 同：`moving = roll(reference, +d)` 时返回 `−d`。
+
+一次参数写反或一次轴对调**不会报错**，只会让漂移补偿往**反方向**走，
+而图看起来只是「漂得更快了」。金样用不对称的位移（3≠5、有零有负）逐格钉住，
+另有一条测试断言 `shift(a,b) === −shift(b,a)`。
+
+## D-NUM-4 · `.npy` 读：列优先**当场转回**，截断**抛而不补零**
+
+- `fortran_order` **不往调用方传**：一个「记得自己是列优先」的数组，迟早会被某个
+  忘了检查它的人按行优先读一遍，而**一张转置的扫描图在方形帧上看起来完全正常**。
+- 截断的文件**抛**，不补零：补零之后图的下半截是一片平坦的「干净表面」——
+  **那正是撞针检测要找的形状**。
+
+## D-NUM-5 · `ssim` 的 `data_range` **没有缺省值**
+
+skimage 不给就按 dtype 猜，而它对 float 图的猜测（`1.0`）在一张**以米为单位的
+形貌图**上差九个数量级 —— C1/C2 两个稳定化常数完全失效，SSIM 退化成一个只反映噪声的数。
+**本仓不给就抛。**
+
+## D-NUM-6 · 默认值就是语义：邻接数与 bin 右边界
+
+- **连通域的邻接数是语义**：同一张掩膜，4-邻接 5 个域、8-邻接 4 个。
+  金样**两个都录**，于是「默认用哪个」不可能被含糊过去。标签按行优先首次出现编号（同 scipy）。
+- **`histogram` 的最后一个 bin 右边界也闭**（同 numpy）：落在 `range[1]` 上的样本
+  进最后一个 bin，不被丢掉。这一条在「最高的那个 bin 是哪个」上会翻结论——
+  而那正是调用方要的答案。
+
+## D-NUM-7 · RNG 求的是**可复现**，不是「与 numpy 相同」
+
+xoshiro128\*\*，不是 PCG64。判据是同种子同串；金样里钉的是本仓自己那一串，
+于是将来任何一次「顺手换个 RNG」都会当场变红。

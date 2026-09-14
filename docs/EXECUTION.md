@@ -491,6 +491,77 @@ because the types 'true | null' and 'false' have no overlap.
 新登记 **D-SKILL-1 补充三 · D-SKILL-3 补充 · D-DIAG-1 · D-PLL-1**
 （共 49 条，其中 2 条已销账）。
 
+· **2.26 ✅ 四条支线并行 —— 117 个技能 + 数值底座，一次落地**
+
+技能 207 → **324/515**（**过六成**），模块 32 → **45/165**，测试 2850 → **3610**。
+四条支线各在自己的 git worktree 里同时跑：
+
+| 支线 | 落地 | 模块 |
+|---|---|---|
+| **批 3g** `optional_*` 五族 | 58 / 58（无跳过） | +5 |
+| **批 3h** 输出 / 扫频 / 图样 / 函数发生器 | 48 / 49 | +5 |
+| **批 3i** 杂项 setter / qPlus / 压电对账 | 11 / 28 | +3 |
+| **课时 4.1** 数值底座 `dsh-spm-numerics` | 九件带容差 | 新包 |
+
+#### 并行要先解决的不是分工，是**合并**
+
+四条里有三条要同时改同样那四个共享文件（导出器、spec 生成器、`l0/index.ts`、
+`mutations.ts`）。所以开工前先提交了一个**只有锚点的空提交**（`7dda7a2`）：
+三个空批次常量 `BATCH_3G/3H/3I` + 九处注释锚点。
+
+效果可量：第一次合并（3g→3i）**四个手写共享文件全部自动合并**，冲突只落在三个
+**生成物**上；第二次（3h）多两处真冲突，因为 3h 在锚点之外还动了导出器的夹具。
+生成物是导出器的纯函数，**合并后统一重跑一次就是唯一答案**——所以它们根本不需要
+「解冲突」，只需要「放行然后重跑」。
+
+而夹具那一改（给 `_FakeContext` 加 `check_abort`）是否安全，**不能只信交接文件里
+的一句话**：合并前后逐个技能比 JSON —— 新增 48 个，**已有技能 0 处改变**。
+
+#### 十份 `cell()`，以及旧仓那句预言
+
+旧仓 `decode_reply` 的注释写着「**提到这里是为了让它只有一份**」（它自己有过 11 份，
+只有一份做对了）。批 3c–3i 之后本仓有了**十份**私有 `cell()` ——
+谁都没抄谁，每个文件只是本地需要它，而没有人看得见另外九个；四条并行支线更是
+同时各写了一份。
+
+**而且十份里有三份不一样**（带 `failed → null` 守卫）。这正是 D-CHANNELS-1 的形状，
+所以不能闭着眼合。取带守卫的那一版（它分得开「读不到」与「读到了，是空的」），
+**而「是不是保行为的」由 1349 条轨迹金样判**——改完 3610 条测试一格没红。
+不是「我觉得应该一样」，是「录下来的每一条都还对得上」。
+
+#### 支线带回来的四件
+
+1. **两个「无限」旋钮，两个相反的决定**（D-INFINITE-1）。`HSSwp.num_sweeps = 0`
+   是「扫到我喊停」，被 `or 1` 吃掉、那一支是死分支；而 `APRFGen.Infinite`
+   **故意**焊死在 0。分辨它们的唯一办法是问「**停得下来吗**」：`HSSwp_Stop`
+   在中止放行清单里，而 RF 那边即使停得下来，已经灌进去的功率停不回来。
+   **停得下来，才敢让它无限。**
+2. **`checkPiezoRange` 这个名字有两个**（D-PIEZO-1）。D-CHANNELS-1 记的是
+   「行为不同的函数最想被合并」；这是它的**前一步**——名字一样的两件事，
+   连发现它们不一样都要先花一分钟。
+3. **一个逐元素的相对比较不是容差，是抽签**（数值层）。高斯滤波第 62 个输出
+   `0.0024`、绝对误差 `9e-17`，一除就是 `3.9e-14`；FFT 往返 `n=61` 逐元素相对差
+   冲到 `2.5e-9` 而绝对误差只有 `1.4e-15`。**相消毁掉相对精度、不毁绝对精度**——
+   对着一个由相消得来的小数字要求相对精度，是在要求一件不成立的事。
+4. **「容差不是摆设」不能拿随机数据来证**：想证明 numpy 与 `pySum` 分岔，
+   而在金样那 2048 个标准正态上**恰好相等**，测试自己红了。改用必然分岔的
+   `[1e16, 1, -1e16]`。**判据要由构造保证，不能靠数据碰巧。**
+
+#### 「187 个纯机械件」这个数是错的
+
+批 3i 分派 28 个只落了 11 个，其余 17 个**每一条都压着一个没移植的子系统**——
+`optics_stage` 那 8 个尤其清楚，它的 docstring 自己写着安全论证**整个住在驱动层**
+（"they cannot bypass the limits even with hallucinated parameters"），
+只移技能就是搬来 8 个错误翻译器、**把屏障留在原地**。
+
+重算之后剩 191 个：**builtins 非 numpy 只剩 39 个**（且多半带同样的依赖）·
+要数值底座的 115 个 · composite 37 个。也就是说**「机械件」这一档基本见底了**，
+下一步的分母是数值与组合，不是搬运。
+
+新登记 **D-INFINITE-1 · D-SKILL-1 补充四 · D-PIEZO-1 · D-QPLUS-1 · D-LIMITS-1 ·
+D-NUM-1…7**，并给 D-ZERO-1 添了第四次、给 D-DIAG-1 添了八处用例
+（共 61 条，其中 2 条已销账）。
+
 **下一段**：剩下的非 numpy 大族，按「模块级完成」挑 ——
 `optional_controllers`（17）· `user_output`（14）· `optional_afm`（14）·
 `sweep`（11）· `optional_multiprobe`（11）· `optional_sweepers`（9）·
@@ -516,8 +587,8 @@ because the types 'true | null' and 'false' have no overlap.
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
-仓库现状：13 个工作区包（root / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**2850 条测试**（另有 **139 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **40 条**对真 stmsim 的集成测试——其中 **20 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+仓库现状：14 个工作区包（root / **numerics** / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
+**3610 条测试**（另有 **173 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **40 条**对真 stmsim 的集成测试——其中 **20 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用 / 锁相 8 格应用 + 13 格相位**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
