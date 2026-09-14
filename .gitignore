@@ -46,3 +46,6 @@ profiles/mast-rig/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ---- agent worktree（并行支线的隔离副本，不入仓）----
+.claude/
