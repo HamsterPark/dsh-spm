@@ -1,0 +1,533 @@
+{
+  "_note": "由 tools/spec-export/export_advanced_ops.py 生成——驱动旧仓真实的 QuitNanonis / WaitForScanEndBlocking。",
+  "constants": {
+    "scan_stop_action": 1,
+    "slice_s": 1.0
+  },
+  "quit": {
+    "no_save": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [
+            0,
+            "",
+            "",
+            0
+          ],
+          "verb": "Util_Quit"
+        }
+      ],
+      "data": {
+        "quit_sent": true,
+        "response": [
+          "",
+          "b''",
+          []
+        ],
+        "tip_retracted": true
+      },
+      "error": "",
+      "params": {
+        "save_settings": false
+      },
+      "success": true,
+      "summary": "Nanonis 已退出（已先停扫描、已确认退针）。重启 Nanonis 前 MAST 无法与仪器通信。"
+    },
+    "ok": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [
+            1,
+            "",
+            "",
+            1
+          ],
+          "verb": "Util_Quit"
+        }
+      ],
+      "data": {
+        "quit_sent": true,
+        "response": [
+          "",
+          "b''",
+          []
+        ],
+        "tip_retracted": true
+      },
+      "error": "",
+      "params": {},
+      "success": true,
+      "summary": "Nanonis 已退出（已先停扫描、已确认退针）。重启 Nanonis 前 MAST 无法与仪器通信。"
+    },
+    "quit_no_response": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [
+            1,
+            "",
+            "",
+            1
+          ],
+          "verb": "Util_Quit"
+        }
+      ],
+      "data": {
+        "quit_sent": true,
+        "response": null,
+        "tip_retracted": true
+      },
+      "error": "",
+      "params": {},
+      "success": true,
+      "summary": "已发出退出指令，针尖已确认退回。未收到响应——这是正常的：Nanonis 退出时会直接断开 socket。请确认 Nanonis 已关闭；在它重启之前 MAST 无法再与仪器通信。"
+    },
+    "scan_stop_failed": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [
+            1,
+            "",
+            "",
+            1
+          ],
+          "verb": "Util_Quit"
+        }
+      ],
+      "data": {
+        "quit_sent": true,
+        "response": [
+          "",
+          "b''",
+          []
+        ],
+        "tip_retracted": true
+      },
+      "error": "",
+      "params": {},
+      "success": true,
+      "summary": "Nanonis 已退出（已先停扫描、已确认退针）。重启 Nanonis 前 MAST 无法与仪器通信。"
+    },
+    "still_closed": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_SwitchOffDelayGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_StatusGet"
+        }
+      ],
+      "data": {},
+      "error": "**拒绝退出**：实时控制器回报 Z 反馈仍然闭合。退针未确认就退出软件，针尖会在无人看管的情况下留在表面。",
+      "params": {},
+      "success": false,
+      "summary": ""
+    },
+    "verify_failed": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_SwitchOffDelayGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_StatusGet"
+        }
+      ],
+      "data": {},
+      "error": "**拒绝退出**：无法确认 Z 反馈状态（模拟故障：连接被对端关闭）。退针未确认就退出软件，针尖会在无人看管的情况下留在表面。",
+      "params": {},
+      "success": false,
+      "summary": ""
+    },
+    "verify_unreadable": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_SwitchOffDelayGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_OnOffGet"
+        },
+        {
+          "args": [],
+          "verb": "ZCtrl_StatusGet"
+        }
+      ],
+      "data": {},
+      "error": "**拒绝退出**：无法确认 Z 反馈状态（ZCtrl_OnOffGet returned nothing parseable）。退针未确认就退出软件，针尖会在无人看管的情况下留在表面。",
+      "params": {},
+      "success": false,
+      "summary": ""
+    },
+    "withdraw_failed": {
+      "calls": [
+        {
+          "args": [
+            1,
+            0
+          ],
+          "verb": "Scan_Action"
+        },
+        {
+          "args": [
+            1,
+            -1
+          ],
+          "verb": "ZCtrl_Withdraw"
+        }
+      ],
+      "data": {},
+      "error": "**拒绝退出**：退针失败（模拟故障：连接被对端关闭）。带着进针状态退出 Nanonis，等于让针尖留在表面而没有任何软件看管它——Z 反馈会随进程一起死掉。先把针退干净。",
+      "params": {},
+      "success": false,
+      "summary": ""
+    }
+  },
+  "wait": {
+    "aborted": {
+      "calls": [
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        }
+      ],
+      "data": {
+        "aborted": true,
+        "timeout_s": 10.0,
+        "waited_s": 2.0
+      },
+      "error": "aborted by operator — 已停止等待扫描结束。**扫描本身没有被停**（这个技能只负责等，不负责停）；需要停扫描请用 StopScan / 紧急停止。",
+      "params": {
+        "timeout_s": 10.0
+      },
+      "success": false,
+      "summary": ""
+    },
+    "call_failed": {
+      "calls": [
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        }
+      ],
+      "data": {},
+      "error": "Scan_WaitEndOfScan failed: 模拟故障：连接被对端关闭",
+      "params": {
+        "timeout_s": 10.0
+      },
+      "success": false,
+      "summary": ""
+    },
+    "finished": {
+      "calls": [
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        }
+      ],
+      "data": {
+        "result": [
+          0,
+          0,
+          ""
+        ],
+        "timed_out": false,
+        "timeout_s": 10.0
+      },
+      "error": "",
+      "params": {
+        "timeout_s": 10.0
+      },
+      "success": true,
+      "summary": "扫描已结束（上限 10 s）"
+    },
+    "timed_out": {
+      "calls": [
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            1000
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        },
+        {
+          "args": [
+            989
+          ],
+          "verb": "Scan_WaitEndOfScan"
+        }
+      ],
+      "data": {
+        "result": [
+          1,
+          0,
+          ""
+        ],
+        "timed_out": true,
+        "timeout_s": 10.0
+      },
+      "error": "",
+      "params": {
+        "timeout_s": 10.0
+      },
+      "success": true,
+      "summary": "等到上限仍未结束（上限 10 s）"
+    }
+  }
+}
