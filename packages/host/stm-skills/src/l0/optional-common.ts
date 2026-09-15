@@ -21,14 +21,6 @@ export const failed = (rec: SkillCallRecord): boolean =>
   rec.error !== undefined && rec.error !== ''
 
 /**
- * `decode_reply` 的等价物：body 只有一个元素就解一层，否则原样给出。
- *
- * 一个设定点是**一个数**，不是一个只有一个数的表；而增益、限值那几项是多个数，
- * 得保持成表。
- */
-
-
-/**
  * 一组各自独立的读，**一个读不到不连累其余**：那一格给 `null`，别的照常交出去。
  *
  * 技能因此**永远 `success`** —— 它报的是「问到了什么」。一个问不到增益的 PI 控制器

@@ -56,9 +56,6 @@ export function floatsOf(rec: SkillCallRecord, n: number): number[] | null {
   return out.length >= n ? out.slice(0, n) : null
 }
 
-/** `decode_reply` 的等价物：body 只有一个元素就解一层，否则原样。读不到给 `null`。 */
-
-
 /**
  * 限值**当前启用着吗**。三态：读到 `true` / 读到 `false` / **读不到 `null`**。
  *

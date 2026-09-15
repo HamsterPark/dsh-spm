@@ -33,9 +33,6 @@ const POLARITY: Readonly<Record<string, number>> = { low_active: 0, high_active:
 /** 谱学模块「正在跑」的状态码。 */
 const RUNNING = 1
 
-/** `decode_reply`：body 只有一个元素就解一层，否则原样。读不到给 `null`。 */
-
-
 /**
  * 回包里第一个**整数**（广度优先，布尔算整数）。
  *

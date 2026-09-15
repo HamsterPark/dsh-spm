@@ -46,9 +46,6 @@ const at = (rec: SkillCallRecord, i: number): number | null => {
   return typeof v === 'number' && Number.isFinite(v) ? v : null
 }
 
-/** `decode_reply`：body 只有一个元素就解一层，否则原样给出。 */
-
-
 // ── 配置与状态 ─────────────────────────────────────────────────────────────
 
 export const ConfigurePLL: Skill = {

@@ -31,15 +31,6 @@ const flt = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number 
 const str = (p: Readonly<Record<string, unknown>>, k: string, dflt: string): string =>
   typeof p[k] === 'string' && p[k] !== '' ? (p[k] as string) : dflt
 
-/**
- * `decode_reply` 的等价物：body 只有一个元素就解一层，否则原样给出。
- *
- * D-SKILL-1：旧仓这一族的 `_rv` 有六份拷贝，只有 `readback.py` 那份做对了；
- * 另外五份把三段信封整个交出去，一直留到 2026-08-13 的真机只读全扫才被量出来。
- * 我们这一侧 `values` 就是 body，信封在线协议层已经没了。
- */
-
-
 // ── 三个带回读的 ───────────────────────────────────────────────────────────
 
 export const SetWaveformSignal: Skill = {
