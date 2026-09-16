@@ -1719,6 +1719,8 @@ function physicallyAbsurdViolations_unused(`,
   // ── 批 3l（spectroscopy 整族）的演练写在这一行下面 ──
 
   // ── 批 4a（分析技能第一批）的演练写在这一行下面 ──
+
+  // ── 课时 4.1 续（数值缺件：find_peaks / pcov / correlate2d）的演练写在这一行下面 ──
   {
     id: 'vac-allowlist-not-denylist',
     why: '真空计类名走**白名单**。改成黑名单 ⇒ 每一个未来的占位实现/陌生驱动都被默认接受，而它们报的那个 0.0 读起来正是完美真空',
