@@ -4234,6 +4234,20 @@
       }
     }
   },
+  "AutoCrop_UnscannedRegion": {
+    "params": {
+      "image_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load image: image file not found: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AutoPhase": {
     "params": {},
     "traces": {
@@ -11648,6 +11662,21 @@
       }
     }
   },
+  "ComputeDriftVector": {
+    "params": {
+      "ref_path": "spec-export",
+      "scan_width_m": 0.0
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "cannot load reference image: [Errno 2] No such file or directory: 'spec-export'",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ConfigureAtomTrack": {
     "params": {
       "amplitude_m": 0.0,
@@ -17824,6 +17853,21 @@
       }
     }
   },
+  "CorrectDrift_XCorr": {
+    "params": {
+      "ref_path": "spec-export",
+      "target_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load images: image file not found: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "CreateZCtrlPreset": {
     "params": {
       "i_gain": "150p",
@@ -17850,6 +17894,20 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "Denoise_AE": {
+    "params": {
+      "image_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load image: image file not found: spec-export",
+        "success": false,
         "summary": ""
       }
     }
@@ -18031,6 +18089,34 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "Destripe_MorphOpen": {
+    "params": {
+      "image_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load image: image file not found: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "DetectAtomJump": {
+    "params": {
+      "current_trace": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load current trace: Expecting value: line 1 column 1 (char 0)",
+        "success": false,
         "summary": ""
       }
     }
@@ -18550,6 +18636,20 @@
         "calls": [],
         "data": {},
         "error": "scan_path 不存在: 'spec-export'",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "FindEmptySpot": {
+    "params": {
+      "image_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load image: image file not found: spec-export",
         "success": false,
         "summary": ""
       }
@@ -41792,6 +41892,18 @@
       }
     }
   },
+  "LevelLines_Median": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "No image data available.",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ListLockInPresets": {
     "params": {},
     "traces": {
@@ -42402,6 +42514,20 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "LoadScanFrameFromFile": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "读不了 spec-export: FileNotFoundError: [WinError 2] 系统找不到指定的文件。: 'spec-export'",
+        "success": false,
         "summary": ""
       }
     }
@@ -44919,6 +45045,20 @@
         "data": {},
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ParseRegions": {
+    "params": {
+      "regions": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "invalid regions JSON: Expecting value: line 1 column 1 (char 0)",
+        "success": false,
         "summary": ""
       }
     }
@@ -68578,6 +68718,32 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SubtractPlane_RANSAC": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "No image data available.",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "SubtractPoly2D": {
+    "params": {
+      "image_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Failed to load image: image file not found: spec-export",
+        "success": false,
         "summary": ""
       }
     }

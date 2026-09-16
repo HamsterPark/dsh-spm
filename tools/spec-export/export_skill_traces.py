@@ -336,7 +336,23 @@ BATCH_4A: list[str] = [
 BATCH_4B: list[str] = []   # 晶格判据底座 + 原子分辨判定一族
 
 #: ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
-BATCH_4C: list[str] = []   # paper 数据处理 + scan_frame 一族
+BATCH_4C: list[str] = [
+    # builtins.scan_frame 收口
+    "LoadScanFrameFromFile", "ParseRegions", "ComputeDriftVector",
+    # paper.data_processing 整族
+    "SubtractPlane_RANSAC", "LevelLines_Median", "FindEmptySpot", "CorrectDrift_XCorr",
+    # paper 的五个单件模块
+    "SubtractPoly2D", "Destripe_MorphOpen", "AutoCrop_UnscannedRegion",
+    "Denoise_AE", "DetectAtomJump",
+]   # paper 数据处理 + scan_frame 一族
+#
+# ⚠️ 这十二个里**十一个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
+# 路径 —— 于是它们在这里录到的是「读不动」那一支，一次 TCP 都不发。
+# **那仍然是一条判据**（外壳在碰任何东西之前先拒），只是它不是这一批的主判据。
+# 主判据在 `spec/golden/paper_data.json`：那台导出器合成 `.npy` / `.sxm` / `.dat`
+# 的**字节**、让旧仓真技能跑一遍、连它写出去的文件一起录。
+# `ComputeDriftVector` 是唯一跟仪器说话的那个，而它在这里先卡在读参考图上 ——
+# 也就是说「参考图读不动就不发 TCP」这条顺序是**这一份**钉住的。
 
 #: ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
 BATCH_4D: list[str] = []   # composite.scan_at + 撞针追踪

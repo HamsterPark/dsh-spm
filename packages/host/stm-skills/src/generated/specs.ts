@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 0 个 · 批 4c 0 个 · 批 4d 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 0 个 · 批 4c 12 个 · 批 4d 0 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -4431,6 +4431,167 @@ export const AssessFrameCorrugationSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const LoadScanFrameFromFileSpec: SkillSpec = {
+  name: "LoadScanFrameFromFile",
+  description: "从一个**已保存**的 .sxm 文件中，抽出某一路通道的正扫与反扫 2-D 帧，各写成一个 .npy；返回的是两个**路径**（绝不返回数组本身）。它是 GrabScanFrameData 的离线对应版 —— 后者只能读实时缓冲。这两个路径可以直接喂给 CheckLineQuality、或任何接受 .npy 的判据。若该通道或反扫方向不存在，它会**大声报错** —— 绝不拿另一路通道来顶替。",
+  parameters: [
+    { name: "scan_path", type: "str", description: "已保存的 .sxm 文件的路径", required: true },
+    { name: "channel", type: "str", description: "通道名，按 .sxm 头里写的那样，例如 'Z'（形貌）。通道不存在 = 报错，并列出这个文件里实际有哪些通道。", required: false, default: "Z" },
+    { name: "save_dir", type: "str", description: "可选：输出目录；默认 = <data>/experiments/frames/", required: false, default: "" },
+  ],
+  tags: ["scan","frame","read","offline","sxm"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const ParseRegionsSpec: SkillSpec = {
+  name: "ParseRegions",
+  description: "解析 + 校验一个由扫描区域组成的 JSON 数组（每个形如 {center_x_m, center_y_m, width_m, height_m, [angle_deg], [label]}），转成 composite 可以 foreach 遍历的归一化列表。坏 JSON、>64 个区域、中心/尺寸越界，都会被拒绝。",
+  parameters: [
+    { name: "regions", type: "str", description: "由区域对象组成的 JSON 数组（单位米）", required: true },
+  ],
+  tags: ["scan","regions","analysis","g1"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const ComputeDriftVectorSpec: SkillSpec = {
+  name: "ComputeDriftVector",
+  description: "抓取当前的扫描帧，与一张参考 .npy 图像做互相关，以估计样品漂移；结果以**米**为单位返回（drift_x_m, drift_y_m）。漂移跟踪类 workflow 会用到它。",
+  parameters: [
+    { name: "ref_path", type: "str", description: "参考图像 .npy 的路径（2-D）", required: true },
+    { name: "scan_width_m", type: "float", description: "扫描框宽度，单位米（用于 px→m 换算）", unit: "m", required: true, minValue: 0 },
+    { name: "channel_index", type: "int", description: "从哪一路通道抓取当前帧", required: false, minValue: 0, default: 0 },
+    { name: "direction", type: "int", description: "1 = 正扫，0 = 反扫", required: false, allowedValues: [0,1], default: 1 },
+  ],
+  tags: ["scan","drift","analysis","g1"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const SubtractPlane_RANSACSpec: SkillSpec = {
+  name: "SubtractPlane_RANSAC",
+  description: "RANSAC-robust plane subtraction for STM images. Rejects outliers (molecules, steps) during plane fit.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: false, default: "" },
+    { name: "residual_threshold", type: "float", description: "RANSAC inlier threshold in meters", unit: "m", required: false, minValue: 1e-15, maxValue: 0.000001, default: 1e-10 },
+    { name: "max_trials", type: "int", description: "Maximum RANSAC iterations", required: false, minValue: 10, maxValue: 10000, default: 100 },
+  ],
+  tags: ["analysis","processing","plane","ransac","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const LevelLines_MedianSpec: SkillSpec = {
+  name: "LevelLines_Median",
+  description: "Line-by-line leveling using median subtraction or polynomial fit per row.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: false, default: "" },
+    { name: "method", type: "str", description: "Leveling method: 'median' or 'poly'", required: false, allowedValues: ["median","poly"], default: "median" },
+    { name: "poly_order", type: "int", description: "Polynomial order (only for method='poly')", required: false, minValue: 0, maxValue: 5, default: 1 },
+  ],
+  tags: ["analysis","processing","leveling","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const FindEmptySpotSpec: SkillSpec = {
+  name: "FindEmptySpot",
+  description: "Find the flattest/emptiest region in a scan image. Returns center coordinates of the smoothest sub-region.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "grid_n", type: "int", description: "Grid subdivision (NxN cells)", required: false, minValue: 2, maxValue: 16, default: 4 },
+    { name: "scan_width_m", type: "float", description: "Scan frame width in meters", unit: "m", required: false, default: 1e-7 },
+    { name: "scan_height_m", type: "float", description: "Scan frame height in meters", unit: "m", required: false, default: 1e-7 },
+  ],
+  tags: ["analysis","region","heuristic","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const CorrectDrift_XCorrSpec: SkillSpec = {
+  name: "CorrectDrift_XCorr",
+  description: "Estimate translational drift between two images using phase cross-correlation.",
+  parameters: [
+    { name: "ref_path", type: "str", description: "Path to the reference scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "target_path", type: "str", description: "Path to the target scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "upsample_factor", type: "int", description: "Sub-pixel accuracy factor", required: false, minValue: 1, maxValue: 1000, default: 10 },
+    { name: "window", type: "bool", description: "Pre-condition each image (DC removal + 2-D Hanning window) before correlating. Suppresses edge leakage that biases the shift. Default on.", required: false, default: true },
+    { name: "normalization", type: "str", description: "Cross-correlation normalization. 'none' = standard normalized cross-correlation (robust to SPM line-noise/stripes); 'phase' = skimage phase correlation (sharper but whitens noise). Default 'none'.", required: false, allowedValues: ["none","phase"], default: "none" },
+  ],
+  tags: ["analysis","drift","cross-correlation","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const SubtractPoly2DSpec: SkillSpec = {
+  name: "SubtractPoly2D",
+  description: "Subtract 2D polynomial background from STM images. For curved substrates where plane subtraction is insufficient.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "order_x", type: "int", description: "Polynomial order in X direction", required: false, minValue: 1, maxValue: 6, default: 2 },
+    { name: "order_y", type: "int", description: "Polynomial order in Y direction", required: false, minValue: 1, maxValue: 6, default: 2 },
+    { name: "mask_path", type: "str", description: "Path to boolean mask (.npy). True pixels excluded from fit", required: false, default: "" },
+  ],
+  tags: ["analysis","background","polynomial","image_processing","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const Destripe_MorphOpenSpec: SkillSpec = {
+  name: "Destripe_MorphOpen",
+  description: "Remove horizontal stripes from STM images using morphological opening with dual-threshold detection.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "hard_threshold", type: "float", description: "Definite stripe threshold (in std units)", required: false, minValue: 1, maxValue: 10, default: 3 },
+    { name: "soft_threshold", type: "float", description: "Candidate stripe threshold (in std units)", required: false, minValue: 0.5, maxValue: 5, default: 1.5 },
+    { name: "min_length", type: "int", description: "Minimum consecutive stripe rows to keep", required: false, minValue: 1, maxValue: 50, default: 5 },
+  ],
+  tags: ["analysis","filter","destripe","image_processing","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const AutoCrop_UnscannedRegionSpec: SkillSpec = {
+  name: "AutoCrop_UnscannedRegion",
+  description: "Detect and crop solid-color (unscanned) borders from an STM image. Block-based and tolerant of scalebar/crosshair overlays; iterates so removing one border can reveal another. Saves the cropped array to a new .npy and never overwrites the input.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to a scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "tolerance", type: "float", description: "Solid-region flatness threshold: max deviation from a row/column median (in data units) to count as the same value. If omitted, defaults to 2% of the image peak-to-peak range.", required: false, minValue: 0 },
+    { name: "max_iter", type: "int", description: "Maximum crop refinement passes (removing one border can reveal another).", required: false, minValue: 1, maxValue: 20, default: 3 },
+    { name: "save_path", type: "str", description: "Optional .npy destination for the cropped array. Defaults to '<input>_cropped.npy'. Forced off the input path so the original is never overwritten.", required: false, default: "" },
+  ],
+  tags: ["analysis","crop","unscanned","preprocessing","image_processing","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const Denoise_AESpec: SkillSpec = {
+  name: "Denoise_AE",
+  description: "Denoise STM images using convolutional autoencoder. Falls back to Gaussian filter without model weights.",
+  parameters: [
+    { name: "image_path", type: "str", description: "Path to the noisy scan image (.npy/.npz/.sxm/.txt/.csv; .sxm uses the Z/topography channel)", required: true },
+    { name: "model_path", type: "str", description: "Path to trained autoencoder weights (.pth)", required: false, default: "" },
+    { name: "gaussian_sigma", type: "float", description: "Sigma for Gaussian fallback filter", required: false, minValue: 0.1, maxValue: 10, default: 1 },
+  ],
+  tags: ["analysis","denoise","autoencoder","image_processing","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const DetectAtomJumpSpec: SkillSpec = {
+  name: "DetectAtomJump",
+  description: "Detect atom jump from manipulation current trace. CNN-based with statistical fallback.",
+  parameters: [
+    { name: "current_trace", type: "str", description: "Current trace as a JSON array, or a path to trace data (.npy/.dat/.txt/.csv; .3ds grid is flattened to per-pixel spectra)", required: true },
+    { name: "model_path", type: "str", description: "Path to trained CNN weights (.pth)", required: false, default: "" },
+    { name: "threshold", type: "float", description: "Jump detection threshold (for statistical fallback)", required: false, minValue: 1, maxValue: 10, default: 3 },
+  ],
+  tags: ["analysis","atom_manipulation","cnn","paper"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -4809,6 +4970,18 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   LocateStepEdge: LocateStepEdgeSpec,
   AssessAtomicLines: AssessAtomicLinesSpec,
   AssessFrameCorrugation: AssessFrameCorrugationSpec,
+  LoadScanFrameFromFile: LoadScanFrameFromFileSpec,
+  ParseRegions: ParseRegionsSpec,
+  ComputeDriftVector: ComputeDriftVectorSpec,
+  SubtractPlane_RANSAC: SubtractPlane_RANSACSpec,
+  LevelLines_Median: LevelLines_MedianSpec,
+  FindEmptySpot: FindEmptySpotSpec,
+  CorrectDrift_XCorr: CorrectDrift_XCorrSpec,
+  SubtractPoly2D: SubtractPoly2DSpec,
+  Destripe_MorphOpen: Destripe_MorphOpenSpec,
+  AutoCrop_UnscannedRegion: AutoCrop_UnscannedRegionSpec,
+  Denoise_AE: Denoise_AESpec,
+  DetectAtomJump: DetectAtomJumpSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */

@@ -59,6 +59,10 @@ import { SPECTROSCOPY } from './spectroscopy.js'
 // ── 批 4b（晶格判据底座 + 原子分辨判定一族）在这一行下面加 import ──
 
 // ── 批 4c（paper 数据处理 + scan_frame 一族）在这一行下面加 import ──
+import { PAPER_DATA } from './paper-data.js'
+import { PAPER_IMAGE } from './paper-image.js'
+import { PAPER_CROP } from './paper-crop.js'
+import { SCAN_FRAME_OFFLINE } from './scan-frame-offline.js'
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面加 import ──
 import { ANALYSIS_CLUSTERS } from './analysis-clusters.js'
@@ -129,6 +133,10 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 4b 在这一行下面展开 ──
 
   // ── 批 4c 在这一行下面展开 ──
+  ...PAPER_DATA,
+  ...PAPER_IMAGE,
+  ...PAPER_CROP,
+  ...SCAN_FRAME_OFFLINE,
 
   // ── 批 4d 在这一行下面展开 ──
   ...ANALYSIS_CLUSTERS,
@@ -203,6 +211,11 @@ export * from './spectroscopy.js'
 // ── 批 4b 在这一行下面 re-export ──
 
 // ── 批 4c 在这一行下面 re-export ──
+export * from './paper-common.js'
+export * from './paper-data.js'
+export * from './paper-image.js'
+export * from './paper-crop.js'
+export * from './scan-frame-offline.js'
 
 // ── 批 4d 在这一行下面 re-export ──
 export * from './analysis-common.js'

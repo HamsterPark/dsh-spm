@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 376,
+    "done": 388,
     "partial": 0,
-    "todo": 139
+    "todo": 127
   },
-  "modules_complete": 60,
+  "modules_complete": 67,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -416,8 +416,8 @@
     },
     "builtins.scan_frame": {
       "total": 5,
-      "done": 2,
-      "complete": false
+      "done": 5,
+      "complete": true
     },
     "builtins.scan_intel_selfcheck": {
       "total": 1,
@@ -741,8 +741,8 @@
     },
     "paper.atom_jump": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.autonomous": {
       "total": 7,
@@ -751,13 +751,13 @@
     },
     "paper.background": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.data_processing": {
       "total": 4,
-      "done": 0,
-      "complete": false
+      "done": 4,
+      "complete": true
     },
     "paper.deconvolution": {
       "total": 1,
@@ -771,8 +771,8 @@
     },
     "paper.denoise": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.drift_bragg": {
       "total": 1,
@@ -781,8 +781,8 @@
     },
     "paper.image_filters": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.imspec": {
       "total": 1,
@@ -811,8 +811,8 @@
     },
     "paper.scan_crop": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.scan_diff": {
       "total": 1,
@@ -1290,11 +1290,11 @@
       "module": "paper.scan_crop",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AutoOSS_Dehalogenation": {
       "module": "paper.autonomous",
@@ -1560,11 +1560,11 @@
       "module": "builtins.scan_frame",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "ConditionTip": {
       "module": "composite.condition_tip",
@@ -1940,11 +1940,11 @@
       "module": "paper.data_processing",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "CreateZCtrlPreset": {
       "module": "builtins.zctrl_presets_skills",
@@ -2010,11 +2010,11 @@
       "module": "paper.denoise",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DeployNanonisScript": {
       "module": "builtins.nanonis_script",
@@ -2040,21 +2040,21 @@
       "module": "paper.image_filters",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DetectAtomJump": {
       "module": "paper.atom_jump",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DetectAtoms_FCN": {
       "module": "paper.region_analysis",
@@ -2150,11 +2150,11 @@
       "module": "paper.data_processing",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "FindFlatRegion": {
       "module": "builtins.flat_region",
@@ -3630,11 +3630,11 @@
       "module": "paper.data_processing",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "LineSTSAcrossWall": {
       "module": "composite.line_sts_across_wall",
@@ -3750,11 +3750,11 @@
       "module": "builtins.scan_frame",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "LoadScriptLUT": {
       "module": "builtins.nanonis_script",
@@ -4050,11 +4050,11 @@
       "module": "builtins.scan_frame",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "PausePatternExperiment": {
       "module": "builtins.pattern",
@@ -5740,21 +5740,21 @@
       "module": "paper.data_processing",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "SubtractPoly2D": {
       "module": "paper.background",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "SurveySurface_TileScan": {
       "module": "composite.survey_surface",
