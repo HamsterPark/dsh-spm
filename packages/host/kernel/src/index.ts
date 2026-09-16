@@ -40,6 +40,8 @@ export * from './spectroscopy.js'
 // ── 批 4b（晶格判据底座 + 原子分辨判定一族）在这一行下面 export ──
 
 // ── 批 4c（paper 数据处理 + scan_frame 一族）在这一行下面 export ──
+export * from './scan-regions.js'
+export * from './image-channel.js'
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面 export ──
 export * from './corrugation-gate.js'

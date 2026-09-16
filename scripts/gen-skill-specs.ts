@@ -366,7 +366,23 @@ const BATCH_4A: string[] = [
 const BATCH_4B: string[] = []   // 晶格判据底座 + 原子分辨判定一族
 
 // ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
-const BATCH_4C: string[] = []   // paper 数据处理 + scan_frame 一族
+const BATCH_4C: string[] = [
+  // builtins.scan_frame 收口（`GrabScanFrameData` / `CheckScanForCrash` 早已落地）
+  'LoadScanFrameFromFile',
+  'ParseRegions',
+  'ComputeDriftVector',
+  // paper.data_processing 整族
+  'SubtractPlane_RANSAC',
+  'LevelLines_Median',
+  'FindEmptySpot',
+  'CorrectDrift_XCorr',
+  // paper 的五个单件模块，各自一个技能
+  'SubtractPoly2D',
+  'Destripe_MorphOpen',
+  'AutoCrop_UnscannedRegion',
+  'Denoise_AE',
+  'DetectAtomJump',
+]   // paper 数据处理 + scan_frame 一族
 
 // ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
 const BATCH_4D: string[] = []   // composite.scan_at + 撞针追踪

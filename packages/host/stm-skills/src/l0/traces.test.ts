@@ -669,6 +669,30 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       '[]',
     ),
   },
+  // ── 批 4c：四句**解析器/操作系统自己的**话，两侧本来就不同 ──
+  //
+  // 这四条与 `AssessFrameTrust/ok` 是同一个形状：判据是报文的**前半句**
+  // （谁在拒、拒的是什么），后半句是 Python 的 `json` / `np.load` / reader
+  // 或者操作系统给的，而 Node 那边一个都对不上。
+  // 期望**写死本仓那一句** —— 换了实现它照样会红。
+  'ComputeDriftVector/ok': {
+    error:
+      'cannot load reference image: ENOENT: no such file or directory, open ' +
+      `'${join(process.cwd(), 'spec-export')}'`,
+  },
+  'LoadScanFrameFromFile/ok': {
+    error:
+      '读不了 spec-export: Error: ENOENT: no such file or directory, open ' +
+      `'${join(process.cwd(), 'spec-export')}'`,
+  },
+  // V8 的 `JSON.parse` 措辞。⚠️ 它比 Python 那句**更有用**（印出了看到的是哪个 token），
+  // 而这正是「不复刻」的代价与收益同时出现的地方。
+  'ParseRegions/ok': {
+    error: `invalid regions JSON: Unexpected token 's', "spec-export" is not valid JSON`,
+  },
+  'DetectAtomJump/ok': {
+    error: `Failed to load current trace: Unexpected token 's', "spec-export" is not valid JSON`,
+  },
 }
 
 /**

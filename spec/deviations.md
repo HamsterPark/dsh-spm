@@ -1703,4 +1703,154 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 
 <!-- ── 批 4c（paper 数据处理 + scan_frame 一族）的登记写在这一行下面 ── -->
 
+## D-JUMP-1 · `DetectAtomJump` 的 `method` 报的是**请求**，不是跑了哪一条
+
+| | |
+|---|---|
+| **Python** | `"method": "cnn" if model_path else "statistical"` |
+| **我们** | 恒为 `"statistical"` |
+
+`_cnn_detect` 抛异常时旧仓 `logger.warning` 之后**落回统计**，而 `method` 那一行
+在返回值里，看的是 `model_path` 这个**入参**。于是「CNN 跑失败了」这件事
+外部一个字都读不到：返回值说 `cnn`，数却是统计那一支算的（金样
+`model_path_says_cnn` 与 `json_jump` 的 `confidence` **逐位相同**，那就是证据）。
+
+本仓没有 CNN 那一支（`onnxruntime` 要等 Phase 8），照抄会让这个字段
+**永远**说谎，而不只是偶尔。
+
+**同族的 `Denoise_AE` 在同一个位置上是对的**：它在 `except` 里把 `method` 改成
+`"gaussian"`。同一天写的同一个模式，一个报实际、一个报请求 ——
+本仓跟对的那个（D-SCAN-4「回声不是读数」同一条）。
+
+**两侧都钉住**：`paper-skills.test.ts` 的 `D-JUMP-1` 两条，一条断言旧仓那一格
+确实报 `cnn` 且数与统计支相同，一条断言本仓报 `statistical` 且别的字段一个不差。
+
+## D-JUMP-2 · 统计回退的 z 分数**上限是 2**，而缺省阈值是 3
+
+**照移，没有修**（与 D-CLUSTER-1 同一种处理）。这里登记的是一条**旧仓的缺陷**：
+
+```
+z = |mean₂ − mean₁| / std(整条曲线)
+```
+
+中点劈开时整条曲线的方差是 `s² + (d/2)²`（`s` 组内、`d` 两半均值差），于是
+
+```
+z = d / √(s² + d²/4) ≤ d / (d/2) = 2        （s → 0 取等）
+```
+
+**与跳变有多大无关** —— 跳得越高分母跟着长。参数声明里 `threshold` 的下界是
+`1.0`、缺省 `3.0`，也就是说**缺省参数下这个技能永远报不出它名字里那件事**。
+金样十一格里只有 `threshold_1_jump`（阈值 1.0）那一格 `jumped: true`。
+
+另外 `confidence = min(1, z / (2·threshold))` 拿**阈值**当尺度 ——
+同一条曲线在 `threshold=1` 上「置信度 1.0」、在 `3` 上「0.33」。
+那不是置信度，是「离阈值多远」。照移。
+
+修它要换判据本身（Welch t 或者真的 CUSUM），**那是另一个技能**。
+
+## D-DRIFT-1 · `ComputeDriftVector` 的中心差一格，而空缓冲上它报半幅
+
+两件事，都**照移**（金样把旧仓那一侧钉住了），但都要写下来：
+
+**① 偶数边长上系统性偏一个像素。** `scipy.signal.correlate2d(mode='same')` 的
+原点是 `(M−1)//2`，而技能拿 `shape//2` 当中心（D-NUM-19：两个都是 scipy、
+两个都叫「中心」）。于是一次**完美的**配准被报成 `−1` 像素：
+金样 `ok` 那一格真位移是 `roll(ref, +3, −2)`，报出来是 `(−4, +1)`。
+256 px / 10 nm 的帧上那是 39 pm 的凭空漂移，每一帧都有。
+
+**② 一片死平的缓冲上，它报半幅。** 去均值之后整幅是 0 ⇒ 互相关面处处是 0 ⇒
+`argmax` 落在下标 0 ⇒ 位移 `= −(shape//2)`。`success: true`，四个数一个不缺，
+**没有任何字段说得出「这两帧里没有可对齐的东西」**。
+这一条是对真 stmsim 的 e2e 当场撞出来的（模拟器刚起来时缓冲整幅 65536 个 0，
+报出 −5 nm 的漂移），钉在 `integration/paper-drift.test.ts`。
+
+⚠️ 顺带：尺寸对不上那一支报 `drift = 0` **外加一个 `note` 键**，而成功那一支
+**没有**这个键 —— 「0 是量出来的」与「0 是量不了」靠一个键在不在区分。照移。
+
+## D-PAPER-1 · 解析器与操作系统的异常文本**不复刻**，判据是前半句
+
+四处，都是 `f"…: {exc}"` 把别人的异常拼进报文：
+
+| 报文 | 那半句是谁的 |
+|---|---|
+| `invalid regions JSON: …` | Python 的 `json` ／ V8 的 `JSON.parse` |
+| `Failed to load current trace: …`（JSON 那一支） | 同上 |
+| `读不了 {path}: {类名}: {那句话}` | Python 的异常**类名** + `read_sxm` 的措辞 |
+| `cannot load reference image: …` | `np.load` 的 `FileNotFoundError` ／ Node 的 `ENOENT` |
+
+金样在**两侧**归一化（导出器一组正则、测试一组同样的正则）成
+`<json-error>` / `<read-error>` / `<oserror>`；判据是它**前面那半句**
+（谁在拒、拒的是什么），同 D-STS-1 与 D-ANALYSIS-1。
+
+**分得开的那件事另有一条测试**：`读不了 X` 在本仓是 `ENOENT: …`（文件不存在）
+与 `Cannot find header end marker in X`（不是个 `.sxm`）两句**不同**的话，
+由 `paper-skills.test.ts` 专门钉住 —— 归一化抹掉的是措辞，不是区分。
+
+⚠️ **一处反过来的**：`Cross-correlation failed: images must be same shape` 这句
+**照抄了 skimage 的原话**。本仓 `phaseCrossCorrelation` 抛的是自己的中文措辞
+（它有别的调用方），所以这一层在调用之前先判一次形状。判据没变（形状不等就拒），
+变的只是谁来说这句话 —— 而这句话是模型读的那一句。
+
+## D-PAPER-2 · `load_image_2d` 只落了**有读法**的三种扩展名
+
+| 扩展名 | 旧仓 | 我们 |
+|---|---|---|
+| `.npy` · `.sxm` · `.dat` | ✓ | ✓ |
+| `.3ds`（谱那一路） | ✓ | ✓ |
+| `.npz` | `np.load` 解 zip | **没有**（本仓没有 zip 解压） |
+| `.sm4` | `read_sm4` | **没有**（本仓没有这个读法） |
+| `.txt` / `.csv` / `.asc` / `.tsv` / `.xyz` | `read_txt` | **没有** |
+
+缺的三种**当场说清楚**（「本仓读不了 .npz —— 已实现的是 .npy / .sxm / .dat」），
+而不是让 `decodeNpy` 去撞一个「魔数不对」：后者会让人去查文件，而文件没有问题。
+
+⚠️ 这条让模型面的描述**超发了** —— 五个技能的 `image_path` 描述逐字冻结着
+「`.npy/.npz/.sxm/.txt/.csv`」。**不改那句话**（改了就跟旧仓对不上，DoD ②），
+错误报文已经把真相说清楚了。补上读法的时候这一条要回来删。
+
+## D-PAPER-3 · `SubtractPlane_RANSAC` 在**带裙边**的真图上与旧仓不逐位一致
+
+`np.random.default_rng(42)`（PCG64）与本仓 `Xoshiro128` 抽的是两串数
+（D-NUM-7：RNG 求的是可复现，不是与 numpy 相同）。
+
+金样那几张图上**答案相同，而且这不是运气**：背景是一张精确平面（或一口很浅的碗），
+特征是**平顶圆盘**（高 5e-9，没有裙边），内点阈 1e-10 —— 于是任何一组
+「三点全在背景上」的抽样都给出同一个内点集（933/1024，`ransac_facts` 单独录着），
+最后那次全内点最小二乘两边解同一个方程组。
+
+**真机上的图不是这样**：分子的裙边、台阶的边缘上有一圈像素的残差**正好在阈值
+附近**，那时「先抽到谁」会改掉内点集，`inlier_ratio` 与 `plane_coefficients`
+在两个实现之间没有理由相同，差多少也说不出来。同 D-VISION-1 的形状，
+判据因此是**「离对的近、离错的远」**：`ransac_facts.lstsq_all_coefficients`
+把「不剔除圆盘」那一版也录了下来，两者差 7 倍，测试比的是这个比。
+
+## D-PAPER-4 · 三处照移的钝处，各记一笔
+
+1. **`ParseRegions` 的 `angle_deg` / `label` 在 `try` 块外面。** 四个必填字段
+   给一条 `success=False`，第五个直接**抛出去** —— 而这两件事对调用方完全不是
+   一回事。金样 `raises_bad_angle` 钉着那一句（`ValueError: could not convert
+   string to float: 'spin'`，本仓是同文案的 `RangeError`）。
+2. **`SubtractPlane_RANSAC._load_image` 把三件事压成一句。** `try: … except:
+   return None` 让「没给路径」「文件不存在」「不是个 `.npy`」都报
+   `No image data available.`，而同族的 `FindEmptySpot` / `CorrectDrift_XCorr`
+   **把异常带出来了**。一个族里两种做法，照移。
+3. **`LevelLines_Median` 认不出的 `method` 什么都不做。** 旧仓没有 `else`，
+   于是 `method="zzz"` 走完整个循环、一行都没改，返回值里 `method: "zzz"` ——
+   只有 `rms_before == rms_after` 说得出「什么也没发生」。金样
+   `unknown_method` 那一格就是为它录的。
+
+## D-PAPER-5 · `poly2d_subtract` 那条 `i + j > order_x + order_y` 的裁剪是**死代码**
+
+旧仓 `background.py:352` 写着 `elif i + j > order_x + order_y: continue`，
+而循环是 `for i in range(order_x + 1)` / `for j in range(order_y + 1)` ⇒
+`i + j` 的最大值**正好**是 `order_x + order_y`，那个 `>` 一次都不成立。
+
+所以项数恒为 `(order_x+1)·(order_y+1)`（缺省 2×2 是 **9** 项，不是 6），
+而 `n_coefficients` 那个字段就是证据：金样 `order31` 那一格是 **8** = 4×2。
+
+本仓**不写那条永不成立的分支** —— 写一条进来，下一个人会花半天想它在挡什么。
+盘点（`survey-remaining.md` A33）把它当成一条真的裁剪，那是读代码读出来的，
+不是跑出来的。
+
 <!-- ── 批 4d（composite.scan_at + 撞针追踪）的登记写在这一行下面 ── -->
