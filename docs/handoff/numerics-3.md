@@ -76,9 +76,9 @@ numerics 的测试从 152 条涨到 **245 条**，全仓 4034 → **4127 条**�
 
 ## 三、与 scipy/skimage 语义不同 / 容易搞错的地方
 
-**deviation 编号留空** —— 由主线统一编。下面用 `D-NUM-??(a)…(f)` 临时指代。
+**deviation 编号留空** —— 由主线统一编。下面用 `D-NUM-15…(f)` 临时指代。
 
-### D-NUM-??(a) · `find_peaks` 的 `distance` 在 `prominence` **之前**筛
+### D-NUM-15 · `find_peaks` 的 `distance` 在 `prominence` **之前**筛
 
 scipy 的顺序是 `plateau_size → height → threshold → distance → prominence → width`。
 反过来做**不会报错**，只在某些信号上多留或少留一个峰：
@@ -95,7 +95,7 @@ x = [0, 5, 0, 9.9, 9.8, 9.8, 9.8, 9.8, 10, 0]，prominence = 1，distance = 3
 
 **变异**：`numerics-findpeaks-distance-keeps-the-taller`。
 
-### D-NUM-??(b) · `prominence` 取两侧最小值的 **`max`**，不是 `min`
+### D-NUM-16 · `prominence` 取两侧最小值的 **`max`**，不是 `min`
 
 峰高减去「向左、向右各走到**遇见一个严格更高的样本**为止，这两段区间里各自的
 最小值」的**较大者**。两个容易写成的错版本都给出完全合理的数：
@@ -107,7 +107,7 @@ x = [0, 5, 0, 9.9, 9.8, 9.8, 9.8, 9.8, 10, 0]，prominence = 1，distance = 3
 
 **变异**：`numerics-findpeaks-prominence-is-the-lower-base`。
 
-### D-NUM-??(c) · 平台峰取中点**向下**取整；**紧贴数组两端的极大值不算峰**
+### D-NUM-17 · 平台峰取中点**向下**取整；**紧贴数组两端的极大值不算峰**
 
 `[0,1,1,1,1,0]` 的峰是下标 **2**（平台 `[1,4]`，`(1+4)>>1 = 2`）——
 向上取整会给 3，而**奇数宽的平台上两种写法完全同解**。
@@ -116,7 +116,7 @@ x = [0, 5, 0, 9.9, 9.8, 9.8, 9.8, 9.8, 10, 0]，prominence = 1，distance = 3
 
 **变异**：`numerics-findpeaks-plateau-midpoint-floors`。
 
-### D-NUM-??(d) · 等高峰在 `distance` 里谁赢，scipy **没有定义**
+### D-NUM-18 · 等高峰在 `distance` 里谁赢，scipy **没有定义**
 
 scipy 用 `np.argsort`（quicksort，**不稳定**）按高度排序再从高到低处理。
 两个**等高**且互相在 `distance` 之内的峰，留下哪一个由排序实现决定 ——
@@ -127,7 +127,7 @@ scipy 用 `np.argsort`（quicksort，**不稳定**）按高度排序再从高到
 金样里因此没有等高峰 —— 一格分辨不出两种候选的金样不是判据，
 一格**答案本身没有定义**的金样更糟。
 
-### D-NUM-??(e) · `correlate2d(mode='same')` 的原点是 `(Mb−1)//2`，而 `grey_*` 的是 `Mb//2`
+### D-NUM-19 · `correlate2d(mode='same')` 的原点是 `(Mb−1)//2`，而 `grey_*` 的是 `Mb//2`
 
 | | 原点 | 4×4 的核 |
 |---|---|---|
@@ -141,7 +141,7 @@ scipy 用 `np.argsort`（quicksort，**不稳定**）按高度排序再从高到
 
 **变异**：`numerics-correlate2d-origin-is-half-of-size-minus-one`。
 
-### D-NUM-??(f) · 相位归一化**可关**，而关掉它是另一个算法不是另一档精度
+### D-NUM-20 · 相位归一化**可关**，而关掉它是另一个算法不是另一档精度
 
 | | 互功率谱 | 峰由谁说了算 |
 |---|---|---|
@@ -157,7 +157,7 @@ scipy 用 `np.argsort`（quicksort，**不稳定**）按高度排序再从高到
 
 **变异**：`numerics-xcorr-normalization-is-switchable`。
 
-### 另外三条值得记进 deviation 的
+### 另外三条（已编成 D-NUM-21 / D-NUM-22 / D-NUM-23）
 
 1. **`error` 只能在平方上给容差，而它有个下限**。`1 − |CC|²/(src·tgt)` 在对得上的
    一对帧上是两个几乎相等的数相减，`√` 又把剩下的放大（`d√u = du/(2√u)`）。
