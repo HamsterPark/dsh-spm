@@ -333,7 +333,18 @@ BATCH_4A: list[str] = [
 ]   # builtins 分析技能第一批
 
 #: ↑ 上一条 ／ ↓ 4B —— 这一行谁都不要动
-BATCH_4B: list[str] = []   # 晶格判据底座 + 原子分辨判定一族
+BATCH_4B: list[str] = [
+    # 晶格 `measure_cell` 组（批 4a 欠下的两个）
+    "AssessScanTexture", "MeasureLatticeCell",
+    # 原子相判据环
+    "AssessAtomicResolution", "AnalyseAtomicLattice",
+]   # 晶格判据底座 + 原子分辨判定一族
+#
+# ⚠️ 与批 4a 同一种情形：这四个**一次 TCP 都不发**，读的是磁盘上的 `.sxm`。
+# 这台导出器的 `_params_for` 给不出一条真实的 `scan_path`，于是它们在这里录到的
+# 是「文件不存在」那一支。**那仍然是一条判据**（外壳在碰任何东西之前先拒），
+# 但这一批的主判据在 `spec/golden/lattice.json` 的 `skills` 节 ——
+# 那一节是拿**真的合成 `.sxm`** 喂进旧仓技能录的。
 
 #: ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
 BATCH_4C: list[str] = [

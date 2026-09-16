@@ -1710,6 +1710,92 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 
 <!-- ── 批 4b（晶格判据底座 + 原子分辨判定一族）的登记写在这一行下面 ── -->
 
+## D-???? （批 4b·临时 D-LATTICE-1）· ±k 孪生峰**谁排在前面没有定义**
+
+实信号的谱满足 `|F(−k)| = |F(k)|` —— 在精确算术里这是一个**精确的平局**，
+而 `np.argmax` 的平局规则是「C 序里第一个」。于是谁排前面**完全由那一对的最后一位
+浮点决定**：
+
+| | |
+|---|---|
+| 金样 `hex` 第一对 | 功率**逐位相同** ⇒ numpy 取 C 序靠前的 `kx = −15` |
+| 同一格**第三对** | numpy 自己那边就差一个 ulp（`…cec75` vs `…cec74`）—— **numpy 也不保证这个对称** |
+| 本仓 | `fft2` 在第一对上差一个 ulp ⇒ 取 `kx = +15` |
+
+⇒ 这是 **D-NUM-18 的形状**（「一格答案本身没有定义的金样更糟」）。本仓**不去追**：
+下游没有一个消费方看得见这个差别 —— `uniq` 按 `angle mod 180` 去重、`measureCell`
+把候选折到上半平面、半径散布取 `hypot`。
+
+**测试**：`vision/lattice.test.ts` 的 `canonPeak` 把两侧都折到上半平面之后再比；
+`nPeaks` / `nRidge` / `periodsNm` / `anglesDeg` / `hexagonal` / `latticeAngleDeg` /
+`directionBalance` / `warnings` **一个不少地逐条比**，它们全都与这个符号无关。
+
+## D-???? （批 4b·临时 D-SHARP-1）· `_fft_sharpness` 旧仓在 **float32** 里做整条 FFT
+
+`_detrend` 的输出是 `astype(np.float32)`；`_detrend(h) / std` 里的 `std` 是一个
+**Python 弱标量**（NEP 50）⇒ 结果仍是 float32；而 `np.fft.fft2(float32)` 回
+**complex64** —— 也就是说那次变换整条在单精度里。
+
+本仓**只把输入降到 float32**（逐元素 `Math.fround`，两处都照抄），变换留在 float64：
+复现单精度 pocketfft 要把每一次蝶形都降精度。差额写成一条推得出来的容差
+`fftSharpnessRelTol(sharp) = 8·eps32·sharp`（`vision/tip-metrics.ts`）——
+它**随锐度线性放大**，因为单精度 FFT 的本底噪声与 `‖F‖∞` 挂钩而 `sharp = peak/median`。
+
+⚠️ 判据 `sharp < sharpness_min(8)` **没有被这条容差威胁到**：金样里离闸门最近的一格
+是 `noise` 的 3.63（余量 2.2 倍），而那一格的容差只有 `3.4e−6`。
+实测最坏占比 `0.32`（`hex`，`1.6e−3` / `5.0e−3`）。
+
+**另一半照抄了**：`detrend32` 的输出必须**是**一个 float32，
+而这一条用一条**结构性**断言钉住（`v === Math.fround(v)`，零容差）——
+容差那一条看不见它（一个 ulp 的窗，而去掉 `fround` 只挪半个 ulp），
+变异演练当场照出来了。
+
+## D-???? （批 4b·临时 D-SUPER-1）· `superstructure_test` 的相干求和只能给**绝对**容差
+
+`_max_over_neighbourhood` 算的是 `Σ hw·e^{-2πik·r}`。对一个**对照**波矢，这是
+三万多个 `~1e−11` 的数相加得到 `~1e−14` —— **相消了三个量级**。
+相消毁掉相对精度、不毁绝对精度，所以容差按 `Σ|hw|` 定：
+`coherentAbsTol(n, sumAbs, wsum) = 2·n·eps·sumAbs/wsum`（`vision/lattice-cell.ts`）。
+
+第二个理由更硬：numpy 那两步是 **`@` 矩阵乘**（BLAS 分块累加），
+**不是** `np.add.reduce` 的成对求和 —— 也就是说这一处**没有可照抄的累加顺序**
+（`numerics/pairwise.ts` 能逐位复刻的是后者）。
+判决离阈值最近的一格是 `1.25`（闸在 1.2 / 1.5），而这条界给出的相对误差在 `1e−7` 量级。
+
+> ⚠️ **对照波矢本身不在这条偏差里**：`np.random.default_rng(0)` 抽的那 8 个点
+> 本仓**逐位复现**（`numerics/pcg64.ts`）。`rng.ts` 抬头那句「复现它要实现一个
+> 128 位状态的 LCG」现在有了下文 —— 实现了，而且四层（pool / state / raw / uniform）
+> 各比一遍。这与 D-VISION-1（RANSAC 的抽样序列**不**追 numpy）是同一条判据的两侧：
+> 追不追，看的是**对面有没有一个被比的答案**。
+
+## D-???? （批 4b·临时 D-LATTICE-2）· 同一件事两套措辞，**两套都照移**
+
+| 事 | `_sxm_frame.load_frame` 那一族 | `atomic_lattice._load_frame` 那一族 |
+|---|---|---|
+| 通道不在 | `没有通道 'Z' 的正扫数据` | `文件里没有通道 'Z' 的正扫数据` |
+| 头里没有像素标度 | 当场报 `文件头里没有像素标度` | **不报错**，把 `null` 传给判据环 ⇒ 出局词 `unknown_pixel_size` |
+
+第二行不只是措辞：后者给的是一条**机器可判**的出局词，调用方据此判「这一帧回答不了」；
+前者给的是一句中文串，调用方只能去匹配散文。**后者更好，而本仓两种都照移** ——
+统一成一种会让金样里四条报文有两条对不上，而改掉的正是模型读的那一句
+（同 D-ANALYSIS-1 的形状）。
+
+`loadFrame` 因此带一个 `requireScale` 开关，两个技能族各传各的；
+一条变异（`skill-load-frame-scale-requirement-differs`）钉着它。
+
+## D-???? （批 4b·临时 D-LATTICE-3）· 两个 `_MIN_PERIODS_IN_FRAME`，同名不同值
+
+| 住在哪 | 值 | 它在挡什么 |
+|---|---|---|
+| `atomic_phase`（判据） | **5** | `seg_scale_adaptive` 把可搜周期上限压到 `min(H,W)/4` ⇒ 短边不足约 4.75 个周期时，晶格那根谱线**根本不在搜索区间里** |
+| `lattice_cell`（测量） | **12** | 谱心的直流裙边：周期越长的候选越靠近谱心，越容易赢在背景上而不是赢在结构上 |
+
+本仓给了两个名字（`PHASE_MIN_PERIODS_IN_FRAME` / `CELL_MIN_PERIODS_IN_FRAME`）
+并且**两个都导出**。登记它的理由与 **D-PIEZO-1** 一字不差：
+「名字一样的两件事，连发现它们不一样都要先花一分钟」——
+而合并它们会让判据在 2.4 倍的尺度上错。
+
+
 <!-- ── 批 4c（paper 数据处理 + scan_frame 一族）的登记写在这一行下面 ── -->
 
 ## D-JUMP-1 · `DetectAtomJump` 的 `method` 报的是**请求**，不是跑了哪一条

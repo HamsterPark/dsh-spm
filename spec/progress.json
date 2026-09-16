@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 390,
+    "done": 394,
     "partial": 0,
-    "todo": 125
+    "todo": 121
   },
-  "modules_complete": 69,
+  "modules_complete": 71,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -41,7 +41,7 @@
     },
     "builtins.atomic_lattice": {
       "total": 3,
-      "done": 0,
+      "done": 2,
       "complete": false
     },
     "builtins.atomic_lines": {
@@ -271,8 +271,8 @@
     },
     "builtins.lattice_cell_skill": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.lockin": {
       "total": 14,
@@ -431,8 +431,8 @@
     },
     "builtins.scan_texture": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.scan_utils": {
       "total": 2,
@@ -980,11 +980,11 @@
       "module": "builtins.atomic_lattice",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AnalyseSlowDrift": {
       "module": "builtins.slow_drift_skill",
@@ -1080,11 +1080,11 @@
       "module": "builtins.atomic_lattice",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessClusterRoundness": {
       "module": "builtins.cluster_roundness",
@@ -1160,11 +1160,11 @@
       "module": "builtins.scan_texture",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessShockleyOnset": {
       "module": "builtins.tip_spectro_assess",
@@ -3840,11 +3840,11 @@
       "module": "builtins.lattice_cell_skill",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "MeasureStepHeight": {
       "module": "builtins.step_height",

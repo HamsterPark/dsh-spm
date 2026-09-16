@@ -1622,6 +1622,20 @@
       }
     }
   },
+  "AnalyseAtomicLattice": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ApplyLockInPreset": {
     "params": {},
     "traces": {
@@ -2102,6 +2116,20 @@
       }
     }
   },
+  "AssessAtomicResolution": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AssessClusterRoundness": {
     "params": {
       "scan_path": "spec-export"
@@ -2139,6 +2167,20 @@
         "calls": [],
         "data": {},
         "error": "读不了 spec-export：[WinError 2] 系统找不到指定的文件。: 'spec-export'",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessScanTexture": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
         "success": false,
         "summary": ""
       }
@@ -43795,6 +43837,27 @@
         "error": "",
         "success": true,
         "summary": "Nanonis 界面已锁定——用户在解锁前无法在仪器端操作"
+      }
+    }
+  },
+  "MeasureLatticeCell": {
+    "params": {
+      "scan_paths": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "rejected": [
+            {
+              "path": "spec-export",
+              "reason": "文件不存在: spec-export"
+            }
+          ]
+        },
+        "error": "1 个路径一个都读不进来：文件不存在: spec-export",
+        "success": false,
+        "summary": ""
       }
     }
   },

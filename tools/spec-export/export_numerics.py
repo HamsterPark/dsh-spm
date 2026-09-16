@@ -869,10 +869,79 @@ for _deg in [1, 2, 3]:
     })
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# 15. 成对求和（`np.add.reduce`）—— **批 4b 追加，容差 0**
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 这一节不走那条共用的 `rng` 流（输入是闭式的 `sin`），所以它**一个已有节都没动**。
+#
+# 判据是**逐位**：`sumRelTol(n)` 那条界是在「本仓 Neumaier vs numpy 成对」这个前提
+# 下推的，而把 numpy 那一种照着写一遍，两边就是同一串浮点运算。
+PAIRWISE: dict = {"_note": "np.sum / np.mean / np.std 对连续一维 float64 的答案；容差 0",
+                  "cases": []}
+for _n in [0, 1, 3, 7, 8, 9, 17, 100, 127, 128, 129, 300, 1000, 4096]:
+    _i = np.arange(_n, dtype=np.float64)
+    _a = np.sin(_i * 1.7) * np.exp(_i / 500.0) + 1e-3 * _i
+    PAIRWISE["cases"].append({
+        "n": _n,
+        "x": _plain(_a),
+        "sum": _plain(float(np.sum(_a)) if _n else 0.0),
+        "mean": _plain(float(np.mean(_a)) if _n else float("nan")),
+        "std": _plain(float(np.std(_a)) if _n else float("nan")),
+        "std_ddof1": _plain(float(np.std(_a, ddof=1)) if _n > 1 else float("nan")),
+    })
+# **一格必然分岔的**：朴素顺序累加与成对求和在这一串上给不同的答案，
+# 于是「照抄累加顺序」这件事有东西可验（同 D-NUM-1 那条「判据要由构造保证」）。
+_KAHAN = np.array([1e16, 1.0, 1.0, -1e16, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float64)
+PAIRWISE["cases"].append({
+    "n": int(_KAHAN.size), "x": _plain(_KAHAN),
+    "sum": _plain(float(np.sum(_KAHAN))),
+    "mean": _plain(float(np.mean(_KAHAN))),
+    "std": _plain(float(np.std(_KAHAN))),
+    "std_ddof1": _plain(float(np.std(_KAHAN, ddof=1))),
+    "_note": "顺序累加给 8.0，成对求和给 6.0 —— 这一格是「照抄顺序」的钉子",
+})
+PAIRWISE["naive_vs_pairwise"] = {
+    "x": _plain(_KAHAN),
+    "naive": _plain(float(np.add.reduce(_KAHAN.tolist()))) if False else _plain(
+        float(sum(_KAHAN.tolist()))),
+    "pairwise": _plain(float(np.sum(_KAHAN))),
+}
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# 16. `numpy.random.default_rng` —— PCG64，**四层各录一遍，容差 0**
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 只比最后一层是不够的：`uniform` 对得上而 `pool` 错了，说明我在两处各犯了一个
+# 互相抵消的错，而下一个种子上它们就不抵消了。
+PCG64: dict = {"_note": "SeedSequence.pool / generate_state / random_raw / uniform；容差 0",
+               "cases": []}
+for _seed in [0, 1, 42, 12345, 2 ** 32 - 1, 2 ** 40 + 7]:
+    _ss = np.random.SeedSequence(_seed)
+    _g = np.random.default_rng(_seed)
+    _raw = _g.bit_generator.random_raw(6)
+    _g2 = np.random.default_rng(_seed)
+    PCG64["cases"].append({
+        "seed": int(_seed),
+        "pool": [int(x) for x in _ss.pool],
+        "state32": [int(x) for x in _ss.generate_state(8, np.uint32)],
+        "state64": [str(int(x)) for x in _ss.generate_state(4, np.uint64)],
+        "raw": [str(int(x)) for x in _raw],
+        "uniform_0_1": _plain([float(_g2.uniform()) for _ in range(6)]),
+        "uniform_015_085": _plain([float(np.random.default_rng(_seed).uniform(0.15, 0.85))
+                                   for _ in range(1)]),
+    })
+# `superstructure_test` 真正用的那一串（`seed=0`，`uniform(0.15, 0.85)` 连抽 24 次）。
+_g3 = np.random.default_rng(0)
+PCG64["superstructure_stream"] = _plain([float(_g3.uniform(0.15, 0.85)) for _ in range(24)])
+
+
 def main() -> int:
     doc = {
         "_note": "由 tools/spec-export/export_numerics.py 生成——numpy/scipy 真跑一遍。"
-                 "输入与答案一起录：TS 复现不了 PCG64，「同一批输入」只能靠录下来。",
+                 "输入与答案一起录。**PCG64 从批 4b 起复现得了**（pcg64.ts 逐位），"
+                 "所以第 16 节直接比那一串，不再靠录。",
         "_seed": SEED,
         "versions": {
             "numpy": np.__version__,
@@ -903,6 +972,8 @@ def main() -> int:
         "xcorr_raw": XCORR_RAW,
         "savgol": SAVGOL,
         "polyfit": POLYFIT,
+        "pairwise": PAIRWISE,
+        "pcg64": PCG64,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True,
