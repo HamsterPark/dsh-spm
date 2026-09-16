@@ -150,6 +150,17 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 **建议主线合成一份**（取 `pyRound`），这正是 `cell()` 那十份的形状 —— 我没合，因为
 `environment.ts` 是别的支线刚落的文件。
 
+> **✅ 主线裁决（`e9f5fce`，2026-09-16）：合了，而且 `round2` 是错的。**
+>
+> 按老规矩先问「它们真的一样吗」，答案是不一样：`round2` 用的正是 `pyRound` 抬头
+> 第一条警告的写法（`x*100` 之后比 `diff > 0.5`）—— **那个乘法自己要舍入**。
+> 七个探针里五个分岔（2.675 / 2.665 / 1.115 / 0.155 / 0.165），五个全是 `round2` 错，
+> 与本机 CPython 3.13 逐个对过。
+>
+> `remaining_h` 现在走 `pyRound(x, 2)`；那份 `round2` 原样留在
+> `spectroscopy.test.ts` 里当反例，另有一条测试钉住**「均匀采样碰不到它」**
+> —— 那才是它活了这么久的原因。
+
 ---
 
 ## 3. 新增的变异演练（19 条，**全红**）

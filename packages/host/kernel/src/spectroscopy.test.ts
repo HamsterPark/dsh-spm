@@ -306,4 +306,32 @@ describe('pyRound —— 收掉 environment.ts 那份私有 round2', () => {
     const split = [2.675, 2.665, 1.115, 0.155, 0.165].filter((x) => round2(x) !== pyRound(x, 2))
     expect(split).toHaveLength(5)
   })
+
+  /**
+   * **这一条才解释了它为什么活了这么久。**
+   *
+   * 分岔只发生在「乘 100 之后恰好落在 .5 上、而精确值不是一半」的那些 double 上，
+   * 它们在均匀采样里密度接近零 —— 于是任何「随便扔一批数进去对一对」的验证
+   * 都会全绿。判据要由**构造**保证，不由抽样保证（同 D-NUM-1 那次：
+   * 想证明 numpy 与 `pySum` 分岔，而在金样那 2048 个标准正态上恰好相等）。
+   *
+   * 用一个写死的 LCG 而不是 `Math.random()`：**一条每跑一次换一批输入的测试，
+   * 红了说不清是回归还是运气**。
+   */
+  it('均匀采样碰不到它 —— 40 万个伪随机 double 里一个分岔都没有', () => {
+    const round2 = (x: number): number => {
+      const scaled = x * 100
+      const floor = Math.floor(scaled)
+      const diff = scaled - floor
+      return (diff > 0.5 ? floor + 1 : diff < 0.5 ? floor : floor % 2 === 0 ? floor : floor + 1) / 100
+    }
+    let seed = 20260916 >>> 0
+    let hits = 0
+    for (let i = 0; i < 400_000; i++) {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
+      const x = (seed / 4294967296) * 24
+      if (round2(x) !== pyRound(x, 2)) hits++
+    }
+    expect(hits).toBe(0)
+  })
 })
