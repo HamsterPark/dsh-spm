@@ -14,9 +14,9 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 
 已完成：0.1 ✅ 环境 · 课时 0.1.5 ✅ 版本裁决（当时不升 0.1.3-alpha.2）· 0.2 ✅ 仓库骨架
 · 0.3 ✅ 防腐层与版本锁 · 0.4 ✅ 总 bundle 与 `stm_hello`（真实 dsh 集成已验）· 0.6 ✅ spike（结清 1/2/3/5/7/9，半结清 6）· 0.7 ✅ 规格导出 · 1.1 ✅ si.ts 移植 · 1.2 ✅ 线协议帧层 · 1.2b ✅ 类型码表 · 1.3 ✅ 协议代码生成 · 1.4 ✅ RoleLink TCP 客户端 · 1.5 ✅ 熔断状态机 · 1.6 ✅ ctx.instrument Service · 1.7 ✅ instrument-stmsim provider + `profiles/mast-sim` · 1.8 ✅ ctx.instrumentState 1 Hz 状态缓存 · 1.8b ✅ 实时状态提示块 + stm_get_state · 1.9 ✅ 看门狗 + 急停 · 1.10 ◐ SSE hub + 投影（客户端半边受阻于台账 B12）· **Phase 2 开工**：2.1–2.5 ✅ 安全闸门。
-**Phase 0 完成**（只差覆盖率门禁）。**技能已做到 376/515（七成三），Phase 4 的数值底座（4.1）、文件读（4.2）与分析判定件第一批（4.3 起步，新包 `dsh-spm-vision`）已落；下一步 = 晶格 `measure_cell` 一族 + 批 4a 的剩余分析技能**。2026-09-13 已升 dsh 到 `0.1.5-rc.2`（接触面零变化；**追踪已切到稳定通道**，见 `docs/dsh/upgrades.md` 的切换点补记）。0.5（设置卡）挪到 1.7 后再挪到 1.10，与 U0 共用客户端机器。
+**Phase 0 完成**（只差覆盖率门禁）。**技能已做到 394/515（七成六），Phase 4 的数值底座（4.1）、文件读（4.2）、分析判定件（4.3–4.5，新包 `dsh-spm-vision`）与 `ScanAt` / `FullScan` 已落；下一步 = 盘点表里 A 档剩下的那些 + 针尖登记表那个子系统**。2026-09-13 已升 dsh 到 `0.1.5-rc.2`（接触面零变化；**追踪已切到稳定通道**，见 `docs/dsh/upgrades.md` 的切换点补记）。0.5（设置卡）挪到 1.7 后再挪到 1.10，与 U0 共用客户端机器。
 
-16 个工作区包（含 root）、**4511 条测试**（含 52 条对真 stmsim 的集成测试，模拟器由 vitest globalSetup 自动起停）+ **282 条变异演练全红**，已移植 **376/515** 技能、**60/165** 模块，golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**——**Phase 2–8 的分段计划已于 2026-09-10 一次写全**（约 45 个课时）。
+16 个工作区包（含 root）、**4961 条测试**（含 63 条对真 stmsim 的集成测试，模拟器由 vitest globalSetup 自动起停）+ **406 条变异演练全红**，已移植 **394/515** 技能、**71/165** 模块，golden 与 Nanonis 协议表已入仓。逐段清单、每段的停点与验收在 **`docs/EXECUTION.md`**——**Phase 2–8 的分段计划已于 2026-09-10 一次写全**（约 45 个课时）。
 
 ## 文档地图
 
@@ -29,7 +29,7 @@ session / 记忆 / 循环 / 中断 / 审批 / 后台任务 / UI 壳 / 多 provid
 | **`docs/dsh/spike.md`** | spike 十条的结论与「红了改什么」；已结清的钉在 `compat/src/spike.test.ts` 里 |
 | **`spec/nanonis/`** | Nanonis 协议表（671 方法，拷自 STM-Bench 带来源）。`pnpm gen:nanonis` 从它生成类型化门面 |
 | `spec/dsh/` | 每个 dsh 版本的 web profile 组合树导出与包清单，升级时逐行 diff 用 |
-| **`spec/golden/`** | 与 Python 侧对账的**分母**：515 条技能契约 + 376 个技能的 1517 条调用轨迹 + 146 条 SI 金样 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存三节（29 步 trace），另有几台专用驱动器（数值 24 节 / 分析判定 12 节 / 环境判定 / z 轨迹 / Nanonis 文件 26 格 / 锁相参数组 …），由 `tools/spec-export/` 从旧仓导出，**重跑逐字节相同**。不要手改 |
+| **`spec/golden/`** | 与 Python 侧对账的**分母**：515 条技能契约 + 394 个技能的 1548 条调用轨迹 + 146 条 SI 金样 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存三节（29 步 trace），另有八台专用驱动器（数值 29 节 / 分析判定 / 晶格 18 节 / paper 数据 95 格 / 扫描解析 77 格 / 撞针 21 脚本 / 环境判定 124 格 / z 轨迹 46 格 / Nanonis 文件 26 格 …），由 `tools/spec-export/` 从旧仓导出，**重跑逐字节相同**。不要手改 |
 | `LICENSE` | MIT，`Copyright (c) 2026 HamsterPark` |
 
 **给 dsh 报 bug 走 GitHub Discussions，不是 Issues**——该仓 Issues 已关闭，npm 包 `bugs.url` 指向的 `/issues` 是死链。报之前先搜，那里 bug 密度很高。
