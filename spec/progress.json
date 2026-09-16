@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 324,
+    "done": 326,
     "partial": 0,
-    "todo": 191
+    "todo": 189
   },
-  "modules_complete": 45,
+  "modules_complete": 47,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -111,8 +111,8 @@
     },
     "builtins.chamber": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.characterise_noise": {
       "total": 1,
@@ -496,8 +496,8 @@
     },
     "builtins.temperature": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.thermal_settle": {
       "total": 1,
@@ -2350,11 +2350,11 @@
       "module": "builtins.chamber",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "GetCpdCompensation": {
       "module": "builtins.optional_afm",
@@ -3340,11 +3340,11 @@
       "module": "builtins.temperature",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 10,
+      "impl": true,
+      "status": "done"
     },
     "GetTipLift": {
       "module": "builtins.zcontrol",

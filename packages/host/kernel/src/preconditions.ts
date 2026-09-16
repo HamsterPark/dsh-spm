@@ -30,6 +30,12 @@
  * 上去时按不动按钮）。而 `vacuum_ok_for_coarse` 恰好相反：**读不到的压强正是它存在
  * 要拒绝的那个条件**——一个看不见的规压计，与「在放电带里」或「在大气下」无法区分，
  * 而在那里驱动粗动压电会击穿叠层绝缘，**没有重试**。
+ *
+ * 回答它的那个判定机在 `vacuum-interlock.ts`（`vacuumCoarseCheck()` 造出一个
+ * `ComputedCheck`）。**本模块不替它 fail-closed**：没接上时 `vacuum_ok_for_coarse`
+ * 落回子串层、认不出、当没这条。fail-closed 是那只闸自己的性质，
+ * 而「宿主有没有把闸接上」是宿主的决定 —— 在这里替它拒绝，会让一个**从未接过**
+ * 真空计的台架永远动不了粗动，并且说不清是谁拒的。接法见 `vacuumCoarseCheck` 的注释。
  */
 import type { HardwareState } from './hardware-state.js'
 

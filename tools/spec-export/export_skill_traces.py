@@ -293,7 +293,7 @@ BATCH_3I: list[str] = [
 
 #: 批 3j / 3k —— 又一轮两条并行支线，各占一个常量（同 3g/3h/3i 那一轮）。
 BATCH_3J: list[str] = []   # 流式读回一族（z_trace + readback_stream）
-BATCH_3K: list[str] = []   # 环境读（真空互锁 + 温度）
+BATCH_3K: list[str] = ["GetChamberPressure", "GetTemperature"]   # 环境读（真空互锁 + 温度）
 
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:
@@ -627,6 +627,27 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
     "SetSpectroscopyZControl": {"alternate_off": {"use_alternate_setpoint": False}},
     "SetZSpectroscopySecondRetract": {"disable": {"enable": False}},
     "SetMlsLockinPerSegment": {"disable": {"enable": False}},
+    # 批 3k：温度的分支全由**参数**决定（这个技能一次 Nanonis 调用都不发），
+    # 所以通用注错点一条都碰不到它们 —— 六种「没有值」里有三种只在这里露面。
+    "GetTemperature": {
+        # 子串档：配置里写 `Magnet`，监控里那个通道叫 `Magnet (COM3)`
+        "by_channel": {"channel": "Magnet"},
+        # 大小写档
+        "casefold_channel": {"channel": "spm (com3)"},
+        # 唯一子串对上两个 ⇒ 说清楚是哪个，而不是悄悄挑一个
+        "ambiguous_channel": {"channel": "COM3"},
+        "unknown_channel": {"channel": "LN2"},
+        # 指名一个**占位**通道：这是 `no_sensor`，不是 `unavailable`
+        "placeholder_channel": {"channel": "Cryostat"},
+        # 陈旧判定是 explicit-only：不传就没有 freshness 字段
+        "fresh": {"max_age_s": 600.0},
+        "stale": {"max_age_s": 5.0},
+        # `0` 是**合法阈值**（声明里 min_value=0.0），意思是「一切都算旧」。
+        # 用真假判它会把最严的那一档读成「没给」⇒ 静静地退化成不判（D-ZERO-1）。
+        "zero_max_age": {"max_age_s": 0.0},
+        # 阈值是个字符串 ⇒ `float()` 抛 ⇒ `freshness="unknown"` 且**不写** max_age_s
+        "bad_max_age": {"max_age_s": "很旧"},
+    },
 }
 
 
@@ -853,6 +874,53 @@ NEEDS_SCRIPTS = {
     "LoadScriptLUT", "LoadNanonisScript",
 }
 
+# ── 批 3k：环境读的进程级夹具 ────────────────────────────────────────────────
+#
+# 真空互锁的压强源与签署、温度的读数源与通道清单，都是**进程级注入口**
+# （`set_pressure_source` / `attest` / `set_source` / `set_channels_source`）。
+# 不摆这一份的话，两个技能录到的全是「一个源都没接」那一格 ——
+# 那一格当然也要有，但只有它的话，金样重放的是「空进程」而不是「这台机器」。
+#
+# 时间全钉在假墙钟 `1_700_000_000.0` 上（= 2023-11-14T22:13:20Z）。
+# 温度那边**不能**靠 `time.time()`：`core.temperature.age_s` 走的是
+# `datetime.now()`，而那个不在时间桩的射程里 —— 所以这里注入的源自己带 `now`。
+_FAKE_NOW_S = 1_700_000_000.0
+_FAKE_NOW_ISO = "2023-11-14T22:13:20+00:00"
+
+#: 一只**真的** DL-7，读数 1e-3 Pa（远低于 1e-2 Pa 上限）、12 秒前。
+#: 于是 `ok` 那一格录的是「靠规放行」，而不是「读不到所以拒」。
+VACUUM_SAMPLE = {
+    "value": 1.0e-3, "unit": "Pa", "status": "ok",
+    "timestamp": "2023-11-14T22:13:08+00:00",   # = _FAKE_NOW_S - 12
+    "sensor_name": "Chamber", "sensor_class": "DL7VacuumSensor",
+}
+
+#: 同时还挂着一份**活的**签署。规已经放行了，签署因此不参与裁决
+#: （`attested=false`），但技能照样把它报出来 —— 这一对组合钉的正是
+#: 「裁决没用上它」与「用户看不见它」是两件事。
+VACUUM_ATTESTATION = {
+    "reason": "vented_to_atmosphere", "signed_by": "操作员甲",
+    "ttl_s": 6 * 3600.0, "note": "腔体已通大气",
+}
+NEEDS_VACUUM = {"GetChamberPressure"}
+
+#: 三个温度通道，刻意各占一种形状：
+#:   * `SPM (COM3)`    —— 真驱动、`ok`、12 秒前 ⇒ 不指名时**样品台优先**选中它；
+#:   * `Magnet (COM3)` —— 真驱动、`warning`（**算读到了**，降温途中必然长期在警带里）；
+#:   * `Cryostat`      —— 占位实现、`unavailable` ⇒ `real is False` ⇒ `no_sensor`。
+#: 前两个名字都含 `COM3`，于是 `channel="COM3"` 那一格能录到 `ambiguous_channel`。
+TEMP_CHANNELS = [
+    {"name": "SPM (COM3)", "value": 77.35, "unit": "K", "status": "ok",
+     "timestamp": "2023-11-14T22:13:08+00:00",   # 12 s
+     "driver": "LakeshoreTemperatureSensor", "real": True},
+    {"name": "Magnet (COM3)", "value": 4.21, "unit": "K", "status": "warning",
+     "timestamp": "2023-11-14T22:12:20+00:00",   # 60 s
+     "driver": "LakeshoreTemperatureSensor", "real": True},
+    {"name": "Cryostat", "value": 0.0, "unit": "", "status": "unavailable",
+     "timestamp": "", "driver": "PlaceholderSensor", "real": False},
+]
+NEEDS_TEMPERATURE = {"GetTemperature"}
+
 
 def _reset_state(name: str) -> None:
     """把进程级状态摆成这一格要的样子。**每条轨迹都调**，不靠上一格的残留。"""
@@ -874,6 +942,35 @@ def _reset_state(name: str) -> None:
                            encoding="utf-8")
         elif cfg.exists():
             cfg.unlink()
+    except Exception:  # noqa: BLE001
+        pass
+    # 批 3k：真空互锁。**先全清再按需摆** —— 签署是进程级的，
+    # 漏清一次就会让后面某一格「因为上一格签过字」而放行。
+    try:
+        import mast.core.vacuum_interlock as _vac
+        _vac.set_pressure_source(None)
+        _vac.revoke_attestation()
+        if name in NEEDS_VACUUM:
+            _vac.set_pressure_source(
+                lambda: _vac.PressureSample(**VACUUM_SAMPLE))
+            _vac.attest(VACUUM_ATTESTATION["reason"],
+                        signed_by=VACUUM_ATTESTATION["signed_by"],
+                        ttl_s=VACUUM_ATTESTATION["ttl_s"],
+                        note=VACUUM_ATTESTATION["note"])
+    except Exception:  # noqa: BLE001
+        pass
+    # 批 3k：温度。源自己带 `now`（见 `_FAKE_NOW_ISO` 那段注释）。
+    try:
+        import datetime as _dt
+        import mast.core.temperature as _temp
+        _temp.set_source(None)
+        _temp.set_channels_source(None)
+        if name in NEEDS_TEMPERATURE:
+            chans = [_temp.TempChannel(**c) for c in TEMP_CHANNELS]
+            now = _dt.datetime.fromisoformat(_FAKE_NOW_ISO)
+            _temp.set_channels_source(lambda: list(chans))
+            _temp.set_source(
+                lambda ch: _temp.read_temperature(chans, channel=ch, now=now))
     except Exception:  # noqa: BLE001
         pass
 

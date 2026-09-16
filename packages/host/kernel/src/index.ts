@@ -30,3 +30,5 @@ export * from './piezo-reconcile.js'
 export * from './qplus-amplitude.js'
 // ── 批 3j（z_trace 判定机）在这一行下面 export ──
 // ── 批 3k（真空互锁 / 温度源）在这一行下面 export ──
+export * from './vacuum-interlock.js'
+export * from './temperature.js'

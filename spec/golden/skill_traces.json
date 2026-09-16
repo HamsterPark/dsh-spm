@@ -11187,6 +11187,51 @@
       }
     }
   },
+  "GetChamberPressure": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "allow": true,
+          "attestation": {
+            "expired": false,
+            "label": "已通大气（腔体在常压）",
+            "reason": "vented_to_atmosphere",
+            "remaining_h": 6.0,
+            "signed_by": "操作员甲"
+          },
+          "attestation_remaining_s": null,
+          "attested": false,
+          "corona_danger_zone_pa": [
+            0.1,
+            1000.0
+          ],
+          "detail": {
+            "age_s": 12.0,
+            "pressure_pa": 0.001,
+            "sensor": "Chamber",
+            "sensor_class": "DL7VacuumSensor"
+          },
+          "gauge_ok": true,
+          "mode": "gauge_or_attest",
+          "over_range": false,
+          "pressure_pa": 0.001,
+          "raw_unit": "Pa",
+          "raw_value": 0.001,
+          "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor",
+          "sensor_status": "ok",
+          "source": "gauge"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetCpdCompensation": {
     "params": {},
     "traces": {
@@ -29530,6 +29575,438 @@
           ]
         },
         "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetTemperature": {
+    "params": {},
+    "traces": {
+      "ambiguous_channel": {
+        "calls": [],
+        "data": {
+          "age_s": null,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "COM3",
+          "reason": "ambiguous_channel",
+          "source": "",
+          "value_k": null,
+          "what_to_do": "你给的名字同时对上了不止一个通道。从 available_channels 里挑一个完整名字。"
+        },
+        "error": "",
+        "params": {
+          "channel": "COM3"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "bad_max_age": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "freshness": "unknown",
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "params": {
+          "max_age_s": "很旧"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "by_channel": {
+        "calls": [],
+        "data": {
+          "age_s": 60.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "Magnet (COM3)",
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 4.21
+        },
+        "error": "",
+        "params": {
+          "channel": "Magnet"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "casefold_channel": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "params": {
+          "channel": "spm (com3)"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "fresh": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "freshness": "fresh",
+          "max_age_s": 600.0,
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "params": {
+          "max_age_s": 600.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "placeholder_channel": {
+        "calls": [],
+        "data": {
+          "age_s": null,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "Cryostat",
+          "reason": "no_sensor",
+          "source": "",
+          "value_k": null,
+          "what_to_do": "这台机器上没有真的温度传感器（只有占位实现）。**等下去永远等不到** —— 不要轮询、不要重试；需要温度判据的步骤应当直接拒绝并告诉用户。"
+        },
+        "error": "",
+        "params": {
+          "channel": "Cryostat"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "stale": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "freshness": "stale",
+          "max_age_s": 5.0,
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "params": {
+          "max_age_s": 5.0
+        },
+        "success": true,
+        "summary": ""
+      },
+      "unknown_channel": {
+        "calls": [],
+        "data": {
+          "age_s": null,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "LN2",
+          "reason": "unknown_channel",
+          "source": "",
+          "value_k": null,
+          "what_to_do": "你指名的那个通道这台机器上没有。看 available_channels 里的名字，**不是**「没有温度计」。"
+        },
+        "error": "",
+        "params": {
+          "channel": "LN2"
+        },
+        "success": true,
+        "summary": ""
+      },
+      "zero_max_age": {
+        "calls": [],
+        "data": {
+          "age_s": 12.0,
+          "available_channels": [
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "SPM (COM3)",
+              "real": true,
+              "status": "ok",
+              "unit": "K",
+              "value_k": 77.35
+            },
+            {
+              "driver": "LakeshoreTemperatureSensor",
+              "name": "Magnet (COM3)",
+              "real": true,
+              "status": "warning",
+              "unit": "K",
+              "value_k": 4.21
+            },
+            {
+              "driver": "PlaceholderSensor",
+              "name": "Cryostat",
+              "real": false,
+              "status": "unavailable",
+              "unit": "",
+              "value_k": null
+            }
+          ],
+          "channel": "SPM (COM3)",
+          "freshness": "stale",
+          "max_age_s": 0.0,
+          "reason": null,
+          "source": "LakeshoreTemperatureSensor",
+          "value_k": 77.35
+        },
+        "error": "",
+        "params": {
+          "max_age_s": 0.0
+        },
         "success": true,
         "summary": ""
       }
