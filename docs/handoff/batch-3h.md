@@ -9,9 +9,9 @@
 
 ---
 
-## 一、该登记成 deviation 的（编号留空，请统一编）
+## 一、该登记成 deviation 的（**主线已编号并登记进 `spec/deviations.md`**）
 
-### D-???-1 · `diagnostics.record` → `ctx.markers.emit`（与 D-DIAG-1 同一条）
+### D-DIAG-1（补充）· `diagnostics.record` → `ctx.markers.emit`
 
 | | |
 |---|---|
@@ -21,7 +21,7 @@
 
 **这条已经在批 3f 登记为 D-DIAG-1**，这里只是又一批用例。建议并进那一条而不是新开。
 
-### D-???-2 · `_rv` / `decode_reply` 在空 body 上交出整个信封（D-SKILL-1 家族）
+### D-SKILL-1 补充四 · `_rv` / `decode_reply` 在空 body 上交出整个信封
 
 八格，逐格登记在 `traces.test.ts` 的 `DEVIATIONS` 里：
 
@@ -34,7 +34,7 @@ GetPatternCloud / GetPatternProps / WaitForScanEndBlocking   （均为 empty@0�
 旧仓的 `raw:` / `result:` 兜底拿到的是 `["", "<bytes 0>", []]`；本仓信封在 wire 层
 就没了，手上只有 `[]`。**建议并进 D-SKILL-1 作为「补充四」**。
 
-### D-???-3 · `str(int)` 与 `str(float)` 的第三次分岔
+### D-LANG（一族的第三次，未单列号）· `str(int)` 与 `str(float)` 的分岔
 
 | | |
 |---|---|
