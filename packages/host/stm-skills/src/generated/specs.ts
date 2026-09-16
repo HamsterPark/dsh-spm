@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 0 个 · 批 4c 0 个 · 批 4d 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 4 个 · 批 4c 0 个 · 批 4d 0 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -4431,6 +4431,64 @@ export const AssessFrameCorrugationSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const AssessScanTextureSpec: SkillSpec = {
+  name: "AssessScanTexture",
+  description: "量一帧 .sxm 上晶格起伏有多强（逐方向，皮米）、逐行条纹噪声有多强（同单位，可直接与晶格比），以及把帧切成小块后有多少块的晶格压得住其余结构。回答的是「有多好、哪一块好」，**不回答「有没有原子分辨」** —— 那是 AssessAtomicResolution 的事。",
+  parameters: [
+    { name: "scan_path", type: "str", description: "要分析的 .sxm 文件路径。", required: true },
+    { name: "channel", type: "str", description: "形貌通道名，默认 Z。", required: false, default: "Z" },
+    { name: "tile_nm", type: "float", description: "分块的边长，纳米。默认 4 nm —— 它不是阈值而是几何选择：块里至少要装下 8 个晶格周期，装不下就整个不给块图。", unit: "nm", required: false, minValue: 0.5, maxValue: 100, default: 4 },
+    { name: "good_ratio", type: "float", description: "一块算「晶格清楚」的比值门槛（晶格带幅值 / 同块其余结构幅值）。**刻意没有默认值**：0.6 来自参考系统的一组观测（好帧 0.77-1.41、条纹区 0.10-0.35），尚未在本仓独立验证，换体系必须重标。不传时仍给出逐块比值与中位数，只是不给「好块占比」。", required: false, minValue: 0, maxValue: 10 },
+  ],
+  tags: ["scan","quality","lattice","analysis","read"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const MeasureLatticeCellSpec: SkillSpec = {
+  name: "MeasureLatticeCell",
+  description: "从一批原子分辨 .sxm 量出表面的实空间原胞 a₁ / a₂ / γ —— **不需要事先知道晶格常数**（那正是 CalibratePiezoFromLattice 要而这里不要的东西）。给上扫与下扫两个方向的帧时，慢轴漂移在 a₂ 上的应变会被抵消，并顺带给出漂移速率。同时检验半序位置有没有超结构，带空白对照。",
+  parameters: [
+    { name: "scan_paths", type: "str", description: "一个或多个 .sxm 路径，逗号或换行分隔。**上扫与下扫都给**才能消掉慢轴漂移（文件头的 SCAN_DIR 自动分组，不用手工标）。", required: true },
+    { name: "channel", type: "str", description: "形貌通道名，默认 Z。", required: false, default: "Z" },
+    { name: "min_indexed", type: "int", description: "一帧要被计入平均，它选出的基矢至少要指标上这么多个观测峰。默认 3 = 「除了它们自己，至少还有一个峰印证」。设成 2 会放进「只解释了自己」的帧，那种帧上「a₂ 被报成一半」查不出来。", required: false, minValue: 2, maxValue: 8, default: 3 },
+    { name: "superstructure", type: "bool", description: "是否做半序超结构检验（带空白对照）。默认做。", required: false, default: true },
+  ],
+  tags: ["lattice","analysis","read","calibration"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const AssessAtomicResolutionSpec: SkillSpec = {
+  name: "AssessAtomicResolution",
+  description: "判断一张已保存的 .sxm 帧上有没有原子分辨。只读，不碰仪器。核心判据是**角向集中度** —— 真晶格在倒空间是离散布拉格点、针尖抖动是弥散环（实测：真晶格 97-7645，带通抖动 1.8-3.3）。「FFT 里有个峰」不够：峰强度类判据分不开准周期抖动，30 个抖动种子全部产生了合格谱峰。verdict 三态：atomic / absent / undetermined。**undetermined 是「这一帧回答不了」**（像素太粗、视场太大、帧不完整），不是「针尖不好」—— 换个尺度重扫，别据此去修针。",
+  parameters: [
+    { name: "scan_path", type: "str", description: "要判的 .sxm 帧路径。", required: true },
+    { name: "channel", type: "str", description: "形貌通道，通常是 'Z'。", required: false, default: "Z" },
+    { name: "surface", type: "str", description: "已知表面名（如 'Au(111)'），用来把测到的周期与理论值比对。留空则只报测量值不做比对。", required: false, default: "" },
+    { name: "concentration_min", type: "float", description: "角向集中度下限；不填用模块默认", required: false, minValue: 1, maxValue: 100000 },
+    { name: "allow_reduced_scale", type: "bool", description: "放宽尺度门：0.02–0.05 nm/px 的帧也允许给正面结论。默认不放 —— 在那个尺度上「有原子相」这句话的证据强度撑不住一次针尖验收。", required: false, default: false },
+  ],
+  tags: ["atomic","resolution","fft","analysis","read"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
+export const AnalyseAtomicLatticeSpec: SkillSpec = {
+  name: "AnalyseAtomicLattice",
+  description: "从一张原子分辨的 .sxm 帧里量出晶格：三个方向的周期、六重对称是否成立、晶格取向；给了 surface 就与理论值比对并报偏差。只读。**默认 surface='Au(111)'，所以不填参数时它就是 Au(111) 的专用分析；填别的表面名就是通用的**（表在 vision.lattice_calibration.SURFACE_LATTICE_NM）。⚠️ 报的周期是**二维谱峰位置**给的，不是一维快扫投影 —— 后者取决于晶格与扫描方向的夹角，同一块样品换个角度扫就变。⚠️ 三个方向的周期**本该相等**，不等的程度就是扫描器的畸变，要定标去用 CalibratePiezoFromLattice。",
+  parameters: [
+    { name: "scan_path", type: "str", description: "要分析的 .sxm 帧路径。", required: true },
+    { name: "channel", type: "str", description: "形貌通道。", required: false, default: "Z" },
+    { name: "surface", type: "str", description: "表面名。默认 Au(111)。传 'none' 则只报测量值、不与任何理论值比对。", required: false, default: "Au(111)" },
+    { name: "allow_reduced_scale", type: "bool", description: "把同名开关透传给前置的原子相判别。**没有它，0.02–0.05 nm/px 的帧只剩「整道关闸」一条路** —— 而这台机器最常用的 8 nm/256 px 正是 0.03125 nm/px，每一帧都落在里面。用了它，`scale_reduced` 会作为警告跟着结果走，而不是被拿去换掉整道闸。", required: false, default: false },
+    { name: "require_atomic", type: "bool", description: "先跑原子相判别，没通过就拒绝出数。默认开 —— 在没有原子相的帧上量周期，量到的是针尖抖动的周期，而那个数看起来完全正常。", required: false, default: true },
+  ],
+  tags: ["atomic","lattice","fft","analysis","read"],
+  category: "analysis",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -4809,6 +4867,10 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   LocateStepEdge: LocateStepEdgeSpec,
   AssessAtomicLines: AssessAtomicLinesSpec,
   AssessFrameCorrugation: AssessFrameCorrugationSpec,
+  AssessScanTexture: AssessScanTextureSpec,
+  MeasureLatticeCell: MeasureLatticeCellSpec,
+  AssessAtomicResolution: AssessAtomicResolutionSpec,
+  AnalyseAtomicLattice: AnalyseAtomicLatticeSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */

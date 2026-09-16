@@ -25,6 +25,14 @@ import {
   HANNING_REL_TOL,
   MAX_POLYORDER,
   PEAK_WIDTH_REL_TOL,
+  Pcg64,
+  generateState32,
+  generateState64,
+  npMean,
+  npStd,
+  npSum,
+  seedEntropy,
+  seedSequencePool,
   SSIM_ABS_TOL,
   Xoshiro128,
   boundaryIndex,
@@ -1277,5 +1285,78 @@ describe('savgol_filter：**三段不同的算法拼起来**，容差是三项�
         expect(sum(savgolCoeffs(w, po)), `w=${w} po=${po}`).toBeCloseTo(1, 12)
       }
     }
+  })
+})
+
+// ──────────────────────────────────────────────────────────────────────────
+// 批 4b 追加：成对求和 + PCG64
+// ──────────────────────────────────────────────────────────────────────────
+
+describe('成对求和（np.add.reduce）', () => {
+  it('npSum / npMean / npStd —— **逐位**等于 numpy（容差 0）', () => {
+    for (const c of golden['pairwise'].cases as any[]) {
+      const x = (c.x as unknown[]).map(num)
+      const n = c.n as number
+      if (n === 0) {
+        expect(npSum(x)).toBe(0)
+        expect(Number.isNaN(npMean(x))).toBe(true)
+        continue
+      }
+      // **不是 `toBeCloseTo`**：这一族的判据是「照抄了累加顺序」，
+      // 而那是一个是非题。给它容差等于把「没照抄」藏起来。
+      expect([n, 'sum', npSum(x)]).toEqual([n, 'sum', num(c.sum)])
+      expect([n, 'mean', npMean(x)]).toEqual([n, 'mean', num(c.mean)])
+      expect([n, 'std', npStd(x)]).toEqual([n, 'std', num(c.std)])
+      if (n > 1) expect([n, 'std1', npStd(x, 1)]).toEqual([n, 'std1', num(c.std_ddof1)])
+    }
+  })
+
+  it('**「照抄顺序」不能拿随机数据来证** —— 一格必然分岔的', () => {
+    // `numerics.md` 第四节第四条：判据要由构造保证，不能靠数据碰巧。
+    // 这一串上朴素顺序累加与成对求和给**不同的答案**，于是「我照抄了」这句话
+    // 有东西可验；换一串普通数据两者恰好相等，这条断言就什么也没说。
+    const g = golden['pairwise'].naive_vs_pairwise as any
+    const x = (g.x as unknown[]).map(num)
+    expect(num(g.naive)).not.toBe(num(g.pairwise))
+    expect(npSum(x)).toBe(num(g.pairwise))
+    // 而本仓的 `sum`（Neumaier 补偿）对的是 **Python 的 `sum()`**，不是 numpy 的。
+    // 两份并存不是重复，是 D-CHANNELS-1 那条：它们**对的不是同一个函数**。
+    expect(sum(x)).not.toBe(num(g.pairwise))
+  })
+})
+
+describe('numpy 的 PCG64', () => {
+  it('SeedSequence 的池 / state / raw / uniform —— 四层各比一遍（容差 0）', () => {
+    for (const c of golden['pcg64'].cases as any[]) {
+      const seed = c.seed as number
+      const pool = seedSequencePool(seedEntropy(seed))
+      expect([seed, 'pool', [...pool]]).toEqual([seed, 'pool', c.pool])
+      expect([seed, 'state32', [...generateState32(pool, 8)]]).toEqual([seed, 'state32', c.state32])
+      expect([seed, 'state64', generateState64(pool, 4).map((x) => x.toString())]).toEqual([seed, 'state64', c.state64])
+      const g = Pcg64.fromSeed(seed)
+      expect([seed, 'raw', [0, 1, 2, 3, 4, 5].map(() => g.next().toString())]).toEqual([seed, 'raw', c.raw])
+      const g2 = Pcg64.fromSeed(seed)
+      expect([seed, 'u01', [0, 1, 2, 3, 4, 5].map(() => g2.uniform())]).toEqual([
+        seed,
+        'u01',
+        (c.uniform_0_1 as unknown[]).map(num),
+      ])
+      const g3 = Pcg64.fromSeed(seed)
+      expect([seed, 'u2', [g3.uniform(0.15, 0.85)]]).toEqual([seed, 'u2', (c.uniform_015_085 as unknown[]).map(num)])
+    }
+  })
+
+  it('`superstructure_test` 真正用的那 24 个数', () => {
+    // 这一格不是「再验一遍 uniform」：它是那条**判决链**的入口 ——
+    // `superstructure_test` 的三态判决就是「候选 ÷ 这 8 个对照的最大值」。
+    // 对照抽在哪儿决定了结论，所以这一串必须逐位对。
+    const g = Pcg64.fromSeed(0)
+    const got = Array.from({ length: 24 }, () => g.uniform(0.15, 0.85))
+    expect(got).toEqual((golden['pcg64'].superstructure_stream as unknown[]).map(num))
+  })
+
+  it('种子必须是非负整数 —— 负数 / 小数**抛**，不悄悄取整', () => {
+    expect(() => Pcg64.fromSeed(-1)).toThrow(/非负整数/)
+    expect(() => Pcg64.fromSeed(1.5)).toThrow(/非负整数/)
   })
 })

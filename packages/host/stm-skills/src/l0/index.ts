@@ -57,6 +57,7 @@ import { SPECTROSCOPY } from './spectroscopy.js'
 // ── 批 4a（分析技能第一批）在这一行下面加 import ──
 
 // ── 批 4b（晶格判据底座 + 原子分辨判定一族）在这一行下面加 import ──
+import { ANALYSIS_LATTICE } from './analysis-lattice.js'
 
 // ── 批 4c（paper 数据处理 + scan_frame 一族）在这一行下面加 import ──
 
@@ -127,6 +128,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 4a 在这一行下面展开 ──
 
   // ── 批 4b 在这一行下面展开 ──
+  ...ANALYSIS_LATTICE,
 
   // ── 批 4c 在这一行下面展开 ──
 
@@ -201,6 +203,7 @@ export * from './spectroscopy.js'
 // ── 批 4a 在这一行下面 re-export ──
 
 // ── 批 4b 在这一行下面 re-export ──
+export * from './analysis-lattice.js'
 
 // ── 批 4c 在这一行下面 re-export ──
 

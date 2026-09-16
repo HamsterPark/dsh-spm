@@ -363,7 +363,14 @@ const BATCH_4A: string[] = [
 ]   // builtins 分析技能第一批（要数值底座）
 
 // ↑ 上一条 ／ ↓ 4B —— 这一行谁都不要动
-const BATCH_4B: string[] = []   // 晶格判据底座 + 原子分辨判定一族
+const BATCH_4B: string[] = [
+  // 晶格 `measure_cell` 组 —— 批 4a 欠下的那两个
+  'AssessScanTexture',
+  'MeasureLatticeCell',
+  // 原子相判据环（`atomic_phase` + K1 + `imaging_window`）
+  'AssessAtomicResolution',
+  'AnalyseAtomicLattice',
+]   // 晶格判据底座 + 原子分辨判定一族
 
 // ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
 const BATCH_4C: string[] = []   // paper 数据处理 + scan_frame 一族
