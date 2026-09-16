@@ -23,6 +23,7 @@ import {
   type InterpMode,
   type Mat,
   HANNING_REL_TOL,
+  MAX_POLYORDER,
   PEAK_WIDTH_REL_TOL,
   SSIM_ABS_TOL,
   Xoshiro128,
@@ -63,9 +64,16 @@ import {
   pcovRelTol,
   percentile,
   phaseCrossCorrelation,
+  polyfit,
+  polyval,
   ptp,
   ransacPlane,
   rectSE,
+  savgolCoeffs,
+  savgolCoeffsRelTol,
+  savgolFilter,
+  savgolObservedTol,
+  savgolRelTol,
   shiftImage,
   ssim,
   std,
@@ -1145,5 +1153,129 @@ describe('curve_fit 的 `pcov`：容差由**参数离 scipy 多远**推出来', 
     // 而多一个点就有了自由度，误差棒变成有限的数
     const ok = curveFit(line, [0, 1, 2], [0, 1, 2.1], [0.1, 0.9])
     expect([...ok.perr].every(Number.isFinite)).toBe(true)
+  })
+})
+
+// ── polyfit / savgol ───────────────────────────────────────────────────────
+
+describe('polyfit：**高次在前**，而列缩放是 numpy 的一部分', () => {
+  for (const c of golden['polyfit'].cases as any[]) {
+    const cond = num(c.cond)
+    it(`deg=${c.deg}（κ=${cond.toFixed(1)}）`, () => {
+      const got = polyfit((c.x as unknown[]).map(num), (c.y as unknown[]).map(num), c.deg as number)
+      // 正规方程把 κ 平方 —— 同 fitPlane 一族的那条保证
+      expectCloseArray(got, c.coef as unknown[], lstsqRelTol(cond), `polyfit deg=${c.deg}`)
+      // 以及那条更紧的「实测水平」（κ 不平方）
+      expectCloseArray(got, c.coef as unknown[], lstsqObservedTol(cond), `polyfit deg=${c.deg}（紧）`)
+    })
+  }
+
+  it('`polyval` 是 Horner，回的是同一条曲线', () => {
+    const c = (golden['polyfit'].cases as any[]).find((x) => x.deg === 3)
+    const coef = (c.coef as unknown[]).map(num)
+    const got = (c.x as unknown[]).map((v) => polyval(coef, num(v)))
+    expectCloseArray(got, c.evaluated as unknown[], lstsqObservedTol(num(c.cond)), 'polyval')
+  })
+
+  it('**系数高次在前** —— 反过来也是一条完全合法的曲线', () => {
+    // y = x²：deg=2 的系数是 [1, 0, 0]，不是 [0, 0, 1]。
+    const p = polyfit([0, 1, 2, 3, 4], [0, 1, 4, 9, 16], 2)
+    expect(p[0], 'p[0] 是 x² 的系数').toBeCloseTo(1, 10)
+    expect(p[2], 'p[2] 是常数项').toBeCloseTo(0, 10)
+    expect(polyval(p, 5)).toBeCloseTo(25, 9)
+  })
+
+  it('点数不够就抛 —— 不给一个「拟合出来的」欠定解', () => {
+    expect(() => polyfit([0, 1], [0, 1], 3)).toThrow(/拟合不了/)
+    expect(() => polyfit([0, 1, 2], [0, 1], 1)).toThrow(/长度不等/)
+  })
+})
+
+describe('savgol_filter：**三段不同的算法拼起来**，容差是三项之和', () => {
+  const g = golden['savgol']
+  const supported = (g.cases as any[]).filter((c) => c.supported === true)
+
+  for (const c of supported) {
+    const w = c.window_length as number
+    const po = c.polyorder as number
+    const cn = num(c.cond_normal)
+    const ce = num(c.cond_edge)
+    it(`w=${w} polyorder=${po}：系数（κ=${cn.toFixed(1)}）`, () => {
+      expectCloseArray(savgolCoeffs(w, po), c.coeffs as unknown[], savgolCoeffsRelTol(cn), `coeffs w=${w}`)
+    })
+    it(`w=${w} polyorder=${po}：整条曲线`, () => {
+      const got = savgolFilter((c.input as unknown[]).map(num), w, po)
+      // **保证**：系数 + 中间那一段的卷积 + 两端 polyfit（κ 平方）
+      expectCloseArray(got, c.output as unknown[], savgolRelTol(cn, ce, w), `savgol w=${w}`)
+      // **实测水平**：两端那一项的 κ 不平方。两条各管一件事，同 fit.ts
+      expectCloseArray(got, c.output as unknown[], savgolObservedTol(cn, ce, w), `savgol w=${w}（紧）`)
+    })
+  }
+
+  it('**行缩放把 κ 从 1e6 压到 20 量级** —— 不然那条容差等于什么都没测', () => {
+    for (const c of supported) {
+      const scaled = num(c.cond_normal)
+      const raw = num(c.cond_normal_unscaled)
+      expect(scaled, `w=${c.window_length}：缩放后的 κ 不比原来大`).toBeLessThanOrEqual(raw)
+      // w=25 那一格：1.2e6 → 23，容差从 1.1e−9 收到 2.1e−14
+      expect(savgolCoeffsRelTol(scaled)).toBeLessThanOrEqual(savgolCoeffsRelTol(raw))
+    }
+    const w25 = supported.find((c) => c.window_length === 25)
+    expect(num(w25.cond_normal_unscaled) / num(w25.cond_normal), 'w=25 收了四个数量级')
+      .toBeGreaterThan(1e4)
+  })
+
+  it('**两端那 `w//2` 个点不经过系数** —— 换成边界卷积差得看得见', () => {
+    // 'interp' 对最外 w 个样本做一次 polyfit 再求值；'constant' 是补零卷积。
+    // 两者**只在两端不同**，而那个不同是 0.5 量级的 —— 不是「边界模式的小差别」。
+    const e = g.edge_matters as any
+    const w = e.window_length as number
+    const interp = (e.interp as unknown[]).map(num)
+    const constant = (e.constant as unknown[]).map(num)
+    const half = w >> 1
+    for (let i = half; i < interp.length - half; i += 1) {
+      expect(interp[i], `中间第 ${i} 个两档相同`).toBe(constant[i])
+    }
+    let worstEdge = 0
+    for (let i = 0; i < half; i += 1) {
+      worstEdge = Math.max(worstEdge, Math.abs((interp[i] as number) - (constant[i] as number)))
+    }
+    expect(worstEdge, '两端差得看得见').toBeGreaterThan(0.1)
+    // 而我们复现的是 'interp' 那一档
+    const got = savgolFilter((supported[0].input as unknown[]).map(num), w, e.polyorder as number)
+    const c15 = supported.find((c) => c.window_length === w && c.polyorder === e.polyorder)
+    expectCloseArray(
+      got, c15.output as unknown[],
+      savgolRelTol(num(c15.cond_normal), num(c15.cond_edge), w), 'interp 那一档',
+    )
+  })
+
+  it('**`polyorder > 3` 抛，不近似** —— 金样照录，证明我们知道它长什么样', () => {
+    const high = (g.cases as any[]).filter((c) => c.supported === false)
+    expect(high.length, '金样里得有那一格').toBeGreaterThan(0)
+    for (const c of high) {
+      expect(() => savgolCoeffs(c.window_length as number, c.polyorder as number))
+        .toThrow(/polyorder > 3/)
+      expect(() => savgolFilter((c.input as unknown[]).map(num), c.window_length as number, c.polyorder as number))
+        .toThrow(/polyorder > 3/)
+    }
+    expect(MAX_POLYORDER).toBe(3)
+  })
+
+  it('偶数窗长抛；窗比信号长也抛 —— 后者的欠定拟合看起来完全正常', () => {
+    expect(() => savgolCoeffs(8, 3)).toThrow(/奇数/)
+    expect(() => savgolFilter([1, 2, 3, 4, 5], 7, 3)).toThrow(/window_length/)
+    expect(() => savgolCoeffs(5, 5)).toThrow(/polyorder/)
+  })
+
+  it('**系数和为 1** —— 一个 deriv=0 的 Savitzky–Golay 必须保常数', () => {
+    // 这一条不需要金样：常数信号的多项式拟合就是它自己，于是 Σc = 1。
+    // 它照得出的是「最小范数解挑错了一个特解」那种错 —— 那种错给出的系数
+    // 仍然满足 A c = y 的高阶行，但和不为 1，而滤出来的曲线仍然光滑。
+    for (const w of [5, 9, 15, 25]) {
+      for (const po of [1, 2, 3]) {
+        expect(sum(savgolCoeffs(w, po)), `w=${w} po=${po}`).toBeCloseTo(1, 12)
+      }
+    }
   })
 })

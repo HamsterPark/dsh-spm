@@ -1320,6 +1320,22 @@ function physicallyAbsurdViolations_unused(`,
     replace: 'const ccIm = fine.im.data[at] as number',
     scope: 'packages/host/numerics',
   },
+  {
+    id: 'numerics-savgol-row-scaling-also-scales-y',
+    why: '`savgol_coeffs` 的行缩放要**连右端 y 一起缩**，否则解的是另一个方程。少缩这一下 ⇒ 系数整体差一个常数因子，滤出来的曲线**仍然光滑**、形状也对，只是整条被缩放了 —— 而下游拿它去找峰、量半高宽。零容差的那条「系数和为 1」当场红',
+    file: `${NU}/savgol.ts`,
+    find: 'y[0] = 1 / (scale[0] as number)',
+    replace: 'y[0] = 1',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-savgol-refits-both-edges',
+    why: "`mode='interp'` 下两端各 `w//2` 个点**不经过那串系数**，要对最外 w 个样本重做一次 polyfit。少做右边那一次 ⇒ 最后几个点退回补零卷积，被拉向 0 —— 而一条谱的最外几个点正是「有没有能隙」要看的地方",
+    file: `${NU}/savgol.ts`,
+    find: 'fitEdge(x, n - windowLength, n, n - half, n, polyorder, out)',
+    replace: 'fitEdge(x, n - windowLength, n, n, n, polyorder, out)',
+    scope: 'packages/host/numerics',
+  },
   // ── 课时 4.2：nanonis 文件读（.sxm / .dat / .3ds）─────────────────────
   //
   // 这六条挡的都是**同一种事故**：读错了不会抛，只会得到一张看起来很正常的图。

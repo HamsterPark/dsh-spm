@@ -17,7 +17,7 @@ from typing import Any
 import numpy as np
 import scipy.ndimage as ndi
 from scipy.optimize import curve_fit as sp_curve_fit
-from scipy.signal import correlate2d, find_peaks
+from scipy.signal import correlate2d, find_peaks, savgol_coeffs, savgol_filter
 from skimage.metrics import structural_similarity
 from skimage.registration import phase_cross_correlation
 
@@ -786,6 +786,89 @@ _raw_case("single_row_uf10", _row_a, _row_b, 10, None,
           "1×32 @ uf=10：置 0 ⇒ 0，不置 ⇒ −0.7。**只有这一格分得开**")
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# 14. Savitzky–Golay（`savgol_filter`，deriv=0 / mode='interp' / 奇数窗）
+# ──────────────────────────────────────────────────────────────────────────
+#
+# `mode='interp'` 把这个滤波拆成**三段不同的算法**，而只有中间那段是「卷积」：
+#
+#   系数      `savgol_coeffs` 解一个**欠定**方程 A c = y ⇒ **最小范数**解
+#   中间      那串系数与信号的一次 w 抽头相关（`convolve1d(..., mode='constant')`）
+#   两端各 w//2 个点   **完全不经过那串系数** —— 对最外 w 个样本 `polyfit` 再求值
+#
+# 两端那一段最容易被当成「边界模式」糊过去。一条谱的最外几个点正是
+# 「有没有能隙」要看的地方，所以这里**专门录一条两端有结构的信号**。
+#
+# 两个条件数一起录（`cond(A·Aᵀ)` 与 `cond(缩放后的 Vandermonde)`），
+# 于是 TS 那侧的容差是可验算的，不是一句声明。
+
+SAVGOL: dict[str, Any] = {"cases": []}
+_sg_t = np.linspace(-1.0, 1.0, 201)
+# 两个洛伦兹峰 + 一条斜基线 + 一段确定式的「噪声」（正弦叠加，不是 rng ——
+# 这一节要钉的是三段拼接，输入必须原样可重放）
+_sg_y = (
+    1.0 / (1.0 + ((_sg_t + 0.35) / 0.05) ** 2)
+    + 0.6 / (1.0 + ((_sg_t - 0.42) / 0.08) ** 2)
+    + 0.30 * _sg_t
+    + 0.9
+    + 0.02 * np.sin(37.0 * _sg_t)
+    + 0.01 * np.sin(91.0 * _sg_t + 1.0)
+)
+for _w, _po in [(5, 2), (9, 3), (15, 3), (25, 3), (31, 5)]:
+    _A = np.arange(_w - 1 - (_w >> 1), -(_w >> 1) - 1, -1.0)[None, :] ** np.arange(_po + 1)[:, None]
+    # **行**缩放：A 的第 k 行是 x^k，w=25 时第 0 行全是 1、第 3 行到 1728。
+    # 除以各自的 2-范数**不动那个约束集**（最小范数解一模一样），只把 κ 从 1.2e6
+    # 压到 23 —— 于是 TS 那侧的容差才可能是一条在测东西的容差。
+    _As = _A / np.sqrt((_A * _A).sum(axis=1))[:, None]
+    # 列缩放的 Vandermonde：两端 polyfit 走正规方程 ⇒ **这个 κ 要平方**
+    _V = np.vander(np.arange(float(_w)), _po + 1)
+    _V = _V / np.sqrt((_V * _V).sum(axis=0))
+    SAVGOL["cases"].append({
+        "window_length": _w,
+        "polyorder": _po,
+        # ⚠️ polyorder > 3 **本仓不实现**（重构那一步在高阶上相消，容差推不出来）。
+        # 照录是为了证明我们知道它长什么样、并且确实没在复现它 —— 同 D-NUM-11。
+        "supported": _po <= 3,
+        "coeffs": _plain(savgol_coeffs(_w, _po)),
+        "cond_normal": _plain(float(np.linalg.cond(_As @ _As.T))),
+        "cond_normal_unscaled": _plain(float(np.linalg.cond(_A @ _A.T))),
+        "cond_edge": _plain(float(np.linalg.cond(_V))),
+        "input": _plain(_sg_y),
+        "output": _plain(savgol_filter(_sg_y, _w, _po)),
+        "_note": "deriv=0, mode='interp'（缺省）",
+    })
+
+# 两端那 w//2 个点**真的与中间那段不同**：把它们与「一路卷积到底」的结果比一比。
+# `mode='constant'` 那一档就是「不做 polyfit」的样子 —— 两者只在两端不同，
+# 而那个不同是**肉眼可见**的（补零把最外几个点拉向 0）。
+_sg_w = 15
+SAVGOL["edge_matters"] = {
+    "window_length": _sg_w,
+    "polyorder": 3,
+    "interp": _plain(savgol_filter(_sg_y, _sg_w, 3, mode="interp")),
+    "constant": _plain(savgol_filter(_sg_y, _sg_w, 3, mode="constant")),
+    "_note": "两端 w//2 个点：'interp' 用 polyfit 重算，'constant' 补零卷积 —— 差得看得见",
+}
+
+# `polyfit` / `polyval` 自己也录一格：它们是 savgol 两端那一步的本体，
+# 而旧仓另有几处（`thermal_settle` 的一次线性拟合）会直接用。
+_pf_x = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+_pf_y = np.array([1.2, 2.9, 5.1, 9.8, 17.3, 28.0, 43.1, 63.9])
+POLYFIT: dict[str, Any] = {"cases": []}
+for _deg in [1, 2, 3]:
+    _V = np.vander(_pf_x, _deg + 1)
+    _V = _V / np.sqrt((_V * _V).sum(axis=0))
+    _c = np.polyfit(_pf_x, _pf_y, _deg)
+    POLYFIT["cases"].append({
+        "deg": _deg,
+        "x": _plain(_pf_x), "y": _plain(_pf_y),
+        "coef": _plain(_c),                       # **高次在前**
+        "cond": _plain(float(np.linalg.cond(_V))),
+        "evaluated": _plain(np.polyval(_c, _pf_x)),
+        "_note": "numpy 的 polyfit 先把设计阵每列除以自己的 2-范数再解；系数高次在前",
+    })
+
+
 def main() -> int:
     doc = {
         "_note": "由 tools/spec-export/export_numerics.py 生成——numpy/scipy 真跑一遍。"
@@ -818,6 +901,8 @@ def main() -> int:
         "correlate2d": CORRELATE2D,
         "hanning": HANNING,
         "xcorr_raw": XCORR_RAW,
+        "savgol": SAVGOL,
+        "polyfit": POLYFIT,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True,

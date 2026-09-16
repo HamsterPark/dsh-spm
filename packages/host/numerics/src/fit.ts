@@ -120,8 +120,18 @@ export function solveNormalEquations(cols: readonly Float64Array[], b: Float64Ar
     for (let k = 0; k < n; k += 1) acc += (ci[k] as number) * (b[k] as number)
     y[i] = acc
   }
+  return choleskySolve(M, y, p)
+}
+
+/**
+ * 解对称正定的 `M x = y`（Cholesky 分解 + 前代 + 回代）。`M` 行优先 `p×p`。
+ *
+ * 与 {@link solveNormalEquations} 的区别是**谁来形成那个矩阵**：那一个从设计矩阵
+ * 的列算出 `AᵀA`，这一个收的已经是矩阵本身。`savgol.ts` 要的正是后者
+ * （它要解的 `AAᵀ` 不是任何一组列的正规方程矩阵），而两者共用这一份前代回代。
+ */
+export function choleskySolve(M: Float64Array, y: Float64Array, p: number): Float64Array {
   const L = cholesky(M, p)
-  // 前代 + 回代
   const z = new Float64Array(p)
   for (let i = 0; i < p; i += 1) {
     let acc = y[i] as number
