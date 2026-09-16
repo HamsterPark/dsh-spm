@@ -320,7 +320,7 @@ const BATCH_3I: string[] = [
 ]   // 杂项 setter / qPlus 振幅 / 压电范围对账
 
 /** 批 3j / 3k —— 又一轮两条并行支线，各占一个常量。 */
-const BATCH_3J: string[] = []   // 流式读回一族
+const BATCH_3J: string[] = ['BiasPulseWithReadback', 'TipShapeWithReadback', 'CaptureSignalBuffer']
 const BATCH_3K: string[] = []   // 环境读（真空 + 温度）
 
 /**

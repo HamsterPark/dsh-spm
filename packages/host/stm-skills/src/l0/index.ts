@@ -48,6 +48,7 @@ import { SPECTROSCOPY_SYNC } from './spectroscopy-sync.js'
 import { ADVANCED_OPS } from './advanced-ops.js'
 // ── 批 3i（光学台 / 杂项 setter / 单件）在这一行下面加 import ──
 // ── 批 3j（流式读回一族）在这一行下面加 import ──
+import { READBACK_STREAM } from './readback-skills.js'
 // ── 批 3k（环境读）在这一行下面加 import ──
 import { MISC_SETTERS } from './misc-setters.js'
 import { QPLUS } from './qplus.js'
@@ -102,6 +103,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...ADVANCED_OPS,
   // ── 批 3i 在这一行下面展开 ──
   // ── 批 3j 在这一行下面展开 ──
+  ...READBACK_STREAM,
   // ── 批 3k 在这一行下面展开 ──
   ...MISC_SETTERS,
   ...QPLUS,
@@ -158,6 +160,9 @@ export * from './spectroscopy-sync.js'
 export * from './advanced-ops.js'
 // ── 批 3i 在这一行下面 re-export ──
 // ── 批 3j 在这一行下面 re-export ──
+export * from './readback-stream.js'
+export * from './readback-skills.js'
+export * from './tip-policy.js'
 // ── 批 3k 在这一行下面 re-export ──
 export * from './misc-setters.js'
 export * from './qplus.js'

@@ -292,7 +292,16 @@ BATCH_3I: list[str] = [
 ]   # 光学台 / 杂项 setter / 单件
 
 #: 批 3j / 3k —— 又一轮两条并行支线，各占一个常量（同 3g/3h/3i 那一轮）。
-BATCH_3J: list[str] = []   # 流式读回一族（z_trace + readback_stream）
+BATCH_3J: list[str] = [
+    # 流式读回一族：动作在控制器上跑、宿主侧在同一条连接上轮询电流与 Z。
+    # 判据（`mast.io.z_trace`）**两个技能共用一份** —— 复制第二份的下场是
+    # 两边阈值各自漂移，那正是它被提出来的原因（2026-08-01）。
+    "BiasPulseWithReadback",
+    "TipShapeWithReadback",
+    # 同一族的第三个：只采不动。它的价值在那条**异常检测**上
+    # （n≥8 且逐位相同 ⇒ 那不是一次测量）。
+    "CaptureSignalBuffer",
+]
 BATCH_3K: list[str] = []   # 环境读（真空互锁 + 温度）
 
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
@@ -448,6 +457,35 @@ PARAM_OVERRIDES: dict[str, dict] = {
     "ConfigureLockInSweep": {"lower_hz": 100.0, "upper_hz": 2000.0},
     # 给个名字，「配置成了但命名失败」那一支才存在（由 err@1 走到）
     "ConfigureCalculatedOutput": {"name": "diff"},
+    # ── 批 3j：把采集窗口收短 ────────────────────────────────────────────────
+    #
+    # 与 `WaitScanComplete` / `AutoApproach` 那两条同一条理由：假钟不占墙钟，
+    # 但**每一帧都要录进金样**。缺省那一组（脉冲 1.15 s、整形 0.9 s、采集 1 s）
+    # 在假钟下是 300–1000 帧 × 两条通道的完整样本表 —— 一个技能就能让
+    # `skill_traces.json` 涨几百 KB，而录的是**形状**（预卷→开火→尾窗、
+    # 判据走了哪一支、异常检测响没响），不是时长。
+    #
+    # ⚠️ 收短不能收到判据变形：`step_verdict` 要 `n_pre >= 2` 且 `n_post >= 2`，
+    # 而假钟下一帧约 3 ms（一圈三次 `perf_counter`）。预卷 20 ms ⇒ 约 6 个基线点，
+    # 尾窗 20 ms ⇒ 约 6 个。判不出来那一支由 `export_z_trace.py` 专门覆盖。
+    #
+    # ⚠️ `post_roll_s` **刻意不落在采样栅格上**（假钟下一帧 3 ms，取 21.5 ms）。
+    # 后窗是 `t >= cap - win` 的闭区间：边界正好压在一个样本上时，两侧假钟那
+    # 1e-10 的残渣会决定它进不进窗 —— `n_post` 因此差一个。**那是夹具的属性**，
+    # 不该由它来决定金样红不红。（TipShaper 的 `err@78` 当场撞到过。）
+    "BiasPulseWithReadback": {
+        "width_s": 0.01, "pre_roll_s": 0.02, "post_roll_s": 0.0215,
+        "max_capture_s": 0.2,
+    },
+    "TipShapeWithReadback": {
+        "switch_off_delay_s": 0.01, "lift_time_1_s": 0.01, "bias_settling_s": 0.01,
+        "lift_time_2_s": 0.01, "end_wait_s": 0.01,
+        "pre_roll_s": 0.02, "post_roll_s": 0.0215, "max_capture_s": 0.2,
+        # 缺省 0.0 ⇒ `resolved_lift_height_m` 回 `-0.0`。给一个真的深度：
+        # 扎进去 2 nm、抬回来 2 nm，那条「没给就取 −tip_lift_m」的规则才看得见。
+        "tip_lift_m": -2e-9,
+    },
+    "CaptureSignalBuffer": {"duration_s": 0.05},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -627,6 +665,26 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
     "SetSpectroscopyZControl": {"alternate_off": {"use_alternate_setpoint": False}},
     "SetZSpectroscopySecondRetract": {"disable": {"enable": False}},
     "SetMlsLockinPerSegment": {"disable": {"enable": False}},
+    # ── 批 3j ──────────────────────────────────────────────────────────────
+    # 四条**字面动词**分支，各发一串不同的调用；第五种是拒绝。
+    # 通用驱动只走得到 channel 的声明缺省（"current"）。
+    "CaptureSignalBuffer": {
+        "z": {"channel": "z"},
+        "bias": {"channel": "bias"},
+        # 数字索引走通用路径（`Signals_ValGet`），单位是空串
+        "signal_index": {"channel": "7"},
+        "bad_channel": {"channel": "nope"},
+        # 摘要模式：不带样本表，只回统计量
+        "summary_only": {"include_samples": False},
+    },
+    "BiasPulseWithReadback": {"relative": {"absolute": False}},
+    # 偏压缺省那一路（`bias_src="read"`）由 ok 那一趟覆盖；这两格走另外三条分支
+    "TipShapeWithReadback": {
+        "explicit_bias": {"bias_v": 1.0},
+        "change_bias_on": {"change_bias": True, "bias_lift_v": 3.0},
+        # 显式给第二段高度 ⇒ 不再等于 −tip_lift_m；顺带关掉反馈恢复
+        "explicit_lift": {"lift_height_m": 5e-9, "restore_feedback": False},
+    },
 }
 
 
@@ -790,10 +848,19 @@ _PROJECT_ROOT = os.environ["MAST2_PROJECT_ROOT"]
 _STAMP = re.compile(r"(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)")
 
 
+#: 读回曲线的文件名里嵌了 **UTC 时刻 + 8 位随机**
+#: （`BiasPulseWithReadback_20260916T131900Z_a1b2c3d4.json`）。与抓帧那条同理：
+#: 抹掉可变的两段，**留下命名模板** —— 技能名、`.json` 后缀，以及「取第一个空名」
+#: 留下的 `_NN`，三样都是判据。
+_TRACE_STAMP = re.compile(
+    r"([A-Za-z0-9_]{1,40})_\d{8}T\d{6}Z_[0-9a-f]{8}(?=(?:_\d\d)?\.json)")
+
+
 def _scrub(s: str) -> str:
     s = s.replace(_PROJECT_ROOT, "<project-root>").replace(
         _PROJECT_ROOT.replace("\\", "/"), "<project-root>")
-    return _STAMP.sub(lambda m: m.group(1) + "<stamp>", s)
+    s = _STAMP.sub(lambda m: m.group(1) + "<stamp>", s)
+    return _TRACE_STAMP.sub(lambda m: m.group(1) + "_<stamp>", s)
 
 
 def _jsonable(v: Any) -> Any:
