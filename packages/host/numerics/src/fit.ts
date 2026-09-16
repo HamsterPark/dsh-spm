@@ -61,6 +61,37 @@ export function lstsqObservedTol(cond: number): number {
 }
 
 /**
+ * 对称正定矩阵的 Cholesky 分解 `M = L·Lᵀ`，`M` 按**行优先** `p×p` 给，回下三角 `L`。
+ *
+ * **不满秩就抛** —— 一个不满秩的系统解出来的是「某一个解」，而调用方会把它当成
+ * 「那个解」。抛出来的消息里带主元与它的位置：一个「第 3 个主元是 −2e−17」
+ * 与一个「第 0 个主元是 0」说的不是同一件事。
+ *
+ * 抽出来是因为它有**两个**调用方（{@link solveNormalEquations} 解方程、
+ * `curve-fit.ts` 的 `pcov` 求逆），而这两件事只有最后一步不同。
+ * 按 `filters.ts` 抬头那条：一样的东西别写两遍；**长得像但语义不同的才要分**，
+ * 而这两处的语义是同一件（同一个矩阵的同一个分解）。
+ */
+export function cholesky(M: Float64Array, p: number): Float64Array {
+  const L = new Float64Array(p * p)
+  for (let i = 0; i < p; i += 1) {
+    for (let j = 0; j <= i; j += 1) {
+      let acc = M[i * p + j] as number
+      for (let k = 0; k < j; k += 1) acc -= (L[i * p + k] as number) * (L[j * p + k] as number)
+      if (i === j) {
+        if (!(acc > 0)) {
+          throw new RangeError(`设计矩阵不满秩（Cholesky 第 ${i} 个主元 ${acc}）—— 解不唯一`)
+        }
+        L[i * p + i] = Math.sqrt(acc)
+      } else {
+        L[i * p + j] = acc / (L[j * p + j] as number)
+      }
+    }
+  }
+  return L
+}
+
+/**
  * 解 `AᵀA x = Aᵀb`（Cholesky）。`A` 按**列表**给：`cols[j][i]` 是第 i 行第 j 列。
  *
  * 不满秩就抛 —— 一个不满秩的设计矩阵解出来的系数是「某一个解」，
@@ -89,23 +120,18 @@ export function solveNormalEquations(cols: readonly Float64Array[], b: Float64Ar
     for (let k = 0; k < n; k += 1) acc += (ci[k] as number) * (b[k] as number)
     y[i] = acc
   }
-  // Cholesky：M = LLᵀ
-  const L = new Float64Array(p * p)
-  for (let i = 0; i < p; i += 1) {
-    for (let j = 0; j <= i; j += 1) {
-      let acc = M[i * p + j] as number
-      for (let k = 0; k < j; k += 1) acc -= (L[i * p + k] as number) * (L[j * p + k] as number)
-      if (i === j) {
-        if (!(acc > 0)) {
-          throw new RangeError(`设计矩阵不满秩（Cholesky 第 ${i} 个主元 ${acc}）—— 解不唯一`)
-        }
-        L[i * p + i] = Math.sqrt(acc)
-      } else {
-        L[i * p + j] = acc / (L[j * p + j] as number)
-      }
-    }
-  }
-  // 前代 + 回代
+  return choleskySolve(M, y, p)
+}
+
+/**
+ * 解对称正定的 `M x = y`（Cholesky 分解 + 前代 + 回代）。`M` 行优先 `p×p`。
+ *
+ * 与 {@link solveNormalEquations} 的区别是**谁来形成那个矩阵**：那一个从设计矩阵
+ * 的列算出 `AᵀA`，这一个收的已经是矩阵本身。`savgol.ts` 要的正是后者
+ * （它要解的 `AAᵀ` 不是任何一组列的正规方程矩阵），而两者共用这一份前代回代。
+ */
+export function choleskySolve(M: Float64Array, y: Float64Array, p: number): Float64Array {
+  const L = cholesky(M, p)
   const z = new Float64Array(p)
   for (let i = 0; i < p; i += 1) {
     let acc = y[i] as number

@@ -49,9 +49,60 @@
  * 再加上 `uf = 10` 时输出的量子是 0.1 px 且恒为 0.1 的整数倍，
  * 调用方要判「漂没漂」**必须**自己看峰有多尖、再设一个阈值。
  * 拿 `!== 0` 去判等于每一帧都在补偿噪声，而那会**制造**漂移。
+ *
+ * ## `normalization`：**归一化是可关的，而关掉它是另一个算法不是另一档精度**
+ *
+ * skimage 的 `phase_cross_correlation(..., normalization=...)` 有两档：
+ *
+ * | | 互功率谱 | 峰由谁说了算 |
+ * |---|---|---|
+ * | `'phase'`（skimage 缺省） | `A·conj(B) / max(\|·\|, 100·eps)` | **每个频点一票** —— 没有信号的地方由噪声投票（D-NUM-14） |
+ * | `null` | `A·conj(B)` 原样 | **按功率加权** —— 低频与强结构说了算 |
+ *
+ * 旧仓 `drift_xcorr` 明确传 `normalization=None`，并在注释里写明理由：
+ * **对 SPM 的行噪声更稳**。一条横贯整帧的噪声线在谱上是一条高频的脊，
+ * 相位归一化把它抬到和真信号一样的份量，于是峰被它拽走。
+ *
+ * 所以这一档不是「更准」也不是「更快」，**是把「谁有投票权」这件事交给调用方**。
+ * 两档在同一对帧上给**不同的位移**（金样 `xcorr_raw` 那两格就是为此录的：
+ * 同一对几乎平坦的帧，`'phase'` 报 `(5, 5)`，`null` 报 `(0, 0)`）。
+ *
+ * ## `error` 与 `phase`：两个判据，各有各的容差
+ *
+ * ```
+ * phase = atan2(Im CCmax, Re CCmax)
+ * error = √| 1 − |CCmax|² / (src_amp · target_amp) |
+ * ```
+ *
+ * - **`phase` 的容差是 `fftRelTol(N)`，而且是绝对的（弧度）**：一个复数的相对误差 `δ`
+ *   最多把辐角挪 `δ` 弧度。对齐得上的一对帧峰是**正实数**，`phase ≈ 0`；
+ *   `phase` 明显不为 0 说的是「两张图差着一个全局的符号/偏置」。
+ *   ⚠️ 比较时要**按角度**比（`atan2(sin Δ, cos Δ)`）：`+π` 与 `−π` 是同一个角，
+ *   而一个朴素的减法会在那里报出 `2π` 的差。
+ *
+ * - **`error` 只能在平方上给容差**。`1 − |CC|²/amp` 在对得上的一对帧上是
+ *   **两个几乎相等的数相减** —— 相消把相对精度全毁了，而 `√` 又把剩下的放大：
+ *   `d√u = du/(2√u)`，`u → 0` 时任意大。
+ *   所以判据写在 `error²` 上：它就是那个差本身，而那个比值 ≈ 1，于是它的
+ *   **绝对**误差就是比值的相对误差：
+ *
+ *   | 来源 | 相对 |
+ *   |---|---|
+ *   | `CCmax`（两次 `fft2` + 一次 `ifft2`） | `3·fftRelTol` |
+ *   | 平方 ⇒ `\|CCmax\|²` | `6·fftRelTol` |
+ *   | `src_amp`、`target_amp` 各 = `Σ\|F\|²`（谱 `2·fftRelTol` + 求和 `sumRelTol`，而两者同式） | 各 `3·fftRelTol` |
+ *   | 两者相乘 | `6·fftRelTol` |
+ *   | **合计** | **`12·fftRelTol`** |
+ *
+ *   取 `32·fftRelTol`（约 2.7 倍余量）。
+ *
+ *   **这条推导有一个给调用方的直接后果**：`error` 本身只到
+ *   `√(32·fftRelTol(N))` ≈ **8e−7**（N = 1024）的绝对精度 ——
+ *   也就是说 `error = 1e−8` 与 `error = 1e−7` 是同一个数。
+ *   谁拿 `error` 当「配准好不好」的阈值，**阈值不能设在 `1e−6` 以下**。
  */
 import { matOf, type Mat } from './mat.js'
-import { EPS } from './stats.js'
+import { EPS, sum } from './stats.js'
 
 /** 一段复数谱：实部与虚部各一条。**不用 `{re, im}[]`** —— 那是 N 个对象。 */
 export interface Complex {
@@ -62,6 +113,22 @@ export interface Complex {
 /** 与 numpy 比一次长度 N 的 FFT 时该用的相对容差。见文件抬头。 */
 export function fftRelTol(n: number): number {
   return 8 * EPS * Math.max(1, Math.log2(Math.max(n, 2)))
+}
+
+/**
+ * `phase`（弧度）的**绝对**容差：一个复数的相对误差最多把辐角挪同样多的弧度。
+ * 见文件抬头那一节。比较时要按角度比 —— `+π` 与 `−π` 是同一个角。
+ */
+export function xcorrPhaseAbsTol(n: number): number {
+  return fftRelTol(n)
+}
+
+/**
+ * **`error²`** 的绝对容差。不是 `error` 的 —— `error` 是一个相消之后开的方，
+ * 在对得上的一对帧上没有相对精度可言。见文件抬头那一节。
+ */
+export function xcorrErrorSqAbsTol(n: number): number {
+  return 32 * fftRelTol(n)
 }
 
 const isPow2 = (n: number): boolean => n > 0 && (n & (n - 1)) === 0
@@ -257,7 +324,8 @@ export function ifft2(s: Complex2d): Complex2d {
 }
 
 /**
- * 归一化过的互功率谱 `A · conj(B) / |A · conj(B)|`。
+ * 互功率谱 `A · conj(B)`，**归一化可关**（`normalize = false` 时原样给出）。
+ * 关掉它是另一个算法不是另一档精度 —— 见文件抬头 `normalization` 那一节。
  *
  * **分母是 `max(|·|, 100·eps)` 而不是 `|·|`**，和 skimage 一字不差。
  * 差别只在模小于 `2.2e−14` 的那些频点上 —— 也就是逼近时的**平坦帧**：
@@ -272,24 +340,47 @@ export function ifft2(s: Complex2d): Complex2d {
  * 所以这一行的理由是**对齐**，不是「更准」。想要「没漂就说没漂」，
  * 得由调用方去看峰有多尖 —— 这一层不替它做那个判断。
  */
-function crossPowerSpectrum(reference: Mat, moving: Mat): Complex2d {
+function crossPowerSpectrum(
+  reference: Mat,
+  moving: Mat,
+  normalize: boolean,
+): { product: Complex2d; srcAmp: number; targetAmp: number } {
   const A = fft2(reference)
   const B = fft2(moving)
   const n = reference.rows * reference.cols
   const pr = new Float64Array(n)
   const pi = new Float64Array(n)
+  // `src_amp` / `target_amp` 取的是**原始**谱的功率和 —— skimage 对 `image_product`
+  // 做的是原地除法，两条谱本身没被动过。归一化开着的时候这一点特别容易写错：
+  // 拿归一化之后的谱去算功率，每个频点的模都是 1，`error` 就成了一个与图无关的常数。
+  const srcSq = new Float64Array(n)
+  const tgtSq = new Float64Array(n)
   for (let i = 0; i < n; i += 1) {
     const ar = A.re.data[i] as number
     const ai = A.im.data[i] as number
     const br = B.re.data[i] as number
     const bi = B.im.data[i] as number
+    srcSq[i] = ar * ar + ai * ai
+    tgtSq[i] = br * br + bi * bi
     const cr = ar * br + ai * bi
     const ci = ai * br - ar * bi
-    const den = Math.max(Math.hypot(cr, ci), 100 * EPS)
-    pr[i] = cr / den
-    pi[i] = ci / den
+    if (normalize) {
+      const den = Math.max(Math.hypot(cr, ci), 100 * EPS)
+      pr[i] = cr / den
+      pi[i] = ci / den
+    } else {
+      pr[i] = cr
+      pi[i] = ci
+    }
   }
-  return { re: matOf(reference.rows, reference.cols, pr), im: matOf(reference.rows, reference.cols, pi) }
+  return {
+    product: {
+      re: matOf(reference.rows, reference.cols, pr),
+      im: matOf(reference.rows, reference.cols, pi),
+    },
+    srcAmp: sum(srcSq),
+    targetAmp: sum(tgtSq),
+  }
 }
 
 /**
@@ -356,6 +447,22 @@ function upsampledDft(
   return { re: matOf(ups, ups, outRe), im: matOf(ups, ups, outIm) }
 }
 
+/** 一次相位互相关的全部结果 —— 三个数，三个用途。 */
+export interface XCorrResult {
+  /** 「把 `moving` 移动多少才能对上 `reference`」。符号约定见文件抬头。 */
+  readonly shift: [number, number]
+  /**
+   * `√|1 − |CCmax|²/(src_amp·target_amp)|` —— 归一化的 RMS 配准残差。
+   * **绝对精度只到 `√(32·fftRelTol)`（N=1024 时 ~8e−7）**，见文件抬头。
+   */
+  readonly error: number
+  /**
+   * 峰的辐角（弧度）。对得上的一对帧是 **0**；`±π` 说的是两张图差着一个全局符号。
+   * 它**不是**「漂移的方向」—— 方向在 `shift` 的两个分量里。
+   */
+  readonly phase: number
+}
+
 /** `|·|` 最大的那一格的一维下标。 */
 function argmaxAbs(s: Complex2d): number {
   let best = -Infinity
@@ -386,7 +493,8 @@ export function phaseCrossCorrelation(
   reference: Mat,
   moving: Mat,
   upsampleFactor = 1,
-): { shift: [number, number] } {
+  normalization: 'phase' | null = 'phase',
+): XCorrResult {
   if (reference.rows !== moving.rows || reference.cols !== moving.cols) {
     throw new RangeError(
       `相位互相关要两张同形状的图：${reference.rows}×${reference.cols} vs ${moving.rows}×${moving.cols}`,
@@ -395,16 +503,35 @@ export function phaseCrossCorrelation(
   if (!(Number.isInteger(upsampleFactor) && upsampleFactor >= 1)) {
     throw new RangeError(`upsampleFactor 必须是 ≥ 1 的整数：得到 ${upsampleFactor}`)
   }
-  const prod = crossPowerSpectrum(reference, moving)
+  if (normalization !== 'phase' && normalization !== null) {
+    throw new RangeError(`normalization 只有 'phase' 与 null 两档：得到 ${String(normalization)}`)
+  }
+  const { product: prod, srcAmp, targetAmp } = crossPowerSpectrum(
+    reference, moving, normalization === 'phase',
+  )
   const { rows, cols } = reference
+  const n = rows * cols
 
-  const peak = argmaxAbs(ifft2(prod))
+  const coarse = ifft2(prod)
+  const peak = argmaxAbs(coarse)
   let dy = Math.floor(peak / cols)
   let dx = peak % cols
   // 折到负半轴：超过一半的位移读成「往回移」。这一步就是符号的来源。
   if (dy > rows / 2) dy -= rows
   if (dx > cols / 2) dx -= cols
-  if (upsampleFactor === 1) return { shift: [dy, dx] }
+
+  if (upsampleFactor === 1) {
+    const ccRe = coarse.re.data[peak] as number
+    const ccIm = coarse.im.data[peak] as number
+    // uf = 1 那一档 skimage 把两条功率和**各除以 N**；uf > 1 那一档不除。
+    // 不是笔误也不是等价：两档的 CCmax 本身就差着一个 N（`ifft2` 除了、
+    // 上采样 DFT 没除），这个除法把它配平。
+    return {
+      shift: zeroDegenerate([dy, dx], rows, cols),
+      error: xcorrError(ccRe, ccIm, srcAmp / n, targetAmp / n),
+      phase: Math.atan2(ccIm, ccRe),
+    }
+  }
 
   // 整峰先量化到 1/uf 的格点上 —— 它已经是整数，这一步在 uf 上是恒等的，
   // 但它定下了「答案永远是 k/uf」这件事，也是 skimage 的写法。
@@ -412,8 +539,10 @@ export function phaseCrossCorrelation(
   const sx = Math.round(dx * upsampleFactor) / upsampleFactor
   const ups = Math.ceil(upsampleFactor * 1.5)
   const dftshift = Math.trunc(ups / 2)
-  // 对 conj(互功率谱) 做上采样 DFT。skimage 随后还会再取一次共轭，
-  // 而我们只用 `|·|` 找峰 —— 共轭不改模长，所以那一步略掉。
+  // 对 conj(互功率谱) 做上采样 DFT，**再取一次共轭**。
+  // 上一版把最后那次共轭略掉了，理由是「只用 `|·|` 找峰，共轭不改模长」——
+  // 那在只回 `shift` 的时候成立。现在要回 `phase`，而共轭把辐角整个变号：
+  // **一个略得掉的步骤，在接口多给一个数之后就略不掉了。**
   const conj: Complex2d = { re: prod.re, im: matOf(rows, cols, prod.im.data.map((v) => -v)) }
   const fine = upsampledDft(
     conj,
@@ -425,5 +554,28 @@ export function phaseCrossCorrelation(
   const at = argmaxAbs(fine)
   const fy = Math.floor(at / ups) - dftshift
   const fx = (at % ups) - dftshift
-  return { shift: [sy + fy / upsampleFactor, sx + fx / upsampleFactor] }
+  const ccRe = fine.re.data[at] as number
+  const ccIm = -(fine.im.data[at] as number)
+  return {
+    shift: zeroDegenerate([sy + fy / upsampleFactor, sx + fx / upsampleFactor], rows, cols),
+    error: xcorrError(ccRe, ccIm, srcAmp, targetAmp),
+    phase: Math.atan2(ccIm, ccRe),
+  }
+}
+
+/**
+ * 只有一行（或一列）时，那条轴上的位移**没有意义**，置 0（同 skimage）。
+ *
+ * 不置的话 argmax 会在一条长度为 1 的轴上挑出第 0 格，读起来是「没漂」——
+ * 碰巧对。但**一张 1×N 的「图」上那条轴根本没有可测的位移**，
+ * 而一个碰巧对的答案与一个有理由的答案在下一次改动里不是同一件东西。
+ */
+function zeroDegenerate(shift: [number, number], rows: number, cols: number): [number, number] {
+  return [rows === 1 ? 0 : shift[0], cols === 1 ? 0 : shift[1]]
+}
+
+/** `√|1 − |CCmax|²/(src_amp·target_amp)|`，同 skimage 的 `_compute_error`。 */
+function xcorrError(ccRe: number, ccIm: number, srcAmp: number, targetAmp: number): number {
+  const amp = srcAmp * targetAmp
+  return Math.sqrt(Math.abs(1 - (ccRe * ccRe + ccIm * ccIm) / amp))
 }

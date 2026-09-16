@@ -1259,6 +1259,91 @@ function physicallyAbsurdViolations_unused(`,
     replace: "Math.hypot(cr, ci)",
     scope: 'packages/host/numerics',
   },
+  // ── 课时 4.1 续（数值缺件：find_peaks / pcov / correlate2d）─────────────
+  //
+  // 这七条挡的都是**语义**，不是精度：拆掉之后每一条曲线仍然有峰、每一张相关面
+  // 仍然有个最大值、每一根误差棒仍然是一个合理的数。
+  // 分辨它们的不是容差，是**特意造出来能分辨的那几格金样**。
+  {
+    id: 'numerics-findpeaks-prominence-is-the-lower-base',
+    why: "prominence = 峰高 − **两侧最小值的较大者**。取较小者 ⇒ 每个峰都偏突出（走到全局最低点那一侧几乎总是 0），一座大山肩上的小凸起会拿到和主峰一样的份量。金样 `peaks.prominence_side` 那一格是专为这件事造的：max ⇒ 0.4，min ⇒ 0.7，**两个都是合理的数**",
+    file: `${NU}/peaks.ts`,
+    find: 'prom[p] = h - Math.max(leftMin, rightMin)',
+    replace: 'prom[p] = h - Math.min(leftMin, rightMin)',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-findpeaks-plateau-midpoint-floors',
+    why: '等高平台的峰位取中点**向下**取整（同 scipy）。改成向上 ⇒ 偶数宽的平台整体偏一格，而奇数宽的完全同解 —— 金样 `peaks.plateau_even`（四格宽）是唯一分得开的那一格',
+    file: `${NU}/peaks.ts`,
+    find: 'mid.push((i + (ahead - 1)) >> 1)',
+    replace: 'mid.push(Math.ceil((i + (ahead - 1)) / 2))',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-findpeaks-distance-keeps-the-taller',
+    why: '`distance` 从**最高**的峰往下处理，于是近处的矮峰被挤掉。反过来从最矮的开始 ⇒ 一个矮卫星把它旁边的主峰挤掉，而剩下的仍然是一组间隔合规的峰。金样 `peaks.hist_modes` 那一格里主峰 106 与卫星 114 相隔 8 < distance=12',
+    file: `${NU}/peaks.ts`,
+    find: 'for (let i = m - 1; i >= 0; i -= 1) {',
+    replace: 'for (let i = 0; i < m; i += 1) {',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-curvefit-pcov-divides-by-dof',
+    why: '`pcov = (JᵀJ)⁻¹·sse/(n−p)`，分母是**自由度**不是点数。写成 n ⇒ 每根误差棒小 2.6%（n=80、p=4）—— 一组完全合理的误差棒，而下游拿它判「这个峰显著吗」。判据不是容差，是「离 n−p 那个答案比离 n 那个近」（金样把写错的那一版也录了）',
+    file: `${NU}/curve-fit.ts`,
+    find: 'const s2 = cost / dof',
+    replace: 'const s2 = cost / n',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-correlate2d-origin-is-half-of-size-minus-one',
+    why: "`correlate2d(mode='same')` 的原点是 `(Mb−1)>>1`，而**同一个 scipy** 的 `grey_erosion` 是 `Mb>>1` —— 两个都叫「中心」，偶数核上差一格。猜错 ⇒ 整张相关面平移一格 ⇒ 漂移向量整体偏一个像素，而那仍是一个合法读数。奇数核完全同解，是金样里 2×2 与 4×4 两格逼出来的",
+    file: `${NU}/correlate.ts`,
+    find: 'const oy = (b.rows - 1) >> 1',
+    replace: 'const oy = b.rows >> 1',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-xcorr-normalization-is-switchable',
+    why: "相位归一化**可关**：旧仓 `drift_xcorr` 传的是 `normalization=None`（按功率加权，对 SPM 行噪声更稳），不是 skimage 缺省的 `'phase'`（每个频点一票）。写死成归一化 ⇒ 开关还在签名里、还能传 null、还不报错，而它什么也不做。两档只有在**几乎平坦的一对帧**上给不同答案：`'phase'` 报虚构的 (5,5)，null 报 (0,0)",
+    file: `${NU}/fft.ts`,
+    find: "reference, moving, normalization === 'phase',",
+    replace: 'reference, moving, true,',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-xcorr-conjugates-the-upsampled-peak',
+    why: '亚像素那一路对 `conj(互功率谱)` 做上采样 DFT，**结果要再取一次共轭**（skimage 如此）。上一版把它略掉过，理由是「只用 `|·|` 找峰，共轭不改模长」—— 那在只回 `shift` 的时候成立。接口一旦多回一个 `phase`，这一步就略不掉了：共轭把辐角整个变号。只有 `b = −a` 那一格分得开（对得上的帧 phase 恒为 0）',
+    file: `${NU}/fft.ts`,
+    find: 'const ccIm = -(fine.im.data[at] as number)',
+    replace: 'const ccIm = fine.im.data[at] as number',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-savgol-row-scaling-also-scales-y',
+    why: '`savgol_coeffs` 的行缩放要**连右端 y 一起缩**，否则解的是另一个方程。少缩这一下 ⇒ 系数整体差一个常数因子，滤出来的曲线**仍然光滑**、形状也对，只是整条被缩放了 —— 而下游拿它去找峰、量半高宽。零容差的那条「系数和为 1」当场红',
+    file: `${NU}/savgol.ts`,
+    find: 'y[0] = 1 / (scale[0] as number)',
+    replace: 'y[0] = 1',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-savgol-refits-both-edges',
+    why: "`mode='interp'` 下两端各 `w//2` 个点**不经过那串系数**，要对最外 w 个样本重做一次 polyfit。少做右边那一次 ⇒ 最后几个点退回补零卷积，被拉向 0 —— 而一条谱的最外几个点正是「有没有能隙」要看的地方",
+    file: `${NU}/savgol.ts`,
+    find: 'fitEdge(x, n - windowLength, n, n - half, n, polyorder, out)',
+    replace: 'fitEdge(x, n - windowLength, n, n, n, polyorder, out)',
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: 'numerics-polyfit-scales-its-columns',
+    why: 'numpy 的 `polyfit` 先把设计阵每列除以自己的 2-范数再解。不缩放**不改数学解**，只让条件数退化到 `κ²` 那一档 —— 于是我们与 numpy 的差从「实测水平」掉到「保证」那一档，而那时「是不是算错了」和「是不是病态」分不开。⚠️ 这一条挡的是**精度的量级**不是对错，是这一层唯一一条这种形状的闸',
+    file: `${NU}/savgol.ts`,
+    find: 'scale[j] = Math.sqrt(acc)',
+    replace: 'scale[j] = 1',
+    scope: 'packages/host/numerics',
+  },
   // ── 课时 4.2：nanonis 文件读（.sxm / .dat / .3ds）─────────────────────
   //
   // 这六条挡的都是**同一种事故**：读错了不会抛，只会得到一张看起来很正常的图。
