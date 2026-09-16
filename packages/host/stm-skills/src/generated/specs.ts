@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 0 个 · 批 4a 0 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {

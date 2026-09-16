@@ -325,6 +325,18 @@ const BATCH_3J: string[] = ['BiasPulseWithReadback', 'TipShapeWithReadback', 'Ca
 const BATCH_3K: string[] = ['GetChamberPressure', 'GetTemperature']   // 环境读（真空 + 温度）
 
 /**
+ * 批 3l / 4a —— 第三轮两条并行支线。
+ *
+ * **每个常量之间隔一个空行加一句注释**，不是紧挨着的两行 —— 上一轮 3j/3k
+ * 紧挨着放，两条支线各改一行，git 照样冲突（2026-09-16 量过：中间至少要有
+ * 一行谁都没改的）。
+ */
+const BATCH_3L: string[] = []   // builtins.spectroscopy 整族
+
+// ↑ 3l ／ ↓ 4a —— 这一行谁都不要动，它就是那「一行谁都没改的」
+const BATCH_4A: string[] = []   // builtins 分析技能第一批（要数值底座）
+
+/**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
  * `WaitScanComplete` 验的是**流式**动态计划（步数事先不知道），`SetBiasRamp` 验的是
@@ -405,6 +417,9 @@ function main(): number {
     ...BATCH_3D, ...BATCH_3E, ...BATCH_3F,
     ...BATCH_3G, ...BATCH_3H, ...BATCH_3I,
     ...BATCH_3J, ...BATCH_3K,
+    ...BATCH_3L,
+    // ↑ 3l ／ ↓ 4a
+    ...BATCH_4A,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -430,7 +445,10 @@ function main(): number {
     `批 3h ${BATCH_3H.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3i ${BATCH_3I.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3j ${BATCH_3J.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 3k ${BATCH_3K.filter((n) => byName.has(n)).length} 个\n` +
+    `批 3k ${BATCH_3K.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3l ${BATCH_3L.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ 3l ／ ↓ 4a
+    `批 4a ${BATCH_4A.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

@@ -305,6 +305,13 @@ BATCH_3J: list[str] = [
 
 BATCH_3K: list[str] = ["GetChamberPressure", "GetTemperature"]   # 环境读（真空互锁 + 温度）
 
+#: 批 3l / 4a —— 第三轮两条并行支线。**每个常量之间隔一个空行加一句注释**：
+#: 上一轮 3j/3k 紧挨着放，两条支线各改一行，git 照样冲突。
+BATCH_3L: list[str] = []   # builtins.spectroscopy 整族
+
+#: ↑ 3l ／ ↓ 4a —— 这一行谁都不要动
+BATCH_4A: list[str] = []   # builtins 分析技能第一批
+
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:
 #: 通用注错点给的文案是「连接被对端关闭」，而 Osci1T 那三个技能靠
@@ -1085,7 +1092,10 @@ def main() -> int:
     for name in (BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C
                  + BATCH_3D + BATCH_3E + BATCH_3F
                  + BATCH_3G + BATCH_3H + BATCH_3I
-                 + BATCH_3J + BATCH_3K):
+                 + BATCH_3J + BATCH_3K
+                 + BATCH_3L
+                 # ↑ 3l ／ ↓ 4a
+                 + BATCH_4A):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

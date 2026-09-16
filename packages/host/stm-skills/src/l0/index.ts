@@ -50,6 +50,10 @@ import { ADVANCED_OPS } from './advanced-ops.js'
 // ── 批 3j（流式读回一族）在这一行下面加 import ──
 import { READBACK_STREAM } from './readback-skills.js'
 // ── 批 3k（环境读）在这一行下面加 import ──
+
+// ── 批 3l（spectroscopy 整族）在这一行下面加 import ──
+
+// ── 批 4a（分析技能第一批）在这一行下面加 import ──
 import { ENVIRONMENT } from './environment.js'
 import { MISC_SETTERS } from './misc-setters.js'
 import { QPLUS } from './qplus.js'
@@ -106,6 +110,10 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 3j 在这一行下面展开 ──
   ...READBACK_STREAM,
   // ── 批 3k 在这一行下面展开 ──
+
+  // ── 批 3l 在这一行下面展开 ──
+
+  // ── 批 4a 在这一行下面展开 ──
   ...ENVIRONMENT,
   ...MISC_SETTERS,
   ...QPLUS,
@@ -166,6 +174,10 @@ export * from './readback-stream.js'
 export * from './readback-skills.js'
 export * from './tip-policy.js'
 // ── 批 3k 在这一行下面 re-export ──
+
+// ── 批 3l 在这一行下面 re-export ──
+
+// ── 批 4a 在这一行下面 re-export ──
 export * from './environment.js'
 export * from './misc-setters.js'
 export * from './qplus.js'
