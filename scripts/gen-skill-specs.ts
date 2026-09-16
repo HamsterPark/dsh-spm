@@ -362,6 +362,15 @@ const BATCH_4A: string[] = [
   'AssessFrameCorrugation',
 ]   // builtins 分析技能第一批（要数值底座）
 
+// ↑ 上一条 ／ ↓ 4B —— 这一行谁都不要动
+const BATCH_4B: string[] = []   // 晶格判据底座 + 原子分辨判定一族
+
+// ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
+const BATCH_4C: string[] = []   // paper 数据处理 + scan_frame 一族
+
+// ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
+const BATCH_4D: string[] = []   // composite.scan_at + 撞针追踪
+
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
@@ -446,6 +455,12 @@ function main(): number {
     ...BATCH_3L,
     // ↑ 3l ／ ↓ 4a
     ...BATCH_4A,
+    // ↑ ／ ↓ 4B
+    ...BATCH_4B,
+    // ↑ ／ ↓ 4C
+    ...BATCH_4C,
+    // ↑ ／ ↓ 4D
+    ...BATCH_4D,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -474,7 +489,13 @@ function main(): number {
     `批 3k ${BATCH_3K.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3l ${BATCH_3L.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ 3l ／ ↓ 4a
-    `批 4a ${BATCH_4A.filter((n) => byName.has(n)).length} 个\n` +
+    `批 4a ${BATCH_4A.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 4B
+    `批 4b ${BATCH_4B.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 4C
+    `批 4c ${BATCH_4C.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 4D
+    `批 4d ${BATCH_4D.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

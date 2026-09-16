@@ -331,6 +331,15 @@ BATCH_4A: list[str] = [
     # 各自自足
     "LocateStepEdge", "AssessAtomicLines", "AssessFrameCorrugation",
 ]   # builtins 分析技能第一批
+
+#: ↑ 上一条 ／ ↓ 4B —— 这一行谁都不要动
+BATCH_4B: list[str] = []   # 晶格判据底座 + 原子分辨判定一族
+
+#: ↑ 上一条 ／ ↓ 4C —— 这一行谁都不要动
+BATCH_4C: list[str] = []   # paper 数据处理 + scan_frame 一族
+
+#: ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
+BATCH_4D: list[str] = []   # composite.scan_at + 撞针追踪
 #
 # ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
 # `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。
@@ -1126,7 +1135,13 @@ def main() -> int:
                  + BATCH_3J + BATCH_3K
                  + BATCH_3L
                  # ↑ 3l ／ ↓ 4a
-                 + BATCH_4A):
+                 + BATCH_4A
+                 # ↑ ／ ↓ 4B
+                 + BATCH_4B
+                 # ↑ ／ ↓ 4C
+                 + BATCH_4C
+                 # ↑ ／ ↓ 4D
+                 + BATCH_4D):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

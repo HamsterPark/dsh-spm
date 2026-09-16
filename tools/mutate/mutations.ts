@@ -1963,6 +1963,12 @@ function physicallyAbsurdViolations_unused(`,
 
   // ── 批 4a（分析技能第一批）的演练写在这一行下面 ──
 
+  // ── 批 4b（晶格判据底座 + 原子分辨判定一族）的演练写在这一行下面 ──
+
+  // ── 批 4c（paper 数据处理 + scan_frame 一族）的演练写在这一行下面 ──
+
+  // ── 批 4d（composite.scan_at + 撞针追踪）的演练写在这一行下面 ──
+
   // ── 课时 4.1 续（数值缺件：find_peaks / pcov / correlate2d）的演练写在这一行下面 ──
   {
     id: 'frame-row-mask-is-the-whole-row',

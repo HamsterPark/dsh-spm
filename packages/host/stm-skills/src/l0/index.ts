@@ -55,6 +55,12 @@ import { READBACK_STREAM } from './readback-skills.js'
 import { SPECTROSCOPY } from './spectroscopy.js'
 
 // ── 批 4a（分析技能第一批）在这一行下面加 import ──
+
+// ── 批 4b（晶格判据底座 + 原子分辨判定一族）在这一行下面加 import ──
+
+// ── 批 4c（paper 数据处理 + scan_frame 一族）在这一行下面加 import ──
+
+// ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面加 import ──
 import { ANALYSIS_CLUSTERS } from './analysis-clusters.js'
 import { ANALYSIS_FRAMES } from './analysis-frames.js'
 import { ANALYSIS_LINES } from './analysis-lines.js'
@@ -119,6 +125,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...SPECTROSCOPY,
 
   // ── 批 4a 在这一行下面展开 ──
+
+  // ── 批 4b 在这一行下面展开 ──
+
+  // ── 批 4c 在这一行下面展开 ──
+
+  // ── 批 4d 在这一行下面展开 ──
   ...ANALYSIS_CLUSTERS,
   ...ANALYSIS_FRAMES,
   ...ANALYSIS_LINES,
@@ -187,6 +199,12 @@ export * from './tip-policy.js'
 export * from './spectroscopy.js'
 
 // ── 批 4a 在这一行下面 re-export ──
+
+// ── 批 4b 在这一行下面 re-export ──
+
+// ── 批 4c 在这一行下面 re-export ──
+
+// ── 批 4d 在这一行下面 re-export ──
 export * from './analysis-common.js'
 export * from './analysis-clusters.js'
 export * from './analysis-frames.js'
