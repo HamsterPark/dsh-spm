@@ -1,0 +1,2169 @@
+{
+  "3ds": {
+    "bare_marker": {
+      "bytes_b64": "R3JpZCBkaW09IjIgeCAxIg0KR3JpZCBzZXR0aW5ncz0wLjA7MC4wOzEuMEUtODsxLjBFLTg7MC4wDQpGaXhlZCBwYXJhbWV0ZXJzPSJTd2VlcCBTdGFydDtTd2VlcCBFbmQiDQpFeHBlcmltZW50IHBhcmFtZXRlcnM9IlggKG0pO1kgKG0pIg0KIyBQYXJhbWV0ZXJzICg0IGJ5dGUpPTINCkV4cGVyaW1lbnQgc2l6ZSAoYnl0ZXMpPTANClBvaW50cz0yDQpDaGFubmVscz0iQ3VycmVudCAoQSkiDQpFeHBlcmltZW50PSJHcmlkIFNwZWN0cm9zY29weSINClN0YXJ0IHRpbWU9IjE1LjA5LjIwMjYgMTI6MzQ6NTYiOkhFQURFUl9FTkQ6vwAAAD8AAAA/gAAAP4QAAL8AAAA/AAAAP8AAAD/EAAA=",
+      "read": {
+        "bias": [
+          -0.5,
+          0.5
+        ],
+        "grid": [
+          [
+            [
+              1.0,
+              1.03125
+            ],
+            [
+              1.5,
+              1.53125
+            ]
+          ]
+        ],
+        "header": {
+          "channels": [
+            "Current (A)"
+          ],
+          "experiment": "Grid Spectroscopy",
+          "experiment_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "experiment_size_(bytes)": "0",
+          "fixed_parameters": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "grid_dim": [
+            2,
+            1
+          ],
+          "grid_settings": "0.0;0.0;1.0E-8;1.0E-8;0.0",
+          "num_channels": 1,
+          "num_parameters": 2,
+          "points": 2,
+          "start_time": "15.09.2026 12:34:56"
+        },
+        "params": {
+          "experiment_param_names": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "fixed_param_names": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "n_points": 2,
+          "nx": 2,
+          "ny": 1,
+          "param_array": [
+            [
+              [
+                -0.5,
+                0.5
+              ],
+              [
+                -0.5,
+                0.5
+              ]
+            ]
+          ]
+        }
+      }
+    },
+    "basic": {
+      "bytes_b64": "R3JpZCBkaW09IjIgeCAyIg0KR3JpZCBzZXR0aW5ncz0wLjA7MC4wOzEuMEUtODsxLjBFLTg7MC4wDQpGaXhlZCBwYXJhbWV0ZXJzPSJTd2VlcCBTdGFydDtTd2VlcCBFbmQiDQpFeHBlcmltZW50IHBhcmFtZXRlcnM9IlggKG0pO1kgKG0pIg0KIyBQYXJhbWV0ZXJzICg0IGJ5dGUpPTINCkV4cGVyaW1lbnQgc2l6ZSAoYnl0ZXMpPTANClBvaW50cz0zDQpDaGFubmVscz0iQ3VycmVudCAoQSk7TElYIChBKSINCkV4cGVyaW1lbnQ9IkdyaWQgU3BlY3Ryb3Njb3B5Ig0KU3RhcnQgdGltZT0iMTUuMDkuMjAyNiAxMjozNDo1NiINCjpIRUFERVJfRU5EOg0KvwAAAD8AAAA/gAAAP4QAAD+IAABBMAAAQTCAAEExAAC/AAAAPwAAAD/AAAA/xAAAP8gAAEE4AABBOIAAQTkAAL8AAAA/AAAAQAAAAEACAABABAAAQUAAAEFAgABBQQAAvwAAAD8AAABAIAAAQCIAAEAkAABBSAAAQUiAAEFJAAA=",
+      "read": {
+        "bias": [
+          -0.5,
+          0.0,
+          0.5
+        ],
+        "grid": [
+          [
+            [
+              1.0,
+              1.03125,
+              1.0625
+            ],
+            [
+              1.5,
+              1.53125,
+              1.5625
+            ]
+          ],
+          [
+            [
+              2.0,
+              2.03125,
+              2.0625
+            ],
+            [
+              2.5,
+              2.53125,
+              2.5625
+            ]
+          ]
+        ],
+        "header": {
+          "channels": [
+            "Current (A)",
+            "LIX (A)"
+          ],
+          "experiment": "Grid Spectroscopy",
+          "experiment_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "experiment_size_(bytes)": "0",
+          "fixed_parameters": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "grid_dim": [
+            2,
+            2
+          ],
+          "grid_settings": "0.0;0.0;1.0E-8;1.0E-8;0.0",
+          "num_channels": 2,
+          "num_parameters": 2,
+          "points": 3,
+          "start_time": "15.09.2026 12:34:56"
+        },
+        "params": {
+          "experiment_param_names": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "fixed_param_names": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "n_points": 3,
+          "nx": 2,
+          "ny": 2,
+          "param_array": [
+            [
+              [
+                -0.5,
+                0.5
+              ],
+              [
+                -0.5,
+                0.5
+              ]
+            ],
+            [
+              [
+                -0.5,
+                0.5
+              ],
+              [
+                -0.5,
+                0.5
+              ]
+            ]
+          ]
+        }
+      }
+    },
+    "negative_dims": {
+      "bytes_b64": "R3JpZCBkaW09Ii0yIHggMiINCkdyaWQgc2V0dGluZ3M9MC4wOzAuMDsxLjBFLTg7MS4wRS04OzAuMA0KRml4ZWQgcGFyYW1ldGVycz0iU3dlZXAgU3RhcnQ7U3dlZXAgRW5kIg0KRXhwZXJpbWVudCBwYXJhbWV0ZXJzPSJYIChtKTtZIChtKSINCiMgUGFyYW1ldGVycyAoNCBieXRlKT0yDQpFeHBlcmltZW50IHNpemUgKGJ5dGVzKT0wDQpQb2ludHM9Mw0KQ2hhbm5lbHM9IkN1cnJlbnQgKEEpIg0KRXhwZXJpbWVudD0iR3JpZCBTcGVjdHJvc2NvcHkiDQpTdGFydCB0aW1lPSIxNS4wOS4yMDI2IDEyOjM0OjU2Ig0KOkhFQURFUl9FTkQ6DQq/AAAAPwAAAD+AAAA/hAAAP4gAAL8AAAA/AAAAP8AAAD/EAAA/yAAAvwAAAD8AAABAAAAAQAIAAEAEAAC/AAAAPwAAAEAgAABAIgAAQCQAAA==",
+      "read": {
+        "bias": [],
+        "grid": [],
+        "header": {
+          "channels": [
+            "Current (A)"
+          ],
+          "experiment": "Grid Spectroscopy",
+          "experiment_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "experiment_size_(bytes)": "0",
+          "fixed_parameters": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "grid_dim": [
+            -2,
+            2
+          ],
+          "grid_settings": "0.0;0.0;1.0E-8;1.0E-8;0.0",
+          "num_channels": 1,
+          "num_parameters": 2,
+          "points": 3,
+          "start_time": "15.09.2026 12:34:56"
+        },
+        "params": {}
+      }
+    },
+    "no_marker": {
+      "bytes_b64": "R3JpZCBkaW09IjIgeCAyIg0KUG9pbnRzPTMNCg==",
+      "raised": "ValueError: Cannot find header end in no_marker.3ds"
+    },
+    "no_sweep_params": {
+      "bytes_b64": "R3JpZCBkaW09IjIgeCAxIg0KR3JpZCBzZXR0aW5ncz0wLjA7MC4wOzEuMEUtODsxLjBFLTg7MC4wDQpGaXhlZCBwYXJhbWV0ZXJzPSJYIChtKTtZIChtKSINCkV4cGVyaW1lbnQgcGFyYW1ldGVycz0iWCAobSk7WSAobSkiDQojIFBhcmFtZXRlcnMgKDQgYnl0ZSk9Mg0KRXhwZXJpbWVudCBzaXplIChieXRlcyk9MA0KUG9pbnRzPTQNCkNoYW5uZWxzPSJDdXJyZW50IChBKSINCkV4cGVyaW1lbnQ9IkdyaWQgU3BlY3Ryb3Njb3B5Ig0KU3RhcnQgdGltZT0iMTUuMDkuMjAyNiAxMjozNDo1NiINCjpIRUFERVJfRU5EOg0KAAAAAD4AAAA/gAAAP4QAAD+IAAA/jAAAP4AAAD+QAAA/wAAAP8QAAD/IAAA/zAAA",
+      "read": {
+        "bias": [
+          0.0,
+          0.3333333333333333,
+          0.6666666666666666,
+          1.0
+        ],
+        "grid": [
+          [
+            [
+              1.0,
+              1.03125,
+              1.0625,
+              1.09375
+            ],
+            [
+              1.5,
+              1.53125,
+              1.5625,
+              1.59375
+            ]
+          ]
+        ],
+        "header": {
+          "channels": [
+            "Current (A)"
+          ],
+          "experiment": "Grid Spectroscopy",
+          "experiment_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "experiment_size_(bytes)": "0",
+          "fixed_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "grid_dim": [
+            2,
+            1
+          ],
+          "grid_settings": "0.0;0.0;1.0E-8;1.0E-8;0.0",
+          "num_channels": 1,
+          "num_parameters": 2,
+          "points": 4,
+          "start_time": "15.09.2026 12:34:56"
+        },
+        "params": {
+          "experiment_param_names": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "fixed_param_names": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "n_points": 4,
+          "nx": 2,
+          "ny": 1,
+          "param_array": [
+            [
+              [
+                0.0,
+                0.125
+              ],
+              [
+                1.0,
+                1.125
+              ]
+            ]
+          ]
+        }
+      }
+    },
+    "truncated_blob": {
+      "bytes_b64": "R3JpZCBkaW09IjIgeCAyIg0KR3JpZCBzZXR0aW5ncz0wLjA7MC4wOzEuMEUtODsxLjBFLTg7MC4wDQpGaXhlZCBwYXJhbWV0ZXJzPSJTd2VlcCBTdGFydDtTd2VlcCBFbmQiDQpFeHBlcmltZW50IHBhcmFtZXRlcnM9IlggKG0pO1kgKG0pIg0KIyBQYXJhbWV0ZXJzICg0IGJ5dGUpPTINCkV4cGVyaW1lbnQgc2l6ZSAoYnl0ZXMpPTANClBvaW50cz0zDQpDaGFubmVscz0iQ3VycmVudCAoQSkiDQpFeHBlcmltZW50PSJHcmlkIFNwZWN0cm9zY29weSINClN0YXJ0IHRpbWU9IjE1LjA5LjIwMjYgMTI6MzQ6NTYiDQo6SEVBREVSX0VORDoNCr8AAAA/AAAAP4AAAD+EAAA/iAAAvwAAAD8AAAA/wAAAP8QAAD/IAAA=",
+      "read": {
+        "bias": [
+          -0.5,
+          0.0,
+          0.5
+        ],
+        "grid": [
+          [
+            [
+              1.0,
+              1.03125,
+              1.0625
+            ],
+            [
+              1.5,
+              1.53125,
+              1.5625
+            ]
+          ],
+          [
+            [
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "header": {
+          "channels": [
+            "Current (A)"
+          ],
+          "experiment": "Grid Spectroscopy",
+          "experiment_parameters": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "experiment_size_(bytes)": "0",
+          "fixed_parameters": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "grid_dim": [
+            2,
+            2
+          ],
+          "grid_settings": "0.0;0.0;1.0E-8;1.0E-8;0.0",
+          "num_channels": 1,
+          "num_parameters": 2,
+          "points": 3,
+          "start_time": "15.09.2026 12:34:56"
+        },
+        "params": {
+          "experiment_param_names": [
+            "X (m)",
+            "Y (m)"
+          ],
+          "fixed_param_names": [
+            "Sweep Start",
+            "Sweep End"
+          ],
+          "n_points": 3,
+          "nx": 2,
+          "ny": 2,
+          "param_array": [
+            [
+              [
+                -0.5,
+                0.5
+              ],
+              [
+                -0.5,
+                0.5
+              ]
+            ],
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "_note": "由 tools/spec-export/export_nanonis_files.py 生成 —— 字节由本脚本合成，读出来的东西由**旧仓真实读取器** mast.io.nanonis_files 给出。真机文件不进本仓。",
+  "constants": {
+    "channel_unit_hint": {
+      "amplitude": "m",
+      "bias": "V",
+      "current": "A",
+      "excitation": "V",
+      "frequency shift": "Hz",
+      "phase": "deg",
+      "z": "m"
+    },
+    "max_file_bytes": 2147483648,
+    "max_grid_elements": 536870912
+  },
+  "dat": {
+    "basic": {
+      "bytes_b64": "RXhwZXJpbWVudAliaWFzIHNwZWN0cm9zY29weQ0KRGF0ZQkxNS4wOS4yMDI2IDEyOjM0OjU2DQpVc2VyDQpCaWFzPkJpYXMgKFYpCS0xRSswDQpbREFUQV0NCkJpYXMgY2FsYyAoVikJQ3VycmVudCAoQSkJTElYIDEgb21lZ2EgKEEpDQotMS4wCTEuNWUtMTIJMC4yNQ0KLTAuNQkyLjVlLTEyCTAuNQ0KMC4wCTMuNWUtMTIJMC43NQ0K",
+      "read": {
+        "columns": {
+          "Bias calc (V)": [
+            -1.0,
+            -0.5,
+            0.0
+          ],
+          "Current (A)": [
+            1.5e-12,
+            2.5e-12,
+            3.5e-12
+          ],
+          "LIX 1 omega (A)": [
+            0.25,
+            0.5,
+            0.75
+          ]
+        },
+        "header": {
+          "Bias>Bias (V)": "-1E+0",
+          "Date": "15.09.2026 12:34:56",
+          "Experiment": "bias spectroscopy",
+          "User": ""
+        }
+      }
+    },
+    "junk_row": {
+      "bytes_b64": "RXhwZXJpbWVudAliaWFzIHNwZWN0cm9zY29weQ0KRGF0ZQkxNS4wOS4yMDI2IDEyOjM0OjU2DQpVc2VyDQpCaWFzPkJpYXMgKFYpCS0xRSswDQpbREFUQV0NCkJpYXMgY2FsYyAoVikJQ3VycmVudCAoQSkJTElYIDEgb21lZ2EgKEEpDQotMS4wCTEuNWUtMTIJMC4yNQ0Kbm90CWEJbnVtYmVyDQowLjAJMy41ZS0xMgkwLjc1DQo=",
+      "read": {
+        "columns": {
+          "Bias calc (V)": [
+            -1.0,
+            0.0
+          ],
+          "Current (A)": [
+            1.5e-12,
+            3.5e-12
+          ],
+          "LIX 1 omega (A)": [
+            0.25,
+            0.75
+          ]
+        },
+        "header": {
+          "Bias>Bias (V)": "-1E+0",
+          "Date": "15.09.2026 12:34:56",
+          "Experiment": "bias spectroscopy",
+          "User": ""
+        }
+      }
+    },
+    "no_data_marker": {
+      "bytes_b64": "RXhwZXJpbWVudAliaWFzIHNwZWN0cm9zY29weQ0KRGF0ZQkxNS4wOS4yMDI2IDEyOjM0OjU2DQpVc2VyDQpCaWFzPkJpYXMgKFYpCS0xRSswDQo=",
+      "read": {
+        "columns": {},
+        "header": {
+          "Bias>Bias (V)": "-1E+0",
+          "Date": "15.09.2026 12:34:56",
+          "Experiment": "bias spectroscopy",
+          "User": ""
+        }
+      }
+    },
+    "ragged": {
+      "bytes_b64": "RXhwZXJpbWVudAliaWFzIHNwZWN0cm9zY29weQ0KRGF0ZQkxNS4wOS4yMDI2IDEyOjM0OjU2DQpVc2VyDQpCaWFzPkJpYXMgKFYpCS0xRSswDQpbREFUQV0NCkJpYXMgY2FsYyAoVikJQ3VycmVudCAoQSkJTElYIDEgb21lZ2EgKEEpDQotMS4wCTEuNWUtMTIJMC4yNQ0KLTAuNQkyLjVlLTEyDQowLjAJMy41ZS0xMgkwLjc1CTkuMA0K",
+      "read": {
+        "columns": {
+          "Bias calc (V)": [
+            -1.0,
+            -0.5,
+            0.0
+          ],
+          "Current (A)": [
+            1.5e-12,
+            2.5e-12,
+            3.5e-12
+          ],
+          "LIX 1 omega (A)": [
+            0.25,
+            "NaN",
+            0.75
+          ]
+        },
+        "header": {
+          "Bias>Bias (V)": "-1E+0",
+          "Date": "15.09.2026 12:34:56",
+          "Experiment": "bias spectroscopy",
+          "User": ""
+        }
+      }
+    },
+    "short_column_header": {
+      "bytes_b64": "RXhwZXJpbWVudAliaWFzIHNwZWN0cm9zY29weQ0KRGF0ZQkxNS4wOS4yMDI2IDEyOjM0OjU2DQpVc2VyDQpCaWFzPkJpYXMgKFYpCS0xRSswDQpbREFUQV0NCkJpYXMgY2FsYyAoVikNCi0xLjAJMS41ZS0xMg0KMC4wCTIuNWUtMTINCg==",
+      "read": {
+        "columns": {
+          "Bias calc (V)": [
+            -1.0,
+            0.0
+          ],
+          "column_1": [
+            1.5e-12,
+            2.5e-12
+          ]
+        },
+        "header": {
+          "Bias>Bias (V)": "-1E+0",
+          "Date": "15.09.2026 12:34:56",
+          "Experiment": "bias spectroscopy",
+          "User": ""
+        }
+      }
+    }
+  },
+  "sxm": {
+    "bad_pixels": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAxMjguMCAgICAgICBOYU4KOlNDQU5fUkFOR0U6CiAgICAgICAgICAgMS4wMDAwMDBFLTggICAgICAgICAgIDcuNTAwMDAwRS05CjpTQ0FOX09GRlNFVDoKICAgICAgICAgMC4wRSswICAgICAgICAgMC4wRSswCjpTQ0FOX0RJUjoKZG93bgo6REFUQV9JTkZPOgoJQ2hhbm5lbAlOYW1lCVVuaXQJRGlyZWN0aW9uCUNhbGlicmF0aW9uCU9mZnNldAoJMAlaCW0JYm90aAk5LjAwMEUtOQkwLjAwMEUrMAo6U0NBTklUX0VORDoKXDFBXDA0P4AAAD+IAAA/kAAAP5gAAD+gAAA/qAAAP7AAAD+4AAA/wAAAP8gAAD/QAAA/2AAAQsoAAELKIABCykAAQspgAELKgABCyqAAQsrAAELK4ABCywAAQssgAELLQABCy2AA",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": null,
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": null,
+        "height_nm": 7.499999999999999,
+        "nm_per_px": null,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {},
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "basic": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDQgICAgICAgICAzCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+YAAA/oAAAP6gAAD+wAAA/uAAAP8AAAD/IAAA/0AAAP9gAAELKAABCyiAAQspAAELKYABCyoAAQsqgAELKwABCyuAAQssAAELLIABCy0AAQstgAA==",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.1875,
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.4375,
+            101.375,
+            101.3125,
+            101.25
+          ],
+          [
+            101.6875,
+            101.625,
+            101.5625,
+            101.5
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125,
+            1.1875
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375,
+            1.4375
+          ],
+          [
+            1.5,
+            1.5625,
+            1.625,
+            1.6875
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 2.5,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125,
+                101.1875
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375,
+                101.4375
+              ],
+              [
+                101.5,
+                101.5625,
+                101.625,
+                101.6875
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125,
+                1.1875
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375,
+                1.4375
+              ],
+              [
+                1.5,
+                1.5625,
+                1.625,
+                1.6875
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            4,
+            3
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "bwd_only": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJ3ZAk5LjAwMEUtOQkwLjAwMEUrMAo6U0NBTklUX0VORDoKXDFBXDA0P4AAAD+IAAA/kAAAP6AAAD+oAAA/sAAA",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "bwd"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": null,
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.125,
+            1.0625,
+            1.0
+          ],
+          [
+            1.375,
+            1.3125,
+            1.25
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "bwd"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "gbk_comment": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOkNPTU1FTlQ6Csy91esKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+gAAA/qAAAP7AAAELKAABCyiAAQspAAELKgABCyqAAQsrAAA==",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "comment": "̽��",
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "comment": "̽��",
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "lowercase_channel": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJegltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+gAAA/qAAAP7AAAELKAABCyiAAQspAAELKgABCyqAAQsrAAA==",
+      "frame_meta": {
+        "channels": [
+          "z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "mixed_directions": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKCTEJQ3VycmVudAltCWZ3ZAk5LjAwMEUtOQkwLjAwMEUrMAoJMglCaWFzCW0JYndkCTkuMDAwRS05CTAuMDAwRSswCjpTQ0FOSVRfRU5EOgpcMUFcMDQ/gAAAP4gAAD+QAAA/oAAAP6gAAD+wAABCygAAQsogAELKQABCyoAAQsqgAELKwABBMAAAQTEAAEEyAABBNAAAQTUAAEE2AABBqAAAQaiAAEGpAABBqgAAQaqAAEGrAAA=",
+      "frame_meta": {
+        "channels": [
+          "Z",
+          "Current",
+          "Bias"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both",
+          "fwd",
+          "bwd"
+        ],
+        "channel_names": [
+          "Z",
+          "Current",
+          "Bias"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Bias": {
+            "backward": [
+              [
+                21.0,
+                21.0625,
+                21.125
+              ],
+              [
+                21.25,
+                21.3125,
+                21.375
+              ]
+            ]
+          },
+          "Current": {
+            "forward": [
+              [
+                11.0,
+                11.0625,
+                11.125
+              ],
+              [
+                11.25,
+                11.3125,
+                11.375
+              ]
+            ]
+          },
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both",
+            "fwd",
+            "bwd"
+          ],
+          "channel_names": [
+            "Z",
+            "Current",
+            "Bias"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "negative_pixels": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgLTQgICAgICAgICAzCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+YAAA/oAAAP6gAAD+wAAA/uAAAP8AAAD/IAAA/0AAAP9gAAELKAABCyiAAQspAAELKYABCyoAAQsqgAELKwABCyuAAQssAAELLIABCy0AAQstgAA==",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          -4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          -4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": null,
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": null,
+        "height_nm": 7.499999999999999,
+        "nm_per_px": null,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {},
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            -4,
+            3
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "no_data": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDQgICAgICAgICAzCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwNA==",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": null,
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": null,
+        "height_nm": 7.499999999999999,
+        "nm_per_px": null,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {}
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            4,
+            3
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "no_marker": {
+      "bytes_b64": "OlNDQU5fUElYRUxTOgogIDQgIDMKOlNDQU5JVF9FTkQ6Cg==",
+      "raised": "ValueError: Cannot find header end marker in no_marker.sxm"
+    },
+    "non_square": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDUgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+YAAA/oAAAP6AAAD+oAAA/sAAAP7gAAD/AAABCygAAQsogAELKQABCymAAQsqAAELKgABCyqAAQsrAAELK4ABCywAA",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          5,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          5,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.25,
+            101.1875,
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.5,
+            101.4375,
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125,
+            1.1875,
+            1.25
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375,
+            1.4375,
+            1.5
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 2.0,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125,
+                101.1875,
+                101.25
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375,
+                101.4375,
+                101.5
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125,
+                1.1875,
+                1.25
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375,
+                1.4375,
+                1.5
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            5,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "raw_marker": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ChoEP4AAAD+IAAA/kAAAP6AAAD+oAAA/sAAAQsoAAELKIABCykAAQsqAAELKoABCysAA",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "scan_dir_missing": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6Cgo6REFUQV9JTkZPOgoJQ2hhbm5lbAlOYW1lCVVuaXQJRGlyZWN0aW9uCUNhbGlicmF0aW9uCU9mZnNldAoJMAlaCW0JYm90aAk5LjAwMEUtOQkwLjAwMEUrMAo6U0NBTklUX0VORDoKXDFBXDA0P4AAAD+IAAA/kAAAP6AAAD+oAAA/sAAAQsoAAELKIABCykAAQsqAAELKoABCysAA",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.125,
+            101.0625,
+            101.0
+          ],
+          [
+            101.375,
+            101.3125,
+            101.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": null,
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "scan_dir_up": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDQgICAgICAgICAzCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CnVwCjpEQVRBX0lORk86CglDaGFubmVsCU5hbWUJVW5pdAlEaXJlY3Rpb24JQ2FsaWJyYXRpb24JT2Zmc2V0CgkwCVoJbQlib3RoCTkuMDAwRS05CTAuMDAwRSswCjpTQ0FOSVRfRU5EOgpcMUFcMDQ/gAAAP4gAAD+QAAA/mAAAP6AAAD+oAAA/sAAAP7gAAD/AAAA/yAAAP9AAAD/YAABCygAAQsogAELKQABCymAAQsqAAELKoABCysAAQsrgAELLAABCyyAAQstAAELLYAA=",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "up",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            101.6875,
+            101.625,
+            101.5625,
+            101.5
+          ],
+          [
+            101.4375,
+            101.375,
+            101.3125,
+            101.25
+          ],
+          [
+            101.1875,
+            101.125,
+            101.0625,
+            101.0
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.5,
+            1.5625,
+            1.625,
+            1.6875
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375,
+            1.4375
+          ],
+          [
+            1.0,
+            1.0625,
+            1.125,
+            1.1875
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 2.5,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "up",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125,
+                101.1875
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375,
+                101.4375
+              ],
+              [
+                101.5,
+                101.5625,
+                101.625,
+                101.6875
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125,
+                1.1875
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375,
+                1.4375
+              ],
+              [
+                1.5,
+                1.5625,
+                1.625,
+                1.6875
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "up",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            4,
+            3
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "truncated": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDQgICAgICAgICAzCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+YAAA/oAAAP6gAAD+wAAA/uAAAP8AAAD/IAAA/0AAAP9gAAELKAABCyiAAQspAAELKYABCyoAAQsqgAA==",
+      "frame_meta": {
+        "channels": [
+          "Z"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both"
+        ],
+        "channel_names": [
+          "Z"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          4,
+          3
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": null,
+        "bias_v": -1.0,
+        "channel": "Z",
+        "forward": [
+          [
+            1.0,
+            1.0625,
+            1.125,
+            1.1875
+          ],
+          [
+            1.25,
+            1.3125,
+            1.375,
+            1.4375
+          ],
+          [
+            1.5,
+            1.5625,
+            1.625,
+            1.6875
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 2.5,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "m",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Z": {
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125,
+                1.1875
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375,
+                1.4375
+              ],
+              [
+                1.5,
+                1.5625,
+                1.625,
+                1.6875
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both"
+          ],
+          "channel_names": [
+            "Z"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            4,
+            3
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    },
+    "two_channels_both": {
+      "bytes_b64": "Ok5BTk9OSVNfVkVSU0lPTjoKMgo6U0NBTklUX1RZUEU6CiAgICAgICAgICAgICAgRkxPQVQgICAgICAgICAgICBNU0JGSVJTVAo6UkVDX0RBVEU6CiAxNS4wOS4yMDI2CjpSRUNfVElNRToKMTI6MzQ6NTYKOkJJQVM6CgktMS4wMDAwRSswCjpaLUNPTlRST0xMRVI+U2V0cG9pbnQ6CgkxMDAuMEUtMTIKOlNDQU5fUElYRUxTOgogICAgICAgIDMgICAgICAgICAyCjpTQ0FOX1JBTkdFOgogICAgICAgICAgIDEuMDAwMDAwRS04ICAgICAgICAgICA3LjUwMDAwMEUtOQo6U0NBTl9PRkZTRVQ6CiAgICAgICAgIDAuMEUrMCAgICAgICAgIDAuMEUrMAo6U0NBTl9ESVI6CmRvd24KOkRBVEFfSU5GTzoKCUNoYW5uZWwJTmFtZQlVbml0CURpcmVjdGlvbglDYWxpYnJhdGlvbglPZmZzZXQKCTAJWgltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKCTEJQ3VycmVudAltCWJvdGgJOS4wMDBFLTkJMC4wMDBFKzAKOlNDQU5JVF9FTkQ6ClwxQVwwND+AAAA/iAAAP5AAAD+gAAA/qAAAP7AAAELKAABCyiAAQspAAELKgABCyqAAQsrAAEEwAABBMQAAQTIAAEE0AABBNQAAQTYAAELeAABC3iAAQt5AAELegABC3qAAQt7AAA==",
+      "frame_meta": {
+        "channels": [
+          "Z",
+          "Current"
+        ],
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9"
+      },
+      "header_only": {
+        "bias": "-1.0000E+0",
+        "channel_directions": [
+          "both",
+          "both"
+        ],
+        "channel_names": [
+          "Z",
+          "Current"
+        ],
+        "nanonis_version": "2",
+        "rec_date": "15.09.2026",
+        "rec_time": "12:34:56",
+        "scan_dir": "down",
+        "scan_offset": "0.0E+0         0.0E+0",
+        "scan_pixels": [
+          3,
+          2
+        ],
+        "scan_range": "1.000000E-8           7.500000E-9",
+        "scanit_type": "FLOAT            MSBFIRST",
+        "z-controller>setpoint": "100.0E-12"
+      },
+      "oriented": {
+        "backward": [
+          [
+            111.125,
+            111.0625,
+            111.0
+          ],
+          [
+            111.375,
+            111.3125,
+            111.25
+          ]
+        ],
+        "bias_v": -1.0,
+        "channel": "Current",
+        "forward": [
+          [
+            11.0,
+            11.0625,
+            11.125
+          ],
+          [
+            11.25,
+            11.3125,
+            11.375
+          ]
+        ],
+        "height_nm": 7.499999999999999,
+        "nm_per_px": 3.3333333333333335,
+        "rec_time": "15.09.2026 12:34:56",
+        "scan_dir": "down",
+        "setpoint_a": 1e-10,
+        "unit": "A",
+        "width_nm": 10.0
+      },
+      "read": {
+        "channels": {
+          "Current": {
+            "backward": [
+              [
+                111.0,
+                111.0625,
+                111.125
+              ],
+              [
+                111.25,
+                111.3125,
+                111.375
+              ]
+            ],
+            "forward": [
+              [
+                11.0,
+                11.0625,
+                11.125
+              ],
+              [
+                11.25,
+                11.3125,
+                11.375
+              ]
+            ]
+          },
+          "Z": {
+            "backward": [
+              [
+                101.0,
+                101.0625,
+                101.125
+              ],
+              [
+                101.25,
+                101.3125,
+                101.375
+              ]
+            ],
+            "forward": [
+              [
+                1.0,
+                1.0625,
+                1.125
+              ],
+              [
+                1.25,
+                1.3125,
+                1.375
+              ]
+            ]
+          }
+        },
+        "header": {
+          "bias": "-1.0000E+0",
+          "channel_directions": [
+            "both",
+            "both"
+          ],
+          "channel_names": [
+            "Z",
+            "Current"
+          ],
+          "nanonis_version": "2",
+          "rec_date": "15.09.2026",
+          "rec_time": "12:34:56",
+          "scan_dir": "down",
+          "scan_offset": "0.0E+0         0.0E+0",
+          "scan_pixels": [
+            3,
+            2
+          ],
+          "scan_range": "1.000000E-8           7.500000E-9",
+          "scanit_type": "FLOAT            MSBFIRST",
+          "z-controller>setpoint": "100.0E-12"
+        }
+      }
+    }
+  }
+}
