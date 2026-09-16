@@ -49,6 +49,7 @@ import { ADVANCED_OPS } from './advanced-ops.js'
 // ── 批 3i（光学台 / 杂项 setter / 单件）在这一行下面加 import ──
 // ── 批 3j（流式读回一族）在这一行下面加 import ──
 // ── 批 3k（环境读）在这一行下面加 import ──
+import { ENVIRONMENT } from './environment.js'
 import { MISC_SETTERS } from './misc-setters.js'
 import { QPLUS } from './qplus.js'
 import { PIEZO_CHECK } from './piezo-check.js'
@@ -103,6 +104,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 3i 在这一行下面展开 ──
   // ── 批 3j 在这一行下面展开 ──
   // ── 批 3k 在这一行下面展开 ──
+  ...ENVIRONMENT,
   ...MISC_SETTERS,
   ...QPLUS,
   ...PIEZO_CHECK,
@@ -159,6 +161,7 @@ export * from './advanced-ops.js'
 // ── 批 3i 在这一行下面 re-export ──
 // ── 批 3j 在这一行下面 re-export ──
 // ── 批 3k 在这一行下面 re-export ──
+export * from './environment.js'
 export * from './misc-setters.js'
 export * from './qplus.js'
 export * from './piezo-check.js'

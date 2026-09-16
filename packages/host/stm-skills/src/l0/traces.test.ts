@@ -14,7 +14,19 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { emptyHardwareState, type Skill, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'
+import {
+  attest,
+  emptyHardwareState,
+  processTemperature,
+  processVacuum,
+  readTemperature,
+  revokeAttestation,
+  type PressureSample,
+  type Skill,
+  type SkillCallRecord,
+  type SkillContext,
+  type TempChannel,
+} from 'dsh-spm-kernel'
 import { IMPLEMENTED } from './index.js'
 import { processPresetStore } from './frames.js'
 import { processLockInProfile } from './lockin-presets.js'
@@ -618,6 +630,40 @@ const ALLOWLIST_PATH = join(FIXTURE_ROOT, 'config', 'nanonis_scripts.json')
 mkdirSync(join(FIXTURE_ROOT, 'config'), { recursive: true })
 scriptAllowlistPath.current = (): string => ALLOWLIST_PATH
 
+/**
+ * 批 3k：环境读的进程级夹具 —— **与 `export_skill_traces.py` 里那一份逐字同形**。
+ *
+ * 真空互锁的压强源与签署、温度的读数源与通道清单都是进程级注入口。
+ * 不摆这一份的话，重放的是「空进程」而不是「那台机器」，
+ * 而它会**绿着**比对另一件事。
+ *
+ * 时间钉在 `1_700_000_000`（= 2023-11-14T22:13:20Z），与导出那侧的假墙钟同一个数。
+ */
+const ENV_NOW_S = 1_700_000_000
+const VACUUM_FIXTURE: PressureSample = {
+  value: 1.0e-3, unit: 'Pa', status: 'ok',
+  timestamp: '2023-11-14T22:13:08+00:00', // = ENV_NOW_S - 12
+  sensorName: 'Chamber', sensorClass: 'DL7VacuumSensor',
+}
+const NEEDS_VACUUM = new Set(['GetChamberPressure'])
+const TEMP_FIXTURE: TempChannel[] = [
+  {
+    name: 'SPM (COM3)', value: 77.35, unit: 'K', status: 'ok',
+    timestamp: '2023-11-14T22:13:08+00:00', // 12 s
+    driver: 'LakeshoreTemperatureSensor', real: true,
+  },
+  {
+    name: 'Magnet (COM3)', value: 4.21, unit: 'K', status: 'warning',
+    timestamp: '2023-11-14T22:12:20+00:00', // 60 s
+    driver: 'LakeshoreTemperatureSensor', real: true,
+  },
+  {
+    name: 'Cryostat', value: 0.0, unit: '', status: 'unavailable',
+    timestamp: '', driver: 'PlaceholderSensor', real: false,
+  },
+]
+const NEEDS_TEMPERATURE = new Set(['GetTemperature'])
+
 function resetProcessState(skillName: string): void {
   processPresetStore.clear()
   if (NEEDS_PRESET.has(skillName)) processPresetStore.upsert(PRESET_FIXTURE)
@@ -628,6 +674,25 @@ function resetProcessState(skillName: string): void {
     writeFileSync(ALLOWLIST_PATH, JSON.stringify(ALLOWLIST_FIXTURE), 'utf8')
   } else {
     rmSync(ALLOWLIST_PATH, { force: true })
+  }
+  // 批 3k。**先全清再按需摆** —— 签署是进程级的，漏清一次就会让后面某一格
+  // 「因为上一格签过字」而放行，而那种绿最难看出来。
+  processVacuum.nowS = () => ENV_NOW_S
+  processVacuum.source = null
+  processVacuum.config = {}
+  revokeAttestation()
+  if (NEEDS_VACUUM.has(skillName)) {
+    processVacuum.source = () => VACUUM_FIXTURE
+    attest('vented_to_atmosphere', {
+      signedBy: '操作员甲', ttlS: 6 * 3600.0, note: '腔体已通大气',
+    })
+  }
+  processTemperature.source = null
+  processTemperature.channelsSource = null
+  if (NEEDS_TEMPERATURE.has(skillName)) {
+    processTemperature.channelsSource = () => TEMP_FIXTURE
+    processTemperature.source = (ch) =>
+      readTemperature(TEMP_FIXTURE, { channel: ch, nowS: ENV_NOW_S })
   }
 }
 

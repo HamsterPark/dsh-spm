@@ -1,0 +1,2126 @@
+{
+  "_note": "由 tools/spec-export/export_environment.py 生成 —— 旧仓 mast/core/vacuum_interlock.py 与 mast/core/temperature.py 真跑一遍。输入与答案一起录。",
+  "_now_iso": "2023-11-14T22:13:20+00:00",
+  "_now_s": 1700000000.0,
+  "age_s": [
+    {
+      "out": 0.0,
+      "timestamp": "2023-11-14T22:13:20+00:00"
+    },
+    {
+      "out": 12.0,
+      "timestamp": "2023-11-14T22:13:08+00:00"
+    },
+    {
+      "out": 3600.0,
+      "timestamp": "2023-11-14T21:13:20+00:00"
+    },
+    {
+      "out": -30.0,
+      "timestamp": "2023-11-14T22:13:50+00:00"
+    },
+    {
+      "out": null,
+      "timestamp": ""
+    },
+    {
+      "out": null,
+      "timestamp": "   "
+    },
+    {
+      "out": null,
+      "timestamp": "昨天"
+    },
+    {
+      "out": null,
+      "timestamp": null
+    },
+    {
+      "out": 12.0,
+      "timestamp": "2023-11-14T22:13:08+00:00"
+    },
+    {
+      "out": 12.0,
+      "timestamp": "2023-11-14T22:13:08Z"
+    },
+    {
+      "out": 12.0,
+      "timestamp": "2023-11-15T06:13:08+08:00"
+    }
+  ],
+  "assess": [
+    {
+      "att": null,
+      "block": "【真空互锁】可以粗动 —— 当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "gauge_ok",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:08+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      },
+      "verdict": {
+        "age_s": 12.0,
+        "allow": true,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "age_s": 12.0,
+          "pressure_pa": 0.001,
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": true,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": 0.001,
+        "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+        "source": "gauge"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "vented_to_atmosphere",
+        "signed_at": 1699992800.0,
+        "signed_by": "操作员甲",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】可以粗动 —— 当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "gauge_ok_with_att",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:08+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      },
+      "verdict": {
+        "age_s": 12.0,
+        "allow": true,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "age_s": 12.0,
+          "pressure_pa": 0.001,
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": true,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": 0.001,
+        "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+        "source": "gauge"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "dead_no_att",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。",
+        "source": "none"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "vented_to_atmosphere",
+        "signed_at": 1699992800.0,
+        "signed_by": "操作员甲",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】可以粗动 —— 真空计不可用：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 6.0 小时）—— 按签署放行。",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "dead_live_att",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": true,
+        "attestation_remaining_s": 21600.0,
+        "attested": true,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计不可用：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 6.0 小时）—— 按签署放行。",
+        "source": "attestation"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "high_vacuum_gauge_unavailable",
+        "signed_at": 1699967600.0,
+        "signed_by": "",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。（用户此前签署过「已抽至高真空，但真空计不可用」，但已在 9.0 小时前过期。） 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "dead_expired_att",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。（用户此前签署过「已抽至高真空，但真空计不可用」，但已在 9.0 小时前过期。） 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。",
+        "source": "none"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "vented_to_atmosphere",
+        "signed_at": 1699992800.0,
+        "signed_by": "操作员甲",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】可以粗动 —— 真空计不可用：没有可用的真空计读数 —— 无法判断当前是否处在放电区间（0.1–1000 Pa）。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 6.0 小时）—— 按签署放行。",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "none_live_att",
+      "sample": null,
+      "verdict": {
+        "age_s": null,
+        "allow": true,
+        "attestation_remaining_s": 21600.0,
+        "attested": true,
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计不可用：没有可用的真空计读数 —— 无法判断当前是否处在放电区间（0.1–1000 Pa）。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 6.0 小时）—— 按签署放行。",
+        "source": "attestation"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {},
+      "mode": "gauge_only",
+      "name": "gauge_only_dead",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_only",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。",
+        "source": "none"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "vented_to_atmosphere",
+        "signed_at": 1699992800.0,
+        "signed_by": "操作员甲",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。（本机模式为「只认真空计」，用户签署在此模式下无效。）（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {},
+      "mode": "gauge_only",
+      "name": "gauge_only_with_att",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_only",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。（本机模式为「只认真空计」，用户签署在此模式下无效。）",
+        "source": "none"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】可以粗动 —— 当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+      "cfg": {},
+      "mode": "gauge_only",
+      "name": "gauge_only_ok",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:08+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      },
+      "verdict": {
+        "age_s": 12.0,
+        "allow": true,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "age_s": 12.0,
+          "pressure_pa": 0.001,
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": true,
+        "mode": "gauge_only",
+        "over_range": false,
+        "pressure_pa": 0.001,
+        "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+        "source": "gauge"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】可以粗动 —— 【真空互锁已被关闭】不阻断，但判据如下：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 —— 关闭互锁不代表没有风险，只代表这次没人检查。",
+      "cfg": {},
+      "mode": "off",
+      "name": "off_dead",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": true,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "off",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "【真空互锁已被关闭】不阻断，但判据如下：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 —— 关闭互锁不代表没有风险，只代表这次没人检查。",
+        "source": "disabled"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】可以粗动 —— 当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+      "cfg": {},
+      "mode": "off",
+      "name": "off_ok",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:08+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      },
+      "verdict": {
+        "age_s": 12.0,
+        "allow": true,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "age_s": 12.0,
+          "pressure_pa": 0.001,
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": true,
+        "mode": "off",
+        "over_range": false,
+        "pressure_pa": 0.001,
+        "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+        "source": "gauge"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {},
+      "mode": "不存在的模式",
+      "name": "bogus_mode",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。",
+        "source": "none"
+      }
+    },
+    {
+      "att": null,
+      "block": "【真空互锁】**禁止粗动** —— 真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 这只真空计的量程下限是 0.5 Pa，高于粗动允许上限 0.01 Pa —— **它永远无法证明压强足够低**，因此在只有这只规的情况下粗动会一直被拒绝。这不是故障：粗糙真空规（Pirani / 电容薄膜规）本来就看不到那么低。需要一只冷阴极规或电离规，或者由用户签署「当前气压安全」。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。（这不是建议，是硬闸门：粗动/换区技能会直接拒绝执行。在中间真空区给粗动压电加几百伏会打火击穿。）",
+      "cfg": {
+        "full_scale_pa": 100000.0,
+        "min_pa": 0.5
+      },
+      "mode": "gauge_or_attest",
+      "name": "rough_gauge_only_fitted",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": false,
+        "attestation_remaining_s": null,
+        "attested": false,
+        "detail": {
+          "gauge_config_problem": "这只真空计的量程下限是 0.5 Pa，高于粗动允许上限 0.01 Pa —— **它永远无法证明压强足够低**，因此在只有这只规的情况下粗动会一直被拒绝。这不是故障：粗糙真空规（Pirani / 电容薄膜规）本来就看不到那么低。需要一只冷阴极规或电离规，或者由用户签署「当前气压安全」。",
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 这只真空计的量程下限是 0.5 Pa，高于粗动允许上限 0.01 Pa —— **它永远无法证明压强足够低**，因此在只有这只规的情况下粗动会一直被拒绝。这不是故障：粗糙真空规（Pirani / 电容薄膜规）本来就看不到那么低。需要一只冷阴极规或电离规，或者由用户签署「当前气压安全」。 若确认当前气压安全（例如腔体已通大气），请用户在界面上签署一次「当前气压安全」再重试。",
+        "source": "none"
+      }
+    },
+    {
+      "att": {
+        "note": "",
+        "reason": "vented_to_atmosphere",
+        "signed_at": 1699971200.0,
+        "signed_by": "操作员甲",
+        "ttl_s": 28800.0
+      },
+      "block": "【真空互锁】可以粗动 —— 真空计不可用：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 0.0 小时）—— 按签署放行。",
+      "cfg": {},
+      "mode": "gauge_or_attest",
+      "name": "att_exactly_at_ttl",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:17+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      },
+      "verdict": {
+        "age_s": null,
+        "allow": true,
+        "attestation_remaining_s": 0.0,
+        "attested": true,
+        "detail": {
+          "sensor": "Chamber",
+          "sensor_class": "DL7VacuumSensor"
+        },
+        "gauge_ok": false,
+        "mode": "gauge_or_attest",
+        "over_range": false,
+        "pressure_pa": null,
+        "reason": "真空计不可用：真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。 但用户已签署「已通大气（腔体在常压）」（操作员甲，还剩 0.0 小时）—— 按签署放行。",
+        "source": "attestation"
+      }
+    }
+  ],
+  "constants": {
+    "attestation_reasons": {
+      "high_vacuum_gauge_unavailable": "已抽至高真空，但真空计不可用",
+      "vented_to_atmosphere": "已通大气（腔体在常压）"
+    },
+    "corona_zone_pa": [
+      0.1,
+      1000.0
+    ],
+    "default_attestation_ttl_s": 28800.0,
+    "default_gauge_full_scale_pa": 0.1,
+    "default_gauge_min_pa": 5e-08,
+    "default_max_age_s": 60.0,
+    "default_max_pressure_pa": 0.01,
+    "modes": [
+      "gauge_or_attest",
+      "gauge_only",
+      "off"
+    ],
+    "placeholder_classes": [
+      "PlaceholderSensor",
+      "VacuumSensor"
+    ],
+    "real_gauge_classes": [
+      "DL7VacuumSensor"
+    ],
+    "temperature_reasons": [
+      "no_sensor",
+      "unavailable",
+      "stale",
+      "unknown_channel",
+      "ambiguous_channel",
+      "no_source"
+    ]
+  },
+  "freshness": [
+    {
+      "age_s": 12.0,
+      "max_age_s": 60.0,
+      "out": "fresh",
+      "value_k": 77.0
+    },
+    {
+      "age_s": 120.0,
+      "max_age_s": 60.0,
+      "out": "stale",
+      "value_k": 77.0
+    },
+    {
+      "age_s": 60.0,
+      "max_age_s": 60.0,
+      "out": "fresh",
+      "value_k": 77.0
+    },
+    {
+      "age_s": null,
+      "max_age_s": 60.0,
+      "out": "unknown",
+      "value_k": 77.0
+    },
+    {
+      "age_s": 12.0,
+      "max_age_s": 60.0,
+      "out": "unknown",
+      "value_k": null
+    },
+    {
+      "age_s": 12.0,
+      "max_age_s": 0.0,
+      "out": "stale",
+      "value_k": 77.0
+    }
+  ],
+  "gauge_config": [
+    {
+      "full_scale_pa": 0.1,
+      "max_pa": 0.01,
+      "min_pa": 5e-08,
+      "out": ""
+    },
+    {
+      "full_scale_pa": 0.1,
+      "max_pa": 0.01,
+      "min_pa": 0.0,
+      "out": ""
+    },
+    {
+      "full_scale_pa": 0.0,
+      "max_pa": 0.01,
+      "min_pa": 5e-08,
+      "out": ""
+    },
+    {
+      "full_scale_pa": 5e-08,
+      "max_pa": 0.01,
+      "min_pa": 0.1,
+      "out": "真空计量程配置有误：下限 0.1 Pa ≥ 上限 5e-08 Pa。在设置里把这两个数按规的实际量程填对。"
+    },
+    {
+      "full_scale_pa": 100000.0,
+      "max_pa": 0.01,
+      "min_pa": 0.5,
+      "out": "这只真空计的量程下限是 0.5 Pa，高于粗动允许上限 0.01 Pa —— **它永远无法证明压强足够低**，因此在只有这只规的情况下粗动会一直被拒绝。这不是故障：粗糙真空规（Pirani / 电容薄膜规）本来就看不到那么低。需要一只冷阴极规或电离规，或者由用户签署「当前气压安全」。"
+    },
+    {
+      "full_scale_pa": 0.01,
+      "max_pa": 0.01,
+      "min_pa": 0.0001,
+      "out": "真空计满量程 0.01 Pa 太低：还没到粗动允许上限 0.01 Pa 就已经算超量程，判据永远给不出「通过」。核对量程配置，或调低允许上限。"
+    },
+    {
+      "full_scale_pa": 0.0125,
+      "max_pa": 0.01,
+      "min_pa": 1e-06,
+      "out": ""
+    }
+  ],
+  "gauge_verdict": [
+    {
+      "cfg": {},
+      "detail": {},
+      "name": "no_sample",
+      "ok": false,
+      "reason": "没有可用的真空计读数 —— 无法判断当前是否处在放电区间（0.1–1000 Pa）。",
+      "sample": null
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Vacuum",
+        "sensor_class": "PlaceholderSensor"
+      },
+      "name": "placeholder",
+      "ok": false,
+      "reason": "真空计是**占位实现**（未接真实真空计）。它的读数恒为 0，这不是「完美真空」而是「没有数据」—— 拒绝粗动。",
+      "sample": {
+        "sensor_class": "PlaceholderSensor",
+        "sensor_name": "Vacuum",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "mbar",
+        "value": 0.0
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "MysteryGauge"
+      },
+      "name": "unknown_class",
+      "ok": false,
+      "reason": "传感器类型 MysteryGauge 不在已知真空计名单里，不能用它的读数授权粗动。新增真空计驱动时要做两件事：把类名加进 vacuum_interlock.REAL_GAUGE_CLASSES，并在设置里填这只规的**量程上下限**（vacuum_gauge_min_pa / vacuum_gauge_full_scale_pa）——判据本身与规的型号无关，型号相关的只有这两个数。",
+      "sample": {
+        "sensor_class": "MysteryGauge",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 1.0,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": ""
+      },
+      "name": "blank_class",
+      "ok": true,
+      "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 1 秒前）。",
+      "sample": {
+        "sensor_class": "",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "status_unavailable",
+      "ok": false,
+      "reason": "真空计状态为「读不到（串口掉线/未接）」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "unavailable",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.0
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "status_error",
+      "ok": false,
+      "reason": "真空计状态为「帧校验失败」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "error",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "status_warning",
+      "ok": false,
+      "reason": "真空计状态为「告警」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "warning",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "status_blank",
+      "ok": false,
+      "reason": "真空计状态为「未知」，不是有效读数 —— 拒绝粗动。读不到 ≠ 真空好。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "bad_unit",
+      "ok": false,
+      "reason": "真空计读数无法换算成 Pa（值 0.001 单位 'psi'）—— 拒绝粗动。Pa 与 mbar 差 100 倍，猜错方向正好落进放电区。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "psi",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "bad_value",
+      "ok": false,
+      "reason": "真空计读数无法换算成 Pa（值 '低' 单位 'Pa'）—— 拒绝粗动。Pa 与 mbar 差 100 倍，猜错方向正好落进放电区。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:19+00:00",
+        "unit": "Pa",
+        "value": "低"
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": null,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "no_timestamp",
+      "ok": false,
+      "reason": "真空计读数没有时间戳，无法判断新旧 —— 拒绝粗动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": null,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "bad_timestamp",
+      "ok": false,
+      "reason": "真空计读数没有时间戳，无法判断新旧 —— 拒绝粗动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "昨天下午",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 3600.0,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "stale",
+      "ok": false,
+      "reason": "真空计读数已经是 3600 秒前的了（上限 60 秒）—— 抽气/放气时压强变化很快，旧读数不能给现在授权。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T21:13:20+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 60.0,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "age_exactly_limit",
+      "ok": true,
+      "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 60 秒前）。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:12:20+00:00",
+        "unit": "Pa",
+        "value": 0.001
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 5.0,
+        "over_range": true,
+        "pressure_pa": 0.09,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "over_range",
+      "ok": false,
+      "reason": "真空计读数 0.09 Pa 已到量程上限附近（满量程 0.1 Pa）—— 这意味着「超量程、判断不了」，不是「刚好卡在阈值下」。拒绝粗动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.09
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 0.08,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "over_range_exact",
+      "ok": false,
+      "reason": "当前压强 0.08 Pa 高于粗动允许上限 0.01 Pa（放电区 0.1–1000 Pa）—— 拒绝粗动，等抽到更低再动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.08
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 4e-08,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor",
+        "under_range": true,
+        "under_range_safe": true
+      },
+      "name": "under_range_safe",
+      "ok": true,
+      "reason": "真空计已到量程下限（5e-08 Pa）以下 —— 真实压强比它更低，而下限本身已经远低于允许上限 0.01 Pa，距放电区下沿 0.1 Pa 还有数个数量级。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 4e-08
+      }
+    },
+    {
+      "cfg": {
+        "full_scale_pa": 100000.0,
+        "min_pa": 0.5
+      },
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 0.5,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor",
+        "under_range": true
+      },
+      "name": "under_range_rough",
+      "ok": false,
+      "reason": "真空计读数 0.5 Pa 已到量程**下限**附近（下限 0.5 Pa）—— 这是规在触底，不是「真空非常好」。而这只规的下限本身就高于粗动允许上限 0.01 Pa，所以它**永远无法证明**压强足够低。需要一只量程更低的规（冷阴极/电离规），或由用户签署。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.5
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 0.05,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "too_high",
+      "ok": false,
+      "reason": "当前压强 0.05 Pa 高于粗动允许上限 0.01 Pa（放电区 0.1–1000 Pa）—— 拒绝粗动，等抽到更低再动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.05
+      }
+    },
+    {
+      "cfg": {
+        "full_scale_pa": 100000.0,
+        "max_pa": 0.01
+      },
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 0.05,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "above_limit_below_band",
+      "ok": false,
+      "reason": "当前压强 0.05 Pa 高于粗动允许上限 0.01 Pa（放电区 0.1–1000 Pa）—— 拒绝粗动，等抽到更低再动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.05
+      }
+    },
+    {
+      "cfg": {
+        "full_scale_pa": 100000.0,
+        "max_pa": 0.01
+      },
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 1.0,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "inside_band",
+      "ok": false,
+      "reason": "当前压强 1 Pa 高于粗动允许上限 0.01 Pa，已经进入放电区间（放电区 0.1–1000 Pa）—— 拒绝粗动，等抽到更低再动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 1.0
+      }
+    },
+    {
+      "cfg": {
+        "full_scale_pa": 1000000.0,
+        "max_pa": 0.01
+      },
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 101300.0,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "atmosphere",
+      "ok": false,
+      "reason": "当前压强 1.01e+05 Pa 高于粗动允许上限 0.01 Pa，已经进入放电区间（放电区 0.1–1000 Pa）—— 拒绝粗动，等抽到更低再动。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "mbar",
+        "value": 1013.0
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 12.0,
+        "pressure_pa": 0.001,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "good_in_mbar",
+      "ok": true,
+      "reason": "当前压强 0.001 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 12 秒前）。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:08+00:00",
+        "unit": "mbar",
+        "value": 1e-05
+      }
+    },
+    {
+      "cfg": {},
+      "detail": {
+        "age_s": 5.0,
+        "pressure_pa": 0.01,
+        "sensor": "Chamber",
+        "sensor_class": "DL7VacuumSensor"
+      },
+      "name": "exactly_limit",
+      "ok": true,
+      "reason": "当前压强 0.01 Pa ≤ 允许上限 0.01 Pa，远低于放电区下沿 0.1 Pa（读数 5 秒前）。",
+      "sample": {
+        "sensor_class": "DL7VacuumSensor",
+        "sensor_name": "Chamber",
+        "status": "ok",
+        "timestamp": "2023-11-14T22:13:15+00:00",
+        "unit": "Pa",
+        "value": 0.01
+      }
+    }
+  ],
+  "read_temperature": [
+    {
+      "available_channels": [],
+      "channel": null,
+      "channels": [],
+      "name": "empty",
+      "out": {
+        "age_s": null,
+        "channel": "",
+        "reason": "no_sensor",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [],
+      "channel": "SPM",
+      "channels": [],
+      "name": "empty_named",
+      "out": {
+        "age_s": null,
+        "channel": "SPM",
+        "reason": "no_sensor",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        }
+      ],
+      "name": "auto_prefers_stage",
+      "out": {
+        "age_s": 12.0,
+        "channel": "SPM (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "auto_single",
+      "out": {
+        "age_s": 60.0,
+        "channel": "Magnet (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 4.21
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "unit": "",
+          "value_k": null
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "timestamp": "",
+          "unit": "",
+          "value": 0.0
+        }
+      ],
+      "name": "all_placeholder",
+      "out": {
+        "age_s": null,
+        "channel": "",
+        "reason": "no_sensor",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "unit": "",
+          "value_k": null
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "timestamp": "",
+          "unit": "",
+          "value": 0.0
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        }
+      ],
+      "name": "placeholder_skipped",
+      "out": {
+        "age_s": 12.0,
+        "channel": "SPM (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Shield",
+          "real": true,
+          "status": "error",
+          "unit": "",
+          "value_k": null
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Shield",
+          "real": true,
+          "status": "error",
+          "timestamp": "2023-11-14T22:13:15+00:00",
+          "unit": "",
+          "value": 0.0
+        }
+      ],
+      "name": "real_but_dead",
+      "out": {
+        "age_s": 5.0,
+        "channel": "Shield",
+        "reason": "unavailable",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Shield",
+          "real": true,
+          "status": "error",
+          "unit": "",
+          "value_k": null
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Shield",
+          "real": true,
+          "status": "error",
+          "timestamp": "2023-11-14T22:13:15+00:00",
+          "unit": "",
+          "value": 0.0
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "readable_wins",
+      "out": {
+        "age_s": 60.0,
+        "channel": "Magnet (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 4.21
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "",
+          "name": "Chamber",
+          "real": null,
+          "status": "unavailable",
+          "unit": "",
+          "value_k": null
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "",
+          "name": "Chamber",
+          "real": null,
+          "status": "unavailable",
+          "timestamp": "2023-11-14T22:13:15+00:00",
+          "unit": "",
+          "value": 0.0
+        }
+      ],
+      "name": "unknown_real_dead",
+      "out": {
+        "age_s": 5.0,
+        "channel": "Chamber",
+        "reason": "unavailable",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "SnapshotSensor",
+          "name": "Chamber",
+          "real": null,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 293.0
+        }
+      ],
+      "channel": null,
+      "channels": [
+        {
+          "driver": "SnapshotSensor",
+          "name": "Chamber",
+          "real": null,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:13+00:00",
+          "unit": "K",
+          "value": 293.0
+        }
+      ],
+      "name": "unknown_real_live",
+      "out": {
+        "age_s": 7.0,
+        "channel": "Chamber",
+        "reason": null,
+        "source": "SnapshotSensor",
+        "value_k": 293.0
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "SPM (COM3)",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "exact",
+      "out": {
+        "age_s": 12.0,
+        "channel": "SPM (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "spm (com3)",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "casefold",
+      "out": {
+        "age_s": 12.0,
+        "channel": "SPM (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "Magnet",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "substring",
+      "out": {
+        "age_s": 60.0,
+        "channel": "Magnet (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 4.21
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "COM3",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "ambiguous",
+      "out": {
+        "age_s": null,
+        "channel": "COM3",
+        "reason": "ambiguous_channel",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "LN2",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "unknown",
+      "out": {
+        "age_s": null,
+        "channel": "LN2",
+        "reason": "unknown_channel",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "unit": "",
+          "value_k": null
+        }
+      ],
+      "channel": "Cryostat",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "PlaceholderSensor",
+          "name": "Cryostat",
+          "real": false,
+          "status": "unavailable",
+          "timestamp": "",
+          "unit": "",
+          "value": 0.0
+        }
+      ],
+      "name": "named_placeholder",
+      "out": {
+        "age_s": null,
+        "channel": "Cryostat",
+        "reason": "no_sensor",
+        "source": "",
+        "value_k": null
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "   ",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "SPM (COM3)",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "Magnet (COM3)",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "named_blank",
+      "out": {
+        "age_s": 12.0,
+        "channel": "SPM (COM3)",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "AB",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "A",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "AB",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "exact_beats_substring",
+      "out": {
+        "age_s": 12.0,
+        "channel": "A",
+        "reason": null,
+        "source": "LakeshoreTemperatureSensor",
+        "value_k": 77.35
+      }
+    },
+    {
+      "available_channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "ok",
+          "unit": "K",
+          "value_k": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "warning",
+          "unit": "K",
+          "value_k": 4.21
+        }
+      ],
+      "channel": "A",
+      "channels": [
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "ok",
+          "timestamp": "2023-11-14T22:13:08+00:00",
+          "unit": "K",
+          "value": 77.35
+        },
+        {
+          "driver": "LakeshoreTemperatureSensor",
+          "name": "A",
+          "real": true,
+          "status": "warning",
+          "timestamp": "2023-11-14T22:12:20+00:00",
+          "unit": "K",
+          "value": 4.21
+        }
+      ],
+      "name": "duplicate_names",
+      "out": {
+        "age_s": null,
+        "channel": "A",
+        "reason": "ambiguous_channel",
+        "source": "",
+        "value_k": null
+      }
+    }
+  ],
+  "to_kelvin": [
+    {
+      "out": 77.35,
+      "status": "ok",
+      "unit": "K",
+      "value": 77.35
+    },
+    {
+      "out": 77.35,
+      "status": "ok",
+      "unit": "kelvin",
+      "value": 77.35
+    },
+    {
+      "out": 77.35,
+      "status": "ok",
+      "unit": " K ",
+      "value": 77.35
+    },
+    {
+      "out": 77.14999999999998,
+      "status": "ok",
+      "unit": "C",
+      "value": -196.0
+    },
+    {
+      "out": 77.14999999999998,
+      "status": "ok",
+      "unit": "°C",
+      "value": -196.0
+    },
+    {
+      "out": 77.14999999999998,
+      "status": "ok",
+      "unit": "degC",
+      "value": -196.0
+    },
+    {
+      "out": 77.14999999999998,
+      "status": "ok",
+      "unit": "celsius",
+      "value": -196.0
+    },
+    {
+      "out": 4.2,
+      "status": "warning",
+      "unit": "K",
+      "value": 4.2
+    },
+    {
+      "out": 4.2,
+      "status": "alarm",
+      "unit": "K",
+      "value": 4.2
+    },
+    {
+      "out": null,
+      "status": "error",
+      "unit": "K",
+      "value": 0.0
+    },
+    {
+      "out": null,
+      "status": "unavailable",
+      "unit": "K",
+      "value": 0.0
+    },
+    {
+      "out": null,
+      "status": "error",
+      "unit": "",
+      "value": 0.0
+    },
+    {
+      "out": null,
+      "status": "",
+      "unit": "K",
+      "value": 77.0
+    },
+    {
+      "out": 77.0,
+      "status": "OK",
+      "unit": "K",
+      "value": 77.0
+    },
+    {
+      "out": null,
+      "status": "ok",
+      "unit": "A",
+      "value": 2e-13
+    },
+    {
+      "out": null,
+      "status": "ok",
+      "unit": "",
+      "value": 77.0
+    },
+    {
+      "out": null,
+      "status": "ok",
+      "unit": "kOhm",
+      "value": 77.0
+    },
+    {
+      "out": 77.35,
+      "status": "ok",
+      "unit": "K",
+      "value": "77.35"
+    },
+    {
+      "out": null,
+      "status": "ok",
+      "unit": "K",
+      "value": "abc"
+    },
+    {
+      "out": null,
+      "status": "ok",
+      "unit": "K",
+      "value": null
+    }
+  ],
+  "to_pascal": [
+    {
+      "out": 1.0,
+      "unit": "Pa",
+      "value": 1.0
+    },
+    {
+      "out": 1.0,
+      "unit": "pa",
+      "value": 1.0
+    },
+    {
+      "out": 1.0,
+      "unit": " PASCAL ",
+      "value": 1.0
+    },
+    {
+      "out": 100.0,
+      "unit": "mbar",
+      "value": 1.0
+    },
+    {
+      "out": 100.0,
+      "unit": "millibar",
+      "value": 1.0
+    },
+    {
+      "out": 100.0,
+      "unit": "hPa",
+      "value": 1.0
+    },
+    {
+      "out": 100000.0,
+      "unit": "bar",
+      "value": 1.0
+    },
+    {
+      "out": 133.322,
+      "unit": "Torr",
+      "value": 1.0
+    },
+    {
+      "out": 133.322,
+      "unit": "mmHg",
+      "value": 1.0
+    },
+    {
+      "out": 0.133322,
+      "unit": "mTorr",
+      "value": 1.0
+    },
+    {
+      "out": 0.133322,
+      "unit": "micron",
+      "value": 1.0
+    },
+    {
+      "out": 0.1,
+      "unit": "mbar",
+      "value": 0.001
+    },
+    {
+      "out": null,
+      "unit": "psi",
+      "value": 1.0
+    },
+    {
+      "out": null,
+      "unit": "",
+      "value": 1.0
+    },
+    {
+      "out": null,
+      "unit": "K",
+      "value": 1.0
+    },
+    {
+      "out": 0.001,
+      "unit": "Pa",
+      "value": "1e-3"
+    },
+    {
+      "out": null,
+      "unit": "Pa",
+      "value": ""
+    },
+    {
+      "out": null,
+      "unit": "Pa",
+      "value": null
+    },
+    {
+      "out": null,
+      "unit": "Pa",
+      "value": "abc"
+    },
+    {
+      "out": null,
+      "unit": "Pa",
+      "value": "Infinity"
+    },
+    {
+      "out": null,
+      "unit": "Pa",
+      "value": "NaN"
+    },
+    {
+      "out": 0.0,
+      "unit": "Pa",
+      "value": 0.0
+    },
+    {
+      "out": -1.0,
+      "unit": "Pa",
+      "value": -1.0
+    }
+  ]
+}

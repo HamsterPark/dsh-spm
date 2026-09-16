@@ -321,7 +321,7 @@ const BATCH_3I: string[] = [
 
 /** 批 3j / 3k —— 又一轮两条并行支线，各占一个常量。 */
 const BATCH_3J: string[] = []   // 流式读回一族
-const BATCH_3K: string[] = []   // 环境读（真空 + 温度）
+const BATCH_3K: string[] = ['GetChamberPressure', 'GetTemperature']   // 环境读（真空 + 温度）
 
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
