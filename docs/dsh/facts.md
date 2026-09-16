@@ -5,6 +5,7 @@
 > / `dsh-session-projection` / `dsh-system-prompt` / `dsh-attachment`）两版**逐文件相同**，
 > 差的只有各自 `package.json` 里的版本号；组合树 539→539 行**零 diff**。
 > 领域代码改动 **0**，2193 条测试一次全绿。逐条见 **§8.-2**；上一次见 §8.-1。
+> **0.1.6-alpha.1（09-16）按切换点规则只读不升，影响记在 §8.-3。**
 >
 > 本文是 dsh-spm 里**唯一**记录 dsh 版本相关事实的地方；每次按 `docs/dsh/upgrades.md` 升级都要重核并改上面的版本号。
 > 每条标注来源：**实测** = 本机跑出来的；**包** = 读 npm 包内文件；**文档** = GitHub 仓库 docs（2026-09-01 抓取，站点是 SPA）；**待核** = 课时 0.6 spike 才有结论。
@@ -159,7 +160,40 @@
 
 ## 8. 逐版本变更与对本计划的影响
 
-### 8.-2 rc.1 → **0.1.5-rc.2**（**本次升级**，2026-09-13 实测）
+### 8.-3 **0.1.6-alpha.1 —— 只读不升**（2026-09-16 记录）
+
+切换点之后的第一次 alpha。按 `upgrades.md` 09-13 的补记：**alpha 只读发布说明、
+把影响记进这里，不升**。稳定通道仍是 `latest = 0.1.5-rc.1` / `next = 0.1.5-rc.2`，
+本仓锁在 `rc.2` —— **稳定通道上已是最新**。
+
+**顶层依赖 72 → 73**，三处变化：
+
+| | 包 | 读法 |
+|---|---|---|
+| 新增 | `@deepseek-ai/dsh-workflow-ptc` | 与下面那条是**一对**：workflow 的执行载体换了 |
+| 删除 | `@deepseek-ai/dsh-workflow-worker-thread` | ↑ |
+| 新增 | `@deepseek-ai/dsh-mcp-resources` | MCP 的 *resources* 那一半（我们只用 tools，暂时无关） |
+
+**本仓接触面（compat 的六个）**：`dsh-commands` / `dsh-host-webserver` /
+`dsh-session-projection` / `dsh-system-prompt` / `dsh-tools` **五个都发了 0.1.6-alpha.1**；
+`@deepseek-ai/cordis` 仍在自己那条版本线上（`4.0.2`，未动，同 §1 记的「Cordis 系
+独立版本线」）。⇒ 真要升的时候，接触面**在**，不是那种「包没了」的升级。
+
+**升的时候要先看的那一条**：workflow 从 worker-thread 换成 `ptc`。我们没直接用
+workflow，但 `dsh-jobs-local`（长时 job，课时 5.2 要用）在它上面 —— 升级前先确认
+`ctx.jobs` 的取消语义没变（「后台 job cancel 1 s 内停扫」是 Phase 5 的完成判据）。
+
+#### ⚠️ 记一次我自己差点写错的核对
+
+第一遍我拿「`@deepseek-ai/dsh` 的**顶层依赖表**里有没有这六个」去判接触面，
+结果四个显示「没了」—— 而真相是**它们本来就不是启动器的顶层依赖**
+（它们是子包的依赖，我们在 `pnpm-workspace.yaml` 的 overrides 里单独钉）。
+正确的问法是「这六个包**自己**有没有发这个版本」。
+
+**判据问错了对象，答案照样看起来像个答案** —— 同 D-READBACK-1 那条。
+下次核对接触面就用这一条：`npm view @deepseek-ai/<包>@<版本> version`，逐个问。
+
+### 8.-2 rc.1 → **0.1.5-rc.2**（2026-09-13 实测）
 
 **本仓接触面零变化。** 这是四次升级里第一次连配置树都一模一样：
 
