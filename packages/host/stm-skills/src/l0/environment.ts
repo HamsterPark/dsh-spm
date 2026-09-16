@@ -30,6 +30,7 @@ import {
   latestTemperature,
   processVacuum,
   pyFloat,
+  pyRound,
   readingDict,
   temperatureChannels,
   verdictDict,
@@ -39,15 +40,6 @@ import {
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { ok } from './common.js'
-
-/** Python `round(x, 2)` —— 银行家舍入。用在 `remaining_h` 上。 */
-function round2(x: number): number {
-  const scaled = x * 100
-  const floor = Math.floor(scaled)
-  const diff = scaled - floor
-  const r = diff > 0.5 ? floor + 1 : diff < 0.5 ? floor : floor % 2 === 0 ? floor : floor + 1
-  return r / 100
-}
 
 /**
  * 腔体压强 + **粗动互锁裁决**。只读，不加任何能力。
@@ -79,7 +71,7 @@ export const GetChamberPressure: Skill = {
         label: attestationLabel(att),
         signed_by: att.signedBy,
         expired: attestationExpired(att, nowS),
-        remaining_h: round2(attestationRemainingS(att, nowS) / 3600.0),
+        remaining_h: pyRound(attestationRemainingS(att, nowS) / 3600.0, 2),
       }
     }
     return ok(data)

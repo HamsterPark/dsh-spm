@@ -1363,3 +1363,67 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 就拆掉了，本仓印 `values=[]`。**期望值从金样算出来**（一条 `.replace`），
 旧仓改了那句话这里会跟着变。登记在
 `l0/traces.test.ts` 的 `DEVIATIONS['TipShapeWithReadback/empty@0']`。
+
+## D-STS-1 · `_reshape_spectrum` 的 `reason` 里**不复刻 numpy 的异常文本**
+
+| | |
+|---|---|
+| **Python** | `np.array(...).reshape(rows, cols)` 抛 ValueError，`str(exc)` 拼进 reason：`6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)` |
+| **TS** | `6×7 装不下这段数据: 一共 4 个数，要 42 个` |
+| **测试** | `l0/traces.test.ts` 的 `reshapeReason()` —— **期望值从金样算出来**（正则抠出 size/rows/cols 再重算） |
+
+同 D-SKILL-2 / D-OSCI-1：逐字复刻一句 numpy 的异常，等于让诊断**指向一个本仓根本没有的库**。
+**判据（几个数、要几个）一模一样。** 旧仓改了那句话、或者 numpy 换了措辞，这条登记当场变红。
+
+本仓多一条分支：块里有不是数的元素时给「这段数据里有不是数的元素」（旧仓那边同样落在
+`np.array` 抛上，只是说不出是哪一种）。
+
+## D-STS-2 · 通道串解析不了：旧仓**抛**，本仓**拒**
+
+| | |
+|---|---|
+| **Python** | `ConfigureSTSChannels` 走 `int(x)`、`_coerce_int_list` 走 `int(float(x))` —— 两者都抛 ValueError，技能以一句看不懂的异常失败 |
+| **TS** | `strictIntList` / `coerceIntList` 解不出给 `null`，技能回一条说得清的拒绝，**一次调用都不发** |
+| **测试** | `l0/spectroscopy.test.ts` →「解析不了 ⇒ 一次调用都不发」；`traces.test.ts` 那条通用分支 |
+
+同 D-SKILL-3。两个解析器**照旧刻意不同**（认不认 `;`、认不认 `'2.5'` 这种小数写法、
+认不认非字符串入参），没有合并 —— 同 D-FLOAT-1：**一个名字在仓里有几份实现时，
+登记的是「凭什么几份」**。
+
+## D-STS-3 · `AcquireSTS` 报的是**真的用上的** recv 预算
+
+| | |
+|---|---|
+| **Python** | `data["recv_timeout_s"] = round(recv_budget_s, 1)` —— 记的是**请求的**那个数，而 `connection.py` 会把它夹到 900 s |
+| **TS** | 记的是 `ctx.slowCall` 回来的那个数（**已夹过**）；宿主没接这条口时是 `null` |
+| **测试** | `l0/spectroscopy.test.ts` 的 recv 预算两格 + `slowCallFrom` 三格；变异 `recv-budget-is-capped` / `recv-budget-unwired-is-null` |
+
+金样照不出它（夹具里的预算从来没超过 900 s），所以它由单测 + 变异钉住。
+
+理由同 D-SCAN-4「回声不是读数」：**一个「我请求了 3000 s」的记账，在一台上限 900 s
+的台架上是假的** —— 而事后看记录的人没有第二个地方可以查真值。
+
+## D-STS-4 · `.dat` 候选目录只有一个来源（沿用 D-FRAME-1，不新开）
+
+旧仓 `_attach_saved_dat` 走 `_candidate_save_dirs`（四路）。本仓沿用 `GetLatestScanFile`
+那一份：**问仪器**要 session 目录，只搜真目录，只认最近 120 s。另外三路（落盘登记表、
+`working-sessions`、样品原位目录）依赖本仓还没有的东西，已在 D-FRAME-1 登记过。
+**调用序列因此与旧仓一致**（都是一次 `Util_SessionPathGet`）。
+
+`record_scan_path` 那一句（旧仓裹在 `except: pass` 里的落盘登记）**没移**：本仓没有那份
+登记表，接一个**没有消费方的写入**，下一个人会以为有人在读它（消融精神，同 D-VAC-3 / D-PLL-1）。
+
+## D-STS-5 · `AdvPropsSet` 被拒时那两个键是 `null`，不是 `false`
+
+这一条**与旧仓相同**（`True if adv_ok else None`），登记它只是因为它值得被看见：
+**「没设上」不是「设成了 false」。** 一个宣称了 Z-Ctrl Hold、而那个寄存器根本没碰过的
+返回值，正是这一族最想避免的东西（同 D-LOCKIN-1 的 `phase_deg: 0.0`、D-ZERO-1 的反面）。
+
+## D-LANG-2 · `pyRound`：`round(x, n)` 是**银行家舍入、按精确值算**
+
+语言分歧一族的**第七个**（前六：`pyFloatRepr` / `formatG` / `pyStr` / `pyMod` / `pySum` /
+`pyFixed`，见 D-SI-3 / D-NUM-1 / D-LANG-1）。
+
+Python 的 `round(x, n)` 在半分点上取偶，而且**按 double 的精确值**判半分点；
+`toFixed` 明写「正好一半取大的那个」，`Math.round(x*10**n)/10**n` 则先制造一次乘法误差。
+`pyRound()` 在 `kernel/src/spectroscopy.ts`。

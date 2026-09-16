@@ -83,9 +83,9 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 
 ---
 
-## 2. 该登记成 deviation 的（**编号留空，主线统一编**）
+## 2. 该登记成 deviation 的（**主线已编号并登记进 `spec/deviations.md`**）
 
-### D-STS-? · `_reshape_spectrum` 的 `reason` 里不复刻 numpy 的异常文本
+### D-STS-1 · `_reshape_spectrum` 的 `reason` 里不复刻 numpy 的异常文本
 
 | | |
 |---|---|
@@ -99,7 +99,7 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 另有一条本仓多出来的分支：块里有不是数的元素时给
 `… 装不下这段数据: 这段数据里有不是数的元素`（旧仓那边同样落在 `np.array` 抛上）。
 
-### D-STS-? · 通道串解析不了：旧仓抛，本仓拒
+### D-STS-2 · 通道串解析不了：旧仓抛，本仓拒
 
 | | |
 |---|---|
@@ -109,7 +109,7 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 
 同 D-SKILL-3。顺带：本仓两个解析器**照旧刻意不同**（见 §5.1），没有合并。
 
-### D-STS-? · `AcquireSTS` 报的是**真的用上的** recv 预算
+### D-STS-3 · `AcquireSTS` 报的是**真的用上的** recv 预算
 
 | | |
 |---|---|
@@ -121,7 +121,7 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 理由与 D-SCAN-4 那条「回声不是读数」同源：一个「我请求了 3000 s」的记账，
 在一台上限 900 s 的台架上是假的。
 
-### D-STS-? · `.dat` 候选目录只有一个来源（**沿用 D-FRAME-1，不新开**）
+### D-STS-4 · `.dat` 候选目录只有一个来源（**沿用 D-FRAME-1，不新开**）
 
 旧仓 `_attach_saved_dat` 走 `_candidate_save_dirs`（四路）。本仓沿用
 `GetLatestScanFile` 那一份：**问仪器**要 session 目录，只搜真目录，只认最近 120 s。
@@ -132,13 +132,13 @@ export function slowCallFrom(call: SafeCall, budgeted: BudgetedCall | null, capS
 本仓没有那份登记表，接一个没有消费方的写入，下一个人会以为有人在读它（消融精神，
 同 D-VAC-3 / D-PLL-1）。
 
-### D-STS-? · `ConfigureSTS` 的 `AdvPropsSet` 被拒时那两个键是 `null`
+### D-STS-5 · `ConfigureSTS` 的 `AdvPropsSet` 被拒时那两个键是 `null`
 
 这一条**与旧仓相同**（`True if adv_ok else None`），列在这里只是因为它值得被看见：
 「没设上」不是「设成了 false」。一个宣称了 Z-Ctrl Hold 而那个寄存器根本没碰过的
 返回值，正是这一族最想避免的东西（同 D-LOCKIN-1 的 `phase_deg: 0.0`）。
 
-### D-LANG-1 补充 · `pyRound`
+### D-LANG-2 · `pyRound`
 
 `round(x, n)` 是**银行家舍入、按精确值算**；`toFixed` 明写「正好一半取大的那个」。
 新增 `pyRound()`（在 `kernel/src/spectroscopy.ts`），与 `pyFixed` / `pyFloatRepr` /

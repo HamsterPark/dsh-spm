@@ -270,3 +270,40 @@ describe('slowCallFrom · 报的是**真的用上的那个数**', () => {
     expect(got.record.error).toBe('Timeout: 没回')
   })
 })
+
+/**
+ * 2026-09-16 收族：批 3k 的 `environment.ts` 曾私写过一份 `round2()`
+ * （`x*100` 之后比 `diff > 0.5`）—— 那正是上面 `pyRound` 抬头第一条警告的写法：
+ * **那个乘法自己要舍入**。
+ *
+ * 下面这几个数是**实测**出来的分岔点（与本机 Python 3.13 逐个对过）。
+ * 收族之后 `remaining_h` 走同一份实现，这一组就是它的钉子 ——
+ * 十份 `cell()` 的教训是「一样的东西别写十遍」，而分辨两份是不是一样的
+ * 唯一办法是**找一个能把它们分开的输入**。
+ */
+describe('pyRound —— 收掉 environment.ts 那份私有 round2', () => {
+  it.each([
+    [2.675, 2.67],
+    [2.665, 2.67],
+    [1.115, 1.11],
+    [0.155, 0.15],
+    [0.165, 0.17],
+    [0.125, 0.12],
+    [8.835, 8.84],
+  ])('round(%f, 2) === %f（与 CPython 逐个对过）', (x, want) => {
+    expect(pyRound(x, 2)).toBe(want)
+  })
+
+  it('那份 round2 在其中五个上给的是别的答案 —— 所以这不是一次改写，是一次修复', () => {
+    // 原样搬过来的那一版，留在这里当反例
+    const round2 = (x: number): number => {
+      const scaled = x * 100
+      const floor = Math.floor(scaled)
+      const diff = scaled - floor
+      const r = diff > 0.5 ? floor + 1 : diff < 0.5 ? floor : floor % 2 === 0 ? floor : floor + 1
+      return r / 100
+    }
+    const split = [2.675, 2.665, 1.115, 0.155, 0.165].filter((x) => round2(x) !== pyRound(x, 2))
+    expect(split).toHaveLength(5)
+  })
+})
