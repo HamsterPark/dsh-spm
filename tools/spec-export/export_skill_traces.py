@@ -310,7 +310,25 @@ BATCH_3K: list[str] = ["GetChamberPressure", "GetTemperature"]   # 环境读（�
 BATCH_3L: list[str] = []   # builtins.spectroscopy 整族
 
 #: ↑ 3l ／ ↓ 4a —— 这一行谁都不要动
-BATCH_4A: list[str] = []   # builtins 分析技能第一批
+BATCH_4A: list[str] = [
+    # 掩膜 / 团簇一族
+    "ExtractClusters", "AssessClusterRoundness", "SelectPokedCluster", "VerifyAdatomAt",
+    # 平面族（K2）
+    "MeasureStepHeight", "AssessFrameTrust",
+    # 各自自足
+    "LocateStepEdge", "AssessAtomicLines", "AssessFrameCorrugation",
+]   # builtins 分析技能第一批
+#
+# ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
+# `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。
+# **那仍然是一条判据**（外壳在碰任何东西之前先拒），只是它不是这一批的主判据。
+# 主判据在 `spec/golden/analysis.json`：那台导出器合成 `.sxm` 的**字节**、
+# 让旧仓真技能跑一遍、把整棵 `SkillResult` 录下来，TS 那侧拿同一批字节复跑。
+# 两份都要：这一份钉的是「它在注册表里、被真调度链调得动」，那一份钉的是判据本身。
+#
+# `AssessAtomicLines` 是九个里唯一跟仪器说话的，所以它在这里录到的是**真的**
+# 动词序列（`Scan_BufferGet` → `Signals_NamesGet` → `Scan_FrameGet` →
+# `Scan_FrameDataGrab`），外加注错点派生出来的那几条。
 
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:

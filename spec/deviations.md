@@ -1363,3 +1363,155 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 就拆掉了，本仓印 `values=[]`。**期望值从金样算出来**（一条 `.replace`），
 旧仓改了那句话这里会跟着变。登记在
 `l0/traces.test.ts` 的 `DEVIATIONS['TipShapeWithReadback/empty@0']`。
+
+## D-VISION-1 · `fit_plane_robust` 的 RANSAC **不与 numpy 逐位一致**，判据因此换了一条
+
+| | |
+|---|---|
+| **Python** | `np.random.default_rng(42)`（PCG64）抽三点子集 |
+| **TS** | `Xoshiro128`（D-NUM-7：判据是**可复现**，不是「与 numpy 相同」） |
+| **测试** | `packages/host/vision/src/vision.test.ts` → `抽签这件事是**真的**` |
+
+三点假设只是搜索启发式，真正的答案是「用全部内点重拟合」。两边抽到的子集不同 ⇒
+**落在带边缘上的若干点归属不同** ⇒ 重拟合的输入集差几个点。实测（128×128 的台面帧、
+`sigma=None`）：内点率 `0.390625` 对 `0.390380859375`，差 **4 个点 / 16384**，
+由此 `std` 的相对差 `4.7e-5`。
+
+于是判据分两层，两层都写在 `plane.ts` 的 `RANSAC_REL_TOL` 上：
+
+* **定死内点集的那一格逐位比** —— 给一个显式 `sigma`，大到「整条台面在带内、
+  隔壁台面在带外」，那时每一个够好的三点假设都圈出同一个内点集
+  （金样 `terraces_sigma10pm`，内点率 `0.390625` 逐位相同）；
+* **抽签的那几格**按「两边拟合出来的平面，在帧上**任何一点**的差不超过量程的
+  `1e-3`」比 —— 不逐系数按相对比：一张几乎水平的帧上 `a ≈ −3e-15`（整帧 0.3 pm）、
+  一张常数帧上 `a ≈ −9e-27`（纯舍入），对这种数要求相对精度是在要求一件不成立的事。
+
+⚠️ 金样里**删掉**过一格（`sigma=20pm`）：在那个阈值上「一条沿楼梯斜穿的平面」与
+「一整条台面」的内点数相当，挑中谁由抽样序列决定，两边的答案差一个量级。
+**一个答案是掷骰子的用例不是判据**，留着它只会让下一个人去调容差。
+
+## D-VISION-2 · `numerics.median` 是 `np.percentile(50)`，**不是** `np.median`
+
+| | 偶数长度时算什么 |
+|---|---|
+| `np.median` | `np.mean(两个中位)` = `(a + b) / 2` |
+| `np.percentile(x, 50, 'linear')` | `a + (b − a) · 0.5` |
+| `numerics.median` | 后者（它就是 `percentile(xs, 50)`） |
+
+两个表达式数学上相等、浮点上不等。`mast/vision/` 里凡是 `np.median` / `np.nanmedian`
+的地方本仓走 `vision/nd.ts` 的 `npMedian`（`(a+b)/2`）。
+
+**测试**：`vision.test.ts` → `` `np.median` 不是 `np.percentile(50)` ``，
+金样 `analysis.json` 的 `np_median` 一节里有一格**必然分岔**
+（`[-0.1, 0.30000000000000004]` ⇒ `0.10000000000000002` 对 `0.10000000000000003`）。
+那一格是**挑出来让它分岔的**，不是随手取的 —— 第一版拿合成帧验，两者恰好处处相等，
+那条断言于是绿着什么也没验（同 `numerics.md` 第四节第二条）。
+
+`numerics.median` 没有错，它对的是 `np.percentile`。这是 D-CHANNELS-1 的形状：
+两个看起来该合并的东西，合并会默默改掉判决。
+
+## D-VISION-3 · `judge_frame` 的 `std` 走 **float32**，而那不是精度问题
+
+`tip_metrics._detrend` 的最后一步是 `.astype(np.float32)`，而 `np.std` 对一个 float32
+数组**在 float32 里累加**。一张带倾斜的死平帧，去趋势残差在 `1e-25` 量级 ——
+**`1e-25` 的平方在 float32 里下溢成 0** ⇒ 方差 0 ⇒ `std` 为 0 ⇒ `judge_frame`
+走第一档（`DEAD_FLAT_REASON`）。在 float64 里算的话 `std ≈ 1e-25 ≠ 0`，
+同一张帧改走第二档、**报的是另一句话**，而这一层的产品正是那句话。
+
+本仓照抄那次降精度（`vision/nd.ts` 的 `std32`，每一步都 `Math.fround`）。
+**累加顺序仍与 numpy 的成对求和不同**，那一份差异由 `corrugationRelTol(n)` 承担
+（`8 · eps32 · log₂n`，与 `sumRelTol` 同一条推导，只是把 `eps` 换成 `eps32`）。
+
+**测试**：`vision.test.ts` → `judgeFrame 的两档死平判据` 的 `dead_flat_float64` 那一格。
+⚠️ 那一格**不走 `.sxm`**：存成 float32 之后量化噪声（~1e-16）远大于下溢的门槛，
+只有**活体帧**（直接从线上拿到的 float64）撞得到这一条。
+
+## D-ADATOM-1 · `VerifyAdatomAt` 的 `min_peak_height_m` 在旧仓把候选**全滤光了**
+
+| | |
+|---|---|
+| **Python** | `adatom_verify.py:120` 读 `c.get("peak_height_m")`，而 `ExtractClusters` 交出来的键叫 **`peak_height_pm`** ⇒ 取到 `None` ⇒ `or 0.0` ⇒ `0.0 < min_h` 恒真 ⇒ **每一个候选都被 `continue` 掉** |
+| **后果** | 技能报 `not_found`（「这一帧的目标附近没有团簇」），而诚实的答案是「**我把它们全筛掉了**」；`others[].peak_height_m` 一并恒为 `None` |
+| **TS** | 按 `peak_height_pm × 1e-12` 读 |
+| **测试** | `l0/analysis-skills.test.ts` → `D-ADATOM-1` 那一组（三条：旧仓那一侧钉住 · 本仓照实报 · 滤器抬到 1 nm 时仍然会滤） |
+
+这与 `_frame_contains` 自己 docstring 里写的那条一模一样：
+「a target the frame does not cover would come back as `not_found` —— *the atom is not there* ——
+when the honest answer is *this frame cannot say*」。同一个技能，同一种错，另一个字段。
+
+## D-ATOMLINE-1 · 「按信号名找 Z」那一支在旧仓是**死的**
+
+| | |
+|---|---|
+| **Python** | `_scan_readout.first_values(rec)` 取三段信封的第三段，也就是**整个 body**。`Signals_NamesGet` 的 body 是 `[size, declared_n, 名字表]`，于是 `flat` 成了 `['31', '31', 'current (a)']` 这样三个串，而 `flat[c]`（c 是 0 / 30 这种**信号索引**）几乎不可能命中 `Z_NAME_HINTS` ⇒ 永远落到兜底 |
+| **TS** | 按 `body[2]` 取名字表（与 `ListSignalChannels` 同一条口径），于是那一支真的能命中 |
+| **测试** | `l0/analysis-skills.test.ts` → `D-ATOMLINE-1` 那一组（三条，含「缓冲里多一路非电流时兜底会挑错」） |
+
+兜底本身是诚实的（它**说自己是兜底**：`兜底：缓冲里非电流的那一路`），
+但它在缓冲里有第三路时会挑错：`[0(Current), 5(Bias), 30(Z)]` ⇒ 兜底给 **5**，
+而本模块抬头明写「必须读 Z」（Z 的线级 SNR 中位 211–225，电流只有 52–82，**差 2.6–4 倍**）。
+
+⚠️ 这是批 4a **唯一**一处刻意改了旧仓解析的地方。
+
+## D-SCANPREP-1 · 扫描图阈值 profile：外部 JSON → **注入**，而且只移**两个字段**
+
+| | |
+|---|---|
+| **Python** | `scan_prep_thresholds.py` 22 个阈值 + 从 `project_root()/config/scan_prep_profiles.json` 读外部 profile（读不动就当没有） |
+| **TS** | `kernel/src/scan-prep-thresholds.ts`：只有 `name` / `provenance` / `corrugationHighPm` / `corrugationRefScanNm`，外部 profile 是 `scanPrepProfiles.external` 这张表 |
+| **测试** | `kernel/src/corrugation-gate.test.ts` → `scan-prep profile` 那一组 |
+
+注入那一半同 **D-VAC-1 / D-PRESET-2 / D-LOCKIN-2**。
+只移两个字段那一半是**消融**：本批唯一的消费方 `AssessFrameCorrugation` 只读这四个，
+移那 18 个进来就是给下一个人留 18 条永远不亮的分支，而它们各自的标定说明会在
+**没有任何测试盯着**的情况下慢慢过期。
+
+⚠️ 内建 profile 的起伏门**出厂就是 `null`**（判不了），这是判据不是疏漏 ——
+`judgeCorrugation` 因此开箱即 `undecidable`，而它的 `reason` 会说清
+「上限与它的标定视野都没填 …… 这不是『没有上限所以都算正常』」。
+
+## D-SCANART-1 · `detect_scan_artifacts` 只移了 `bad_row_frac` 那一条路
+
+旧仓那个函数无条件还算 `_spike_frac`（要 `ndi.median_filter`，基线没有）、
+`_oscillation`、`_drift_px`。本批**唯一的消费方**（`AssessFrameCorrugation` 的旁证）
+只取 `bad_row_frac`，所以只移 `_bad_rows`(10) + `_plane_detrend`(9) 这 19 行。
+
+⚠️ `_drift_px` 尤其不要顺手补：它是 FFT 循环相关，而
+`docs/handoff/survey-remaining.md` §3.4 第一行记着旧仓 2026-09-13 **明确把相位相关
+换掉了**（沿慢轴绕回，「沿 y 挪 3 nm 量到 −0.06 nm」）。要用的时候该看的是那条记录。
+
+**另一条照移的**：`detect_scan_artifacts` 在 `_detrend_rows(fwd).std() < 1e-9` 时
+直接返回一个全默认的结果，而 `bad_row_frac` 的默认是 **0.0**。
+Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早退几乎总是成立**，
+于是 `bad_row_frac` 报的那个 0 的含义是「**没算**」而不是「没有坏行」。
+本仓照移并把这句话写在 `scan-artifacts.ts` 的 `badRowFrac` 上。
+
+## D-CLUSTER-1 · `AssessClusterRoundness` 读**裸块**，`ExtractClusters` 读归位后的帧
+
+| | 取帧 | 阈值 | 预处理 | 裁行 |
+|---|---|---|---|---|
+| `ExtractClusters` | `sxm_oriented_frames`（反扫翻正、`SCAN_DIR: up` 上下翻） | `median ± 3σ_MAD` | 默认 **RAW** | **裁**（整行有限） |
+| `AssessClusterRoundness` | **`scan["channels"][ch]` 裸块** | `mean ± 1.5σ`（或物理阈值） | 恒 OLS 平面 | **不裁** |
+
+两处都照移。**不是笔误，也不是可以顺手统一的东西**：
+
+* 分割口径的差异写在 `ExtractClusters` 的**模型可见描述**里（「注意它是另一套分割，
+  不是这一套的封装 …… **同一帧会得到不同的 blob**」）—— 统一它等于让那句话变成假话；
+* 而取帧那一处**是旧仓的现状**：`AssessClusterRoundness` 拿的是裸块，于是一张
+  `SCAN_DIR: up` 的帧在它这里是上下颠倒的。这一条**没有跟着修**，因为修它会让
+  这个技能的每一格金样改数，而本批没有一个用例能证明修完是对的
+  （`ExtractClusters` 那一侧 2026-08-11 修这条时是拿真机 60 nm 帧量出 31.8 nm 的偏差的）。
+  欠账写在 `analysis-clusters.ts` 的抬头。
+
+## D-ANALYSIS-1 · 六个读 `.sxm` 的技能里，**只有一个**在报文里带异常类名
+
+旧仓六个调用方里五个写 `f"…{exc}"`、一个（`ExtractClusters`）写
+`f"…{type(exc).__name__}: {exc}"`。本仓 `loadSxm` 因此同时给 `why`（带类名）与
+`plain`（只有那句话），各按各的用。
+
+**统一成同一种写法会让六条报文有五条对不上，而改掉的是模型读的那句。**
+
+⚠️ 操作系统那半句（`[WinError 2] 系统找不到指定的文件。` / `ENOENT: no such file or directory`）
+带着**本机的语言环境**，两边措辞本来就不同。金样与测试在**两侧**都把它归一化成
+`<oserror>`（导出器一组正则、测试一组同样的正则）——判据是它前面那半句：
+谁在报、报的是哪条路径。

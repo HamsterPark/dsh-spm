@@ -173,12 +173,21 @@ importers:
       dsh-spm-kernel:
         specifier: workspace:*
         version: link:../kernel
+      dsh-spm-nanonis-files:
+        specifier: workspace:*
+        version: link:../nanonis-files
       dsh-spm-nanonis-wire:
         specifier: workspace:*
         version: link:../../instrument/nanonis-wire
+      dsh-spm-numerics:
+        specifier: workspace:*
+        version: link:../numerics
       dsh-spm-stm-records:
         specifier: workspace:*
         version: link:../stm-records
+      dsh-spm-vision:
+        specifier: workspace:*
+        version: link:../vision
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: 4.0.2
@@ -186,6 +195,19 @@ importers:
       dsh-spm-instrument-stmsim:
         specifier: workspace:*
         version: link:../../instrument/instrument-stmsim
+
+  packages/host/vision:
+    dependencies:
+      dsh-spm-kernel:
+        specifier: workspace:*
+        version: link:../kernel
+      dsh-spm-numerics:
+        specifier: workspace:*
+        version: link:../numerics
+    devDependencies:
+      dsh-spm-nanonis-files:
+        specifier: workspace:*
+        version: link:../nanonis-files
 
   packages/instrument/instrument:
     dependencies:

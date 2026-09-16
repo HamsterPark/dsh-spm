@@ -334,7 +334,20 @@ const BATCH_3K: string[] = ['GetChamberPressure', 'GetTemperature']   // 环境�
 const BATCH_3L: string[] = []   // builtins.spectroscopy 整族
 
 // ↑ 3l ／ ↓ 4a —— 这一行谁都不要动，它就是那「一行谁都没改的」
-const BATCH_4A: string[] = []   // builtins 分析技能第一批（要数值底座）
+const BATCH_4A: string[] = [
+  // 掩膜 / 团簇一族 —— 共用 parse_xy_meta + px_to_m + acquired_row_mask + assess_mask
+  'ExtractClusters',
+  'AssessClusterRoundness',
+  'SelectPokedCluster',
+  'VerifyAdatomAt',
+  // 平面族 —— 共用 K2（noise_floor + fit_plane_robust + plane_subtract）
+  'MeasureStepHeight',
+  'AssessFrameTrust',
+  // 各自自足
+  'LocateStepEdge',
+  'AssessAtomicLines',
+  'AssessFrameCorrugation',
+]   // builtins 分析技能第一批（要数值底座）
 
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。

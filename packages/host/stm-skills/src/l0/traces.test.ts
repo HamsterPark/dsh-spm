@@ -599,6 +599,26 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       'values=[]',
     ),
   },
+  // ── 批 4a：两句话，两条已登记的差异 ──
+  //
+  // ① **操作系统那句错**。旧仓印的是 `[WinError 2] 系统找不到指定的文件。`
+  //    —— 带着本机的**语言环境**；Node 那边叫 `ENOENT: no such file or directory`。
+  //    两句都对，都不是判据：判据是它前面那半句（谁在报、报的是哪条路径）。
+  //    这里把整条期望换成本仓那句，**并且把它写死** —— 换了实现它照样会红。
+  'AssessFrameTrust/ok': {
+    error:
+      '读不了 spec-export：ENOENT: no such file or directory, open ' +
+      `'${join(process.cwd(), 'spec-export')}'`,
+  },
+  // ② **信封在 wire 层已经拆掉**（D-SKILL-1 的又一次）。旧仓这句把整个
+  //    `(error, raw_bytes, body)` 三元组 `str()` 出来当「原始回包」，
+  //    本仓手上只有 body。
+  'AssessAtomicLines/empty@0': {
+    error: (golden['AssessAtomicLines']?.traces['empty@0']?.error ?? '').replace(
+      "('', b'', [])",
+      '[]',
+    ),
+  },
 }
 
 /**

@@ -9,6 +9,7 @@
     { "path": "./packages/host/kernel" },
     { "path": "./packages/host/nanonis-files" },
     { "path": "./packages/host/numerics" },
+    { "path": "./packages/host/vision" },
     { "path": "./packages/host/stm-safety" },
     { "path": "./packages/host/stm-records" },
     { "path": "./packages/host/stm-skills" },

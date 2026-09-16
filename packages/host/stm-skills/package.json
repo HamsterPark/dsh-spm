@@ -9,7 +9,10 @@
   "dependencies": {
     "dsh-spm-compat": "workspace:*",
     "dsh-spm-kernel": "workspace:*",
+    "dsh-spm-nanonis-files": "workspace:*",
     "dsh-spm-nanonis-wire": "workspace:*",
+    "dsh-spm-numerics": "workspace:*",
+    "dsh-spm-vision": "workspace:*",
     "dsh-spm-stm-records": "workspace:*"
   },
   "devDependencies": {

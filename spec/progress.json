@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 329,
+    "done": 338,
     "partial": 0,
-    "todo": 186
+    "todo": 177
   },
-  "modules_complete": 50,
+  "modules_complete": 59,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -21,8 +21,8 @@
     },
     "builtins.adatom_verify": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.advanced_ops": {
       "total": 5,
@@ -46,8 +46,8 @@
     },
     "builtins.atomic_lines": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.atomic_multiframe": {
       "total": 2,
@@ -131,18 +131,18 @@
     },
     "builtins.cluster_extract": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.cluster_roundness": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.cluster_select": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.coarse_nudge": {
       "total": 1,
@@ -221,8 +221,8 @@
     },
     "builtins.frame_corrugation": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.frame_drift_skill": {
       "total": 1,
@@ -236,8 +236,8 @@
     },
     "builtins.frame_trust": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.function_generator": {
       "total": 6,
@@ -481,13 +481,13 @@
     },
     "builtins.step_edge": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.step_height": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.sweep": {
       "total": 11,
@@ -1060,11 +1060,11 @@
       "module": "builtins.atomic_lines",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "AssessAtomicPhase": {
       "module": "builtins.tip_spectro_assess",
@@ -1090,11 +1090,11 @@
       "module": "builtins.cluster_roundness",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessDomainPhase": {
       "module": "builtins.domain_assess",
@@ -1120,21 +1120,21 @@
       "module": "builtins.frame_corrugation",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessFrameTrust": {
       "module": "builtins.frame_trust",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessHerringbone": {
       "module": "builtins.herringbone_assess",
@@ -2130,11 +2130,11 @@
       "module": "builtins.cluster_extract",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "FindCleanSpot": {
       "module": "builtins.clean_spot",
@@ -3770,11 +3770,11 @@
       "module": "builtins.step_edge",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "LockNanonisUI": {
       "module": "builtins.util",
@@ -3850,11 +3850,11 @@
       "module": "builtins.step_height",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "MonitorCurrent": {
       "module": "builtins.current_monitor",
@@ -4500,11 +4500,11 @@
       "module": "builtins.cluster_select",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "SetAcquisitionPeriod": {
       "module": "builtins.bias_sweep",
@@ -5900,11 +5900,11 @@
       "module": "builtins.adatom_verify",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "VerifyAtomicResolution": {
       "module": "composite.verify_atomic_resolution",

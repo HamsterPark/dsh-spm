@@ -54,6 +54,9 @@ import { READBACK_STREAM } from './readback-skills.js'
 // ── 批 3l（spectroscopy 整族）在这一行下面加 import ──
 
 // ── 批 4a（分析技能第一批）在这一行下面加 import ──
+import { ANALYSIS_CLUSTERS } from './analysis-clusters.js'
+import { ANALYSIS_FRAMES } from './analysis-frames.js'
+import { ANALYSIS_LINES } from './analysis-lines.js'
 import { ENVIRONMENT } from './environment.js'
 import { MISC_SETTERS } from './misc-setters.js'
 import { QPLUS } from './qplus.js'
@@ -114,6 +117,9 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 3l 在这一行下面展开 ──
 
   // ── 批 4a 在这一行下面展开 ──
+  ...ANALYSIS_CLUSTERS,
+  ...ANALYSIS_FRAMES,
+  ...ANALYSIS_LINES,
   ...ENVIRONMENT,
   ...MISC_SETTERS,
   ...QPLUS,
@@ -178,6 +184,10 @@ export * from './tip-policy.js'
 // ── 批 3l 在这一行下面 re-export ──
 
 // ── 批 4a 在这一行下面 re-export ──
+export * from './analysis-common.js'
+export * from './analysis-clusters.js'
+export * from './analysis-frames.js'
+export * from './analysis-lines.js'
 export * from './environment.js'
 export * from './misc-setters.js'
 export * from './qplus.js'
