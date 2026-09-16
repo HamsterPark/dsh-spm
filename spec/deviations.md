@@ -992,10 +992,27 @@ skimage 不给就按 dtype 猜，而它对 float 图的猜测（`1.0`）在一�
   进最后一个 bin，不被丢掉。这一条在「最高的那个 bin 是哪个」上会翻结论——
   而那正是调用方要的答案。
 
-## D-NUM-7 · RNG 求的是**可复现**，不是「与 numpy 相同」
+## D-NUM-7 · RNG 求的是**可复现**，不是「与 numpy 相同」—— 而现在有两份
 
-xoshiro128\*\*，不是 PCG64。判据是同种子同串；金样里钉的是本仓自己那一串，
-于是将来任何一次「顺手换个 RNG」都会当场变红。
+通用那一份是 xoshiro128\*\*，不是 PCG64。判据是同种子同串；金样里钉的是本仓自己
+那一串，于是将来任何一次「顺手换个 RNG」都会当场变红。
+
+### 2026-09-17 补：本仓现在**也有**一份逐位复现 numpy 的 PCG64
+
+批 4b 的 `superstructure_test` 要 `np.random.default_rng` 抽的那几个对照波矢 ——
+**那是一串要被比的答案，不是一串随便的数**。于是 `numerics/pcg64.ts` 把它实现了
+（pool / state / raw / uniform 四层各比一遍）。`rng.ts` 抬头原来那句「复现它要实现
+一个 128 位状态的 LCG」现在有了下文。
+
+于是仓里有两个 RNG，而**判据不是「哪个更好」，是「对面有没有一个被比的答案」**：
+
+| | 用在哪 | 追不追 numpy | 为什么 |
+|---|---|---|---|
+| `Xoshiro128` | RANSAC 抽样、一切「只要可复现」的地方 | **不追** | 对面那串数**本身不是答案** —— 换一串照样得出同一个平面（D-VISION-1） |
+| `Pcg64` | `superstructure_test` 的对照波矢 | **逐位追** | 那几个点**进了判决**：抽哪几个决定了「有没有超结构」这句话 |
+
+同 D-FLOAT-1 / D-CHANNELS-1 / D-PIEZO-1：**一个名字在仓里有几份实现时，
+登记的是「凭什么几份」。** 这一条的答案最短：**看那串数有没有下游。**
 
 ## D-3DS-1 · `.3ds` 截断：没写进来的像素填 **NaN**，并把「缺几个」交出来
 
@@ -1710,7 +1727,7 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 
 <!-- ── 批 4b（晶格判据底座 + 原子分辨判定一族）的登记写在这一行下面 ── -->
 
-## D-???? （批 4b·临时 D-LATTICE-1）· ±k 孪生峰**谁排在前面没有定义**
+## D-LATTICE-1 · ±k 孪生峰**谁排在前面没有定义**
 
 实信号的谱满足 `|F(−k)| = |F(k)|` —— 在精确算术里这是一个**精确的平局**，
 而 `np.argmax` 的平局规则是「C 序里第一个」。于是谁排前面**完全由那一对的最后一位
@@ -1730,7 +1747,7 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 `nPeaks` / `nRidge` / `periodsNm` / `anglesDeg` / `hexagonal` / `latticeAngleDeg` /
 `directionBalance` / `warnings` **一个不少地逐条比**，它们全都与这个符号无关。
 
-## D-???? （批 4b·临时 D-SHARP-1）· `_fft_sharpness` 旧仓在 **float32** 里做整条 FFT
+## D-SHARP-1 · `_fft_sharpness` 旧仓在 **float32** 里做整条 FFT
 
 `_detrend` 的输出是 `astype(np.float32)`；`_detrend(h) / std` 里的 `std` 是一个
 **Python 弱标量**（NEP 50）⇒ 结果仍是 float32；而 `np.fft.fft2(float32)` 回
@@ -1750,7 +1767,7 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 容差那一条看不见它（一个 ulp 的窗，而去掉 `fround` 只挪半个 ulp），
 变异演练当场照出来了。
 
-## D-???? （批 4b·临时 D-SUPER-1）· `superstructure_test` 的相干求和只能给**绝对**容差
+## D-SUPER-1 · `superstructure_test` 的相干求和只能给**绝对**容差
 
 `_max_over_neighbourhood` 算的是 `Σ hw·e^{-2πik·r}`。对一个**对照**波矢，这是
 三万多个 `~1e−11` 的数相加得到 `~1e−14` —— **相消了三个量级**。
@@ -1768,7 +1785,7 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 > 各比一遍。这与 D-VISION-1（RANSAC 的抽样序列**不**追 numpy）是同一条判据的两侧：
 > 追不追，看的是**对面有没有一个被比的答案**。
 
-## D-???? （批 4b·临时 D-LATTICE-2）· 同一件事两套措辞，**两套都照移**
+## D-LATTICE-2 · 同一件事两套措辞，**两套都照移**
 
 | 事 | `_sxm_frame.load_frame` 那一族 | `atomic_lattice._load_frame` 那一族 |
 |---|---|---|
@@ -1783,7 +1800,7 @@ Z 数据以米计（~1e-9），去趋势残差 ~1e-11 ⇒ **真机上这条早�
 `loadFrame` 因此带一个 `requireScale` 开关，两个技能族各传各的；
 一条变异（`skill-load-frame-scale-requirement-differs`）钉着它。
 
-## D-???? （批 4b·临时 D-LATTICE-3）· 两个 `_MIN_PERIODS_IN_FRAME`，同名不同值
+## D-LATTICE-3 · 两个 `_MIN_PERIODS_IN_FRAME`，同名不同值
 
 | 住在哪 | 值 | 它在挡什么 |
 |---|---|---|
@@ -1950,7 +1967,7 @@ z = d / √(s² + d²/4) ≤ d / (d/2) = 2        （s → 0 取等）
 
 <!-- ── 批 4d（composite.scan_at + 撞针追踪）的登记写在这一行下面 ── -->
 
-## D-SCANRES-?? · `resolve_scan` 的三处 `human` f-string 在旧仓**抛 TypeError**，而它下面那句兜底因此是死代码
+## D-SCANRES-1 · `resolve_scan` 的三处 `human` f-string 在旧仓**抛 TypeError**，而它下面那句兜底因此是死代码
 
 | | |
 |---|---|
@@ -1984,7 +2001,7 @@ if line_time is None:                    # pragma: no cover
 
 ---
 
-## D-SCANRES-?? · `int(float('inf'))` 抛的是 `OverflowError`，而 `_num` 的 `except` 收不住
+## D-SCANRES-2 · `int(float('inf'))` 抛的是 `OverflowError`，而 `_num` 的 `except` 收不住
 
 | | |
 |---|---|
@@ -2024,7 +2041,7 @@ CPython 3.6 起 `float()` 认数字间的下划线；本机 3.13 实测：
 
 ---
 
-## D-SCANRES-?? · 档位表 / 偏好 / 针尖速度上限**由外面注入**，`preview()` 与写入路径不移植
+## D-SCANRES-3 · 档位表 / 偏好 / 针尖速度上限**由外面注入**，`preview()` 与写入路径不移植
 
 | | |
 |---|---|
@@ -2064,7 +2081,7 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 ---
 
-## D-CRASH-?? · 撞针追踪：住进程、限值注入、`snapshot().since_s` 是本仓新增
+## D-CRASH-1 · 撞针追踪：住进程、限值注入、`snapshot().since_s` 是本仓新增
 
 | | |
 |---|---|
@@ -2091,7 +2108,7 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 ---
 
-## D-CRASH-?? · `FullScan` 的逐通道判语一律 `ch<编号>`，不带名字
+## D-CRASH-2 · `FullScan` 的逐通道判语一律 `ch<编号>`，不带名字
 
 | | |
 |---|---|
@@ -2111,7 +2128,7 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 ---
 
-## D-CRASH-?? · `FullScan` 的视觉判语（`_vision_verdict`）不移植
+## D-CRASH-3 · `FullScan` 的视觉判语（`_vision_verdict`）不移植
 
 | | |
 |---|---|
@@ -2128,7 +2145,7 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 ---
 
-## D-CRASH-?? · `ScanAt` / `FullScan` 都不接断点
+## D-CRASH-4 · `ScanAt` / `FullScan` 都不接断点
 
 沿用 D-SCAN-3（`WaitScanComplete` 不接断点）：dsh 的一次工具调用不跨进程续跑。
 两个技能的 `wait` 步仍然 `checkpointAfter: true` —— 判据留在内核里，介质由宿主接。
