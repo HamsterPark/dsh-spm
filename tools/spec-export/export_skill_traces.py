@@ -291,6 +291,10 @@ BATCH_3I: list[str] = [
     "CheckPiezoRange",
 ]   # 光学台 / 杂项 setter / 单件
 
+#: 批 3j / 3k —— 又一轮两条并行支线，各占一个常量（同 3g/3h/3i 那一轮）。
+BATCH_3J: list[str] = []   # 流式读回一族（z_trace + readback_stream）
+BATCH_3K: list[str] = []   # 环境读（真空互锁 + 温度）
+
 #: 「模块没装」那条分支要的是一条**带 `NeedModule` 字样**的错。
 #:
 #: 通用注错点给的文案是「连接被对端关闭」，而 Osci1T 那三个技能靠
@@ -915,7 +919,8 @@ def main() -> int:
     missing: list[str] = []
     for name in (BATCH_1 + BATCH_2 + BATCH_2B + BATCH_3A + BATCH_3B + BATCH_3C
                  + BATCH_3D + BATCH_3E + BATCH_3F
-                 + BATCH_3G + BATCH_3H + BATCH_3I):
+                 + BATCH_3G + BATCH_3H + BATCH_3I
+                 + BATCH_3J + BATCH_3K):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

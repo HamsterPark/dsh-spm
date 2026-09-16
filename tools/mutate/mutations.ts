@@ -1492,4 +1492,8 @@ function physicallyAbsurdViolations_unused(`,
     replace: "  typeof p[k] === 'number' && p[k] !== 0 ? Math.trunc(p[k] as number) : dflt",
     scope: 'packages/host/stm-skills',
   },
+
+  // ── 批 3j（流式读回一族）的演练写在这一行下面 ──
+
+  // ── 批 3k（环境读）的演练写在这一行下面 ──
 ]

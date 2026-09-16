@@ -319,6 +319,10 @@ const BATCH_3I: string[] = [
   'CheckPiezoRange',
 ]   // 杂项 setter / qPlus 振幅 / 压电范围对账
 
+/** 批 3j / 3k —— 又一轮两条并行支线，各占一个常量。 */
+const BATCH_3J: string[] = []   // 流式读回一族
+const BATCH_3K: string[] = []   // 环境读（真空 + 温度）
+
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。
  *
@@ -399,6 +403,7 @@ function main(): number {
     ...BATCH_1, ...BATCH_2, ...BATCH_2B, ...BATCH_3A, ...BATCH_3B, ...BATCH_3C,
     ...BATCH_3D, ...BATCH_3E, ...BATCH_3F,
     ...BATCH_3G, ...BATCH_3H, ...BATCH_3I,
+    ...BATCH_3J, ...BATCH_3K,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -422,7 +427,9 @@ function main(): number {
     `批 3f 脚本/PLL/限值 ${BATCH_3F.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3g ${BATCH_3G.filter((n) => byName.has(n)).length} 个 · ` +
     `批 3h ${BATCH_3H.filter((n) => byName.has(n)).length} 个 · ` +
-    `批 3i ${BATCH_3I.filter((n) => byName.has(n)).length} 个\n` +
+    `批 3i ${BATCH_3I.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3j ${BATCH_3J.filter((n) => byName.has(n)).length} 个 · ` +
+    `批 3k ${BATCH_3K.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +
