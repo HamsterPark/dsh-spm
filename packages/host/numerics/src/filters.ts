@@ -40,40 +40,54 @@ export function convRelTol(kernelLength: number): number {
 }
 
 /**
- * 按边界模式取下标 `i` 处的值。`i` 可以是负的或超出末尾。
+ * 越界的下标 `i` 按边界模式折回 `[0, n)`，**`constant` 折不回来就给 `null`**。
  *
- * 写成一个取值函数而不是先 pad 出一条长数组：pad 要多分配一份内存，
+ * 只算下标不取值，于是**滤波与形态学共用这一份**。两处都要回答「第 i 个样本在哪儿」，
+ * 而本仓刚为十份 `cell()` 付过一次「同一个动作被手写十遍」的账
+ * （见 `stm-skills/src/l0/common.ts`）—— 那一次十份里有三份行为不一样，而谁都不知道。
+ *
+ * ## ⚠️ **插值不共用这一份，而那不是疏忽**
+ *
+ * `interpolate.ts` 有自己的一份折叠，因为 **scipy 的 `wrap` 在滤波族里周期是 `n`、
+ * 在插值族里周期是 `n − 1`**（首尾两点重合）。同一个字符串，同一个库，两族含义不同。
+ * 在这里复用才是 bug —— 而且是只在图像最后一行/列附近差一点的那种。
+ *
+ * 十份 `cell()` 的教训是「一样的东西别写十遍」，不是「长得像就合并」。
+ * 这两条边界折叠**长得一模一样、行为不一样**，正是 D-CHANNELS-1 的形状。
+ *
+ * 写成折下标而不是先 pad 出一条长数组：pad 要多分配一份内存，
  * 而一张 512×512 的帧沿两轴各 pad 一次就是三份拷贝。
  */
-function tap(xs: Float64Array, i: number, mode: BoundaryMode, cval: number): number {
-  const n = xs.length
-  if (n === 0) return cval
-  if (i >= 0 && i < n) return xs[i] as number
+export function boundaryIndex(i: number, n: number, mode: BoundaryMode): number | null {
+  if (n <= 0) return null
+  if (i >= 0 && i < n) return i
   switch (mode) {
     case 'constant':
-      return cval
+      return null
     case 'nearest':
-      return (i < 0 ? xs[0] : xs[n - 1]) as number
-    case 'wrap': {
-      const m = ((i % n) + n) % n
-      return xs[m] as number
-    }
+      return i < 0 ? 0 : n - 1
+    case 'wrap':
+      return ((i % n) + n) % n
     case 'reflect': {
       // (d c b a | a b c d | d c b a) —— 周期 2n，边界元素重复
       const p = 2 * n
-      let m = ((i % p) + p) % p
-      if (m >= n) m = p - 1 - m
-      return xs[m] as number
+      const m = ((i % p) + p) % p
+      return m >= n ? p - 1 - m : m
     }
     case 'mirror': {
       // (d c b | a b c d | c b a) —— 周期 2n−2，边界元素不重复
-      if (n === 1) return xs[0] as number
+      if (n === 1) return 0
       const p = 2 * n - 2
-      let m = ((i % p) + p) % p
-      if (m >= n) m = p - m
-      return xs[m] as number
+      const m = ((i % p) + p) % p
+      return m >= n ? p - m : m
     }
   }
+}
+
+/** 按边界模式取下标 `i` 处的值。`i` 可以是负的或超出末尾。 */
+function tap(xs: Float64Array, i: number, mode: BoundaryMode, cval: number): number {
+  const k = boundaryIndex(i, xs.length, mode)
+  return k === null ? cval : (xs[k] as number)
 }
 
 /**

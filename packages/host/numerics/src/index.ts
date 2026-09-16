@@ -11,13 +11,20 @@
  * 容差是多少、**为什么是这个数**。理由要落在浮点或算法上（eps、累加次数、
  * 条件数、误差界），不落在「我试了试」。
  *
- * 有三件**没有容差**，因为它们不该有：`.npy` 读的是字节，连通域数的是整数，
- * `percentile` 是一个闭式。给它们一个容差等于把一次真的算错藏起来。
+ * 有一批**没有容差**，因为它们不该有：`.npy` 读的是字节，连通域数的是整数，
+ * `percentile` 是一个闭式，形态学与最近邻重采样只把输入里的数原样搬过来，
+ * 亚像素互相关的答案恒为 `k/uf`。给它们一个容差等于把一次真的算错藏起来。
+ *
+ * 而这些零容差的档不只是「顺便严一点」——**它们替有容差的那些档报警**：
+ * `order=0` 的重采样红过一次 0.93，而同一族的 `order=1` 当时只超差 1.09 倍，
+ * 看着像「界推紧了」。真因是折叠算错了。详见 `interpolate.ts` 的抬头。
  */
 export * from './mat.js'
 export * from './stats.js'
 export * from './rng.js'
 export * from './filters.js'
+export * from './morphology.js'
+export * from './interpolate.js'
 export * from './fft.js'
 export * from './fit.js'
 export * from './label.js'

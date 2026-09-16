@@ -362,6 +362,180 @@ CURVE_FIT = {
 }
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# 8. 灰度形态学：erosion / dilation / opening / closing
+# ──────────────────────────────────────────────────────────────────────────
+#
+# **平结构元的形态学没有算术**：输出的每一个数都是输入里的某一个数原样搬过来
+# （最小/最大），中间一次乘加都没有。所以容差是 **0** —— 给它一个容差，
+# 等于把一次真的挑错了元素藏起来。
+#
+# 录两种结构元：矩形（`size=(h,w)`）与十字（`footprint`）。十字那一种是
+# `Destripe_MorphOpen` 真正要的形状（沿一条轴开运算去条纹）。
+#
+# 偶数尺寸也录一格：scipy 的原点约定是 `size//2`，而「偶数时偏向哪一边」
+# 是**语义**，猜错了整张图平移一个像素而看起来完全正常。
+
+MORPH_MODES = ["reflect", "nearest", "constant"]
+_mimg = rng.standard_normal((14, 11))
+_cross3 = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=bool)
+_cross5 = np.zeros((5, 5), dtype=bool)
+_cross5[2, :] = True
+_cross5[:, 2] = True
+
+MORPHOLOGY: dict[str, Any] = {"input": _plain(_mimg), "cases": []}
+for _size in [(3, 3), (5, 3), (4, 4)]:
+    for _mode in MORPH_MODES:
+        MORPHOLOGY["cases"].append({
+            "kind": "rect", "size": list(_size), "mode": _mode,
+            "erosion": _plain(ndi.grey_erosion(_mimg, size=_size, mode=_mode)),
+            "dilation": _plain(ndi.grey_dilation(_mimg, size=_size, mode=_mode)),
+            "opening": _plain(ndi.grey_opening(_mimg, size=_size, mode=_mode)),
+            "closing": _plain(ndi.grey_closing(_mimg, size=_size, mode=_mode)),
+        })
+for _name, _fp in [("cross3", _cross3), ("cross5", _cross5)]:
+    for _mode in MORPH_MODES:
+        MORPHOLOGY["cases"].append({
+            "kind": _name, "footprint": _plain(_fp.astype(int)), "mode": _mode,
+            "erosion": _plain(ndi.grey_erosion(_mimg, footprint=_fp, mode=_mode)),
+            "dilation": _plain(ndi.grey_dilation(_mimg, footprint=_fp, mode=_mode)),
+            "opening": _plain(ndi.grey_opening(_mimg, footprint=_fp, mode=_mode)),
+            "closing": _plain(ndi.grey_closing(_mimg, footprint=_fp, mode=_mode)),
+        })
+
+# ──────────────────────────────────────────────────────────────────────────
+# 9. 插值 / 重采样：map_coordinates 与 shift
+# ──────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ **order >= 2 时 scipy 先做一次 spline 预滤波**（`spline_filter`，一条 IIR）。
+# 不复现它的话结果差得**不大不小**，看起来像「插值精度不同」而不像 bug。
+# 这一段只做 order 0/1，而 order=3 那一格**也录** —— 录下来是为了让
+# 「我们不支持它」这件事有据可查，而不是等哪天有人以为我们支持。
+#
+# `shift` 的符号：`ndi.shift(a, s)` 给的是 `out[i] = a[i - s]`，也就是把内容
+# **往 +s 方向搬**。一次写反不报错，只让图往反方向动 —— 同 D-NUM-3 那条。
+
+_iimg = rng.standard_normal((12, 10))
+# 坐标故意挑：整数点、半像素、边界外（每种 mode 在界外的行为不一样）
+_coords = np.array([
+    [0.0, 3.0, 5.5, 11.0, -1.5, 13.2, 6.25],
+    [0.0, 4.0, 2.5, 9.0, -0.5, 4.0, 10.75],
+])
+INTERP: dict[str, Any] = {
+    "input": _plain(_iimg),
+    "coords": _plain(_coords),
+    "map_coordinates": [],
+    "shift": [],
+}
+for _order in [0, 1, 3]:
+    for _mode in ["reflect", "nearest", "constant", "mirror", "wrap"]:
+        INTERP["map_coordinates"].append({
+            "order": _order, "mode": _mode, "cval": 0.0,
+            "output": _plain(ndi.map_coordinates(
+                _iimg, _coords, order=_order, mode=_mode, cval=0.0)),
+        })
+for _order in [0, 1, 3]:
+    for _dy, _dx in [(1.0, -2.0), (0.5, 0.25), (-1.75, 3.5)]:
+        INTERP["shift"].append({
+            "order": _order, "shift": [_dy, _dx], "mode": "constant", "cval": 0.0,
+            "output": _plain(ndi.shift(
+                _iimg, (_dy, _dx), order=_order, mode="constant", cval=0.0)),
+            "_note": "out[i] = a[i - s]：内容往 +s 方向搬",
+        })
+
+# ── 9b. 边界与取整的**判别性**探针 ──────────────────────────────────────────
+#
+# 上面那七个坐标分辨不出两件事，而这两件恰恰是最容易猜错的：
+#
+#   ① `constant` 模式下「多远算界外」—— 是 `x < 0` 还是 `x < -0.5`？
+#      差半个像素，而症状是图的最外一圈莫名其妙变成 cval。
+#   ② `order=0` 在正好 `x.5` 上往哪边取整 —— 四舍五入还是就近偶数？
+#      差一个像素，而一张平移了一个像素的图看起来完全正常。
+#
+# 判据要由**能分辨的输入**保证，不能由碰巧落在中间的输入保证。
+
+_edge_rows = np.array([
+    -0.6, -0.5, -0.4, -0.001, 0.0, 0.001,
+    11.0, 11.001, 11.4, 11.5, 11.6,
+])
+_edge_cols = np.full_like(_edge_rows, 5.0)
+INTERP["edge_probe"] = {
+    "coords": _plain(np.stack([_edge_rows, _edge_cols])),
+    "rows": 12,
+    "_note": "行坐标骑在 [0, rows-1] 两端上；列固定在中间，好让唯一的变量是行",
+    "cases": [
+        {
+            "order": _o, "mode": _m, "cval": -99.0,
+            "output": _plain(ndi.map_coordinates(
+                _iimg, np.stack([_edge_rows, _edge_cols]),
+                order=_o, mode=_m, cval=-99.0)),
+        }
+        for _o in [0, 1]
+        for _m in ["constant", "nearest", "reflect", "mirror", "wrap"]
+    ],
+}
+
+# order=0 的取整：整半点各来一个
+_half_rows = np.array([0.5, 1.5, 2.5, 3.5, 4.5, -0.5 + 1e-12, 2.4999999999])
+_half_cols = np.full_like(_half_rows, 3.0)
+INTERP["round_probe"] = {
+    "coords": _plain(np.stack([_half_rows, _half_cols])),
+    "output_order0": _plain(ndi.map_coordinates(
+        _iimg, np.stack([_half_rows, _half_cols]), order=0, mode="nearest")),
+    "_note": "x.5 往哪边去：四舍五入 / 就近偶数 / 向下 —— 三者在这七个点上互不相同",
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# 10. 亚像素相位互相关（upsample_factor > 1）
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 返回值是 `round(整数峰*uf)/uf + (上采样窗里的整数峰 − dftshift)/uf` ——
+# **一个分母为 uf 的有理数**，所以它与 skimage 应当逐位相同，
+# 而唯一可能分岔的是「上采样窗里哪一格赢了 argmax」。
+#
+# 所以这里既录**整像素位移**（答案必然干净）也录**真·亚像素位移**
+# （用插值把图挪半个像素，答案不再是整数）。
+
+SUBPIXEL: dict[str, Any] = {"cases": []}
+_sbase = rng.standard_normal((32, 32))
+for _dy, _dx in [(3, 5), (-2, 7)]:
+    _moved = np.roll(np.roll(_sbase, _dy, axis=0), _dx, axis=1)
+    for _uf in [2, 4, 10]:
+        _sh, _e, _p = phase_cross_correlation(_sbase, _moved, upsample_factor=_uf)
+        SUBPIXEL["cases"].append({
+            "kind": "integer_roll", "applied_roll": [_dy, _dx], "upsample_factor": _uf,
+            "reference": _plain(_sbase), "moving": _plain(_moved), "shift": _plain(_sh),
+        })
+for _dy, _dx in [(2.5, -1.25), (-0.5, 3.75)]:
+    _moved = ndi.shift(_sbase, (_dy, _dx), order=1, mode="wrap")
+    for _uf in [4, 10]:
+        _sh, _e, _p = phase_cross_correlation(_sbase, _moved, upsample_factor=_uf)
+        SUBPIXEL["cases"].append({
+            "kind": "subpixel_shift", "applied_shift": [_dy, _dx], "upsample_factor": _uf,
+            "reference": _plain(_sbase), "moving": _plain(_moved), "shift": _plain(_sh),
+            "_note": "插值移过的图不再是原图的重排，峰会略偏 —— 答案由 skimage 定",
+        })
+
+# 近乎平坦的一对帧 —— **归一化的分母是 `max(|·|, 100·eps)` 还是 `|·|`，只有这里分得开**。
+#
+# 两张 16×16 的「几乎常数」帧各带独立的 1e−12 噪声，于是除直流外每个频点的
+# 互功率模长约 1e−22，远小于 `100·eps ≈ 2.2e−14`。
+# 除以 `|·|` 会把这些纯噪声一律放大成单位模长；除以 `max(|·|, 100·eps)` 则压住它们。
+# **两种做法给的峰位不同**，而答案由 skimage 定，不由我们推理定 ——
+# 本仓上一版是「模为零才置零」，介于两者之间，是这一格把它逼出来的。
+#
+# 逼近时看到的就是这种帧：一张平坦的帧该报告「看不出来」，而不是一个随机方向。
+_flat_a = 1.0 + 1e-12 * rng.standard_normal((16, 16))
+_flat_b = 1.0 + 1e-12 * rng.standard_normal((16, 16))
+for _uf in [1, 10]:
+    _sh, _e, _p = phase_cross_correlation(_flat_a, _flat_b, upsample_factor=_uf)
+    SUBPIXEL["cases"].append({
+        "kind": "near_flat", "upsample_factor": _uf,
+        "reference": _plain(_flat_a), "moving": _plain(_flat_b), "shift": _plain(_sh),
+        "_note": "谱里除直流外全是 1e−22 量级的噪声 —— 归一化的分母在这里才看得出来",
+    })
+
+
 def main() -> int:
     doc = {
         "_note": "由 tools/spec-export/export_numerics.py 生成——numpy/scipy 真跑一遍。"
@@ -387,6 +561,9 @@ def main() -> int:
         "ssim": SSIM,
         "npy": NPY,
         "curve_fit": CURVE_FIT,
+        "morphology": MORPHOLOGY,
+        "interp": INTERP,
+        "subpixel": SUBPIXEL,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True,
