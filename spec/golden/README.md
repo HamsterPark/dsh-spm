@@ -15,7 +15,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 `nanonis_files` / `skill_traces`）。所以「旧仓变了没有」这个问题可以用 `git diff` 回答 ——
 这也是 manifest 里不记随机沙箱路径的原因。
 
-> **2026-09-16 重写。** 上一版这张表只列了 7 份，而目录里已经有 32 份；
+> **2026-09-16 重写。** 上一版这张表只列了 7 份，而目录里已经有 30 多份；
 > 末尾的「还没导的」还把 `tool_schemas.json` / `preconditions.json` / `safety.json`
 > 列成待办，而它们早就在了。**一份列了三分之一内容、并且把已有的说成没有的清单，
 > 比没有清单更糟** —— 读的人会照着它去判断「这块有没有覆盖」。
@@ -68,6 +68,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 | `environment.json` | `export_environment.py` | 真空与温度的分支**全由参数决定**（技能一次 Nanonis 调用都不发），通用注错点一条都碰不到 |
 | `numerics.json` | `export_numerics.py` | numpy / scipy **真跑一遍**。**输入与答案一起录** —— TS 复现不了 PCG64，「同一批输入」只能靠录下来 |
 | `nanonis_files.json` | `export_nanonis_files.py` | 字节由脚本**合成**，读出来的东西由**旧仓真实读取器**给出。真机文件不进本仓（用户裁决：只用合成数据） |
+| `analysis.json` | `export_analysis.py` | 分析判定件（掩膜 / 团簇 / 平面 / 台阶 / 原子线 / 起伏闸）。**帧从 `.sxm` 字节读回来，不在两侧各自按闭式重建** —— 第一版那么做时 `noiseFloor` 差 4.4e-14，原因不是 `sin` 而是**加法结合律**（numpy 先把 tilt 算成整个数组）。**两边各自重建同一个输入，不是同一个输入。** |
 | `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 字节层：请求侧 = 真实 `nanonis_spm` 客户端（MAST 打过补丁），回复侧 = STM-Bench 服务端 codec |
 
 ---

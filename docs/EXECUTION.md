@@ -717,12 +717,64 @@ git 的三方合并不是按行比：两处改动之间**至少要有一行谁�
 「`Scan_BufferSet(ch, 0, 0)` 到底是保持还是重置分辨率」—— **整层设计建立在这个
 从未被回读验证过的假设上**。建议单独做成一个技能，不要连着另外三项一起移。
 
+· **2.29 ✅ 第三轮三条支线 —— 谱学整族 + 分析第一批 + 数值缺件**
+
+技能 367 → **376/515**（七成三），模块 51 → **60/165**，单测 4034 → **4459**，
+集成 40 → **52**，变异 216 → **282 条全红**，偏差登记 86 → **110 条**。
+
+| 支线 | 落地 | 模块 |
+|---|---|---|
+| **批 3l** `builtins.spectroscopy` 整族 | 38 / 38（一次清零） | +1 |
+| **批 4a** 分析技能，按**共用件**分组 | 9 / 11 | +9 |
+| **课时 4.1 续** 数值缺件 | `find_peaks` / `pcov` / `correlate2d` / 可关的归一化 / `savgol` | —— |
+
+#### 分批的判据从「容易」换成了「杠杆」
+
+上一轮的分派单是按模块大小排的。这一轮按盘点那张「一件解锁几个」的表排 ——
+`find_peaks` **24 行解锁 7 个技能**，而它在按模块排的表里根本看不见（它不是一个模块）。
+批 4a 同理：选的不是最容易的十一个，是**共用同一批底层件**的十一个，
+移一次 `assessMask` 一族解锁四个技能。
+
+#### 一个结构问题：`kernel` 不能依赖 `numerics`
+
+`numerics` 反过来要 `kernel` 的 `pySum`（D-NUM-1：一个仓里只能有一个 `sum`）。
+于是分析判定件里**要数值的那些进新包 `packages/host/vision`**，零 numpy 的两件
+（`corrugation-gate` / `scan-prep-thresholds`）留在 kernel —— 同 `nanonis-files` 的先例。
+**依赖方向是先定的，不是写到一半发现的。**
+
+#### 这一轮带回来的五件
+
+1. **`round2` 与 `pyRound` 并存，而前者是错的**（批 3k 私写、批 3l 新增）。
+   七个探针五个分岔，五个全是 `round2` 错；**随机 40 万个 double 扫下来一个都碰不到**
+   —— 分岔只发生在「乘 100 之后恰好落在 .5 上、而精确值不是一半」的数上。
+   这就是它一直没被发现的原因，也是「判据要由构造保证、不由抽样保证」的又一次。
+2. **两个 `scipy` 都叫「中心」，偶数核差一格**（D-NUM-19）：
+   `signal.correlate2d(mode='same')` 的原点是 `(Mb−1)//2`，`ndimage.grey_*` 的是 `Mb//2`。
+   猜错了整张相关面平移一格 ⇒ 漂移向量整体偏一个像素，**而那仍是一个合法读数**。
+3. **一格「答案本身没有定义」的金样比一格分辨不出候选的更糟**（D-NUM-18）：
+   等高峰在 `distance` 里谁赢，scipy 用的是**不稳定排序**。录了它，
+   等于把上游的一次实现变更记成本仓的一次回归。
+4. **两边各自重建同一个输入，不是同一个输入**（批 4a）：
+   `export_analysis.py` 第一版两侧按同一个闭式生成帧，`noiseFloor` 差 4.4e-14 ——
+   不是 `sin`，是**加法结合律**（numpy 先把 tilt 算成整个数组）。
+   改成从 `.sxm` 字节读回来，整类问题消失。
+5. **四条变异一开始是绿的，而每一条都意味着金样缺一格**，不是缺一道闸。
+   这个区分做对了才有意义 —— 反过来做就是给一道存在的闸再加一道。
+
+#### 真机上量到的两件（只有真东西说得出）
+
+- `ZSpectr_Start` 的 z 通道真名是 **`Z rel (m)`**，四个显式 needle **一个都不命中** ——
+  命中的只有那条「名字以 z 开头」的回退。删掉它，每条真 Z 谱的 `data.z`
+  **安静消失而技能照样 `success`**。
+- `BiasSpectr_ChsGet` 在本机 stmsim 上给**裸整数**，而真机 2026-08-04 给 1-元组 ⇒
+  断言写成「每一个都得是数」，不写成某一种形状。
+
 > 批 1 计划稿点名 38 个，其中 `GetScanStatus` / `GetXYPosition` 在**当前旧仓不存在**
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
 
-仓库现状：15 个工作区包（root / **numerics** / **nanonis-files** / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
-**4034 条测试**（另有 **216 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **40 条**对真 stmsim 的集成测试——其中 **20 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
+仓库现状：16 个工作区包（root / **numerics** / **nanonis-files** / **vision** / compat / kernel / **stm-safety** / **stm-skills** / **stm-records** / nanonis-wire / instrument / instrument-stmsim / instrument-state / instrument-watchdog / client/stm-ui / bundle），
+**4459 条测试**（另有 **282 条变异演练全红**，`MUTATE=1` 显式开启）（单测 + 契约 + **40 条**对真 stmsim 的集成测试——其中 **20 条**是技能级的），`pnpm install --frozen-lockfile` / `pnpm build` / `pnpm test` 全绿。锁定 dsh **`0.1.5-rc.2`**。
 golden 已入仓（515 技能 + 146 SI 用例 + 51 条线协议字节金样 + 50 步熔断轨迹 + 状态缓存 29 步 trace
 + **8 份 `.npy` 字节 / 28 格参数组校验 / 6 格存储 / 17 格 `repr(float)` / 15 格参数组解析 / 8 格应用 / 锁相 8 格应用 + 13 格相位**，重跑逐字节相同）；
 Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen:nanonis` 生成、CI 校验无 diff。
