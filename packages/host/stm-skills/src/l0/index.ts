@@ -61,6 +61,9 @@ import { SPECTROSCOPY } from './spectroscopy.js'
 // ── 批 4c（paper 数据处理 + scan_frame 一族）在这一行下面加 import ──
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面加 import ──
+// 组合技能也从这个锚点走 —— 底部那几行是没有锚点的公共区
+import { ScanAt } from '../composite/scan-at.js'
+import { FullScan } from '../composite/full-scan.js'
 import { ANALYSIS_CLUSTERS } from './analysis-clusters.js'
 import { ANALYSIS_FRAMES } from './analysis-frames.js'
 import { ANALYSIS_LINES } from './analysis-lines.js'
@@ -131,6 +134,8 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 4c 在这一行下面展开 ──
 
   // ── 批 4d 在这一行下面展开 ──
+  ScanAt,
+  FullScan,
   ...ANALYSIS_CLUSTERS,
   ...ANALYSIS_FRAMES,
   ...ANALYSIS_LINES,
@@ -205,6 +210,8 @@ export * from './spectroscopy.js'
 // ── 批 4c 在这一行下面 re-export ──
 
 // ── 批 4d 在这一行下面 re-export ──
+export * from '../composite/scan-at.js'
+export * from '../composite/full-scan.js'
 export * from './analysis-common.js'
 export * from './analysis-clusters.js'
 export * from './analysis-frames.js'

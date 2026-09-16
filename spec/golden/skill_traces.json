@@ -18555,6 +18555,997 @@
       }
     }
   },
+  "FullScan": {
+    "params": {
+      "center_x_m": 1e-09,
+      "center_y_m": 1e-09,
+      "height_m": 5.0000500000000005e-06,
+      "width_m": 5.0000500000000005e-06
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "ch2": "ok",
+                "ch3": "ok"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "ch2": "ok",
+            "ch3": "ok"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 695600
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "ch2": "ok",
+                "ch3": "ok"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "ch2": "ok",
+            "ch3": "ok"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 695600
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              14,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "Z": "ok",
+                "ch0": "ok"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "Z": "ok",
+            "ch0": "ok"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 300000
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "ch2": "no_data",
+                "ch3": "ok"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "ch2": "no_data",
+            "ch3": "ok"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 300000
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "ch2": "ok",
+                "ch3": "no_data"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "ch2": "ok",
+            "ch3": "no_data"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 300000
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          },
+          {
+            "args": [
+              3,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "crash_check": "ok",
+              "crash_check_channels": {
+                "ch2": "ok",
+                "ch3": "ok"
+              },
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "scan_lines_verified": false,
+              "wait_outcome": "",
+              "wait_stopped_early": false,
+              "wait_timed_out": false,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": "ok",
+          "crash_check_channels": {
+            "ch2": "ok",
+            "ch3": "ok"
+          },
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": false,
+          "wait_outcome": "",
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 300000
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "ConfigureScan failed: 模拟故障：子技能失败",
+            "completed_steps": [],
+            "composite_name": "FullScan",
+            "current_step": "configure",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": null,
+          "crash_check_channels": null,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": null,
+          "wait_outcome": null,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "ConfigureScan failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "SetScanSpeed failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure"
+            ],
+            "composite_name": "FullScan",
+            "current_step": "set_speed",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": null,
+          "crash_check_channels": null,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": null,
+          "wait_outcome": null,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "SetScanSpeed failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "StartScan failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure",
+              "set_speed"
+            ],
+            "composite_name": "FullScan",
+            "current_step": "start_scan",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": null,
+          "crash_check_channels": null,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": null,
+          "wait_outcome": null,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "StartScan failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "WaitScanComplete failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure",
+              "set_speed",
+              "start_scan"
+            ],
+            "composite_name": "FullScan",
+            "current_step": "wait_scan",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 0.5,
+              "width_m": 5.0000500000000005e-06
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "center_x_m": 1e-09,
+          "center_y_m": 1e-09,
+          "crash_check": null,
+          "crash_check_channels": null,
+          "height_m": 5.0000500000000005e-06,
+          "line_time_s": 0.5,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "scan_lines_verified": null,
+          "wait_outcome": null,
+          "width_m": 5.0000500000000005e-06
+        },
+        "error": "WaitScanComplete failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 1e-09,
+              "center_y_m": 1e-09,
+              "height_m": 5.0000500000000005e-06,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "bwd_line_time": 0.5,
+              "bwd_speed": 1.0000100000000001e-05,
+              "fwd_line_time": 0.5,
+              "fwd_speed": 1.0000100000000001e-05,
+              "keep_const": 0
+            },
+            "skill": "SetScanSpeed"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 300000
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "GenSwpAcqChsGet": {
     "params": {},
     "traces": {
@@ -57319,6 +58310,767 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ScanAt": {
+    "params": {
+      "center_x_m": 0.0005,
+      "center_y_m": 0.0005,
+      "size_m": 5.0000500000000005e-06
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "configure",
+              "set_buffer",
+              "start_scan",
+              "wait_scan"
+            ],
+            "composite_name": "ScanAt",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "angle_deg": null,
+              "linear_speed_m_s": null,
+              "lines": null,
+              "pixels": null,
+              "resolution_verified": false,
+              "scan_lines_done": null,
+              "scan_lines_total": null,
+              "wait_stopped_early": false,
+              "wait_timed_out": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 4
+          },
+          "abort_reason": "",
+          "aborted": false,
+          "aborted_by_operator": false,
+          "angle_deg": null,
+          "center_x_m": 0.0005,
+          "center_y_m": 0.0005,
+          "estimated_scan_s": 1280.0128000000002,
+          "line_time_s": 2.5000250000000004,
+          "linear_speed_m_s": null,
+          "lines": null,
+          "param_summary": [
+            "- size_m = 5.0000500000000005e-06  (5000 nm) ← 用户显式指定",
+            "- center_x_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- center_y_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- pixels = 256 ← 档位表(出厂) @survey",
+            "- line_time_s = 2.5000250000000004  (2.5 s/线(受针尖速度上限限制)) ← 档位表(出厂) @survey",
+            "- angle_deg = None ← 保持硬件现值",
+            "- channels = Z,Current ← 内建默认",
+            "- setpoint_a = None ← 保持硬件现值",
+            "- bias_v = None ← 保持硬件现值",
+            "- p_gain = None ← 保持硬件现值",
+            "- time_constant_s = None ← 保持硬件现值"
+          ],
+          "param_trace": {
+            "angle_deg": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "bias_v": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "center_x_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "center_y_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "channels": {
+              "human": null,
+              "source": "default",
+              "tier": null,
+              "value": "Z,Current"
+            },
+            "line_time_s": {
+              "human": "2.5 s/线(受针尖速度上限限制)",
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 2.5000250000000004
+            },
+            "p_gain": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "pixels": {
+              "human": null,
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 256
+            },
+            "setpoint_a": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "size_m": {
+              "human": "5000 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 5.0000500000000005e-06
+            },
+            "time_constant_s": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            }
+          },
+          "pixels": null,
+          "policy_warnings": [
+            "针尖横向速度 1e+04 nm/s 超过上限 2000 nm/s,每线时间由 0.5 s 放慢到 2.5 s"
+          ],
+          "requested_pixels": 256,
+          "resolution_verified": false,
+          "scan_lines_done": null,
+          "scan_lines_total": null,
+          "size_m": 5.0000500000000005e-06,
+          "tier_name": "survey",
+          "wait_stopped_early": false,
+          "wait_timed_out": false
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 0.0005,
+              "center_y_m": 0.0005,
+              "channels": "Z,Current",
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 2.5000250000000004,
+              "set_scan_speed": true,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "lines": 256,
+              "pixels": 256
+            },
+            "skill": "SetScanBuffer"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 1694016
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "ConfigureScan failed: 模拟故障：子技能失败",
+            "completed_steps": [],
+            "composite_name": "ScanAt",
+            "current_step": "configure",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {},
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "ConfigureScan failed: 模拟故障：子技能失败",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "center_x_m": 0.0005,
+          "center_y_m": 0.0005,
+          "estimated_scan_s": 1280.0128000000002,
+          "line_time_s": 2.5000250000000004,
+          "param_summary": [
+            "- size_m = 5.0000500000000005e-06  (5000 nm) ← 用户显式指定",
+            "- center_x_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- center_y_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- pixels = 256 ← 档位表(出厂) @survey",
+            "- line_time_s = 2.5000250000000004  (2.5 s/线(受针尖速度上限限制)) ← 档位表(出厂) @survey",
+            "- angle_deg = None ← 保持硬件现值",
+            "- channels = Z,Current ← 内建默认",
+            "- setpoint_a = None ← 保持硬件现值",
+            "- bias_v = None ← 保持硬件现值",
+            "- p_gain = None ← 保持硬件现值",
+            "- time_constant_s = None ← 保持硬件现值"
+          ],
+          "param_trace": {
+            "angle_deg": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "bias_v": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "center_x_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "center_y_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "channels": {
+              "human": null,
+              "source": "default",
+              "tier": null,
+              "value": "Z,Current"
+            },
+            "line_time_s": {
+              "human": "2.5 s/线(受针尖速度上限限制)",
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 2.5000250000000004
+            },
+            "p_gain": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "pixels": {
+              "human": null,
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 256
+            },
+            "setpoint_a": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "size_m": {
+              "human": "5000 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 5.0000500000000005e-06
+            },
+            "time_constant_s": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            }
+          },
+          "policy_warnings": [
+            "针尖横向速度 1e+04 nm/s 超过上限 2000 nm/s,每线时间由 0.5 s 放慢到 2.5 s"
+          ],
+          "requested_pixels": 256,
+          "size_m": 5.0000500000000005e-06,
+          "tier_name": "survey"
+        },
+        "error": "ConfigureScan failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 0.0005,
+              "center_y_m": 0.0005,
+              "channels": "Z,Current",
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 2.5000250000000004,
+              "set_scan_speed": true,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@1": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "SetScanBuffer failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure"
+            ],
+            "composite_name": "ScanAt",
+            "current_step": "set_buffer",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "angle_deg": null,
+              "linear_speed_m_s": null
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "SetScanBuffer failed: 模拟故障：子技能失败",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "angle_deg": null,
+          "center_x_m": 0.0005,
+          "center_y_m": 0.0005,
+          "estimated_scan_s": 1280.0128000000002,
+          "line_time_s": 2.5000250000000004,
+          "linear_speed_m_s": null,
+          "param_summary": [
+            "- size_m = 5.0000500000000005e-06  (5000 nm) ← 用户显式指定",
+            "- center_x_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- center_y_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- pixels = 256 ← 档位表(出厂) @survey",
+            "- line_time_s = 2.5000250000000004  (2.5 s/线(受针尖速度上限限制)) ← 档位表(出厂) @survey",
+            "- angle_deg = None ← 保持硬件现值",
+            "- channels = Z,Current ← 内建默认",
+            "- setpoint_a = None ← 保持硬件现值",
+            "- bias_v = None ← 保持硬件现值",
+            "- p_gain = None ← 保持硬件现值",
+            "- time_constant_s = None ← 保持硬件现值"
+          ],
+          "param_trace": {
+            "angle_deg": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "bias_v": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "center_x_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "center_y_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "channels": {
+              "human": null,
+              "source": "default",
+              "tier": null,
+              "value": "Z,Current"
+            },
+            "line_time_s": {
+              "human": "2.5 s/线(受针尖速度上限限制)",
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 2.5000250000000004
+            },
+            "p_gain": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "pixels": {
+              "human": null,
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 256
+            },
+            "setpoint_a": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "size_m": {
+              "human": "5000 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 5.0000500000000005e-06
+            },
+            "time_constant_s": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            }
+          },
+          "policy_warnings": [
+            "针尖横向速度 1e+04 nm/s 超过上限 2000 nm/s,每线时间由 0.5 s 放慢到 2.5 s"
+          ],
+          "requested_pixels": 256,
+          "size_m": 5.0000500000000005e-06,
+          "tier_name": "survey"
+        },
+        "error": "SetScanBuffer failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 0.0005,
+              "center_y_m": 0.0005,
+              "channels": "Z,Current",
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 2.5000250000000004,
+              "set_scan_speed": true,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "lines": 256,
+              "pixels": 256
+            },
+            "skill": "SetScanBuffer"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@2": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "StartScan failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure",
+              "set_buffer"
+            ],
+            "composite_name": "ScanAt",
+            "current_step": "start_scan",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "angle_deg": null,
+              "linear_speed_m_s": null,
+              "lines": null,
+              "pixels": null,
+              "resolution_verified": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "StartScan failed: 模拟故障：子技能失败",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "angle_deg": null,
+          "center_x_m": 0.0005,
+          "center_y_m": 0.0005,
+          "estimated_scan_s": 1280.0128000000002,
+          "line_time_s": 2.5000250000000004,
+          "linear_speed_m_s": null,
+          "lines": null,
+          "param_summary": [
+            "- size_m = 5.0000500000000005e-06  (5000 nm) ← 用户显式指定",
+            "- center_x_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- center_y_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- pixels = 256 ← 档位表(出厂) @survey",
+            "- line_time_s = 2.5000250000000004  (2.5 s/线(受针尖速度上限限制)) ← 档位表(出厂) @survey",
+            "- angle_deg = None ← 保持硬件现值",
+            "- channels = Z,Current ← 内建默认",
+            "- setpoint_a = None ← 保持硬件现值",
+            "- bias_v = None ← 保持硬件现值",
+            "- p_gain = None ← 保持硬件现值",
+            "- time_constant_s = None ← 保持硬件现值"
+          ],
+          "param_trace": {
+            "angle_deg": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "bias_v": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "center_x_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "center_y_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "channels": {
+              "human": null,
+              "source": "default",
+              "tier": null,
+              "value": "Z,Current"
+            },
+            "line_time_s": {
+              "human": "2.5 s/线(受针尖速度上限限制)",
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 2.5000250000000004
+            },
+            "p_gain": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "pixels": {
+              "human": null,
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 256
+            },
+            "setpoint_a": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "size_m": {
+              "human": "5000 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 5.0000500000000005e-06
+            },
+            "time_constant_s": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            }
+          },
+          "pixels": null,
+          "policy_warnings": [
+            "针尖横向速度 1e+04 nm/s 超过上限 2000 nm/s,每线时间由 0.5 s 放慢到 2.5 s"
+          ],
+          "requested_pixels": 256,
+          "resolution_verified": false,
+          "size_m": 5.0000500000000005e-06,
+          "tier_name": "survey"
+        },
+        "error": "StartScan failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 0.0005,
+              "center_y_m": 0.0005,
+              "channels": "Z,Current",
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 2.5000250000000004,
+              "set_scan_speed": true,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "lines": 256,
+              "pixels": 256
+            },
+            "skill": "SetScanBuffer"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@3": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "WaitScanComplete failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "configure",
+              "set_buffer",
+              "start_scan"
+            ],
+            "composite_name": "ScanAt",
+            "current_step": "wait_scan",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "angle_deg": null,
+              "linear_speed_m_s": null,
+              "lines": null,
+              "pixels": null,
+              "resolution_verified": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "abort_reason": "WaitScanComplete failed: 模拟故障：子技能失败",
+          "aborted": true,
+          "aborted_by_operator": false,
+          "angle_deg": null,
+          "center_x_m": 0.0005,
+          "center_y_m": 0.0005,
+          "estimated_scan_s": 1280.0128000000002,
+          "line_time_s": 2.5000250000000004,
+          "linear_speed_m_s": null,
+          "lines": null,
+          "param_summary": [
+            "- size_m = 5.0000500000000005e-06  (5000 nm) ← 用户显式指定",
+            "- center_x_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- center_y_m = 0.0005  (5e+05 nm) ← 用户显式指定",
+            "- pixels = 256 ← 档位表(出厂) @survey",
+            "- line_time_s = 2.5000250000000004  (2.5 s/线(受针尖速度上限限制)) ← 档位表(出厂) @survey",
+            "- angle_deg = None ← 保持硬件现值",
+            "- channels = Z,Current ← 内建默认",
+            "- setpoint_a = None ← 保持硬件现值",
+            "- bias_v = None ← 保持硬件现值",
+            "- p_gain = None ← 保持硬件现值",
+            "- time_constant_s = None ← 保持硬件现值"
+          ],
+          "param_trace": {
+            "angle_deg": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "bias_v": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "center_x_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "center_y_m": {
+              "human": "5e+05 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 0.0005
+            },
+            "channels": {
+              "human": null,
+              "source": "default",
+              "tier": null,
+              "value": "Z,Current"
+            },
+            "line_time_s": {
+              "human": "2.5 s/线(受针尖速度上限限制)",
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 2.5000250000000004
+            },
+            "p_gain": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "pixels": {
+              "human": null,
+              "source": "tier-factory",
+              "tier": "survey",
+              "value": 256
+            },
+            "setpoint_a": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            },
+            "size_m": {
+              "human": "5000 nm",
+              "source": "explicit",
+              "tier": null,
+              "value": 5.0000500000000005e-06
+            },
+            "time_constant_s": {
+              "human": null,
+              "source": "keep-current",
+              "tier": null,
+              "value": null
+            }
+          },
+          "pixels": null,
+          "policy_warnings": [
+            "针尖横向速度 1e+04 nm/s 超过上限 2000 nm/s,每线时间由 0.5 s 放慢到 2.5 s"
+          ],
+          "requested_pixels": 256,
+          "resolution_verified": false,
+          "size_m": 5.0000500000000005e-06,
+          "tier_name": "survey"
+        },
+        "error": "WaitScanComplete failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "center_x_m": 0.0005,
+              "center_y_m": 0.0005,
+              "channels": "Z,Current",
+              "height_m": 5.0000500000000005e-06,
+              "line_time_s": 2.5000250000000004,
+              "set_scan_speed": true,
+              "width_m": 5.0000500000000005e-06
+            },
+            "skill": "ConfigureScan"
+          },
+          {
+            "params": {
+              "lines": 256,
+              "pixels": 256
+            },
+            "skill": "SetScanBuffer"
+          },
+          {
+            "params": {},
+            "skill": "StartScan"
+          },
+          {
+            "params": {
+              "timeout_ms": 1694016
+            },
+            "skill": "WaitScanComplete"
+          }
+        ],
+        "success": false,
         "summary": ""
       }
     }

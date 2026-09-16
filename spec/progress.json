@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 376,
+    "done": 378,
     "partial": 0,
-    "todo": 139
+    "todo": 137
   },
-  "modules_complete": 60,
+  "modules_complete": 62,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -646,8 +646,8 @@
     },
     "composite.full_scan": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.grid_sts": {
       "total": 1,
@@ -696,8 +696,8 @@
     },
     "composite.scan_at": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.scan_until_atomic": {
       "total": 1,
@@ -2240,11 +2240,11 @@
       "module": "composite.full_scan",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 10,
+      "impl": true,
+      "status": "done"
     },
     "GenSwpAcqChsGet": {
       "module": "builtins.sweep",
@@ -4420,11 +4420,11 @@
       "module": "composite.scan_at",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "ScanBackgroundDelete": {
       "module": "builtins.imaging",

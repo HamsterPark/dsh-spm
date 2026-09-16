@@ -136,15 +136,45 @@ describe('对真 stmsim：线级原子分辨建议', () => {
    * 那一支上**，而真机上那一支未必走得到 —— 这一条把这件事钉住，
    * 免得下一个人以为那句提示是兜底的。
    */
-  it('问一个缓冲里没有的通道：真模拟器**不报错**，而是回一个一行都没扫的东西', async () => {
+  /**
+   * ⚠️ **2026-09-16 补（批 4d）：上面那句「真模拟器不报错」漏了一个前提。**
+   *
+   * `stmsim/modules/scan_module.py:_grab` 只有在 `w.frame is None`（**这台模拟器
+   * 从来没扫过任何一帧**）时才回一帧全零；一旦跑过一次真扫描，它就去 `fr.data` 里
+   * 查通道，查不到直接抛 `BadArguments`。
+   *
+   * 而整组 `integration` **共用一台**模拟器。在批 4d 之前没有任何一条集成测试真的
+   * 扫过图，于是那个前提一直白给；`ScanAt` / `FullScan` 的 e2e 落地当天，这一格就
+   * 从「单独跑绿、整组跑红」的方式炸了 —— 而它报的是「通道 126 不在缓冲里」，
+   * 指向一个跟它自己完全无关的地方。
+   *
+   * 所以这里断言**两种形状的并集**，并且把「是哪一种」也断言出来（不是 `||` 一下
+   * 就算数）：判据本来就写在上面那段注释里 —— **「我问错了通道」不会以「通道号错了」
+   * 的样子出现**，而两条路都满足它。
+   */
+  it('问一个缓冲里没有的通道：扫过之前回一帧全零，扫过之后才报错', async () => {
     const { ctx } = await instrument()
+    const scanned = await ctx.safeCall('Scan_StatusGet')
+    const grab = await ctx.safeCall('Scan_FrameDataGrab', 126, 1)
+    const simRefuses = (grab.error ?? '') !== ''
+    expect(scanned.error ?? '').toBe('') // 夹具自己得是活的
+
     const r = await AssessAtomicLines.execute(ctx, { channel_index: 126 })
     expect(r.success).toBe(false)
-    // 失败的位置在**线级判读**那一步，不在抓帧那一步。
-    expect(r.error ?? '').toBe('这一帧里没有已扫出来的行')
-    // 而通道解析那一侧照旧把证据交出来了（`data` 不是空的）。
-    const d = (r.data ?? {}) as Record<string, unknown>
-    expect(d['channel_index']).toBe(126)
-    expect(d['channel_source']).toBe('参数指定')
+    if (simRefuses) {
+      // 扫过之后：失败在**抓帧**那一步，证据在**那句话里** ——
+      // 它同时印出「你问的是哪一路」与「缓冲里实际有哪几路」。
+      // （`data` 这条路上是空的：抓帧那一支在 readout 之后就 return 了。）
+      expect(r.error ?? '').toContain('取不到通道 126 的帧')
+      expect(r.error ?? '').toContain('扫描缓冲里的通道是')
+    } else {
+      // 没扫过：回包解得开、拼得成二维，但**一行都不是扫出来的** ——
+      // 失败的位置在**线级判读**那一步，不在抓帧那一步，
+      // 于是通道解析那一侧照旧把证据交进了 `data`。
+      expect(r.error ?? '').toBe('这一帧里没有已扫出来的行')
+      const d = (r.data ?? {}) as Record<string, unknown>
+      expect(d['channel_index']).toBe(126)
+      expect(d['channel_source']).toBe('参数指定')
+    }
   }, 30_000)
 })

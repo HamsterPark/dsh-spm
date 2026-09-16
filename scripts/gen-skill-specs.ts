@@ -369,7 +369,13 @@ const BATCH_4B: string[] = []   // 晶格判据底座 + 原子分辨判定一族
 const BATCH_4C: string[] = []   // paper 数据处理 + scan_frame 一族
 
 // ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
-const BATCH_4D: string[] = []   // composite.scan_at + 撞针追踪
+const BATCH_4D: string[] = [
+  // 两个组合技能。**不是技能层薄壳** —— 判定机先进的内核（`scan-resolver.ts` 的
+  // `resolveScan` 是 329 行纯函数、`tip-crash-tracker.ts` 是那台跨调用的状态机），
+  // 这两个只负责发调用与拼报文。
+  'ScanAt',
+  'FullScan',
+]   // composite.scan_at + 撞针追踪
 
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。

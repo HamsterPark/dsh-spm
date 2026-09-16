@@ -70,6 +70,8 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 | `nanonis_files.json` | `export_nanonis_files.py` | 字节由脚本**合成**，读出来的东西由**旧仓真实读取器**给出。真机文件不进本仓（用户裁决：只用合成数据） |
 | `analysis.json` | `export_analysis.py` | 分析判定件（掩膜 / 团簇 / 平面 / 台阶 / 原子线 / 起伏闸）。**帧从 `.sxm` 字节读回来，不在两侧各自按闭式重建** —— 第一版那么做时 `noiseFloor` 差 4.4e-14，原因不是 `sin` 而是**加法结合律**（numpy 先把 tilt 算成整个数组）。**两边各自重建同一个输入，不是同一个输入。** |
 | `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 字节层：请求侧 = 真实 `nanonis_spm` 客户端（MAST 打过补丁），回复侧 = STM-Bench 服务端 codec |
+| `scan_resolver.json` | `export_scan_resolver.py` | 真 `resolve_scan`（意图 → 参数）。它一次仪器调用都不发，产物是 `trace[*].source` —— **通用驱动器一格都碰不到**。77 格盯的是「哪一支赢了」：explicit > 档位表(用户) > 偏好 > 档位表(出厂) > keep-current |
+| `tip_crash.json` | `export_tip_crash.py` | 真 `TipCrashTracker`。它**全是状态**，判据是「第三次调用为什么被拒」⇒ 每条金样是一个**脚本**（record/count/blocked/points/recover/tick/snapshot 依次执行），不是一格输入 |
 
 ---
 
