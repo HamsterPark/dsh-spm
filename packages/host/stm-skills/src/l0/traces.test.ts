@@ -239,6 +239,71 @@ interface Deviation {
    * 而整条序列的其余部分照旧钉住。
    */
   readonly calls?: readonly [string, unknown[]][]
+  /**
+   * 时钟派生的数按**容差**比，而不是逐位比。
+   *
+   * 只有一种情形用得上，而它是**夹具的属性、不是技能的**：两侧的假钟摆在不同的
+   * 量级上 —— 导出脚本那边是 `_CLOCK = 1_000_000.0` **秒**、每读一次 `+= 1e-3`；
+   * 这边的 `SkillContext.now()` 按契约是**毫秒**，夹具给的是整数。
+   *
+   * 于是「3 毫秒」在那边算出来是 `0.003000000142492354`（1e6 量级上一个 ULP 的
+   * 累积漂移），在这边是 `0.0030000000000427463`。**两个都不是 0.003**，而且
+   * 差在第 10 位。
+   *
+   * 这个差**消不掉**：毫秒钟在 1e9 上的栅格比秒钟在 1e6 上的栅格粗 2.4 %，
+   * 于是有约 2 % 的秒值根本没有毫秒原像 —— 无论怎么折算，除回去都回不到同一个
+   * double。（真换成同一个量级，等于改导出脚本那个全局假钟，那会把**每一条**
+   * 已有金样的时间字段一起改掉。）
+   *
+   * 所以这一族的时间字段按 `|a−b| ≤ 1e-6·max(1,|a|)` 比 —— 实测差是 1e-10，
+   * 留了四个数量级的余量，而**判据（采了几点、哪一帧丢了、顺序、判定、文案）
+   * 分毫不动**：它们全都不在 {@link CLOCK_KEYS} 里。
+   */
+  readonly clockApprox?: true
+}
+
+/**
+ * 时钟派生的叶子键名。**按名字**认，与 `VOLATILE` 同一条路子 ——
+ * 区别是这些量**不丢**，只是换成容差比。
+ */
+const CLOCK_KEYS = new Set([
+  't_s', 'timestamps_s', 't_start', 't_end',
+  'capture_s', 'pulse_t_s', 'shaper_start_t_s',
+  'fire_call_blocked_s', 'start_call_blocked_s',
+  'post_window_s', 'max_gap_s', 'feedback_restored_t', 'feedback_segment_s',
+  'actual_duration_s', 'actual_fs_hz', 'fs_current_hz', 'fs_z_hz',
+])
+const CLOCK_REL = 1e-6
+
+function clockClose(a: unknown, b: unknown): boolean {
+  return (
+    typeof a === 'number' &&
+    typeof b === 'number' &&
+    Number.isFinite(a) &&
+    Number.isFinite(b) &&
+    Math.abs(a - b) <= CLOCK_REL * Math.max(1, Math.abs(a))
+  )
+}
+
+/**
+ * 把 `want` 里**够近的**时钟数换成 `got` 的那一个，其余原样。
+ *
+ * 换而不是跳过：不够近时它留在原地，`toEqual` 照样把两个数并排印出来。
+ */
+function alignClock(want: unknown, got: unknown, key = ''): unknown {
+  if (CLOCK_KEYS.has(key) && clockClose(want, got)) return got
+  if (Array.isArray(want) && Array.isArray(got) && want.length === got.length) {
+    return want.map((x, i) => alignClock(x, got[i], key))
+  }
+  if (want !== null && typeof want === 'object' && got !== null && typeof got === 'object') {
+    return Object.fromEntries(
+      Object.entries(want as Record<string, unknown>).map(([k, x]) => [
+        k,
+        alignClock(x, (got as Record<string, unknown>)[k], k),
+      ]),
+    )
+  }
+  return want
 }
 
 /**
@@ -516,6 +581,24 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       c.verb === 'HSSwp_NumSweepsSet' ? [c.args[0], 1] : c.args,
     ]),
   },
+  // ── 批 3j · D-SKILL-2 的又一处：那句「读不懂」里印的是回包形状 ──
+  //
+  // `shaper_bias_default` 读不懂偏压时，旧仓印的是 `str(return_value)[:80]` ——
+  // 三段信封的 Python repr。信封在 `nanonis-wire` 那层就拆掉了，这一侧只有 body。
+  // 期望值**从金样算出来**：旧仓哪天改了那句话，这条登记会跟着变，不会悄悄过期。
+  // ── 批 3j · 两侧的假钟摆在不同量级上 ⇒ 时间字段按容差比（见 `clockApprox`）──
+  ...Object.fromEntries(
+    ['BiasPulseWithReadback', 'TipShapeWithReadback', 'CaptureSignalBuffer'].flatMap((n) =>
+      Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, { clockApprox: true } as const]),
+    ),
+  ),
+  'TipShapeWithReadback/empty@0': {
+    clockApprox: true,
+    error: (golden['TipShapeWithReadback']?.traces['empty@0']?.error ?? '').replace(
+      "repr 前 80 字:('', b'', [])",
+      'values=[]',
+    ),
+  },
 }
 
 /**
@@ -559,6 +642,11 @@ function stripVolatile(v: unknown): unknown {
  * `_scrub`），改一边另一边就会红。
  */
 const STAMP_RE = /(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)/g
+/**
+ * 批 3j 的读回曲线同理：`<Skill>_20260916T131900Z_a1b2c3d4.json`。
+ * 抹掉 UTC 时刻与那 8 位随机，**留下技能名、后缀，以及「取第一个空名」的 `_NN`**。
+ */
+const TRACE_STAMP_RE = /([A-Za-z0-9_]{1,40})_\d{8}T\d{6}Z_[0-9a-f]{8}(?=(?:_\d\d)?\.json)/g
 function scrubPaths(v: unknown): unknown {
   if (typeof v !== 'string') return v
   return v
@@ -570,6 +658,7 @@ function scrubPaths(v: unknown): unknown {
     .split(FIXTURE_ROOT)
     .join('<project-root>')
     .replace(STAMP_RE, '$1<stamp>')
+    .replace(TRACE_STAMP_RE, '$1_<stamp>')
 }
 
 /**
@@ -741,7 +830,9 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
             expect(want.error ?? '').not.toBe(dev.error) // 旧仓那一侧也钉住
           }
 
-          expect(got.summary ?? '').toBe(want.summary ?? '')
+          // 摘要也走一遍路径抹除：批 3j 的两个技能**把落盘指针写进摘要**
+          // （摘要是唯一穿过工具边界的东西），而那条路径里有项目根与时间戳。
+          expect(scrubPaths(got.summary ?? '')).toBe(scrubPaths(want.summary ?? ''))
 
           if (dev?.data === undefined) {
             const wantData = stripVolatile(want.data ?? {})
@@ -762,7 +853,7 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
               expect(dropPath(wantData, path), `金样里没有 ${path}，这条 absent 登记过期了`)
                 .toBe(true)
             }
-            expect(gotData).toEqual(wantData)
+            expect(gotData).toEqual(dev?.clockApprox === true ? alignClock(wantData, gotData) : wantData)
           } else {
             expect(stripVolatile(got.data ?? {})).toEqual(dev.data)
             expect(stripVolatile(want.data ?? {})).not.toEqual(dev.data)

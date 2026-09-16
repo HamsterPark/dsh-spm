@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 326,
+    "done": 329,
     "partial": 0,
-    "todo": 189
+    "todo": 186
   },
-  "modules_complete": 47,
+  "modules_complete": 50,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -81,8 +81,8 @@
     },
     "builtins.bias_pulse_readback": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.bias_series": {
       "total": 1,
@@ -106,8 +106,8 @@
     },
     "builtins.capture_signal_buffer": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.chamber": {
       "total": 1,
@@ -536,8 +536,8 @@
     },
     "builtins.tip_shaper_readback": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_sharpness": {
       "total": 1,
@@ -1380,11 +1380,11 @@
       "module": "builtins.bias_pulse_readback",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 9,
+      "impl": true,
+      "status": "done"
     },
     "BiasSettleChange": {
       "module": "composite.bias_settle",
@@ -1440,11 +1440,11 @@
       "module": "builtins.capture_signal_buffer",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 9,
+      "impl": true,
+      "status": "done"
     },
     "CharacteriseCurrentNoise": {
       "module": "builtins.characterise_noise",
@@ -5830,11 +5830,11 @@
       "module": "builtins.tip_shaper_readback",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 14,
+      "impl": true,
+      "status": "done"
     },
     "TrackBestFrame": {
       "module": "builtins.best_frame",
