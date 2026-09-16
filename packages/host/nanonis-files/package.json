@@ -1,0 +1,13 @@
+{
+  "name": "dsh-spm-nanonis-files",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "dependencies": {
+    "dsh-spm-kernel": "workspace:*",
+    "dsh-spm-numerics": "workspace:*"
+  }
+}

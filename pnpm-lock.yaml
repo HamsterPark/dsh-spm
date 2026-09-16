@@ -118,6 +118,15 @@ importers:
 
   packages/host/kernel: {}
 
+  packages/host/nanonis-files:
+    dependencies:
+      dsh-spm-kernel:
+        specifier: workspace:*
+        version: link:../kernel
+      dsh-spm-numerics:
+        specifier: workspace:*
+        version: link:../numerics
+
   packages/host/numerics:
     dependencies:
       dsh-spm-kernel:
