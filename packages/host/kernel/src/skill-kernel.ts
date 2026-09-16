@@ -101,6 +101,100 @@ export interface SkillCallRecord {
 /** 技能发一次仪器调用。对应旧仓的 `context.safe_call`。 */
 export type SafeCall = (method: string, ...args: unknown[]) => Promise<SkillCallRecord>
 
+// ── 批 3l：一次调用的 recv 预算 ─────────────────────────────────────────────
+//
+// `BiasSpectr_Start` 这类命令在 Nanonis 端**阻塞整条扫掠**才回话，而连接给
+// socket 的 recv 超时是按「一次往返几十毫秒」定的（约 5 s）。
+//
+// 2026-09-08 真机：251 点 / 4 sweeps / 200 ms 往返 ＝ 422 s 的一条谱，recv 在 8 s
+// 就超时 → 422 s 后到达的回包落在**没人读的 socket** 上 → 流从此错位，
+// **这条连接上后续每一个调用都废**；而 `degraded` 还报 false，因为 TCP 层面确实
+// 连着，坏的只是流的同步。顺带把 z-controller 留在 Hold。
+//
+// ## 超时之后那次调用**算发生了**
+//
+// 这是这条口子的第一条判据，它决定 error 该怎么措辞、也决定这里**没有重试**：
+// 命令已经打进线里，仪器那头很可能正在扫。超时说的是「我们不等了」，不是
+// 「它没发生」。所以
+//   · 不能重试 —— 重试等于在同一个点上再起一条扫掠；
+//   · 不能当成「这次没动」—— 上层若据此认为针尖没动过，后面每一步都错；
+//   · 这条连接之后要按**流可能已错位**处置，而不是按「一次失败的调用」。
+// 本仓把这三件留在措辞与结构里：`slowCall` 只发一次，失败照旧把传输层那条
+// 带机器可判前缀的 `error` **原样透传**（同 `l0/common.ts` 的理由）。
+//
+// ## 这个数由**调用方**给，上限由**外面**注入
+//
+// 每一次的预算是调用方从**仪器自己的设定**算出来的（点数 / 积分 / sweep 数，
+// 见 `spectroscopy.ts` 的 `sweepDuration`）—— 写死一个缺省，用户改一次配置就又
+// 不够了。而**上限**是台架的属性（它必须低于传输层那个「假超时」阈值，否则抬了
+// 也会被换回默认值），所以照 D-LIMITS-1 / D-VAC-1 的老规矩：模块给一个默认，
+// 宿主可以注入，**技能类里不许有这个数**。
+
+/** 单次调用能把 recv 预算抬到的上限（秒）。台架属性，`deps.maxRecvTimeoutS` 可覆盖。 */
+export const DEFAULT_MAX_RECV_TIMEOUT_S = 900
+
+/**
+ * 这一次调用**真的**会用上的 recv 预算（秒）；`null` = 一个数都没抬。
+ *
+ * `0` 与负数不是「不限」也不是「很快」，是**没给**——把它们当成一个预算下发，
+ * 等于把 recv 超时设成立刻到期。非有限同理。
+ *
+ * ⚠️ 声明返回类型是有意的：这一族判据上挂着变异，而 `number | null` 的**流类型**
+ * 收窄会让「拆掉某一支」变成一个编译错（本仓撞过十四次）。
+ */
+export function effectiveRecvBudget(requestedS: number, capS: number): number | null {
+  if (!Number.isFinite(requestedS) || requestedS <= 0) return null
+  if (!Number.isFinite(capS) || capS <= 0) return null
+  return Math.min(requestedS, capS)
+}
+
+/** 一条「收得下 recv 预算」的出口。宿主接的是这个（它知道 socket 在哪）。 */
+export type BudgetedCall = (
+  method: string,
+  recvTimeoutS: number,
+  ...args: unknown[]
+) => Promise<SkillCallRecord>
+
+export interface SlowCallResult {
+  readonly record: SkillCallRecord
+  /**
+   * 传输层这一次**真的**等了多久（秒）；`null` = 没有抬，用的是连接的缺省。
+   *
+   * 报的是**用上的那个数**而不是请求的那个：技能会把它写进 `data`，而一个
+   * 「我请求了 3000 s」的记账在一台上限 900 s 的台架上是假的
+   * （回声不是读数，D-SCAN-4 同一条）。
+   */
+  readonly recvTimeoutS: number | null
+}
+
+/** 发一次**在仪器端阻塞很久才回话**的调用。 */
+export type SlowCall = (
+  method: string,
+  recvTimeoutS: number,
+  ...args: unknown[]
+) => Promise<SlowCallResult>
+
+/**
+ * 造一个 {@link SlowCall}。
+ *
+ * `budgeted === null`（宿主没接这条口）⇒ 照旧走 `call`，并**如实报 `null`** ——
+ * 不是悄悄退回连接缺省然后声称抬过。这台机器上一条长扫掠仍然会打废连接，
+ * 而 `recv_timeout_s: null` 是这件事**在数据里**的样子。
+ */
+export function slowCallFrom(
+  call: SafeCall,
+  budgeted: BudgetedCall | null,
+  capS: number = DEFAULT_MAX_RECV_TIMEOUT_S,
+): SlowCall {
+  return async (method, recvTimeoutS, ...args): Promise<SlowCallResult> => {
+    const eff = effectiveRecvBudget(recvTimeoutS, capS)
+    if (eff === null || budgeted === null) {
+      return { record: await call(method, ...args), recvTimeoutS: null }
+    }
+    return { record: await budgeted(method, eff, ...args), recvTimeoutS: eff }
+  }
+}
+
 export interface SkillContext {
   readonly signal: AbortSignal
   /**
@@ -116,6 +210,16 @@ export interface SkillContext {
    * `safeCall` 的一个可选参数：这条路谁在走、走了几次，要能一眼 grep 出来。
    */
   readonly emergencyCall: SafeCall
+  /**
+   * 发一次**在仪器端阻塞很久才回话**的调用，并把这一次的 recv 预算抬到
+   * `recvTimeoutS` 秒。见上面「批 3l」那一段。
+   *
+   * 写成一个**单独命名的入口**而不是 `safeCall` 的一个可选参数 —— 与
+   * `emergencyCall` 同一条理由：这条路谁在走、走了几次，要能一眼 grep 出来。
+   * 而它比 `emergencyCall` 更需要这一点：一条抬高了 recv 预算的调用会**占住这条
+   * 连接好几分钟**。
+   */
+  readonly slowCall: SlowCall
   /**
    * 单调时钟（毫秒）。轮询类技能靠它算预算。
    *
@@ -235,6 +339,16 @@ export interface KernelDeps {
   readonly safeCall?: SafeCall | undefined
   /** 应急角色的出口。缺省退回 `safeCall`——**降级也要能退针**。 */
   readonly emergencyCall?: SafeCall | undefined
+  /**
+   * 收得下 recv 预算的出口（批 3l）。**缺席不是错**：没接就照旧走 `safeCall`，
+   * 而 `ctx.slowCall` 会如实报 `recvTimeoutS: null`。
+   *
+   * ⚠️ 接的时候记得**套上与 `safeCall` 同一道中止门**（`gatedSafeCall`）——
+   * 它与 `emergencyCall` 一样是绕过主入口的第二条路。
+   */
+  readonly budgetedCall?: BudgetedCall | undefined
+  /** 单次调用的 recv 预算上限（秒）。台架属性，缺省 {@link DEFAULT_MAX_RECV_TIMEOUT_S}。 */
+  readonly maxRecvTimeoutS?: number | undefined
   /** 技能侧的单调时钟与睡眠。缺省用真钟。 */
   readonly monotonic?: (() => number) | undefined
   readonly sleep?: ((ms: number) => Promise<void>) | undefined
@@ -442,6 +556,13 @@ export class SkillKernel {
       }
     }
 
+    // 没接仪器时给一条**带 error 的记录**，而不是抛：技能里所有分支都按
+    // `record.error` 判，抛出去会绕过它们、也绕过 `nanonis_calls` 的记账。
+    const safeCall: SafeCall =
+      this.deps.safeCall ??
+      ((method, ...args): Promise<SkillCallRecord> =>
+        Promise.resolve({ method, args, error: 'no_instrument: 这个内核没有接仪器' }))
+
     const ctx: SkillContext = {
       signal: opts.signal ?? new AbortController().signal,
       state: () => this.deps.snapshot(),
@@ -454,12 +575,12 @@ export class SkillKernel {
       sleep:
         this.deps.sleep ??
         ((ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))),
-      // 没接仪器时给一条**带 error 的记录**，而不是抛：技能里所有分支都按
-      // `record.error` 判，抛出去会绕过它们、也绕过 `nanonis_calls` 的记账。
-      safeCall:
-        this.deps.safeCall ??
-        ((method, ...args): Promise<SkillCallRecord> =>
-          Promise.resolve({ method, args, error: 'no_instrument: 这个内核没有接仪器' })),
+      safeCall,
+      slowCall: slowCallFrom(
+        safeCall,
+        this.deps.budgetedCall ?? null,
+        this.deps.maxRecvTimeoutS ?? DEFAULT_MAX_RECV_TIMEOUT_S,
+      ),
       refreshState: this.deps.refreshState ?? (async () => this.deps.snapshot()),
       markers,
       depth,

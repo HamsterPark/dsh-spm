@@ -21,6 +21,7 @@ import {
   processVacuum,
   readTemperature,
   revokeAttestation,
+  slowCallFrom,
   type PressureSample,
   type Skill,
   type SkillCallRecord,
@@ -157,6 +158,11 @@ function fakeCtx(
       calls[calls.length - 1]!.emergency = true
       return p
     },
+    // 批 3l：**这个夹具收得下 recv 预算**——与导出那侧同形（`_FakeContext.safe_call`
+    // 收 `**kwargs` 并把 `recv_timeout_s` 记进轨迹）。接一个 `null` 的话，
+    // `AcquireSTS` 会照实报 `recv_timeout_s: null`，而金样里是一个数 ——
+    // 那比的就不是同一件事了。
+    slowCall: slowCallFrom(safeCall, (method, _recvTimeoutS, ...args) => safeCall(method, ...args)),
     now: () => (clock += 1),
     sleep: (ms: number) => {
       clock += ms
@@ -406,6 +412,41 @@ function withoutStrEnvelope(name: string, trace: string): Deviation {
   return { data: want }
 }
 
+/**
+ * 批 3l · D-OSCI-1 同一条：那句「装不下」里印的是 **numpy 的异常文本**。
+ *
+ * 旧仓 `_reshape_spectrum` 用 `np.array(...).reshape(rows, cols)`，失败时把
+ * `ValueError` 的 `str(exc)` 拼进 `reason`：
+ * `cannot reshape array of size 4 into shape (6,7)`。逐字复刻它等于让诊断指向一个
+ * 本仓根本没有的库 —— 而**判据（几个数、要几个）一模一样**，只是用本仓的话说。
+ *
+ * 期望值**从金样算出来**而不是抄一遍（同 D-SCAN-5 / D-SKILL-1 那几条的理由）：
+ * 旧仓哪天改了那句话、或者 numpy 换了措辞，这条登记会跟着变，不会悄悄过期。
+ */
+const NUMPY_RESHAPE = /cannot reshape array of size (\d+) into shape \((\d+),\s*(\d+)\)/g
+
+function ourReshapeWording(s: string): string {
+  return s.replace(NUMPY_RESHAPE, (_m, size: string, rows: string, cols: string) =>
+    `一共 ${size} 个数,要 ${Number(rows) * Number(cols)} 个`,
+  )
+}
+
+function reshapeReason(name: string, trace: string): Deviation {
+  const want = golden[name]?.traces[trace]
+  const out: { error?: string; data?: Record<string, unknown> } = {}
+  const err = want?.error ?? ''
+  if (NUMPY_RESHAPE.test(err)) out.error = ourReshapeWording(err)
+  NUMPY_RESHAPE.lastIndex = 0
+  const data = want?.data
+  if (data !== undefined) {
+    const reason = data['spectrum_unparsed_reason']
+    if (typeof reason === 'string' && reason.includes('cannot reshape')) {
+      out.data = { ...data, spectrum_unparsed_reason: ourReshapeWording(reason) }
+    }
+  }
+  return out
+}
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   // ── D-SKILL-1 的又一批：空 body 上旧仓交出整个信封 ──
   //
@@ -590,6 +631,15 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   ...Object.fromEntries(
     ['BiasPulseWithReadback', 'TipShapeWithReadback', 'CaptureSignalBuffer'].flatMap((n) =>
       Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, { clockApprox: true } as const]),
+    ),
+  ),
+  // ── 批 3l：numpy 的 reshape 异常文本（见 `reshapeReason`）──
+  //
+  // 合成回包给 `2f` 的是一块 2×2，而表头（`i` 的第 3/4 位）说 6×7 ——
+  // 于是这一族**每一条**轨迹走的都是「装不下」那一支。
+  ...Object.fromEntries(
+    ['AcquireSTS', 'AcquireZSpectr'].flatMap((n) =>
+      Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, reshapeReason(n, t)]),
     ),
   ),
   'TipShapeWithReadback/empty@0': {
@@ -797,10 +847,31 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
     const skill: Skill = IMPLEMENTED[name]!
 
     describe(name, () => {
-      for (const [traceName, want] of Object.entries(entry.traces)) {
-        // 抛异常那条是旧仓自己的缺陷（见 deviations D-SKILL-2），单独测，不在这里比
-        if (want.raised !== undefined) continue
+      // **一条能比的都没有**：旧仓这个技能在基准参数上每一格都抛。
+      //
+      // 批 3l 第一次出现这种技能（通道串的 `'spec-export'` 过不了
+      // `int()` / `float()`，而那一抛发生在任何下发之前）。空着不写的话
+      // vitest 报 "No test found in suite" —— 一个**长得像故障**的通过，
+      // 而且它把「这个技能一条判据都没验」藏在噪声里。
+      //
+      // 所以这里**照样留一条判据**：旧仓抛了；本仓不抛（D-SKILL-3 同一条），
+      // 给一条说得清的拒绝，而且**一次调用都不发** —— 抛在下发之前，
+      // 那就不该有半条命令已经上线。
+      const comparable = Object.entries(entry.traces).filter(([, w]) => w.raised === undefined)
+      if (comparable.length === 0) {
+        it('旧仓每一格都抛；本仓不抛，给一条说得清的拒绝且一次调用都不发', async () => {
+          expect(Object.values(entry.traces).map((t) => t.raised ?? '')).not.toContain('')
+          resetProcessState(name)
+          const { ctx, calls } = fakeCtx()
+          const got = await skill.execute(ctx, entry.params)
+          expect(got.success).toBe(false)
+          expect(got.error ?? '').not.toBe('')
+          expect(calls.map((c) => c.verb)).toEqual([])
+        })
+        return
+      }
 
+      for (const [traceName, want] of comparable) {
         it(`${traceName}：动词序列与返回都相等`, async () => {
           resetProcessState(name)
           const { ctx, calls } = fakeCtx(optsOf(traceName))

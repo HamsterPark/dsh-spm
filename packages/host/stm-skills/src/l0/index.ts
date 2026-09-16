@@ -52,6 +52,7 @@ import { READBACK_STREAM } from './readback-skills.js'
 // ── 批 3k（环境读）在这一行下面加 import ──
 
 // ── 批 3l（spectroscopy 整族）在这一行下面加 import ──
+import { SPECTROSCOPY } from './spectroscopy.js'
 
 // ── 批 4a（分析技能第一批）在这一行下面加 import ──
 import { ENVIRONMENT } from './environment.js'
@@ -112,6 +113,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 3k 在这一行下面展开 ──
 
   // ── 批 3l 在这一行下面展开 ──
+  ...SPECTROSCOPY,
 
   // ── 批 4a 在这一行下面展开 ──
   ...ENVIRONMENT,
@@ -176,6 +178,7 @@ export * from './tip-policy.js'
 // ── 批 3k 在这一行下面 re-export ──
 
 // ── 批 3l 在这一行下面 re-export ──
+export * from './spectroscopy.js'
 
 // ── 批 4a 在这一行下面 re-export ──
 export * from './environment.js'

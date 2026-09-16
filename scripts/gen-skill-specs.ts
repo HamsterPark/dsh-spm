@@ -331,7 +331,20 @@ const BATCH_3K: string[] = ['GetChamberPressure', 'GetTemperature']   // 环境�
  * 紧挨着放，两条支线各改一行，git 照样冲突（2026-09-16 量过：中间至少要有
  * 一行谁都没改的）。
  */
-const BATCH_3L: string[] = []   // builtins.spectroscopy 整族
+const BATCH_3L: string[] = [
+  'AcquireSTS', 'ConfigureSTS', 'ConfigureZSpectr', 'AcquireZSpectr',
+  'ConfigureSTSTiming', 'StopSTS', 'StopZSpectr', 'ConfigureSTSChannels',
+  'ConfigureZSpectrTiming', 'GetSTSChannels', 'SetSTSChannels', 'GetSTSLimits',
+  'SetSTSAdvancedProps', 'GetSTSTiming', 'GetSTSAltZCtrl',
+  'GetZSpectrChannels', 'SetZSpectrChannels', 'GetZSpectrRange', 'SetZSpectrRange',
+  'GetZSpectrRetract', 'SetZSpectrRetract',
+  'GetSTSDigSync', 'GetSTSTTLSync', 'GetSTSPulseSeqSync', 'GetSTSZOffRevert',
+  'GetSTSMLSLockinPerSeg', 'SetSTSMLSMode', 'SetSTSMLSVals',
+  'SetSTSSafeCond1', 'GetSTSSafeCond1', 'SetSTSSafeCond2',
+  'SetZSpectrAdvProps', 'GetZSpectrDigSync', 'GetZSpectrPulseSeqSync',
+  'GetZSpectrRetract2nd', 'SetZSpectrRetractDelay', 'GetZSpectrTTLSync',
+  'GetZSpectrTiming',
+]   // builtins.spectroscopy 整族
 
 // ↑ 3l ／ ↓ 4a —— 这一行谁都不要动，它就是那「一行谁都没改的」
 const BATCH_4A: string[] = []   // builtins 分析技能第一批（要数值底座）

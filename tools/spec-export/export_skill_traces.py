@@ -307,7 +307,20 @@ BATCH_3K: list[str] = ["GetChamberPressure", "GetTemperature"]   # 环境读（�
 
 #: 批 3l / 4a —— 第三轮两条并行支线。**每个常量之间隔一个空行加一句注释**：
 #: 上一轮 3j/3k 紧挨着放，两条支线各改一行，git 照样冲突。
-BATCH_3L: list[str] = []   # builtins.spectroscopy 整族
+BATCH_3L: list[str] = [
+    "AcquireSTS", "ConfigureSTS", "ConfigureZSpectr", "AcquireZSpectr",
+    "ConfigureSTSTiming", "StopSTS", "StopZSpectr", "ConfigureSTSChannels",
+    "ConfigureZSpectrTiming", "GetSTSChannels", "SetSTSChannels", "GetSTSLimits",
+    "SetSTSAdvancedProps", "GetSTSTiming", "GetSTSAltZCtrl",
+    "GetZSpectrChannels", "SetZSpectrChannels", "GetZSpectrRange", "SetZSpectrRange",
+    "GetZSpectrRetract", "SetZSpectrRetract",
+    "GetSTSDigSync", "GetSTSTTLSync", "GetSTSPulseSeqSync", "GetSTSZOffRevert",
+    "GetSTSMLSLockinPerSeg", "SetSTSMLSMode", "SetSTSMLSVals",
+    "SetSTSSafeCond1", "GetSTSSafeCond1", "SetSTSSafeCond2",
+    "SetZSpectrAdvProps", "GetZSpectrDigSync", "GetZSpectrPulseSeqSync",
+    "GetZSpectrRetract2nd", "SetZSpectrRetractDelay", "GetZSpectrTTLSync",
+    "GetZSpectrTiming",
+]   # builtins.spectroscopy 整族
 
 #: ↑ 3l ／ ↓ 4a —— 这一行谁都不要动
 BATCH_4A: list[str] = []   # builtins 分析技能第一批

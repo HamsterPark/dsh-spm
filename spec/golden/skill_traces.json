@@ -1024,6 +1024,604 @@
       }
     }
   },
+  "AcquireSTS": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 248.85000000000002
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 248.9,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 151.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 151.0,
+            "npts": 6,
+            "nsweeps": 4,
+            "per_point_s": 2.75
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 248.85000000000002
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 248.9,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 151.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 151.0,
+            "npts": 6,
+            "nsweeps": 4,
+            "per_point_s": 2.75
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s",
+              "z_offset_m"
+            ],
+            "why": "读不到扫掠设定，退回保守上限"
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": 6,
+            "nsweeps": 4,
+            "timing_keys": [],
+            "why": "读不到扫掠设定，退回保守上限"
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "recv_timeout_s": 248.85000000000002
+            },
+            "verb": "BiasSpectr_Start"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 248.85000000000002
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 248.9,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 151.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 151.0,
+            "npts": 6,
+            "nsweeps": 4,
+            "per_point_s": 2.75
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 248.85000000000002
+            },
+            "verb": "BiasSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 248.9,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 151.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 151.0,
+            "npts": 6,
+            "nsweeps": 4,
+            "per_point_s": 2.75
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)),而且没有找到自动保存的 .dat —— 这次采集没有在任何地方留下可用的谱。若 autosave 是开着的,请到 Nanonis 的保存目录自己确认一次(这里只看最近 120 s 内最新的 .dat)。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AcquireZSpectr": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ApplyLockInPreset": {
     "params": {},
     "traces": {
@@ -15155,6 +15753,363 @@
       }
     }
   },
+  "ConfigureSTS": {
+    "params": {
+      "end_v": 5.0,
+      "num_points": 5001,
+      "start_v": 5.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [
+              5.0,
+              5.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              5001,
+              0.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "end_v": 5.0,
+          "num_points": 5001,
+          "reset_bias": true,
+          "start_v": 5.0,
+          "z_controller_hold": true,
+          "z_offset_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [
+              5.0,
+              5.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [
+              5.0,
+              5.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              5001,
+              0.0,
+              1,
+              2
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [
+              5.0,
+              5.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              5001,
+              0.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "end_v": 5.0,
+          "num_points": 5001,
+          "reset_bias": null,
+          "start_v": 5.0,
+          "z_controller_hold": null,
+          "z_offset_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Open"
+          },
+          {
+            "args": [
+              5.0,
+              5.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              1,
+              5001,
+              0.0,
+              1,
+              2
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              1,
+              0,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "end_v": 5.0,
+          "num_points": 5001,
+          "reset_bias": true,
+          "start_v": 5.0,
+          "z_controller_hold": true,
+          "z_offset_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureSTSChannels": {
+    "params": {
+      "channel_indexes": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "raised": "ValueError: invalid literal for int() with base 10: 'spec-export'"
+      }
+    }
+  },
+  "ConfigureSTSTiming": {
+    "params": {
+      "init_settling_s": 0.0,
+      "integration_s": 0.0,
+      "max_slew_rate_v_s": 0.0,
+      "settling_s": 0.0,
+      "z_avg_time_s": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingSet"
+          }
+        ],
+        "data": {
+          "end_settling_s": 0.0,
+          "init_settling_s": 0.0,
+          "integration_s": 0.0,
+          "max_slew_rate_v_s": 0.0,
+          "settling_s": 0.0,
+          "z_avg_time_s": 0.0,
+          "z_ctrl_time_s": 0.0,
+          "z_offset_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingSet"
+          }
+        ],
+        "data": {
+          "end_settling_s": 0.0,
+          "init_settling_s": 0.0,
+          "integration_s": 0.0,
+          "max_slew_rate_v_s": 0.0,
+          "settling_s": 0.0,
+          "z_avg_time_s": 0.0,
+          "z_ctrl_time_s": 0.0,
+          "z_offset_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "ConfigureScan": {
     "params": {
       "center_x_m": 1e-09,
@@ -16354,6 +17309,263 @@
           "generator": "2ch",
           "shape": "square"
         },
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureZSpectr": {
+    "params": {
+      "num_points": 5001,
+      "z_offset_m": 1e-09,
+      "z_sweep_distance_m": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              1,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          }
+        ],
+        "data": {
+          "backward_sweep": true,
+          "num_points": 5001,
+          "z_offset_m": 1e-09,
+          "z_sweep_distance_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              1,
+              1,
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          },
+          {
+            "args": [
+              1,
+              5001,
+              1,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          }
+        ],
+        "data": {
+          "backward_sweep": true,
+          "num_points": 5001,
+          "z_offset_m": 1e-09,
+          "z_sweep_distance_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ConfigureZSpectrTiming": {
+    "params": {
+      "init_settling_s": 0.0,
+      "integration_s": 0.0,
+      "max_slew_rate_v_s": 0.0,
+      "settling_s": 0.0,
+      "z_avg_time_s": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingSet"
+          }
+        ],
+        "data": {
+          "end_settling_s": 0.0,
+          "init_settling_s": 0.0,
+          "integration_s": 0.0,
+          "max_slew_rate_v_s": 0.0,
+          "settling_s": 0.0,
+          "z_avg_time_s": 0.0,
+          "z_ctrl_time_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingSet"
+          }
+        ],
+        "data": {
+          "end_settling_s": 0.0,
+          "init_settling_s": 0.0,
+          "integration_s": 0.0,
+          "max_slew_rate_v_s": 0.0,
+          "settling_s": 0.0,
+          "z_avg_time_s": 0.0,
+          "z_ctrl_time_s": 0.0
+        },
+        "error": "",
         "success": true,
         "summary": ""
       }
@@ -32835,6 +34047,506 @@
       }
     }
   },
+  "GetSTSAltZCtrl": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AltZCtrlGet"
+          }
+        ],
+        "data": {
+          "enabled": false,
+          "setpoint": 0.0,
+          "settling_time_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_AltZCtrlGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AltZCtrlGet"
+          }
+        ],
+        "data": {
+          "enabled": true,
+          "setpoint": 0.5,
+          "settling_time_s": 0.75
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSChannels": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_ChsGet"
+          }
+        ],
+        "data": {
+          "channel_indexes": [],
+          "channel_names": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_ChsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_ChsGet"
+          }
+        ],
+        "data": {
+          "channel_indexes": [
+            2,
+            3
+          ],
+          "channel_names": [
+            "Sig4A",
+            "Sig4B"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSDigSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_DigSyncGet"
+          }
+        ],
+        "data": {
+          "dig_sync": 0,
+          "dig_sync_label": "Off"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_DigSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_DigSyncGet"
+          }
+        ],
+        "data": {
+          "dig_sync": 3,
+          "dig_sync_label": "3"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSLimits": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsGet"
+          }
+        ],
+        "data": {
+          "end_v": 0.0,
+          "start_v": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_LimitsGet"
+          }
+        ],
+        "data": {
+          "end_v": 0.5,
+          "start_v": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSMLSLockinPerSeg": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSLockinPerSegGet"
+          }
+        ],
+        "data": {
+          "lockin_per_segment": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSLockinPerSegGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSLockinPerSegGet"
+          }
+        ],
+        "data": {
+          "lockin_per_segment": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSPulseSeqSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {
+          "nr_periods": 0,
+          "pulse_seq_nr": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {
+          "nr_periods": 4,
+          "pulse_seq_nr": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSSafeCond1": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Bias Spectroscopy has no safe-condition / auto-retract feature in the Nanonis API. This control only exists for Z Spectroscopy — use GetZSpectrRetract / GetZSpectrRetract2nd instead.",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSTTLSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {
+          "on_duration_s": 0.0,
+          "time_to_on_s": 0.0,
+          "ttl_line": 0,
+          "ttl_polarity": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {
+          "on_duration_s": 1.0,
+          "time_to_on_s": 0.75,
+          "ttl_line": 3,
+          "ttl_polarity": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSTiming": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          }
+        ],
+        "data": {},
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_TimingGet"
+          }
+        ],
+        "data": {
+          "end_settling_time_s": 1.75,
+          "initial_settling_time_s": 0.75,
+          "integration_time_s": 1.5,
+          "max_slew_rate_v_per_s": 1.0,
+          "settling_time_s": 1.25,
+          "z_averaging_time_s": 0.25,
+          "z_control_time_s": 2.0,
+          "z_offset_m": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetSTSZOffRevert": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_ZOffRevertGet"
+          }
+        ],
+        "data": {
+          "z_off_revert": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_ZOffRevertGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_ZOffRevertGet"
+          }
+        ],
+        "data": {
+          "z_off_revert": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "GetSafeTipProps": {
     "params": {},
     "traces": {
@@ -39144,6 +40856,452 @@
         ],
         "data": {
           "z_pos_m": 0.25
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrChannels": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_ChsGet"
+          }
+        ],
+        "data": {
+          "channel_indexes": [],
+          "channel_names": []
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_ChsGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_ChsGet"
+          }
+        ],
+        "data": {
+          "channel_indexes": [
+            2,
+            3
+          ],
+          "channel_names": [
+            "Sig4A",
+            "Sig4B"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrDigSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_DigSyncGet"
+          }
+        ],
+        "data": {
+          "dig_sync": 0,
+          "dig_sync_label": "Off"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_DigSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_DigSyncGet"
+          }
+        ],
+        "data": {
+          "dig_sync": 3,
+          "dig_sync_label": "3"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrPulseSeqSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {
+          "nr_periods": 0,
+          "pulse_seq_nr": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PulseSeqSyncGet"
+          }
+        ],
+        "data": {
+          "nr_periods": 4,
+          "pulse_seq_nr": 3
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrRange": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeGet"
+          }
+        ],
+        "data": {
+          "z_offset_m": 0.0,
+          "z_sweep_distance_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeGet"
+          }
+        ],
+        "data": {
+          "z_offset_m": 0.25,
+          "z_sweep_distance_m": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrRetract": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractGet"
+          }
+        ],
+        "data": {
+          "comparison": ">",
+          "enabled": false,
+          "signal_index": 0,
+          "threshold": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractGet"
+          }
+        ],
+        "data": {
+          "comparison": "<",
+          "enabled": true,
+          "signal_index": 5,
+          "threshold": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrRetract2nd": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSecondGet"
+          }
+        ],
+        "data": {
+          "comparison": ">",
+          "condition": 0,
+          "condition_label": "-No-",
+          "signal_index": 0,
+          "threshold": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSecondGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSecondGet"
+          }
+        ],
+        "data": {
+          "comparison": "<",
+          "condition": 3,
+          "condition_label": "THEN",
+          "signal_index": 5,
+          "threshold": 0.5
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrTTLSync": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {
+          "on_duration_s": 0.0,
+          "time_to_on_s": 0.0,
+          "ttl_line": 0,
+          "ttl_polarity": 0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TTLSyncGet"
+          }
+        ],
+        "data": {
+          "on_duration_s": 1.0,
+          "time_to_on_s": 0.75,
+          "ttl_line": 3,
+          "ttl_polarity": 4
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "GetZSpectrTiming": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          }
+        ],
+        "data": {},
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          }
+        ],
+        "data": {
+          "end_settling_time_s": 1.5,
+          "initial_settling_time_s": 0.5,
+          "integration_time_s": 1.25,
+          "max_slew_rate_v_per_s": 0.75,
+          "settling_time_s": 1.0,
+          "z_averaging_time_s": 0.25,
+          "z_control_time_s": 1.75
         },
         "error": "",
         "success": true,
@@ -59904,6 +62062,204 @@
       }
     }
   },
+  "SetSTSAdvancedProps": {
+    "params": {
+      "lockin_run": 1,
+      "record_final_z": 1,
+      "reset_bias": 1,
+      "z_controller_hold": 1
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "lockin_run": 1,
+          "record_final_z": 1,
+          "reset_bias": 1,
+          "z_controller_hold": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "lockin_run": 1,
+          "record_final_z": 1,
+          "reset_bias": 1,
+          "z_controller_hold": 1
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetSTSChannels": {
+    "params": {
+      "channel_indexes": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "raised": "ValueError: could not convert string to float: 'spec-export'"
+      }
+    }
+  },
+  "SetSTSMLSMode": {
+    "params": {
+      "mode": "Linear"
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              "Linear"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeSet"
+          }
+        ],
+        "data": {
+          "mode": "Linear"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              "Linear"
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              "Linear"
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_MLSModeSet"
+          }
+        ],
+        "data": {
+          "mode": "Linear"
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetSTSMLSVals": {
+    "params": {
+      "bias_end_v": "spec-export",
+      "bias_start_v": "spec-export",
+      "initial_settling_s": "spec-export",
+      "integration_s": "spec-export",
+      "lockin_run": "spec-export",
+      "settling_s": "spec-export",
+      "steps": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "raised": "ValueError: could not convert string to float: 'spec-export'"
+      }
+    }
+  },
+  "SetSTSSafeCond1": {
+    "params": {
+      "comparison": 1,
+      "condition": 1,
+      "signal_index": 1,
+      "threshold": 1.0
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Bias Spectroscopy has no safe-condition / auto-retract feature in the Nanonis API. This control only exists for Z Spectroscopy — use SetZSpectrRetract (main condition) or the 2nd-condition Z retract skills instead.",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "SetSTSSafeCond2": {
+    "params": {
+      "comparison": 1,
+      "condition": 1,
+      "signal_index": 1,
+      "threshold": 1.0
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "Bias Spectroscopy has no 2nd safe-condition / auto-retract feature in the Nanonis API. This control only exists for Z Spectroscopy — the 2nd-condition (OR/AND/THEN) retract logic is configured via the Z Spectroscopy auto-retract skills.",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "SetSafeTipProps": {
     "params": {
       "threshold": 1.0
@@ -63633,6 +65989,295 @@
       }
     }
   },
+  "SetZSpectrAdvProps": {
+    "params": {
+      "lockin_run": 1,
+      "record_final_z": 1,
+      "reset_z": 1,
+      "time_between_sweeps_s": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "lockin_run": 1,
+          "record_final_z": 1,
+          "reset_z": 1,
+          "time_between_sweeps_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              1,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0,
+              1,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_AdvPropsSet"
+          }
+        ],
+        "data": {
+          "lockin_run": 1,
+          "record_final_z": 1,
+          "reset_z": 1,
+          "time_between_sweeps_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetZSpectrChannels": {
+    "params": {
+      "channel_indexes": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "raised": "ValueError: could not convert string to float: 'spec-export'"
+      }
+    }
+  },
+  "SetZSpectrRange": {
+    "params": {
+      "z_offset_m": 1e-09,
+      "z_sweep_distance_m": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          }
+        ],
+        "data": {
+          "z_offset_m": 1e-09,
+          "z_sweep_distance_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1e-09,
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          }
+        ],
+        "data": {
+          "z_offset_m": 1e-09,
+          "z_sweep_distance_m": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetZSpectrRetract": {
+    "params": {
+      "comparison": 1,
+      "enabled": 1,
+      "signal_index": 1,
+      "threshold": 1.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSet"
+          }
+        ],
+        "data": {
+          "comparison": 1,
+          "enabled": 1,
+          "signal_index": 1,
+          "threshold": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0,
+              1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1,
+              1.0,
+              1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractSet"
+          }
+        ],
+        "data": {
+          "comparison": 1,
+          "enabled": 1,
+          "signal_index": 1,
+          "threshold": 1.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SetZSpectrRetractDelay": {
+    "params": {
+      "retract_delay_s": 0.0
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelaySet"
+          }
+        ],
+        "data": {
+          "retract_delay_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelaySet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0.0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RetractDelaySet"
+          }
+        ],
+        "data": {
+          "retract_delay_s": 0.0
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "SetZSpectroscopySecondRetract": {
     "params": {
       "enable": true
@@ -65336,6 +67981,57 @@
       }
     }
   },
+  "StopSTS": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "BiasSpectr_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "BiasSpectr_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "StopScan": {
     "params": {},
     "traces": {
@@ -65517,6 +68213,57 @@
         "params": {
           "generator": "2ch"
         },
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "StopZSpectr": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_Stop"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Stop"
+          }
+        ],
+        "data": {
+          "stopped": true
+        },
+        "error": "",
         "success": true,
         "summary": ""
       }

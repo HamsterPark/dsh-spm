@@ -9,7 +9,13 @@
  * 而**变异演练把这个洞照出来了**：`engage-fail-closed-loop-open` 拆掉之后
  * 一条测试都没红。这个文件就是补上的那条。
  */
-import { SkillKernel, emptyHardwareState, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'
+import {
+  SkillKernel,
+  emptyHardwareState,
+  slowCallFrom,
+  type SkillCallRecord,
+  type SkillContext,
+} from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
 import { TryEngageController } from './engage.js'
 
@@ -49,6 +55,8 @@ function ctxWith(opts: {
       signal: new AbortController().signal,
       safeCall,
       emergencyCall: safeCall,
+      // 批 3l：这个桩不抬 recv 预算（进针不走那条路）——**照实报 `null`**。
+      slowCall: slowCallFrom(safeCall, null),
       // 这个桩不接注册表。**返回一次带理由的失败**，不返回成功：
       // 一个静静地「成功」的子技能调用会把组合技能的判据整段架空。
       runSkill: (n: string) =>

@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 0 个 · 批 4a 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 0 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -3863,6 +3863,425 @@ export const GetTemperatureSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const AcquireSTSSpec: SkillSpec = {
+  name: "AcquireSTS",
+  description: "在当前针尖位置采一条 STS 谱。使用当前的 lock-in 与 bias 扫描设置。传 save_basename 可以控制保存下来的 .dat 文件名（为了可追溯 —— 例如按网格点命名）。",
+  parameters: [
+    { name: "save_basename", type: "str", description: "保存下来的谱文件的基名（留空 = 沿用模块当前的基名）。它让网格/批量测量能把每一个 .dat 与它的坐标对应起来。", required: false, default: "" },
+  ],
+  preconditions: ["z_controller_on"],
+  tags: ["spectroscopy","sts","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigureSTSSpec: SkillSpec = {
+  name: "ConfigureSTS",
+  description: "配置 STS 的 bias 扫描参数。",
+  parameters: [
+    { name: "start_v", type: "float", description: "扫描起始电压，单位伏特", unit: "V", required: true, minValue: -10, maxValue: 10 },
+    { name: "end_v", type: "float", description: "扫描终止电压，单位伏特", unit: "V", required: true, minValue: -10, maxValue: 10 },
+    { name: "num_points", type: "int", description: "扫描的点数", required: true, minValue: 2, maxValue: 10000 },
+    { name: "z_offset_m", type: "float", description: "谱学期间的 Z 偏移，单位米", unit: "m", required: false, default: 0 },
+  ],
+  tags: ["spectroscopy","sts","configure","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigureZSpectrSpec: SkillSpec = {
+  name: "ConfigureZSpectr",
+  description: "配置 Z 谱学：Z 偏移、扫描距离与点数。",
+  parameters: [
+    { name: "z_offset_m", type: "float", description: "Z 偏移，单位米", unit: "m", required: true },
+    { name: "z_sweep_distance_m", type: "float", description: "Z 扫描距离，单位米", unit: "m", required: true, minValue: 0 },
+    { name: "num_points", type: "int", description: "扫描的点数", required: true, minValue: 2, maxValue: 10000 },
+    { name: "backward_sweep", type: "bool", description: "启用反扫", required: false, default: true },
+  ],
+  tags: ["spectroscopy","z","configure","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AcquireZSpectrSpec: SkillSpec = {
+  name: "AcquireZSpectr",
+  description: "在当前针尖位置采一条 Z 谱。",
+  parameters: [],
+  preconditions: ["z_controller_on"],
+  tags: ["spectroscopy","z","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigureSTSTimingSpec: SkillSpec = {
+  name: "ConfigureSTSTiming",
+  description: "配置 Bias Spectroscopy 的时序参数。",
+  parameters: [
+    { name: "z_avg_time_s", type: "float", description: "Z 平均时间", unit: "s", required: true, minValue: 0 },
+    { name: "z_offset_m", type: "float", description: "Z 偏移", unit: "m", required: false, default: 0 },
+    { name: "init_settling_s", type: "float", description: "初始建立时间", unit: "s", required: true, minValue: 0 },
+    { name: "max_slew_rate_v_s", type: "float", description: "最大压摆率", unit: "V/s", required: true, minValue: 0 },
+    { name: "settling_s", type: "float", description: "每点的建立时间", unit: "s", required: true, minValue: 0 },
+    { name: "integration_s", type: "float", description: "每点的积分时间", unit: "s", required: true, minValue: 0 },
+    { name: "end_settling_s", type: "float", description: "结束时的建立时间", unit: "s", required: false, minValue: 0, default: 0 },
+    { name: "z_ctrl_time_s", type: "float", description: "Z 控制时间", unit: "s", required: false, minValue: 0, default: 0 },
+  ],
+  tags: ["spectroscopy","sts","timing","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const StopSTSSpec: SkillSpec = {
+  name: "StopSTS",
+  description: "停止当前的 Bias Spectroscopy 测量。",
+  parameters: [],
+  tags: ["spectroscopy","sts","stop"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const StopZSpectrSpec: SkillSpec = {
+  name: "StopZSpectr",
+  description: "停止当前的 Z Spectroscopy 测量。",
+  parameters: [],
+  tags: ["spectroscopy","z","stop"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const ConfigureSTSChannelsSpec: SkillSpec = {
+  name: "ConfigureSTSChannels",
+  description: "设置 Bias Spectroscopy 期间记录哪些通道。",
+  parameters: [
+    { name: "channel_indexes", type: "str", description: "逗号分隔的通道索引（0-23）", required: true },
+  ],
+  tags: ["spectroscopy","sts","channels","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const ConfigureZSpectrTimingSpec: SkillSpec = {
+  name: "ConfigureZSpectrTiming",
+  description: "配置 Z Spectroscopy 的时序参数。",
+  parameters: [
+    { name: "z_avg_time_s", type: "float", description: "Z 平均时间", unit: "s", required: true, minValue: 0 },
+    { name: "init_settling_s", type: "float", description: "初始建立时间", unit: "s", required: true, minValue: 0 },
+    { name: "max_slew_rate_v_s", type: "float", description: "最大压摆率", unit: "V/s", required: true, minValue: 0 },
+    { name: "settling_s", type: "float", description: "每点的建立时间", unit: "s", required: true, minValue: 0 },
+    { name: "integration_s", type: "float", description: "每点的积分时间", unit: "s", required: true, minValue: 0 },
+    { name: "end_settling_s", type: "float", description: "结束时的建立时间", unit: "s", required: false, minValue: 0, default: 0 },
+    { name: "z_ctrl_time_s", type: "float", description: "Z 控制时间", unit: "s", required: false, minValue: 0, default: 0 },
+  ],
+  tags: ["spectroscopy","z","timing","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSTSChannelsSpec: SkillSpec = {
+  name: "GetSTSChannels",
+  description: "取 Bias Spectroscopy 记录的通道列表。",
+  parameters: [],
+  tags: ["spectroscopy","sts","channels","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetSTSChannelsSpec: SkillSpec = {
+  name: "SetSTSChannels",
+  description: "设置 Bias Spectroscopy 记录的通道。",
+  parameters: [
+    { name: "channel_indexes", type: "str", description: "通道索引（0-127），逗号分隔，例如 '0, 1, 2'", required: true },
+  ],
+  tags: ["spectroscopy","sts","channels","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSTSLimitsSpec: SkillSpec = {
+  name: "GetSTSLimits",
+  description: "取 Bias Spectroscopy 的 bias 电压范围。",
+  parameters: [],
+  tags: ["spectroscopy","sts","limits","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetSTSAdvancedPropsSpec: SkillSpec = {
+  name: "SetSTSAdvancedProps",
+  description: "设置 Bias Spectroscopy 的高级属性。",
+  parameters: [
+    { name: "reset_bias", type: "int", description: "扫描后复位 bias（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "z_controller_hold", type: "int", description: "扫描期间保持 Z 控制器（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "record_final_z", type: "int", description: "记录最终的 Z（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "lockin_run", type: "int", description: "扫描期间运行 Lock-In（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["spectroscopy","sts","advanced","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSTSTimingSpec: SkillSpec = {
+  name: "GetSTSTiming",
+  description: "取 Bias Spectroscopy 的时序参数。",
+  parameters: [],
+  tags: ["spectroscopy","sts","timing","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSTSAltZCtrlSpec: SkillSpec = {
+  name: "GetSTSAltZCtrl",
+  description: "取 Bias Spectroscopy 的备用 Z 控制器设置。",
+  parameters: [],
+  tags: ["spectroscopy","sts","zctrl","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetZSpectrChannelsSpec: SkillSpec = {
+  name: "GetZSpectrChannels",
+  description: "取 Z Spectroscopy 记录的通道列表。",
+  parameters: [],
+  tags: ["spectroscopy","z","channels","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetZSpectrChannelsSpec: SkillSpec = {
+  name: "SetZSpectrChannels",
+  description: "设置 Z Spectroscopy 记录的通道。",
+  parameters: [
+    { name: "channel_indexes", type: "str", description: "通道索引（0-127），逗号分隔，例如 '0, 1, 2'", required: true },
+  ],
+  tags: ["spectroscopy","z","channels","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetZSpectrRangeSpec: SkillSpec = {
+  name: "GetZSpectrRange",
+  description: "取 Z Spectroscopy 的量程设置。",
+  parameters: [],
+  tags: ["spectroscopy","z","range","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetZSpectrRangeSpec: SkillSpec = {
+  name: "SetZSpectrRange",
+  description: "设置 Z Spectroscopy 的量程。",
+  parameters: [
+    { name: "z_offset_m", type: "float", description: "Z 偏移，单位米", unit: "m", required: true },
+    { name: "z_sweep_distance_m", type: "float", description: "Z 扫描距离，单位米", unit: "m", required: true, minValue: 0 },
+  ],
+  tags: ["spectroscopy","z","range","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetZSpectrRetractSpec: SkillSpec = {
+  name: "GetZSpectrRetract",
+  description: "取 Z Spectroscopy 的自动退针配置。",
+  parameters: [],
+  tags: ["spectroscopy","z","retract","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetZSpectrRetractSpec: SkillSpec = {
+  name: "SetZSpectrRetract",
+  description: "设置 Z Spectroscopy 的自动退针条件。",
+  parameters: [
+    { name: "enabled", type: "int", description: "启用退针（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "threshold", type: "float", description: "退针的阈值", required: true },
+    { name: "signal_index", type: "int", description: "阈值所用的信号索引（-1=不改）", required: true },
+    { name: "comparison", type: "int", description: "比较运算符（0=>，1=<，2=不改）", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["spectroscopy","z","retract","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSTSDigSyncSpec: SkillSpec = {
+  name: "GetSTSDigSync",
+  description: "取 Bias Spectroscopy 的数字同步模式（Off/TTL/PulseSeq）。",
+  parameters: [],
+  tags: ["spectroscopy","sts","digsync","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSTSTTLSyncSpec: SkillSpec = {
+  name: "GetSTSTTLSync",
+  description: "取 Bias Spectroscopy 的 TTL 同步配置。",
+  parameters: [],
+  tags: ["spectroscopy","sts","ttlsync","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSTSPulseSeqSyncSpec: SkillSpec = {
+  name: "GetSTSPulseSeqSync",
+  description: "取 Bias Spectroscopy 的脉冲序列同步配置。",
+  parameters: [],
+  tags: ["spectroscopy","sts","pulseseq","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSTSZOffRevertSpec: SkillSpec = {
+  name: "GetSTSZOffRevert",
+  description: "取 Bias Spectroscopy 的 Z Offset Revert 标志。",
+  parameters: [],
+  tags: ["spectroscopy","sts","zoffrevert","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetSTSMLSLockinPerSegSpec: SkillSpec = {
+  name: "GetSTSMLSLockinPerSeg",
+  description: "取 MLS 模式下的 Lock-In per Segment 标志。",
+  parameters: [],
+  tags: ["spectroscopy","sts","mls","lockin","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetSTSMLSModeSpec: SkillSpec = {
+  name: "SetSTSMLSMode",
+  description: "设置 Bias Spectroscopy 的扫描模式：Linear 或 MLS。",
+  parameters: [
+    { name: "mode", type: "str", description: "'Linear' 或 'MLS'", required: true, allowedValues: ["Linear","MLS"] },
+  ],
+  tags: ["spectroscopy","sts","mls","mode","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetSTSMLSValsSpec: SkillSpec = {
+  name: "SetSTSMLSVals",
+  description: "设置 Bias Spectroscopy MLS 模式的多线段配置。",
+  parameters: [
+    { name: "bias_start_v", type: "str", description: "每段的起始 bias（V），逗号分隔，例如 '-1.0, 0.5'", required: true },
+    { name: "bias_end_v", type: "str", description: "每段的终止 bias（V），逗号分隔", required: true },
+    { name: "initial_settling_s", type: "str", description: "每段的初始建立时间（s），逗号分隔", required: true },
+    { name: "settling_s", type: "str", description: "每段的建立时间（s），逗号分隔", required: true },
+    { name: "integration_s", type: "str", description: "每段的积分时间（s），逗号分隔", required: true },
+    { name: "steps", type: "str", description: "每段的步数，逗号分隔的整数", required: true },
+    { name: "lockin_run", type: "str", description: "每段的 Lock-In 运行标志（0=Off，1=On），逗号分隔", required: true },
+  ],
+  tags: ["spectroscopy","sts","mls","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetSTSSafeCond1Spec: SkillSpec = {
+  name: "SetSTSSafeCond1",
+  description: "[DEPRECATED —— Nanonis 里 Bias Spectroscopy 没有 safe-condition API；它总是失败。请改用 Z 谱学的 SetZSpectrRetract。] 设置 Bias Spectroscopy 的第一条 safe condition。",
+  parameters: [
+    { name: "condition", type: "int", description: "动作：0=不改，1=Off，2=Reverse，3=Stop", required: true, minValue: 0, maxValue: 3 },
+    { name: "threshold", type: "float", description: "阈值（NaN=不改）", required: true },
+    { name: "signal_index", type: "int", description: "信号索引（0-127，-1=不改）", required: true },
+    { name: "comparison", type: "int", description: "0=高于，1=低于，2=不改", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["spectroscopy","sts","safecond","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetSTSSafeCond1Spec: SkillSpec = {
+  name: "GetSTSSafeCond1",
+  description: "[DEPRECATED —— Nanonis 里 Bias Spectroscopy 没有 safe-condition API；它总是失败。请改用 Z 谱学的 GetZSpectrRetract。] 取 Bias Spectroscopy 的第一条 safe condition。",
+  parameters: [],
+  tags: ["spectroscopy","sts","safecond","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetSTSSafeCond2Spec: SkillSpec = {
+  name: "SetSTSSafeCond2",
+  description: "[DEPRECATED —— Nanonis 里 Bias Spectroscopy 没有 safe-condition API；它总是失败。请改用 Z 谱学的第二条 retract（GetZSpectrRetract2nd）。] 设置 Bias Spectroscopy 的第二条 safe condition。",
+  parameters: [
+    { name: "condition", type: "int", description: "逻辑：-1=不改，0=Off，1=OR，2=AND，3=THEN", required: true, minValue: -1, maxValue: 3 },
+    { name: "threshold", type: "float", description: "阈值（NaN=不改）", required: true },
+    { name: "signal_index", type: "int", description: "信号索引（0-127，-1=不改）", required: true },
+    { name: "comparison", type: "int", description: "0=高于，1=低于，2=不改", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["spectroscopy","sts","safecond","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const SetZSpectrAdvPropsSpec: SkillSpec = {
+  name: "SetZSpectrAdvProps",
+  description: "设置 Z Spectroscopy 的高级属性。",
+  parameters: [
+    { name: "time_between_sweeps_s", type: "float", description: "正扫与反扫之间的时间（s）", unit: "s", required: true, minValue: 0 },
+    { name: "record_final_z", type: "int", description: "记录最终的 Z（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "lockin_run", type: "int", description: "运行 Lock-In（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+    { name: "reset_z", type: "int", description: "扫描后复位 Z（0=不改，1=On，2=Off）", required: true, minValue: 0, maxValue: 2 },
+  ],
+  tags: ["spectroscopy","z","advanced","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetZSpectrDigSyncSpec: SkillSpec = {
+  name: "GetZSpectrDigSync",
+  description: "取 Z Spectroscopy 的数字同步模式（Off/TTL/PulseSeq）。",
+  parameters: [],
+  tags: ["spectroscopy","z","digsync","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetZSpectrPulseSeqSyncSpec: SkillSpec = {
+  name: "GetZSpectrPulseSeqSync",
+  description: "取 Z Spectroscopy 的脉冲序列同步配置。",
+  parameters: [],
+  tags: ["spectroscopy","z","pulseseq","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetZSpectrRetract2ndSpec: SkillSpec = {
+  name: "GetZSpectrRetract2nd",
+  description: "取 Z Spectroscopy 的第二条自动退针条件。",
+  parameters: [],
+  tags: ["spectroscopy","z","retract","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const SetZSpectrRetractDelaySpec: SkillSpec = {
+  name: "SetZSpectrRetractDelay",
+  description: "设置 Z Spectroscopy 中正扫与反扫之间的退针延迟（s）。",
+  parameters: [
+    { name: "retract_delay_s", type: "float", description: "退针延迟，单位秒", unit: "s", required: true, minValue: 0 },
+  ],
+  tags: ["spectroscopy","z","retract","delay","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const GetZSpectrTTLSyncSpec: SkillSpec = {
+  name: "GetZSpectrTTLSync",
+  description: "取 Z Spectroscopy 的 TTL 同步配置。",
+  parameters: [],
+  tags: ["spectroscopy","z","ttlsync","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const GetZSpectrTimingSpec: SkillSpec = {
+  name: "GetZSpectrTiming",
+  description: "取 Z Spectroscopy 的时序参数。",
+  parameters: [],
+  tags: ["spectroscopy","z","timing","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -4194,7 +4613,45 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   CaptureSignalBuffer: CaptureSignalBufferSpec,
   GetChamberPressure: GetChamberPressureSpec,
   GetTemperature: GetTemperatureSpec,
+  AcquireSTS: AcquireSTSSpec,
+  ConfigureSTS: ConfigureSTSSpec,
+  ConfigureZSpectr: ConfigureZSpectrSpec,
+  AcquireZSpectr: AcquireZSpectrSpec,
+  ConfigureSTSTiming: ConfigureSTSTimingSpec,
+  StopSTS: StopSTSSpec,
+  StopZSpectr: StopZSpectrSpec,
+  ConfigureSTSChannels: ConfigureSTSChannelsSpec,
+  ConfigureZSpectrTiming: ConfigureZSpectrTimingSpec,
+  GetSTSChannels: GetSTSChannelsSpec,
+  SetSTSChannels: SetSTSChannelsSpec,
+  GetSTSLimits: GetSTSLimitsSpec,
+  SetSTSAdvancedProps: SetSTSAdvancedPropsSpec,
+  GetSTSTiming: GetSTSTimingSpec,
+  GetSTSAltZCtrl: GetSTSAltZCtrlSpec,
+  GetZSpectrChannels: GetZSpectrChannelsSpec,
+  SetZSpectrChannels: SetZSpectrChannelsSpec,
+  GetZSpectrRange: GetZSpectrRangeSpec,
+  SetZSpectrRange: SetZSpectrRangeSpec,
+  GetZSpectrRetract: GetZSpectrRetractSpec,
+  SetZSpectrRetract: SetZSpectrRetractSpec,
+  GetSTSDigSync: GetSTSDigSyncSpec,
+  GetSTSTTLSync: GetSTSTTLSyncSpec,
+  GetSTSPulseSeqSync: GetSTSPulseSeqSyncSpec,
+  GetSTSZOffRevert: GetSTSZOffRevertSpec,
+  GetSTSMLSLockinPerSeg: GetSTSMLSLockinPerSegSpec,
+  SetSTSMLSMode: SetSTSMLSModeSpec,
+  SetSTSMLSVals: SetSTSMLSValsSpec,
+  SetSTSSafeCond1: SetSTSSafeCond1Spec,
+  GetSTSSafeCond1: GetSTSSafeCond1Spec,
+  SetSTSSafeCond2: SetSTSSafeCond2Spec,
+  SetZSpectrAdvProps: SetZSpectrAdvPropsSpec,
+  GetZSpectrDigSync: GetZSpectrDigSyncSpec,
+  GetZSpectrPulseSeqSync: GetZSpectrPulseSeqSyncSpec,
+  GetZSpectrRetract2nd: GetZSpectrRetract2ndSpec,
+  SetZSpectrRetractDelay: SetZSpectrRetractDelaySpec,
+  GetZSpectrTTLSync: GetZSpectrTTLSyncSpec,
+  GetZSpectrTiming: GetZSpectrTimingSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","ConfigurePiController","SetPiControllerOnOff","GetPiController","SetGenericPiOutput","GetGenericPiController","ConfigurePreamp","GetPreamp","RunPllZoomFft","GetPllZoomFftData","RunPllPhaseSweep","StopPllPhaseSweep","ConfigurePllSignalAnalyzer","GetPllSignalAnalyzerData","ConfigureOcSync","GetOcSync","ConfigureTipRecorder","GetTipRecorderData","ConfigureKelvinController","SetKelvinControllerOnOff","GetKelvinController","RunCpdCompensation","GetCpdCompensation","ConfigureInterferometer","SetInterferometerOnOff","GetInterferometer","ConfigureBeamDeflection","GetBeamDeflection","AutoZeroBeamDeflection","SetLaserOnOff","SetLaserPower","GetLaser","SetProbeZController","GetProbeZController","WithdrawProbe","ConfigureProbeScanner","MoveProbeXY","StopProbeScanner","SetProbeBias","PulseProbeBias","GetProbeBias","GetProbeCurrent","ConfigureProbeCurrentGain","ConfigureHighSpeedSweep","RunHighSpeedSweep","StopHighSpeedSweep","GetHighSpeedSweepStatus","ConfigureRfGenerator","StartRfGenerator","StopRfGenerator","RunRfFrequencySweep","GetRfGeneratorStatus","ConfigureHighResScope","RunHighResScope","GetHighResScopeData","GetHighResScopeStatus","ConfigureDualScope","GetDualScopeData","ConfigureSignalChart","GetUserOutputLimits","GetUserOutputMode","GetUserOutputMonitorChannel","GetDigitalLineTTL","GetCalculatedOutputConfig","SetUserOutput","SetUserOutputMode","SetUserOutputMonitorChannel","SetUserOutputLimits","SetUserOutputCalibration","ConfigureCalculatedOutput","PulseDigitalLine","SetDigitalLineStatus","ConfigureDigitalLine","ConfigureBiasSweep","AcquireBiasSweep","ConfigureLockInSweep","AcquireLockInSweep","GetLockInSweepLimits","GetLockInSweepProps","GetLockInSweepSignal","GenSwpAcqChsGet","GenSwpPropsGet","GenSwpStop","GenSwpSwpSignalGet","OpenPatternExperiment","PausePatternExperiment","SetPatternLine","SetPatternCloud","GetPatternCloud","GetPatternProps","ConfigureWaveform","StartWaveform","StopWaveform","GetWaveformStatus","SetWaveformIdleValue","SetWaveformChannelOnOff","SetSpectroscopyTtlSync","SetSpectroscopyPulseSync","SetSpectroscopyZControl","SetZSpectroscopySecondRetract","SetMlsLockinPerSegment","GetSpectroscopyStatus","QuitNanonis","SetMultiPass","LoadMultiPassConfig","SaveMultiPassConfig","WaitForScanEndBlocking","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange","BiasPulseWithReadback","TipShapeWithReadback","CaptureSignalBuffer","GetChamberPressure","GetTemperature"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","ConfigurePiController","SetPiControllerOnOff","GetPiController","SetGenericPiOutput","GetGenericPiController","ConfigurePreamp","GetPreamp","RunPllZoomFft","GetPllZoomFftData","RunPllPhaseSweep","StopPllPhaseSweep","ConfigurePllSignalAnalyzer","GetPllSignalAnalyzerData","ConfigureOcSync","GetOcSync","ConfigureTipRecorder","GetTipRecorderData","ConfigureKelvinController","SetKelvinControllerOnOff","GetKelvinController","RunCpdCompensation","GetCpdCompensation","ConfigureInterferometer","SetInterferometerOnOff","GetInterferometer","ConfigureBeamDeflection","GetBeamDeflection","AutoZeroBeamDeflection","SetLaserOnOff","SetLaserPower","GetLaser","SetProbeZController","GetProbeZController","WithdrawProbe","ConfigureProbeScanner","MoveProbeXY","StopProbeScanner","SetProbeBias","PulseProbeBias","GetProbeBias","GetProbeCurrent","ConfigureProbeCurrentGain","ConfigureHighSpeedSweep","RunHighSpeedSweep","StopHighSpeedSweep","GetHighSpeedSweepStatus","ConfigureRfGenerator","StartRfGenerator","StopRfGenerator","RunRfFrequencySweep","GetRfGeneratorStatus","ConfigureHighResScope","RunHighResScope","GetHighResScopeData","GetHighResScopeStatus","ConfigureDualScope","GetDualScopeData","ConfigureSignalChart","GetUserOutputLimits","GetUserOutputMode","GetUserOutputMonitorChannel","GetDigitalLineTTL","GetCalculatedOutputConfig","SetUserOutput","SetUserOutputMode","SetUserOutputMonitorChannel","SetUserOutputLimits","SetUserOutputCalibration","ConfigureCalculatedOutput","PulseDigitalLine","SetDigitalLineStatus","ConfigureDigitalLine","ConfigureBiasSweep","AcquireBiasSweep","ConfigureLockInSweep","AcquireLockInSweep","GetLockInSweepLimits","GetLockInSweepProps","GetLockInSweepSignal","GenSwpAcqChsGet","GenSwpPropsGet","GenSwpStop","GenSwpSwpSignalGet","OpenPatternExperiment","PausePatternExperiment","SetPatternLine","SetPatternCloud","GetPatternCloud","GetPatternProps","ConfigureWaveform","StartWaveform","StopWaveform","GetWaveformStatus","SetWaveformIdleValue","SetWaveformChannelOnOff","SetSpectroscopyTtlSync","SetSpectroscopyPulseSync","SetSpectroscopyZControl","SetZSpectroscopySecondRetract","SetMlsLockinPerSegment","GetSpectroscopyStatus","QuitNanonis","SetMultiPass","LoadMultiPassConfig","SaveMultiPassConfig","WaitForScanEndBlocking","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange","BiasPulseWithReadback","TipShapeWithReadback","CaptureSignalBuffer","GetChamberPressure","GetTemperature","AcquireSTS","ConfigureSTS","ConfigureZSpectr","AcquireZSpectr","ConfigureSTSTiming","StopSTS","StopZSpectr","ConfigureSTSChannels","ConfigureZSpectrTiming","GetSTSChannels","SetSTSChannels","GetSTSLimits","SetSTSAdvancedProps","GetSTSTiming","GetSTSAltZCtrl","GetZSpectrChannels","SetZSpectrChannels","GetZSpectrRange","SetZSpectrRange","GetZSpectrRetract","SetZSpectrRetract","GetSTSDigSync","GetSTSTTLSync","GetSTSPulseSeqSync","GetSTSZOffRevert","GetSTSMLSLockinPerSeg","SetSTSMLSMode","SetSTSMLSVals","SetSTSSafeCond1","GetSTSSafeCond1","SetSTSSafeCond2","SetZSpectrAdvProps","GetZSpectrDigSync","GetZSpectrPulseSeqSync","GetZSpectrRetract2nd","SetZSpectrRetractDelay","GetZSpectrTTLSync","GetZSpectrTiming"] as const

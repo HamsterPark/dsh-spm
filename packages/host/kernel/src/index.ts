@@ -33,6 +33,7 @@ export * from './z-trace.js'
 // ── 批 3k（真空互锁 / 温度源）在这一行下面 export ──
 
 // ── 批 3l（spectroscopy 判定件）在这一行下面 export ──
+export * from './spectroscopy.js'
 
 // ── 批 4a（分析判定件）在这一行下面 export ──
 export * from './vacuum-interlock.js'
