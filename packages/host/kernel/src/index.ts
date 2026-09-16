@@ -44,6 +44,8 @@ export * from './scan-regions.js'
 export * from './image-channel.js'
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面 export ──
+export * from './scan-resolver.js'
+export * from './tip-crash-tracker.js'
 export * from './corrugation-gate.js'
 export * from './scan-prep-thresholds.js'
 export * from './vacuum-interlock.js'

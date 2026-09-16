@@ -1863,3 +1863,191 @@ z = d / √(s² + d²/4) ≤ d / (d/2) = 2        （s → 0 取等）
 不是跑出来的。
 
 <!-- ── 批 4d（composite.scan_at + 撞针追踪）的登记写在这一行下面 ── -->
+
+## D-SCANRES-?? · `resolve_scan` 的三处 `human` f-string 在旧仓**抛 TypeError**，而它下面那句兜底因此是死代码
+
+| | |
+|---|---|
+| **Python** | `note("line_time_s", line_time, …, human=f"{line_time:.4g} s/线")` —— 而 `_clamp` 是会给 `None` 的 |
+| **我们** | 值是 `null` 时 `human` 也是 `null`（**不是 `0 s/线`**），`line_time` 随后落回内建默认 `0.5` |
+| **金样** | `spec/golden/scan_resolver.json` 里 **4 格** `raised: {type: "TypeError"}` |
+| **测试** | `kernel/src/scan-resolver.test.ts` → `TypeError 的那四格：本仓给一个值，而那个值不是 0` |
+
+四个入口：`explicit.line_time_s` / `explicit.angle_deg` / `explicit.bias_v` 解不出数，
+以及 `prefs.scan_speed_nm_s` 是个非数值字符串（`if pref_speed` 是**真值**判断，
+一个 `'fast'` 会进那一支）。四条都从模型 / 偏好表直达，不是理论路径。
+
+**连带的一件事更值得记**：`resolve_scan` 里那句
+
+```python
+if line_time is None:                    # pragma: no cover
+    line_time = 0.5
+    note("line_time_s", line_time, SOURCE_DEFAULT)
+```
+
+是**死代码** —— 每一条能让 `line_time` 变成 `None` 的路，都先在上面那个 f-string 上抛了。
+`pragma: no cover` 让它看起来只是「测不到的兜底」，而它其实是「到不了的兜底」。
+本仓补上 `human = null` 之后它**第一次真的可达**，也第一次有了一条测试。
+
+**为什么不照移那次抛**：同 D-SKILL-3（旧仓抛 `IndexError` 的那一格本仓给一个值）。
+模块自己的话是「偏好读不到绝不能让扫描失败」，而一个抛出去的 `TypeError` 正是让扫描失败。
+
+**`human = null` 而不是 `0`**：`f"{None:.4g}"` 的替代品不该是 `0 V` / `0°` ——
+那是给一个**没有的数**编一个读数，正好是这一层最该防的事。
+变异 `scan-null-human-is-not-zero` 钉着它。
+
+---
+
+## D-SCANRES-?? · `int(float('inf'))` 抛的是 `OverflowError`，而 `_num` 的 `except` 收不住
+
+| | |
+|---|---|
+| **Python** | `_num(value, int)` 的 `except (TypeError, ValueError)` —— `int(inf)` 抛的是 `OverflowError`，**漏出去** |
+| **我们** | `pyInt(Infinity)` 给 `null` ⇒ 落到「档位表保证非空」那条兜底（`pixels = 256`，来源 `default`） |
+| **测试** | `kernel/src/scan-resolver.test.ts` → `旧仓抛 OverflowError 的那一格：本仓给一个值` |
+
+同一条在撞针追踪那边也成立：`_cell` 的 `round(float(x) / tol)` 对 `inf` 抛 `OverflowError`，
+而它的 `except` 同样只收 `TypeError` / `ValueError` ⇒ **一次撞针记录把整个技能炸掉**。
+本仓 `pyNum(Infinity)` 给 `null` ⇒ 进哨兵格：一个读不出坐标的撞针仍然是一次撞针。
+
+`float('nan')` 两侧行为相同（Python 那边 `round(nan)` 抛 `ValueError`，被收住 ⇒ 哨兵格）。
+
+---
+
+## D-FLOAT-1 补充 · 第四份 `float()`，以及**原登记里一句说反了的话**
+
+`kernel/src/scan-resolver.ts` 的 `pyNum` 是这一族的第四份（前三份见 D-FLOAT-1 那张表）。
+它站在 `readback.ts` 的 `toFloat` 这一侧 —— 解析的是**调用方给的参数**
+（显式覆盖、偏好表、档位表），不是仪器写出来的数据列。两处比旧仓严：
+
+| 写法 | Python `float()` | `pyNum` | 为什么 |
+|---|---|---|---|
+| `'0x10'` | 抛 ⇒ `None` | `null` | JS 的 `Number('0x10')` 是 **16** —— 一个十六进制写法被当成十进制那个数送到硬件上（同批 3f 的 `lutValues`） |
+| `'1_000'` | **1000.0** | `null` | 一个写成 `1_000` 的每线时间在旧仓是 1000 s/线 ⇒ clamp 到 600 ⇒ 256 线一帧 **85 小时** |
+
+⚠️ **原 D-FLOAT-1 末尾那句「Python `float("1_000")` 同样是抛的」是错的。**
+CPython 3.6 起 `float()` 认数字间的下划线；本机 3.13 实测：
+
+```
+'1_000' → 1000.0 · '1_0.5' → 10.5 · '1e1_0' → 1e10 · '_1' / '1_' / '0x10' → ValueError
+```
+
+也就是说「两者都不认下划线」在**本仓这一侧**成立，在**旧仓那一侧不成立** ——
+这一条从此是一条真的偏差，不是一句「两边一样」。
+（`si.ts` 的 `parseSi` 走的是另一条路，D-SI-2 不受影响。）
+
+---
+
+## D-SCANRES-?? · 档位表 / 偏好 / 针尖速度上限**由外面注入**，`preview()` 与写入路径不移植
+
+| | |
+|---|---|
+| **Python** | `resolve_scan` 里三处「顺手读一下」：`_read_prefs()`（延迟 import `experiment_prefs`）、`_read_v_tip_max()`（读 `instrument_profile`）、`tiers_lookup or scan_policy`（模块级活动表） |
+| **TS** | `opts.prefs` / `opts.vTipMaxMS` / `opts.tiers`，不给就是 `{}` / `2e-6` / `FACTORY_LOOKUP` |
+| **测试** | `kernel/src/scan-resolver.test.ts` → `档位表由外面注入`；`composite/scan-at.test.ts` → 同名一组 |
+
+同 D-VAC-1 / D-LIMITS-1 / D-PRESET-2：**限值与偏好是台架的属性，不是模块的属性**。
+三条降级路径的**取值**逐字照移（旧仓读不到时给的就是这三个），换掉的只是「谁去读」。
+
+**跟着不移的两块**：
+
+* `scan_policy` 的**写入侧**（`sanitize` / `set_policy` / `set_persist_sink` / `format_policy_block`，
+  约 300 行）—— 它们的消费方是**设置界面**，本仓还没有。`ResolverTier` 这个形状把
+  「操作员表」留成一个**入参**，所以那一侧接上来的时候这里不用改；
+  `_tier_source` 的三条支路今天就由金样里那张 `operator_tiers` 走到。
+* `preview()`（38 行）—— 同一个消费方。`ScanAt` 一次都不调它。
+
+**代价说清**：宿主没接偏好源之前，`SOURCE_PREFS` / `SOURCE_PREFS_DERIVED` 这两个来源
+在真实运行里**一次都不会出现**，而金样里它们各有 4 格。这不是「写了没人用」——
+它是那条优先级链本身，少一节链就断。
+
+---
+
+## D-SCAN-5 补充 · `ScanAt` 的来源表里那个空记号
+
+`param_summary` 每一行是 `- name = {值} ← 来源`，而「不下发那个硬件写」的那几行值就是
+一个空记号：Python 印 `None`，JS 印 `null`。沿用 D-SCAN-5 的判断：**为了逐字去写一个
+Python 字面量，等于让这张给人看的表指向一门这里没有在跑的语言。**
+
+登记方式也照旧：期望值在 `l0/traces.test.ts` 的 `scanAtNullRendering` 里
+**从金样算出来**（一个 `.replace`），不是抄一遍。
+
+**浮点那一半照移**：`1e-07` / `0.0` / `1.0` 走 `pyFloatRepr`，因为读的人要拿它跟面板上的
+数比。为此 `TraceEntry` 多了一个**本仓新增**的 `isInt` 标记（JS 只有一种数，D-SI-3）——
+全表只有 `pixels` 一格是 int。它是渲染提示，**不进报文**（`ScanAt` 的 `param_trace` 里把它剥掉）。
+
+---
+
+## D-CRASH-?? · 撞针追踪：住进程、限值注入、`snapshot().since_s` 是本仓新增
+
+| | |
+|---|---|
+| **Python** | `_singleton` + `get_tip_crash_tracker()`；阈值 / 容差 / TTL 是 `__init__` 的默认实参；`clock=time.monotonic` |
+| **TS** | `processTipCrash.{config, nowS, tracker}`；`getTipCrashTracker()` 惰性建 |
+| **测试** | `kernel/src/tip-crash-tracker.test.ts` → `进程级追踪器` 一组 |
+
+三个问题的答案写在 `kernel/src/tip-crash-tracker.ts` 的抬头里，这里只记结论：
+
+1. **住进程级**，理由与进针拒绝闩逐字相同 —— 一根针、一块样品，「这个点已经撞过两次」
+   必须跨调用、跨链活着。
+2. **限值注入**（D-VAC-1 / D-LIMITS-1 / D-QPLUS-1 同一条）：8 nm 的「同一个点」取决于
+   你在什么尺度上扫，30 分钟的 TTL 取决于漂移有多快。**墙钟**同样注入（D-VAC-2）。
+3. **宿主不接 ⇒ 出厂默认生效，闸照常关**，不是 fail-open 成「没撞过」。留痕
+   （D-DIAG-1 的 `ctx.markers.emit`）接不上时**拒绝照发** —— `crashGuard` 先判断、
+   后留痕，留痕在自己的 try 里，变异 `tipcrash-diag-failure-is-not-a-pass` 钉着这个顺序。
+
+**本仓新增 `snapshot().since_s`**（这台追踪器活了多久）。进程级不等于持久：本仓和旧仓
+一样**不落盘**，宿主重启之后 30 秒前撞了两次的那个点重新变成「没撞过」。这是照移，
+不是新增的洞；但它是**真的洞**，所以把出生时刻交出来 —— 「一条记录都没有」与
+「我刚出生」是两句话，而只有前者能支持「这儿没撞过」。
+
+`threading.RLock` 不移植，理由同 D-PRESET-3（Node 单线程，这些方法之间没有 `await`）。
+
+---
+
+## D-CRASH-?? · `FullScan` 的逐通道判语一律 `ch<编号>`，不带名字
+
+| | |
+|---|---|
+| **Python** | 静态兜底探针表 `((0, "ch0"), (14, "Z"))` —— 第二项带着名字「Z」 |
+| **TS** | 一律 `ch${channel}`（沿用 `crash-check.ts` 已有的口径） |
+| **登记** | `l0/traces.test.ts` 的 `fullScanChannelLabels`，**只在真的走了兜底那条路的格子上** |
+
+那个标签是一句**没核过的断言**：一路逐通道的判语，键上写着一个可能根本不是那路信号的
+名字。2026-06-29 那个「撞针检查每一次都报 skipped」的缺陷，根就是同一个数字
+（旧仓注释说标准模拟器上 Z 是 30）。
+
+⚠️ **本机实测把那句注释推翻了一半**：`Signals_NamesGet` 的第 **14** 项正是 `Z (m)`，
+`Scan_BufferGet` 回的是 `[2, [0, 14], 256, 256]`（**裸整数**，不是那串 1-元组）。
+也就是说在这台机器上那张写死的表**碰巧是对的** —— 于是「探的是真正采到的那几路」
+这件事，用默认通道跑一趟**证不出来**。集成测试因此换了一份通道清单（`channels: 'Z'`）
+去证它：只采一路 ⇒ 只探一路，而静态表会给两路。
+
+---
+
+## D-CRASH-?? · `FullScan` 的视觉判语（`_vision_verdict`）不移植
+
+| | |
+|---|---|
+| **Python** | 从 `buffer.active` 取最近一次针尖质量判定，贴 `vision_tip_quality` / `vision_tip_confidence` / `vision_note` 进 `data`，整段包在 `try/except → {}` |
+| **我们** | 不写 |
+| **影响面** | 成功路径上的 2–3 个字段 |
+
+同 D-SCAN-4 / D-GRAPH-2：视觉链路本仓还没有，接一个永远返回空的读口，等于给下一个人
+留一条永远不亮的分支。
+
+**代价说清，因为它有代价**：2026-07-10 #88 那次，视觉模型一路说 `tip=bad`，而 agent
+照旧旁白「图像质量正常」—— 它手上只有撞针检查，而撞针检查是**钝的**（方差接近零或 NaN）。
+补视觉链路时必须连它一起补。
+
+---
+
+## D-CRASH-?? · `ScanAt` / `FullScan` 都不接断点
+
+沿用 D-SCAN-3（`WaitScanComplete` 不接断点）：dsh 的一次工具调用不跨进程续跑。
+两个技能的 `wait` 步仍然 `checkpointAfter: true` —— 判据留在内核里，介质由宿主接。
+
+⚠️ 这一条对 `ScanAt` 比对 `WaitScanComplete` 更要紧：旧仓 2026-07-27 那次
+`BatchRegionsScan` 假成功，正是五个 region 共用一份断点。本仓没有断点，也就没有那条路；
+接上断点的那一天，`graph-executor.ts` 里那三条守卫（`isTerminal` / `dropStaleAbort` /
+跑完删自己）要连着一起验。

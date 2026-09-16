@@ -355,7 +355,12 @@ BATCH_4C: list[str] = [
 # 也就是说「参考图读不动就不发 TCP」这条顺序是**这一份**钉住的。
 
 #: ↑ 上一条 ／ ↓ 4D —— 这一行谁都不要动
-BATCH_4D: list[str] = []   # composite.scan_at + 撞针追踪
+BATCH_4D: list[str] = [
+    # 两个组合技能。通用驱动器喂的是常数回包、子技能一律 `success=True, data={}` ——
+    # 于是它走到的是**调用序列与报文**，碰不到 `resolve_scan` 与撞针追踪的判据。
+    # 那两台判定机各有自己的驱动器（`export_scan_resolver.py` / `export_tip_crash.py`）。
+    "ScanAt", "FullScan",
+]   # composite.scan_at + 撞针追踪
 #
 # ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
 # `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。

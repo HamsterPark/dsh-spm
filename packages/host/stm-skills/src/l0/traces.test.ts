@@ -358,6 +358,78 @@ function startScanNullRendering(trace: string): { error?: string } {
   return ours === want ? {} : { error: ours }
 }
 
+/**
+ * D-SCAN-5 的**同一条**，这次落在 `ScanAt` 的来源表上。
+ *
+ * `param_summary` 每一行是 `- name = {值} ← 来源`，而「不下发那个硬件写」那几行的值
+ * 就是一个空记号：Python 印 `None`，JS 印 `null`。**为了逐字去写一个 Python 字面量，
+ * 等于让这张给人看的表指向一门这里没有在跑的语言。**
+ *
+ * 期望值**从金样算出来**而不是抄一遍：差异就是这一个 `.replace`，看得见；
+ * 而旧仓哪天改了这句话（或者去掉那几行），这里会跟着变，不会悄悄过期。
+ */
+/**
+ * `dev.data` 那一侧的剥时钟。
+ *
+ * ⚠️ 它**不是** `stripVolatile`，而本该是。`DEVIATIONS` 是模块级常量，在
+ * `VOLATILE` 那行之前就求值了 —— 调 `stripVolatile` 会撞 TDZ。
+ * 所以这里手写一份**只针对 `_progress` 的两个时刻**的剥法，
+ * 并在下面用一条测试把两份钉在一起（`批 4d 的 dev.data 与 stripVolatile 同口径`）：
+ * 两份实现的仓里已经付过三次账了，这一次至少让它们分岔时当场变红。
+ */
+function stripProgressClock(data: Record<string, unknown> | undefined): Record<string, unknown> {
+  const out = { ...(data ?? {}) }
+  const prog = out['_progress']
+  if (prog !== null && typeof prog === 'object') {
+    const { started_at: _s, last_update_at: _l, ...rest } = prog as Record<string, unknown>
+    out['_progress'] = rest
+  }
+  return out
+}
+
+function scanAtNullRendering(trace: string): { data?: Record<string, unknown> } {
+  const want = golden['ScanAt']?.traces[trace]?.data
+  const lines = want?.['param_summary']
+  if (!Array.isArray(lines)) return {}
+  const ours = lines.map((s) => String(s).replace(' = None ←', ' = null ←'))
+  if (JSON.stringify(ours) === JSON.stringify(lines)) return {}
+  return { data: { ...stripProgressClock(want), param_summary: ours } }
+}
+
+/**
+ * `FullScan` 的逐通道判语：旧仓兜底探针表把 14 叫「Z」，本仓一律 `ch<编号>`。
+ *
+ * 只在金样那一格**真的**带着一个非 `ch*` 的键时才登记（= 走了兜底那条路）。
+ * 期望值从金样算出来：旧仓哪天把那张静态表修了，这条登记会跟着变。
+ */
+const FALLBACK_LABELS: Readonly<Record<string, string>> = { Z: 'ch14' }
+
+function fullScanChannelLabels(trace: string): { data?: Record<string, unknown> } {
+  const want = golden['FullScan']?.traces[trace]?.data
+  const per = want?.['crash_check_channels']
+  if (per === null || typeof per !== 'object') return {}
+  const entries = Object.entries(per as Record<string, unknown>)
+  if (!entries.some(([k]) => FALLBACK_LABELS[k] !== undefined)) return {}
+  const renamed = Object.fromEntries(entries.map(([k, v]) => [FALLBACK_LABELS[k] ?? k, v]))
+  const base = stripProgressClock(want)
+  const progress = base['_progress'] as Record<string, unknown> | undefined
+  const partial = progress?.['partial_data'] as Record<string, unknown> | undefined
+  return {
+    data: {
+      ...base,
+      crash_check_channels: renamed,
+      ...(partial === undefined
+        ? {}
+        : {
+            _progress: {
+              ...progress,
+              partial_data: { ...partial, crash_check_channels: renamed },
+            },
+          }),
+    },
+  }
+}
+
 
 /**
  * D-SKILL-1 在**空 body** 上的又一批：旧仓把整个回包信封
@@ -692,7 +764,26 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   },
   'DetectAtomJump/ok': {
     error: `Failed to load current trace: Unexpected token 's', "spec-export" is not valid JSON`,
-  },
+  },  // ── 批 4d：`ScanAt` 的来源表里那个空记号（D-SCAN-5 同一条）──
+  ...Object.fromEntries(
+    Object.keys(golden['ScanAt']?.traces ?? {}).map((t) => [`ScanAt/${t}`, scanAtNullRendering(t)]),
+  ),
+  // ── 批 4d：撞针检查的每一路一律标 `ch<编号>` ──
+  //
+  // 旧仓那张**静态兜底**探针表是 `((0, "ch0"), (14, "Z"))` —— 第二项带着一个名字
+  // 「Z」，而 14 是不是 Z **随装机而变**（标准模拟器上 Z 是 **30**）。也就是说那个
+  // 标签是一句**没核过的断言**：一路逐通道的判语，键上写着一个可能根本不是那路信号
+  // 的名字。2026-06-29 那个「撞针检查每一次都报 skipped」的缺陷，根就是同一个数字。
+  //
+  // 所以本仓不带名字，只带编号。**只在真的走了兜底那条路的格子上登记** ——
+  // 通道问得到的那几趟两边一字不差（`ch2`/`ch3`），给它们挂一条偏差
+  // 等于登记一条不存在的差异。
+  ...Object.fromEntries(
+    Object.keys(golden['FullScan']?.traces ?? {}).map((t) => [
+      `FullScan/${t}`,
+      fullScanChannelLabels(t),
+    ]),
+  ),
 }
 
 /**
@@ -1020,4 +1111,19 @@ describe('时钟派生字段：不比数值，比形状', () => {
     await IMPLEMENTED['SafeRetract']!.execute(full.ctx, {})
     expect(full.calls.length).toBeGreaterThan(100)
   })
+})
+
+describe('批 4d 的 dev.data 与 stripVolatile 同口径', () => {
+  // `DEVIATIONS` 是模块级常量，在 `VOLATILE` 那行之前求值 ⇒ 它调不到 `stripVolatile`
+  // （TDZ），于是 `stripProgressClock` 是**第二份**剥时钟的实现。仓里因为「同一件事
+  // 两份实现」已经付过三次账（D-CHANNELS-1 / D-PIEZO-1 / 十份 `cell()`），所以把两份
+  // 钉在一起：哪天 `VOLATILE` 长出一个键而 `_progress` 里恰好有它，这条当场变红。
+  for (const name of ['ScanAt', 'FullScan']) {
+    for (const trace of Object.keys(golden[name]?.traces ?? {})) {
+      it(`${name}/${trace}`, () => {
+        const want = golden[name]?.traces[trace]?.data ?? {}
+        expect(stripProgressClock(want)).toEqual(stripVolatile(want))
+      })
+    }
+  }
 })

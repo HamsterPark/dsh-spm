@@ -1,0 +1,1137 @@
+{
+  "constants": {
+    "block_threshold": 2,
+    "tol_m": 8e-09,
+    "ttl_s": 1800.0
+  },
+  "escape_messages": {
+    "garbage_coords": {
+      "count": 2,
+      "text": "repeated_crash_escape_required: 同一区域已连续检测到针尖 crash 2 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。",
+      "x_m": "x",
+      "y_m": "y"
+    },
+    "half_coords": {
+      "count": 2,
+      "text": "repeated_crash_escape_required: 同一区域已连续检测到针尖 crash 2 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。",
+      "x_m": 1e-09,
+      "y_m": null
+    },
+    "no_coords": {
+      "count": 2,
+      "text": "repeated_crash_escape_required: 同一区域已连续检测到针尖 crash 2 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。",
+      "x_m": null,
+      "y_m": null
+    },
+    "with_coords": {
+      "count": 2,
+      "text": "repeated_crash_escape_required: 同一区域(≈0.000e+00, 0.000e+00 m)已连续检测到针尖 crash 2 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。",
+      "x_m": 0.0,
+      "y_m": 0.0
+    },
+    "with_negative_coords": {
+      "count": 3,
+      "text": "repeated_crash_escape_required: 同一区域(≈-1.234e-07, 5.600e-08 m)已连续检测到针尖 crash 3 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。",
+      "x_m": -1.234e-07,
+      "y_m": 5.6e-08
+    }
+  },
+  "scripts": {
+    "bool_coord_is_a_number": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            true,
+            false
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            1.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "located": [
+            [
+              1.0,
+              0.0,
+              1
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "clean_scan_clears_only_that_region": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "op": "recover"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 0,
+          "op": "count"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "located": [
+            [
+              4.96e-07,
+              4.96e-07,
+              2
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "coarse_move_clears_everything": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "op": "recover_all"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 0,
+          "op": "count"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 0,
+          "op": "count"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 0,
+            "max_count": 0,
+            "tracked_regions": 0
+          }
+        }
+      ]
+    },
+    "fresh_tracker_blocks_nothing": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 0,
+          "op": "count"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "located": [],
+          "op": "points",
+          "unlocated": 0
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 0,
+            "max_count": 0,
+            "tracked_regions": 0
+          }
+        }
+      ]
+    },
+    "garbage_coord_is_unlocated": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            "x",
+            "y"
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "located": [],
+          "op": "points",
+          "unlocated": 1
+        }
+      ]
+    },
+    "half_cell_edge_rounds_half_even": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            4e-09,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "at": [
+            4e-09,
+            0.0
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "located": [
+            [
+              0.0,
+              0.0,
+              2
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "half_unknown_coord_is_unlocated": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            1e-09,
+            null
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            1e-09
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "located": [],
+          "op": "points",
+          "unlocated": 2
+        }
+      ]
+    },
+    "jitter_within_tolerance_is_the_same_spot": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            2e-09,
+            -1e-09
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            2e-09,
+            -1e-09
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            2e-09,
+            -1e-09
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 1,
+            "max_count": 2,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    },
+    "negative_coordinates": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            -1.2e-08,
+            -4e-09
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            -1.2e-08,
+            -4e-09
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            -1.2e-08,
+            -4e-09
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "located": [
+            [
+              -1.6e-08,
+              0.0,
+              2
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "next_cell_is_a_different_spot": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            8e-09,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            8e-09,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "at": [
+            8e-09,
+            0.0
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "located": [
+            [
+              0.0,
+              0.0,
+              1
+            ],
+            [
+              8e-09,
+              0.0,
+              1
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 0,
+            "max_count": 1,
+            "tracked_regions": 2
+          }
+        }
+      ]
+    },
+    "numeric_string_coord_is_located": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            "1e-9",
+            "2e-9"
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "located": [
+            [
+              0.0,
+              0.0,
+              1
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "points_separate_located_from_unlocated": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "located": [
+            [
+              0.0,
+              0.0,
+              1
+            ],
+            [
+              4.96e-07,
+              4.96e-07,
+              1
+            ]
+          ],
+          "op": "points",
+          "unlocated": 2
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 1,
+            "max_count": 2,
+            "tracked_regions": 3
+          }
+        }
+      ]
+    },
+    "repeated_crashes_refresh_the_clock": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "by_s": 1500.0,
+          "now_s": 1500.0,
+          "op": "tick"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "by_s": 400.0,
+          "now_s": 1900.0,
+          "op": "tick"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "count"
+        }
+      ]
+    },
+    "stale_crash_expires": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "by_s": 1799.0,
+          "now_s": 1799.0,
+          "op": "tick"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "by_s": 2.0,
+          "now_s": 1801.0,
+          "op": "tick"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 0,
+          "op": "count"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 0,
+            "max_count": 0,
+            "tracked_regions": 0
+          }
+        }
+      ]
+    },
+    "threshold_one_blocks_immediately": {
+      "config": {
+        "block_threshold": 1
+      },
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 1,
+            "blocked_regions": 1,
+            "max_count": 1,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    },
+    "threshold_three_needs_three": {
+      "config": {
+        "block_threshold": 3
+      },
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 3,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 3,
+            "blocked_regions": 1,
+            "max_count": 3,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    },
+    "threshold_zero_is_clamped_to_one": {
+      "config": {
+        "block_threshold": 0
+      },
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 1,
+            "blocked_regions": 1,
+            "max_count": 1,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    },
+    "tolerance_can_be_widened": {
+      "config": {
+        "tol_m": 1e-06
+      },
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            5e-07,
+            5e-07
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "located": [
+            [
+              0.0,
+              0.0,
+              2
+            ]
+          ],
+          "op": "points",
+          "unlocated": 0
+        }
+      ]
+    },
+    "ttl_can_be_shortened": {
+      "config": {
+        "ttl_s": 10.0
+      },
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "by_s": 11.0,
+          "now_s": 11.0,
+          "op": "tick"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 0,
+            "max_count": 0,
+            "tracked_regions": 0
+          }
+        }
+      ]
+    },
+    "two_crashes_at_one_spot_blocks": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": false,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "count": 2,
+          "op": "count"
+        },
+        {
+          "at": [
+            0.0,
+            0.0
+          ],
+          "op": "escape",
+          "text": "repeated_crash_escape_required: 同一区域(≈0.000e+00, 0.000e+00 m)已连续检测到针尖 crash 2 次。原地扫描/修针/打脉冲无效——停止在此处重试。请用 **RelocateCoarseXY** 换到新区域(先用 get_coarse_map 看该往哪走多少步);它会自己收压电、用粗动马达退针清障并逐级自检、核对真空与驱动电压、分块移动时看着电流,最后重新进针。**不要直接调 MotorMove 做横向移动** —— 它只检查压电是否收到顶(约 1 µm 余量,而且读不到状态时会放行),这正是又一次撞针的来路。切勿在同点继续 ConditionTip/TipPulse。"
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 1,
+            "max_count": 2,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    },
+    "unlocated_crashes_still_count_and_block": {
+      "config": {},
+      "steps": [
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 1,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 1,
+          "op": "count"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "count": 2,
+          "op": "record"
+        },
+        {
+          "at": [
+            null,
+            null
+          ],
+          "blocked": true,
+          "op": "blocked"
+        },
+        {
+          "located": [],
+          "op": "points",
+          "unlocated": 2
+        },
+        {
+          "op": "snapshot",
+          "snapshot": {
+            "block_threshold": 2,
+            "blocked_regions": 1,
+            "max_count": 2,
+            "tracked_regions": 1
+          }
+        }
+      ]
+    }
+  }
+}

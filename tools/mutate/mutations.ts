@@ -2237,6 +2237,208 @@ function physicallyAbsurdViolations_unused(`,
   },
 
   // ── 批 4d（composite.scan_at + 撞针追踪）的演练写在这一行下面 ──
+  // ── `resolveScan`：意图 → 参数的那台纯判定机 ──────────────────────
+  {
+    id: 'scan-size-zero-is-refused-not-clamped',
+    why: '`size_m ≤ 0` 是**上游出错的信号**（变量没初始化、解析失败），不是「太小的尺寸」。改成修剪 ⇒ 0 被悄悄变成 0.1 nm，扫出一张荒谬的图却什么都不说 —— 本项目视为致命的 fail-silent',
+    file: `${K}/scan-resolver.ts`,
+    find: '  if (rawSize === null || rawSize <= 0) {',
+    replace: '  if (rawSize === null) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-tip-speed-is-a-combined-constraint',
+    why: '像素、每线时间、帧宽**单独看都合法**，乘起来才知道针尖要以多快扫过表面。上限拆成无穷 ⇒ 2026-08-12 那个 488 nm/s（刮坏针尖的那个速度）重新合法',
+    file: `${K}/scan-resolver.ts`,
+    // ⚠️ **第十六次「编不过的变异」**：第一版打在 `if (speed > vTipMax)` 上，
+    // 而 `false &&` 让 TS 把那一段判成不可达 —— 不可达代码里**narrowing 退回声明
+    // 类型**，于是块内的 `sizeM`（`number | null`，上面刚 `throw` 掉 null）又变回可空，
+    // `tsc` 当场报 TS18047。改打在**上限那个数**上（同 `readback-uses-tolerance` 的
+    // `1e-3 → 0`）：判据照样被拆掉，而每一个绑定都还有人读。
+    find: '  const vTipMax = opts.vTipMaxMS ?? DEFAULT_V_TIP_MAX',
+    replace: '  const vTipMax = (void opts.vTipMaxMS, Number.POSITIVE_INFINITY)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-intent-needs-the-tier-to-be-named',
+    why: '「被**显式点名**的档」与「按尺寸碰巧定到这一档」是两件事：只有前者是一句物理意图，才有资格决定工作点。改成碰巧也算 ⇒ 每一张 8 nm 的图都被按 0.02 V / 500 pA 改工作点，而用户只是要了个小框',
+    file: `${K}/scan-resolver.ts`,
+    find: '  const purposeNamed = purpose !== \'\' && purpose !== PURPOSE_AUTO && tier.name === purpose',
+    replace: '  const purposeNamed = true',
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-prefs-yield-to-operator-tier',
+    why: '偏好只有在「档位表这个字段其实是出厂值」时才插得进来 —— 用户按尺度设过的值比一个全局标量更精确。拆掉 ⇒ 一个全局偏好把用户逐档调好的表整张盖掉，而 trace 还说它来自偏好',
+    file: `${K}/scan-resolver.ts`,
+    find: "    if (src === SOURCE_TIER_FACTORY && given(prefs['scan_lines'])) {",
+    replace: "    if (given(prefs['scan_lines'])) {",
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-pi-must-be-a-pair',
+    why: '`SetZCtrlGain` 三个参数全必填且 `I = P/T` —— 只填了一半的 PI 配置**不可执行**。替用户发明那缺的一半 ⇒ 发明的是一个**积分增益**，而它是真的会动针尖的旋钮（2026-08-03 `p_gain=3` 那次，三米的比例增益）',
+    file: `${K}/scan-resolver.ts`,
+    // ⚠️ 不打在 `pGain !== null && tConst !== null` 上：改成 `||` 之后块内的
+    // `pGain / tConst` 两个都可能是 null ⇒ `tsc` 报错 ⇒ 这道闸验不到。
+    // 改打在**缺的那一半从哪来**上，判据一样被拆，而类型收窄照旧成立。
+    find: "  const tConst = clamp('time_constant_s', tier.timeConstantS, warnings)",
+    replace: "  const tConst = clamp('time_constant_s', tier.timeConstantS ?? 1, warnings)",
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-clamp-must-declare',
+    why: '这一层是**参数卫生**：修剪而不拒绝，前提是修剪**说出来**。拆掉那句 warning ⇒ 一个被悄悄改小的值会让你以为自己设的是原来那个数（同 `sanitizePreset` 的 D-PRESET）',
+    file: `${K}/scan-resolver.ts`,
+    // ⚠️ 第一版是 `void 0 && warnings.push(…)`，TS 6 直接报 TS2873
+    //（`This kind of expression is always falsy`）⇒ 编不过 ⇒ 这道闸验不到。
+    // 改成**推进一份副本**：这不是一个人为的写法，它正是这类缺陷真实的样子。
+    find: '    warnings.push(\n      `${name}=${formatG(val, 6)} 超出可用范围',
+    replace: '    warnings.slice(0).push(\n      `${name}=${formatG(val, 6)} 超出可用范围',
+    scope: 'packages/host',
+  },
+  {
+    id: 'scan-null-human-is-not-zero',
+    why: '`f"{None:.4g}"` 的替代品不该是 `0 V` —— 那是给一个**没有的数**编一个读数。改成印 0 ⇒ 一个解不出的偏压在来源表上长得和「用户设了 0 V」一模一样',
+    file: `${K}/scan-resolver.ts`,
+    find: '  return v === null ? null : `${formatG(v, 4)} V`',
+    replace: '  return `${formatG(v ?? 0, 4)} V`',
+    scope: 'packages/host',
+  },
+  // ── 撞针追踪：那台让「原地打转」停下来的状态机 ─────────────────────
+  {
+    id: 'tipcrash-threshold-is-inclusive',
+    why: '「同点连续 crash≥2 次」是现场指令。改成 `>` ⇒ 每个坏点都多挨一次撞才封 —— 而那一次撞的正是要保的那根针',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '    return this.crashCount(xM, yM) >= this.#cfg().blockThreshold',
+    replace: '    return this.crashCount(xM, yM) > this.#cfg().blockThreshold',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipcrash-unknown-position-still-counts',
+    why: '**读不到 ≠ 零 ≠ 否**：一次读不到扫描中心的撞针不是「没撞过」。改成不计数 ⇒ 正好在最说不清现场的时候，那台状态机什么都不记',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '    if (x === null || y === null) return UNLOCATED_CELL',
+    replace: "    if (x === null || y === null) return '0:0'",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipcrash-unlocated-is-never-a-point',
+    why: '在一个**猜出来的**坐标上画避让圈，是在编造一个事实。改成当成 (0,0) 交出去 ⇒ 选点的那一侧会绕开一个从来没出过事的地方，而真出事的地方它不知道',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '        unlocated += rec.count\n        continue',
+    replace: '        located.push({ xM: 0, yM: 0, count: rec.count })\n        continue',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipcrash-stale-crash-expires',
+    why: 'TTL 保证**即使 agent 一次逃逸都没发起**，一次通宵跑也能自愈。拆掉 ⇒ 一个半夜的撞针把这块样品永久封死，而人要到早上才看见',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '      if (now - rec.last > ttl) this.#cells.delete(key)',
+    replace: '      if (false && now - rec.last > ttl) this.#cells.delete(key)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipcrash-coarse-move-clears-everything',
+    why: '不给坐标 = 一次刻意的「换区」，此后每一个旧的坏点都在身后了。改成只清哨兵格 ⇒ 换完区第一张图就被上一个区的账挡下来',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '    if (noX && noY) {\n      this.#cells.clear()',
+    replace: '    if (noX && noY) {\n      this.#cells.delete(UNLOCATED_CELL)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipcrash-diag-failure-is-not-a-pass',
+    why: '判断在前、留痕在后，而且留痕不许改变返回值。改成先留痕 ⇒ 一次**记不下来**的拒绝变成一次放行，正好是这道闸存在的理由的反面',
+    file: `${K}/tip-crash-tracker.ts`,
+    find: '  } catch {\n    /* 留痕炸了不许把一次拒绝变成一次放行 */\n  }',
+    replace: '  } catch (exc) {\n    throw exc\n  }',
+    scope: 'packages/host',
+  },
+  // ── `ScanAt`：三种结局 ─────────────────────────────────────────────
+  {
+    id: 'scanat-timeout-stops-the-scan',
+    why: '一个还在跑的扫描会挡住之后的每一步（改帧、移动、换参数全要求 `scan_not_running`）。拆掉 ⇒ 下一个动作莫名其妙失败，而原因在三步之前',
+    file: `${SK}/composite/scan-at.ts`,
+    find: "    if (p.partialData['wait_timed_out'] === true) {\n      // `Scan_Action(1, …)`",
+    replace: "    if (false && p.partialData['wait_timed_out'] === true) {\n      // `Scan_Action(1, …)`",
+    scope: 'packages/host',
+  },
+  {
+    id: 'scanat-stopped-early-does-not-write',
+    why: '`wait_stopped_early` 那条路上扫描**已经停了**。顺手再补一发 ⇒ 把一个只读的结论变成一次对着已停扫描的硬件写',
+    file: `${SK}/composite/scan-at.ts`,
+    find: "    if (p.partialData['wait_stopped_early'] === true) {\n      return { success: false, error: stoppedEarlyText(p.partialData), data }",
+    replace: "    if (p.partialData['wait_stopped_early'] === true) {\n      await this.#ctx.safeCall('Scan_Action', 1, 0)\n      return { success: false, error: stoppedEarlyText(p.partialData), data }",
+    scope: 'packages/host',
+  },
+  {
+    id: 'scanat-explicit-timeout-is-a-floor',
+    why: '2026-08-23：流程表里的常数 300 s 被无条件传进来，而真机是 512 px 的帧 ⇒ **扎针本体已经做完**却被判成 abort。改回「给了就用给的」⇒ 那一次重演',
+    file: `${SK}/composite/scan-at.ts`,
+    find: '    return Math.max(v, derived)',
+    replace: '    return v',
+    scope: 'packages/host',
+  },
+  {
+    id: 'scanat-truncation-is-a-failure',
+    why: '`WaitScanComplete` 在**每一种**扫描结束方式上都报 success。不在这里拦 ⇒ 一次被截断的扫描以「扫完了」的面目出现在结果里',
+    file: `${SK}/composite/scan-at.ts`,
+    find: "    if (p.partialData['wait_stopped_early'] === true) {",
+    replace: "    if (false && p.partialData['wait_stopped_early'] === true) {",
+    scope: 'packages/host',
+  },
+  {
+    id: 'scanat-buffer-after-configure',
+    why: '`ConfigureScan` 内部发 `Scan_BufferSet(channels, 0, 0)`，而 0/0 的语义（保持还是重置）在真机上尚未证实。把分辨率排到它前面 ⇒ 在「重置」那种语义下每一帧都回到仪器默认像素',
+    file: `${SK}/composite/scan-at.ts`,
+    find: "    steps.push({ stepId: 'set_buffer', skillName: 'SetScanBuffer', params: { ...r.setScanBuffer }, optional: false, tags: ['setup'] })",
+    replace: "    steps.unshift({ stepId: 'set_buffer', skillName: 'SetScanBuffer', params: { ...r.setScanBuffer }, optional: false, tags: ['setup'] })",
+    scope: 'packages/host',
+  },
+  // ── `FullScan`：撞针状态机的三条接线 ───────────────────────────────
+  {
+    id: 'fullscan-crash-guard-refuses',
+    why: '⑫ 的主线：现场 trace `5305868e` 里 agent 在同一个 XY 点上循环了 5 分钟。拆掉这道拒绝 ⇒ 那 5 分钟原样回来，而且没有任何东西能说出为什么',
+    file: `${SK}/composite/full-scan.ts`,
+    // 同 `k3-sample-gate` 的形状：把**问**那一下掏空，而不是把 `if` 变成不可达
+    // —— 后者会让块内的 `escape`（`string | null`）退回可空，`tsc` 当场报错。
+    find: '    const escape = crashGuard(centerX, centerY, (kind, d) => this.#ctx.markers.emit(kind, d))',
+    replace:
+      '    const escape = ((): string | null => (void crashGuard(centerX, centerY), null))()',
+    scope: 'packages/host',
+  },
+  {
+    id: 'fullscan-records-the-crash',
+    why: '只问不记，那台状态机永远是空的 —— 而「空」与「这儿没撞过」在 `crashGuard` 那一侧长得一模一样',
+    file: `${SK}/composite/full-scan.ts`,
+    find: '      const count = getTipCrashTracker().recordCrash(centerX, centerY)',
+    replace: '      const count = getTipCrashTracker().crashCount(centerX, centerY)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'fullscan-clean-scan-clears-the-ledger',
+    why: '一趟干净的扫描是「针尖在这儿是好的」的证据。拆掉 ⇒ 一次早已解决的撞针永远挡着一个好点，而 TTL 要等 30 分钟',
+    file: `${SK}/composite/full-scan.ts`,
+    find: '    getTipCrashTracker().noteRecovery(centerX, centerY)',
+    replace: '    void getTipCrashTracker()',
+    scope: 'packages/host',
+  },
+  {
+    id: 'fullscan-probes-the-acquired-channels',
+    why: '2026-06-29：写死的探针列表让撞针检查在**每一次扫描**上报 `skipped`。改成只用静态表 ⇒ 采集清单一换（比如只采 Z），检查就在探一路根本没采的信号',
+    file: `${SK}/composite/full-scan.ts`,
+    find: '      const ids = channelIdsFromBuffer(rec.values ?? [])',
+    replace: '      const ids: number[] = (void channelIdsFromBuffer, [])',
+    scope: 'packages/host',
+  },
+  {
+    id: 'fullscan-stopped-early-skips-crash-check',
+    why: '2026-08-04（停在 24 %）：不在这里失败，下一步就要拿一堆 NaN 行去判撞针 —— 而那会报**撞针**，把「帧没扫完」说成「针撞了」',
+    file: `${SK}/composite/full-scan.ts`,
+    find: "    if (p.partialData['wait_stopped_early'] === true) {",
+    replace: "    if (false && p.partialData['wait_stopped_early'] === true) {",
+    scope: 'packages/host',
+  },
 
   // ── 课时 4.1 续（数值缺件：find_peaks / pcov / correlate2d）的演练写在这一行下面 ──
   {
