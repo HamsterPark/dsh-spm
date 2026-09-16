@@ -650,6 +650,62 @@ git 的三方合并不是按行比：两处改动之间**至少要有一行谁�
 拆掉它测试不会变红，它会**挂住** —— 而演练自己有 120 秒上限，一条本该变红的变异
 会被报成「超时失败」。它改由三条正向断言看着。
 
+· **2.28 ✅ 剩余 186 个的逐函数盘点 —— 分四档，第四档是新加的**
+
+全文在 `docs/handoff/survey-remaining.md`（956 行，逐模块逐技能）。判据是**函数级**的：
+看 `execute` / `validate_params` 实际调到哪些旧仓函数、那些函数各自又要什么，一路追到底 ——
+**不看 import 行，不看文件名**。这条纪律是 3i 与 3j 两次相反的错换来的，而这一轮又找到三个反例
+（`AcquireSignalPoint` 模块顶 import 了 registry 而 `execute` 一次没调 ⇒ 是 A 不是 C；
+`scan_texture` / `lattice_cell` import 了 `mast.vision.lattice_*` 而全链纯 numpy；
+`paper.line_check` 名义上压着 20206 行 vision，实际只要 5 个函数约 258 行）。
+反方向也核了一条：`optics_stage` 那 8 个**判断站得住**。
+
+| 档 | 技能数 | 含义 |
+|---|---|---|
+| **A** 现在就能落 | **81**（44 %） | 依赖全在本仓 |
+| **B** 差一件具体的东西 | **48**（26 %） | 缺件都能点到函数名与行数 |
+| **C** 压着一整个子系统 | **49**（26 %） | 等它移过来 |
+| **D 架构原则上不要** | **8**（4 %） | torch / sklearn / detectron2 / matplotlib |
+
+#### C 与 D 必须分开
+
+**C 是「等子系统移过来」，D 是「等不来」。** 混在一起，队列里会永远躺着 8 个做不完的，
+而且**每次分派都要重新把它们判一遍**。D 档的判据不是「难」，是「移过来是一个永远报错的壳」
+——`PredictSpectrumFromTopo` 的 `model_path` required 且无回退；`IdentifyTopology_CARP`
+要 detectron2（旧仓自带的 `pyruntime` 里都没装）；`ComposePanelMontage` 的产物是 matplotlib 渲的 PNG。
+**它们不进队列**，只在这张表里留一行说明为什么。
+
+#### B 档按「一件解锁几个」排，而不是按模块排
+
+杠杆最大的三件：**`scipy.signal.find_peaks`（带 prominence）24 行 ⇒ 解锁 7 个**；
+`core/tip_crash_tracker.py` 250 行 ⇒ 3 直接 + 2 链上；`composite/_z_settle.py` 402 行 ⇒ 2 个
+（**必须同批**，分开等于搬两次）。这张表比按模块排的有用得多 ——
+它把「先做哪一件」从工作量问题变成了杠杆问题。
+
+#### ⚠️ 三个自检技能里**两个是 fail-open**，移之前必须改
+
+`TipConditioningSelfCheck` 与 `TipForgeSelfCheck` 的 `add()` 规则是
+**`ok is None` 只进 `warnings`、不进 `blockers`**。依赖缺席时核心检查项
+（针尖包络、扎针深度包络 —— 这个自检**存在的全部理由**）落进 `except → ok=None`，
+于是 `ready = not blockers` 为 True，**打出一句「✅ 可以开工」**。
+
+**先移技能层就必须把 `except → ok=None` 改成 `ok=False, blocking=True`** ——
+否则移过来的是一句**假的许可**。这与 D-SI-1「一个不表示测量值的东西不该被当成测量值放行」
+同源，只是这一次被放行的是一句授权。
+
+同一处还有一条**不该照移**的：`registry` 那一项查的是「冻结打包时 `walk_packages` 不跑、
+技能**静默消失**」（2026-08-04 真机一次丢 19 个、另一次 141 个）。本仓是静态 `import` +
+`export const`，**掉一个技能是 `tsc` 编译错误** —— 这个不变量在 TypeScript 里不存在。
+照移一个恒绿的检查项，等于在自检表上加一行永远不会说话的。该换成
+「`REQUIRED_SKILLS` 里还有几个没移植」。
+
+#### 一条现在就该单独切出来的
+
+`ScanIntelSelfCheck` 的第 4 项（`Scan_BufferGet` / `Scan_FrameGet` / `Piezo_TiltGet` 三个
+硬件读 + `_probe_buffer_semantics`）**现在就能落，而且真有价值**：它回答的是
+「`Scan_BufferSet(ch, 0, 0)` 到底是保持还是重置分辨率」—— **整层设计建立在这个
+从未被回读验证过的假设上**。建议单独做成一个技能，不要连着另外三项一起移。
+
 > 批 1 计划稿点名 38 个，其中 `GetScanStatus` / `GetXYPosition` 在**当前旧仓不存在**
 > （扫描状态由 `WaitScanComplete` 内联轮询；XY 那个真名是 `GetScanXYPosition`），
 > 所以分母是 36。**36/36 全部完成**（最后一个 `GetLatestScanFile` 于 2.20 落地）。
