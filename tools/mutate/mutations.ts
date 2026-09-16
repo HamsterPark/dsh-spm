@@ -1336,6 +1336,14 @@ function physicallyAbsurdViolations_unused(`,
     replace: 'fitEdge(x, n - windowLength, n, n, n, polyorder, out)',
     scope: 'packages/host/numerics',
   },
+  {
+    id: 'numerics-polyfit-scales-its-columns',
+    why: 'numpy 的 `polyfit` 先把设计阵每列除以自己的 2-范数再解。不缩放**不改数学解**，只让条件数退化到 `κ²` 那一档 —— 于是我们与 numpy 的差从「实测水平」掉到「保证」那一档，而那时「是不是算错了」和「是不是病态」分不开。⚠️ 这一条挡的是**精度的量级**不是对错，是这一层唯一一条这种形状的闸',
+    file: `${NU}/savgol.ts`,
+    find: 'scale[j] = Math.sqrt(acc)',
+    replace: 'scale[j] = 1',
+    scope: 'packages/host/numerics',
+  },
   // ── 课时 4.2：nanonis 文件读（.sxm / .dat / .3ds）─────────────────────
   //
   // 这六条挡的都是**同一种事故**：读错了不会抛，只会得到一张看起来很正常的图。
