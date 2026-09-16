@@ -71,9 +71,9 @@ const kernel = new SkillKernel({
 
 ---
 
-## 2. 该登记成 deviation 的（编号留空，请统一编）
+## 2. 该登记成 deviation 的（**主线已编号并登记进 `spec/deviations.md`**）
 
-### D-???? · 真空阈值从 `instrument_profile` 读 → 本仓**注入**
+### D-VAC-1 · 真空阈值从 `instrument_profile` 读 → 本仓**注入**
 
 | | |
 |---|---|
@@ -86,7 +86,7 @@ const kernel = new SkillKernel({
 ⚠️ **那是这组默认值的一个好性质，不是判据的前提** —— 换一只规就得填那两个数，
 而 `gaugeConfigProblem()` 会在**第一次**拒绝时就把原因说出来，不是第十次。
 
-### D-???? · 墙钟注入：`processVacuum.nowS`
+### D-VAC-2 · 墙钟注入：`processVacuum.nowS`
 
 | | |
 |---|---|
@@ -97,7 +97,7 @@ const kernel = new SkillKernel({
 理由与导出器把墙钟钉成 `1_700_000_000` 是同一条：一份每跑一次都换个数的金样，
 `git diff` 回答不了「有没有变」。
 
-### D-???? · 审计钩子（`set_audit_sink`）**没移**
+### D-VAC-3 · 审计钩子（`set_audit_sink`）**没移**
 
 | | |
 |---|---|
@@ -108,7 +108,7 @@ const kernel = new SkillKernel({
 签署事件本身在 `processVacuum.attestation` 里看得见。
 宿主要审计时在 `attest()` 外面包一层即可 —— 那是宿主的决定，不是判据。
 
-### D-???? · `TempChannel.as_dict()` **没移**，只移技能报的那一份
+### D-TEMP-1 · `TempChannel.as_dict()` **没移**，只移技能报的那一份
 
 | | |
 |---|---|
@@ -121,7 +121,7 @@ const kernel = new SkillKernel({
 下一个人会以为这两份字典应该是同一份，然后把它们合并 —— 而它们刻意不是。
 金样（`export_environment.py`）录的是**会上线的那一份**。
 
-### D-???? · `pyFloat`：JS 的 `Number()` 会把三个「没有值」变成完美真空
+### D-VAC-4 · `pyFloat`：JS 的 `Number()` 会把三个「没有值」变成完美真空
 
 | | |
 |---|---|
@@ -134,14 +134,14 @@ const kernel = new SkillKernel({
 只是这回由类型转换伪造出来。本仓其他地方用 `scalarFloat`，
 但它的语义是「body 的第 i 位取不出数就 null」，与 `float(x)` 不同 —— 没有复用。
 
-### D-???? · `age_s` 的日期-only 形式两边解释不同
+### D-TEMP-2 · `age_s` 的日期-only 形式两边解释不同
 
 `datetime.fromisoformat('2026-09-16')` 按**本地**午夜解，
 `Date.parse('2026-09-16')` 按 **UTC** 午夜解（ES 规范对纯日期串如此）。
 本仓在 `ageS()` 里把纯日期补成 `T00:00:00`，让两边都走「本地朴素时间」那一支。
 **测试**：`temperature.test.ts` → `ageS` 那一组（金样里的三条时区用例）。
 
-### D-???? · `latest_temperature` 的类型校验从 `isinstance` 变成结构校验
+### D-TEMP-3 · `latest_temperature` 的类型校验从 `isinstance` 变成结构校验
 
 | | |
 |---|---|

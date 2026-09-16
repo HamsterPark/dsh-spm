@@ -1067,5 +1067,102 @@ xoshiro128\*\*，不是 PCG64。判据是同种子同串；金样里钉的是本
 | `toFloat` | **调用方给的参数**（LUT 值、设定点） | 拒 —— 一个写成 `0x10` 的值会被当成 16 灌进硬件 |
 | `pyFloat` | **仪器写出来的数据列** | 收 —— Nanonis 在缺点位上写的就是 `NaN`，拒掉等于丢整行 |
 
+**2026-09-16 补：现在是三份。** 批 3k 的 `kernel/src/vacuum-interlock.ts` 又要了一份 `pyFloat`：
+
+| | 收什么进来 | `'nan'` | `'inf'` | `null` / 对象 |
+|---|---|---|---|---|
+| `readback.ts` `toFloat` | 调用方给的**参数** | 拒 | 拒 | 拒 |
+| `nanonis-files` `pyFloat` | 仪器写出来的**数据列**（只收 `string`） | `NaN`（**保留**） | `±Infinity` | 不接受这个入参 |
+| `vacuum-interlock` `pyFloat` | 一次**规读数**（`unknown`，含 bool） | `null` | `±Infinity`，下游 `isFinite` 拦 | `null` |
+
+三份的分歧全在 `'nan'` 上，而三个答案都对：一列谱里的 `NaN` **是一个要留在原位的缺点位**；
+一个设定点里的 `NaN` 会**穿过包络检查**（D-SI-1）；一次规读数里的 `NaN` 是**「这只规没给出压强」**。
+同一个拼写，三件事。
+
 两者都不认下划线与十六进制（Python `float("1_000")` 同样是抛的，见 D-SI-2）。
-同 D-CHANNELS-1 / D-PIEZO-1：**一个名字在仓里有两份实现时，登记的是「凭什么两份」**。
+同 D-CHANNELS-1 / D-PIEZO-1：**一个名字在仓里有几份实现时，登记的是「凭什么几份」**。
+
+## D-VAC-1 · 真空阈值**由外面注入**，不读 `instrument_profile`
+
+| | |
+|---|---|
+| **Python** | `vac._config()` 从 `mast.core.instrument_profile` 取五个键，读不出来用模块默认，**并把异常吞掉** |
+| **TS** | `processVacuum.config`（`Partial<VacuumConfig>`），没接就是 `DEFAULT_VACUUM_CONFIG` |
+| **测试** | `packages/host/kernel/src/vacuum-interlock.test.ts` → 「进程级源」那一组 |
+
+同 D-LIMITS-1 / D-PRESET-2 / D-LOCKIN-2：**限值是台架的属性，不是类的属性**。
+
+旧仓那句「defaults are the safe direction」在本仓结构上仍然成立 —— 默认值是 DL-7 的，
+而 DL-7 的量程上限**恰好**压在放电带下沿。⚠️ **那是这组默认值的一个好性质，不是判据的前提**：
+换一只规就得填那两个数，而 `gaugeConfigProblem()` 在**第一次**拒绝时就把原因说出来，不是第十次。
+
+## D-VAC-2 · 墙钟注入：`processVacuum.nowS`
+
+| | |
+|---|---|
+| **Python** | `sample.age_s(now=None)` / `att.remaining_s(now=None)` 直接读 `time.time()` |
+| **TS** | 全部走 `processVacuum.nowS()`，默认 `Date.now() / 1000` |
+| **测试** | `vacuum-interlock.test.ts` → 「接上一只好规 ⇒ 放行，而且用的是注入的钟」 |
+
+与导出器把墙钟钉成 `1_700_000_000` 是同一条理由：**一份每跑一次都换个数的金样，
+`git diff` 回答不了「有没有变」。**
+
+## D-VAC-3 · 审计钩子（`set_audit_sink`）**没移**
+
+| | |
+|---|---|
+| **Python** | `attest` / `revoke_attestation` 各发一条 `_audit(...)`，sink 由运行时注入，抛了只记不抛 |
+| **TS** | **不存在** |
+
+消融：本仓没有审计落点，接一个**没有消费方的 sink** 等于给下一个人留一条永远不亮的分支。
+签署事件本身在 `processVacuum.attestation` 里看得见；宿主要审计时在 `attest()` 外面包一层即可 ——
+那是宿主的决定，不是判据。
+
+## D-VAC-4 · `Number()` 会把三个「没有值」变成**完美真空**
+
+| | |
+|---|---|
+| **Python** | `float(None)` / `float('')` 抛 ⇒ `to_pascal` 返回 `None` |
+| **JS** | `Number(null)` / `Number('')` / `Number('  ')` **全是 `0`** |
+| **TS** | `pyFloat()`（在 `vacuum-interlock.ts`，温度那边也用它） |
+| **测试** | `vacuum-interlock.test.ts` → 「`Number()` 会把这些当 0，而 0 Pa 读起来正是完美真空」 |
+
+这条不是洁癖：**`0 Pa` 与占位传感器那个 `0.0` 是同一种失败形状**，只是这回由类型转换伪造出来
+（读不到 ≠ 零 ≠ 否，第 N 次）。没有复用 `scalarFloat`：它的语义是「body 的第 i 位取不出数就 null」，
+与 `float(x)` 不是一回事。
+
+⚠️ 这一份 `pyFloat` 与 `nanonis-files` 那一份**不是同一条规则**，见 D-FLOAT-1 的三栏表。
+它对 `'nan'` 交 `null` 而不是 `NaN` —— 这一处**比 Python 的 `float()` 严**（`float('nan')` 是不抛的）。
+对外看不出来：`toPascal()` 下游那道 `Number.isFinite` 会把 `nan` 和 `inf` 一起拦成 `None`，
+金样 `to_pascal` 里 `"NaN"` / `"Infinity"` 两格录的正是 `null`。**早拦一步只是让「这不是一个压强」
+在它第一次出现的地方就成立**，而不是靠下游记得检查。
+
+## D-TEMP-1 · `TempChannel.as_dict()` **没移**，只移技能报的那一份
+
+| | |
+|---|---|
+| **Python** | `as_dict()` 有 7 个键（多一个 `value`）；`GetTemperature` 报 `available_channels` 时**另拼**一份 6 键的 |
+| **TS** | 只有 `channelDict()`（6 键，与技能报的那份同形） |
+| **测试** | `packages/host/kernel/src/temperature.test.ts` → 「channelKelvin 与 channelDict 用的是同一条换算」 |
+
+`as_dict()` 在 `mast/skills/**` 与 `mast/agents/**` 里**零调用方**。移一个没有消费方的形状，
+下一个人会以为这两份字典应该是同一份、然后把它们合并 —— **而它们刻意不是**。
+金样（`export_environment.py`）录的是**会上线的那一份**。
+
+## D-TEMP-2 · `age_s` 的「日期-only」形式，两种语言解释不同
+
+`datetime.fromisoformat('2026-09-16')` 按**本地**午夜解，`Date.parse('2026-09-16')` 按 **UTC**
+午夜解（ES 规范对纯日期串如此）。差的是时区偏移那么多小时 —— 而这个数直接决定
+「这份读数还新鲜吗」。本仓在 `ageS()` 里把纯日期补成 `T00:00:00`，让两边都走「本地朴素时间」那一支。
+
+**测试**：`temperature.test.ts` → `ageS` 那一组（金样里的三条时区用例）。
+
+## D-TEMP-3 · `latest_temperature` 的类型校验：`isinstance` → 结构校验
+
+| | |
+|---|---|
+| **Python** | `isinstance(out, TempReading)`，不是就回 `no_source` |
+| **TS** | 结构校验（五个键齐不齐），不是就回 `no_source` |
+| **测试** | `temperature.test.ts` → 「源回了个不是读数的东西 ⇒ no_source」 |
+
+TS 没有运行期类名。判据（**「源给的不是一份读数 ⇒ 当作没接上」**）一模一样。
