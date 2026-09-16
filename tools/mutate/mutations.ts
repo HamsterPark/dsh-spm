@@ -41,6 +41,7 @@ const R = 'packages/host/stm-records/src'
 const SK = 'packages/host/stm-skills/src'
 const SF = 'packages/host/stm-safety/src'
 const NF = 'packages/host/nanonis-files/src'
+const NU = 'packages/host/numerics/src'
 
 export const MUTATIONS: readonly Mutation[] = [
   // ── 内核的闸 ────────────────────────────────────────────────────────
@@ -1214,6 +1215,49 @@ function physicallyAbsurdViolations_unused(`,
     find: 'export const TIP_XY_MAX_M = 1e-3',
     replace: 'export const TIP_XY_MAX_M = 1e30',
     scope: 'packages/host/stm-skills',
+  },
+  // ── 课时 4.1：数值底座（形态学 / 重采样 / 亚像素互相关）──────────────
+  //
+  // 这五条挡的都是**差一格**：拆掉之后每一个输出仍然是一个合法的数、一张合法的图。
+  {
+    id: "numerics-morph-dilation-reflects-se",
+    why: "D-NUM-8：膨胀用**翻转过的**结构元（对偶要求偏移号相反）。同原点 ⇒ 偶数结构元下整张图沿两轴各平移一个像素 —— 而一张平移一个像素的形貌图看起来完全正常。奇数尺寸两者恰好一样，所以只有金样那一格 4×4 分得开",
+    file: `${NU}/morphology.ts`,
+    find: "se.rows - 1 - (se.rows >> 1), se.cols - 1 - (se.cols >> 1)",
+    replace: "se.rows >> 1, se.cols >> 1",
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: "numerics-interp-mirror-keeps-last-span",
+    why: "D-NUM-10：scipy 的 `mirror` 在 `(n−1, n)` 这一段上根本不折坐标（外层判 `x > n−1`，内层判 `y >= n`）。先折 ⇒ 差一行，而 `order=1` 上两种做法完全同解，只有零容差的 `order=0` 看得见",
+    file: `${NU}/interpolate.ts`,
+    find: "return y >= n ? p - y : y",
+    replace: "return y > n - 1 ? p - y : y",
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: "numerics-interp-wrap-period-is-n-minus-1",
+    why: "D-NUM-9：插值族的 `wrap` 周期是 `n−1`（首尾重合），滤波族是 `n`。退化成滤波族那一条 ⇒ 同一个字符串在同一个库里被当成了同一件事，而 scipy 里它不是",
+    file: `${NU}/interpolate.ts`,
+    find: "const sz = n - 1",
+    replace: "const sz = n",
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: "numerics-subpixel-dftshift-is-fix",
+    why: "D-NUM-14 的钉子：上采样中心用 `trunc` 不是 `round`。改一个 ⇒ 亚像素位移整体偏 `1/uf`，而它仍然是一个「合法」的数 —— 漂移补偿会稳定地往同一个方向多走一点",
+    file: `${NU}/fft.ts`,
+    find: "const dftshift = Math.trunc(ups / 2)",
+    replace: "const dftshift = Math.round(ups / 2)",
+    scope: 'packages/host/numerics',
+  },
+  {
+    id: "numerics-xcorr-damps-tiny-magnitudes",
+    why: "D-NUM-13：相位归一化的分母压到 `100·eps`，与 skimage 对齐。去掉 ⇒ 在几乎平坦的一对帧上与 skimage 分岔。⚠️ 这一条第一次跑是**绿的** —— 那一改当时没有任何测试在看，补上 `near_flat` 金样才变红",
+    file: `${NU}/fft.ts`,
+    find: "Math.max(Math.hypot(cr, ci), 100 * EPS)",
+    replace: "Math.hypot(cr, ci)",
+    scope: 'packages/host/numerics',
   },
   // ── 课时 4.2：nanonis 文件读（.sxm / .dat / .3ds）─────────────────────
   //
