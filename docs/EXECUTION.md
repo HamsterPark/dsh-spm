@@ -1639,8 +1639,8 @@ session log 可 replay 重建每次请求；帧内联可见；`stm_selfcheck` �
 
 | 段 | 写什么 | 验收 |
 |---|---|---|
-| 4.1 | `dsh-spm-numerics` 基础件：`Mat{rows,cols,Float64Array}`、FFT 1-D（`fft.js`）+ 自写 2-D/互相关/`phase_cross_correlation`、线代（`ml-matrix`）、`curve_fit`（`ml-levenberg-marquardt`）、平面/多项式/RANSAC 自写、可分离高斯/拉普拉斯/灰度形态学/插值（边界模式对齐 scipy）、连通域 union-find、SSIM、统计（percentile 用 numpy `linear`）、xoshiro128\*\* 可种子 RNG、`.npy` v1/v2 | 每件对 numpy/scipy 金样，**容差逐件写明**；峰位约定用 golden 钉 |
-| 4.2 | `dsh-spm-nanonis-files`：`.sxm` / `.dat` / `.3ds` 自写读写（GBK 走 Node full-ICU `TextDecoder('gbk')`，退路 `iconv-lite`） | 真机文件帧 SHA-256 与 nm/px 相等 |
+| 4.1 ✅ | `dsh-spm-numerics` 基础件：`Mat{rows,cols,Float64Array}`、FFT 1-D（`fft.js`）+ 自写 2-D/互相关/`phase_cross_correlation`、线代（`ml-matrix`）、`curve_fit`（`ml-levenberg-marquardt`）、平面/多项式/RANSAC 自写、可分离高斯/拉普拉斯/灰度形态学/插值（边界模式对齐 scipy）、连通域 union-find、SSIM、统计（percentile 用 numpy `linear`）、xoshiro128\*\* 可种子 RNG、`.npy` v1/v2 | 每件对 numpy/scipy 金样，**容差逐件写明**；峰位约定用 golden 钉 |
+| 4.2 ✅ | `dsh-spm-nanonis-files`：`.sxm` / `.dat` / `.3ds` **读**（写没有消费方，不写） | ~~真机文件帧 SHA-256 与 nm/px 相等~~ → **合成字节交给旧仓真实读取器**，26 格逐格比（见下方两条修订） |
 | 4.3 | `vision-classic`：非深度检测器 | 逐检测器 numpy 金样 |
 | 4.4 | 批 4a：builtins 23（FindFlatRegion / MeasureStepHeight / AnalyzeFrameTilt / AnalyzeScanImage 非视觉分支 / ClusterExtract / DomainAssess / FrameCorrugation / FrameTrust / BestFrame / AssessSpectrum / MapBarrierHeight / MonitorCurrentFFT / DetectAtomicLattice ×3 / AtomicLines / AtomicPhase / Multiframe / TiltProbeCircle / CalibrateCoarseStep / ReconcileSafetyEnvelope / ScanIntelSelfCheck …） | 每技能 `golden/analysis/<Name>/cases.json`；分箱/阈值**按分辨率派生**不写死 |
 | 4.5 | 批 4b：paper 分析 25（CheckLineQuality / LevelLines_Median / SubtractPlane_RANSAC / SubtractPoly2D / Destripe_MorphOpen / CorrectDrift_XCorr\|BraggPeak / DiffScans / FindEmptySpot / FitFano_Kondo / FitGap_BCS / DetectAtomJump / UnmixSpectra / DeconvolveTip_RL …） | 同上；**KNOWN_ISSUES 里的缺陷判据不照抄**，登记 deviations |
@@ -1649,6 +1649,39 @@ session log 可 replay 重建每次请求；帧内联可见；`stm_selfcheck` �
 
 **这个 Phase 的陷阱是「差不多对」**。数值代码没有红绿之分，只有容差。所以每一件都必须
 **先写下容差再写实现**——反过来做，容差就会变成「刚好让我这版通过的那个数」。
+
+#### 课时 4.2 的两条修订（写在这里，因为改的是**验收判据本身**）
+
+**① 没有真机文件，也不会有。** 原判据「真机文件帧 SHA-256 与 nm/px 相等」要求把
+真机 `.sxm` 放进仓库，而本仓将公开 MIT。用户裁决：**只用合成数据**。
+于是判据换成一条更严的：**字节我们合成，读法归旧仓** ——
+`tools/spec-export/export_nanonis_files.py` 先合成一份字节，再交给**旧仓真实的**
+`mast.io.nanonis_files` 去读，把 `bytes_b64` 与读出来的东西一起钉进金样。
+
+> 顺序是这一条的全部：如果字节和读法**都由同一个人写**，那他对格式的*同一个误解*
+> 会同时进到写的一端和读的一端，两边严丝合缝地对上 —— 测试全绿，而东西是错的。
+> 让旧仓当读的那一端，误解就暴露成**一次读失败**而不是一次假绿。
+
+**② GBK 那一条是假设，不是事实。** 原文写「GBK 走 Node full-ICU
+`TextDecoder('gbk')`，退路 `iconv-lite`」。实际读旧仓：它做的是
+`content[:header_end].decode("utf-8", errors="replace")` —— **根本不解 GBK**。
+本仓照移，乱码逐字钉住（D-SXM-1）。
+
+> 不修的理由不是「照抄省事」：`errors="replace"` **永不失败**，所以
+> **没有任何信号能分辨「这份头是 GBK」和「这份头是 Latin-1」**。要修就得先回答
+> 这个问题，并且旧仓与本仓**同时**修。而注释字段不驱动任何决策 —— 收益是零。
+
+**③ 顺带的一条主动偏离（D-3DS-1）**：`.3ds` 截断时旧仓给未写入的像素**补 0**，
+本仓补 **NaN** 并交出 `pixels_written` / `pixels_missing`。
+**一条恒为零的谱不是「没有数据」，它长得像一块干净的样品** —— 形状对、dtype 对、
+值是合法浮点，在自动流程里没有任何外部可见的信号。但**不抛**（与 `.npy` 的
+D-NUM-4 相反）：`.npy` 的帧一次性写完 ⇒ 截断 = 文件坏了；`.3ds` 的网格逐像素
+增量写 ⇒ 截断 = **操作员按了停**，那是正常操作。**三种格式三种策略，
+而这不是不一致：截断在三者里意味着三件不同的事。**
+
+**④ 还没接的**：技能层（`readFile` / `statSync`）没接 —— ⚠️ 尺寸闸必须在
+`readFile` **之前**用 `statSync` 拦一次，包里那道 `assertReadableSize` 是兜底
+（字节已经在内存里了）。`load_scan_file` / `read_txt` / `read_sm4` 三个未移。
 
 ---
 
