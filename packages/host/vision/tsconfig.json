@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "declarationDir": "./lib/types",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  // `nanonis-files` 只有**测试**要：金样里录的是 `.sxm` 的字节，
+  // 而把它解回帧的那一份读法归旧仓与 `nanonis-files`，不归这一层
+  // （这一层零 I/O，它拿到的永远是一个已经解好的 `Mat`）。
+  "references": [{ "path": "../kernel" }, { "path": "../numerics" }, { "path": "../nanonis-files" }]
+}

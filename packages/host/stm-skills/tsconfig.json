@@ -19,6 +19,15 @@
       "path": "../kernel"
     },
     {
+      "path": "../nanonis-files"
+    },
+    {
+      "path": "../numerics"
+    },
+    {
+      "path": "../vision"
+    },
+    {
       "path": "../stm-records"
     }
   ]

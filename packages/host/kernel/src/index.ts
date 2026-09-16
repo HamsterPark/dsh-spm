@@ -36,5 +36,7 @@ export * from './z-trace.js'
 export * from './spectroscopy.js'
 
 // ── 批 4a（分析判定件）在这一行下面 export ──
+export * from './corrugation-gate.js'
+export * from './scan-prep-thresholds.js'
 export * from './vacuum-interlock.js'
 export * from './temperature.js'

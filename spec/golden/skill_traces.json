@@ -1891,6 +1891,259 @@
       }
     }
   },
+  "AssessAtomicLines": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "channel_index": null,
+          "channel_source": "",
+          "frame_width_m": null,
+          "lines": null,
+          "nm_per_px": null,
+          "pixels": null,
+          "scan_channels": []
+        },
+        "error": "扫描缓冲的回包读不懂 —— 不去猜通道号。原始回包：('', b'', [])",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          }
+        ],
+        "data": {
+          "channel_index": null,
+          "channel_source": "",
+          "frame_width_m": null,
+          "lines": null,
+          "nm_per_px": null,
+          "pixels": null,
+          "scan_channels": []
+        },
+        "error": "读不到扫描缓冲：模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channel_index": 2,
+          "channel_source": "兜底：缓冲里非电流的那一路",
+          "direction": 1,
+          "n_rows_filled": 2,
+          "n_rows_offered": 2,
+          "n_rows_total": 2,
+          "nm_per_px": 150000000.0,
+          "ok": false,
+          "why": "这条线只有 2 个有效点，不足 32"
+        },
+        "error": "这条线只有 2 个有效点，不足 32",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {
+          "channel_index": 2,
+          "channel_source": "兜底：缓冲里非电流的那一路",
+          "frame_width_m": null,
+          "lines": 6,
+          "nm_per_px": null,
+          "pixels": 5,
+          "scan_channels": [
+            2,
+            3
+          ]
+        },
+        "error": "算不出 nm/px：视野 None、像素 5 —— 宁可拒绝，也不按一个猜的尺度做判读。",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {},
+        "error": "取不到通道 2 的帧：模拟故障：连接被对端关闭　（扫描缓冲里的通道是 [2, 3] —— 这个参数要的是**信号索引**，不是缓冲位）",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_BufferGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_NamesGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameDataGrab"
+          }
+        ],
+        "data": {
+          "channel_index": 2,
+          "channel_source": "兜底：缓冲里非电流的那一路",
+          "direction": 1,
+          "n_rows_filled": 2,
+          "n_rows_offered": 2,
+          "n_rows_total": 2,
+          "nm_per_px": 150000000.0,
+          "ok": false,
+          "why": "这条线只有 2 个有效点，不足 32"
+        },
+        "error": "这条线只有 2 个有效点，不足 32",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessClusterRoundness": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "scan_path not found: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessFrameCorrugation": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessFrameTrust": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "读不了 spec-export：[WinError 2] 系统找不到指定的文件。: 'spec-export'",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AtomTrackDriftComp": {
     "params": {},
     "traces": {
@@ -18284,6 +18537,20 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "ExtractClusters": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "scan_path 不存在: 'spec-export'",
+        "success": false,
         "summary": ""
       }
     }
@@ -42349,6 +42616,20 @@
       }
     }
   },
+  "LocateStepEdge": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "LockNanonisUI": {
     "params": {},
     "traces": {
@@ -42397,6 +42678,20 @@
         "error": "",
         "success": true,
         "summary": "Nanonis 界面已锁定——用户在解锁前无法在仪器端操作"
+      }
+    }
+  },
+  "MeasureStepHeight": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
       }
     }
   },
@@ -57149,6 +57444,24 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "SelectPokedCluster": {
+    "params": {
+      "anchor_tolerance_m": 5e-07,
+      "min_area_px": 500000,
+      "min_aspect": 0.5,
+      "min_peak_height_m": 5e-07,
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "提取失败:scan_path 不存在: 'spec-export'",
+        "success": false,
         "summary": ""
       }
     }
@@ -77014,6 +77327,22 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "VerifyAdatomAt": {
+    "params": {
+      "scan_path": "spec-export",
+      "target_x_m": 7.5e-07,
+      "target_y_m": 7.5e-07
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
         "summary": ""
       }
     }
