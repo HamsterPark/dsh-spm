@@ -1,42 +1,98 @@
 # `spec/golden/` —— 与 Python 侧对账的分母
 
-**不要手改这里的任何文件。** 全部由 `tools/spec-export/export_mast_spec.py` 从旧仓 MAST 导出：
+**不要手改这里的任何文件。** 每一份都由 `tools/spec-export/` 下的一个脚本从旧仓 MAST 导出，
+本机 PATH 里没有可用的 `python`（只有 Microsoft Store 的转发桩），一律用旧仓 venv 的绝对路径：
 
 ```powershell
-python tools\spec-export\export_mast_spec.py
+python tools\spec-export\<脚本>.py
 ```
 
-本机 PATH 里没有可用的 `python`（只有 Microsoft Store 的转发桩），必须用旧仓 venv 的绝对路径。
 脚本**只读旧仓**：导出前把 `MAST2_PROJECT_ROOT` 指向临时目录，旧仓的 config / data_paths /
 override_store / models（API key 目录解析）都认这个变量。2026-09-08 实测：跑完后
 `find MAST -newermt '-10 minutes'` 返回空，旧仓一个字节没动。
 
-**重跑产出逐字节相同**（已验）。所以「旧仓变了没有」这个问题可以用 `git diff` 回答——
+**重跑产出逐字节相同**（2026-09-16 又验了四份：`numerics` / `environment` /
+`nanonis_files` / `skill_traces`）。所以「旧仓变了没有」这个问题可以用 `git diff` 回答 ——
 这也是 manifest 里不记随机沙箱路径的原因。
 
-| 文件 | 内容 | 谁消费 |
-|---|---|---|
-| `skills.json` | 515 条技能的**作者声明**契约：category / safety_level / description / 逐参数 ParameterSpec（含 unit、min/max、allowed_values）/ preconditions / capabilities / composition_level / 所在模块与 origin | DoD ①（`skill.spec` 与之 deep-equal）、DoD ②（工具 schema description 逐字相等）、§8.4 分批成员派生 |
-| `watchdog.json` | 看门狗的判定行为：12 条脚本，由**真 `SafetyWatchdog.run()`** 跑出来（把它的 `time` 换成假时钟，让真循环自己跑）。含 2026-08-10 那次「武装着却打不着火」的复现 | 课时 1.9 的看门狗移植 |
-| `preconditions.json` | 前置条件的词表 + **10 个前置 × 14 个夹具 = 140 格夹具网格**，逐格录违反消息（含伴随字段的六句不同措辞）。整片网格而不是挑点——判定里有子串匹配，而子串在否定形式上尤其危险 | 课时 2.9 |
-| `safety.json` | **Phase 2 的分母**：可调包络 14 字段 + 全局检查 19 行 + 物理荒谬 11 行（含人话提示）+ 中止安全写 24 条 + `_is_read` 对**全部 671 个动词**的判定 + 25 条硬闸用例 + 11 条能力用例 + 16 条模式拒绝（**原文逐字**）+ 15 条中止用例 | 课时 2.1–2.5 的安全闸门移植 |
-| `state.json` | 状态缓存三节：`spec`（1 Hz 读哪 11 个动词——**观测得到，不是手抄**——加可 patch / 需强转的字段白名单）、`coerce`（21 条「什么算一个读数」）、`trace`（14 条脚本 29 步，驱动真 `InstrumentState`，含 carry-forward 与 stale 的逐步快照）、`live_state`（7 条实时状态提示块的**整段文本**——措辞就是契约） | 课时 1.8 的状态缓存移植与 D-STATE-1；1.8b 的提示块 |
-| `si_cases.json` | 127 条 SI 行为金样：`parse_si` / `parse_quantity`（strict 与 loose 各一遍）/ `needs_strict_prefix` / `format_si`，**含报错类型与原文** | 课时 1.1 的 `si.ts` 移植 |
-| `manifest.json` | 每个 collector 的成败与条数 | 一个 collector 坏了不能静默缺一块——缺一块会让分母悄悄变小 |
+> **2026-09-16 重写。** 上一版这张表只列了 7 份，而目录里已经有 32 份；
+> 末尾的「还没导的」还把 `tool_schemas.json` / `preconditions.json` / `safety.json`
+> 列成待办，而它们早就在了。**一份列了三分之一内容、并且把已有的说成没有的清单，
+> 比没有清单更糟** —— 读的人会照着它去判断「这块有没有覆盖」。
 
-## 两条别忘的
+---
+
+## 一、导出器与它驱动的东西
+
+每个脚本的抬头都写着它驱动的是旧仓的哪一段真代码。分三类：
+
+### ① 规格类 —— 读旧仓的**声明**
+
+| 文件 | 导出器 | 钉的是什么 |
+|---|---|---|
+| `skills.json` | `export_mast_spec.py` | 515 条技能的**作者声明**契约：category / safety_level / description / 逐参数 ParameterSpec（含 unit、min/max、allowed_values）/ preconditions / capabilities / composition_level / 所在模块与 origin |
+| `si_cases.json` | 同上 | SI 行为：`parse_si` / `parse_quantity`（strict 与 loose 各一遍）/ `needs_strict_prefix` / `format_si`，**含报错类型与原文** |
+| `safety.json` | `export_safety_spec.py` | 可调包络 14 字段 + 全局检查 19 行 + 物理荒谬 11 行 + 中止安全写 24 条 + `_is_read` 对**全部 671 个动词**的判定 + 硬闸 / 能力 / 模式拒绝（**原文逐字**） |
+| `preconditions.json` | `export_preconditions.py` | 前置条件词表 + **10 个前置 × 14 个夹具 = 140 格网格**，逐格录违反消息。整片网格而不是挑点 —— 判定里有子串匹配，而子串在否定形式上尤其危险 |
+| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 模型**唯一读得到范围的地方**：工具 schema 的逐字文本 |
+| `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明；建表由金样原样执行，逐表逐对象比 |
+| `manifest.json` | `export_mast_spec.py` | 每个 collector 的成败与条数 —— **一个 collector 坏了不能静默缺一块**，缺一块会让分母悄悄变小 |
+
+### ② 轨迹类 —— 驱动旧仓**真实的那段代码**跑一遍
+
+这一类的共同点：录的不是「我读旧仓读出来的结论」，是**旧仓自己跑出来的东西**。
+
+| 文件 | 导出器 | 驱动的是 |
+|---|---|---|
+| `skill_traces.json` | `export_skill_traces.py` | **329 个技能 / 1392 条调用轨迹**（含 13 条「抛异常也是判据」）。总驱动器 |
+| `watchdog.json` | `export_watchdog_trace.py` | 真 `SafetyWatchdog.run()`（把它的 `time` 换成假时钟，让真循环自己跑）。含 2026-08-10 那次「武装着却打不着火」的复现 |
+| `state.json` | `export_state_spec.py` | 真 `InstrumentState`：1 Hz 读哪 11 个动词（**观测得到，不是手抄**）、21 条「什么算一个读数」、14 条脚本 29 步、7 条实时提示块**整段文本** |
+| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机 50 步 |
+| `graph_executor.json` | `export_graph_executor.py` | 真 `GraphExecutor`（四条恢复守卫的现场） |
+| `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | 真 `AutoApproach` / `safety_escalation` / `ApproachTip._approach` |
+| `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | 真 `scan_policy` / `imaging` 判定件；真 `WaitScanComplete` 与回包解析器 |
+| `bias_ramp.json` | `export_bias_ramp.py` | 真 `SetBiasRamp` |
+| `tip_park.json` | `export_tip_park.py` | 真 `tip_park` 判定机 |
+| `claim_audit.json` | `export_claim_audit.py` | 声明交叉核对 |
+| `advanced_ops.json` | `export_advanced_ops.py` | 真 `QuitNanonis` / `WaitForScanEndBlocking` |
+| `frames_presets.json` · `zctrl_presets.json` · `lockin_presets.json` | `export_frames_presets.py` · `export_zctrl_presets.py` · `export_lockin_presets.py` | `.npy` 字节取自真实 numpy；三套参数组的 resolve 与三件套技能 |
+
+### ③ 专用驱动器 —— **通用驱动器走不到的那些路**
+
+通用轨迹金样喂的是**常数回包**，于是一整族判据可能一格都没被走到。
+**格数只决定走了几遍同一条路，驱动器才决定能走到哪条路。**
+
+| 文件 | 导出器 | 为什么要单开一台 |
+|---|---|---|
+| `z_trace.json` | `export_z_trace.py` | 通用回包里电流与 Z 恒为 0.25 ⇒ 扎针判定只走得到「Δz 恒为 0、`no_press`」一条路。这一份手搭曲线，**一条判据一格** |
+| `environment.json` | `export_environment.py` | 真空与温度的分支**全由参数决定**（技能一次 Nanonis 调用都不发），通用注错点一条都碰不到 |
+| `numerics.json` | `export_numerics.py` | numpy / scipy **真跑一遍**。**输入与答案一起录** —— TS 复现不了 PCG64，「同一批输入」只能靠录下来 |
+| `nanonis_files.json` | `export_nanonis_files.py` | 字节由脚本**合成**，读出来的东西由**旧仓真实读取器**给出。真机文件不进本仓（用户裁决：只用合成数据） |
+| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 字节层：请求侧 = 真实 `nanonis_spm` 客户端（MAST 打过补丁），回复侧 = STM-Bench 服务端 codec |
+
+---
+
+## 二、四条别忘的
 
 **用的是 `_get_metadata_raw` 不是 `_get_metadata`。** 前者是技能作者的声明，后者叠加了 admin 覆盖。
 旧仓自己的注释讲得最清楚：拿叠加后的当基线，一个「调低某技能 safety_level」的管理员覆盖就会变成新标尺，
-把审批闸门洗白。分母要的是声明，不是当前生效的包络。
+把审批闸门洗白。**分母要的是声明，不是当前生效的包络。**
 
 **报错原文也是契约。** `si_cases.json` 里录了异常类型与完整消息，因为模型读到的正是这些句子
-（PLAN §3.2-1、§3.2-16）。已经发现 strict 与 loose 对同一个非法输入给的是**两句不同的教学文案**——
+（PLAN §3.2-1、§3.2-16）。已经发现 strict 与 loose 对同一个非法输入给的是**两句不同的教学文案** ——
 这种东西照着行为写 TS 能过，照着措辞写才对得上。
 
-## 还没导的
+**金样里不许有每次都变的东西。** 2026-09-16 踩到两次：`.3ds` 那批的异常消息里带着一个随机临时目录
+（改成裸文件名 —— **路径本身不是判据，路径之前的那句话才是**）；轨迹里带着落盘路径与时间戳
+（`_TRACE_STAMP` 抹除）。一个每次都变的金样回答不了任何问题。
 
-`tool_schemas.json` / `preconditions.json` / `safety.json` / `tool_packs.json` /
-`prompts/` / `traces/` 等（PLAN §8.6 的完整清单）按消融原则等各自的消费者出现再加：
-schema 与 preconditions 在 Phase 2 的内核闸门，`verbs`（AST 抽 `safe_call` 字面量）在 1.3 的协议代码生成，
-`error_branches` 在 DoD ③ 的逐分支单测，`traces/` 在 §12 的差分测试。脚本已经搭好，加一个 collector 就是加一个函数。
+**合成数据要可复现，所以不用随机数。** `z_trace.json` 的噪声用的是一个**不整除周期的锯齿**，
+`nanonis_files.json` 的像素值是 `base + iy*0.25 + ix*0.0625` 这样一个闭式 ——
+重跑不依赖任何种子状态，而且「行列搞反了」在数值上当场看得出来。
+
+---
+
+## 三、还没导的
+
+按消融原则等各自的消费者出现再加：`tool_packs.json` / `prompts/` / `traces/`（PLAN §8.6 的完整清单）。
+`traces/` 在 §12 的差分测试。**脚本已经搭好，加一个 collector 就是加一个函数。**
