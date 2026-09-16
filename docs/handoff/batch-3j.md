@@ -26,9 +26,9 @@
 
 ---
 
-## 1. 该登记成 deviation 的（编号留空，请统一编）
+## 1. 该登记成 deviation 的（**主线已编号并登记进 `spec/deviations.md`**）
 
-### D-STREAM-1（暂用这个号，请确认）· `_readback_stream.scalar` 是旧仓那一族**没被收进去的第四份**
+### D-STREAM-1 · `_readback_stream.scalar` 是旧仓那一族**没被收进去的第四份**
 
 | | |
 |---|---|
@@ -42,8 +42,8 @@
 **影响面：0 格。** `Current_Get` / `ZCtrl_ZPosGet` 的协议声明都是单个 `f`，
 所以这条偏离只在协议被违反时才分岔 —— 而那时沉默比猜好。
 
-⚠️ **号要重编**：`D-READBACK-1` 已经被「回读比对的容差是判据」占了，我暂用 `D-STREAM-1`，
-在 `readback-stream.ts` 与 `tail-l0j.test.ts` 里各引了一次。
+✅ **主线确认沿用 `D-STREAM-1`**（`D-READBACK-1` 已被「回读比对的容差是判据」占了）——
+代码里那两处引用不用改。
 
 ### D-SKILL-2 补充 · `shaper_bias_default` 的「读不懂」文案（1 格）
 
@@ -53,7 +53,7 @@
 
 登记在 `l0/traces.test.ts` 的 `DEVIATIONS['TipShapeWithReadback/empty@0']`。
 
-### D-????· **两侧的假钟摆在不同的量级上** ⇒ 时间字段按容差比
+### D-CLOCK-1 · **两侧的假钟摆在不同的量级上** ⇒ 时间字段按容差比
 
 | | |
 |---|---|
@@ -76,7 +76,7 @@
 > `TipShapeWithReadback/err@78` 当场撞到。导出参数改成 21.5 ms（刻意不落在栅格上）。
 > **浮点残渣本身不可怕，可怕的是它落在一个离散判据的边界上。**
 
-### D-???? · `timing.budget_exhausted`：**本仓新增**的圈数预算
+### D-STREAM-2 · `timing.budget_exhausted`：**本仓新增**的圈数预算
 
 旧仓的采集循环用真墙钟，不可能停；本仓的时钟是注入的，**一个不往前走的钟会把它变成
 一个不发任何调用的死循环，而死循环与通过在退出码上长得一模一样**。
@@ -89,7 +89,7 @@
 `Aborted before the pulse was fired`。照抄会把一次夹具故障说成一次用户中止 ——
 而这两件事要做的下一步完全不同。预算耗尽时换成「注入的时钟没有前进」。
 
-### D-???? · 针尖安全包络（`apply_tip_policy`）**没有移植** —— 欠 Phase 5.3
+### D-TIP-1 · 针尖安全包络（`apply_tip_policy`）**没有移植** —— 欠 Phase 5.3
 
 旧仓 `BiasPulseWithReadback.validate_params` 按**当前登记的针尖**检查方案表包络，
 **超上限拒绝、不夹紧**（同一条哲学贯穿粗动电压四重锁）。修针默认的 ±10 V 是用户对
@@ -102,7 +102,7 @@
 
 金样照不出这一条：导出脚本直接调 `execute`，`validate_params` 一次都没被调用。
 
-### D-???? · `pyFixed` 暂住 `z-trace.ts`，收族时该搬去 `si.ts`
+### D-LANG-1 · `pyFixed` 暂住 `z-trace.ts`，收族时该搬去 `si.ts`
 
 语言分歧一族的**第六个成员**（前五个：`pyFloatRepr` / `formatG` / `pyStr` / `pyMod` / `pySum`）。
 
@@ -114,19 +114,19 @@ Python 的 `%.3f` 在半分点上 **round-half-even**，ECMA-262 的 `toFixed` �
 **它现在不在 `si.ts` 里**，是因为这一轮有四条并行支线在改文件，塞进去会让四份改动撞在
 同一行上。收族的时候搬过去。
 
-### D-???? · `MAST_TRACES_DIR` 环境变量没有移植
+### D-TRACE-1 · `MAST_TRACES_DIR` 环境变量没有移植
 
 旧仓那个变量的职责是**测试隔离的抓手**（17 个测试文件都够得着这条落盘路径）。
 本仓的抓手就是 `TraceDeps.tracesDir` 这个注入点本身 —— 同一件事两个开关，
 只会多一个漂移的地方。默认落在 `<cwd>/experiments/traces`（同 `frames.ts`，已在 `.gitignore`）。
 
-### D-???? · `TRACE_SCHEMA` **保留 `mast.` 前缀**
+### D-TRACE-2 · `TRACE_SCHEMA` **保留 `mast.` 前缀**
 
 `mast.readback_trace/1` 这个串写进的是**磁盘上的文件**，而那些文件要被旧仓的读取侧、
 以及用户手上已经存着的分析脚本认出来。为「本仓改名了」而换掉它，等于让同一种文件在
 两个仓里长得不一样 —— 那正是版本号要防的事。
 
-### D-???? · 采集循环在旧仓有**两份**，本仓收成一个骨架
+### D-STREAM-3 · 采集循环在旧仓有**两份**，本仓收成一个骨架
 
 `capture_signal_buffer.py`（早）与 `_readback_stream.py`（晚）各写了一遍「绝对时刻调度
 + abort 早退」。本仓收成 `pollLoop`，两个调用点各自传自己的 `poll`。

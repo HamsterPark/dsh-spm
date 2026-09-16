@@ -1249,3 +1249,117 @@ scipy 的 `order >= 2` 先对整张图做一次**样条预滤波**（一条前�
 的高精度档不该被直接信。
 
 **变异**：`numerics-subpixel-dftshift-is-fix`。
+
+## D-STREAM-1 · `_readback_stream.scalar` 是旧仓那一族**没被收进去的第四份**
+
+| | |
+|---|---|
+| **Python** | `_readback_stream.scalar`：多元素 body 直接取 `d[0]`，嵌套表再取 `v[0]` |
+| **TS** | 一律走 `scalarFloat`：**多元素 body 一个样本都不记** |
+| **测试** | `packages/host/stm-skills/src/l0/tail-l0j.test.ts` → 「取不出数就是 null」 |
+
+旧仓自己把三份手写的 `_scalar` 收进了 `io/nanonis_files.scalar_float`，**而这一份没收进去**。
+`scalar_float` 的 docstring 点名说最难查的就是这一种：**「双通道回包上悄悄选一路」**。
+
+**影响面 0 格**：`Current_Get` / `ZCtrl_ZPosGet` 的协议声明都是单个 `f`，
+所以这条只在协议被违反时才分岔 —— **而那时沉默比猜好**。
+
+> 这个号是支线暂定的（`D-READBACK-1` 已被「回读比对的容差是判据」占了），
+> 主线确认沿用：`readback-stream.ts` 与 `tail-l0j.test.ts` 里各引了一次。
+
+## D-STREAM-2 · `timing.budget_exhausted`：**本仓新增**的圈数预算
+
+旧仓的采集循环用真墙钟，不可能不停；本仓的时钟是**注入的**，于是
+**一个不往前走的钟会把它变成一个不发任何调用的死循环 —— 而死循环与通过在退出码上
+长得一模一样。**
+
+预算**从请求本身算出来**（`totalS·(pollHz+1000)+64`），不是一个拍脑袋的常数。
+超了就收工并补一句 `budget_exhausted: true` —— **只在发生时才写，缺键就是没发生**
+（同 `tipXyFields` 的空对象、旧仓 `warning` 那个键），所以金样一格没变。
+
+连带改了一句文案：`BiasPulseWithReadback` 在「始终没到开火时刻」时旧仓只有一句
+`Aborted before the pulse was fired`。照抄会把**一次夹具故障说成一次用户中止**，
+而这两件事要做的下一步完全不同。预算耗尽时换成「注入的时钟没有前进」。
+
+**这道闸没有变异演练，而那正是它存在的理由**：拆掉它测试不会变红，它会**挂住** ——
+演练自己有 120 秒上限，一条本该变红的变异会被报成「超时失败」（2026-09-13 真踩过）。
+改由 `tail-l0j.test.ts` 三条正向断言看着。
+
+## D-STREAM-3 · 采集循环在旧仓有**两份**，本仓收成一个骨架
+
+`capture_signal_buffer.py`（早）与 `_readback_stream.py`（晚）各写了一遍
+「绝对时刻调度 + abort 早退」。本仓收成 `pollLoop`，两个调用点各传自己的 `poll`。
+
+**但字面动词留在调用点**：本仓每一样安全工具（中止策略检查、安全审计、API 覆盖普查）
+都靠 grep `safe_call("…")` 找 Nanonis 调用，**一个经变量到达的动词对这三样全部不可见**。
+收骨架收的是流程，不是那个字符串。
+
+## D-CLOCK-1 · 两侧的假钟摆在**不同的量级**上 ⇒ 时间字段按容差比
+
+| | |
+|---|---|
+| **Python** | `export_skill_traces.py` 的 `_CLOCK = 1_000_000.0` **秒**，每读一次 `+= 1e-3` |
+| **TS** | `SkillContext.now()` 按契约是**毫秒**，轨迹夹具给的是整数 |
+| **后果** | 「3 毫秒」那边算出来 `0.003000000142492354`，这边 `0.0030000000000427463` |
+| **测试** | `l0/traces.test.ts` 的 `clockApprox`（`|a−b| ≤ 1e-6·max(1,|a|)`；实测差 1e-10） |
+
+**这个差消不掉。** 毫秒钟在 1e9 上的栅格比秒钟在 1e6 上的粗 2.4 %，于是约 2 % 的秒值
+**根本没有毫秒原像** —— 无论怎么折算都回不到同一个 double（实测 200 000 个采样点里
+4 688 个回不去）。真要消掉只能改那个**全局**假钟，而那会把每一条已有金样的时间字段
+一起改掉。
+
+**判据分毫不动**：容差按名字只作用在 17 个时钟派生的叶子键上（`CLOCK_KEYS`），
+而且是**逐格登记**的 —— 只挂在这一族三个技能的轨迹上，其余 326 个技能照旧逐位比。
+采了几点、哪一帧丢了、顺序、判定、文案全部不在那张名单里。
+
+> **值得单记的一条**：`post_roll_s` 的默认值（20 ms）**正好压在采样栅格上**
+> （假钟下一帧 3 ms）。后窗是 `t >= cap - win` 的闭区间，边界压在样本上时，
+> 那 1e-10 的残渣会**决定一个样本进不进窗**，`n_post` 因此差一个。
+> 导出参数改成 21.5 ms（刻意不落在栅格上）。
+> **浮点残渣本身不可怕，可怕的是它落在一个离散判据的边界上。**
+
+## D-TIP-1 · 针尖安全包络（`apply_tip_policy`）**没有移植** —— 欠 Phase 5.3
+
+旧仓 `BiasPulseWithReadback.validate_params` 按**当前登记的针尖**检查方案表包络，
+**超上限拒绝、不夹紧**（同粗动电压四重锁那条哲学）。修针默认的 ±10 V 是用户对
+**金属丝针尖**的做法；铂铱（8 V）、磁性/超导针、qPlus（3 V）会在那里被拒绝 ——
+**那不是 bug，是保护**。
+
+它要 `mast.core.tip_conditioning_resolver`（针尖登记表，Phase 5.3）。在那之前这一侧
+只有全局 ±10 V 的 SafetyGate 在挡。**没有写一个空的 `validateParams`** ——
+写了会让人以为这道闸在。欠账写在 `readback-skills.ts` 的 docstring 里。
+
+金样照不出这一条：导出脚本直接调 `execute`，`validate_params` 一次都没被调用。
+
+## D-LANG-1 · `pyFixed`：`%.3f` 是 round-half-even，`toFixed` 明写「取大的那个」
+
+语言分歧一族的**第六个成员**（前五个：`pyFloatRepr` / `formatG` / `pyStr` / `pyMod` /
+`pySum`，见 D-SI-3 / D-NUM-1 与 `kernel/src/si.ts`）。
+
+Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明写取大的那个。
+**半分点恰好是 1/16 的奇数倍**（0.0625、0.1875、0.3125…），全是二进制精确表示的数 ——
+所以这不是理论问题：`"%.3f" % 0.0625` = `0.062`，`(0.0625).toFixed(3)` = `"0.063"`。
+金样 `seg4_exact_sixteenth` 那一格印的就是 `0.062`。
+
+**欠账**：它现在住在 `kernel/src/z-trace.ts` 而不是 `si.ts` —— 这一轮有四条并行支线
+在改文件，塞进 `si.ts` 会让四份改动撞在同一行上。收族的时候搬过去。
+
+## D-TRACE-1 · `MAST_TRACES_DIR` 环境变量**没有移植**
+
+旧仓那个变量的职责是**测试隔离的抓手**（17 个测试文件都够得着这条落盘路径）。
+本仓的抓手就是 `TraceDeps.tracesDir` 这个注入点本身 —— **同一件事两个开关，
+只会多一个漂移的地方**。默认落在 `<cwd>/experiments/traces`（同 `frames.ts`，已在 `.gitignore`）。
+
+## D-TRACE-2 · `TRACE_SCHEMA` **保留 `mast.` 前缀**
+
+`mast.readback_trace/1` 这个串写进的是**磁盘上的文件**，而那些文件要被旧仓的读取侧、
+以及用户手上已经存着的分析脚本认出来。为「本仓改名了」而换掉它，等于**让同一种文件
+在两个仓里长得不一样** —— 那正是版本号要防的事。
+
+## D-SKILL-2 补充 · `shaper_bias_default` 的「读不懂」文案（1 格）
+
+旧仓印 `str(return_value)[:80]`，也就是三段信封的 Python repr
+（`Bias_Get 回包读不懂(repr 前 80 字:('', b'', []))`）。信封在 `nanonis-wire` 那层
+就拆掉了，本仓印 `values=[]`。**期望值从金样算出来**（一条 `.replace`），
+旧仓改了那句话这里会跟着变。登记在
+`l0/traces.test.ts` 的 `DEVIATIONS['TipShapeWithReadback/empty@0']`。
