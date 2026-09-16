@@ -40,6 +40,7 @@ const K = 'packages/host/kernel/src'
 const R = 'packages/host/stm-records/src'
 const SK = 'packages/host/stm-skills/src'
 const SF = 'packages/host/stm-safety/src'
+const NF = 'packages/host/nanonis-files/src'
 
 export const MUTATIONS: readonly Mutation[] = [
   // ── 内核的闸 ────────────────────────────────────────────────────────
@@ -1213,6 +1214,57 @@ function physicallyAbsurdViolations_unused(`,
     find: 'export const TIP_XY_MAX_M = 1e-3',
     replace: 'export const TIP_XY_MAX_M = 1e30',
     scope: 'packages/host/stm-skills',
+  },
+  // ── 课时 4.2：nanonis 文件读（.sxm / .dat / .3ds）─────────────────────
+  //
+  // 这六条挡的都是**同一种事故**：读错了不会抛，只会得到一张看起来很正常的图。
+  {
+    id: '3ds-missing-pixels-are-nan-not-zero',
+    why: 'D-3DS-1：网格没跑完的那几个像素填 NaN。改回旧仓的补零 ⇒ 一片「谱强度恒为零」的区域，在自动流程里长得像一块干净的样品 —— 形状对、dtype 对、值是合法浮点，没有任何外部可见的信号',
+    file: `${NF}/threeds.ts`,
+    find: '      gRow.push(new Float64Array(nPoints).fill(NaN))',
+    replace: '      gRow.push(new Float64Array(nPoints))',
+    scope: 'packages/host/nanonis-files',
+  },
+  {
+    id: '3ds-pixels-written-is-counted-not-declared',
+    why: 'D-3DS-1 的另一半：交出去的是**数出来的**已写像素数。改成交头里声明的那个数 ⇒ `pixels_missing` 恒为 0，于是「网格没跑完」这件事再也没人读得到，而它正是这条偏差存在的全部理由',
+    file: `${NF}/threeds.ts`,
+    find: '      pixels_written: written,',
+    replace: '      pixels_written: nx * ny,',
+    scope: 'packages/host/nanonis-files',
+  },
+  {
+    id: 'sxm-direction-decides-frame-count',
+    why: '每通道的 Direction 决定这个通道存 1 帧还是 2 帧（旧仓 2026-07-03 复盘）。一律读两帧 ⇒ 字节偏移错位，**后面每一个通道的数据都被移位** —— 而每一帧本身仍是一张合法的图',
+    file: `${NF}/sxm.ts`,
+    find: "  if (hasFwd && !hasBwd) return ['forward']",
+    replace: "  if (false && hasFwd && !hasBwd) return ['forward']",
+    scope: 'packages/host/nanonis-files',
+  },
+  {
+    id: 'sxm-negative-pixels-are-not-zero-pixels',
+    why: '判据 ②：`<= 0` 不是 `== 0`。负的像素数会被当成「-1 你猜」，从任意字节里 reshape 出一帧来 —— 那一帧有正确的 dtype 和一个自洽的形状',
+    file: `${NF}/sxm.ts`,
+    find: '  if (nx <= 0 || ny <= 0) return { header, channels: {} }',
+    replace: '  if (nx === 0 || ny === 0) return { header, channels: {} }',
+    scope: 'packages/host/nanonis-files',
+  },
+  {
+    id: 'dat-mode-width-breaks-ties-by-first-seen',
+    why: '`.dat` 列宽取众数，并列时取**先出现**的那个（同 `Counter.most_common`）。取后出现的 ⇒ 一条落单的坏行能把整份数据的列宽带偏，而结果仍是一组长度整齐的列',
+    file: `${NF}/dat.ts`,
+    find: '      if (c > best) {',
+    replace: '      if (c >= best) {',
+    scope: 'packages/host/nanonis-files',
+  },
+  {
+    id: 'file-size-gate-is-gt-not-gte',
+    why: '尺寸闸刚好等于上限要放行。改成 `>=` ⇒ 一个恰好 2 GiB 的文件被拒，而拒绝的理由（「太大」）是假的 —— 这条挡的不是内存，是**一句说不清的拒绝**',
+    file: `${NF}/common.ts`,
+    find: '  if (byteLength > MAX_FILE_BYTES) {',
+    replace: '  if (byteLength >= MAX_FILE_BYTES) {',
+    scope: 'packages/host/nanonis-files',
   },
   // ── 批 3g（optional_* 五族）的演练写在这一行下面 ──
   {

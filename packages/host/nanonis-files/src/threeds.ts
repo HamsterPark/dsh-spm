@@ -16,12 +16,27 @@
  * 一个荒谬的大网格会让它抛 `MemoryError`。这里把两者都表示成**「没数据」**
  * 或一次**说得清的拒绝**，而不是让调用方收到一句底层异常。
  *
- * ## 截断：**尾部像素补零**，形状契约不变
+ * ## D-3DS-1 · 截断：没写进来的像素填 **NaN**，不填 0
  *
- * ⚠️ 这与 `.sxm`（丢帧）和 `.npy`（抛）**都不一样**，三种格式三种策略。
- * 照移是因为金样如此，但**它是三者里最危险的一个**：补零补出来的是一片
- * 「谱强度恒为零」的区域，而那在自动流程里看起来像一块真实的、干净的样品。
- * 建议给它加一条变异演练与一条 deviation，见 `docs/handoff/nanonis-files.md`。
+ * 旧仓填 **0**，而**一条恒为零的谱不是「没有数据」，它长得像一块干净的样品** ——
+ * 在自动流程里那是最像「这里可以测」的东西，而且没有任何外部可见的信号。
+ * 与 D-NUM-4（截断的 `.npy` 抛而不补零）是同一条理由：
+ * **补出来的零会被当成测量值。**
+ *
+ * ⚠️ 但这里**不抛**，与 `.npy` 那条相反 —— 因为两种截断的成因不同：
+ *
+ * | | 截断意味着 | 所以 |
+ * |---|---|---|
+ * | `.npy` | 帧是一次性写完的 ⇒ 截断 = **文件坏了** | 抛 |
+ * | `.3ds` | 网格是**逐像素增量写**的 ⇒ 截断 = **操作员按了停** | 不抛：那是正常操作 |
+ *
+ * 一次被中断的网格仍然是有价值的数据，抛掉它等于让一次合法的中断变成读不出。
+ * 所以：已写的照常给，没写的给 `NaN`（会传播、画得出来、平均得出来都看得见），
+ * 外加 `params.pixels_written` / `pixels_missing` 两个数 ——
+ * **「网格没跑完」必须是调用方读得到的，而不是要它去数 NaN。**
+ *
+ * 三种格式因此是三种策略（`.sxm` 丢帧 / `.3ds` NaN + 计数 / `.npy` 抛），
+ * 而这**不是不一致**：截断在三者里意味着三件不同的事。
  */
 import { linspace } from 'dsh-spm-kernel'
 import { assertReadableSize, decodeHeaderText, indexOfBytes, pyFloat, readBigEndianFloat32, MAX_GRID_ELEMENTS } from './common.js'
@@ -49,6 +64,10 @@ export interface ThreeDsFile {
     readonly experiment_param_names: readonly string[]
     /** `(ny, nx, num_params)`；`num_params === 0` 时是 `null`。 */
     readonly param_array: readonly (readonly Float64Array[])[] | null
+    /** 二进制块里**真的写进来了**几个像素。 */
+    readonly pixels_written: number
+    /** 头声明了、而块里没有的那几个 —— 它们在 `grid` 里是 NaN（D-3DS-1）。 */
+    readonly pixels_missing: number
   } | Record<string, never>
   /** 扫描轴，`n_points` 个点。 */
   readonly bias: Float64Array
@@ -159,26 +178,35 @@ export function read3ds(bytes: Uint8Array, what = '<3ds>'): ThreeDsFile {
     const gRow: Float64Array[] = []
     const pRow: Float64Array[] = []
     for (let ix = 0; ix < nx; ix++) {
-      gRow.push(new Float64Array(nPoints))
-      if (paramArray !== null) pRow.push(new Float64Array(nParams))
+      // **没写进来的像素填 NaN，不填 0**（D-3DS-1，见文件抬头）。
+      gRow.push(new Float64Array(nPoints).fill(NaN))
+      if (paramArray !== null) pRow.push(new Float64Array(nParams).fill(NaN))
     }
     grid.push(gRow)
     if (paramArray !== null) paramArray.push(pRow)
   }
 
+  let written = 0
   for (let iy = 0; iy < ny; iy++) {
     for (let ix = 0; ix < nx; ix++) {
       const offset = (iy * nx + ix) * pointBytes
-      // 块到头了：**剩下的像素留零**（见文件抬头那条警告）。
-      // 跳出的是内层 —— 与旧仓 `break` 同形。
+      // 块到头了：**剩下的像素留 NaN**。跳出的是内层 —— 与旧仓 `break` 同形。
       if (offset + pointBytes > data.length) break
       const values = readBigEndianFloat32(data, offset, floatsPerPoint)
       if (paramArray !== null) {
         (paramArray[iy] as Float64Array[])[ix]?.set(values.subarray(0, nParams))
       }
       ;(grid[iy] as Float64Array[])[ix]?.set(values.subarray(nParams, nParams + nPoints))
+      written += 1
     }
   }
+  /**
+   * 写进来了几个像素、还差几个。**一个数，而不是让调用方自己去数 NaN。**
+   *
+   * 一次被中断的网格是**正常操作**（操作员按了停），所以这一格不该是异常；
+   * 但「网格没跑完」这件事必须是调用方**读得到**的，而不是要它去猜。
+   */
+  const missing = ny * nx - written
 
   // 扫描轴：先看头里的 sweep_start/end（老固件），否则从像素 (0,0) 的固定参数读
   const fixedNames = header.fixed_parameters ?? []
@@ -210,6 +238,8 @@ export function read3ds(bytes: Uint8Array, what = '<3ds>'): ThreeDsFile {
       fixed_param_names: [...fixedNames],
       experiment_param_names: [...(header.experiment_parameters ?? [])],
       param_array: paramArray,
+      pixels_written: written,
+      pixels_missing: missing,
     },
     bias,
   }

@@ -133,6 +133,69 @@ describe('.dat —— 逐格对旧仓', () => {
 
 // ── .3ds ────────────────────────────────────────────────────────────────
 
+/**
+ * 金样那份字节里二进制块有多长。
+ *
+ * 用的是**金样自己的字节**和它自己的记号位置，不经本仓的读取器 —— 否则
+ * 「缺几个像素」就成了拿被测对象去论证被测对象。
+ */
+function blobLength(b64: string): number {
+  const buf = Buffer.from(b64, 'base64')
+  for (const marker of ['\r\n:HEADER_END:\r\n', ':HEADER_END:']) {
+    const at = buf.indexOf(Buffer.from(marker, 'latin1'))
+    if (at >= 0) return buf.length - at - marker.length
+  }
+  return -1
+}
+
+/**
+ * D-3DS-1：旧仓给**没写进来的像素**补 0，本仓补 NaN，另交
+ * `pixels_written` / `pixels_missing` 两个数（理由见 `threeds.ts` 抬头）。
+ *
+ * 期望值**从金样算出来**而不是抄一遍，而且这里分成了两件事：
+ *
+ * - **「缺几个像素」不是偏差** —— 旧仓的循环也是「写不满一个像素就 `break`」，
+ *   两边本来就同意。所以这一步从**金样的字节数 ÷ 金样的头**直接算，
+ *   算完的数就是双方共同的事实；
+ * - **偏差只在那几格里填什么**。于是下面先**断言金样里那几格确实全是 0**，
+ *   再把它们换成 `NaN`。旧仓哪天自己改成 NaN、改成抛、或者改了 `break` 的位置，
+ *   这条断言会当场变红 —— 这条登记不会悄悄过期成一句陈述句。
+ */
+function nanTail(c: Case): unknown {
+  const read = structuredClone(c.read) as {
+    header: Record<string, unknown>
+    grid: unknown[][]
+    params: Record<string, unknown>
+  }
+  // 头声明的维度就没过闸（`negative_dims`）⇒ 旧仓和我们都交空结果，没有偏差
+  if (Object.keys(read.params).length === 0) return read
+
+  const h = read.header
+  const nPoints = (h['points'] as number | undefined) ?? 0
+  const nParams = (h['num_parameters'] as number | undefined) ?? 0
+  const nChannels = (h['num_channels'] as number | undefined) ?? 1
+  const [nx, ny] = (h['grid_dim'] as [number, number] | undefined) ?? [1, 1]
+
+  const pointBytes = (nParams + nChannels * nPoints) * 4
+  const written = Math.min(nx * ny, Math.floor(blobLength(c.bytes_b64) / pointBytes))
+  const paramArray = read.params['param_array'] as unknown[][] | null
+
+  for (let flat = written; flat < nx * ny; flat++) {
+    const iy = Math.floor(flat / nx)
+    const ix = flat % nx
+    // ← 这一句才是判据：旧仓在这一格补的是 0。它哪天不补了，这里当场红。
+    expect(read.grid[iy]![ix]).toEqual(new Array(nPoints).fill(0))
+    read.grid[iy]![ix] = new Array(nPoints).fill('NaN')
+    if (paramArray !== null) {
+      expect(paramArray[iy]![ix]).toEqual(new Array(nParams).fill(0))
+      paramArray[iy]![ix] = new Array(nParams).fill('NaN')
+    }
+  }
+  read.params['pixels_written'] = written
+  read.params['pixels_missing'] = nx * ny - written
+  return read
+}
+
 describe('.3ds —— 逐格对旧仓', () => {
   for (const [name, c] of Object.entries(tdsCases)) {
     it(name, () => {
@@ -141,9 +204,29 @@ describe('.3ds —— 逐格对旧仓', () => {
         expectSameRaise(() => read3ds(bytes, `${name}.3ds`), c.raised)
         return
       }
-      expect(plain(read3ds(bytes, `<${name}>`))).toEqual(c.read)
+      expect(plain(read3ds(bytes, `<${name}>`))).toEqual(nanTail(c))
     })
   }
+})
+
+describe('3ds · D-3DS-1：没写进来的像素是 NaN，不是一块干净的样品', () => {
+  it('金样里确实有一格是截断的 —— 否则上面那条登记什么也没验', () => {
+    const c = tdsCases['truncated_blob']!
+    const r = read3ds(bytesOf(c.bytes_b64), '<truncated_blob>')
+    expect(r.params).toMatchObject({ pixels_written: 2, pixels_missing: 2 })
+  })
+
+  it('「网格没跑完」是一个读得到的数，不用调用方自己去数 NaN', () => {
+    for (const [name, c] of Object.entries(tdsCases)) {
+      if (c.raised !== undefined) continue
+      const r = read3ds(bytesOf(c.bytes_b64), `<${name}>`)
+      const p = r.params as Record<string, unknown>
+      if (!('nx' in p)) continue
+      const nans = r.grid.flat().filter((s) => s.every(Number.isNaN)).length
+      expect(p['pixels_missing']).toBe(nans)
+      expect((p['pixels_written'] as number) + nans).toBe(p['nx'] as number * (p['ny'] as number))
+    }
+  })
 })
 
 // ── 金样钉不住的那些判据 ─────────────────────────────────────────────────
