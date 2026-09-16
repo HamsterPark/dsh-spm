@@ -17,6 +17,7 @@ from typing import Any
 import numpy as np
 import scipy.ndimage as ndi
 from scipy.optimize import curve_fit as sp_curve_fit
+from scipy.signal import correlate2d, find_peaks
 from skimage.metrics import structural_similarity
 from skimage.registration import phase_cross_correlation
 
@@ -254,6 +255,12 @@ for dy, dx in [(3, 5), (-2, 7), (0, 4), (6, 0)]:
         "reference": _plain(_base),
         "moving": _plain(moved),
         "shift": _plain(shift),
+        # error / phase 是 skimage 同一次调用回的另外两个数。**它们的容差不一样**：
+        # phase 是辐角（绝对、弧度），error 是一个相消之后开的方 —— 判据只能写在
+        # error² 上。详见 TS 那侧 `fft.ts` 的抬头。
+        "error": _plain(float(_err)),
+        "error_sq": _plain(float(_err) ** 2),
+        "phase": _plain(float(_pd)),
         "_note": "shift = 把 moving 移回 reference 要的位移 = −applied_roll",
     })
 
@@ -349,6 +356,8 @@ _ctruth = [2.5, 0.7, 1.3, 0.4]
 _cnoise = 0.02
 _cy = _gauss(_cx, *_ctruth) + rng.standard_normal(_cx.size) * _cnoise
 _popt, _pcov = sp_curve_fit(_gauss, _cx, _cy, p0=[1.0, 0.0, 1.0, 0.0], maxfev=20000)
+_perr = np.sqrt(np.diag(_pcov))
+_n_pts, _n_par = int(_cx.size), len(_ctruth)
 CURVE_FIT = {
     "model": "a*exp(-0.5*((x-mu)/sigma)**2) + c",
     "x": _plain(_cx),
@@ -357,8 +366,20 @@ CURVE_FIT = {
     "truth": _plain(_ctruth),
     "noise_sigma": _cnoise,
     "popt": _plain(_popt),
-    "perr": _plain(np.sqrt(np.diag(_pcov))),
+    "perr": _plain(_perr),
     "sse": _plain(float(np.sum((_cy - _gauss(_cx, *_popt)) ** 2))),
+    # ── pcov：`curve_fit` 的第二个返回值，`absolute_sigma=False` ⇒ 已经乘过 sse/(n−p) ──
+    "pcov": _plain(_pcov),
+    "n_points": _n_pts,
+    "n_params": _n_par,
+    # 容差要用的那个量：**参数自己的相对不确定度里最大的那个**。
+    # TS 那侧的 `pcovRelTol(rel_step)` 由它算出来 —— 一条可验算的容差，不是一句声明。
+    "rel_step": _plain(float(np.max(_perr / np.abs(_popt)))),
+    # **把「写错的那一版」也录下来**：分母写成 n 而不是 n−p 是这一件最容易犯的错，
+    # 而它给出的是一组完全合理的误差棒。判据因此可以写成「离对的近、离错的远」
+    # （同 RANSAC 那条），不依赖任何容差。
+    "perr_if_dof_were_n": _plain(_perr * np.sqrt((_n_pts - _n_par) / _n_pts)),
+    "_note": "pcov = (JᵀJ)⁻¹·sse/(n−p)；perr = sqrt(diag(pcov))",
 }
 
 
@@ -505,6 +526,8 @@ for _dy, _dx in [(3, 5), (-2, 7)]:
         SUBPIXEL["cases"].append({
             "kind": "integer_roll", "applied_roll": [_dy, _dx], "upsample_factor": _uf,
             "reference": _plain(_sbase), "moving": _plain(_moved), "shift": _plain(_sh),
+            "error": _plain(float(_e)), "error_sq": _plain(float(_e) ** 2),
+            "phase": _plain(float(_p)),
         })
 for _dy, _dx in [(2.5, -1.25), (-0.5, 3.75)]:
     _moved = ndi.shift(_sbase, (_dy, _dx), order=1, mode="wrap")
@@ -513,6 +536,8 @@ for _dy, _dx in [(2.5, -1.25), (-0.5, 3.75)]:
         SUBPIXEL["cases"].append({
             "kind": "subpixel_shift", "applied_shift": [_dy, _dx], "upsample_factor": _uf,
             "reference": _plain(_sbase), "moving": _plain(_moved), "shift": _plain(_sh),
+            "error": _plain(float(_e)), "error_sq": _plain(float(_e) ** 2),
+            "phase": _plain(float(_p)),
             "_note": "插值移过的图不再是原图的重排，峰会略偏 —— 答案由 skimage 定",
         })
 
@@ -532,8 +557,233 @@ for _uf in [1, 10]:
     SUBPIXEL["cases"].append({
         "kind": "near_flat", "upsample_factor": _uf,
         "reference": _plain(_flat_a), "moving": _plain(_flat_b), "shift": _plain(_sh),
+        "error": _plain(float(_e)), "error_sq": _plain(float(_e) ** 2),
+        "phase": _plain(float(_p)),
         "_note": "谱里除直流外全是 1e−22 量级的噪声 —— 归一化的分母在这里才看得出来",
     })
+
+
+# ──────────────────────────────────────────────────────────────────────────
+# 11. `find_peaks`（prominence / distance / width）
+# ──────────────────────────────────────────────────────────────────────────
+#
+# **这一族的容差几乎全是 0**：峰是下标（整数），prominence 是
+# `x[peak] − max(left_min, right_min)` —— 两个操作数都是输入数组里的元素原样，
+# 中间只有一次减法。于是这里录的每一个数都要逐位对上。
+#
+# 输入**全部是确定式造的**（没有一次 rng 调用）：这一节要钉的是语义，
+# 而语义要由**能分辨的输入**保证 —— 随机数只会给出一组看着挺全、其实什么都分不出的峰。
+#
+# 旧仓五处真调用传的参数：prominence(5/5) · distance(3/5) · width=0(1/5)。只录这三个。
+
+PEAKS: dict[str, Any] = {"cases": []}
+
+
+def _peak_case(label: str, y, note: str, **kw) -> None:
+    y = np.asarray(y, dtype=np.float64)
+    idx, props = find_peaks(y, **kw)
+    PEAKS["cases"].append({
+        "label": label,
+        "input": _plain(y),
+        "args": {k: _plain(v) for k, v in kw.items()},
+        "peaks": _plain(idx),
+        "prominences": _plain(props.get("prominences")) if "prominences" in props else None,
+        "left_bases": _plain(props.get("left_bases")) if "left_bases" in props else None,
+        "right_bases": _plain(props.get("right_bases")) if "right_bases" in props else None,
+        "widths": _plain(props.get("widths")) if "widths" in props else None,
+        "width_heights": _plain(props.get("width_heights")) if "width_heights" in props else None,
+        "left_ips": _plain(props.get("left_ips")) if "left_ips" in props else None,
+        "right_ips": _plain(props.get("right_ips")) if "right_ips" in props else None,
+        "_note": note,
+    })
+
+
+# ── ① 筛选顺序：distance **在** prominence 之前 ──
+# 下标 3 那个峰又高又**不突出**（prom = 0.1）。distance 先筛 ⇒ 它先把下标 1 挤掉，
+# 然后自己被 prominence 筛掉，只剩 [8]；prominence 先筛 ⇒ 它先没了，于是 [1, 8] 都留下。
+# **别的输入分不出这两种顺序。**
+_order_x = [0.0, 5.0, 0.0, 9.9, 9.8, 9.8, 9.8, 9.8, 10.0, 0.0]
+_peak_case("order_probe_both", _order_x, "scipy 的顺序 ⇒ [8]；prominence 先筛 ⇒ [1, 8]",
+           prominence=1.0, distance=3)
+_peak_case("order_probe_prom_only", _order_x, "同一条信号，只筛 prominence", prominence=1.0)
+_peak_case("order_probe_dist_only", _order_x, "同一条信号，只筛 distance", distance=3)
+
+# ── ② 平台峰取中点向下取整；紧贴数组末尾的极大值**不算峰** ──
+_peak_case("plateau", [0.0, 1.0, 2.0, 2.0, 2.0, 1.0, 0.0, 3.0, 3.0, 0.0, 5.0],
+           "平台 [2,4] ⇒ 3；平台 [7,8] ⇒ 7（向下取整）；末尾那个 5 不是峰")
+_peak_case("plateau_even", [0.0, 1.0, 1.0, 1.0, 1.0, 0.0],
+           "四格宽的平台 ⇒ 2（偏左）。向上取整会给 3")
+
+# ── ③ prominence 取两侧最小值的 **max** 不是 min ──
+# 下标 3：左侧走到 0.5 停（x[1]=1 更高），右侧走到 0.2 停（x[5]=3 更高）。
+# max ⇒ 0.9−0.5 = 0.4；min ⇒ 0.9−0.2 = 0.7。**两个都是合理的数。**
+_peak_case("prominence_side", [0.0, 1.0, 0.5, 0.9, 0.2, 3.0, 0.0],
+           "肩上的小凸起：max(left,right) ⇒ 0.4，min ⇒ 0.7", prominence=0.0)
+
+# ── ④ `_band_peak` 的形状：径向功率谱里挑周期 ──
+# 三个真峰（两个原子级、一个 moiré）叠在一条缓慢下降的基线上，外加一个只有基线一半
+# 高度的小包（它该被 prominence 筛掉）。`_band_peak` 用的阈值就是 `median(prof)*0.5`。
+_bb = np.arange(160.0)
+_band = (
+    6.0 * np.exp(-0.5 * ((_bb - 24.0) / 3.0) ** 2)
+    + 2.2 * np.exp(-0.5 * ((_bb - 63.0) / 4.5) ** 2)
+    + 9.0 * np.exp(-0.5 * ((_bb - 118.0) / 2.5) ** 2)
+    + 0.30 * np.exp(-0.5 * ((_bb - 90.0) / 6.0) ** 2)
+    + 1.6 * np.exp(-_bb / 70.0)
+    + 0.15
+)
+_band_prom = float(np.median(_band) * 0.5)
+_peak_case("band_peak", _band, "旧仓 seg_scale_adaptive._band_peak 的形状（阈值 = median·0.5）",
+           prominence=_band_prom)
+
+# ── ⑤ `_hist_modes` 的形状：高度直方图里挑台阶 ──
+# 四个台阶 + 一个**贴着主峰**的卫星（离它 8 格 < distance=12）。前后各补一个 0
+# —— 那是旧仓 `np.concatenate([[0.0], cnt, [0.0]])` 那一行，为的是让**贴着直方图
+# 两端**的台阶也能算成峰（scipy 不认边界极大值）。
+#
+# 这一格**两个条件各自都在干活**：只筛 prominence ⇒ [41 106 114 181 251]，
+# 加上 distance ⇒ 卫星 114 被主峰 106 挤掉。同一条信号三种筛法都录。
+_hb = np.arange(256.0)
+_hist = (
+    900.0 * np.exp(-0.5 * ((_hb - 40.0) / 6.0) ** 2)
+    + 640.0 * np.exp(-0.5 * ((_hb - 105.0) / 4.0) ** 2)
+    + 300.0 * np.exp(-0.5 * ((_hb - 114.0) / 2.0) ** 2)
+    + 420.0 * np.exp(-0.5 * ((_hb - 180.0) / 9.0) ** 2)
+    + 250.0 * np.exp(-0.5 * ((_hb - 250.0) / 5.0) ** 2)
+    + 8.0
+)
+_hist_padded = np.concatenate([[0.0], _hist, [0.0]])
+_hist_prom = float(_hist.max() * 0.04)
+_peak_case("hist_modes", _hist_padded,
+           "旧仓 seg_scale_adaptive._hist_modes：补零两端 + prominence + distance",
+           prominence=_hist_prom, distance=12)
+_peak_case("hist_modes_no_distance", _hist_padded,
+           "同一条信号不筛 distance ⇒ 卫星峰 114 留下来了",
+           prominence=_hist_prom)
+
+# ── ⑥ `width=0`：只要 widths 这个属性，不筛 ──
+# 三个宽度差很多的峰，坐在一条非零基线上 —— 半高是**相对 prominence** 的半高，
+# 不是绝对半高，而只有非零基线分得开这两种。
+_wb = np.arange(120.0)
+_wsig = (
+    4.0 * np.exp(-0.5 * ((_wb - 20.0) / 2.0) ** 2)
+    + 3.0 * np.exp(-0.5 * ((_wb - 60.0) / 8.0) ** 2)
+    + 5.0 * np.exp(-0.5 * ((_wb - 95.0) / 4.0) ** 2)
+    + 1.75
+)
+_peak_case("widths", _wsig, "width=0 ⇒ 不筛，只把 widths 一族算出来（半高是相对 prominence 的）",
+           prominence=0.5, width=0)
+
+# ──────────────────────────────────────────────────────────────────────────
+# 12. `scipy.signal.correlate2d(mode='same')` 与 `numpy.hanning`
+# ──────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ **`correlate2d(mode='same')` 的原点是 `(Mb−1)//2`，而 `ndi.grey_*` 的是 `Mb//2`。**
+# 两个都是 scipy、两个都叫「中心」，偶数尺寸时差一格。所以这里**必须**录偶数核
+# （2×2 与 4×4）—— 奇数核上两种猜法完全同解。
+#
+# 头几格是**小整数**输入：乘积与部分和都在 2⁵³ 以内 ⇒ 浮点加法在整数上是精确的
+# ⇒ 与 scipy **逐位相同**，容差 0。那一档才是真正在测「对齐对不对」的那一档。
+
+_ci = np.array([
+    [1.0, 2.0, 3.0, 4.0, 5.0],
+    [6.0, 7.0, 8.0, 9.0, 10.0],
+    [11.0, 12.0, 13.0, 14.0, 15.0],
+    [16.0, 17.0, 18.0, 19.0, 20.0],
+    [21.0, 22.0, 23.0, 24.0, 25.0],
+    [26.0, 27.0, 28.0, 29.0, 30.0],
+])
+CORRELATE2D: dict[str, Any] = {"cases": []}
+for _lbl, _kern in [
+    ("k1x1", np.array([[2.0]])),
+    ("k3x3", np.arange(1.0, 10.0).reshape(3, 3)),
+    ("k2x2", np.arange(1.0, 5.0).reshape(2, 2)),          # 偶数：原点 (0,0) 不是 (1,1)
+    ("k4x4", np.arange(1.0, 17.0).reshape(4, 4)),         # 偶数：原点 (1,1) 不是 (2,2)
+    ("k3x5", np.arange(1.0, 16.0).reshape(3, 5)),         # 非方：行列对调当场现形
+    ("k4x3", np.arange(1.0, 13.0).reshape(4, 3)),
+    ("k6x5_same_shape", _ci * 2.0 - 7.0),                 # 与图同形，消费方就是这一格
+]:
+    CORRELATE2D["cases"].append({
+        "label": _lbl, "exact": True,
+        "a": _plain(_ci), "b": _plain(_kern),
+        "out": _plain(correlate2d(_ci, _kern, mode="same")),
+        "_note": "小整数 ⇒ 逐位相同，容差 0",
+    })
+
+# 消费方的真形状：两张 24×20 的帧各自扣掉均值再互相关。这一格有浮点容差。
+_cr_a = _img - float(_img.mean())                         # 复用第 2 节那张 24×20
+_cr_b = np.roll(np.roll(_img, 2, axis=0), -3, axis=1)
+_cr_b = _cr_b - float(_cr_b.mean())
+CORRELATE2D["cases"].append({
+    "label": "frames_24x20", "exact": False,
+    "a": _plain(_cr_a), "b": _plain(_cr_b),
+    "out": _plain(correlate2d(_cr_a, _cr_b, mode="same")),
+    "_note": "ComputeDriftVector / TrackDrift_ReferenceScan 的形状：两张同形状的帧",
+})
+
+# `np.hanning`：1 与 2 两格是**边界**，其余是常用窗长。
+# hanning(1) = [1.]（不是 [0.]：M−1 = 0，那个式子除零，numpy 单独判）
+# hanning(2) = [0., 0.]（一个把信号乘没的窗，也是对的）
+HANNING: dict[str, Any] = {
+    "windows": {str(_m): _plain(np.hanning(_m)) for _m in [1, 2, 3, 4, 5, 8, 33, 64]},
+    "window2d": {
+        "rows": 5, "cols": 4,
+        "out": _plain(np.outer(np.hanning(5), np.hanning(4))),
+    },
+    "_note": "0.5 + 0.5*cos(pi*n/(M-1))，n = 1-M, 3-M, …, M-1",
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# 13. 非归一化互相关（`normalization=None`）+ error / phase
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 旧仓 `drift_xcorr` 明确传 `normalization=None`，注释里写明理由：**对 SPM 的行噪声
+# 更稳**。相位归一化把每个频点抬成同样的份量，于是一条横贯整帧的噪声脊与真信号
+# 一样有投票权。关掉它 = 按功率加权。
+#
+# **两档在同一对帧上给不同的答案** —— `near_flat` 那一对就是证据（'phase' 报一个
+# 纯属虚构的位移，None 报 (0,0)）。一组两档同解的金样证不了这个开关存在。
+#
+# 另外录一格 `b = −roll(a)`：CCmax 是**负实数** ⇒ phase = ±π。
+# 这一格是 phase 唯一的判别性输入 —— 对得上的帧 phase 恒为 0，两种写法（取不取那次
+# 共轭）都给 0，分不出来。
+
+XCORR_RAW: dict[str, Any] = {"cases": []}
+
+
+def _raw_case(label: str, a, b, uf: int, norm, note: str) -> None:
+    sh, err, pd = phase_cross_correlation(a, b, upsample_factor=uf, normalization=norm)
+    XCORR_RAW["cases"].append({
+        "label": label, "upsample_factor": uf, "normalization": norm,
+        "reference": _plain(a), "moving": _plain(b),
+        "shift": _plain(sh), "error": _plain(float(err)),
+        "error_sq": _plain(float(err) ** 2), "phase": _plain(float(pd)),
+        "_note": note,
+    })
+
+
+_rb = _sbase                                            # 复用第 10 节那张 32×32
+_rm = np.roll(np.roll(_rb, 3, axis=0), 5, axis=1)
+for _uf in [1, 10]:
+    _raw_case(f"roll_none_uf{_uf}", _rb, _rm, _uf, None, "整像素 roll，不归一化")
+    _raw_case(f"neg_none_uf{_uf}", _rb, -_rm, _uf, None, "b = −roll(a) ⇒ CCmax 为负实数 ⇒ phase = ±π")
+# 同一对帧，两档给**不同**的位移 —— 这一格就是「归一化可关」这个开关的判据
+for _uf in [1, 10]:
+    _raw_case(f"near_flat_none_uf{_uf}", _flat_a, _flat_b, _uf, None,
+              "几乎平坦的一对帧：'phase' 报 (5,5)，None 报 (0,0)")
+# 窗 + 扣直流 + 不归一化：旧仓 `_prepare_for_registration` → `drift_xcorr` 的整条路
+_win = np.outer(np.hanning(32), np.hanning(32))
+_wa = (_rb - _rb.mean()) * _win
+_wm = (_rm - _rm.mean()) * _win
+_raw_case("windowed_none_uf10", _wa, _wm, 10, None, "汉宁窗 + 扣直流 + normalization=None")
+# 只有一行：那条轴上的位移没有意义，skimage 置 0。
+# **uf=1 那一格分不出来**（一行的 argmax 恒在第 0 行，本来就是 0）；
+# 要 uf=10 才照得出：不置 0 的话上采样那一步会在退化轴上给出 −dftshift/uf = −0.7。
+_row_a = _rb[:1, :]
+_row_b = np.roll(_row_a, 4, axis=1)
+_raw_case("single_row_uf1", _row_a, _row_b, 1, None, "1×32：uf=1 时两种写法同解")
+_raw_case("single_row_uf10", _row_a, _row_b, 10, None,
+          "1×32 @ uf=10：置 0 ⇒ 0，不置 ⇒ −0.7。**只有这一格分得开**")
 
 
 def main() -> int:
@@ -564,6 +814,10 @@ def main() -> int:
         "morphology": MORPHOLOGY,
         "interp": INTERP,
         "subpixel": SUBPIXEL,
+        "peaks": PEAKS,
+        "correlate2d": CORRELATE2D,
+        "hanning": HANNING,
+        "xcorr_raw": XCORR_RAW,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True,

@@ -19,18 +19,24 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   type BoundaryMode,
+  type FindPeaksOptions,
   type InterpMode,
   type Mat,
+  HANNING_REL_TOL,
+  PEAK_WIDTH_REL_TOL,
   SSIM_ABS_TOL,
   Xoshiro128,
   boundaryIndex,
   convRelTol,
+  correlate2d,
+  correlate2dRelTol,
   crossSE,
   curveFit,
   decodeNpy,
   fft,
   fft2,
   fftRelTol,
+  findPeaks,
   fitPlane,
   fitPoly2d,
   gaussianFilter1d,
@@ -39,6 +45,8 @@ import {
   greyDilation,
   greyErosion,
   greyOpening,
+  hanning,
+  hanningWindow2d,
   histogram,
   ifft,
   interpRelTol,
@@ -49,8 +57,10 @@ import {
   mapCoordinates,
   matAt,
   matFromRows,
+  matZeros,
   mean,
   median,
+  pcovRelTol,
   percentile,
   phaseCrossCorrelation,
   ptp,
@@ -61,6 +71,8 @@ import {
   std,
   sum,
   sumRelTol,
+  xcorrErrorSqAbsTol,
+  xcorrPhaseAbsTol,
 } from './index.js'
 
 const golden = JSON.parse(
@@ -111,6 +123,17 @@ function expectCloseArray(got: ArrayLike<number>, want: readonly unknown[], tol:
   }
   expect(worst, `${what}: 最坏在第 ${at} 个（容差 ${tol.toExponential(2)}，按尺度 ${scale.toExponential(2)} 归一）`)
     .toBeLessThanOrEqual(tol)
+}
+
+/**
+ * 两个角之间的最短距离（弧度）。
+ *
+ * **`+π` 与 `−π` 是同一个角**，而一个朴素的减法会在那里报出 `2π` 的差 ——
+ * 于是「相位对上了」这条判据会在它最该说话的那一格（`b = −a`）红得毫无道理。
+ */
+function angleDiff(got: number, want: number): number {
+  const d = got - want
+  return Math.abs(Math.atan2(Math.sin(d), Math.cos(d)))
 }
 
 // ── 统计 ───────────────────────────────────────────────────────────────────
@@ -755,5 +778,372 @@ describe('亚像素相位互相关：**答案是 k/uf，所以容差是 0**', ()
       // 相位互相关把每个频点都归一化成单位模长，于是**没有信号的地方噪声说了算**。
       expect(num((c.shift as unknown[])[0]), '虚构的位移不是 0').not.toBe(0)
     }
+  })
+})
+
+// ── find_peaks ─────────────────────────────────────────────────────────────
+
+describe('find_peaks：**下标与 prominence 的容差都是 0**', () => {
+  const cases = golden['peaks'].cases as any[]
+  const caseOf = (label: string): any => {
+    const c = cases.find((x) => x.label === label)
+    expect(c, `金样里得有 ${label} 这一格`).toBeDefined()
+    return c
+  }
+
+  for (const c of cases) {
+    const args = c.args as FindPeaksOptions
+    it(`${c.label} ${JSON.stringify(args)}`, () => {
+      const x = (c.input as unknown[]).map(num)
+      const got = findPeaks(x, args)
+      // 峰是**下标**（整数）—— 一个「差不多的下标」不是精度问题，是另一个峰
+      expect([...got.peaks], `${c.label} peaks`).toEqual(c.peaks)
+
+      if (c.prominences === null) {
+        expect(got.prominences, '没要 prominence ⇒ null，不是空表').toBeNull()
+      } else {
+        // `x[peak] − max(left_min, right_min)`：两个操作数都是输入里的元素原样，
+        // 中间只有一次减法 ⇒ **逐位**
+        expect([...(got.prominences as Float64Array)], `${c.label} prominences`)
+          .toEqual((c.prominences as unknown[]).map(num))
+        expect([...(got.leftBases as Int32Array)], `${c.label} left_bases`).toEqual(c.left_bases)
+        expect([...(got.rightBases as Int32Array)], `${c.label} right_bases`).toEqual(c.right_bases)
+      }
+
+      if (c.widths === null) {
+        expect(got.widths, '没要 width ⇒ null').toBeNull()
+      } else {
+        // **保证**那一条：至多 5 次舍入 ⇒ 8·eps
+        expectCloseArray(got.widths as Float64Array, c.widths as unknown[], PEAK_WIDTH_REL_TOL, `${c.label} widths`)
+        expectCloseArray(got.widthHeights as Float64Array, c.width_heights as unknown[], PEAK_WIDTH_REL_TOL, `${c.label} width_heights`)
+        expectCloseArray(got.leftIps as Float64Array, c.left_ips as unknown[], PEAK_WIDTH_REL_TOL, `${c.label} left_ips`)
+        expectCloseArray(got.rightIps as Float64Array, c.right_ips as unknown[], PEAK_WIDTH_REL_TOL, `${c.label} right_ips`)
+      }
+    })
+  }
+
+  it('**宽度那一族实测也是逐位相等** —— 零容差的孪生，它替有容差的那档报警', () => {
+    // 保证是 8·eps，而运算顺序照抄 scipy ⇒ 实测 0。同 `interpolate.ts` 那一对：
+    // 有容差的那一档报不出来的事，零容差的那一档会替它喊。
+    for (const c of cases) {
+      if (c.widths === null) continue
+      const got = findPeaks((c.input as unknown[]).map(num), c.args as FindPeaksOptions)
+      expect([...(got.widths as Float64Array)], `${c.label} widths 逐位`)
+        .toEqual((c.widths as unknown[]).map(num))
+      expect([...(got.leftIps as Float64Array)], `${c.label} left_ips 逐位`)
+        .toEqual((c.left_ips as unknown[]).map(num))
+      expect([...(got.rightIps as Float64Array)], `${c.label} right_ips 逐位`)
+        .toEqual((c.right_ips as unknown[]).map(num))
+    }
+  })
+
+  it('**`distance` 在 `prominence` 之前筛** —— 反过来是另一个答案，而两个都合法', () => {
+    const both = caseOf('order_probe_both')
+    const promOnly = caseOf('order_probe_prom_only')
+    // 同一条信号：scipy 的顺序给 [8]，prominence 先筛给 [1, 8]。
+    // **这一格是唯一分得开两种顺序的输入** —— 别处两种顺序同解。
+    expect(both.peaks, 'scipy 的顺序').toEqual([8])
+    expect(promOnly.peaks, '只筛 prominence').toEqual([1, 8])
+    expect(both.peaks).not.toEqual(promOnly.peaks)
+    const x = (both.input as unknown[]).map(num)
+    expect([...findPeaks(x, both.args as FindPeaksOptions).peaks]).toEqual(both.peaks)
+  })
+
+  it('**`distance` 真的在筛** —— 同一张直方图，不筛它就多一个卫星峰', () => {
+    const withD = caseOf('hist_modes')
+    const noD = caseOf('hist_modes_no_distance')
+    expect(noD.peaks.length, '不筛 distance 多一个').toBe(withD.peaks.length + 1)
+    for (const c of [withD, noD]) {
+      expect([...findPeaks((c.input as unknown[]).map(num), c.args as FindPeaksOptions).peaks])
+        .toEqual(c.peaks)
+    }
+  })
+
+  it('**prominence 取两侧最小值的 `max` 不是 `min`** —— 肩上的小凸起不该和主峰一样突出', () => {
+    const c = caseOf('prominence_side')
+    const x = (c.input as unknown[]).map(num)
+    const got = findPeaks(x, { prominence: 0 })
+    // 下标 3：左侧走到 0.5 停、右侧走到 0.2 停。max ⇒ 0.9−0.5 = 0.4；min ⇒ 0.7。
+    const at = [...got.peaks].indexOf(3)
+    expect(at, '下标 3 得是一个峰').toBeGreaterThanOrEqual(0)
+    expect((got.prominences as Float64Array)[at]).toBeCloseTo(0.4, 12)
+    expect((got.prominences as Float64Array)[at]).not.toBeCloseTo(0.7, 6)
+  })
+
+  it('**平台取中点向下取整，末尾的极大值不算峰** —— 旧仓两端补零就是为了后半句', () => {
+    const p = caseOf('plateau')
+    expect(p.peaks, '平台 [2,4]⇒3、[7,8]⇒7；末尾的 5 不是峰').toEqual([3, 7])
+    expect([...findPeaks((p.input as unknown[]).map(num)).peaks]).toEqual([3, 7])
+    const e = caseOf('plateau_even')
+    // 四格宽的平台 [1,4] ⇒ (1+4)>>1 = 2。向上取整会给 3 —— **只有偶数宽的平台分得开**
+    expect(e.peaks).toEqual([2])
+    expect([...findPeaks((e.input as unknown[]).map(num)).peaks]).toEqual([2])
+  })
+
+  it('`distance < 1` 抛 —— 一个「最小间隔 0」的条件不是不筛，是没意义', () => {
+    expect(() => findPeaks([0, 1, 0], { distance: 0 })).toThrow(/distance/)
+    expect(() => findPeaks([0, 1, 0], { distance: -3 })).toThrow(/distance/)
+  })
+
+  it('没要的属性是 `null` 不是空表 —— 「没算」和「算出来是空的」不是一回事', () => {
+    const r = findPeaks([0, 1, 0])
+    expect(r.prominences).toBeNull()
+    expect(r.widths).toBeNull()
+    const s = findPeaks([0, 1, 0], { prominence: 0 })
+    expect(s.prominences).not.toBeNull()
+    expect(s.widths).toBeNull()
+    // 一条没有峰的信号：peaks 是**空表**，而属性仍然是算过的（空的）
+    const t = findPeaks([0, 0, 0], { prominence: 0 })
+    expect([...t.peaks]).toEqual([])
+    expect(t.prominences).not.toBeNull()
+  })
+})
+
+// ── correlate2d / hanning ──────────────────────────────────────────────────
+
+describe('correlate2d(mode=same)：**整数那几格没有容差**', () => {
+  const rowsOf = (v: unknown[][]): Mat => matFromRows(v.map((r) => r.map(num)))
+  for (const c of golden['correlate2d'].cases as any[]) {
+    it(`${c.label}${c.exact ? '（逐位）' : '（容差 convRelTol(taps)）'}`, () => {
+      const a = rowsOf(c.a as unknown[][])
+      const b = rowsOf(c.b as unknown[][])
+      const got = correlate2d(a, b)
+      expect([got.rows, got.cols], '输出形状 = **a** 的形状').toEqual([a.rows, a.cols])
+      const want = (c.out as unknown[][]).flat()
+      if (c.exact === true) {
+        // 小整数：乘积与部分和都在 2⁵³ 以内 ⇒ 浮点加法在整数上是精确的
+        expect([...got.data], `${c.label} 逐位`).toEqual(want.map(num))
+      } else {
+        expectCloseArray(got.data, want, correlate2dRelTol(b), c.label as string)
+      }
+    })
+  }
+
+  it('**偶数核的原点是 `(Mb−1)>>1`，而本仓形态学的是 `Mb>>1`** —— 差一格', () => {
+    // 一张只有一个 1 的图 × 一个只有 b[0][0] 不为零的 4×4 核。
+    // out[i][j] = a[i − oy][j − ox] ⇒ 那个 1 落在 (3+oy, 3+ox)。
+    const a = matZeros(7, 7)
+    a.data[3 * 7 + 3] = 1
+    const b = matZeros(4, 4)
+    b.data[0] = 1
+    const out = correlate2d(a, b)
+    const at = [...out.data].indexOf(1)
+    expect([Math.floor(at / 7), at % 7], 'oy = (4−1)>>1 = 1').toEqual([4, 4])
+    // `Mb>>1 = 2`（`grey_erosion` 的约定，见上面那条形态学测试）会给 (5, 5)。
+    // 两个都是 scipy、两个都叫「中心」—— 而奇数核上它们完全同解。
+    expect(out.data[5 * 7 + 5], '不是 (5,5)').toBe(0)
+  })
+
+  it('**它是相关不是卷积** —— 非对称核上两者给不同的图', () => {
+    const a = matFromRows([[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+    const b = matFromRows([[1, 2, 3]])            // 1×3，原点 ox = 1
+    // 相关：out[i][j] = Σ_l a[i][j+l−1]·b[0][l] ⇒ 中间那一行是 [3, 2, 1]。
+    // 卷积（翻核）会给 [1, 2, 3]。
+    expect([...correlate2d(a, b).data.slice(3, 6)], '核不翻 ⇒ 反着落').toEqual([3, 2, 1])
+  })
+
+  it('空核抛 —— 一个没有抽头的核不是「不做相关」', () => {
+    expect(() => correlate2d(matZeros(3, 3), matZeros(0, 3))).toThrow(/空的/)
+  })
+})
+
+describe('hanning：容差 `2·eps`，而**故意不断言逐位**', () => {
+  const g = golden['hanning']
+  for (const [m, want] of Object.entries(g.windows as Record<string, unknown[]>)) {
+    it(`M=${m}`, () => {
+      expectCloseArray(hanning(Number(m)), want, HANNING_REL_TOL, `hanning(${m})`)
+    })
+  }
+
+  it('**`hanning(1)` 是 `[1]` 不是 `[0]`** —— `M−1 = 0`，那个式子除零', () => {
+    expect([...hanning(1)]).toEqual([1])
+    // 写成除零会给 NaN，而 NaN 会穿过每一条 `>` `<` 检查（同 D-SI-1）
+    expect(Number.isNaN(hanning(1)[0] as number)).toBe(false)
+    // 而 M=2 确实是一个把信号乘没的窗 —— 那也是对的
+    expect([...hanning(2)]).toEqual([0, 0])
+    expect([...hanning(0)]).toEqual([])
+  })
+
+  it('2-D 窗就是两条一维的外积', () => {
+    const w = g.window2d as any
+    const got = hanningWindow2d(w.rows as number, w.cols as number)
+    expectCloseArray(got.data, (w.out as unknown[][]).flat(), 2 * HANNING_REL_TOL, 'window2d')
+  })
+
+  it('窗长必须是整数 —— 「2.5 点的窗」没有定义', () => {
+    expect(() => hanning(5.5)).toThrow(/整数/)
+  })
+})
+
+// ── 非归一化互相关 + error / phase ─────────────────────────────────────────
+
+describe('互相关的 `error` 与 `phase`：**两个判据，两条不同的容差**', () => {
+  const rowsOf = (v: unknown[][]): Mat => matFromRows(v.map((r) => r.map(num)))
+  const rawOf = (label: string): any => {
+    const c = (golden['xcorr_raw'].cases as any[]).find((x) => x.label === label)
+    expect(c, `金样里得有 ${label} 这一格`).toBeDefined()
+    return c
+  }
+
+  for (const c of golden['xcorr_raw'].cases as any[]) {
+    const uf = c.upsample_factor as number
+    it(`${c.label}（uf=${uf}, normalization=${String(c.normalization)}）`, () => {
+      const ref = rowsOf(c.reference as unknown[][])
+      const mov = rowsOf(c.moving as unknown[][])
+      const n = ref.rows * ref.cols
+      const r = phaseCrossCorrelation(ref, mov, uf, c.normalization as 'phase' | null)
+      // 位移仍然是 k/uf ⇒ 逐位
+      expect(r.shift.map((v) => v + 0)).toEqual((c.shift as unknown[]).map((v) => num(v) + 0))
+      // phase：绝对容差，**按角度比**（+π 与 −π 是同一个角）
+      expect(angleDiff(r.phase, num(c.phase)), `${c.label} phase`)
+        .toBeLessThanOrEqual(xcorrPhaseAbsTol(n))
+      // error：判据写在**平方**上 —— `1 − |CC|²/amp` 是一次相消，`√` 再把它放大
+      expect(Math.abs(r.error ** 2 - num(c.error_sq)), `${c.label} error²`)
+        .toBeLessThanOrEqual(xcorrErrorSqAbsTol(n))
+    })
+  }
+
+  it('**两档归一化给不同的位移** —— 这个开关不是装饰', () => {
+    // 同一对几乎平坦的帧：'phase' 报一个纯属虚构的 (5, 5)，null 报 (0, 0)。
+    // **只有这种帧分得开** —— 别的输入上两档同解，于是一组只有普通帧的金样
+    // 会让「归一化可关」这件事没有任何测试在看（同 D-NUM-13 那一次）。
+    const raw = rawOf('near_flat_none_uf1')
+    const phase = (golden['subpixel'].cases as any[]).find(
+      (x) => x.kind === 'near_flat' && x.upsample_factor === 1,
+    )
+    expect(phase, '金样里得有归一化那一格').toBeDefined()
+    expect((raw.shift as unknown[]).map(num), 'null ⇒ (0, 0)').toEqual([0, 0])
+    expect((phase.shift as unknown[]).map(num), "'phase' ⇒ 虚构的位移").not.toEqual([0, 0])
+
+    const ref = rowsOf(raw.reference as unknown[][])
+    const mov = rowsOf(raw.moving as unknown[][])
+    expect(phaseCrossCorrelation(ref, mov, 1, null).shift.map((v) => v + 0)).toEqual([0, 0])
+    expect(phaseCrossCorrelation(ref, mov, 1).shift.map((v) => v + 0)).not.toEqual([0, 0])
+  })
+
+  it('**`b = −a` ⇒ phase = ±π** —— 这是 phase 唯一的判别性输入', () => {
+    // 对得上的帧 phase 恒为 0，于是「最后那次共轭取没取」在别处完全看不出来。
+    const c = rawOf('neg_none_uf10')
+    expect(Math.abs(num(c.phase)), '金样自己得是 ±π').toBeCloseTo(Math.PI, 12)
+    const r = phaseCrossCorrelation(
+      rowsOf(c.reference as unknown[][]), rowsOf(c.moving as unknown[][]), 10, null,
+    )
+    expect(angleDiff(r.phase, num(c.phase))).toBeLessThanOrEqual(xcorrPhaseAbsTol(32 * 32))
+    // 而同一对图不取反时 phase 是 0 —— 两格一起才说明问题
+    expect(Math.abs(num(rawOf('roll_none_uf10').phase))).toBeLessThan(1e-10)
+  })
+
+  it('**只有一行时那条轴上的位移置 0** —— 而只有 uf > 1 分得开', () => {
+    const c = rawOf('single_row_uf10')
+    const ref = rowsOf(c.reference as unknown[][])
+    const mov = rowsOf(c.moving as unknown[][])
+    expect(phaseCrossCorrelation(ref, mov, 10, null).shift.map((v) => v + 0))
+      .toEqual((c.shift as unknown[]).map((v) => num(v) + 0))
+    // 不置 0 的话上采样那一步会在退化轴上给 −dftshift/uf = −0.7 —— 一个完全合法的数
+    expect(num((c.shift as unknown[])[0])).toBe(0)
+  })
+
+  it('`error` 的绝对精度只到 `√(32·fftRelTol)` —— 阈值不能设在 1e−6 以下', () => {
+    // 对得上的一对帧：`1 − |CC|²/amp` 是两个几乎相等的数相减，√ 再把剩下的放大。
+    // 金样里那个数是 2.1e−8，而我们能保证的只有 ~8e−7 —— **也就是说它和 0 没区别**。
+    const floor = Math.sqrt(xcorrErrorSqAbsTol(32 * 32))
+    expect(num(rawOf('roll_none_uf1').error), '一次精确的 roll，error 在噪声底以下')
+      .toBeLessThan(floor)
+    // 而一对**真的对不上**的帧，error 是 O(1)，那时它才是一个可读的数
+    expect(num(rawOf('windowed_none_uf10').error), '加窗之后两张图不再是彼此的重排')
+      .toBeGreaterThan(0.1)
+  })
+
+  it('`normalization` 只有两档，传别的**抛** —— 不是悄悄退回缺省', () => {
+    const a = matZeros(8, 8)
+    expect(() => phaseCrossCorrelation(a, a, 1, 'magnitude' as unknown as null))
+      .toThrow(/normalization/)
+  })
+})
+
+describe('归一化那一档也回 error / phase（金样补录）', () => {
+  const rowsOf = (v: unknown[][]): Mat => matFromRows(v.map((r) => r.map(num)))
+  for (const c of golden['xcorr'].cases as any[]) {
+    it(`roll(${(c.applied_roll as number[]).join(', ')}) 的 error / phase`, () => {
+      const ref = rowsOf(c.reference as unknown[][])
+      const mov = rowsOf(c.moving as unknown[][])
+      const n = ref.rows * ref.cols
+      const r = phaseCrossCorrelation(ref, mov)
+      expect(angleDiff(r.phase, num(c.phase)), 'phase').toBeLessThanOrEqual(xcorrPhaseAbsTol(n))
+      expect(Math.abs(r.error ** 2 - num(c.error_sq)), 'error²')
+        .toBeLessThanOrEqual(xcorrErrorSqAbsTol(n))
+    })
+  }
+
+  for (const c of golden['subpixel'].cases as any[]) {
+    const uf = c.upsample_factor as number
+    it(`亚像素 ${c.kind} @ uf=${uf} 的 error / phase`, () => {
+      const ref = rowsOf(c.reference as unknown[][])
+      const mov = rowsOf(c.moving as unknown[][])
+      const n = ref.rows * ref.cols
+      const r = phaseCrossCorrelation(ref, mov, uf)
+      expect(angleDiff(r.phase, num(c.phase)), 'phase').toBeLessThanOrEqual(xcorrPhaseAbsTol(n))
+      expect(Math.abs(r.error ** 2 - num(c.error_sq)), 'error²')
+        .toBeLessThanOrEqual(xcorrErrorSqAbsTol(n))
+    })
+  }
+})
+
+// ── curve_fit 的 pcov ──────────────────────────────────────────────────────
+
+describe('curve_fit 的 `pcov`：容差由**参数离 scipy 多远**推出来', () => {
+  const g = golden['curve_fit']
+  const gauss = (x: number, p: Float64Array): number =>
+    (p[0] as number) * Math.exp(-0.5 * ((x - (p[1] as number)) / (p[2] as number)) ** 2) + (p[3] as number)
+  const fit = (): ReturnType<typeof curveFit> =>
+    curveFit(gauss, (g.x as unknown[]).map(num), (g.y as unknown[]).map(num), g.p0 as number[])
+  const tol = pcovRelTol(num(g.rel_step))
+
+  it(`perr 落在 pcovRelTol(rel_step) = ${pcovRelTol(0.01).toExponential(2)} 那个量级里`, () => {
+    expectCloseArray(fit().perr, g.perr as unknown[], tol, 'perr')
+  })
+
+  it('整张 `pcov` 也落在同一条容差里', () => {
+    expectCloseArray(fit().pcov, (g.pcov as unknown[][]).flat(), tol, 'pcov')
+  })
+
+  it('**分母是 `n−p` 不是 `n`** —— 判据是「离对的近、离错的远」，不依赖任何容差', () => {
+    // 这是这一件最容易犯的错，而它给出的是一组完全合理的误差棒：只差 2.6%。
+    // 所以除了那条推出来的容差，再钉一条**结构性**的（同 RANSAC 那条）。
+    const got = fit().perr
+    const right = (g.perr as unknown[]).map(num)
+    const wrong = (g.perr_if_dof_were_n as unknown[]).map(num)
+    const dRight = Math.hypot(...[...got].map((v, i) => v - (right[i] as number)))
+    const dWrong = Math.hypot(...[...got].map((v, i) => v - (wrong[i] as number)))
+    expect(dRight, '离「用 n−p」的答案近').toBeLessThan(dWrong)
+    // 而那条容差确实比两者的差距紧 —— 否则上面那条断言只是运气
+    const scale = Math.max(...right.map((v) => Math.abs(v)))
+    const gap = Math.hypot(...right.map((v, i) => v - (wrong[i] as number))) / scale
+    expect(tol, `容差 ${tol.toExponential(2)} 得比 n/(n−p) 那个错 ${gap.toExponential(2)} 紧`)
+      .toBeLessThan(gap)
+  })
+
+  it('`perr[i]` 就是 `sqrt(pcov[i][i])`，而 `pcov` **逐位对称**', () => {
+    const r = fit()
+    const np = r.params.length
+    for (let i = 0; i < np; i += 1) {
+      expect(r.perr[i]).toBe(Math.sqrt(r.pcov[i * np + i] as number))
+      for (let j = 0; j < np; j += 1) {
+        // 对称性是**构造**出来的（`Σₖ Linv[k][i]·Linv[k][j]`），所以这里容差是 0。
+        // 逐列解方程那种写法给不出这一条，而一个不对称的协方差会让
+        // 「参数 i 与 j 的相关系数」随取的是哪一半而变。
+        expect(r.pcov[i * np + j], `pcov[${i}][${j}]`).toBe(r.pcov[j * np + i])
+      }
+    }
+  })
+
+  it('**自由度不够 ⇒ 全 `Infinity`**，不是 0 —— 一个 0 会被读成「钉死了」', () => {
+    const line = (x: number, p: Float64Array): number => (p[0] as number) + (p[1] as number) * x
+    const r = curveFit(line, [0, 1], [0, 1], [0.1, 0.9])   // n = p = 2 ⇒ dof = 0
+    expect([...r.pcov].every((v) => v === Infinity)).toBe(true)
+    expect([...r.perr].every((v) => v === Infinity)).toBe(true)
+    // 而多一个点就有了自由度，误差棒变成有限的数
+    const ok = curveFit(line, [0, 1, 2], [0, 1, 2.1], [0.1, 0.9])
+    expect([...ok.perr].every(Number.isFinite)).toBe(true)
   })
 })
