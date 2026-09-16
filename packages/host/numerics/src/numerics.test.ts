@@ -18,9 +18,14 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
+  type BoundaryMode,
+  type InterpMode,
+  type Mat,
   SSIM_ABS_TOL,
   Xoshiro128,
+  boundaryIndex,
   convRelTol,
+  crossSE,
   curveFit,
   decodeNpy,
   fft,
@@ -30,12 +35,19 @@ import {
   fitPoly2d,
   gaussianFilter1d,
   gaussianFilter2d,
+  greyClosing,
+  greyDilation,
+  greyErosion,
+  greyOpening,
   histogram,
   ifft,
+  interpRelTol,
   labelConnected,
   laplace2d,
   lstsqObservedTol,
   lstsqRelTol,
+  mapCoordinates,
+  matAt,
   matFromRows,
   mean,
   median,
@@ -43,6 +55,8 @@ import {
   phaseCrossCorrelation,
   ptp,
   ransacPlane,
+  rectSE,
+  shiftImage,
   ssim,
   std,
   sum,
@@ -513,5 +527,233 @@ describe('curve_fit：落进 scipy 的不确定域，而不是逐位相同', () 
 
   it('点数少于参数就抛 —— 不给一个「拟合出来的」欠定解', () => {
     expect(() => curveFit(gauss, [1, 2], [1, 2], [1, 1, 1, 1])).toThrow(/拟合不了/)
+  })
+})
+
+// ── 灰度形态学 ─────────────────────────────────────────────────────────────
+
+describe('灰度形态学：**没有算术，所以没有容差**', () => {
+  const g = golden['morphology']
+  const img = matFromRows((g.input as unknown[][]).map((r) => r.map(num)))
+  const seOf = (c: any) =>
+    c.kind === 'rect' ? rectSE((c.size as number[])[0] as number, (c.size as number[])[1] as number) : crossSE((c.footprint as unknown[][]).length)
+
+  for (const c of g.cases as any[]) {
+    const tag = `${c.kind}${c.size ? ' ' + (c.size as number[]).join('×') : ''} ${c.mode}`
+    it(`${tag}：腐蚀 / 膨胀 / 开 / 闭逐位相等`, () => {
+      const se = seOf(c)
+      const m = c.mode as BoundaryMode
+      expect([...greyErosion(img, se, m).data], `${tag} 腐蚀`).toEqual((c.erosion as unknown[][]).flat().map(num))
+      expect([...greyDilation(img, se, m).data], `${tag} 膨胀`).toEqual((c.dilation as unknown[][]).flat().map(num))
+      expect([...greyOpening(img, se, m).data], `${tag} 开`).toEqual((c.opening as unknown[][]).flat().map(num))
+      expect([...greyClosing(img, se, m).data], `${tag} 闭`).toEqual((c.closing as unknown[][]).flat().map(num))
+    })
+  }
+
+  it('`crossSE` 造出来的掩膜与金样里 scipy 收到的 footprint 一模一样', () => {
+    for (const c of g.cases as any[]) {
+      if (c.kind !== 'cross3' && c.kind !== 'cross5') continue
+      const fp = c.footprint as number[][]
+      expect([...(crossSE(fp.length).mask as Uint8Array)], c.kind).toEqual(fp.flat())
+    }
+  })
+
+  it('**腐蚀的窗口偏左上、膨胀的偏右下** —— 偶数结构元才看得出来', () => {
+    // 一条 1×6、中间挖了一个坑。结构元 1×4，原点 ox = 4>>1 = 2。
+    // 腐蚀窗口 [c−2, c+1]（前 2 后 1）⇒ 坑在 c=2 时波及 c ∈ [1, 4]。
+    const dip = matFromRows([[1, 1, 0, 1, 1, 1]])
+    expect([...greyErosion(dip, rectSE(1, 4), 'nearest').data]).toEqual([1, 0, 0, 0, 0, 1])
+    // 膨胀先把结构元翻过来，原点变 4−1−2 = 1，窗口 [c−1, c+2]（前 1 后 2）
+    // ⇒ 峰在 c=2 时波及 c ∈ [0, 3]。**不翻的话这里会是 [0, 1, 1, 1, 1, 0]。**
+    const peak = matFromRows([[0, 0, 1, 0, 0, 0]])
+    expect([...greyDilation(peak, rectSE(1, 4), 'nearest').data]).toEqual([1, 1, 1, 1, 0, 0])
+  })
+
+  it('开运算削掉比结构元窄的亮条，宽的留下 —— `Destripe_MorphOpen` 要的就是这个', () => {
+    // 宽 1 的亮条（c=1）与宽 4 的亮台（c=5..8），结构元 1×3
+    const bar = matFromRows([[0, 5, 0, 0, 0, 5, 5, 5, 5, 0]])
+    const opened = [...greyOpening(bar, rectSE(1, 3), 'nearest').data]
+    expect(opened[1], '宽 1 的条被削掉').toBe(0)
+    expect(opened.slice(6, 8), '宽 4 的台留下').toEqual([5, 5])
+  })
+
+  it('结构元的形状自己先讲道理', () => {
+    expect(() => rectSE(0, 3)).toThrow(/正整数/)
+    expect(() => rectSE(3, 1.5)).toThrow(/正整数/)
+    expect(() => crossSE(4)).toThrow(/正奇数/)
+  })
+})
+
+// ── 重采样 ─────────────────────────────────────────────────────────────────
+
+describe('重采样：`order=0` 没有容差，`order=1` 只有 8 eps', () => {
+  const g = golden['interp']
+  const img = matFromRows((g.input as unknown[][]).map((r) => r.map(num)))
+  const [rowC, colC] = (g.coords as unknown[][]).map((a) => a.map(num))
+
+  for (const c of g.map_coordinates as any[]) {
+    const order = c.order as number
+    if (order !== 0 && order !== 1) continue
+    it(`map_coordinates order=${order} mode=${c.mode}`, () => {
+      const got = mapCoordinates(img, rowC as number[], colC as number[], order, c.mode as InterpMode)
+      expectCloseArray(got, c.output as unknown[], interpRelTol(order), `mc order=${order} ${c.mode}`)
+    })
+  }
+
+  for (const c of g.shift as any[]) {
+    const order = c.order as number
+    if (order !== 0 && order !== 1) continue
+    const [sr, sc] = c.shift as [number, number]
+    it(`shift order=${order} s=(${sr}, ${sc})`, () => {
+      const got = shiftImage(img, sr, sc, order, c.mode as InterpMode)
+      expectCloseArray(got.data, (c.output as unknown[][]).flat(), interpRelTol(order), `shift ${order} ${sr},${sc}`)
+    })
+  }
+
+  it('**而且逐位相等** —— 这一条比上面那些容差严，它是用来报警的', () => {
+    // 保证是 8 eps，实测是 0。留着这条零容差的孪生档，是因为写这一版时
+    // `order=1 / reflect` 超差 1.09 倍，而真因是折叠算错了、不是界推紧了 ——
+    // 当场揪出来的正是同族里零容差的 `order=0 / mirror`。
+    for (const c of g.map_coordinates as any[]) {
+      if (c.order !== 1) continue
+      const got = mapCoordinates(img, rowC as number[], colC as number[], 1, c.mode as InterpMode)
+      expect([...got], `mc order=1 ${c.mode}`).toEqual((c.output as unknown[]).map(num))
+    }
+    for (const c of g.shift as any[]) {
+      if (c.order !== 1) continue
+      const [sr, sc] = c.shift as [number, number]
+      const got = shiftImage(img, sr, sc, 1, c.mode as InterpMode)
+      expect([...got.data], `shift order=1 (${sr}, ${sc})`).toEqual((c.output as unknown[][]).flat().map(num))
+    }
+  })
+
+  it('`order ≥ 2` **抛**，并且说清为什么不近似', () => {
+    for (const bad of [2, 3, 5]) {
+      expect(() => mapCoordinates(img, [0], [0], bad as 0 | 1)).toThrow(/样条预滤波/)
+      expect(() => shiftImage(img, 1, 1, bad as 0 | 1)).toThrow(/样条预滤波/)
+    }
+  })
+
+  it('行列坐标个数对不上就抛 —— 少一个不是「补一个」', () => {
+    expect(() => mapCoordinates(img, [0, 1], [0], 1)).toThrow(/对不上/)
+  })
+
+  // ── 三条特意为了「能分辨」而加的探针 ──
+
+  for (const c of g.edge_probe.cases as any[]) {
+    const order = c.order as number
+    if (order !== 0 && order !== 1) continue
+    it(`界外判据 order=${order} mode=${c.mode}`, () => {
+      const [pr, pc] = (g.edge_probe.coords as unknown[][]).map((a) => a.map(num))
+      const got = mapCoordinates(img, pr as number[], pc as number[], order, c.mode as InterpMode, c.cval as number)
+      expectCloseArray(got, c.output as unknown[], interpRelTol(order), `edge ${order} ${c.mode}`)
+    })
+  }
+
+  it('**`constant` 的界外是严格的**：`x = 11` 给真值，`x = 11.001` 给 cval', () => {
+    const [pr, pc] = (g.edge_probe.coords as unknown[][]).map((a) => a.map(num))
+    const at = (x: number): number => (pr as number[]).indexOf(x)
+    const got = mapCoordinates(img, pr as number[], pc as number[], 1, 'constant', -99)
+    // rows = 12 ⇒ n−1 = 11。整点在界内，再多 0.001 就整个点作废 —— 中间没有过渡带。
+    expect(got[at(11)], 'x = 11').not.toBe(-99)
+    expect(got[at(11.001)], 'x = 11.001').toBe(-99)
+    expect(got[at(-0.001)], 'x = −0.001').toBe(-99)
+    expect(got[at(0)], 'x = 0').not.toBe(-99)
+  })
+
+  it('**`order=0` 是四舍五入，不是就近偶数** —— 这两条只有半整数分得开', () => {
+    const [pr, pc] = (g.round_probe.coords as unknown[][]).map((a) => a.map(num))
+    const got = mapCoordinates(img, pr as number[], pc as number[], 0, 'nearest')
+    expect([...got]).toEqual((g.round_probe.output_order0 as unknown[]).map(num))
+    // 0.5 → 1 而不是 0，2.5 → 3 而不是 2。就近偶数会给第 0 行与第 2 行。
+    const col = (pc as number[])[0] as number
+    expect(got[0], '0.5 → 第 1 行').toBe(matAt(img, 1, col))
+    expect(got[2], '2.5 → 第 3 行').toBe(matAt(img, 3, col))
+  })
+
+  it('**`wrap` 在插值族里周期是 n−1，在滤波族里是 n** —— 同名不同义', () => {
+    const row = matFromRows([[0, 1, 2, 3]])
+    // 插值族：3.5 越过 n−1=3 ⇒ 折成 0.5 ⇒ 在 a[0]=0 与 a[1]=1 之间 ⇒ 0.5
+    expect(mapCoordinates(row, [0], [3.5], 1, 'wrap')[0]).toBe(0.5)
+    // 滤波族的 wrap 是周期 4：下标 4 折回 0。两者在这里就是 0.5 对 1.5。
+    expect(boundaryIndex(4, 4, 'wrap')).toBe(0)
+  })
+})
+
+// ── 亚像素相位互相关 ───────────────────────────────────────────────────────
+
+describe('亚像素相位互相关：**答案是 k/uf，所以容差是 0**', () => {
+  const cases = golden['subpixel'].cases as any[]
+  const matOfCase = (rows: unknown[][]): Mat => matFromRows(rows.map((r) => r.map(num)))
+
+  for (const c of cases) {
+    const uf = c.upsample_factor as number
+    const what = c.kind === 'integer_roll'
+      ? `整像素 roll(${(c.applied_roll as number[]).join(', ')})`
+      : c.kind === 'near_flat'
+        ? '几乎平坦的一对帧'
+        : `真亚像素 shift(${(c.applied_shift as number[]).join(', ')})`
+    it(`${what} @ uf=${uf} ⇒ (${(c.shift as number[]).join(', ')})`, () => {
+      const { shift } = phaseCrossCorrelation(matOfCase(c.reference), matOfCase(c.moving), uf)
+      // 逐位相等：两边做的是同样两次「整数 ÷ uf」再相加，IEEE 除法是正确舍入的。
+      // 会分岔的只有 argmax 挑了哪一格，而那种分岔一跳就是整整 1/uf。
+      expect(shift.map((v) => v + 0)).toEqual((c.shift as unknown[]).map((v) => num(v) + 0))
+    })
+  }
+
+  it('**输出恒为 1/uf 的整数倍** —— 调用方判「漂没漂」必须自己设阈值', () => {
+    for (const c of cases) {
+      const uf = c.upsample_factor as number
+      const { shift } = phaseCrossCorrelation(matOfCase(c.reference), matOfCase(c.moving), uf)
+      for (const v of shift) {
+        // v 本来就是 k/uf，于是「量化再算一遍」是个恒等式 —— 不用挑容差就能断言。
+        expect(Math.round(v * uf) / uf, `uf=${uf} 的 ${v}`).toBe(v)
+      }
+    }
+  })
+
+  it('`uf = 1` 与不传等价 —— 默认档没有被亚像素那条路改掉', () => {
+    const c = cases[0]
+    const ref = matOfCase(c.reference)
+    const mov = matOfCase(c.moving)
+    expect(phaseCrossCorrelation(ref, mov, 1).shift).toEqual(phaseCrossCorrelation(ref, mov).shift)
+  })
+
+  it('`upsampleFactor` 必须是 ≥ 1 的整数 —— 2.5 倍上采样没有意义', () => {
+    const c = cases[0]
+    const ref = matOfCase(c.reference)
+    const mov = matOfCase(c.moving)
+    expect(() => phaseCrossCorrelation(ref, mov, 0)).toThrow(/upsampleFactor/)
+    expect(() => phaseCrossCorrelation(ref, mov, 2.5)).toThrow(/upsampleFactor/)
+  })
+
+  it('**一张常数图会报出一个纯属虚构的位移** —— 这条测试是把那个坑钉在这里', () => {
+    // 常数图的互功率谱除直流外**恒为 0**，于是相关面是平的：每一格一样大。
+    // argmax 在一个全平的面上只会挑第 0 格，而第 0 格 = −dftshift/uf。
+    // 这不是我们的 bug，是这个算法本身的形状（skimage 同样如此）——
+    // 所以调用方**必须**先看峰有多尖，不能拿返回值直接当漂移。
+    const flat = matFromRows(Array.from({ length: 16 }, () => Array.from({ length: 16 }, () => 1)))
+    // 整像素档没有这个问题：第 0 格就是 (0, 0)，「没漂」。
+    expect(phaseCrossCorrelation(flat, flat).shift.map((v) => v + 0)).toEqual([0, 0])
+    for (const uf of [2, 4, 10]) {
+      const fiction = -Math.trunc(Math.ceil(uf * 1.5) / 2) / uf // = −dftshift/uf
+      expect(phaseCrossCorrelation(flat, flat, uf).shift, `uf=${uf}`).toEqual([fiction, fiction])
+    }
+  })
+
+  it('**几乎平坦的一对帧，skimage 给的也是一个虚构的位移** —— 归一化的分母由它定', () => {
+    // `near_flat` 那两格金样就是为这件事录的：谱里除直流外全是 1e−22 量级的噪声，
+    // 而 `100·eps ≈ 2.2e−14`。分母写 `|·|` 还是 `max(|·|, 100·eps)`，
+    // **只有这种帧分得开**，其余每一格金样两种写法都过。
+    //
+    // 答案由 skimage 定，不由我们推理定 —— 我们推理过一版（「压住噪声会更准」），
+    // 而探针当场证明对一次精确 roll 反而是不压的更准：dust 也带着同样的相位。
+    const flat = (golden['subpixel'].cases as any[]).filter((c) => c.kind === 'near_flat')
+    expect(flat.length, '金样里得有这一格').toBeGreaterThan(0)
+    for (const c of flat) {
+      // 两张本该「没漂」的帧，skimage 报的是 (5, 5)。这不是 bug，是这个算法的形状：
+      // 相位互相关把每个频点都归一化成单位模长，于是**没有信号的地方噪声说了算**。
+      expect(num((c.shift as unknown[])[0]), '虚构的位移不是 0').not.toBe(0)
+    }
   })
 })
