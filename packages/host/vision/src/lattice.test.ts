@@ -39,7 +39,13 @@ import {
   type TileLatticeMap,
 } from './frame-texture.js'
 import { BAND_PEAK_REL_TOL, detectTexture, flattenAbsTol, flattenRobust } from './seg-texture.js'
-import { DETREND_ULP_TOL, detrend32, fftSharpness, fftSharpnessRelTol } from './tip-metrics.js'
+import {
+  DETREND_ULP_TOL,
+  HAS_LATTICE_SHARP,
+  detrend32,
+  fftSharpness,
+  fftSharpnessRelTol,
+} from './tip-metrics.js'
 import {
   angularConcentration,
   assessAtomicPhase,
@@ -403,6 +409,17 @@ describe('原子相判据环', () => {
   })
 
   it('detrend32 + fftSharpness —— float32 那一步照抄，FFT 留在 float64', () => {
+    // 抬头那段容差推导引了一个数：「离闸门最近的一格（noise，3.559），余量 2.2 倍」。
+    // **把它钉住** —— 2026-09-17 那个数原本写的是 3.63，而金样里根本没有这个值
+    //（最小的两格是 3.559 与 3.732）。余量那句话是对的，错的只是那个数 ——
+    // **一个只写在注释里、没人查的数迟早是错的，而它偏偏印在推导的正中间。**
+    {
+      const sharps = (GOLDEN['tip_metrics'] as any[]).map((c) => c.sharpness as number)
+      const nearest = Math.min(...sharps)
+      expect(nearest).toBeCloseTo(3.559, 3)
+      expect(HAS_LATTICE_SHARP / nearest).toBeGreaterThan(2.2)
+      expect(HAS_LATTICE_SHARP / nearest).toBeLessThan(2.3)
+    }
     for (const c of GOLDEN['tip_metrics'] as any[]) {
       const { fwd } = frameOf(c.file as string)
       const det = detrend32(fwd)
