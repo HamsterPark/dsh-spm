@@ -9,7 +9,7 @@
  * | `poly2dSubtract` 的输出 | `np.linalg.lstsq` + 求值 | {@link lstsqRelTol}(κ) | 本仓走正规方程（κ 平方），numpy 走 SVD。κ 随金样录（`condition_numbers.poly2d_*`） |
  * | `destripe` 的输出 | 逐行搬运 + 一次线性插值 | **0** | 输出要么是输入里某一行**原样**，要么是 `(1−w)·a + w·b` —— 两次乘一次加，两边同一个顺序。给它容差等于把「搬错了一行」藏起来 |
  * | `destripe` 的 `stripes_removed` | `int(np.sum(opened))` | **0** | 它是个计数 |
- * | `destripe` 的**判据**（哪几行是条纹） | `np.median` / `np.std` | **0**（离散） | 三档 normalized 离阈值最近处有 13% 余量，浮点差在 1e-15 —— 不是抽签 |
+ * | `destripe` 的**判据**（哪几行是条纹） | `np.median` / `np.std` | **0**（离散） | 三档 normalized（硬 3.843 / 软 2.114 / 干净 0.0，阈 3.0 与 1.5）离各自阈值最近处有 **28%** 余量，浮点差在 1e-15 —— 不是抽签。**判语本身由金样钉着**（哪几行算条纹），余量塌了它会先红 |
  * | `gaussianFilter2d` 的输出 | `scipy.ndimage.gaussian_filter` | {@link convRelTol}(k) ×2 | 可分离，两轴各一次一维相关；本仓照抄了 scipy 的轴序与累加顺序 |
  * | `noise_estimate` | `np.std` | {@link sumRelTol}(n) | 一次两遍法 `std`（D-NUM-1） |
  */
