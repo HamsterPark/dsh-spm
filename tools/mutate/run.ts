@@ -5,8 +5,23 @@
  *     node tools/mutate/run.ts k2-abort-latch schema-effective-bounds
  *     node tools/mutate/run.ts --json       # 机器读的结果（meta 测试用）
  *
- * 每一条都走完整的三判据，任何一条不满足就判 `inconclusive`——
+ * 每一条都走完整的**四**判据，任何一条不满足就判 `inconclusive`——
  * **「没变红」和「压根没验」必须是两个不同的结论**，不然这套东西只会给人虚假的安心。
+ *
+ * ## 第四条判据：**红的是这条变异吗**（2026-09-19 补）
+ *
+ * 前三条问的都是「这一趟有没有跑起来」，**没有一条问「这一红是谁造成的」**。
+ *
+ * 批 5b / 5c 两条支线都报「全部实跑到 red」，而合并后的全量演练里**八条是绿的**。
+ * 查实（不是猜）：两条支线的树上各有 **2 条 / 3 条与变异无关的常红**
+ * （5b 那两条已复现：演练跑在 `gen:progress` 之前，`progress.test.ts` 恰好红 2 条），
+ * 而这里的判据是 `failed > 0` —— 于是**每一条变异都继承了那个底噪**，一律「红」。
+ *
+ * 指纹很清楚：把那 12 条重跑，偏移是**常数**（5b 一律 −2、5c 一律 −3），
+ * 而 2 和 3 正是两份交接给那八条绿的数字。
+ *
+ * ⇒ **先量基线，基线不为 0 就整趟拒跑。** 一个在脏树上跑的演练，
+ * 报出的失败可能全部来自基线，而表面形状与变异导致的失败相同。
  *
  * 还原用 `writeFileSync` 而不是 `mv`：`mv` 会把旧 mtime 一起搬回来，`tsc -b` 于是
  * 认为 `lib/` 还是新的、跳过重建 —— **源码干净而构建产物还是变异版**。
@@ -90,13 +105,9 @@ export function runOne(m: Mutation): MutationResult {
     // 而**不**写成 `--project unit` 是因为第一版就是那么写的，它当场把
     // `gated-call-abort-verbs` 变成绿的 —— 那道闸的测试住在 `contract/` 里。
     // 白名单会在下一个 project 加进来的时候再漏一次；排除法不会。
-    const t = run([...PNPM, 'run', '--project', '!integration', m.scope, '--reporter=dot'], {
-      allowFail: true,
-    })
-    const line = /^\s+Tests\s+(?:(\d+) failed \| )?(\d+) passed/m.exec(t.out)
-    if (line === null) return fail('测试没跑起来（输出里找不到 Tests 汇总行）')
-    const failed = Number(line[1] ?? 0)
-    const passed = Number(line[2] ?? 0)
+    const r = suite(m.scope)
+    if (r === null) return fail('测试没跑起来（输出里找不到 Tests 汇总行）')
+    const { failed, passed } = r
     if (failed + passed === 0) return fail('测试跑了 0 条')
 
     return {
@@ -113,6 +124,47 @@ export function runOne(m: Mutation): MutationResult {
   }
 }
 
+/** 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。 */
+function suite(scope: string): { failed: number; passed: number } | null {
+  const t = run([...PNPM, 'run', '--project', '!integration', scope, '--reporter=dot'], {
+    allowFail: true,
+  })
+  const line = /^\s+Tests\s+(?:(\d+) failed \| )?(\d+) passed/m.exec(t.out)
+  if (line === null) return null
+  return { failed: Number(line[1] ?? 0), passed: Number(line[2] ?? 0) }
+}
+
+/**
+ * **判据④：先量基线。**
+ *
+ * 在**没有任何变异**的树上把这一趟要用到的每个 scope 各跑一遍。只要有一条红，
+ * 整趟拒跑 —— 因为此后每一条变异都会继承它，而 `failed > 0` 分不出那是谁的红。
+ *
+ * 这一条是 2026-09-19 用八条假红换来的：两条支线各带着 2 条 / 3 条常红跑完全部演练，
+ * 报回来「全部变红」，而其中八道闸**从来没有任何测试在看**。
+ */
+function baselineClean(scopes: readonly string[]): boolean {
+  let ok = true
+  for (const sc of scopes) {
+    const r = suite(sc)
+    if (r === null) {
+      console.error(`✗ 基线：scope \`${sc}\` 的测试没跑起来（找不到 Tests 汇总行）`)
+      ok = false
+      continue
+    }
+    if (r.failed > 0) {
+      console.error(
+        `✗ 基线不干净：scope \`${sc}\` 在**没有变异**的树上就有 ${r.failed} 条红。\n` +
+          `  演练拒跑 —— 此后每一条变异都会继承这 ${r.failed} 条，而判据是 \`failed > 0\`，\n` +
+          `  于是每一条都会报「红」，包括那些其实没人看的闸（2026-09-19 就是这么丢了八道）。\n` +
+          `  先把树弄干净：常见成因是**生成物没重跑**（build → gen:skills → gen:progress 的顺序）。`,
+      )
+      ok = false
+    }
+  }
+  return ok
+}
+
 function main(): number {
   const args = process.argv.slice(2)
   const json = args.includes('--json')
@@ -122,6 +174,11 @@ function main(): number {
     console.error(`没有匹配的变异。可用：\n  ${MUTATIONS.map((m) => m.id).join('\n  ')}`)
     return 2
   }
+
+  // 判据④：先量基线。基线非零时无法把失败归因于当前变异。
+  const scopes = [...new Set(todo.map((m) => m.scope))].sort()
+  if (!json) process.stderr.write(`… 基线（${scopes.length} 个 scope）\n`)
+  if (!baselineClean(scopes)) return 2
 
   const results: MutationResult[] = []
   for (const m of todo) {
