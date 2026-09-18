@@ -45,6 +45,12 @@ export * from './scan-regions.js'
 export * from './image-channel.js'
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面 export ──
+
+// ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）在这一行下面 export ──
+
+// ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面 export ──
+
+// ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面 export ──
 export * from './scan-resolver.js'
 export * from './tip-crash-tracker.js'
 export * from './corrugation-gate.js'

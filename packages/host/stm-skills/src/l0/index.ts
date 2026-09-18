@@ -66,6 +66,12 @@ import { PAPER_CROP } from './paper-crop.js'
 import { SCAN_FRAME_OFFLINE } from './scan-frame-offline.js'
 
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面加 import ──
+
+// ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）在这一行下面加 import ──
+
+// ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面加 import ──
+
+// ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面加 import ──
 // 组合技能也从这个锚点走 —— 底部那几行是没有锚点的公共区
 import { ScanAt } from '../composite/scan-at.js'
 import { FullScan } from '../composite/full-scan.js'
@@ -144,6 +150,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...SCAN_FRAME_OFFLINE,
 
   // ── 批 4d 在这一行下面展开 ──
+
+  // ── 批 5a 在这一行下面展开 ──
+
+  // ── 批 5b 在这一行下面展开 ──
+
+  // ── 批 5c 在这一行下面展开 ──
   ScanAt,
   FullScan,
   ...ANALYSIS_CLUSTERS,
@@ -226,6 +238,12 @@ export * from './paper-crop.js'
 export * from './scan-frame-offline.js'
 
 // ── 批 4d 在这一行下面 re-export ──
+
+// ── 批 5a 在这一行下面 re-export ──
+
+// ── 批 5b 在这一行下面 re-export ──
+
+// ── 批 5c 在这一行下面 re-export ──
 export * from '../composite/scan-at.js'
 export * from '../composite/full-scan.js'
 export * from './analysis-common.js'

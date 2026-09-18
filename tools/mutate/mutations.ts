@@ -2794,6 +2794,12 @@ function physicallyAbsurdViolations_unused(`,
   },
 
   // ── 批 4d（composite.scan_at + 撞针追踪）的演练写在这一行下面 ──
+
+  // ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）的演练写在这一行下面 ──
+
+  // ── 批 5b（A 档零散一批（各自自足，不压子系统））的演练写在这一行下面 ──
+
+  // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的演练写在这一行下面 ──
   // ── `resolveScan`：意图 → 参数的那台纯判定机 ──────────────────────
   {
     id: 'scan-size-zero-is-refused-not-clamped',

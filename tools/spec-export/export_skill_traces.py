@@ -372,6 +372,15 @@ BATCH_4D: list[str] = [
     # 那两台判定机各有自己的驱动器（`export_scan_resolver.py` / `export_tip_crash.py`）。
     "ScanAt", "FullScan",
 ]   # composite.scan_at + 撞针追踪
+
+#: ↑ 上一条 ／ ↓ 5A —— 这一行谁都不要动
+BATCH_5A: list[str] = []   # 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
+
+#: ↑ 上一条 ／ ↓ 5B —— 这一行谁都不要动
+BATCH_5B: list[str] = []   # A 档零散一批（各自自足，不压子系统）
+
+#: ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
+BATCH_5C: list[str] = []   # 仪器档案 + Z 稳定 + 粗动驱动三个子系统
 #
 # ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
 # `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。
@@ -1173,7 +1182,13 @@ def main() -> int:
                  # ↑ ／ ↓ 4C
                  + BATCH_4C
                  # ↑ ／ ↓ 4D
-                 + BATCH_4D):
+                 + BATCH_4D
+                 # ↑ ／ ↓ 5A
+                 + BATCH_5A
+                 # ↑ ／ ↓ 5B
+                 + BATCH_5B
+                 # ↑ ／ ↓ 5C
+                 + BATCH_5C):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
