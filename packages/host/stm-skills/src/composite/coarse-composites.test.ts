@@ -22,6 +22,7 @@ import { processQPlusBaseline } from '../l0/qplus.js'
 import { RelocateCoarseXY } from './relocate-coarse-xy.js'
 import { RetractForSampleChange } from './retract-for-sample-change.js'
 import { NUDGE_MAX_STEPS, StepCoarseXY } from './step-coarse-xy.js'
+import { settleAndReadZ } from './z-settle.js'
 
 /** 一台填过的机器：符号声明过、梯子短、粗动驱动也声明过。 */
 const PROFILE: Record<string, unknown> = {
@@ -347,6 +348,29 @@ describe('RelocateCoarseXY · 清障与横移', () => {
     expect(res.data?.['steps']).toBe(10)
   })
 
+  it('退针后电流还在隧穿量级 ⇒ **脱离确认失败**，一步横向粗动都不发', async () => {
+    install(PROFILE, DRIVE)
+    processVacuum.config = { mode: 'off' }
+    // 前 15 次读是清障那一路（基线 5 + 两级各 5）；第 16 次正是**脱离确认**那一读。
+    // 50 pA：高过噪声底的十倍线（10 pA），而远低于梯子自己的电流跳闸（1 nA）——
+    // 于是跳闸的只可能是脱离确认这一条。
+    const currents: Reply[] = []
+    for (let i = 0; i < 15; i += 1) currents.push([5e-12])
+    currents.push([5e-11])
+    const rig = new Rig({ byVerb: { Current_Get: currents } })
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(false)
+    expect(res.error).toContain('脱离确认失败')
+    expect(res.error).toContain('退针后电流仍有')
+    expect(res.error).toContain('不要横向移动')
+    // **判据是台子有没有动**：清障那几步走的是 z−（方向码 5），横移是 x+（方向码 0）。
+    // 判成「已脱离」的话，下一步就是带着一个活的隧道结横向滑台子。
+    const moves = rig.calls.filter((c) => c.method === 'Motor_StartMove')
+    expect(moves.length).toBeGreaterThan(0)
+    expect(moves.every((c) => c.args[0] === 5)).toBe(true)
+    expect(res.data?.['lateral_steps_taken']).toBe(0)
+  })
+
   it('`dry_run` 一条移动命令都不发，而 `lateral_steps_taken` 是 0', async () => {
     install(PROFILE, DRIVE)
     processVacuum.config = { mode: 'off' }
@@ -359,6 +383,9 @@ describe('RelocateCoarseXY · 清障与横移', () => {
     expect(res.data?.['lateral_steps_taken']).toBe(0)
     expect(res.data?.['steps']).toBe(20)
     expect(rig.runs.map((r) => r.skill)).not.toContain('ApproachTip')
+    // 「急停有没有真的发出去」是**两条路都要说**的事。成功这一条路上它是一张
+    // **空表**，不是一个缺席的键 —— 缺席的键与「都发出去了」在读的人那里长得一样。
+    expect(res.data?.['panic_failures']).toEqual([])
   })
 
   it('急停**没能下发**时，一次「各项判据都过了」的移动照样判失败', async () => {
@@ -397,6 +424,45 @@ describe('RelocateCoarseXY · 清障与横移', () => {
     expect(res.success).toBe(true)
     const prog = res.data?.['_progress'] as Record<string, unknown>
     expect(JSON.stringify(prog)).toContain('verify')
+  })
+})
+
+// ── settleAndReadZ ──────────────────────────────────────────────────────────
+
+/**
+ * **窗口下限 3**（`z-settle.ts` 抬头第 2 行）。
+ *
+ * 为什么两条组合的测试看不见它：生产路径上的窗口是 5（`RELOCATE_SETTLE_WINDOW_N`）
+ * 或档案缺省 5，**没有任何一格传过 1 或 2** —— 于是 `Math.max(3, …)` 那个下限
+ * 从来没有做过一次决定（2026-09-19 变异演练查出来的）。
+ *
+ * 下限本身是一条判据而不是防御：窗口为 1 时净漂移 `|w[last] − w[0]|`
+ * **由构造恒等于 0**，于是第一个读数就过收敛判定 —— 而那正是这整条 settle
+ * 要替换掉的那个缺陷（「睡一个固定时长然后读」的另一种写法）。
+ */
+describe('settleAndReadZ · 窗口下限是 3，调用方要 1 也不行', () => {
+  it('Z 一路在走 ⇒ **不收敛**（窗口为 1 的话它第一个读数就「稳了」）', async () => {
+    install(PROFILE, DRIVE)
+    // 每读一次走 1 nm：三个读数的净漂移 2 nm，远超收敛带（z_recede_min_nm 的一半 = 0.5 nm）。
+    const drifting: Reply[] = Array.from({ length: 400 }, (_v, i) => [1.0e-7 + i * 1e-9])
+    const rig = new Rig({ byVerb: { ZCtrl_ZPosGet: drifting } })
+    const out = await settleAndReadZ(rig.ctx(), { windowN: 1 })
+    expect(out.settled).toBe(false)
+    expect(out.state).toBe('moving')
+    // 判的是**这一段行程**，不是某一个读数：净漂移必须是一个真的位移。
+    expect(out.driftM as number).toBeGreaterThan(out.tolM)
+  })
+
+  it('Z 站住了也要**三个读数**才敢说「稳了」', async () => {
+    install(PROFILE, DRIVE)
+    const still: Reply[] = Array.from({ length: 400 }, () => [1.0e-7])
+    const rig = new Rig({ byVerb: { ZCtrl_ZPosGet: still } })
+    const out = await settleAndReadZ(rig.ctx(), { windowN: 1 })
+    expect(out.settled).toBe(true)
+    expect(out.state).toBe('tracking')
+    // 这个数**就是**判据：结论建立在几个读数上。一个读数的「净漂移 0」什么都没说。
+    expect(out.samples).toBe(3)
+    expect(out.driftM).toBe(0)
   })
 })
 

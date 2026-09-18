@@ -864,6 +864,14 @@ class Relocate {
         data,
       }
     }
+    // ⚠️ **下面这一支在当前计划下走不到**（2026-09-19 变异演练查出来的，见
+    // `docs/handoff/green-8.md`）：`#panicFailures` 只在 `#panic()` 里被 push，
+    // 而 `#panic()` 的每一个调用点紧接着就 `return { success: false }`；发得出
+    // panic 的两个相（`clear` / `move`）在 `#plan()` 里都是 `optional: false`，
+    // 于是非可选步骤一失败 `runPlan` 就返回 false —— `panicNote !== ''` 蕴含
+    // `allGood === false`，上一支已经把话说完了（它也带着 `panicNote`）。
+    // 留着它是因为「哪天有一个相变成 optional」这件事完全可能发生；但**在那之前
+    // 它没有任何输入能验**，别把它当成一道在挡的闸。真正在挡的是上面那个 `+ panicNote`。
     if (panicNote !== '') {
       // 走到这里说明：动作整体判成功，但中途某次急停没能下发。
       // 那不是「成功」—— 针尖是不是退开的，本技能答不上来。

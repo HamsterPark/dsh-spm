@@ -8,6 +8,8 @@
  *    这一批里有**五个**这样的口子，其中三个旧仓自己就是 `or` ——
  *    那三个照移，而**照移也要有测试**：不然下一个人会以为它是个 bug 顺手修掉。
  * 2. 金样那台脚本化驱动器排不出来的形状（缓冲里根本没有 Z 通道）。
+ * 3. **闸的另一侧**（2026-09-19 补）：金样 74 格都落在同一侧，于是那道闸从来
+ *    没做过一次决定 —— 变异演练查出来的三条，见中间那个 describe。
  *
  * ⚠️ 这里**不重复**金样已经钉住的东西。判决、文案、序列全在 `batch5b.test.ts`。
  */
@@ -254,6 +256,135 @@ describe('睡眠上限：它的产物是**中止检查的机会**，不是采到
     expect(sleeps).toBeGreaterThanOrEqual(4 * (n - 1))
     // 而**没有任何一觉超过上限** —— 那正是「上限」这两个字的内容。
     expect(Math.max(...naps)).toBeLessThanOrEqual(MONITOR_SLEEP_CAP_MS)
+  })
+})
+
+/**
+ * 2026-09-19 全量演练里这一批有**五条绿变异**，三条的根在这里：金样那 74 格
+ * 每一格都恰好落在闸的**同一侧**，于是闸挪一挪谁也不喊。
+ *
+ * 这一节补的是「两种候选各占一边」的那一格（批 4b §5 ② 那一课）。
+ */
+describe('闸的两侧：金样每一格都落在同一侧的那几条', () => {
+  it('单边 PSD：**DC 与 Nyquist 不折**，中间那些格才乘 2', async () => {
+    // 为什么金样看不见这一条：`monitor_fft/power` 那一格的谱里，两端比峰值低 17 个
+    // 数量级，而 `spectrum` 的容差**按整幅谱的最大值归一**（FFT 的误差本底就长这样，
+    // 见 batch5b.test.ts 抬头）—— 于是把 Nyquist 那一格乘 2，差额远在容差以下。
+    //
+    // 这一格换个问法：给一个**脉冲**（第一拍 1 A，之后全 0）。它的谱每一格模长都是 1，
+    // 于是 Nyquist 那一格与中间任何一格同量级 —— 折不折一眼看得出。
+    // `detrend: false` 是必需的：减掉均值会把 DC 那一格打成 0，而 0 折不折都一样。
+    const run = async (output: string): Promise<Record<string, unknown>> => {
+      let reads = 0
+      const h = harness((m) => {
+        const v = m === 'Current_Get' ? (reads === 0 ? 1.0 : 0.0) : 0.0
+        if (m === 'Current_Get') reads += 1
+        return body(m, [v])
+      }, () => ({ success: true }))
+      const got = await skill('MonitorCurrentFFT').execute(h.ctx, {
+        duration_s: 0.017, // ⇒ 16 个样本：偶数，于是最后一格**真的是** Nyquist
+        poll_hz: 1000,
+        window: 'rect', // Σw² = n，归一化因子写得出闭式
+        detrend: false,
+        output,
+      })
+      expect(got.success).toBe(true)
+      return got.data as Record<string, unknown>
+    }
+
+    const mag = await run('magnitude')
+    const pow = await run('power')
+    const n = mag['n_samples'] as number
+    const fs = mag['actual_fs_hz'] as number
+    const m = mag['spectrum'] as number[]
+    const psd = pow['spectrum'] as number[]
+    expect(n).toBe(16)
+    expect(n % 2).toBe(0)
+    expect(m).toHaveLength(9) // ⌊16/2⌋ + 1
+    // 这一格不许变成空判据：脉冲的每一格模长都该是 1 左右，两端尤其不是 0。
+    expect(m[0] as number).toBeGreaterThan(0.5)
+    expect(m[8] as number).toBeGreaterThan(0.5)
+
+    // 单边归一化：rect 窗的 Σw² = n，所以 scale 写得出闭式。
+    const scale = 1 / (fs * n)
+    for (let k = 0; k < psd.length; k += 1) {
+      const single = (m[k] as number) ** 2 * scale
+      const fold = k === 0 || k === psd.length - 1 ? 1 : 2
+      expect(psd[k], `bin ${k}`).toBe(single * fold)
+    }
+
+    // 折叠对不对，物理上就一句话：**单边谱积出来等于信号的均方**。
+    // 两端也乘 2 的话这个积分会多出 1/16。
+    const df = pow['df_hz'] as number
+    expect(psd.reduce((a, b) => a + b, 0) * df).toBeCloseTo(1 / n, 12)
+  })
+
+  it('ClassifyUnexplainedCurrent：偏压**按模长从大到小**量，调用方给的顺序不算数', async () => {
+    // 为什么金样看不见这一条：`classify/*` 七格的 `test_biases_v` 全是
+    // `'2,1,0.5,0'` / `'2,1,0'` —— **本来就是降序**，排不排序结果一模一样。
+    let lastBias = 1.0
+    const setBiases: number[] = []
+    const run = (name: string, p: Record<string, unknown>): SkillResultLike => {
+      if (name === 'GetCurrent') {
+        // 干净的线性结：I = 100 pA/V，0 V 下只剩 10 fA 的本底。
+        const i = Math.abs(lastBias) < 1e-9 ? 1e-14 : 1e-10 * Math.abs(lastBias)
+        return { success: true, data: { current_a: i } }
+      }
+      if (name === 'GetBias') return { success: true, data: { bias_v: 1.0 } }
+      if (name === 'GetZControllerState') return { success: true, data: { controller_on: true } }
+      if (name === 'ZControllerOnOff') {
+        const on = p['enable'] === true
+        return { success: true, data: { verified: true, z_controller_on: on } }
+      }
+      if (name === 'SetBias') {
+        lastBias = Number(p['bias_v'])
+        setBiases.push(lastBias)
+        return { success: true, data: {} }
+      }
+      return { success: true, data: {} }
+    }
+    const h = harness(() => body('x', []), run)
+    const got = await skill('ClassifyUnexplainedCurrent').execute(h.ctx, {
+      test_biases_v: '0.5,2.0,1.0', // 调用方给的是**乱序**
+    })
+    expect(got.success).toBe(true)
+    const data = got.data as Record<string, unknown>
+    // 判据是**针尖真的依次经历了哪几个偏压**：从大到小，最后停在 0 V 上。
+    const points = data['points'] as { bias_v: number }[]
+    expect(points.map((p) => p.bias_v)).toEqual([2.0, 1.0, 0.5, 0.0])
+    // 0 V 是自动补上的那一点，而它必须排在**最后** —— 那是这条排序存在的理由。
+    expect(data['zero_bias_added']).toBe(true)
+    // 收尾那一次是还原进来时的工作点（1.0 V），不是扫描序列的一部分。
+    expect(setBiases).toEqual([2.0, 1.0, 0.5, 0.0, 1.0])
+  })
+
+  it('BatchRegionsScan：一个区域记的是**第一条**出错原因，不是最后一条', async () => {
+    // 为什么金样看不见这一条：`batch/every_region_refused` 每个区域**只有一步失败**
+    //（`configure`），先写后写给出同一个答案。这一格让同一个区域**失败两次**。
+    const run = (name: string): SkillResultLike => {
+      if (name === 'ConfigureScan') {
+        return { success: false, error: 'center_y_m = 1.7e-06 violates global safety maximum' }
+      }
+      if (name === 'SaveScan') return { success: false, error: 'disk full' }
+      if (name === 'WaitScanComplete') {
+        return {
+          success: true,
+          data: { lines_done: 128, lines_total: 128, stopped_early: false, timed_out: false },
+        }
+      }
+      return { success: true, data: {} }
+    }
+    const h = harness(() => body('x', []), run)
+    const got = await skill('BatchRegionsScan').execute(h.ctx, {
+      regions:
+        '[{"center_x_m": 1e-07, "center_y_m": 0.0, "width_m": 5e-08, "height_m": 5e-08, "label": "A"}]',
+    })
+    const regions = (got.data as Record<string, unknown>)['regions'] as Record<string, unknown>[]
+    expect(regions).toHaveLength(1)
+    // 后面那条 `save: … disk full` 是**这一条的后果**，不是新证据。报文指向根因。
+    expect(String(regions[0]?.['error'])).toContain('configure: ')
+    expect(String(regions[0]?.['error'])).toContain('violates global safety maximum')
+    expect(String(regions[0]?.['error'])).not.toContain('disk full')
   })
 })
 

@@ -44,6 +44,12 @@
  *
  * ⚠️ **`spectrum` 不能进 `clock_keys`**：那条按 `max(1, |a|)` 归一的相对容差
  * 在 1e−22 量级的 PSD 上退化成「绝对 1e−6」，也就是什么都不判。
+ *
+ * ⚠️ **按整幅谱最大值归一的代价：这条容差对「小格」没有分辨力**（2026-09-19）。
+ * `monitor_fft/power` 的 Nyquist 那一格是 4.18e−39，比峰值低十几个数量级 ——
+ * 把它乘 2，差额远在容差以下。推导没错（FFT 的误差本底本来就与整幅谱挂钩），
+ * 但这意味着**单边归一化折不折两端，这一份验不了**。那道闸由
+ * `batch5b-edges.test.ts` 用一个脉冲输入单独钉（两端与中间同量级，容差 0）。
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -184,6 +190,13 @@ function scriptedCtx(c: Case): Recorded {
   return { ctx, calls, runs }
 }
 
+/**
+ * D-PSD-1：本仓比旧仓**多报**的那一格（`freq_range_indices` 解析不了时退回单量程，
+ * 而旧仓只写日志）。金样里没有它，所以期望值只能在这里逐格写明 ——
+ * 键在表里 = 这一格必须有且等于这个串；不在表里 = 这一格必须**不存在**。
+ */
+const PSD_IGNORED: Readonly<Record<string, string>> = { 'psd/bad_indices_json': '0,2,5' }
+
 /** 执行器的时刻台账不是判据（两侧的钟本来就不同量级）。 */
 const PROGRESS_VOLATILE = new Set(['started_at', 'last_update_at'])
 
@@ -273,11 +286,19 @@ describe('批 5b 判据金样：脚本化上下文逐格重放', () => {
         want = alignSpectrum(want, gotData, want['output'] === 'power')
       }
       // D-PSD-1：`freq_range_indices` 解析不了时本仓**多一个字段**说出来。
-      // 先钉住金样里确实没有它，再把它摘掉 —— 差异消失时这条会当场变红。
-      if ('freq_range_indices_ignored' in gotData) {
-        expect(want['freq_range_indices_ignored']).toBeUndefined()
-        expect(gotData['freq_range_indices_ignored']).toBe(c.params['freq_range_indices'])
+      //
+      // ⚠️ 这一条原来写成 `if ('freq_range_indices_ignored' in gotData) { … }` ——
+      // **条件与被测的东西是同一件事**：字段不报了，整块断言跟着一起消失，
+      // `toEqual` 那边也没话说（金样里本来就没有这一格）。于是变异
+      // `psd-ignored-list-is-reported` 一直是绿的（2026-09-19 查出来）。
+      // 现在期望值由**用例名**给，不由回包给：该有就必须有，不该有就必须没有。
+      const wantIgnored = PSD_IGNORED[name]
+      if (wantIgnored !== undefined) {
+        expect(want['freq_range_indices_ignored']).toBeUndefined() // 旧仓只写日志
+        expect(gotData['freq_range_indices_ignored']).toBe(wantIgnored)
         delete gotData['freq_range_indices_ignored']
+      } else {
+        expect('freq_range_indices_ignored' in gotData).toBe(false)
       }
       expect(gotData).toEqual(alignClock(want, gotData, keys))
     })
