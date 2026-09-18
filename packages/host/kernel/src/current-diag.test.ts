@@ -7,7 +7,9 @@
  *
  * 1. 拟合的**退化输入**（所有非零偏压模长相同 ⇒ 分母为 0）；
  * 2. `statistics.median` 的**偶数长度**（读三次里掉一次，剩两个）；
- * 3. `undefined`（`ctx.runSkill` 那一侧给的是 `null`，而这个函数收两种）。
+ * 3. `undefined`（`ctx.runSkill` 那一侧给的是 `null`，而这个函数收两种）；
+ * 4. **判别表某一条线两侧的那一格**——金样录到的六个结论离每条线都很远，
+ *    于是线挪一挪谁也不喊（末尾那个 describe，2026-09-19 补）。
  */
 import { describe, expect, it } from 'vitest'
 import {
@@ -111,6 +113,33 @@ describe('classifyCurrentOrigin：判别表里技能层排不出来的那四格'
     const got = classifyCurrentOrigin(1e-14, 0.1, 1e-10)
     expect(got.verdict).toBe('not_a_junction_current')
     expect(got.message).toContain('自相矛盾')
+  })
+})
+
+/**
+ * 场发射那条线**卡在 3，不是 2** —— 金样里没有一格落在 2 与 3 之间。
+ *
+ * `classify/junction_current` 录的是 n = 1.0，`classify/field_emission` 录的是 n = 9.7，
+ * 而 `classify/mixed` 那个 n = 2.0 的点 0 V 是**脏**的，于是它在指数这一档之前就被
+ * 「0 V 有本底」那一支接走了。三格都在，**这条线两侧的那一格一格都没有** ——
+ * 于是把线从 3 挪到 2 不改变任何一格的判决（2026-09-19 变异演练查出来的）。
+ *
+ * ⚠️ 这里**故意写字面量 2.5 / 3.0，不引用 `N_FIELD_EMISSION`**：引用常量的断言会
+ * 跟着常量一起动，那样这一格问的就不再是「线在哪」而是「代码等于它自己」。
+ */
+describe('classifyCurrentOrigin：场发射的线在 n = 3', () => {
+  it('0 V 干净、n = 2.5 ⇒ **结电流**。真实隧穿结在 1–2 V 上本来就有能带效应带来的超线性', () => {
+    const got = classifyCurrentOrigin(1e-14, 2.5, 3e-10)
+    expect(got.verdict).toBe('junction_current')
+    // 卡在 2 的那条线会把这一格判成场发射，而那条结论的下一步是「降偏压或进针」——
+    // 对一个好结来说，那是**把针尖推向表面**。
+    expect(got.message).toContain('这是真的结电流')
+  })
+
+  it('n = 3.0 恰好在线上 ⇒ **场发射**（端点是闭的）', () => {
+    const got = classifyCurrentOrigin(1e-14, 3.0, 3e-10)
+    expect(got.verdict).toBe('field_emission')
+    expect(got.message).toContain('降偏压或进针')
   })
 })
 

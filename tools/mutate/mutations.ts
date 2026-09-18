@@ -3647,10 +3647,24 @@ function physicallyAbsurdViolations_unused(`,
   },
   {
     id: 'relocate-panic-failure-is-still-a-success',
-    why: '急停没能下发却仍判成功 ⇒ 针尖是不是退开的本技能答不上来，而 `success=true` 会让人完全不去看。这是唯一一条「针尖可能正贴着表面而马达还在走」的路径',
+    // ⚠️ **2026-09-19 改打在另一行上**（同批 4b 的 `lattice-angles-are-python-modulo`）。
+    //
+    // 原来打的是 `if (panicNote !== '') {` —— 那一支**任何输入都走不到**，
+    // 于是它无论怎么拆，输出都一个字不变（演练判绿，而绿的意思是这道闸不存在）。
+    // 结构上的理由，三步：
+    //   ① `#panicFailures` 只在 `#panic()` 里被 push（两处）；
+    //   ② `#panic()` 的 10 个调用点**每一个**紧接着 `return { success: false, … }`；
+    //   ③ 发得出 panic 的两个相（`clear` / `move`）在 `#plan()` 里都是 `optional: false`，
+    //      而 `GraphExecutor` 对非可选步骤的失败一律 `#abort` ⇒ `runPlan` 返回 false。
+    // 也就是 `panicNote !== ''` ⇒ `allGood === false`，于是永远在上一支就返回了。
+    //
+    // 这道闸**真正做决定**的地方是上一支那个 `+ panicNote`：拆掉它，一次「横移中电流
+    // 跳闸」只会说「检测到电流……已撤针」，而**急停根本没发出去**这件事一个字都不提 ——
+    // 读的人会以为针尖已经退开了。那正是这一条要防的事。
+    why: '急停没能下发这件事必须顶到用户读的那句话里 ⇒ 不顶，报文读起来就是「已停止粗动并撤针」，而马达可能还在走。这是本技能唯一一条「针尖可能正贴着表面而马达还在走」的路径（`if (panicNote !== "")` 那一支是不可达的死代码，见 docs/handoff/green-8.md）',
     file: `${SK}/composite/relocate-coarse-xy.ts`,
-    find: "    if (panicNote !== '') {",
-    replace: "    if (false && panicNote !== '') {",
+    find: "        error: (p.abortedReason || 'RelocateCoarseXY aborted') + panicNote,",
+    replace: "        error: p.abortedReason || 'RelocateCoarseXY aborted',",
     scope: 'packages/host',
   },
   {

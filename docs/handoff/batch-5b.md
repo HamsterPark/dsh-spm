@@ -91,7 +91,17 @@
 
 ---
 
-## 3. 变异演练（**58 条，全部实跑到 red**）
+## 3. 变异演练（58 条 —— ⚠️ **「全部实跑到 red」不成立，见下**）
+
+> **2026-09-19 订正**（`docs/handoff/green-8.md`）：这一节下面那张表里的「变红」
+> **每一格都比真值多 2**，因为跑演练的那棵树上有 **2 条与变异无关的失败**
+> （`spec/progress.json` 没跟着新技能重新生成 ⇒ `progress.test.ts` 的
+> 「与代码同步」与「每个 done 的技能都真的在 IMPLEMENTED 里」两条常红）。
+> `run.ts` 的判据是 `failed > 0`，于是**每一条变异都继承了那 2 条**、一律判 red。
+> 表里那五个 **`变红 = 2`** 的（`current-field-emission-threshold-is-three` ·
+> `fft-onesided-skips-dc-and-nyquist` · `classify-biases-descend-by-magnitude` ·
+> `psd-ignored-list-is-reported` · `batch-first-error-wins`）**真值是 0**，
+> 也就是**绿的**。它们已在 green-8 那一支补上输入并实跑到 red。
 
 ```
 node tools/mutate/run.ts <id…>      # 一条一条

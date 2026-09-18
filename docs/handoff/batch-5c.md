@@ -186,7 +186,16 @@ export const processInstrumentProfile: { source: (() => unknown) | null; nowS: (
 
 ---
 
-## 4. 变异清单（23 条，全部实跑到 red）
+## 4. 变异清单（23 条 —— ⚠️ **「全部实跑到 red」不成立，见下**）
+
+> **2026-09-19 订正**（`docs/handoff/green-8.md`）：下面那张表里的「red」
+> **每一格都比真值多 3**，因为跑演练的那棵树上有 **3 条与变异无关的失败**
+> （其中 2 条已复现：`spec/progress.json` 没跟着新技能重新生成；第 3 条查不到）。
+> `run.ts` 的判据是 `failed > 0`，于是**每一条变异都继承了那 3 条**、一律判 red。
+> 表里那三个 **`red = 3`** 的（`zsettle-window-of-one` ·
+> `relocate-prove-clear-accepts-a-live-junction` ·
+> `relocate-panic-failure-is-still-a-success`）**真值是 0**，也就是**绿的**。
+> 前两条已补上输入并实跑到 red；第三条那一支**不可达**，变异改打在了真正做决定的那一行上。
 
 | id | 拆掉会重新犯哪次错 | red |
 |---|---|---|
