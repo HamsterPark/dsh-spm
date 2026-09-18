@@ -1,21 +1,39 @@
 /**
- * 修针类技能共享的两条**不需要针尖登记表**的规则。
+ * 修针类技能共享的接线：方案表参数填充 + 两条不需要登记表的规则。
  *
- * 旧仓 `_tip_policy.py` 里有四样东西，这里只搬得动两样：
+ * 旧仓 `_tip_policy.py` 里有四样东西：
  *
  * | 旧仓 | 这里 |
  * |---|---|
- * | `shaper_bias_default` | ✅ 只发一条 `Bias_Get`，自成一体 |
- * | `resolved_lift_height_m` | ✅ 纯参数逻辑 |
- * | `apply_tip_policy` / `policy_fields_for_result` | ❌ 要 `tip_conditioning_resolver`（针尖登记表，Phase 5.3） |
- * | `qplus_gate` | ❌ 要 `tip_state`；而且它**出厂就是关的**（2026-08-16 现场决定） |
+ * | `shaper_bias_default` | ✅ 只发一条 `Bias_Get`，自成一体（批 3j） |
+ * | `resolved_lift_height_m` | ✅ 纯参数逻辑（批 3j） |
+ * | `apply_tip_policy` / `policy_fields_for_result` | ✅ **批 5a 还上了** —— 针尖登记表底座进了内核 |
+ * | `qplus_gate` | ❌ **不移**，见下 |
  *
- * 没搬的那两样**是欠的账，不是删掉的东西** —— 见本批交接里那条登记：
- * `BiasPulseWithReadback.validate_params` 在旧仓靠 `apply_tip_policy` 做针尖安全
- * 包络（铂铱 8 V、qPlus 3 V…），**超上限拒绝、不夹紧**。登记表落地之前，
- * 本仓这一侧只有全局 ±10 V 的 SafetyGate 在挡。
+ * ## D-TIP-1 的欠账在这一批结清
+ *
+ * `BiasPulseWithReadback.validate_params` 在旧仓靠 `apply_tip_policy` 做针尖安全包络，
+ * **超上限拒绝、不夹紧**。批 3j 当时**没有写一个空的 `validateParams`** —— 写了会让人
+ * 以为这道闸在。现在它是实的：{@link applyTipPolicy} → `resolveConditioning` →
+ * 包络判据，装在内核 K6（**任何硬件调用之前**）。
+ *
+ * ## `qplus_gate` 为什么不移
+ *
+ * 它**出厂就是关的**：旧仓 `_guard_on()` 读 `MAST_QPLUS_POKE_GUARD`，默认 `"0"`，
+ * 第一行就 `return None`。这条检查对默认行为**零差别**，而移过来等于在本仓多一个
+ * 「看起来在挡、其实关着」的东西。
+ *
+ * **真正护音叉的那两样都在**：扎针深度包络 `max_poke_depth_m`（超了拒绝不夹紧，
+ * 就在这一批里）与「扎针前把偏压缓降到 20 mV」（`shaperBiasDefault` 那条「跟随成像偏压」
+ * 已经在批 3j 落了 —— qPlus 实验里成像偏压就是 20 mV 本身）。
  */
-import { pyFloatRepr, type SkillContext } from 'dsh-spm-kernel'
+import {
+  humanTrace,
+  pyFloatRepr,
+  resolveConditioning,
+  type ResolvedConditioning,
+  type SkillContext,
+} from 'dsh-spm-kernel'
 import { body } from './common.js'
 
 /** {@link shaperBiasDefault} 的结果。`v === null` 时 `why` 是**给人看的原因**。 */
@@ -93,4 +111,60 @@ export function resolvedLiftHeightM(params: Readonly<Record<string, unknown>>): 
   if (given !== null) return given
   const lift = numOrNull(params['tip_lift_m'])
   return lift === null ? 0.0 : -lift
+}
+
+/**
+ * 按当前针尖的方案表补齐 *params* 里没给的值，并检查安全包络。
+ *
+ * *policyFields* 是方案表里的字段名；*rename* 把它们映射到技能自己的参数名
+ * （例如方案表的 `shaper_bias_v` → TipShape 的 `bias_v`）。
+ *
+ * 返回 `{ params, plan }`。**`plan.ok` 为 `false` 时调用方必须不执行。**
+ *
+ * ## 与旧仓的一处结构差别：这里**不会**返回 `plan === null`
+ *
+ * 旧仓把 `import` 与调用各包一层 `try/except`，失败就 `return params, None`
+ * ——「方案表读不到绝不能让修针技能失败，技能自己的声明默认值仍在」。那是**动态 import
+ * 的属性**：旧仓那个模块可能因为任何一个传递依赖装不上而 import 失败。本仓这一条是
+ * **静态 import**，掉一个模块是 `tsc` 编译错误 —— 这个不变量在 TypeScript 里不存在，
+ * 而留着那条 `null` 分支等于留一条**永远走不到、却看起来是 fail-open 兜底**的路。
+ *
+ * ⚠️ 差别只在「解析层在不在」。**解析层在、但拒绝了**，仍然是拒绝 —— 那条路照移。
+ */
+export function applyTipPolicy(
+  params: Readonly<Record<string, unknown>>,
+  policyFields: readonly string[],
+  rename: Readonly<Record<string, string>> = {},
+): { params: Record<string, unknown>; plan: ResolvedConditioning } {
+  // 技能参数名 → 方案表字段名，把调用方显式给的值带进解析。
+  const explicit: Record<string, unknown> = {}
+  for (const field of policyFields) {
+    const skillKey = rename[field] ?? field
+    const v = params[skillKey]
+    if (v !== null && v !== undefined) explicit[field] = v
+  }
+
+  const plan = resolveConditioning(policyFields, explicit)
+
+  const out: Record<string, unknown> = { ...params }
+  for (const field of policyFields) {
+    if (field in plan.params) out[rename[field] ?? field] = plan.params[field]
+  }
+  return { params: out, plan }
+}
+
+/**
+ * 放进 `SkillResult.data` 的方案痕迹 —— **每个数字是谁给的，事后查得到**。
+ *
+ * 键与旧仓逐字相同（它们进金样）：`tip_policy` / `tip_policy_notes` /
+ * `tip_registered` / `tip_name`。后两个的**缺席也是信息**：`tip_name` 只在真的登记了
+ * 针尖时才有，`tip_policy_notes` 只在方案表确实说了什么时才有。
+ */
+export function policyFieldsForResult(plan: ResolvedConditioning | null): Record<string, unknown> {
+  if (plan === null) return {}
+  const out: Record<string, unknown> = { tip_policy: humanTrace(plan) }
+  if (plan.notes.length > 0) out['tip_policy_notes'] = plan.notes.join(' ')
+  out['tip_registered'] = plan.tip !== null
+  if (plan.tip !== null) out['tip_name'] = plan.tip.name
+  return out
 }

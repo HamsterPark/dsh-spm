@@ -2160,6 +2160,203 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 <!-- ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）的登记写在这一行下面 ── -->
 
+## D-TIP-1 **结清**（编号留空 · 批 5a）· 针尖安全包络已移植，`validateParams` 是实的
+
+D-TIP-1 原文写的是欠账：「**没有写一个空的 `validateParams`** —— 写了会让人以为这道闸在。」
+这一批把它写实了，**原文不改**（那是主线的编号区），在这里记结清：
+
+| | |
+|---|---|
+| **落点** | `kernel/src/tip-registry.ts` + `tip-conditioning-policy.ts` + `tip-conditioning-resolver.ts`；技能层 `l0/tip-policy.ts` 的 `applyTipPolicy` |
+| **闸装在哪** | `BiasPulseWithReadback` / `TipShapeWithReadback` / `TipPulse` 的 `validateParams`（内核 **K6**，任何硬件调用之前）；`TipShape` 在 `execute` 最前面（**照旧仓**，见下条） |
+| **金样** | `spec/golden/tip_policy.json`（**新的专用驱动器**）：12 支针尖 × 22 个请求 = 264 格，111 格被拒 |
+| **测试** | `kernel/src/tip-conditioning.test.ts`（287 条）· `l0/tail-l0-tip.test.ts`（31 条）· `integration/tip.test.ts`（5 条，对真 stmsim） |
+
+⚠️ **D-TIP-1 原文里那句「铂铱（8 V）、qPlus（3 V）会被拒绝」在今天的旧仓已经不成立。**
+2026-08-12 现场把两个上限**统一拉满**（逐字：「凭多年 STM 经验，这个安全包络定得过严、
+没有实际意义」），于是全部档位一律 `max_abs_pulse_v = 10.0`、`max_poke_depth_m = 1.0e-8`。
+我逐档核过：**现在还能分辨针尖的包络字段只剩 `max_pulse_count`（通用 5 / qPlus 2）**。
+`kernel/src/tip-conditioning.test.ts` 有一条测试把这三组值钉住 —— 哪天旧仓再收紧，它会变红。
+
+**这不代表这道闸是摆设**：① `TipPulse.count` 的声明上限是 **50**，包络是 5（qPlus 2）——
+K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**（`processTipRegistry.overrides`）；
+③ 它在任何硬件调用之前拒，而全局 ±10 V 的 SafetyGate 只按**参数名子串**判，
+**不知道台上装的是哪根针**。
+
+## （批 5a）· 针尖登记表：住进程、由外面注入、宿主不接时闸照常关
+
+| | |
+|---|---|
+| **Python** | `tip_state` 的模块级 holder + `threading.RLock`，真源是 SQLite 的 `tips` 表；覆写延迟 import `SettingsStore` |
+| **TS** | `processTipRegistry.{current, overrides}`（与 `processTipCrash` / `processVacuum` 同一族），**没有那张表** |
+| **测试** | `kernel/src/tip-conditioning.test.ts` → 「针尖 holder」一组 |
+
+三个问题的答案写在 `kernel/src/tip-registry.ts` 的抬头里，这里只记结论：
+
+1. **住进程级** —— 一根针、一块样品，「现在装的是一支 qPlus」必须跨调用活着；
+2. **由宿主注入**（`setCurrentTip` / `.overrides`），一个字段都不猜；
+3. **不接 ⇒ 未登记 / 空覆写 ⇒ 通用保守档生效，闸照常关**，不是 fail-open。
+
+⚠️ 旧仓 `tip_conditioning_resolver` 的 docstring 曾写着「未登记针尖时不拒绝任何东西
+（fail-open，与 sample_gate 同款）」——**那句是假的**（旧仓 2026-08-10 自己更正过）：
+未登记走通用档，而那一档有自己的包络。fail-open 的是**另一道门**（`qplus_gate`，
+而且出厂就是关的）。两道门两条哲学，那段注释把其中一道的性质安到了另一道头上。
+变异 `tip-unregistered-is-not-fail-open` 把那句假话变成真的，8 条测试当场变红。
+
+`threading.RLock` 不移植，理由同 D-PRESET-3 / D-CRASH-1（Node 单线程，这些方法之间没有 `await`）。
+
+## （批 5a）· 词表归一**挪到了 holder 入口**（旧仓在 `register_tip` 工具层）
+
+| | |
+|---|---|
+| **Python** | `normalize_material/fabrication/form` 由 `register_tip` 工具调用，存进库的已是词表值；holder 只转存 |
+| **TS** | `setCurrentTip()` **自己归一**；认不出的写法留**空**（不是留原文） |
+| **测试** | `tip-conditioning.test.ts` → 「入口归一」「认不出的写法留空」 |
+
+本仓没有 `register_tip` 那一层（也没有那张表），归一没有第二个落点。不归一的话，
+一行 `material: "钨"` 会在方案表里**静默落到通用档** —— 而「静默落到一个更宽的档」
+正是这道闸最不该有的失败模式（qPlus 那一档的发数上限是 2，通用档是 5）。
+变异 `tip-registry-normalizes-at-the-door` 钉着它。
+
+## （批 5a）· `TipShapeWithReadback.validateParams` 是**本仓新增**
+
+旧仓这个技能**没有** `validate_params`，而它的孪生兄弟 `TipShape` 在 `execute` 最前面就过一遍
+针尖包络。两个技能下发的是**同一串** `TipShaper_PropsSet(11 参)` + `TipShaper_Start`，
+也就是对针尖做同一件事，却一个有闸一个没有。这种不对称正是「同一条判据的两份实现，
+改了一处另一处还是旧的」那一类（本仓在粗动那次付过账）。判据与 `TipShape` 那一侧逐字同源。
+
+**金样照不出这一条**：导出器直调 `execute`。它由 `tail-l0-tip.test.ts` 的三条与变异
+`readback-tip-envelope-is-wired` 看着。
+
+## （批 5a）· `TipShape` 的包络在 `execute` 而不是 `validateParams`（**照旧仓**）
+
+`TipPulse` / 两个读回技能的包络都在 K6；`TipShape` 这一个在 `execute` 最前面。
+不是漏了：它的两个策略字段（`shaper_bias_v` / `shaper_lift_v`）要先经过「方案表填不填」
+这一步才知道最终值是多少，而 `validateParams` 拿不到那一步的结果。
+代价说清：**K6 的拒绝会进拒绝台账，`execute` 里的拒绝是一次失败的调用**。
+两者对模型都是「为什么被拒」，对记录侧不是同一件事。
+
+## （批 5a）· `qplus_gate` / `allow_on_qplus` **不移植**
+
+| | |
+|---|---|
+| **Python** | `_tip_policy.qplus_gate`：qPlus 针尖上的「戳表面」类操作要显式 `allow_on_qplus=true` |
+| **TS** | 不写。`allow_on_qplus` 这个参数**在本仓没有消费方**（它在声明里，模型看得见） |
+
+它**出厂就是关的**：`_guard_on()` 读 `MAST_QPLUS_POKE_GUARD`，默认 `"0"`，第一行就 `return None`。
+2026-08-16 现场逐字：「**一道每次都被同一个人用同一句话解开的门，不是保护，是仪式。**」
+移不移它对默认行为**零差别**，而移过来等于在本仓多一个「看起来在挡、其实关着」的东西。
+
+⚠️ **代价说清**：`TipShape` 声明里 `allow_on_qplus` 的描述写着「否则 qPlus 针尖一律**拒绝**」
+—— 那句话**在旧仓也已经是假的**（门关着）。模型可见面逐字照移（DoD ②），所以那句描述留着，
+而本仓没有任何东西在执行它。**真正护音叉的那两样都在**：扎针深度包络 `max_poke_depth_m`
+（超了拒绝不夹紧，就在这一批里）与「扎针前把偏压缓降到 20 mV」（`shaperBiasDefault`
+那条「跟随成像偏压」，批 3j 已落 —— qPlus 实验里成像偏压就是 20 mV 本身）。
+
+## （批 5a）· 两个自检：**依赖缺席 ⇒ `ok=false, blocking=true`**（有意与旧仓不同）
+
+| | |
+|---|---|
+| **Python** | 每一处 `except Exception → add(…, None, "查不了（…）")`，而 `add()` 的规则是 `ok is None` **只进 warnings**；`ready = not blockers` ⇒ 打出「✅ 可以开工」 |
+| **TS** | 依赖不在 ⇒ `ok=false` 且 **blocking**，措辞点名缺的是哪个子系统、在哪一批 |
+| **测试** | `tail-l0-tip.test.ts` → 「依赖缺席 ⇒ 进 blockers，不是 warnings」；变异 `selfcheck-missing-dependency-blocks` |
+
+⚠️ **我跑了一遍旧仓，照出来的比盘点说的还要直白**（`skill_traces.json` 的
+`TipForgeSelfCheck/ok`）：那一趟**一个 `except` 都没触发**（旧仓依赖全在），而 `ready` 仍然是
+`true` —— 因为「衬底可解析」那一条 `ok=False` 是 **`blocking=False`** 写的。
+也就是说通往假许可有**两条**路：依赖缺席（`None`）与「失败但不阻塞」（`False, blocking=False`）。
+前者这一批改掉，后者照移（它是旧仓刻意的分级）。
+
+本仓这两个自检现在几乎必然报「❌ 还不能开工」—— **那正是真话**：`_tip_phases` 的六个特异化
+流程一个都不在，扫描地图与仪器档案也不在。一个在这种状态下说「可以开工」的自检，
+比没有这个自检更糟。
+
+## （批 5a）· 自检的 `registry` 那一项**换了不变量**
+
+| | |
+|---|---|
+| **Python** | 查「冻结打包时 `walk_packages` 不跑、包 `__init__` 没 import 到的模块里的技能会**静默消失**」（2026-08-04 真机一次丢 19 个、另一次 141 个） |
+| **TS** | 查「`REQUIRED_SKILLS` 里还有几个没移植」 |
+
+本仓是静态 `import` + `export const`，掉一个技能是 `tsc` 编译错误 ——
+**这个不变量在 TypeScript 里不存在**。同一个位置、同一种后果（有一条链是断的，而且断得
+很安静），判据换成本仓真有的那一个。
+
+## （批 5a）· 自检里**不移**的四项
+
+| 项 | 为什么 |
+|---|---|
+| `TipForgeSelfCheck` 第 6 项（电流监控豁免表 `tip_intent.TIP_WORK_PATTERNS`，约 30 行） | 本仓没有电流监控。**自检一张没人读的表，绿了也不代表任何事** |
+| 第 7 项（地图标记归类 `io/exp_map._SKILL_KIND_RULES`，约 50 行） | 本仓没有实验地图，同上 |
+| 两份的「操作模式」 | 运行模式住在 `stm-safety` 插件里，技能层够不着；再开一个进程级 holder 会造出**第二个真源**（内核 K7 那道闸读的是插件那一份）。旧仓这一项本身也只是信息项（`except: pass`），真正拦人的是模式闸 |
+| 旧仓两份对 Tip Shaper 那一句措辞差一个「模块」 | 本仓两处共用同一句。同一件事两句话，多的那一句只会漂 |
+
+## （批 5a）· 「未登记针尖」那句话**改了**：不写断言，写实测
+
+旧仓 `TipConditioningSelfCheck` 那一句是：「未登记 —— 安全包络退到保守通用档，
+流程默认的 10 V 大修脉冲**会被拒**。先 register_tip。」
+
+**后半句是假的**（2026-08-12 之后通用档也是 10.0 V，`abs(10) > 10` 为假）。
+写这句话的时候它是真的（通用档当时 6.0 V）—— 「修好之后旧理由会静静变成假话」。
+本仓这一句**拿同一台解析器真判一次**，说它到底拒不拒，并把当前包络三个数印出来。
+于是下次有人改包络，这句话自己跟着变。
+
+## （批 5a）· `ResolvedConditioning.warnings` / `FIELD_OWNERS` / `policy_summary` / `envelope_of` 的去留
+
+旧仓这四样**在全仓零消费方**（我 grep 过整个 `MASTv2`）：
+
+* `warnings`：**没有一处写入、也没有一处读出** ⇒ **不移**。一个永远是空表的字段，
+  读的人只会以为「这次没有警告」。
+* `policy_summary` ⇒ **不移**（消费方是设置界面，本仓还没有）。
+* `FIELD_OWNERS` ⇒ 移，但**唯一的读者是导出器**（它是「这一档可能有哪些字段」的行标题）。
+* `envelope_of` ⇒ 移，因为本仓给了它第一个调用方：`TipConditioningSelfCheck` 要把
+  「这支针尖现在的上限是多少」印出来。
+
+## （批 5a）· `tip_state` 的渲染层（约 200 行）**不移**
+
+`format_tip_block`（注入块）+ `_service_days` / `_fmt_hz` / `_bias_polarity_line` /
+`_preamp_line` / `_MATERIAL_NOTES` / `_FAB_NOTES` / `_QPLUS_POKE_NOTE` / `auto_name` /
+`*_candidates` / `*_LABELS`：消费方是两样本仓还没有的东西 —— **提示块的针尖段**
+（要 `instrument_profile` 的偏压极性与前置放大器两个字段，批 5c）与 **`register_tip` 工具**
+（要那张 SQLite 表）。消融精神：没有消费方的形状不移。
+
+⚠️ 这里面有一段**值得单独盯着**：`_QPLUS_POKE_NOTE`（每一轮都进模型上下文的那段
+qPlus 说明）。2026-08-17 之前它写的是「戳表面类处理有毁掉音叉的风险…默认拒绝」，
+两处都不成立，而且造成了真实伤害（模型在该动手的时候回来问「要不要扎针」）。
+接提示块时**要接的是改过之后那一版**，不是它的前身。
+
+## （批 5a）· `module_down_hint` **不移**（跟着 `TipShapeWithReadback` 走）
+
+旧仓在 `TipShaper_PropsSet` / `TipShaper_Start` 的错误路径上追一句「去 Nanonis 里打开
+Tip Shaper 模块」，判据是错误文本里有没有 `not running` / `未运行` 那一族子串。
+批 3j 的 `TipShapeWithReadback` 已经没有移它，`TipShape` 跟着它走 ——
+**两个下发同一串命令的技能不该一个有一个没有**。整条 `_preflight.py`（探针表 +
+`_DOWN_SIGNATURES` + `_AMBIGUOUS` + `preflight_modules`）留给批 5c。
+**金样照不出这一条**：通用注错文案是「连接被对端关闭」，不命中任何一个子串。
+
+## （批 5a）· `TIP_SOURCE_*` 带前缀，而 `scan-resolver` 那一族不带
+
+不是风格问题：那边的 `SOURCE_DEFAULT` 是 `'default'`，这边是 `'factory_default'`。
+**名字一样、值不一样**的两个常量放在同一个 `export *` 出口下，读的人只会看见离他最近
+的那一个（D-CHANNELS-1 / D-PIEZO-1 记过同一件事的两个面）。`'explicit'` 两边同值，
+但一族里挑一个不带前缀，会让人以为另外三个也在那边有对应物。
+
+## （批 5a）· 原子相判据干跑的**反例**换了：噪声不来自 numpy
+
+| | |
+|---|---|
+| **Python** | `np.random.default_rng(0).normal(0, 2e-12, (128,128))` |
+| **TS** | 本仓 `Xoshiro128`（固定种子）叠 12 个均匀数（Irwin–Hall，方差正好 1） |
+
+本仓 `Pcg64` 只到 `uniform` —— numpy 的 `normal` 走 ziggurat（一张 256 格的表 + 拒绝采样），
+移它是另一件事；而**这里要的性质是「不是晶格」，不是「是高斯」**。
+**不用真随机数**：一个每次都换一片噪声的自检，红了你不知道是判据坏了还是这次的噪声
+刚好像晶格（同批 3j「金样要可复现」那条）。
+
+正例（三个 60° 方向余弦和、10 pm、a=0.2494 nm）与旧仓逐字同源。
+变异 `selfcheck-dry-run-needs-a-counterexample` 钉着「必须有一个会被拒的样本」。
+
+
 <!-- ── 批 5b（A 档零散一批（各自自足，不压子系统））的登记写在这一行下面 ── -->
 
 <!-- ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的登记写在这一行下面 ── -->

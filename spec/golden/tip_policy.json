@@ -1,0 +1,7246 @@
+{
+  "cases": {
+    "fe/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（磁性针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（磁性针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（磁性针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "fe/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "fe/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "fe/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（磁性针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "fe/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（磁性针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "fe/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（磁性针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "fe/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=4（针尖方案表）；poke_deep_depth_m=-1e-09（针尖方案表）；poke_shallow_depth_m=-2e-10（针尖方案表）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=2.5（针尖方案表）；shaper_bias_v=2.0（针尖方案表）；shaper_depth_m=-5e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 4,
+        "poke_deep_depth_m": -1e-09,
+        "poke_shallow_depth_m": -2e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 2.5,
+        "shaper_bias_v": 2.0,
+        "shaper_depth_m": -5e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "fe/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "fe/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "fe/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（磁性针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "fe/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 2.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "fe/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（磁性针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 2.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "fe/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（磁性针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（磁性针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "fe/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "fe/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（磁性针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（磁性针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "fe/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "fe/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（超导针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（超导针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（超导针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "nb/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "nb/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "nb/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（超导针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "nb/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（超导针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "nb/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（超导针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "nb/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=3（针尖方案表）；poke_deep_depth_m=-2e-09（通用默认）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=2.0（针尖方案表）；shaper_depth_m=-1e-09（通用默认）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 3,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      }
+    },
+    "nb/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "nb/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "nb/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（超导针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "nb/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "nb/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（超导针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "nb/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（超导针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（超导针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "nb/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "nb/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（超导针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（超导针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "nb/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "nb/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（铂铱剪切针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（铂铱剪切针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（铂铱剪切针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "ptir_cut/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_cut/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_cut/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（铂铱剪切针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_cut/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（铂铱剪切针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_cut/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（铂铱剪切针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "ptir_cut/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=7（针尖方案表）；poke_deep_depth_m=-1.5e-09（针尖方案表）；poke_shallow_depth_m=-3e-10（针尖方案表）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（针尖方案表）；shaper_bias_v=2.5（针尖方案表）；shaper_depth_m=-8e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 7,
+        "poke_deep_depth_m": -1.5e-09,
+        "poke_shallow_depth_m": -3e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_bias_v": 2.5,
+        "shaper_depth_m": -8e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "ptir_cut/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_cut/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "ptir_cut/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（铂铱剪切针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_cut/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_cut/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（铂铱剪切针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_cut/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（铂铱剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（铂铱剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_cut/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "ptir_cut/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（铂铱剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（铂铱剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "ptir_cut/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_cut/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（铂铱针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（铂铱针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（铂铱针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "ptir_generic/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_generic/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_generic/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（铂铱针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_generic/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（铂铱针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_generic/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（铂铱针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "ptir_generic/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=5（通用默认）；poke_deep_depth_m=-1.5e-09（针尖方案表）；poke_shallow_depth_m=-3e-10（针尖方案表）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（针尖方案表）；shaper_bias_v=2.5（针尖方案表）；shaper_depth_m=-8e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 5,
+        "poke_deep_depth_m": -1.5e-09,
+        "poke_shallow_depth_m": -3e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_bias_v": 2.5,
+        "shaper_depth_m": -8e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "ptir_generic/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_generic/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "ptir_generic/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（铂铱针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "ptir_generic/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_generic/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（铂铱针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_generic/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（铂铱针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（铂铱针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "ptir_generic/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "ptir_generic/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（铂铱针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（铂铱针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "ptir_generic/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "ptir_generic/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "qplus_generic/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_generic/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（未命名）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_generic/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（未命名）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_generic/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（未命名）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_generic/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_generic/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=3（针尖方案表）；poke_deep_depth_m=-3e-10（针尖方案表）；poke_shallow_depth_m=-1e-10（针尖方案表）；poke_steps=3（针尖方案表）；pulse_count=1（针尖方案表）；pulse_duration_s=0.05（针尖方案表）；pulse_v=2.0（针尖方案表）；shaper_depth_m=-2e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 3,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "qplus_generic/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_generic/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "qplus_generic/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（未命名）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_generic/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_generic/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（未命名）的安全上限 ±3 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_generic/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（未命名）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（未命名）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_generic/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_generic/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（未命名）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（未命名）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "qplus_generic/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_generic/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（PtIr-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（PtIr-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（PtIr-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "qplus_ptir/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_ptir/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（PtIr-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_ptir/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（PtIr-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_ptir/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（PtIr-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_ptir/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（PtIr-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_ptir/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=3（针尖方案表）；poke_deep_depth_m=-3e-10（针尖方案表）；poke_shallow_depth_m=-1e-10（针尖方案表）；poke_steps=3（针尖方案表）；pulse_count=1（针尖方案表）；pulse_duration_s=0.05（针尖方案表）；pulse_v=1.5（针尖方案表）；shaper_depth_m=-2e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 3,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 1.5,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "qplus_ptir/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=1.5（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 1.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_ptir/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "qplus_ptir/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（PtIr-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_ptir/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=1.5（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 1.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_ptir/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（PtIr-qPlus）的安全上限 ±3 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=1.5（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 1.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_ptir/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（PtIr-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（PtIr-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=1.5（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 1.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_ptir/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_ptir/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（PtIr-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（PtIr-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "qplus_ptir/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_ptir/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（W-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（W-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（W-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "qplus_w/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_w/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（W-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_w/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（W-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_w/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（W-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_w/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（W-qPlus）的上限 1.000e-08 m。qPlus 传感器被戳坏不可逆。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_w/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=3（针尖方案表）；poke_deep_depth_m=-3e-10（针尖方案表）；poke_shallow_depth_m=-1e-10（针尖方案表）；poke_steps=3（针尖方案表）；pulse_count=1（针尖方案表）；pulse_duration_s=0.05（针尖方案表）；pulse_v=2.0（针尖方案表）；shaper_depth_m=-2e-10（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 3,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "qplus_w/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_w/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "qplus_w/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（W-qPlus）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "qplus_w/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_w/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（W-qPlus）的安全上限 ±3 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_w/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（W-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（W-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=2.0（针尖方案表）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 2.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "qplus_w/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "qplus_w/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（W-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（W-qPlus）的安全上限 ±10 V。qPlus 石英音叉损坏不可逆（需拆机重装并重新标定 f₀/Q），所以这里拒绝而不是替你夹到上限。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "qplus_w/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "qplus_w/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "unknown_material/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unknown_material/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unknown_material/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（未命名）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unknown_material/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（未命名）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unknown_material/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（未命名）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "unknown_material/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=5（通用默认）；poke_deep_depth_m=-2e-09（通用默认）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=4.0（针尖方案表）；shaper_depth_m=-1e-09（通用默认）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 5,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 4.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "factory_default",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      }
+    },
+    "unknown_material/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=4.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 4.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "unknown_material/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "unknown_material/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（未命名）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unknown_material/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=4.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 4.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "unknown_material/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（未命名）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=4.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 4.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "unknown_material/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（未命名）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（未命名）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=4.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 4.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "unknown_material/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "unknown_material/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（未命名）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（未命名）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "unknown_material/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unknown_material/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出未登记针尖的通用档的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出未登记针尖的通用档的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出未登记针尖的通用档的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "unregistered/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unregistered/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unregistered/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出未登记针尖的通用档的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unregistered/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出未登记针尖的通用档的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unregistered/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出未登记针尖的通用档的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "unregistered/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=5（通用默认）；poke_deep_depth_m=-2e-09（通用默认）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）；shaper_depth_m=-1e-09（通用默认）；target_quality=0.3（通用默认）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 5,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "factory_default",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "factory_default",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      }
+    },
+    "unregistered/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（通用默认）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "factory_default"
+      }
+    },
+    "unregistered/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "unregistered/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出未登记针尖的通用档的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "unregistered/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（通用默认）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "factory_default"
+      }
+    },
+    "unregistered/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出未登记针尖的通用档的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（通用默认）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "factory_default"
+      }
+    },
+    "unregistered/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出未登记针尖的通用档的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出未登记针尖的通用档的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=3.0（通用默认）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 3.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "factory_default"
+      }
+    },
+    "unregistered/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "unregistered/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出未登记针尖的通用档的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出未登记针尖的通用档的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "unregistered/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "unregistered/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（钨剪切针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（钨剪切针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（钨剪切针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "w_cut/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_cut/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_cut/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（钨剪切针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_cut/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（钨剪切针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_cut/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（钨剪切针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_cut/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=8（针尖方案表）；poke_deep_depth_m=-4e-09（针尖方案表）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=5.5（针尖方案表）；shaper_bias_v=4.0（针尖方案表）；shaper_depth_m=-1.5e-09（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 8,
+        "poke_deep_depth_m": -4e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.5,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "w_cut/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_cut/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "w_cut/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（钨剪切针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_cut/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 5.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_cut/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（钨剪切针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 5.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_cut/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（钨剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（钨剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.5（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_cut/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_cut/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（钨剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（钨剪切针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "w_cut/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_cut/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（钨腐蚀针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（钨腐蚀针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（钨腐蚀针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "w_etched/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_etched/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_etched/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（钨腐蚀针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_etched/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（钨腐蚀针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_etched/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（钨腐蚀针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_etched/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=6（针尖方案表）；poke_deep_depth_m=-3e-09（针尖方案表）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=5.0（针尖方案表）；shaper_bias_v=4.0（针尖方案表）；shaper_depth_m=-1.5e-09（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 6,
+        "poke_deep_depth_m": -3e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.0,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "w_etched/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_etched/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "w_etched/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（钨腐蚀针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_etched/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_etched/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（钨腐蚀针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_etched/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（钨腐蚀针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（钨腐蚀针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_etched/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_etched/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（钨腐蚀针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（钨腐蚀针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "w_etched/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_etched/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/all_deep": {
+      "explicit": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "fields": [
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-5e-08（调用方指定）；poke_shallow_depth_m=-1.1e-08（调用方指定）；shaper_depth_m=-2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -5e-08,
+        "poke_shallow_depth_m": -1.1e-08,
+        "shaper_depth_m": -2e-08
+      },
+      "refusals": [
+        "shaper_depth_m=-2.000e-08 m 的下压深度超出当前针尖（钨针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_shallow_depth_m=-1.100e-08 m 的下压深度超出当前针尖（钨针）的上限 1.000e-08 m。拒绝执行。",
+        "poke_deep_depth_m=-5.000e-08 m 的下压深度超出当前针尖（钨针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit",
+        "poke_shallow_depth_m": "explicit",
+        "shaper_depth_m": "explicit"
+      }
+    },
+    "w_generic/count_2": {
+      "explicit": {
+        "pulse_count": 2
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=2（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 2
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_generic/count_3": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_generic/count_50": {
+      "explicit": {
+        "pulse_count": 50
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=50（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 50
+      },
+      "refusals": [
+        "pulse_count=50 超出当前针尖（钨针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_generic/count_6": {
+      "explicit": {
+        "pulse_count": 6
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=6（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_count": 6
+      },
+      "refusals": [
+        "pulse_count=6 超出当前针尖（钨针）的上限 5 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_generic/deep_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-1.2e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -1.2e-08
+      },
+      "refusals": [
+        "poke_deep_depth_m=-1.200e-08 m 的下压深度超出当前针尖（钨针）的上限 1.000e-08 m。拒绝执行。"
+      ],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_generic/defaults": {
+      "explicit": {},
+      "fields": [
+        "pulse_v",
+        "pulse_duration_s",
+        "pulse_count",
+        "shaper_bias_v",
+        "shaper_lift_v",
+        "shaper_depth_m",
+        "poke_shallow_depth_m",
+        "poke_deep_depth_m",
+        "poke_steps",
+        "target_quality",
+        "max_attempts"
+      ],
+      "human_trace": "max_attempts=5（通用默认）；poke_deep_depth_m=-3e-09（针尖方案表）；poke_shallow_depth_m=-5e-10（通用默认）；poke_steps=5（通用默认）；pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=5.0（针尖方案表）；shaper_bias_v=4.0（针尖方案表）；shaper_depth_m=-1.5e-09（针尖方案表）；target_quality=0.3（通用默认）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "max_attempts": 5,
+        "poke_deep_depth_m": -3e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.0,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      },
+      "refusals": [],
+      "trace": {
+        "max_attempts": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      }
+    },
+    "w_generic/empty_pulse": {
+      "explicit": {
+        "pulse_v": ""
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_generic/override_bad": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "max_abs_pulse_v": "很大"
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/override_default": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=7.5（用户覆写）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": 7.5
+      },
+      "params": {
+        "pulse_v": 7.5
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "operator_override"
+      }
+    },
+    "w_generic/override_int_trunc": {
+      "explicit": {
+        "pulse_count": 3
+      },
+      "fields": [
+        "pulse_count"
+      ],
+      "human_trace": "pulse_count=3（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_pulse_count": 2.9
+      },
+      "params": {
+        "pulse_count": 3
+      },
+      "refusals": [
+        "pulse_count=3 超出当前针尖（钨针）的上限 2 发。拒绝执行。"
+      ],
+      "trace": {
+        "pulse_count": "explicit"
+      }
+    },
+    "w_generic/override_none": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "pulse_v": null
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_generic/override_tighten": {
+      "explicit": {
+        "pulse_v": 5.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {
+        "max_abs_pulse_v": 3.0
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [
+        "pulse_v=5 V 超出当前针尖（钨针）的安全上限 ±3 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/override_unknown": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {
+        "_note": "x",
+        "nope": 1
+      },
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_generic/pulse_10v": {
+      "explicit": {
+        "pulse_v": 10.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/pulse_10v001": {
+      "explicit": {
+        "pulse_v": 10.000001
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=10.000001（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": 10.000001
+      },
+      "refusals": [
+        "pulse_v=10 V 超出当前针尖（钨针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/pulse_neg12v": {
+      "explicit": {
+        "pulse_v": -12.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=-12.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "pulse_v": -12.0
+      },
+      "refusals": [
+        "pulse_v=-12 V 超出当前针尖（钨针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/pulse_only": {
+      "explicit": {},
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=5.0（针尖方案表）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 5.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "policy_table"
+      }
+    },
+    "w_generic/shallow_poke": {
+      "explicit": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "fields": [
+        "poke_deep_depth_m"
+      ],
+      "human_trace": "poke_deep_depth_m=-3e-10（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "poke_deep_depth_m": -3e-10
+      },
+      "refusals": [],
+      "trace": {
+        "poke_deep_depth_m": "explicit"
+      }
+    },
+    "w_generic/shaper_bias_12v": {
+      "explicit": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "fields": [
+        "shaper_bias_v",
+        "shaper_lift_v"
+      ],
+      "human_trace": "shaper_bias_v=12.0（调用方指定）；shaper_lift_v=-11.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": false,
+      "overrides": {},
+      "params": {
+        "shaper_bias_v": 12.0,
+        "shaper_lift_v": -11.0
+      },
+      "refusals": [
+        "shaper_bias_v=12 V 超出当前针尖（钨针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。",
+        "shaper_lift_v=-11 V 超出当前针尖（钨针）的安全上限 ±10 V。拒绝而不是夹到上限——夹了你会以为自己用的是原来那个值。确需更大幅度请先确认针尖类型登记正确，或在设置里调整该针尖的方案上限。"
+      ],
+      "trace": {
+        "shaper_bias_v": "explicit",
+        "shaper_lift_v": "explicit"
+      }
+    },
+    "w_generic/str_pulse": {
+      "explicit": {
+        "pulse_v": "abc"
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v='abc'（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": "abc"
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    },
+    "w_generic/zero_pulse": {
+      "explicit": {
+        "pulse_v": 0.0
+      },
+      "fields": [
+        "pulse_v"
+      ],
+      "human_trace": "pulse_v=0.0（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "pulse_v": 0.0
+      },
+      "refusals": [],
+      "trace": {
+        "pulse_v": "explicit"
+      }
+    }
+  },
+  "tips": {
+    "fe": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "etched",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "Fe",
+        "name": "磁性针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 4,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -1e-09,
+        "poke_shallow_depth_m": -2e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 2.5,
+        "shaper_bias_v": 2.0,
+        "shaper_depth_m": -5e-10,
+        "target_quality": 0.3
+      }
+    },
+    "nb": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "etched",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "Nb",
+        "name": "超导针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 3,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      }
+    },
+    "ptir_cut": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "cut",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "PtIr",
+        "name": "铂铱剪切针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 7,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -1.5e-09,
+        "poke_shallow_depth_m": -3e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_bias_v": 2.5,
+        "shaper_depth_m": -8e-10,
+        "target_quality": 0.3
+      }
+    },
+    "ptir_generic": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "unknown",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "PtIr",
+        "name": "铂铱针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "factory_default",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 5,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -1.5e-09,
+        "poke_shallow_depth_m": -3e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_bias_v": 2.5,
+        "shaper_depth_m": -8e-10,
+        "target_quality": 0.3
+      }
+    },
+    "qplus_generic": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2
+      },
+      "facts": {
+        "fabrication": "unknown",
+        "form": "qplus",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "",
+        "name": "",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 3,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      }
+    },
+    "qplus_ptir": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2
+      },
+      "facts": {
+        "fabrication": "cut",
+        "form": "qplus",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "PtIr",
+        "name": "PtIr-qPlus",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 3,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 1.5,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      }
+    },
+    "qplus_w": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2
+      },
+      "facts": {
+        "fabrication": "etched",
+        "form": "qplus",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "W",
+        "name": "W-qPlus",
+        "qplus_f0_hz": 32768.0,
+        "qplus_k_n_per_m": 1800.0,
+        "qplus_q": 25000.0,
+        "qplus_sensor_model": "qPlus LT",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "policy_table",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "policy_table",
+        "poke_steps": "policy_table",
+        "pulse_count": "policy_table",
+        "pulse_duration_s": "policy_table",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 3,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 2,
+        "poke_deep_depth_m": -3e-10,
+        "poke_shallow_depth_m": -1e-10,
+        "poke_steps": 3,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.05,
+        "pulse_v": 2.0,
+        "shaper_depth_m": -2e-10,
+        "target_quality": 0.3
+      }
+    },
+    "unknown_material": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "unknown",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "",
+        "name": "未命名",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "factory_default",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 5,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 4.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      }
+    },
+    "unregistered": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": null,
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "factory_default",
+        "max_attempts": "factory_default",
+        "max_poke_depth_m": "factory_default",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "factory_default",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "factory_default",
+        "shaper_depth_m": "factory_default",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 5,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -2e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 3.0,
+        "shaper_depth_m": -1e-09,
+        "target_quality": 0.3
+      }
+    },
+    "w_cut": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "cut",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "W",
+        "name": "钨剪切针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 8,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -4e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.5,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      }
+    },
+    "w_etched": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "etched",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "W",
+        "name": "钨腐蚀针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "policy_table",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 6,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -3e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.0,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      }
+    },
+    "w_generic": {
+      "envelope": {
+        "max_abs_pulse_v": 10.0,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5
+      },
+      "facts": {
+        "fabrication": "unknown",
+        "form": "stm_wire",
+        "installed_at": "2026-09-01T00:00:00",
+        "material": "W",
+        "name": "钨针",
+        "qplus_f0_hz": null,
+        "qplus_k_n_per_m": null,
+        "qplus_q": null,
+        "qplus_sensor_model": "",
+        "tip_id": 7,
+        "wire_diameter_mm": 0.25
+      },
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "sources": {
+        "max_abs_pulse_v": "policy_table",
+        "max_attempts": "factory_default",
+        "max_poke_depth_m": "policy_table",
+        "max_pulse_count": "factory_default",
+        "poke_deep_depth_m": "policy_table",
+        "poke_shallow_depth_m": "factory_default",
+        "poke_steps": "factory_default",
+        "pulse_count": "factory_default",
+        "pulse_duration_s": "factory_default",
+        "pulse_v": "policy_table",
+        "shaper_bias_v": "policy_table",
+        "shaper_depth_m": "policy_table",
+        "target_quality": "factory_default"
+      },
+      "values": {
+        "max_abs_pulse_v": 10.0,
+        "max_attempts": 5,
+        "max_poke_depth_m": 1e-08,
+        "max_pulse_count": 5,
+        "poke_deep_depth_m": -3e-09,
+        "poke_shallow_depth_m": -5e-10,
+        "poke_steps": 5,
+        "pulse_count": 1,
+        "pulse_duration_s": 0.1,
+        "pulse_v": 5.0,
+        "shaper_bias_v": 4.0,
+        "shaper_depth_m": -1.5e-09,
+        "target_quality": 0.3
+      }
+    }
+  }
+}

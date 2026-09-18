@@ -72,6 +72,7 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 | `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 字节层：请求侧 = 真实 `nanonis_spm` 客户端（MAST 打过补丁），回复侧 = STM-Bench 服务端 codec |
 | `scan_resolver.json` | `export_scan_resolver.py` | 真 `resolve_scan`（意图 → 参数）。它一次仪器调用都不发，产物是 `trace[*].source` —— **通用驱动器一格都碰不到**。77 格盯的是「哪一支赢了」：explicit > 档位表(用户) > 偏好 > 档位表(出厂) > keep-current |
 | `tip_crash.json` | `export_tip_crash.py` | 真 `TipCrashTracker`。它**全是状态**，判据是「第三次调用为什么被拒」⇒ 每条金样是一个**脚本**（record/count/blocked/points/recover/tick/snapshot 依次执行），不是一格输入 |
+| `tip_policy.json` | `export_tip_policy.py` | 真 `resolve_policy` + `resolve_conditioning`（针尖方案表与安全包络）。**通用驱动器直调 `execute`，`validate_params` 一次都没被调用** —— 而这一族的判据全在那里。12 支针尖 × 22 个请求，其中 111 格**被拒**（超上限拒绝、不夹紧） |
 
 ---
 

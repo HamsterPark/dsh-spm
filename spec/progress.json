@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 394,
+    "done": 398,
     "partial": 0,
-    "todo": 121
+    "todo": 117
   },
-  "modules_complete": 71,
+  "modules_complete": 75,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -516,13 +516,13 @@
     },
     "builtins.tip_conditioning_selfcheck": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_forge_selfcheck": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_from_spectrum": {
       "total": 1,
@@ -531,8 +531,8 @@
     },
     "builtins.tip_shaper": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_shaper_readback": {
       "total": 1,
@@ -731,8 +731,8 @@
     },
     "composite.tip_pulse": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.verify_atomic_resolution": {
       "total": 1,
@@ -5790,41 +5790,41 @@
       "module": "builtins.tip_conditioning_selfcheck",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "TipForgeSelfCheck": {
       "module": "builtins.tip_forge_selfcheck",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "TipPulse": {
       "module": "composite.tip_pulse",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "TipShape": {
       "module": "builtins.tip_shaper",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "TipShapeWithReadback": {
       "module": "builtins.tip_shaper_readback",

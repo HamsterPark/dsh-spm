@@ -18,7 +18,9 @@ import {
   attest,
   emptyHardwareState,
   processTemperature,
+  processTipRegistry,
   processVacuum,
+  setCurrentTip,
   readTemperature,
   revokeAttestation,
   slowCallFrom,
@@ -29,6 +31,7 @@ import {
   type TempChannel,
 } from 'dsh-spm-kernel'
 import { IMPLEMENTED } from './index.js'
+import { CONDITIONING_REQUIRED_SKILLS, FORGE_REQUIRED_SKILLS } from './tip-selfcheck.js'
 import { processPresetStore } from './frames.js'
 import { processLockInProfile } from './lockin-presets.js'
 import { scriptAllowlistPath } from './nanonis-script.js'
@@ -219,6 +222,15 @@ function optsOf(trace: string): {
 interface Deviation {
   readonly data?: Record<string, unknown>
   readonly error?: string
+  /**
+   * `summary` **逐字照这一份比**（而不是照金样那一份）。
+   *
+   * 与 `error` 同一条规矩，包括「旧仓那一侧也钉住」：差异消失时这条登记会当场变红。
+   * 批 5a 第一次用到它 —— 两个自检的 `summary` 就是它们的**结论**
+   * （「✅ 可以开工」/「❌ 还不能开工」），而本仓有意与旧仓不同。
+   * 那句结论正是这一批要改的东西，所以它必须**被比**，不能被豁免。
+   */
+  readonly summary?: string
   /**
    * 金样里有、本仓**故意没有**的字段（点分路径）。
    *
@@ -519,7 +531,129 @@ function reshapeReason(name: string, trace: string): Deviation {
   return out
 }
 
+/**
+ * 批 5a · 两个自检：**本仓这一侧有意与旧仓不同**，逐项登记。
+ *
+ * 三类差异：
+ *
+ * 1. **依赖缺席 ⇒ `ok=false, blocking=true`**（旧仓 `except → ok=None` 只进 warnings）。
+ *    后果直接写在 `ready` 上：`TipForgeSelfCheck` 的金样那一格 `ready: true`
+ *    （「✅ 可以开工」—— 而它什么都没验），本仓 `false`。
+ * 2. **registry 那一项换了不变量**：旧仓查「冻结打包时技能静默消失」，
+ *    本仓查「`REQUIRED_SKILLS` 里还有几个没移植」。
+ * 3. 旧仓第 6/7 项（电流监控豁免表 / 地图标记归类表）与「操作模式」**不移**。
+ *
+ * `missing_skills` **从 `IMPLEMENTED` 算**而不是抄一份：后面几批每移一个技能它就变，
+ * 抄下来的那一份会在下一批静静过期。
+ */
+function selfCheckDev(
+  required: readonly string[],
+  items: readonly (readonly [string, boolean | null, string])[],
+  extra: Record<string, unknown>,
+): Deviation {
+  const missing = required.filter((n) => IMPLEMENTED[n] === undefined)
+  const checks = [
+    {
+      check: '技能齐全',
+      ok: missing.length === 0,
+      detail:
+        missing.length === 0
+          ? `全部就位（本仓已移植 ${Object.keys(IMPLEMENTED).length} 个）`
+          : `缺 ${missing.length} 个（本仓尚未移植）: ${missing.join(', ')}`,
+    },
+    ...items.map(([check, ok, detail]) => ({ check, ok, detail })),
+  ]
+  const blockers: string[] = []
+  const warnings: string[] = []
+  for (const c of checks) {
+    if (c.ok === false) blockers.push(`${c.check}: ${c.detail}`)
+    else if (c.ok === null) warnings.push(`${c.check}: ${c.detail}`)
+  }
+  const ready = blockers.length === 0
+  const summary = [
+    ready ? '✅ 可以开工' : '❌ 还不能开工',
+    ...checks.map((c) => `${c.ok === true ? '✅' : c.ok === false ? '❌' : '⚠'} ${c.check}：${c.detail}`),
+  ].join('\n')
+  return { data: { ready, checks, blockers, warnings, missing_skills: missing, ...extra }, summary }
+}
+
+/**
+ * 两个自检在 `ok` / `empty@0` 上走同一条路（空 body 的 `TipShaper_PropsGet` 不报错）。
+ *
+ * ⚠️ **这一项在两个自检里的位置不一样**（修针那份排第 2，锻造那份排倒数第 2），
+ * 所以它由调用方摆进 `items`，不是由 `selfCheckDev` 自己补在末尾。
+ */
+const SHAPER_ERR: Readonly<Record<string, string>> = {
+  ok: '',
+  'empty@0': '',
+  'err@0': '模拟故障：连接被对端关闭',
+}
+
+/**
+ * Tip Shaper 那一项。
+ *
+ * ⚠️ 旧仓两个自检的措辞差一个词（修针那份「把 Tip Shaper **模块**打开」、锻造那份
+ * 「把 Tip Shaper 打开」）。本仓两处共用同一句 —— 同一件事两句话，多的那一句只会漂。
+ */
+function shaperItem(err: string): readonly [string, boolean, string] {
+  return err === ''
+    ? ['Tip Shaper 模块', true, '在跑']
+    : ['Tip Shaper 模块', false, `读不到: ${err}（Nanonis 里把 Tip Shaper 模块打开）`]
+}
+
+const MISSING_MAP = '扫描地图（`core/map_scope` + `io/exp_map` + `io/coarse_map`） 本仓还没移植（C 档，未分批）—— 这一项**没有被检查**，不是「检查通过」。'
+const MISSING_PROFILE = '仪器档案（`core/instrument_profile`） 本仓还没移植（批 5c）—— 这一项**没有被检查**，不是「检查通过」。'
+const MISSING_SAMPLE = '样品事实（`core/sample_facts`） 本仓还没移植（C 档，未分批）—— 这一项**没有被检查**，不是「检查通过」。'
+const MISSING_SPECTRO = '谱判据（`vision/spectroscopy`，954 行） 本仓还没移植（C 档，未分批）—— 这一项**没有被检查**，不是「检查通过」。'
+
+/** 未登记针尖时那句话 —— **旧仓写「会被拒」，而 2026-08-12 之后通用档不拒**。 */
+const UNREGISTERED_TIP =
+  '未登记 —— 方案表退到保守通用档（上限 ±10 V / 10 nm / 5 发），' +
+  '流程默认的 10 V 大修脉冲仍在这一档的包络内，' +
+  '而参数默认值只能按通用档给（不知道装的是钨还是铂铱）。先 register_tip。'
+
 const DEVIATIONS: Readonly<Record<string, Deviation>> = {
+  // ── 批 5a：两个自检逐格登记（见 `selfCheckDev` 的抬头） ──
+  ...Object.fromEntries(
+    Object.entries(SHAPER_ERR).map(([trace, err]) => [
+      `TipConditioningSelfCheck/${trace}`,
+      selfCheckDev(
+        CONDITIONING_REQUIRED_SKILLS,
+        [
+          shaperItem(err),
+          ['针尖已登记', false, UNREGISTERED_TIP],
+          ['扫描地图可读', false, MISSING_MAP],
+          ['Z 噪声底', false, MISSING_PROFILE],
+        ],
+        { tip_name: '' },
+      ),
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(SHAPER_ERR).map(([trace, err]) => [
+      `TipForgeSelfCheck/${trace}`,
+      selfCheckDev(
+        FORGE_REQUIRED_SKILLS,
+        [
+          ['衬底可解析', false, MISSING_SAMPLE],
+          ['评估帧能分辨原子', true, '5 nm / 256 px = 0.0195 nm/px（满权重档）'],
+          ['表面态判据自测', false, MISSING_SPECTRO],
+          ['原子相判据自测', true, '合成晶格通过、纯噪声被拒'],
+          ['0.3 nm 浅扎在包络内', true, '允许'],
+          shaperItem(err),
+        ],
+        { substrate: '' },
+      ),
+    ]),
+  ),
+  // 批 5a · D-SKILL-2：`TipShape` 与它的孪生兄弟 `TipShapeWithReadback` 同一句话 ——
+  // 旧仓印三段信封的 Python repr，信封在 `nanonis-wire` 那层就拆掉了。
+  'TipShape/empty@0': {
+    error: (golden['TipShape']?.traces['empty@0']?.error ?? '').replace(
+      "repr 前 80 字:('', b'', [])",
+      'values=[]',
+    ),
+  },
   // ── D-SKILL-1 的又一批：空 body 上旧仓交出整个信封 ──
   //
   // 四个单动词读把它塞进 `raw`，六个聚合读把它塞进那一格。我们手上只有 body。
@@ -939,6 +1073,11 @@ const TEMP_FIXTURE: TempChannel[] = [
 const NEEDS_TEMPERATURE = new Set(['GetTemperature'])
 
 function resetProcessState(skillName: string): void {
+  // 批 5a。针尖登记表是进程级的，而**它决定修针技能填什么参数、按什么包络判**——
+  // 漏清一次就会让后面某一格「因为上一格登记过一支 qPlus」而走另一条路。
+  // 金样那一侧全部是**未登记**（导出器里没有 holder），所以这里清成未登记。
+  setCurrentTip(null)
+  processTipRegistry.overrides = {}
   processPresetStore.clear()
   if (NEEDS_PRESET.has(skillName)) processPresetStore.upsert(PRESET_FIXTURE)
   processLockInProfile.current = LOCKIN_FIXTURE
@@ -1038,7 +1177,12 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
 
           // 摘要也走一遍路径抹除：批 3j 的两个技能**把落盘指针写进摘要**
           // （摘要是唯一穿过工具边界的东西），而那条路径里有项目根与时间戳。
-          expect(scrubPaths(got.summary ?? '')).toBe(scrubPaths(want.summary ?? ''))
+          if (dev?.summary === undefined) {
+            expect(scrubPaths(got.summary ?? '')).toBe(scrubPaths(want.summary ?? ''))
+          } else {
+            expect(got.summary ?? '').toBe(dev.summary)
+            expect(want.summary ?? '').not.toBe(dev.summary) // 旧仓那一侧也钉住
+          }
 
           if (dev?.data === undefined) {
             const wantData = stripVolatile(want.data ?? {})

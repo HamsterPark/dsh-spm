@@ -374,7 +374,16 @@ BATCH_4D: list[str] = [
 ]   # composite.scan_at + 撞针追踪
 
 #: ↑ 上一条 ／ ↓ 5A —— 这一行谁都不要动
-BATCH_5A: list[str] = []   # 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
+BATCH_5A: list[str] = [
+    # 两个修针技能。`validate_params` **这台驱动器一次都不调**（它直调 `execute`）——
+    # D-TIP-1 的包络判据因此在这份金样里**一格都照不出来**，那一台在
+    # `export_tip_policy.py`。这里录的是调用序列、方案表填进去的值、以及
+    # `data.tip_policy` 那串来源痕迹。
+    "TipShape", "TipPulse",
+    # 两个自检。**本仓这一侧是有意不同的**（`except → ok=False, blocking=True`、
+    # registry 那一项换成「还有几个没移植」），差异逐格登记在 `traces.test.ts`。
+    "TipConditioningSelfCheck", "TipForgeSelfCheck",
+]   # 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
 
 #: ↑ 上一条 ／ ↓ 5B —— 这一行谁都不要动
 BATCH_5B: list[str] = []   # A 档零散一批（各自自足，不压子系统）
