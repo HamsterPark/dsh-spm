@@ -2800,6 +2800,206 @@ function physicallyAbsurdViolations_unused(`,
   // ── 批 5b（A 档零散一批（各自自足，不压子系统））的演练写在这一行下面 ──
 
   // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的演练写在这一行下面 ──
+  // ── 仪器档案：**区分两种否定** ────────────────────────────────────
+  {
+    id: 'profile-missing-source-is-not-an-empty-profile',
+    why: '「宿主没接档案存储」被折成「档案是空的」⇒ `ReadCalibrations` 从此只会说「从未标定过」，而那是一句编造出来的结论。它要回答的两种否定就此合成了一个',
+    file: `${K}/instrument-profile.ts`,
+    find: '  if (src === null) return { ok: false, why: NO_PROFILE_SOURCE }',
+    replace: '  if (src === null) return { ok: true, profile: {} }',
+    scope: 'packages/host',
+  },
+  {
+    id: 'profile-z-extend-sign-falls-back-to-factory',
+    why: '没声明时退回出厂 `+1`。出厂值在这一项上**不中性**（本机实测是 −1）⇒ 一次逼近会被自信地判成 receding，梯子照爬到 89 步',
+    file: `${K}/instrument-profile.ts`,
+    find: '  if (raw === undefined || raw === null) return null',
+    replace: "  if (raw === undefined || raw === null) return 1",
+    scope: 'packages/host',
+  },
+  {
+    id: 'profile-tilt-three-of-four-is-enough',
+    why: '倾斜矩阵缺一个元素也算标定过 ⇒ 半张矩阵乘出来的倾斜增量会被当成标定值用，而那比没有标定更危险',
+    file: `${K}/instrument-profile.ts`,
+    find: '  if (!TILT_CAL_KEYS.every((k) => k in r.profile)) return { state: \'never\' }',
+    replace: '  if (!TILT_CAL_KEYS.some((k) => k in r.profile)) return { state: \'never\' }',
+    scope: 'packages/host',
+  },
+  {
+    id: 'profile-blank-string-becomes-zero',
+    why: '`Number(\'  \')` 是 `0`（D-VAC-4 同一种失败形状）⇒ 一个全是空格的 `z_recede_min_nm` 被夹成 0 nm，也就是「任何 Z 变化都算远离」',
+    file: `${K}/instrument-profile.ts`,
+    find: "    const t = value.trim()\n    if (t === '') return null\n    v = Number(t)",
+    replace: '    v = Number(value)',
+    scope: 'packages/host',
+  },
+  // ── 粗动驱动：四道锁里的两道 ──────────────────────────────────────
+  {
+    id: 'coarse-undeclared-falls-back-to-a-number',
+    why: '没声明时退回一个别人为另一台机器挑的上限。**沉默不是同意** —— 不知道这只叠堆受得了多少伏，是「什么都别做」的理由',
+    file: `${K}/coarse-drive.ts`,
+    find: '  if (ceiling === null) return { ok: false, reason: UNDECLARED }\n  if (raw > ceiling) {',
+    replace: '  if (ceiling === null) return { ok: true, reason: UNDECLARED }\n  if (raw > ceiling) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'coarse-absolute-ceiling-after-the-configurable-one',
+    why: '把绝对上限挪到本机声明**之后**判 ⇒ 一个填错了的本机上限就能授权一个荒谬的请求。顺序是判据的一部分',
+    file: `${K}/coarse-drive.ts`,
+    // ⚠️ **不能写 `if (false && …)`** —— 那会让 TS 在下面的 `raw` 上重新报
+    // 「possibly undefined」，变异编不过，而一条编不过的变异等于那道闸没验到
+    // （`batch-4d.md` §4 记着这形状撞过 18 次）。改成把界抬到天上：同样等于没有它。
+    find: '  if (raw > ABSOLUTE_MAX_AMPLITUDE_V) {',
+    replace: '  if (raw > ABSOLUTE_MAX_AMPLITUDE_V * 1e6) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'coarse-clamps-instead-of-refusing',
+    why: '越界请求被悄悄降到上限 ⇒ 「300 V 会烧掉这只叠堆」变成「按 220 V 跑了」而调用方以为自己要的是 300。**一个做错了却报成功的动作**',
+    file: `${K}/coarse-drive.ts`,
+    find: '  if (raw > ceiling) {\n    return {\n      ok: false,',
+    replace: '  if (raw > ceiling) {\n    return {\n      ok: true,',
+    scope: 'packages/host',
+  },
+  {
+    id: 'coarse-readback-unreadable-passes',
+    why: '读不到当前驱动幅度就放行 ⇒ 一道**失败模式是「通过」**的检查，而它守着一个不可逆的后果。这道检查的全部价值就在于它看不见时会失败',
+    file: `${K}/coarse-drive.ts`,
+    // 同上：`if (false && …)` 会毁掉 `amp` 的收窄。留着那个 `if`，只把答复翻过来。
+    find: "  if (amp === undefined) {\n    return {\n      ok: false,",
+    replace: "  if (amp === undefined) {\n    return {\n      ok: true,",
+    scope: 'packages/host',
+  },
+  {
+    id: 'coarse-frequency-mismatch-refuses',
+    why: '频率不符改成**拒绝**。它让每步走的距离变、里程表漂，但烧不掉叠堆 —— 两种后果不同，两种答复就该不同（反过来会把一台好机器挡死）',
+    file: `${K}/coarse-drive.ts`,
+    find: '      return {\n        ok: true,\n        reason:\n          `幅度 ${g(amp)} V 合规,但驱动频率',
+    replace: '      return {\n        ok: false,\n        reason:\n          `幅度 ${g(amp)} V 合规,但驱动频率',
+    scope: 'packages/host',
+  },
+  // ── Z 稳定：2026-08-04 那条 ────────────────────────────────────────
+  {
+    id: 'zsettle-not-moving-is-enough',
+    why: '去掉「要么有活的隧道结、要么压电确实走过」那半个子句 ⇒ **一个还没开始跑的反馈环也是不动的**，第一个轮询窗口就报「已收敛」，于是又拿到一个什么都不表示的数',
+    file: `${K}/z-settle.ts`,
+    // ⚠️ 直接删掉 `(tracking || travelled)` 会让 `travelled` 变成未使用变量、编不过
+    //（同上：编不过的变异等于那道闸没验到）。改成把那半个子句变成恒真，
+    // 同时**仍然读到**两个变量。
+    find: '  if (driftM <= tolM && (tracking || travelled)) {',
+    replace: '  if (driftM <= tolM && (tracking || travelled || true)) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'zsettle-window-of-one',
+    why: '窗口下限从 3 降到 1 ⇒ 净漂移由构造恒等于 0，第一个读数就被判收敛。**同一个缺陷，用一个差一错重建**',
+    file: `${SK}/composite/z-settle.ts`,
+    find: '  const windowN = Math.max(3, Math.trunc(opts.windowN ?? 5))',
+    replace: '  const windowN = Math.max(1, Math.trunc(opts.windowN ?? 5))',
+    scope: 'packages/host',
+  },
+  {
+    id: 'zsettle-tolerance-is-not-derived',
+    why: '收敛带不再从决策阈值派生，改成一个独立常数 ⇒ 操作员把阈值调大之后带停在旧值上，一个「已稳定」的读数仍能漂够翻转它要喂的那个结论',
+    file: `${K}/z-settle.ts`,
+    find: '  return Math.max(TOL_FRACTION_OF_THRESHOLD * thresh, 0.0)',
+    replace: '  return Math.max(0.5e-9 * (thresh > 0 ? 1 : 1), 0.0)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'zsettle-unsettled-is-approaching',
+    why: '把「读数取不到」折成「针尖在逼近」⇒ 一个坏掉的判据与一条接反的线长得一模一样，而两者的处置完全不同（调预算 vs 核对接线）',
+    file: `${K}/z-settle.ts`,
+    find: "  if (!zSettleUsable(after)) return { verdict: 'unsettled', why: zSettleWhy(after) }",
+    replace: "  if (!zSettleUsable(after)) return { verdict: 'approaching', why: zSettleWhy(after) }",
+    scope: 'packages/host',
+  },
+  {
+    id: 'zsettle-no-sign-guesses',
+    why: '没声明符号时猜一个 ⇒ 「猜错的两个方向不对称」：猜成 receding 是**针尖在靠近却说在远离**，然后梯子照爬',
+    file: `${K}/z-settle.ts`,
+    find: "  if (sign === null) return say('no_sign', NO_SIGN_WHY)",
+    replace: "  if (sign === null) return say('receding', NO_SIGN_WHY)",
+    scope: 'packages/host',
+  },
+  {
+    id: 'zsettle-no-displacement-fires-without-a-ruler',
+    why: '「没尺子」也开火 ⇒ 一根起点就在压电量程外的针（换样品退针之后、进针失败之后）每一级都合法地 ambiguous，而马达工作得好好的 —— 这条守卫会把它误判成「台子没动」',
+    file: `${K}/z-settle.ts`,
+    find: "  if (rungs.length === 0 || !rungs.every((r) => r.hasRuler)) return { stuck: false, why: '' }",
+    replace: "  if (rungs.length === 0) return { stuck: false, why: '' }",
+    scope: 'packages/host',
+  },
+  // ── 两条组合技能的接线 ────────────────────────────────────────────
+  {
+    id: 'retract-baseline-degrades-instead-of-refusing',
+    why: '基线不可用时继续退 ⇒ 整条方向自检不成立，而它接着会驱动几千步粗动。**拒绝的代价是一次换样品；继续的代价是一根针**',
+    file: `${SK}/composite/retract-for-sample-change.ts`,
+    find: '    if (!zSettleUsable(settle)) {\n      return {\n        success: false,',
+    replace: '    if (!zSettleUsable(settle)) {\n      return {\n        success: true,',
+    scope: 'packages/host',
+  },
+  {
+    id: 'relocate-clearance-baseline-degrades',
+    why: '清障基线不可用时照退 ⇒ 梯子在**完全没有方向检查**的情况下走完整个 prewithdraw，也就是这条组合存在来替换掉的那条裸 MotorMove',
+    file: `${SK}/composite/relocate-coarse-xy.ts`,
+    // ⚠️ 留着那个 `if`（`if (false && …)` 会毁掉 `baseline` 的收窄、编不过），
+    // 只把这一相的答复翻成成功 —— 于是梯子照走，而方向自检从来没成立过。
+    find: "        return {\n          success: false,\n          error:\n            '清障退针自检无法建立基线:' +",
+    replace: "        return {\n          success: true,\n          error:\n            '清障退针自检无法建立基线:' +",
+    scope: 'packages/host',
+  },
+  {
+    id: 'relocate-move-current-trip-off',
+    why: '横移中的电流看护拆掉 ⇒ 台子在滑而针尖已经贴上来这件事没人注意，几百步里一步都不会停。2026-08-28 场发射那次正是靠它停下来的',
+    file: `${SK}/composite/relocate-coarse-xy.ts`,
+    // 同上：留着 `current !== null` 那半个（它在收窄），只把危险线抬到天上。
+    find: '    if (current !== null && Math.abs(current) > MOVE_DANGER_CURRENT_A) {',
+    replace: '    if (current !== null && Math.abs(current) > MOVE_DANGER_CURRENT_A * 1e12) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'relocate-prove-clear-accepts-a-live-junction',
+    why: '退针后电流还在隧穿量级也判「已脱离」⇒ 带着一个活的隧道结去横向滑动台子',
+    file: `${SK}/composite/relocate-coarse-xy.ts`,
+    find: "    } else if (Math.abs(current) > NOISE_FLOOR_A * 10) {\n      out['clear'] = false",
+    replace: "    } else if (Math.abs(current) > NOISE_FLOOR_A * 10) {\n      out['clear'] = true",
+    scope: 'packages/host',
+  },
+  {
+    id: 'relocate-panic-failure-is-still-a-success',
+    why: '急停没能下发却仍判成功 ⇒ 针尖是不是退开的本技能答不上来，而 `success=true` 会让人完全不去看。这是唯一一条「针尖可能正贴着表面而马达还在走」的路径',
+    file: `${SK}/composite/relocate-coarse-xy.ts`,
+    find: "    if (panicNote !== '') {",
+    replace: "    if (false && panicNote !== '') {",
+    scope: 'packages/host',
+  },
+  {
+    id: 'relocate-bias-not-lowered-before-move',
+    why: '横移前不降偏压 ⇒ 2026-08-28 真机：带着 2 V 横移时针尖离表面几十 nm 就场发射到 100+ pA，于是每次粗动都在第 20–50 步被自己的电流看护中止',
+    file: `${SK}/composite/relocate-coarse-xy.ts`,
+    // ⚠️ 删掉那个调用会让私有方法变成未使用、编不过。改成把「该不该降」那条判据
+    // 抬到永远为假 —— 等价于没降，而编得过。
+    find: '    if (now !== null && Math.abs(now) > MOVE_BIAS_V) {',
+    replace: '    if (now !== null && Math.abs(now) > MOVE_BIAS_V * 1e9) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'step-coarse-xy-nudge-cap-off',
+    why: '拿「挪一下」这条明说跳过效率约束的路去做大距离移动 ⇒ 把「别重复用同一片表面」那条规则整个架空',
+    file: `${SK}/composite/step-coarse-xy.ts`,
+    find: '    if (steps > NUDGE_MAX_STEPS) {',
+    replace: '    if (false && steps > NUDGE_MAX_STEPS) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'readcalibrations-summary-claims-it-read-the-archive',
+    why: '三块全空时无条件写「已确认读到档案,不是读取失败」—— 而三块全空最常见的成因**就是**读不到档案。一个专门用来分开两种否定的技能，在它自己的 summary 里合成了错的那一句（旧仓原状）',
+    file: `${SK}/l0/calibrations.ts`,
+    find: '      const r = readProfile()\n      summary = r.ok',
+    replace: '      const r = { ok: true } as ReturnType<typeof readProfile>\n      summary = r.ok',
+    scope: 'packages/host',
+  },
   // ── `resolveScan`：意图 → 参数的那台纯判定机 ──────────────────────
   {
     id: 'scan-size-zero-is-refused-not-clamped',

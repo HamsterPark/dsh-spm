@@ -51,6 +51,10 @@ export * from './image-channel.js'
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面 export ──
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面 export ──
+export * from './instrument-profile.js'
+export * from './coarse-drive.js'
+export * from './z-settle.js'
+export * from './tip-evidence.js'
 export * from './scan-resolver.js'
 export * from './tip-crash-tracker.js'
 export * from './corrugation-gate.js'

@@ -2163,3 +2163,177 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 <!-- ── 批 5b（A 档零散一批（各自自足，不压子系统））的登记写在这一行下面 ── -->
 
 <!-- ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的登记写在这一行下面 ── -->
+
+<!-- 批 5c：以下 12 条的**编号留空**（`?`），由主线统一编。 -->
+
+## D-PROF-? · 仪器档案**由外面注入**，而「没接」是一个说得出口的状态
+
+| | |
+|---|---|
+| **Python** | `instrument_profile` 是一个模块级 `_profile` dict，空档案 = `{}`；模块永远在，所以「读不到档案」只有 `import` / 属性访问抛异常那一条路 |
+| **TS** | `processInstrumentProfile.source`（读口函数）。`source === null` = **宿主没接**，与「档案是空的」是两回事 |
+| **测试** | `kernel/src/instrument-profile.test.ts` → 「三态」那几组；`l0/calibrations.test.ts` → 「两种否定」 |
+
+同 D-VAC-1 / D-LIMITS-1 / D-PRESET-2：**档案是台架的属性，不是类的属性**。
+
+做成读口而不是一份快照，是为了让「宿主根本没接」**在类型上存在**。这一条是这一批的要害：
+`ReadCalibrations` 的全部价值是区分「**从未标定过**」与「**读不到档案**」，而把没接存储折成一个
+空档案，它就会永远说前者 —— 与旧仓永远说后者一样，都是一句编造出来的话。
+
+宿主不接时各口的行为：`getConfig` → **出厂默认生效，闸照常关**（旧仓在空档案上也是这个行为）；
+`readProfile` / `getTiltCalibration` / `getCalibration` → **照实说读不到**；
+`zExtendSignOrNone` → `null` ⇒ **拒判**（见下一条）。
+
+变异 `profile-missing-source-is-not-an-empty-profile` 钉着它。
+
+## D-PROF-? · 档案键表**按消融精神裁过**，而裁掉的那些逐条记在金样里
+
+| | |
+|---|---|
+| **Python** | `_CONFIG_SPEC` 39 + `_CHOICE_SPEC` 9 + `_TEXT_SPEC` 1 |
+| **TS** | 8 + 2 + 0 —— **只登记本仓真的有消费方的**（每一行的注释就是消费方） |
+| **测试** | `instrument-profile.test.ts` → 「消融掉的键**一个都没登记**」（名单来自金样 `ablated_keys`） |
+
+未登记的键在 `sanitize` 里被丢掉，与旧仓同一条规则 —— 而那条规则本身咬过人（D-QPLUS-1：
+「两个键必须先注册，否则写得干干净净、读回来永远是 `None`」）。所以这里每加一个消费方，
+要同时加它的那一行；金样把两侧的键集**双向**钉住（多登记一个也红）。
+
+## D-PROF-? · `sanitize` 比旧仓**严**两格：空白串与布尔
+
+| | |
+|---|---|
+| **Python** | `float('  ')` 抛 ⇒ 丢；而 `float(True)` = `1.0`、`int(False)` = `0` ⇒ **收下**（再夹进区间） |
+| **TS** | 空白串丢（同旧仓）；**布尔也丢** |
+| **测试** | `instrument-profile.test.ts` → `sanitize` 那一组的 `STRICTER` 登记（`bool_dropped`） |
+
+⚠️ 空白串这一格在 TS 里**不是白送的**：`Number('  ')` 是 `0`，而 `0 nm` 的远离阈值等于
+「任何 Z 变化都算远离」。同 D-VAC-4：读不到 ≠ 零，而这次是由类型转换伪造出来的。
+布尔那一格是主动收紧（同 `scalarFloat` / `pyFloat`）：一个布尔型的 `z_recede_min_nm` 意味着
+宿主发错了东西，把它当成 `1.0 nm` 用比拒绝它更坏。变异 `profile-blank-string-becomes-zero` 钉着前者。
+
+## D-CAL-? · `ReadCalibrations` 的「标称 f₀/Q」**不移植**，而旧仓那两个字段恒为 `None`
+
+| | |
+|---|---|
+| **Python** | `_qplus_block` 用 `get_config("qplus_f0_hz")` / `("qplus_q")` 取**标称**值 |
+| **TS** | 这两个字段（连同 `nominal_note`）**不出现** |
+| **测试** | `l0/traces.test.ts` → `ReadCalibrations/ok` 的 `absent` 登记；`calibrations.test.ts` → 「标称 f₀/Q 不在报文里」 |
+
+**这是一个旧仓缺陷，不是一次取舍**：那两个键住在**针尖登记表**那一行上（`core/tip_state.py`），
+从来没有在仪器档案的键表里注册过 —— 于是 `sanitize()` 会静默丢掉它们，`get_config` 永远回
+`None`。金样 `skill_traces.json` 里逐格录着 `"nominal_f0_hz": null`，就是证据。
+
+接一条永远返回空的读口，等于给下一个人留一条永远不亮的分支（同 D-CRASH-3）。
+**针尖登记表（批 5a）落地的那天，把它们接到那一侧，不是接到档案上。**
+
+## D-CAL-? · 三块全空时的那句 summary：先问档案读没读到
+
+| | |
+|---|---|
+| **Python** | 无条件写「(已确认读到档案,不是读取失败 —— 逐项 why 里写了原因)」 |
+| **TS** | 先 `readProfile()`：读得到才说那句；读不到就说「原因是**读不到仪器档案本身**……**这不是「从未标定过」**」 |
+| **测试** | `calibrations.test.ts` → 「宿主没接档案存储」那一条 |
+
+**旧仓这一行是真缺陷，而且正好是这个技能存在的理由的反面**：三块全空最常见的成因
+**就是**读不到档案，于是这个专门用来分开两种否定的技能，在它自己的 summary 里把两者
+合成了一句，还合成了错的那一句。变异 `readcalibrations-summary-claims-it-read-the-archive` 钉着它。
+
+## D-ZS-? · `nanonis_calls` 不在结果上：settle 的调用台账由内核记
+
+| | |
+|---|---|
+| **Python** | `settle_and_read_z(ctx, log=…)` 把值得留的记录 append 进 `log`，随 `SkillResult.nanonis_calls` 回去 |
+| **TS** | `SkillResultLike` 没有这一栏（内核记账），所以 `log` 这个入参不存在 |
+| **测试** | 轨迹金样对的是**动词序列**本身（`l0/traces.test.ts`），那比台账更严 |
+
+要紧的几个数（`samples` / `elapsed_s` / `drift_m` / `excursion_m`）本来就骑在 `ZSettle` 上，
+没有随 `log` 一起丢。轮询读**两侧都不记**（5 s × 10 Hz = 100 次往返，一百条记录会把结果自己埋了）。
+
+## D-ZS-? · 两台方向判定机**刻意不合并**
+
+| | |
+|---|---|
+| **Python** | `RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 是两个函数，措辞与电流那一支的判法都不同 |
+| **TS** | `judgeRecedeLadder` / `judgeRecedeClearance`，两台都在内核、都对金样逐格比 |
+| **测试** | `kernel/src/z-settle.test.ts` → 「两台判定机刻意不是同一台」 |
+
+同 D-CHANNELS-1 / D-PIEZO-1：**两个看起来一样的东西，正是将来有人重构时最想合并的东西。**
+
+最要紧的那一格：**读不到 setpoint 时**，梯子版拿一条照成像条件（~100 pA）定的**绝对地板**
+去判，判成 `approaching`；清障版改用一个与工作点无关的界（前放满量程），拿不到就
+**不判电流**并把「这一条没判」写进结论，落到 Z 主证据。2026-08-10 真机上正是前者
+把一次正常的退针判成了「方向搞反了」—— 一句**自信而具体的错话**。金样两台都录着，
+谁把它们合并了当场变红。
+
+## D-RELOC-? · 落点复核（粗动大地图）**不移植** —— 而这条降级要在报文里说出来
+
+| | |
+|---|---|
+| **Python** | `io/coarse_map`(604) + `coarse_map_provider`：算出落点、查最小间距 200 步、查单轴行程预算、里程表失效时只许沿上次方向前进 |
+| **TS** | `#checkDestination` **永远放行**，并带一句「粗动大地图未移植……这一趟没有『别回到去过的站点』这条保护」+ `map_available: false` |
+| **测试** | `composite/coarse-composites.test.ts` → 「落点复核此刻永远放行，而它把地图没移植说出来了」 |
+
+旧仓那段本来就包在 try/except、失败即放行（「落点复核不可用，放行」），所以技术上可降级 ——
+**但降级掉的正是那条保护**，而 2026-08-16 这条链断掉的症状是**第二轮把第一轮的坑原路重打了一遍**，
+没有任何一处报错。所以本仓把「地图不在」**写进 `checks.destination`**，而不是复述旧仓那句
+含糊的「不可用，放行」：两者都放行，但只有前者说得出放行的是什么。
+
+⚠️ 连带后果：`StepCoarseXY` 的 `allow_revisit=true` 此刻**跳过的是一条空的约束**。
+那个技能仍然成立（名字对得上的入口 + ≤60 步的用途上限与地图无关），地图接上来那天它一个字都不用改。
+
+温度（`coarse_map_provider.temperature_k`）同理不移植，`checks.temperature_k` 恒 `null` ——
+它本来就只记录、从不当闸。
+
+## D-RELOC-? · 串扰导航报告不移植（同 D-APPROACH-2）
+
+| | |
+|---|---|
+| **Python** | 每一级 `rung.update(crosstalk_report(ctx))`，加 `crosstalk_modulation_off` / `crosstalk_skipped` 两个键，并经 `ctx.run("GetLockInConfig")` |
+| **TS** | 不写，**也不塞占位键** |
+| **测试** | `l0/traces.test.ts` → `withoutCrosstalk`（期望值从金样算出来） |
+
+它要一条参考曲线，本仓没有。旧仓那段自己写着「这是报告，不是任何流程的目的」，
+整体包在 try/except、永不抛、**不驱动任何决策**。接一个永远返回同一句话的读口，
+等于给下一个人留一条永远不亮的分支（D-CRASH-3 同一条）。
+
+## D-RELOC-? · 急停失败的判据从「抛异常」换成「回包带 error」—— 这一换修了一个真缺陷
+
+| | |
+|---|---|
+| **Python** | `_panic` 的两个动作各包一层 `except Exception` → 记进 `_panic_failures` |
+| **TS** | 看 `rec.error`（`safeCall` **永不抛**，失败表达成 `record.error`） |
+| **测试** | `composite/coarse-composites.test.ts` → 「急停**没能下发**时……照样判失败」 |
+
+**旧仓那两个 `except` 几乎是死代码**：`ExecutionContext.safe_call` 不为仪器报错抛异常，
+它把错放进 `record.error`（见 `core/execution_context.py:274`）。于是「急停下发了但仪器拒绝了」
+**根本不会**进 `_panic_failures`，而那是本技能里唯一一条「针尖可能正贴着表面而马达还在走」的路径。
+照抄那个形状在 TS 里会得到一条恒空的分支 —— 于是改判据。变异
+`relocate-panic-failure-is-still-a-success` 钉着「失败要顶到结论里」。
+
+## D-RELOC-? · 偏压恢复补在**每一条**路径上（旧仓漏了两条）
+
+| | |
+|---|---|
+| **Python** | `_restore_bias` 只在 `_phase_reapproach` 与 `_panic` 里被调 |
+| **TS** | `run()` 收尾处再调一次（幂等） |
+| **测试** | `composite/coarse-composites.test.ts` → 「横移前把偏压降到 0.5 V，而本来就低于它就不碰」 |
+
+**证据是旧仓自己的注释**：它写着「三条路径都要调它：正常收尾、panic、以及 `reapproach=False`
+时的结束。漏掉任何一条，调用方就会在一个自己没要求过的偏压上继续工作」—— 而代码里
+`reapproach=False` 那条**没有**调用点，清障基线不可用那条 fail-closed 返回也不经过 `_panic`。
+两种情况下调用方都会停在 0.5 V 上。那正是 2026-08-26 追了半夜的那件事。
+
+## D-RELOC-? · 步进计数器对账的答复**顶到结果里**（旧仓留在步骤里）
+
+| | |
+|---|---|
+| **Python** | `_phase_verify` 返回 `{"counter": "unavailable", "note": "……这是如实记录,不是通过"}`，而 `run_composite` 的 `data` 里没有这一格 |
+| **TS** | `onStepResult` 把它写进 `partial_data`，最终 `data.step_counter` 带着它 |
+| **测试** | `integration/coarse-composites.test.ts` → 「这台控制器真的不支持步进计数器」 |
+
+一句专门写来防止「打一个安心的勾」的话，读不到就等于没写。stmsim 正好是不支持
+`Motor_StepCounterGet` 的那一种（`NeedModule`），一跑就照出来了。
+
+⚠️ 另一处**照移未改**：前置检查那张 `checks` 表在**拒绝路径上不进最终 `data`**（`#checks` 只在
+整段 preflight 走完之后才赋值，旧仓同）。于是一次拒绝的全部诊断只在 `error` 那一句里。
+这一条登记在这里但没动 —— 它牵动金样里已经录好的几格，值得单独一次。

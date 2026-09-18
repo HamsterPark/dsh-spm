@@ -407,7 +407,15 @@ const BATCH_5A: string[] = []   // 针尖登记表底座 + TipPulse/TipShape + �
 const BATCH_5B: string[] = []   // A 档零散一批（各自自足，不压子系统）
 
 // ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
-const BATCH_5C: string[] = []   // 仪器档案 + Z 稳定 + 粗动驱动三个子系统
+const BATCH_5C: string[] = [
+  // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。
+  'ReadCalibrations',
+  // `_z_settle` 那一对 —— **必须同批**，共用 `z-settle.ts` 与同一批配置口。
+  'RetractForSampleChange',
+  'RelocateCoarseXY',
+  // 上一条落了，这个是一层薄壳。
+  'StepCoarseXY',
+]   // 仪器档案 + Z 稳定 + 粗动驱动三个子系统
 
 /**
  * 批 3b：装在 GraphExecutor 上的另一半验收。

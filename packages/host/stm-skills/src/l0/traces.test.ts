@@ -17,6 +17,8 @@ import { describe, expect, it } from 'vitest'
 import {
   attest,
   emptyHardwareState,
+  processCoarseDrive,
+  processInstrumentProfile,
   processTemperature,
   processVacuum,
   readTemperature,
@@ -432,6 +434,91 @@ function fullScanChannelLabels(trace: string): { data?: Record<string, unknown> 
 
 
 /**
+ * 批 5c · 串扰导航报告不移植：把每一级上那两个 `crosstalk_*` 键摘掉。
+ *
+ * 逐级的那张表出现在**两处**（`data.rungs` 与 `_progress.partial_data.rungs`），
+ * 两处都要摘 —— 漏一处会让这条登记看起来「过期了」而其实只是摘漏了
+ * （`fullScanChannelLabels` 已经在同一个坑上付过一次账）。
+ *
+ * 只在金样那一格**真的**带着这两个键时才登记：不带的时候挂一条偏差，
+ * 等于登记一条不存在的差异。
+ */
+const CROSSTALK_KEYS = ['crosstalk_modulation_off', 'crosstalk_skipped'] as const
+
+/**
+ * `stripVolatile` 的**早求值**版本 —— 同一张键表，递归到底。
+ *
+ * 为什么又是一份：`DEVIATIONS` 是模块级常量，在 `VOLATILE` 那一行之前就求值，
+ * 调 `stripVolatile` 会撞 TDZ（`stripProgressClock` 那段注释写的是同一件事，
+ * 只是它只剥 `_progress` 的两个时刻，而批 5c 的 `elapsed_s` 藏在
+ * `rungs[i].settle` 里，深两层）。
+ *
+ * 两份实现在这个仓里已经付过三次账，所以**键表由一条测试钉死等于 `VOLATILE`**
+ * （`批 5c 的 EARLY_VOLATILE 与 VOLATILE 是同一张表`）：哪天那边长出一个键，
+ * 这边不跟就当场变红。
+ */
+const EARLY_VOLATILE = [
+  'read_at', 'confirm_waited_s', 'elapsed_s', 'started_at', 'last_update_at',
+  'module_ran_s', 'waited_s',
+]
+
+function stripClockEarly(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(stripClockEarly)
+  if (v !== null && typeof v === 'object') {
+    return Object.fromEntries(
+      Object.entries(v as Record<string, unknown>)
+        .filter(([k]) => !EARLY_VOLATILE.includes(k))
+        .map(([k, x]) => [k, stripClockEarly(x)]),
+    )
+  }
+  return v
+}
+
+function stripCrosstalk(rungs: unknown): { rungs: unknown; found: boolean } {
+  if (!Array.isArray(rungs)) return { rungs, found: false }
+  let found = false
+  const out = rungs.map((r) => {
+    if (r === null || typeof r !== 'object') return r
+    const copy = { ...(r as Record<string, unknown>) }
+    for (const k of CROSSTALK_KEYS) {
+      if (k in copy) {
+        found = true
+        delete copy[k]
+      }
+    }
+    return copy
+  })
+  return { rungs: out, found }
+}
+
+/** 本仓多出来的那一格：对账那一步的答复（见 `DEVIATIONS` 里那段）。 */
+function withStepCounter(trace: string): Deviation {
+  const want = golden['RelocateCoarseXY']?.traces[trace]?.data
+  if (want === undefined) return {}
+  return { data: { ...(stripClockEarly(want) as Record<string, unknown>), step_counter: null } }
+}
+
+function withoutCrosstalk(trace: string): Deviation {
+  const want = golden['RetractForSampleChange']?.traces[trace]?.data
+  if (want === undefined) return {}
+  const base = stripClockEarly(want) as Record<string, unknown>
+  const top = stripCrosstalk(base['rungs'])
+  const progress = base['_progress'] as Record<string, unknown> | undefined
+  const partial = progress?.['partial_data'] as Record<string, unknown> | undefined
+  const inner = stripCrosstalk(partial?.['rungs'])
+  if (!top.found && !inner.found) return {}
+  return {
+    data: {
+      ...base,
+      rungs: top.rungs,
+      ...(partial === undefined
+        ? {}
+        : { _progress: { ...progress, partial_data: { ...partial, rungs: inner.rungs } } }),
+    },
+  }
+}
+
+/**
  * D-SKILL-1 在**空 body** 上的又一批：旧仓把整个回包信封
  * `["", "<bytes 0>", []]` 当成读数交了出去，而本仓在 wire 层就把信封拆了，
  * 手上只有 body（`[]`）。
@@ -784,6 +871,47 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       fullScanChannelLabels(t),
     ]),
   ),
+  // ── 批 5c：`ReadCalibrations` 的「标称 f₀/Q」两个字段不移植 ──
+  //
+  // 旧仓那两个字段**恒为 `None`**，而且是有原因的：它们住在**针尖登记表**那一行上
+  // （`core/tip_state.py`），而这个技能是用 `get_config` 去**仪器档案**里取的。
+  // 那两个键从来没在档案的键表里注册过，于是 `sanitize()` 静默丢掉它们 ——
+  // 与 D-QPLUS-1 记着的那个坑是同一个。金样里逐格录着 `null`，就是证据。
+  //
+  // 接一个永远返回空的读口，等于给下一个人留一条永远不亮的分支（同 D-CRASH-3）。
+  // 针尖登记表落地的那天，把它们接到**那一侧**，不是接到档案上。
+  'ReadCalibrations/ok': {
+    absent: ['qplus.nominal_f0_hz', 'qplus.nominal_q', 'qplus.nominal_note'],
+  },
+  // ── 批 5c：串扰导航报告不移植（同 D-APPROACH-2）──
+  //
+  // 它要一条参考曲线，本仓没有。旧仓那段自己写着「这是报告，不是任何流程的目的」，
+  // 整体包在 try/except、永不抛、**不驱动任何决策** —— 梯子的进退只看方向判据。
+  // 期望值**从金样算出来**：旧仓哪天把这两个键改了，这条登记会跟着变。
+  ...Object.fromEntries(
+    Object.keys(golden['RetractForSampleChange']?.traces ?? {}).map((t) => [
+      `RetractForSampleChange/${t}`,
+      withoutCrosstalk(t),
+    ]),
+  ),
+  // ── 批 5c：`RelocateCoarseXY` 多一格 `step_counter` ──
+  //
+  // 旧仓 `_phase_verify` 的答复（「本控制器不支持步进计数器读回…… **这是如实记录,
+  // 不是通过**」）**从来没有离开过那个步骤** —— `run_composite` 的 `data` 里没有它。
+  // 一句专门写来防止「打一个安心的勾」的话，读不到就等于没写，所以本仓把它顶上来。
+  // 这几格轨迹都停在 preflight，所以那一格是 `null`（这一步没跑到）。
+  ...Object.fromEntries(
+    Object.keys(golden['RelocateCoarseXY']?.traces ?? {}).map((t) => [
+      `RelocateCoarseXY/${t}`,
+      withStepCounter(t),
+    ]),
+  ),
+  ...Object.fromEntries(
+    Object.keys(golden['StepCoarseXY']?.traces ?? {}).map((t) => [
+      `StepCoarseXY/${t}`,
+      { clockApprox: true } as const,
+    ]),
+  ),
 }
 
 /**
@@ -919,7 +1047,46 @@ const VACUUM_FIXTURE: PressureSample = {
   timestamp: '2023-11-14T22:13:08+00:00', // = ENV_NOW_S - 12
   sensorName: 'Chamber', sensorClass: 'DL7VacuumSensor',
 }
-const NEEDS_VACUUM = new Set(['GetChamberPressure'])
+const NEEDS_VACUUM = new Set(['GetChamberPressure', 'RelocateCoarseXY', 'StepCoarseXY'])
+
+/**
+ * 批 5c：**一台填过的机器**。与 `export_skill_traces.py` 的 `PROFILE_FIXTURE` 逐字同形。
+ *
+ * 不摆这一份，重放的是「宿主没接档案」——而那一侧本仓会**如实说读不到**，
+ * 金样那一侧说的却是「从未标定过」。两句话都对，只是前提不同；
+ * 把前提摆出来，比的才是同一件事（同 `PRESET_FIXTURE` / `LOCKIN_FIXTURE` 的理由）。
+ *
+ * ⚠️ 粗动驱动声明**故意不摆**：金样那几格录的正是「没声明 ⇒ 拒绝一切」那道闸。
+ */
+const PROFILE_FIXTURE: Record<string, unknown> = {
+  retract_motor_dir: 'z-',
+  z_extend_sign: '-1',
+  z_recede_min_nm: 1.0,
+  z_settle_timeout_s: 5.0,
+  retract_total_steps: 111,
+  retract_step_max: 100,
+  xy_prewithdraw_steps: 11,
+  xy_move_chunk_steps: 10,
+  lockin_signal_index: 86,
+  preamp_full_scale_a: 1e-8,
+  tilt_cal_g11: -1.02,
+  tilt_cal_g12: 0.07,
+  tilt_cal_g21: 0.03,
+  tilt_cal_g22: -0.98,
+  tilt_cal_cond: 1.1128,
+  tilt_cal_updated_at: 1_699_000_000.0,
+  didv_at_contact_v: 2.5e-3,
+  didv_cal_bias_v: 0.05,
+  didv_cal_setpoint_a: 1e-10,
+  didv_cal_mod_amp_v: 0.02,
+  didv_cal_updated_at: 1_699_996_400.0,
+  qplus_f0_measured_hz: 32768.0,
+  qplus_q_measured: 24000.0,
+  qplus_fq_updated_at: 1_699_999_400.0,
+}
+const NEEDS_PROFILE = new Set([
+  'ReadCalibrations', 'RetractForSampleChange', 'RelocateCoarseXY', 'StepCoarseXY',
+])
 const TEMP_FIXTURE: TempChannel[] = [
   {
     name: 'SPM (COM3)', value: 77.35, unit: 'K', status: 'ok',
@@ -960,6 +1127,13 @@ function resetProcessState(skillName: string): void {
     attest('vented_to_atmosphere', {
       signedBy: '操作员甲', ttlS: 6 * 3600.0, note: '腔体已通大气',
     })
+  }
+  // 批 5c。同样**先全清再按需摆**。
+  processInstrumentProfile.nowS = () => ENV_NOW_S
+  processInstrumentProfile.source = null
+  processCoarseDrive.source = null
+  if (NEEDS_PROFILE.has(skillName)) {
+    processInstrumentProfile.source = () => PROFILE_FIXTURE
   }
   processTemperature.source = null
   processTemperature.channelsSource = null
@@ -1125,5 +1299,15 @@ describe('批 4d 的 dev.data 与 stripVolatile 同口径', () => {
         expect(stripProgressClock(want)).toEqual(stripVolatile(want))
       })
     }
+  }
+  // 批 5c 的那一份（递归到底）同样钉住。
+  it('批 5c 的 EARLY_VOLATILE 与 VOLATILE 是同一张表', () => {
+    expect([...EARLY_VOLATILE].sort()).toEqual([...VOLATILE].sort())
+  })
+  for (const trace of Object.keys(golden['RetractForSampleChange']?.traces ?? {})) {
+    it(`RetractForSampleChange/${trace}`, () => {
+      const want = golden['RetractForSampleChange']?.traces[trace]?.data ?? {}
+      expect(stripClockEarly(want)).toEqual(stripVolatile(want))
+    })
   }
 })

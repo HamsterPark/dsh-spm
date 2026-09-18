@@ -380,7 +380,21 @@ BATCH_5A: list[str] = []   # 针尖登记表底座 + TipPulse/TipShape + 两个 
 BATCH_5B: list[str] = []   # A 档零散一批（各自自足，不压子系统）
 
 #: ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
-BATCH_5C: list[str] = []   # 仪器档案 + Z 稳定 + 粗动驱动三个子系统
+BATCH_5C: list[str] = [
+    # 零 TCP —— 它读的全是进程内的仪器档案。所以这四格录的是**报文**，
+    # 而报文正是这个技能的全部产物（「从未标定过」vs「读不到档案」）。
+    "ReadCalibrations",
+    # 分级退针。假回包是恒定的 ⇒ settle 每次都在第 5 个样本上收敛成 `tracking`，
+    # 而恒定电流 0.25 A 远高于 1 nA 的绝对地板 ⇒ 第 0 级就跳闸判 `approaching`。
+    # 录到的正是**电流危险跳闸**那一支与它的措辞。
+    "RetractForSampleChange",
+    # 这两条停在**驱动读回**那道闸上（`coarse_drive` 没有声明 ⇒ 拒绝一切）。
+    # 那是本批最要紧的一道闸，而且它**没有**别的金样覆盖。
+    # 声明装上之后的那几支在 `export_coarse_drive.py` 里 —— 通用驱动器喂常数回包，
+    # 走不到档案与粗动的判据。
+    "RelocateCoarseXY",
+    "StepCoarseXY",
+]   # 仪器档案 + Z 稳定 + 粗动驱动三个子系统
 #
 # ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
 # `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。
@@ -493,6 +507,10 @@ PARAM_OVERRIDES: dict[str, dict] = {
         "fast_x": "[0.0, 0.5, 1.0]", "fast_y": "[0.0, 0.25, 0.75]",
         "slow_x": "[0.1, 0.2]", "slow_y": "[0.3, 0.4]",
     },
+    # 批 5c：`steps` 的中点是 **50000**，而 `plan()` 会按 `xy_move_chunk_steps`
+    # 把它摊成 5000 个步骤 —— 一份没人读得完的金样，而这一趟在第 1 步就被驱动闸拒掉，
+    # 那 5000 步一个都不会跑。给一个读得完的数。
+    "RelocateCoarseXY": {"steps": 20},
     # 逗号分隔的通道索引。通用规则给的 "spec-export" 解析不了 ⇒ `ok` 那一趟录到的
     # 是解析拒绝，而下发那一路（三次/四次调用）一条金样都没有。
     "StartDataLog": {"channels": "0,14", "duration_s": 10.0},
@@ -1058,7 +1076,51 @@ VACUUM_ATTESTATION = {
     "reason": "vented_to_atmosphere", "signed_by": "操作员甲",
     "ttl_s": 6 * 3600.0, "note": "腔体已通大气",
 }
-NEEDS_VACUUM = {"GetChamberPressure"}
+#: 批 5c：粗动那两条也要一只放行的规 —— 否则它们停在**真空**那道闸上，
+#: 而那道闸 `GetChamberPressure` 已经录过了。让它们走到下一道（驱动读回）。
+NEEDS_VACUUM = {"GetChamberPressure", "RelocateCoarseXY", "StepCoarseXY"}
+
+# ── 批 5c：仪器档案夹具 ──────────────────────────────────────────────────
+#
+#: 一台**填过**的机器。三件事靠它才录得到：
+#:   * `z_extend_sign = '-1'` —— 声明过 ⇒ 方向自检有判据（没声明会落在 `no_sign`，
+#:     那一支由 `export_instrument_profile.py` 单独录）；
+#:   * `retract_total_steps = 111` ⇒ 梯子正好是 `1 → 10 → 100`，三级，金样读得完；
+#:   * 三块标定各占一个**年龄分支**（天 / 小时 / 分钟），而 `_age_note` 的三种措辞
+#:     正是 `ReadCalibrations` 要说的话。
+#:
+#: ⚠️ `tilt_cal_updated_at` 那一条会被 `time.strftime(localtime(ts))` 渲染成
+#: **本地时区**的一串字符。两侧（导出器与 TS 测试）跑在同一台机器上，所以它对得上；
+#: 换时区跑 CI 会红 —— 那是**如实的**红，见交接 §6。
+PROFILE_FIXTURE = {
+    "retract_motor_dir": "z-",
+    "z_extend_sign": "-1",
+    "z_recede_min_nm": 1.0,
+    "z_settle_timeout_s": 5.0,
+    "retract_total_steps": 111,
+    "retract_step_max": 100,
+    "xy_prewithdraw_steps": 11,
+    "xy_move_chunk_steps": 10,
+    "lockin_signal_index": 86,
+    "preamp_full_scale_a": 1e-8,
+    # 标定三块（`ReadCalibrations` 的三条路都走 `available=True`）
+    "tilt_cal_g11": -1.02, "tilt_cal_g12": 0.07,
+    "tilt_cal_g21": 0.03, "tilt_cal_g22": -0.98,
+    "tilt_cal_cond": 1.1128,
+    "tilt_cal_updated_at": 1_699_000_000.0,      # 11.6 天前 → 天分支 + 换样品那句
+    "didv_at_contact_v": 2.5e-3,
+    "didv_cal_bias_v": 0.05,
+    "didv_cal_setpoint_a": 1e-10,
+    "didv_cal_mod_amp_v": 0.02,
+    "didv_cal_updated_at": 1_699_996_400.0,      # 3600 s → 小时分支
+    "qplus_f0_measured_hz": 32768.0,
+    "qplus_q_measured": 24000.0,
+    "qplus_fq_updated_at": 1_699_999_400.0,      # 600 s → 分钟分支
+}
+NEEDS_PROFILE = {
+    "ReadCalibrations", "RetractForSampleChange",
+    "RelocateCoarseXY", "StepCoarseXY",
+}
 
 #: 三个温度通道，刻意各占一种形状：
 #:   * `SPM (COM3)`    —— 真驱动、`ok`、12 秒前 ⇒ 不指名时**样品台优先**选中它；
@@ -1113,6 +1175,22 @@ def _reset_state(name: str) -> None:
                         signed_by=VACUUM_ATTESTATION["signed_by"],
                         ttl_s=VACUUM_ATTESTATION["ttl_s"],
                         note=VACUUM_ATTESTATION["note"])
+    except Exception:  # noqa: BLE001
+        pass
+    # 批 5c：仪器档案与粗动驱动声明。**先全清再按需摆** —— 两个都是进程级的，
+    # 漏清一次就会让后面某一格「因为上一格填过档案」而走到另一支。
+    try:
+        import mast.core.instrument_profile as _ip
+        _ip.set_profile({})
+        if name in NEEDS_PROFILE:
+            _ip.set_profile(dict(PROFILE_FIXTURE))
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        # 粗动驱动声明**一格都不摆**：没声明就拒绝一切，而那正是这一批要录的那道闸。
+        # 声明装上之后的分支在 `export_coarse_drive.py`。
+        import mast.core.coarse_drive as _cd
+        _cd.set_declaration({})
     except Exception:  # noqa: BLE001
         pass
     # 批 3k：温度。源自己带 `now`（见 `_FAKE_NOW_ISO` 那段注释）。

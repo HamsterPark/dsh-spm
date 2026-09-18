@@ -1,0 +1,536 @@
+{
+  "authorize": {
+    "amp_and_freq": {
+      "at_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 400 V 超过本机声明上限 220 V —— 拒绝执行。\n【不会自动降到上限】:那样调用方会以为自己设的是 400 V,而实际跑的是 220 V。要用更高的电压,必须由用户先修改本机声明。"
+      },
+      "at_ceiling": {
+        "ok": true,
+        "reason": "220 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "fractional": {
+        "ok": true,
+        "reason": "12.5 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "freq_negative": {
+        "ok": false,
+        "reason": "驱动频率 -1.0 超出 0..20000 Hz"
+      },
+      "freq_not_a_number": {
+        "ok": false,
+        "reason": "驱动频率不是一个数值:'abc'"
+      },
+      "freq_over_absolute": {
+        "ok": false,
+        "reason": "驱动频率 20001.0 超出 0..20000 Hz"
+      },
+      "inf": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "nan": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "negative": {
+        "ok": false,
+        "reason": "驱动幅度不能为负"
+      },
+      "none": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:None"
+      },
+      "not_a_number": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:'abc'"
+      },
+      "over_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 401 V 超过绝对上限 400 V —— 这已经不是「上限设低了」,而是数量级/单位错了。任何配置都不能放宽这一条。"
+      },
+      "over_ceiling": {
+        "ok": false,
+        "reason": "驱动幅度 260 V 超过本机声明上限 220 V —— 拒绝执行。\n【不会自动降到上限】:那样调用方会以为自己设的是 260 V,而实际跑的是 220 V。要用更高的电压,必须由用户先修改本机声明。"
+      },
+      "under_ceiling": {
+        "ok": true,
+        "reason": "30 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "zero": {
+        "ok": true,
+        "reason": "0 V ≤ 本机声明上限 220 V（axis=all）"
+      }
+    },
+    "amp_only": {
+      "at_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 400 V 超过本机声明上限 220 V —— 拒绝执行。\n【不会自动降到上限】:那样调用方会以为自己设的是 400 V,而实际跑的是 220 V。要用更高的电压,必须由用户先修改本机声明。"
+      },
+      "at_ceiling": {
+        "ok": true,
+        "reason": "220 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "fractional": {
+        "ok": true,
+        "reason": "12.5 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "freq_negative": {
+        "ok": false,
+        "reason": "驱动频率 -1.0 超出 0..20000 Hz"
+      },
+      "freq_not_a_number": {
+        "ok": false,
+        "reason": "驱动频率不是一个数值:'abc'"
+      },
+      "freq_over_absolute": {
+        "ok": false,
+        "reason": "驱动频率 20001.0 超出 0..20000 Hz"
+      },
+      "inf": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "nan": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "negative": {
+        "ok": false,
+        "reason": "驱动幅度不能为负"
+      },
+      "none": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:None"
+      },
+      "not_a_number": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:'abc'"
+      },
+      "over_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 401 V 超过绝对上限 400 V —— 这已经不是「上限设低了」,而是数量级/单位错了。任何配置都不能放宽这一条。"
+      },
+      "over_ceiling": {
+        "ok": false,
+        "reason": "驱动幅度 260 V 超过本机声明上限 220 V —— 拒绝执行。\n【不会自动降到上限】:那样调用方会以为自己设的是 260 V,而实际跑的是 220 V。要用更高的电压,必须由用户先修改本机声明。"
+      },
+      "under_ceiling": {
+        "ok": true,
+        "reason": "30 V ≤ 本机声明上限 220 V（axis=all）"
+      },
+      "zero": {
+        "ok": true,
+        "reason": "0 V ≤ 本机声明上限 220 V（axis=all）"
+      }
+    },
+    "over_absolute": {
+      "at_absolute": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "at_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "fractional": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_negative": {
+        "ok": false,
+        "reason": "驱动频率 -1.0 超出 0..20000 Hz"
+      },
+      "freq_not_a_number": {
+        "ok": false,
+        "reason": "驱动频率不是一个数值:'abc'"
+      },
+      "freq_over_absolute": {
+        "ok": false,
+        "reason": "驱动频率 20001.0 超出 0..20000 Hz"
+      },
+      "inf": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "nan": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "negative": {
+        "ok": false,
+        "reason": "驱动幅度不能为负"
+      },
+      "none": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:None"
+      },
+      "not_a_number": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:'abc'"
+      },
+      "over_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 401 V 超过绝对上限 400 V —— 这已经不是「上限设低了」,而是数量级/单位错了。任何配置都不能放宽这一条。"
+      },
+      "over_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "under_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "zero": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      }
+    },
+    "undeclared": {
+      "at_absolute": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "at_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "fractional": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_negative": {
+        "ok": false,
+        "reason": "驱动频率 -1.0 超出 0..20000 Hz"
+      },
+      "freq_not_a_number": {
+        "ok": false,
+        "reason": "驱动频率不是一个数值:'abc'"
+      },
+      "freq_over_absolute": {
+        "ok": false,
+        "reason": "驱动频率 20001.0 超出 0..20000 Hz"
+      },
+      "inf": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "nan": {
+        "ok": false,
+        "reason": "驱动幅度不是一个有限数值"
+      },
+      "negative": {
+        "ok": false,
+        "reason": "驱动幅度不能为负"
+      },
+      "none": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:None"
+      },
+      "not_a_number": {
+        "ok": false,
+        "reason": "驱动幅度不是一个数值:'abc'"
+      },
+      "over_absolute": {
+        "ok": false,
+        "reason": "驱动幅度 401 V 超过绝对上限 400 V —— 这已经不是「上限设低了」,而是数量级/单位错了。任何配置都不能放宽这一条。"
+      },
+      "over_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "under_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "zero": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      }
+    }
+  },
+  "constants": {
+    "absolute_max_amplitude_v": 400.0,
+    "absolute_max_frequency_hz": 20000.0,
+    "all_keys": [
+      "max_amplitude_v",
+      "expected_frequency_hz",
+      "declared_by",
+      "notes",
+      "declared_at"
+    ],
+    "readback_rel_tol": 0.02,
+    "settings_key": "coarse_drive",
+    "undeclared_text": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+  },
+  "declaration": {
+    "amp_and_freq": {
+      "expected_frequency_hz": 1000.0,
+      "is_declared": true,
+      "max_amplitude_v": 220.0,
+      "stored": {
+        "declared_by": "spec-export",
+        "expected_frequency_hz": 1000.0,
+        "max_amplitude_v": 220.0,
+        "notes": "金样夹具"
+      }
+    },
+    "amp_only": {
+      "expected_frequency_hz": null,
+      "is_declared": true,
+      "max_amplitude_v": 220.0,
+      "stored": {
+        "max_amplitude_v": 220.0
+      }
+    },
+    "over_absolute": {
+      "expected_frequency_hz": null,
+      "is_declared": false,
+      "max_amplitude_v": null,
+      "stored": {}
+    },
+    "undeclared": {
+      "expected_frequency_hz": null,
+      "is_declared": false,
+      "max_amplitude_v": null,
+      "stored": {}
+    }
+  },
+  "format_block": {
+    "amp_and_freq": "【粗动驱动电压】本机声明上限 220 V、期望频率 1000 Hz(用户设定,只读)。这是唯一能保护压电叠堆的数字,**不要尝试修改它,也不要尝试设置驱动电压** —— 需要改就交给用户。",
+    "amp_only": "【粗动驱动电压】本机声明上限 220 V(用户设定,只读)。这是唯一能保护压电叠堆的数字,**不要尝试修改它,也不要尝试设置驱动电压** —— 需要改就交给用户。",
+    "over_absolute": "【粗动驱动电压】本机上限未声明 —— 任何设置驱动电压的尝试都会被拒绝,粗动移动也会被拒绝。这是用户在【高级】页填写的参数,不要尝试自己设定。",
+    "undeclared": "【粗动驱动电压】本机上限未声明 —— 任何设置驱动电压的尝试都会被拒绝,粗动移动也会被拒绝。这是用户在【高级】页填写的参数,不要尝试自己设定。"
+  },
+  "readback_matches": {
+    "amp_and_freq": {
+      "amp_at_ceiling": {
+        "ok": true,
+        "reason": "当前驱动幅度 220 V ≤ 本机声明上限 220 V"
+      },
+      "amp_inside_tolerance": {
+        "ok": true,
+        "reason": "当前驱动幅度 224 V ≤ 本机声明上限 220 V"
+      },
+      "amp_nan": {
+        "ok": false,
+        "reason": "粗动驱动幅度读数不是有限数值,拒绝粗动"
+      },
+      "amp_not_a_number": {
+        "ok": false,
+        "reason": "读不到当前粗动驱动幅度,拒绝粗动。读不到 ≠ 没问题 —— 电压可能是别人在 Nanonis 界面里改的。"
+      },
+      "amp_outside_tolerance": {
+        "ok": false,
+        "reason": "当前粗动驱动幅度 225 V 高于本机声明上限 220 V —— 拒绝粗动。请在 Nanonis 里把它调回来,或由用户更新本机声明。"
+      },
+      "amp_way_over": {
+        "ok": false,
+        "reason": "当前粗动驱动幅度 390 V 高于本机声明上限 220 V —— 拒绝粗动。请在 Nanonis 里把它调回来,或由用户更新本机声明。"
+      },
+      "amp_within": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_absent": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_mismatch_warns_not_refuses": {
+        "ok": true,
+        "reason": "幅度 30 V 合规,但驱动频率 500 Hz 与声明的 1000 Hz 不符 —— 每步走的距离会变,里程表会漂。"
+      },
+      "freq_unreadable_but_declared": {
+        "ok": false,
+        "reason": "读不到当前粗动驱动频率,而本机声明了期望频率,拒绝粗动"
+      },
+      "freq_within_10pct": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "unreadable_amp": {
+        "ok": false,
+        "reason": "读不到当前粗动驱动幅度,拒绝粗动。读不到 ≠ 没问题 —— 电压可能是别人在 Nanonis 界面里改的。"
+      }
+    },
+    "amp_only": {
+      "amp_at_ceiling": {
+        "ok": true,
+        "reason": "当前驱动幅度 220 V ≤ 本机声明上限 220 V"
+      },
+      "amp_inside_tolerance": {
+        "ok": true,
+        "reason": "当前驱动幅度 224 V ≤ 本机声明上限 220 V"
+      },
+      "amp_nan": {
+        "ok": false,
+        "reason": "粗动驱动幅度读数不是有限数值,拒绝粗动"
+      },
+      "amp_not_a_number": {
+        "ok": false,
+        "reason": "读不到当前粗动驱动幅度,拒绝粗动。读不到 ≠ 没问题 —— 电压可能是别人在 Nanonis 界面里改的。"
+      },
+      "amp_outside_tolerance": {
+        "ok": false,
+        "reason": "当前粗动驱动幅度 225 V 高于本机声明上限 220 V —— 拒绝粗动。请在 Nanonis 里把它调回来,或由用户更新本机声明。"
+      },
+      "amp_way_over": {
+        "ok": false,
+        "reason": "当前粗动驱动幅度 390 V 高于本机声明上限 220 V —— 拒绝粗动。请在 Nanonis 里把它调回来,或由用户更新本机声明。"
+      },
+      "amp_within": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_absent": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_mismatch_warns_not_refuses": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_unreadable_but_declared": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "freq_within_10pct": {
+        "ok": true,
+        "reason": "当前驱动幅度 30 V ≤ 本机声明上限 220 V"
+      },
+      "unreadable_amp": {
+        "ok": false,
+        "reason": "读不到当前粗动驱动幅度,拒绝粗动。读不到 ≠ 没问题 —— 电压可能是别人在 Nanonis 界面里改的。"
+      }
+    },
+    "over_absolute": {
+      "amp_at_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_inside_tolerance": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_nan": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_not_a_number": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_outside_tolerance": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_way_over": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_within": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_absent": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_mismatch_warns_not_refuses": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_unreadable_but_declared": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_within_10pct": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "unreadable_amp": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      }
+    },
+    "undeclared": {
+      "amp_at_ceiling": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_inside_tolerance": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_nan": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_not_a_number": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_outside_tolerance": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_way_over": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "amp_within": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_absent": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_mismatch_warns_not_refuses": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_unreadable_but_declared": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "freq_within_10pct": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      },
+      "unreadable_amp": {
+        "ok": false,
+        "reason": "本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。"
+      }
+    }
+  },
+  "sanitize": {
+    "at_absolute_kept": {
+      "max_amplitude_v": 400.0
+    },
+    "empty": {},
+    "freq_over_dropped": {},
+    "full": {
+      "declared_by": "spec-export",
+      "expected_frequency_hz": 1000.0,
+      "max_amplitude_v": 220.0,
+      "notes": "金样夹具"
+    },
+    "inf_dropped": {},
+    "nan_dropped": {},
+    "negative_dropped": {},
+    "not_a_dict": {},
+    "numeric_string": {
+      "max_amplitude_v": 220.0
+    },
+    "over_absolute_dropped": {},
+    "stamp_kept": {
+      "declared_at": 1700000000.0
+    },
+    "text_trimmed": {
+      "declared_by": "甲",
+      "notes": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "unknown_dropped": {}
+  }
+}

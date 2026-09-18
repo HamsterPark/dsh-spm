@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 4 个 · 批 4c 12 个 · 批 4d 2 个 · 批 5a 0 个 · 批 5b 0 个 · 批 5c 0 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 4 个 · 批 4c 12 个 · 批 4d 2 个 · 批 5a 0 个 · 批 5b 0 个 · 批 5c 4 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -4690,6 +4690,62 @@ export const FullScanSpec: SkillSpec = {
   safetyLevel: "CONFIRM",
 }
 
+export const ReadCalibrationsSpec: SkillSpec = {
+  name: "ReadCalibrations",
+  description: "读取仪器档案里的标定值:①倾斜响应矩阵 G(AutoTilt 依赖它)②接触点 dI/dV ③qPlus 实测共振 f₀/Q。每一项都带**年龄**与**适用边界**。**纯读,不动任何硬件。**\n\n⚠️ **被「未标定」挡住时先调本工具**——它会告诉你到底是「从未标定过」还是「读不到档案」,这两件事的处置完全不同。\n\n⚠️ **条件数只管形状不管方向**:一个好看的条件数**不等于**标定可用 (2026-08-10 真机:cond=1.11 而 AutoTilt 仍发散,根因是符号/求逆)。",
+  parameters: [
+    { name: "which", type: "str", description: "只看某一项:tilt / didv / qplus。留空返回全部。", required: false, default: "" },
+  ],
+  tags: ["read","calibration","diagnostic","instrument_profile"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
+export const RetractForSampleChangeSpec: SkillSpec = {
+  name: "RetractForSampleChange",
+  description: "换样品/关机前的大退针：先收压电，再用粗动马达沿配置的退针方向分级(1→10→100→剩余)后退约数千步；每级退完开反馈回读 Z 压电走向自检(只有确认在远离才继续，检测到逼近立即停+撤针)。方向/步数/阈值来自 instrument_profile。",
+  parameters: [
+    { name: "total_steps", type: "int", description: "退针总步数(覆盖 instrument_profile 的默认)。分级 1→10→100→剩余(按单次上限分批)后退这么多步。", required: false, minValue: 1, maxValue: 1000000 },
+  ],
+  tags: ["tip","safety","retract","sample-change","coarse","dangerous"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const RelocateCoarseXYSpec: SkillSpec = {
+  name: "RelocateCoarseXY",
+  description: "**换区专用**:把样品台横向粗动到一片新表面。这是唯一应该自主使用的换区方式,不要直接调 MotorMove 做横向移动。\n顺序:前置检查(真空互锁/驱动电压读回核对/扫描已停/落点不与去过的站点重叠) → 清障(收压电 + 粗动 Z 退针,逐级自检方向,并确认电流归零、qPlus 振幅恢复) → 分块横移(每块之后看电流/振幅/真空,异常立即停并再退针) → 步进计数器对账 → 可选重新进针。\n成功后扫描地图自动进入**新的坐标代次**(旧坐标全部作废),并在粗动大地图上留下一个新站点。用 get_coarse_map 决定往哪走、走多少步。",
+  parameters: [
+    { name: "axis", type: "str", description: "横向轴:'x' 或 'y'", required: true, allowedValues: ["x","y"] },
+    { name: "direction", type: "str", description: "方向:'+' 或 '-'", required: true, allowedValues: ["+","-"] },
+    { name: "steps", type: "int", description: "横向粗动步数。必须大到让新区域完全跳出压电量程,否则只是把旧区域挪进视野。用 get_coarse_map 的建议值。\n⚠️ 别在这里写死量程数字:本机实测半程 ±1.22 µm(GetPiezoConfig 的 calibration 121.95 nm/V x ±10 V),而配置里存的是 2.52 µm、这行原来写的是 1.5 µm —— **三个数**。要真值就调 CheckPiezoRange,它直接问仪器。", required: true, minValue: 1, maxValue: 100000 },
+    { name: "reapproach", type: "bool", description: "移动完成后是否自动重新进针(AutoApproach)。", required: false, default: true },
+    { name: "prewithdraw_steps", type: "int", description: "横向移动前的粗动退针步数(清障)。留空用 instrument_profile 的 xy_prewithdraw_steps(默认 100)。压电退针只有 1–2 µm,不足以让针尖躲开横移时的垂直跳动。", required: false, minValue: 0, maxValue: 100000 },
+    { name: "allow_revisit", type: "bool", description: "允许落在已经去过的站点附近，**只跳过「别重复访问」这一条效率约束**（最小间距 200 步），安全检查一条不跳。标定步长、微调位置这类动作本来就要走小步/回头路 —— 2026-08-28 用户要六个方向的 nm/步，而每一个几步的移动都落在 200 步以内，于是全被那条规则拒掉。常规换区**不要**开它：重复用同一片表面是真的浪费。", required: false, default: false },
+    { name: "dry_run", type: "bool", description: "跑完整条相位但**不发出任何移动命令** —— 用于无硬件验收:前置检查、看护逻辑、记录都会真的跑一遍。", required: false, default: false },
+  ],
+  preconditions: ["vacuum_ok_for_coarse","scan_not_running"],
+  tags: ["motor","coarse","relocate","safety","dangerous"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const StepCoarseXYSpec: SkillSpec = {
+  name: "StepCoarseXY",
+  description: "把粗动台横向**挪几步**（可以只挪一步）——标定步长、微调位置用。\n\n转调 `RelocateCoarseXY(allow_revisit=True)`，**一层薄壳，不重写任何东西**：清障阶梯、真空互锁、驱动电压读回、降偏压到 0.5 V、电流归零证明、里程表记录、重新进针，全是那一份实现在跑。\n\n它存在的理由：`MotorMove` 在自主路径上被硬闸挡着（「有防护的路才是自主路径」），而 `RelocateCoarseXY` 的落点复核要求离已访问站点 ≥200 步 —— **「挪 2 步」两边都过不去**。那 200 步是效率约束（别重复用同一片表面），不是安全约束，所以这里明说地跳过它，安全检查一条不跳。\n\n**常规换区不要用它**，用 `RelocateCoarseXY`：重复用同一片表面是真的浪费。超过 60 步会被拒 —— 那是换区不是挪一下。",
+  parameters: [
+    { name: "axis", type: "str", description: "横向轴：'x' 或 'y'", required: true, allowedValues: ["x","y"] },
+    { name: "direction", type: "str", description: "方向：'+' 或 '-'", required: true, allowedValues: ["+","-"] },
+    { name: "steps", type: "int", description: "走几步。默认 1。超过 60 步请改用 RelocateCoarseXY。", required: false, minValue: 1, maxValue: 60, default: 1 },
+    { name: "reapproach", type: "bool", description: "走完是否自动重新进针。", required: false, default: true },
+    { name: "prewithdraw_steps", type: "int", description: "横移前的粗动 Z 退针步数（清障）。留空用 instrument_profile 的默认。**本机实测粗动 z 每步 108±31 nm**（2026-08-28），5 步 ≈ 0.5 µm。", required: false, minValue: 0, maxValue: 100000 },
+    { name: "dry_run", type: "bool", description: "跑完整条相位但不发出任何移动命令。", required: false, default: false },
+  ],
+  tags: ["coarse","motor","nudge","calibration","粗动","挪一步","步长标定"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -5086,6 +5142,10 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   DetectAtomJump: DetectAtomJumpSpec,
   ScanAt: ScanAtSpec,
   FullScan: FullScanSpec,
+  ReadCalibrations: ReadCalibrationsSpec,
+  RetractForSampleChange: RetractForSampleChangeSpec,
+  RelocateCoarseXY: RelocateCoarseXYSpec,
+  StepCoarseXY: StepCoarseXYSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
