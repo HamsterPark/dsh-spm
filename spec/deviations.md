@@ -1344,18 +1344,42 @@ scipy 的 `order >= 2` 先对整张图做一次**样条预滤波**（一条前�
 > 导出参数改成 21.5 ms（刻意不落在栅格上）。
 > **浮点残渣本身不可怕，可怕的是它落在一个离散判据的边界上。**
 
-## D-TIP-1 · 针尖安全包络（`apply_tip_policy`）**没有移植** —— 欠 Phase 5.3
+## D-TIP-1 · 针尖安全包络（`apply_tip_policy`）—— ~~欠 Phase 5.3~~ **2026-09-18 已结清**
+
+> **两条订正，都在这一段的开头说，因为下面那些话曾经被当真过：**
+>
+> 1. **欠账结清了**（批 5a）：闸是实的，落点与金样见下方「D-TIP-1 **结清**」那一节。
+> 2. ⚠️ **下面那句「铂铱（8 V）、磁性/超导针、qPlus（3 V）会在那里被拒绝」
+>    在今天的旧仓已经不成立**，而且**写下它的时候就已经不成立了** ——
+>    旧仓 2026-08-12 就把两个上限统一拉满了（见下）。我从批 3j 的交接里抄了这句话，
+>    **没有去翻那张表**。这是本仓「读源头、不读转述」这条纪律的一次自打脸。
 
 旧仓 `BiasPulseWithReadback.validate_params` 按**当前登记的针尖**检查方案表包络，
-**超上限拒绝、不夹紧**（同粗动电压四重锁那条哲学）。修针默认的 ±10 V 是用户对
-**金属丝针尖**的做法；铂铱（8 V）、磁性/超导针、qPlus（3 V）会在那里被拒绝 ——
-**那不是 bug，是保护**。
+**超上限拒绝、不夹紧**（同粗动电压四重锁那条哲学）。~~修针默认的 ±10 V 是用户对
+**金属丝针尖**的做法；铂铱（8 V）、磁性/超导针、qPlus（3 V）会在那里被拒绝。~~
 
-它要 `mast.core.tip_conditioning_resolver`（针尖登记表，Phase 5.3）。在那之前这一侧
-只有全局 ±10 V 的 SafetyGate 在挡。**没有写一个空的 `validateParams`** ——
-写了会让人以为这道闸在。欠账写在 `readback-skills.ts` 的 docstring 里。
+**今天那张表的实情**（2026-09-18 逐档核过 `core/tip_conditioning_policy.py`）：
+`max_abs_pulse_v` **全表一律 10.0**、`max_poke_depth_m` 全表一律 `1.0e-8`，
+**还能分辨针尖的包络字段只剩 `max_pulse_count`（通用 5 / qPlus 2）**。
 
-金样照不出这一条：导出脚本直接调 `execute`，`validate_params` 一次都没被调用。
+旧仓自己把这个决定和理由写在表头上，值得原样留着：
+
+> 现场给出的理由：凭多年 STM 经验，这个安全包络定得过严、没有实际意义，针尖没有那么容易损坏。
+> **要推翻它，需要回答**：哪一次真机事故是「包络本可以拦住、而它被拉满了才发生」？
+> 反过来的证据我们有：2026-08-12 第一次完整 `ForgeAuTip` 失败，而包络**一发脉冲都没拦**
+> （三发 10 V 全部放行），它死在一个陈掉的状态缓存上 —— 当时**拉满与否对结果没有任何影响**。
+
+**这段反问值得学**：它没有说「包络不重要」，它说的是「**拿证据来**」，
+并且**先把反方向的证据摆了出来**。本仓照移这张表，不自作主张收紧 ——
+要收紧的话，答的应当是它提的那个问题，而不是「看起来更安全」。
+
+~~它要 `mast.core.tip_conditioning_resolver`（针尖登记表，Phase 5.3）。~~ **已移植**。
+当初**没有写一个空的 `validateParams`** —— 写了会让人以为这道闸在。
+那个决定现在回头看是对的：空壳在这里活了两轮，而**没有人误以为它在挡**。
+
+~~金样照不出这一条：导出脚本直接调 `execute`，`validate_params` 一次都没被调用。~~
+现在有一台专用驱动器（`spec/golden/tip_policy.json`，264 格 / 111 格被拒）——
+**通用驱动器照不出来的东西，不等于照不出来，只等于那台驱动器走不到。**
 
 ## D-LANG-1 · `pyFixed`：`%.3f` 是 round-half-even，`toFixed` 明写「取大的那个」
 
@@ -2160,7 +2184,7 @@ Python 字面量，等于让这张给人看的表指向一门这里没有在跑�
 
 <!-- ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）的登记写在这一行下面 ── -->
 
-## D-TIP-1 **结清**（编号留空 · 批 5a）· 针尖安全包络已移植，`validateParams` 是实的
+## D-TIP-1 结清 · 针尖安全包络已移植，`validateParams` 是实的
 
 D-TIP-1 原文写的是欠账：「**没有写一个空的 `validateParams`** —— 写了会让人以为这道闸在。」
 这一批把它写实了，**原文不改**（那是主线的编号区），在这里记结清：
@@ -2183,7 +2207,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 ③ 它在任何硬件调用之前拒，而全局 ±10 V 的 SafetyGate 只按**参数名子串**判，
 **不知道台上装的是哪根针**。
 
-## （批 5a）· 针尖登记表：住进程、由外面注入、宿主不接时闸照常关
+## D-TIPREG-1 · 针尖登记表：住进程、由外面注入、宿主不接时闸照常关
 
 | | |
 |---|---|
@@ -2205,7 +2229,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 
 `threading.RLock` 不移植，理由同 D-PRESET-3 / D-CRASH-1（Node 单线程，这些方法之间没有 `await`）。
 
-## （批 5a）· 词表归一**挪到了 holder 入口**（旧仓在 `register_tip` 工具层）
+## D-TIPREG-2 · 词表归一**挪到了 holder 入口**（旧仓在 `register_tip` 工具层）
 
 | | |
 |---|---|
@@ -2218,7 +2242,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 正是这道闸最不该有的失败模式（qPlus 那一档的发数上限是 2，通用档是 5）。
 变异 `tip-registry-normalizes-at-the-door` 钉着它。
 
-## （批 5a）· `TipShapeWithReadback.validateParams` 是**本仓新增**
+## D-TIPREG-3 · `TipShapeWithReadback.validateParams` 是**本仓新增**
 
 旧仓这个技能**没有** `validate_params`，而它的孪生兄弟 `TipShape` 在 `execute` 最前面就过一遍
 针尖包络。两个技能下发的是**同一串** `TipShaper_PropsSet(11 参)` + `TipShaper_Start`，
@@ -2228,7 +2252,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 **金样照不出这一条**：导出器直调 `execute`。它由 `tail-l0-tip.test.ts` 的三条与变异
 `readback-tip-envelope-is-wired` 看着。
 
-## （批 5a）· `TipShape` 的包络在 `execute` 而不是 `validateParams`（**照旧仓**）
+## D-TIPREG-4 · `TipShape` 的包络在 `execute` 而不是 `validateParams`（**照旧仓**）
 
 `TipPulse` / 两个读回技能的包络都在 K6；`TipShape` 这一个在 `execute` 最前面。
 不是漏了：它的两个策略字段（`shaper_bias_v` / `shaper_lift_v`）要先经过「方案表填不填」
@@ -2236,7 +2260,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 代价说清：**K6 的拒绝会进拒绝台账，`execute` 里的拒绝是一次失败的调用**。
 两者对模型都是「为什么被拒」，对记录侧不是同一件事。
 
-## （批 5a）· `qplus_gate` / `allow_on_qplus` **不移植**
+## D-TIPREG-5 · `qplus_gate` / `allow_on_qplus` **不移植**
 
 | | |
 |---|---|
@@ -2253,7 +2277,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 （超了拒绝不夹紧，就在这一批里）与「扎针前把偏压缓降到 20 mV」（`shaperBiasDefault`
 那条「跟随成像偏压」，批 3j 已落 —— qPlus 实验里成像偏压就是 20 mV 本身）。
 
-## （批 5a）· 两个自检：**依赖缺席 ⇒ `ok=false, blocking=true`**（有意与旧仓不同）
+## D-SELFCHK-1 · 两个自检：**依赖缺席 ⇒ `ok=false, blocking=true`**（有意与旧仓不同）
 
 | | |
 |---|---|
@@ -2271,7 +2295,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 流程一个都不在，扫描地图与仪器档案也不在。一个在这种状态下说「可以开工」的自检，
 比没有这个自检更糟。
 
-## （批 5a）· 自检的 `registry` 那一项**换了不变量**
+## D-SELFCHK-2 · 自检的 `registry` 那一项**换了不变量**
 
 | | |
 |---|---|
@@ -2282,7 +2306,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 **这个不变量在 TypeScript 里不存在**。同一个位置、同一种后果（有一条链是断的，而且断得
 很安静），判据换成本仓真有的那一个。
 
-## （批 5a）· 自检里**不移**的四项
+## D-SELFCHK-3 · 自检里**不移**的四项
 
 | 项 | 为什么 |
 |---|---|
@@ -2291,7 +2315,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 | 两份的「操作模式」 | 运行模式住在 `stm-safety` 插件里，技能层够不着；再开一个进程级 holder 会造出**第二个真源**（内核 K7 那道闸读的是插件那一份）。旧仓这一项本身也只是信息项（`except: pass`），真正拦人的是模式闸 |
 | 旧仓两份对 Tip Shaper 那一句措辞差一个「模块」 | 本仓两处共用同一句。同一件事两句话，多的那一句只会漂 |
 
-## （批 5a）· 「未登记针尖」那句话**改了**：不写断言，写实测
+## D-SELFCHK-4 · 「未登记针尖」那句话**改了**：不写断言，写实测
 
 旧仓 `TipConditioningSelfCheck` 那一句是：「未登记 —— 安全包络退到保守通用档，
 流程默认的 10 V 大修脉冲**会被拒**。先 register_tip。」
@@ -2301,7 +2325,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 本仓这一句**拿同一台解析器真判一次**，说它到底拒不拒，并把当前包络三个数印出来。
 于是下次有人改包络，这句话自己跟着变。
 
-## （批 5a）· `ResolvedConditioning.warnings` / `FIELD_OWNERS` / `policy_summary` / `envelope_of` 的去留
+## D-TIPREG-6 · `ResolvedConditioning.warnings` / `FIELD_OWNERS` / `policy_summary` / `envelope_of` 的去留
 
 旧仓这四样**在全仓零消费方**（我 grep 过整个 `MASTv2`）：
 
@@ -2312,7 +2336,7 @@ K6 的范围检查放行的值这道闸会拒；② 宿主覆写可以**收紧**
 * `envelope_of` ⇒ 移，因为本仓给了它第一个调用方：`TipConditioningSelfCheck` 要把
   「这支针尖现在的上限是多少」印出来。
 
-## （批 5a）· `tip_state` 的渲染层（约 200 行）**不移**
+## D-TIPREG-7 · `tip_state` 的渲染层（约 200 行）**不移**
 
 `format_tip_block`（注入块）+ `_service_days` / `_fmt_hz` / `_bias_polarity_line` /
 `_preamp_line` / `_MATERIAL_NOTES` / `_FAB_NOTES` / `_QPLUS_POKE_NOTE` / `auto_name` /
@@ -2325,7 +2349,7 @@ qPlus 说明）。2026-08-17 之前它写的是「戳表面类处理有毁掉音
 两处都不成立，而且造成了真实伤害（模型在该动手的时候回来问「要不要扎针」）。
 接提示块时**要接的是改过之后那一版**，不是它的前身。
 
-## （批 5a）· `module_down_hint` **不移**（跟着 `TipShapeWithReadback` 走）
+## D-TIPREG-8 · `module_down_hint` **不移**（跟着 `TipShapeWithReadback` 走）
 
 旧仓在 `TipShaper_PropsSet` / `TipShaper_Start` 的错误路径上追一句「去 Nanonis 里打开
 Tip Shaper 模块」，判据是错误文本里有没有 `not running` / `未运行` 那一族子串。
@@ -2334,14 +2358,14 @@ Tip Shaper 模块」，判据是错误文本里有没有 `not running` / `未运
 `_DOWN_SIGNATURES` + `_AMBIGUOUS` + `preflight_modules`）留给批 5c。
 **金样照不出这一条**：通用注错文案是「连接被对端关闭」，不命中任何一个子串。
 
-## （批 5a）· `TIP_SOURCE_*` 带前缀，而 `scan-resolver` 那一族不带
+## D-TIPREG-9 · `TIP_SOURCE_*` 带前缀，而 `scan-resolver` 那一族不带
 
 不是风格问题：那边的 `SOURCE_DEFAULT` 是 `'default'`，这边是 `'factory_default'`。
 **名字一样、值不一样**的两个常量放在同一个 `export *` 出口下，读的人只会看见离他最近
 的那一个（D-CHANNELS-1 / D-PIEZO-1 记过同一件事的两个面）。`'explicit'` 两边同值，
 但一族里挑一个不带前缀，会让人以为另外三个也在那边有对应物。
 
-## （批 5a）· 原子相判据干跑的**反例**换了：噪声不来自 numpy
+## D-TIPREG-10 · 原子相判据干跑的**反例**换了：噪声不来自 numpy
 
 | | |
 |---|---|
