@@ -2383,6 +2383,138 @@ Tip Shaper 模块」，判据是错误文本里有没有 `not running` / `未运
 
 <!-- ── 批 5b（A 档零散一批（各自自足，不压子系统））的登记写在这一行下面 ── -->
 
+> **批 5b 的六条。编号是临时的**（我按 `D-PSD-*` / `D-WATCH-*` / `D-B5B-*` 编，主线统一改）。
+
+## D-PSD-1 · 一个解析不了的 `freq_range_indices` 要**说出来**，不是只写进日志
+
+| | |
+|---|---|
+| **Python** | `logger.warning("AcquirePSD: invalid freq_range_indices %r (%s); falling back to single-range mode.")` 然后退回单量程 |
+| **TS** | 同样退回单量程，但**多一个字段** `data.freq_range_indices_ignored`（原样带着那串没解开的文本） |
+| **测试** | `l0/batch5b.test.ts` 的 `psd/bad_indices_json` 那一格：先钉住**金样里没有**这个键，再断言本仓有它且等于入参 |
+| **变异** | `psd-ignored-list-is-reported` |
+
+**为什么有意**：日志**不跟着回包走**。模型看到的是 `per_range` 里一段谱，而它请求的是三段 ——
+两者之间的差别只存在于宿主的日志里，而调用方读不到日志。这与 `BatchRegionsScan` 的
+「`fail_count` 躺在 `data` 里而没有人读 data」是同一种失败：**一件事发生了，而唯一记下它的
+地方不在收信人手上**。
+
+⚠️ 这是本批**唯一一处「本仓说的话比旧仓多」**，所以两侧都钉住了：旧仓哪天把这句话
+加进回包，那条断言（`want['freq_range_indices_ignored']` 必须是 `undefined`）会当场变红。
+
+---
+
+## D-PSD-2 · 配置相的四次调用**失败即忽略**，真相要等 `DataGet` —— 照移，代价记在这里
+
+| | |
+|---|---|
+| **Python** | `_phase_configure` 里 `SpectrumAnlzr_Run` / `FreqResSet` / `FreqResGet` / `ChGet` 四条**都不检查 `rec.error`**（只有 `ChSet` 检查） |
+| **TS** | 逐条照移 |
+| **测试** | `l0/batch5b.test.ts` 的 `psd/chset_rejected`（唯一早退的那一条）+ 集成测试 `AcquirePSD` 那一格 |
+
+旧仓给的理由只有半句（`Run` 幂等、模块已在跑时会回无害的警告），另外三条没有理由，
+就是没查。
+
+**代价在真模拟器上当场量到了**（`integration/current-diag.test.ts`）：stmsim 上
+`SpectrumAnlzr` 模块**根本没装**，于是 `Run` / `FreqResGet` / `ChGet` 三条全带着
+`NanonisError: NeedModule: Cannot access the 'SpectrumAnlzr' module.` 回来，
+而技能一声不吭地往下走 —— 直到 `DataGet` 才把这句话交出去。
+`channel_index` 因此是 `-1`（"没读到" 与 "第 -1 路" 共用一个值）。
+
+也就是说：**「模块没装」这条信息在第一次调用就有了，而技能要到第六次调用才说得出来**。
+不改，因为改它会让「模块已经在跑」这种真实情形变成一次失败；但下一个人如果要修，
+该修的是**分辨这两种错**（`NeedModule` 对别的），而不是简单地把四条都改成早退 ——
+Osci1T 那三个技能已经有现成的分流范式（`CUSTOM_ERRORS` 的 `need_module@0`）。
+
+---
+
+## D-WATCH-1 · `WatchScanLines` 与 `AssessAtomicLines` 共用**那份修好的** `resolveReadout`
+
+| | |
+|---|---|
+| **Python** | 两个技能都 import `_scan_readout.resolve_readout`，而那份实现里「按信号名找 Z」那一支是**死的**（D-ATOMLINE-1） |
+| **TS** | 两个技能都走 `l0/analysis-lines.ts` 的 `resolveReadout` —— 也就是**已经修好**的那一份 |
+| **测试** | `l0/traces.test.ts` 的 `WatchScanLines/*` 四格 + `integration/current-diag.test.ts` |
+
+D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支路真的能命中」。
+这一条只补一句**射程**：那个修复**同时**改了 `WatchScanLines` 的行为，
+因为旧仓那份 `_scan_readout.py` 的抬头写得很清楚 ——
+「两个技能各写一份的下场是两边迟早只有一边对」，所以本仓也只有一份。
+
+**本机实测（真 stmsim）**：`Scan_BufferGet` 回 `[2, [0, 14], 256, 256]`，
+`Signals_NamesGet` 的第 14 项正是 `Z (m)` ⇒ `channel_source` 是
+**「按信号名 Z 解出」**而不是兜底。旧仓在这台机器上会落到兜底那一支
+（兜底恰好也给 14，所以**答案相同、理由不同**）—— 而缓冲里出现第三路时两者就分岔了。
+
+---
+
+## D-B5B-ZERO-1 · 四处**照移的 `or`**：显式的 `0` 退回缺省（与 D-ZERO-1 方向相反）
+
+| 位置 | 旧仓 | 后果 |
+|---|---|---|
+| `RecoverTipFromSaturation.max_coarse_steps` | `int(params.get(...) or 800)` | 「一步粗动都不许走」这个意图**表达不出来** |
+| `ClassifyUnexplainedCurrent.repeats` | `int(params.get("repeats") or 3)` | `repeats=0` 退回 3（而声明的 `min_value` 是 1，所以内核先拦） |
+| `WaitForThermalSettle.max_rate_k_per_min` / `timeout_s` / `window` | `float(params.get(...) or 缺省)` | 同上；`window=0` 退回 6 |
+| `MonitorCurrentFFT.window` / `output` | `(params.get(k) or "hann").lower()` | 空串退回缺省（而不是「不加窗」） |
+
+| | |
+|---|---|
+| **TS** | 逐处照移 |
+| **测试** | `l0/batch5b-edges.test.ts` 的「照移的三处 `or`」一组 |
+
+**为什么登记**：本仓的通则是 D-ZERO-1 ——「一个合法的 `0` 被 `x || 缺省` 吃掉」是本项目
+反复抓的那类缺陷。这四处**是同一个形状，而我们照移了**，所以必须写下来，否则下一个人
+会把它们当成 bug 顺手「修好」，而那一改就是**行为变更**（金样会红，但红的时候没人知道
+该改哪边）。
+
+⚠️ 四处里有三处**被内核的边界检查挡在前面**（`min_value ≥ 1` / `≥ 0.001` / `≥ 10`），
+也就是说模型那条路上根本传不进 0 —— 只有直调 API 走得到。`max_coarse_steps`
+的 `min_value` 是 **0**，所以它是四处里唯一一个**模型真的能踩到**的。
+
+---
+
+## D-B5B-BATCH-1 · `BatchRegionsScan` 的 `angle_deg` 在 `try` 外面，坏值会**抛**
+
+| | |
+|---|---|
+| **Python** | `ang = float(it.get("angle_deg", 0.0) or 0.0)` 写在捕获 `KeyError/TypeError/ValueError` 的 `try` **之后**（`batch_regions_scan.py:180`） |
+| **TS** | 照移（`kernel/batch-regions.ts` 的那一行带 ⚠️ 注释） |
+| **测试** | 没有专门用例 —— 与 `ParseRegions` 那一条（`raises_bad_angle`）同形，判据在代码抬头 |
+
+四个必填字段给一条 `success=False`，第五个给一次**异常**，而这两件事对调用方完全不是
+一回事。与 `ParseRegions` 的同名钝处并列登记 —— 要修的话，修的是旧仓，而且要**一起**修
+两处（不然本仓会出现「同一个坏 `angle_deg` 在两个技能里两种下场」）。
+
+顺带一条**两份实现刻意不合并**的提醒：`ParseRegions` 与 `BatchRegionsScan` 的区域校验
+边界值一模一样（±1 mm、1e-10…1e-5 m、最多 64 个），**措辞与报错粒度不同**，而且
+`label` 的缺省规则不同（`"label" in rec` 对 `str(... or f"R{i+1}")`）、空数组的结论相反。
+合并会让至少三格的答案变掉。理由写在 `kernel/batch-regions.ts` 的抬头。
+
+---
+
+## D-CLOCK-1 补充 · 批 5b 的两个轮询技能
+
+`MonitorCurrent` / `MonitorCurrentFFT` 加进 `clockApprox` 那一组，并给
+`CLOCK_KEYS` 补了四个叶子：`contact_at_s`（何时判到接触）、
+`nyquist_hz` / `df_hz` / `freqs_hz`（频率刻度 = 实测采样率 ÷ 点数）。
+
+理由与批 3j 那三个逐字相同：导出脚本的假钟是 **1e6 秒 / 每读 +1e-3**，本仓夹具是
+**1e6 毫秒 / 每读 +1**，于是同一个时刻在两边差第 10 位。实测最坏 **4.7e−8**
+（`actual_fs_hz`），容差 1e-6，占 4.7 %。
+
+**判据字段一个都不在那张表里**：`n_samples` / `contact_detected` / `min|max|mean|std_abs_a` /
+`samples_a` / `window` / `output` / **`spectrum`** 全部逐位比。
+`spectrum` 尤其**不能**进那张表 —— 它按 `max(1,|a|)` 归一，而 PSD 的量级是 1e−22，
+那条容差会退化成「绝对 1e−6」，也就是什么都不判。谱由
+`l0/batch5b.test.ts` 的 `spectrumTol` 单独比（按**整幅谱的最大值**归一，
+`4·fftRelTol(n)`，power 档另加一个 `CLOCK_REL`）。
+
+⚠️ 还有一条**只在这两个技能上成立**的事实：`actual_duration_s` 是
+「最后一次读钟减 t0」，所以**读钟的次数**也是判据 —— 落地当天就撞到了：
+外层多读了一次 `now()`，`actual_duration_s` 就整整差 1 ms（远超那条 1e-6 的容差）。
+`pollCurrent` 因此把 `t0` **交出去**而不是让调用方自己再读一次。
+
+
 <!-- ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的登记写在这一行下面 ── -->
 
 <!-- 批 5c：以下 12 条的**编号留空**（`?`），由主线统一编。 -->

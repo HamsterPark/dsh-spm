@@ -414,7 +414,21 @@ const BATCH_5A: string[] = [
 ]   // 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
 
 // ↑ 上一条 ／ ↓ 5B —— 这一行谁都不要动
-const BATCH_5B: string[] = []   // A 档零散一批（各自自足，不压子系统）
+const BATCH_5B: string[] = [
+  // 电流诊断（builtins.current_monitor / monitor_current_fft / current_origin / saturation_recovery）
+  'MonitorCurrent',
+  'MonitorCurrentFFT',
+  'ClassifyUnexplainedCurrent',
+  'RecoverTipFromSaturation',
+  // 时序（builtins.thermal_settle / scan_watch）
+  'WaitForThermalSettle',
+  'WatchScanLines',
+  // 组合（composite.bias_settle / builtins.acquire_psd / composite.batch_regions_scan）
+  'BiasSettleChange',
+  'AcquirePSD',
+  'BatchRegionsScan',
+  // ⚠️ `RunGridExperiment`（builtins.pattern 的第 7 个）**不在这一批** —— 见 batch-5b.md §5。
+]   // A 档零散一批（各自自足，不压子系统）
 
 // ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
 const BATCH_5C: string[] = [

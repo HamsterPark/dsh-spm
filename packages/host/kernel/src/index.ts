@@ -52,6 +52,9 @@ export * from './tip-conditioning-policy.js'
 export * from './tip-conditioning-resolver.js'
 
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面 export ──
+export * from './current-diag.js'
+export * from './bias-settle.js'
+export * from './batch-regions.js'
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面 export ──
 export * from './instrument-profile.js'

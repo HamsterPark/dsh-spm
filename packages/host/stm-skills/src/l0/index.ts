@@ -73,6 +73,13 @@ import { TIP_CONDITIONING } from './tip-selfcheck.js'
 import { TipPulse } from '../composite/tip-pulse.js'
 
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面加 import ──
+import { CURRENT_MONITOR } from './current-monitor.js'
+import { CURRENT_ORIGIN } from './current-origin.js'
+import { THERMAL_SETTLE } from './thermal-settle.js'
+import { SCAN_WATCH } from './scan-watch.js'
+import { ACQUIRE_PSD } from './acquire-psd.js'
+import { BiasSettleChange } from '../composite/bias-settle.js'
+import { BatchRegionsScan } from '../composite/batch-regions-scan.js'
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面加 import ──
 import { CALIBRATIONS } from './calibrations.js'
@@ -164,6 +171,13 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...TIP_CONDITIONING,
 
   // ── 批 5b 在这一行下面展开 ──
+  ...CURRENT_MONITOR,
+  ...CURRENT_ORIGIN,
+  ...THERMAL_SETTLE,
+  ...SCAN_WATCH,
+  ...ACQUIRE_PSD,
+  BiasSettleChange,
+  BatchRegionsScan,
 
   // ── 批 5c 在这一行下面展开 ──
   ...CALIBRATIONS,
@@ -259,6 +273,13 @@ export * from './tip-selfcheck.js'
 export * from '../composite/tip-pulse.js'
 
 // ── 批 5b 在这一行下面 re-export ──
+export * from './current-monitor.js'
+export * from './current-origin.js'
+export * from './thermal-settle.js'
+export * from './scan-watch.js'
+export * from './acquire-psd.js'
+export * from '../composite/bias-settle.js'
+export * from '../composite/batch-regions-scan.js'
 
 // ── 批 5c 在这一行下面 re-export ──
 export * from './calibrations.js'

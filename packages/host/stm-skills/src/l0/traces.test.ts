@@ -292,6 +292,10 @@ const CLOCK_KEYS = new Set([
   'fire_call_blocked_s', 'start_call_blocked_s',
   'post_window_s', 'max_gap_s', 'feedback_restored_t', 'feedback_segment_s',
   'actual_duration_s', 'actual_fs_hz', 'fs_current_hz', 'fs_z_hz',
+  // ── 批 5b：轮询循环自己算出来的那几个（见上面 `MonitorCurrent*` 那一段）──
+  // ⚠️ 这张表只在**登记了 `clockApprox`** 的那几格上起作用，所以往里加名字
+  // 不会放松任何别的技能（`AcquirePSD` 的 `df_hz` 来自仪器，照旧逐位比）。
+  'contact_at_s', 'nyquist_hz', 'df_hz', 'freqs_hz',
 ])
 const CLOCK_REL = 1e-6
 
@@ -1045,6 +1049,39 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       `StepCoarseXY/${t}`,
       { clockApprox: true } as const,
     ]),
+  ),
+  // ── 批 5b · D-SKILL-2 的又一处：那句「读不懂」里印的是回包形状 ──
+  //
+  // `WatchScanLines` 与 `AssessAtomicLines` 共用同一份 `resolveReadout`，
+  // 于是同一句话在这里第二次出现：旧仓印的是三段信封的 Python repr，
+  // 而信封在 `nanonis-wire` 那层就拆掉了，这一侧只有 body。
+  // 期望**从金样算出来** —— 旧仓哪天改了那句话，这条登记会跟着变，不会悄悄过期。
+  'WatchScanLines/empty@0': {
+    error: (golden['WatchScanLines']?.traces['empty@0']?.error ?? '').replace(
+      "('', b'', [])",
+      '[]',
+    ),
+  },
+  // ── 批 5b · 两侧的假钟摆在不同量级上 ⇒ 时间字段按容差比（同批 3j 那一组）──
+  //
+  // 这两个技能是**自己排拍的轮询循环**，于是每一个上报的量都从钟上来：
+  // `timestamps_s` / `actual_duration_s` / `contact_at_s`（何时判到接触）、
+  // 以及频谱那一族的 `actual_fs_hz` / `nyquist_hz` / `df_hz` / `freqs_hz`
+  // （频率刻度 = 采样率 ÷ 点数，而采样率是两个时刻之差算出来的）。
+  //
+  // 导出脚本那边的假钟是 `1e6` **秒**、每读一次 `+= 1e-3`，本仓夹具是 `1e6`
+  // **毫秒**、每读一次 `+= 1`。于是 `timestamps_s[0]` 那边是
+  // `0.0010000000474974513`（1e6 量级上一个 ULP 的累积漂移），这边是 `0.001`。
+  // **两个都不是算错了**，差在第 10 位。
+  //
+  // 判据字段一个都不在 `CLOCK_KEYS` 里：采了几点（`n_samples`）、接触没接触
+  // （`contact_detected`）、统计量（`min/max/mean/std_abs_a`）、采到的样本
+  // （`samples_a`）、窗与输出档（`window`/`output`）、以及**谱本身**（`spectrum`）
+  // —— 全部逐位比。
+  ...Object.fromEntries(
+    ['MonitorCurrent', 'MonitorCurrentFFT'].flatMap((n) =>
+      Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, { clockApprox: true } as const]),
+    ),
   ),
 }
 
