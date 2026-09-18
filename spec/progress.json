@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 394,
+    "done": 403,
     "partial": 0,
-    "todo": 121
+    "todo": 112
   },
-  "modules_complete": 71,
+  "modules_complete": 80,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -16,8 +16,8 @@
     },
     "builtins.acquire_psd": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.adatom_verify": {
       "total": 1,
@@ -166,13 +166,13 @@
     },
     "builtins.current_monitor": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.current_origin": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.datalog": {
       "total": 6,
@@ -296,8 +296,8 @@
     },
     "builtins.monitor_current_fft": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.motor": {
       "total": 7,
@@ -401,8 +401,8 @@
     },
     "builtins.saturation_recovery": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.scan_buffer": {
       "total": 1,
@@ -441,8 +441,8 @@
     },
     "builtins.scan_watch": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.signals": {
       "total": 4,
@@ -501,8 +501,8 @@
     },
     "builtins.thermal_settle": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tilt_probe": {
       "total": 1,
@@ -601,8 +601,8 @@
     },
     "composite.batch_regions_scan": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.bias_imaging_series": {
       "total": 1,
@@ -611,8 +611,8 @@
     },
     "composite.bias_settle": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.condition_tip": {
       "total": 1,
@@ -930,11 +930,11 @@
       "module": "builtins.acquire_psd",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "AcquireSTS": {
       "module": "builtins.spectroscopy",
@@ -1360,11 +1360,11 @@
       "module": "composite.batch_regions_scan",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "BiasPulse": {
       "module": "builtins.bias_pulse",
@@ -1390,11 +1390,11 @@
       "module": "composite.bias_settle",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "BiasWiggle": {
       "module": "builtins.bias_wiggle",
@@ -1510,11 +1510,11 @@
       "module": "builtins.current_origin",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "CleanTipUntilBarrier": {
       "module": "builtins.clean_tip",
@@ -3860,21 +3860,21 @@
       "module": "builtins.current_monitor",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "MonitorCurrentFFT": {
       "module": "builtins.monitor_current_fft",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 4,
+      "impl": true,
+      "status": "done"
     },
     "MotorGetPos": {
       "module": "builtins.motor",
@@ -4220,11 +4220,11 @@
       "module": "builtins.saturation_recovery",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "RelocateCoarseXY": {
       "module": "composite.relocate_coarse_xy",
@@ -5930,11 +5930,11 @@
       "module": "builtins.thermal_settle",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "WaitScanComplete": {
       "module": "builtins.scan_utils",
@@ -5950,11 +5950,11 @@
       "module": "builtins.scan_watch",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "WithdrawProbe": {
       "module": "builtins.optional_multiprobe",

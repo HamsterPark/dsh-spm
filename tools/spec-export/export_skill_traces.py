@@ -377,7 +377,26 @@ BATCH_4D: list[str] = [
 BATCH_5A: list[str] = []   # 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
 
 #: ↑ 上一条 ／ ↓ 5B —— 这一行谁都不要动
-BATCH_5B: list[str] = []   # A 档零散一批（各自自足，不压子系统）
+BATCH_5B: list[str] = [
+    # 电流诊断三件（轮询循环 + 偏压依赖判别表 + 饱和退针）
+    "MonitorCurrent",
+    "MonitorCurrentFFT",
+    "ClassifyUnexplainedCurrent",
+    "RecoverTipFromSaturation",
+    # 时序两件
+    "WaitForThermalSettle",
+    "WatchScanLines",
+    # 组合三件（GraphExecutor 的相计划 / 子技能计划各一 + 一个不走执行器的）
+    "BiasSettleChange",
+    "AcquirePSD",
+    "BatchRegionsScan",
+    # ⚠️ `RunGridExperiment` **不在这一批**。它的 `_phase_tick` 超时判据读的是
+    # **墙钟**（`time.time()`），而本导出器把墙钟钉死成常数 ⇒ 那条判据在金样里
+    # 永远走不到，录下来的是「1800 拍全跑完、报 success」。本仓 `SkillContext`
+    # 只有单调钟 `now()`（而它正是真机上那条判据成立的钟），同一份脚本下第 ~1796
+    # 拍真的超时 —— 于是 `ok` 那一格的 `success` 与金样**相反**，
+    # 而 `traces.test.ts` 的 `success` 一项没有 deviation 逃逸口。见 batch-5b.md §5。
+]   # A 档零散一批（各自自足，不压子系统）
 
 #: ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
 BATCH_5C: list[str] = []   # 仪器档案 + Z 稳定 + 粗动驱动三个子系统
