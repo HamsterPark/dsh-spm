@@ -68,6 +68,9 @@ import { SCAN_FRAME_OFFLINE } from './scan-frame-offline.js'
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面加 import ──
 
 // ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）在这一行下面加 import ──
+import { TipShape } from './tip-shape.js'
+import { TIP_CONDITIONING } from './tip-selfcheck.js'
+import { TipPulse } from '../composite/tip-pulse.js'
 
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面加 import ──
 
@@ -152,6 +155,9 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 4d 在这一行下面展开 ──
 
   // ── 批 5a 在这一行下面展开 ──
+  TipShape,
+  TipPulse,
+  ...TIP_CONDITIONING,
 
   // ── 批 5b 在这一行下面展开 ──
 
@@ -240,6 +246,9 @@ export * from './scan-frame-offline.js'
 // ── 批 4d 在这一行下面 re-export ──
 
 // ── 批 5a 在这一行下面 re-export ──
+export * from './tip-shape.js'
+export * from './tip-selfcheck.js'
+export * from '../composite/tip-pulse.js'
 
 // ── 批 5b 在这一行下面 re-export ──
 

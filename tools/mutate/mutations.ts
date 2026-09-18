@@ -2796,6 +2796,204 @@ function physicallyAbsurdViolations_unused(`,
   // ── 批 4d（composite.scan_at + 撞针追踪）的演练写在这一行下面 ──
 
   // ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）的演练写在这一行下面 ──
+  // ── 针尖安全包络：**超上限拒绝、不夹紧**（D-TIP-1） ────────────────
+  {
+    id: 'tip-envelope-compares-absolute-value',
+    why: '一发 −12 V 与 +12 V 一样会改造针尖。只比有符号的大小 ⇒ **负半轴整个没有上限**，而修针脉冲常用负偏压',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '    if (Math.abs(val) > maxPulse) {',
+    replace: '    if (val > maxPulse) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-envelope-boundary-is-exclusive',
+    why: '上限是「不许超」，不是「不许到」。改成 `>=` ⇒ 方案表自己那一档的 10 V 被自己的包络拒掉 —— 现场 2026-08-10 定的就是 10 V/500 ms',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '    if (Math.abs(val) > maxPulse) {',
+    replace: '    if (Math.abs(val) >= maxPulse) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-depth-envelope-compares-absolute-value',
+    why: '下压深度是**负数**。只比有符号的大小 ⇒ 每一次下压都小于上限 ⇒ 扎针深度包络**整个失效**，而「2 nm 以内」这句话正是它在执行',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '    if (Math.abs(val) > maxDepth) {',
+    replace: '    if (val > maxDepth) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-count-limit-is-the-tips-not-the-specs',
+    why: '`TipPulse.count` 的声明上限是 50，方案表是 5（qPlus 2）。拿声明上限当包络 ⇒ K6 放行的值这道闸全放行，qPlus 上一口气 50 发',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '  if (cnt !== null && maxCount !== null && cnt > maxCount) {',
+    replace: '  if (cnt !== null && maxCount !== null && cnt > Math.max(maxCount, 50)) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-unregistered-is-not-fail-open',
+    why: '旧仓那段注释写着「未登记针尖时不拒绝任何东西（fail-open）」——**那句是假的**，而这条变异把它变成真的。未登记走通用档，那一档有自己的包络',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '    if (val === null || maxPulse === null) continue',
+    replace: '    if (val === null || maxPulse === null || facts === null) continue',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-explicit-zero-is-a-real-value',
+    why: 'D-ZERO-1 第六次：`0 V 脉冲` / `0 深度`是一个**合法意图**。用真值判 ⇒ 它被当成「没给」，方案表把一个真会改造针尖的默认值填进去',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: "    if (given !== null && given !== undefined && String(given).trim() !== '') {",
+    replace: '    if (given !== null && given !== undefined && Boolean(given)) {',
+    scope: 'packages/host',
+  },
+  // ── 方案表：查表链与覆写 ──────────────────────────────────────────
+  {
+    id: 'tip-policy-chain-is-coarse-to-fine',
+    why: '查表**从粗到细**，后者覆盖前者。倒过来 ⇒ 「这一维不区分」那一档压掉精确档，钨腐蚀针拿到金属丝通用档的参数',
+    file: `${K}/tip-conditioning-policy.ts`,
+    find: '  for (const k of keys) {',
+    replace: '  for (const k of [...keys].reverse()) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-override-can-tighten-the-envelope',
+    why: '覆写只能改**这一档已经有的**字段。判据反过来 ⇒ 覆写永远落空，而宿主以为自己把包络收紧了（旧仓那个 `SettingsStore()` 缺参恒返回 `{}` 的洞，同一个后果）',
+    file: `${K}/tip-conditioning-policy.ts`,
+    find: "    if (k.startsWith('_') || !(k in values)) continue",
+    replace: "    if (k.startsWith('_') || k in values) continue",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-registry-normalizes-at-the-door',
+    why: '旧仓在 `register_tip` 工具层归一，本仓没有那一层。不归一 ⇒ 一行「钨 / 电化学腐蚀 / 音叉」**静默落到通用档**，而 qPlus 那一档的发数上限是 2 不是 5',
+    file: `${K}/tip-registry.ts`,
+    find: "    material: material ?? '',",
+    replace: "    material: (typeof row.material === 'string' ? row.material : material) ?? '',",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-human-trace-prints-python-repr',
+    why: '来源痕迹印的是 Python 的 `repr`，而**整数性由方案表的字段表给、不从值上猜**：`pulse_count` 印 `1`、`pulse_v` 印 `3.0`、深度印 `-3e-09`（两位指数）。两条分支换一下，三种全错（语言分歧一族，D-FLOAT-1）',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    // ⚠️ 第一版打的是 `return pyFloatRepr(v)` → `return String(v)`，**编不过**：
+    // `pyFloatRepr` 从此没人读 ⇒ TS6133（第十九次）。换成把两条分支对调 ——
+    // 同一道闸、同样拆得干净，而两个绑定都还有人读。
+    find: '    if (INT_FIELDS.has(field)) return String(Math.trunc(v))',
+    replace: '    if (!INT_FIELDS.has(field)) return String(Math.trunc(v))',
+    scope: 'packages/host',
+  },
+  // ── 技能层：闸装在哪一层 ──────────────────────────────────────────
+  {
+    id: 'tippulse-envelope-is-checked-before-hardware',
+    why: 'D-TIP-1 的正身：包络装在 `validateParams`（K6）⇒ **任何硬件调用之前**拦住，而且拒绝的话原样回给模型。拆掉 ⇒ 只剩全局 ±10 V 那道按参数名判的闸，它不知道装的是哪根针',
+    file: `${SK}/composite/tip-pulse.ts`,
+    find: "  validateParams: (params) => [...applyTipPolicy(params, ['pulse_v', 'pulse_count'], RENAME).plan.refusals],",
+    replace: "  validateParams: (params) => [...applyTipPolicy(params, ['pulse_v', 'pulse_count'], RENAME).plan.refusals].slice(0, 0),",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tippulse-refuses-before-planning',
+    why: '`execute` 里那一道判的是**方案表填完之后**的整组值 —— 旧仓真出过「出厂默认落在自己包络之外」（`NobleTipWorkflow.pulse_v` 10 V > 通用档 6 V ⇒ 未登记时一发都打不出去）。拆掉 ⇒ 那一组超包络的值被排进计划',
+    file: `${SK}/composite/tip-pulse.ts`,
+    find: "    if (!plan.ok) return { success: false, error: plan.refusals.join('；') }",
+    replace: "    if (plan.refusals.length > 99) return { success: false, error: plan.refusals.join('；') }",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tippulse-counts-the-pulses',
+    why: '`count` 发就是 `count` 发。少一发 ⇒ 用户以为打了 3 发、实际 2 发，而下一步的判定（Z 台阶）建立在「打了几发」上',
+    file: `${SK}/composite/tip-pulse.ts`,
+    find: '    for (let i = 1; i <= count; i += 1) {',
+    replace: '    for (let i = 1; i < count; i += 1) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tippulse-holds-z-during-the-pulse',
+    why: '`z_hold=1`。曾经是 0（"no change"）：脉冲期间反馈仍在追电流，而几伏的脉冲会让电流暴冲若干数量级 —— Z 被一路压向表面',
+    file: `${SK}/composite/tip-pulse.ts`,
+    find: '        params: { width_s: durationS, bias_v: pulseV, z_hold: 1, absolute: true },',
+    replace: '        params: { width_s: durationS, bias_v: pulseV, z_hold: 0, absolute: true },',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tippulse-original-bias-unknown-is-not-zero',
+    why: '快照读不到偏压 ⇒ `null`。补成 `0` ⇒ 调用方拿「脉冲前是 0 V」去核对恢复，而那是一个**没有的读数**（读不到 ≠ 零 ≠ 否）',
+    file: `${SK}/composite/tip-pulse.ts`,
+    find: "      original_bias_v: p.partialData['original_bias_v'] ?? null,",
+    replace: "      original_bias_v: p.partialData['original_bias_v'] ?? 0,",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipshape-refuses-before-any-call',
+    why: '包络在 `execute` 最前面 —— 被拒的那一趟**一条命令都不许发出去**。挪到后面 ⇒ 针尖上已经过了一遍电，报文却说「被拒绝」',
+    file: `${SK}/l0/tip-shape.ts`,
+    find: "    if (!plan.ok) return fail(plan.refusals.join('；'))",
+    replace: "    if (plan.refusals.length > 99) return fail(plan.refusals.join('；'))",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipshape-bias-is-the-imaging-bias-not-3v',
+    why: 'shaper 缺省偏压应继承当前成像偏压。固定为 3 V 会覆盖已设置的 20 mV；此变异验证读取成像偏压的路径',
+    file: `${SK}/l0/tip-shape.ts`,
+    // ⚠️ 第一版打在 `biasV = read.v` → `read.v ?? 3.0` 上，**绿了**：那一行在
+    // `if (read.v === null) return fail(...)` 之后，读不到的时候根本走不到它。
+    // 一条打在死路上的变异什么都验不到 —— 改打在**值从哪来**上。
+    find: '      const read = await shaperBiasDefault(ctx)',
+    replace: '      const read = { ...(await shaperBiasDefault(ctx)), v: 3.0 }',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipshape-policy-wins-over-reading',
+    why: '方案表给的 `shaper_bias_v`（钨 4.0、铂铱 2.5）是**有主的、写了理由的**值，它先于「跟随成像偏压」。改读原始入参 ⇒ 方案表那一档在这条路上成为死代码',
+    file: `${SK}/l0/tip-shape.ts`,
+    find: "    let biasV = typeof params['bias_v'] === 'number' ? (params['bias_v'] as number) : null",
+    replace: "    let biasV = typeof rawParams['bias_v'] === 'number' ? (rawParams['bias_v'] as number) : null",
+    scope: 'packages/host',
+  },
+  // ── 两个自检：那句「✅ 可以开工」 ─────────────────────────────────
+  {
+    id: 'selfcheck-missing-dependency-blocks',
+    why: '**这一批的正身**：依赖缺席 ⇒ `ok=false, blocking=true`。改回旧仓的 `ok=None` ⇒ 只进 warnings ⇒ `ready = not blockers` 为真 ⇒ 一个什么都没验的自检打出「✅ 可以开工」',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    find: '    this.add(check, false, `${what} 本仓还没移植（${batch}）—— 这一项**没有被检查**，不是「检查通过」。`, true)',
+    replace: '    this.add(check, null, `${what} 本仓还没移植（${batch}）—— 这一项**没有被检查**，不是「检查通过」。`, true)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'selfcheck-skill-coverage-blocks',
+    why: '`REQUIRED_SKILLS` 缺一个就有一条链是断的（旧仓查的是冻结打包丢技能，本仓查的是还没移植）。改成不阻塞 ⇒ 缺 9 个照样说可以开工',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    find: `      : \`缺 \${missing.length} 个（本仓尚未移植）: \${missing.join(', ')}\`,
+    true,`,
+    replace: `      : \`缺 \${missing.length} 个（本仓尚未移植）: \${missing.join(', ')}\`,
+    false,`,
+    scope: 'packages/host',
+  },
+  {
+    id: 'selfcheck-dry-run-needs-a-counterexample',
+    why: '判据干跑要**两个样本**：合成晶格通过、纯噪声被拒。只留正例 ⇒ 一个恒返回 `passed=true` 的坏判据照样「自测通过」',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    // ⚠️ 第一版直接把 `syntheticNoise(128)` 换成 `syntheticLattice(...)`，**编不过**：
+    // 反例那个函数从此没人读 ⇒ TS6133（第二十次）。留一个读，判据照样被拆干净。
+    find: '      const bad = assessAtomicPhase(syntheticNoise(128), { nmPerPx })',
+    replace: '      const bad = assessAtomicPhase(syntheticLattice(syntheticNoise(128).rows, nmPerPx), { nmPerPx })',
+    scope: 'packages/host',
+  },
+  {
+    id: 'selfcheck-envelope-item-really-resolves',
+    why: '「0.3 nm 浅扎在包络内」这一项是这个自检**存在的全部理由**。写死成允许 ⇒ 它变成一句祝福：包络收到 0.1 nm 也照样绿',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    find: "        plan.ok,\n        plan.ok ? '允许' : plan.refusals.join('；'),\n        true,\n      )\n\n      // ── 旧仓的第 6、7 项",
+    replace: "        plan.refusals.length < 99,\n        plan.ok ? '允许' : plan.refusals.join('；'),\n        true,\n      )\n\n      // ── 旧仓的第 6、7 项",
+    scope: 'packages/host',
+  },
+  {
+    id: 'readback-tip-envelope-is-wired',
+    why: 'D-TIP-1 当初的落点：`BiasPulseWithReadback.validateParams`。拆掉 ⇒ 这一族回到「只有全局 ±10 V 在挡」，而那道闸不知道台上装的是铂铱还是 qPlus',
+    file: `${SK}/l0/readback-skills.ts`,
+    find: "  validateParams: (params) => [...applyTipPolicy(params, ['pulse_v'], { pulse_v: 'bias_v' }).plan.refusals],",
+    replace: "  validateParams: (params) => [...applyTipPolicy(params, ['pulse_v'], { pulse_v: 'bias_v' }).plan.refusals].slice(0, 0),",
+    scope: 'packages/host',
+  },
 
   // ── 批 5b（A 档零散一批（各自自足，不压子系统））的演练写在这一行下面 ──
 

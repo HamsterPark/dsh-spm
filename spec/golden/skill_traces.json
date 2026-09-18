@@ -70563,6 +70563,889 @@
       }
     }
   },
+  "TipConditioningSelfCheck": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [
+            "针尖已登记: 未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+            "扫描地图可读: 读不到（没有活动实验？）—— 换点时无法确认落点是否干净"
+          ],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "在跑",
+              "ok": true
+            },
+            {
+              "check": "针尖已登记",
+              "detail": "未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+              "ok": false
+            },
+            {
+              "check": "扫描地图可读",
+              "detail": "读不到（没有活动实验？）—— 换点时无法确认落点是否干净",
+              "ok": false
+            },
+            {
+              "check": "避让半径",
+              "detail": "脉冲 200 nm / 扎针 30 nm",
+              "ok": true
+            },
+            {
+              "check": "Z 噪声底",
+              "detail": "未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。",
+              "ok": null
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": false,
+          "tip_name": "",
+          "warnings": [
+            "Z 噪声底: 未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [
+            "Tip Shaper 模块: 读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 模块打开）",
+            "针尖已登记: 未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+            "扫描地图可读: 读不到（没有活动实验？）—— 换点时无法确认落点是否干净"
+          ],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 模块打开）",
+              "ok": false
+            },
+            {
+              "check": "针尖已登记",
+              "detail": "未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+              "ok": false
+            },
+            {
+              "check": "扫描地图可读",
+              "detail": "读不到（没有活动实验？）—— 换点时无法确认落点是否干净",
+              "ok": false
+            },
+            {
+              "check": "避让半径",
+              "detail": "脉冲 200 nm / 扎针 30 nm",
+              "ok": true
+            },
+            {
+              "check": "Z 噪声底",
+              "detail": "未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。",
+              "ok": null
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": false,
+          "tip_name": "",
+          "warnings": [
+            "Z 噪声底: 未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 模块打开）\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [
+            "针尖已登记: 未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+            "扫描地图可读: 读不到（没有活动实验？）—— 换点时无法确认落点是否干净"
+          ],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "在跑",
+              "ok": true
+            },
+            {
+              "check": "针尖已登记",
+              "detail": "未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。",
+              "ok": false
+            },
+            {
+              "check": "扫描地图可读",
+              "detail": "读不到（没有活动实验？）—— 换点时无法确认落点是否干净",
+              "ok": false
+            },
+            {
+              "check": "避让半径",
+              "detail": "脉冲 200 nm / 扎针 30 nm",
+              "ok": true
+            },
+            {
+              "check": "Z 噪声底",
+              "detail": "未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。",
+              "ok": null
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": false,
+          "tip_name": "",
+          "warnings": [
+            "Z 噪声底: 未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      }
+    }
+  },
+  "TipForgeSelfCheck": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "衬底可解析",
+              "detail": "读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）",
+              "ok": false
+            },
+            {
+              "check": "评估帧能分辨原子",
+              "detail": "5 nm / 256 px = 0.0195 nm/px（满权重档）",
+              "ok": true
+            },
+            {
+              "check": "表面态判据自测",
+              "detail": "合成台阶通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "原子相判据自测",
+              "detail": "合成晶格通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "0.3 nm 浅扎在包络内",
+              "detail": "允许",
+              "ok": true
+            },
+            {
+              "check": "电流监控已豁免锻造流程",
+              "detail": "三个技能名都被豁免表覆盖",
+              "ok": true
+            },
+            {
+              "check": "修针令牌已覆盖锻造流程",
+              "detail": "三个技能名都在 TIP_WORK_PATTERNS 里",
+              "ok": true
+            },
+            {
+              "check": "扎针落点记为损伤",
+              "detail": "两个配方都归入 tip_shape（会生成避让圆）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "在跑",
+              "ok": true
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": true,
+          "substrate": "",
+          "warnings": [
+            "衬底可解析: 读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [
+            "Tip Shaper 模块: 读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 打开）"
+          ],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "衬底可解析",
+              "detail": "读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）",
+              "ok": false
+            },
+            {
+              "check": "评估帧能分辨原子",
+              "detail": "5 nm / 256 px = 0.0195 nm/px（满权重档）",
+              "ok": true
+            },
+            {
+              "check": "表面态判据自测",
+              "detail": "合成台阶通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "原子相判据自测",
+              "detail": "合成晶格通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "0.3 nm 浅扎在包络内",
+              "detail": "允许",
+              "ok": true
+            },
+            {
+              "check": "电流监控已豁免锻造流程",
+              "detail": "三个技能名都被豁免表覆盖",
+              "ok": true
+            },
+            {
+              "check": "修针令牌已覆盖锻造流程",
+              "detail": "三个技能名都在 TIP_WORK_PATTERNS 里",
+              "ok": true
+            },
+            {
+              "check": "扎针落点记为损伤",
+              "detail": "两个配方都归入 tip_shape（会生成避让圆）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 打开）",
+              "ok": false
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": false,
+          "substrate": "",
+          "warnings": [
+            "衬底可解析: 读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 打开）\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsGet"
+          }
+        ],
+        "data": {
+          "blockers": [],
+          "checks": [
+            {
+              "check": "技能齐全",
+              "detail": "全部就位（本机注册 515 个）",
+              "ok": true
+            },
+            {
+              "check": "衬底可解析",
+              "detail": "读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）",
+              "ok": false
+            },
+            {
+              "check": "评估帧能分辨原子",
+              "detail": "5 nm / 256 px = 0.0195 nm/px（满权重档）",
+              "ok": true
+            },
+            {
+              "check": "表面态判据自测",
+              "detail": "合成台阶通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "原子相判据自测",
+              "detail": "合成晶格通过、纯噪声被拒",
+              "ok": true
+            },
+            {
+              "check": "0.3 nm 浅扎在包络内",
+              "detail": "允许",
+              "ok": true
+            },
+            {
+              "check": "电流监控已豁免锻造流程",
+              "detail": "三个技能名都被豁免表覆盖",
+              "ok": true
+            },
+            {
+              "check": "修针令牌已覆盖锻造流程",
+              "detail": "三个技能名都在 TIP_WORK_PATTERNS 里",
+              "ok": true
+            },
+            {
+              "check": "扎针落点记为损伤",
+              "detail": "两个配方都归入 tip_shape（会生成避让圆）",
+              "ok": true
+            },
+            {
+              "check": "Tip Shaper 模块",
+              "detail": "在跑",
+              "ok": true
+            },
+            {
+              "check": "操作模式",
+              "detail": "AUTO —— 一次批准跑完整条流程",
+              "ok": true
+            }
+          ],
+          "missing_skills": [],
+          "ready": true,
+          "substrate": "",
+          "warnings": [
+            "衬底可解析: 读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）"
+          ]
+        },
+        "error": "",
+        "success": true,
+        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+      }
+    }
+  },
+  "TipPulse": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": false,
+            "aborted_reason": "",
+            "completed_steps": [
+              "snapshot_bias",
+              "pulse_1"
+            ],
+            "composite_name": "TipPulse",
+            "current_step": null,
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "count": 1,
+              "duration_s": 0.1,
+              "pulse_v": 3.0,
+              "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+              "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+              "tip_registered": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 2
+          },
+          "count": 1,
+          "duration_s": 0.1,
+          "original_bias_v": null,
+          "pulse_v": 3.0,
+          "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetBias"
+          },
+          {
+            "params": {
+              "absolute": true,
+              "bias_v": 3.0,
+              "width_s": 0.1,
+              "z_hold": 1
+            },
+            "skill": "BiasPulse"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "GetBias failed: 模拟故障：子技能失败",
+            "completed_steps": [],
+            "composite_name": "TipPulse",
+            "current_step": "snapshot_bias",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "count": 1,
+              "duration_s": 0.1,
+              "pulse_v": 3.0,
+              "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+              "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+              "tip_registered": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "count": 1,
+          "duration_s": 0.1,
+          "original_bias_v": null,
+          "pulse_v": 3.0,
+          "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "GetBias failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetBias"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@1": {
+        "calls": [],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "BiasPulse failed: 模拟故障：子技能失败",
+            "completed_steps": [
+              "snapshot_bias"
+            ],
+            "composite_name": "TipPulse",
+            "current_step": "pulse_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "count": 1,
+              "duration_s": 0.1,
+              "pulse_v": 3.0,
+              "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+              "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+              "tip_registered": false
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "count": 1,
+          "duration_s": 0.1,
+          "original_bias_v": null,
+          "pulse_v": 3.0,
+          "tip_policy": "pulse_count=1（通用默认）；pulse_duration_s=0.1（通用默认）；pulse_v=3.0（通用默认）",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "BiasPulse failed: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetBias"
+          },
+          {
+            "params": {
+              "absolute": true,
+              "bias_v": 3.0,
+              "width_s": 0.1,
+              "z_hold": 1
+            },
+            "skill": "BiasPulse"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "TipShape": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前偏压(Bias_Get 回包读不懂(repr 前 80 字:('', b'', []))),而 bias_v 既没有显式给出、方案表也没有 —— 拒绝用写死的 3 V 代替。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前偏压(Bias_Get 报错:模拟故障：连接被对端关闭),而 bias_v 既没有显式给出、方案表也没有 —— 拒绝用写死的 3 V 代替。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.1,
+              2,
+              0.25,
+              0.0,
+              0.1,
+              0.25,
+              0.1,
+              0.0,
+              0.1,
+              0.1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_Start"
+          }
+        ],
+        "data": {
+          "bias_lift_v": 0.25,
+          "bias_v": 0.25,
+          "bias_v_source": "read",
+          "change_bias": false,
+          "completed": true,
+          "lift_height_m": 0.0,
+          "tip_policy": "",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.1,
+              2,
+              0.25,
+              0.0,
+              0.1,
+              0.25,
+              0.1,
+              0.0,
+              0.1,
+              0.1,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TipShaper_PropsSet"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.1,
+              2,
+              0.25,
+              0.0,
+              0.1,
+              0.25,
+              0.1,
+              0.0,
+              0.1,
+              0.1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "TipShaper_Start"
+          }
+        ],
+        "data": {},
+        "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.1,
+              2,
+              0.25,
+              0.0,
+              0.1,
+              0.25,
+              0.1,
+              0.0,
+              0.1,
+              0.1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_Start"
+          }
+        ],
+        "data": {
+          "bias_lift_v": 0.25,
+          "bias_v": 0.25,
+          "bias_v_source": "read",
+          "change_bias": false,
+          "completed": true,
+          "lift_height_m": 0.0,
+          "tip_policy": "",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.1,
+              2,
+              0.25,
+              0.0,
+              0.1,
+              0.25,
+              0.1,
+              0.0,
+              0.1,
+              0.1,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_PropsSet"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "TipShaper_Start"
+          }
+        ],
+        "data": {
+          "bias_lift_v": 0.25,
+          "bias_v": 0.25,
+          "bias_v_source": "read",
+          "change_bias": false,
+          "completed": true,
+          "lift_height_m": 0.0,
+          "tip_policy": "",
+          "tip_policy_notes": "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。",
+          "tip_registered": false
+        },
+        "error": "",
+        "success": true,
+        "summary": ""
+      }
+    }
+  },
   "TipShapeWithReadback": {
     "params": {
       "bias_settling_s": 0.01,

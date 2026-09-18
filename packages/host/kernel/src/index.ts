@@ -47,6 +47,9 @@ export * from './image-channel.js'
 // ── 批 4d（composite.scan_at + 撞针追踪）在这一行下面 export ──
 
 // ── 批 5a（针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检）在这一行下面 export ──
+export * from './tip-registry.js'
+export * from './tip-conditioning-policy.js'
+export * from './tip-conditioning-resolver.js'
 
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面 export ──
 

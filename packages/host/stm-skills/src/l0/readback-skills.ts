@@ -59,7 +59,7 @@ import {
   type ReadbackCapture,
   type TraceDeps,
 } from './readback-stream.js'
-import { resolvedLiftHeightM, shaperBiasDefault } from './tip-policy.js'
+import { applyTipPolicy, resolvedLiftHeightM, shaperBiasDefault } from './tip-policy.js'
 import { tipXyFields } from './tip-xy.js'
 
 const num = (p: Readonly<Record<string, unknown>>, k: string, dflt: number): number =>
@@ -95,20 +95,22 @@ const PULSE_DIRECTION_CN: Readonly<Record<string, string>> = {
 /**
  * 打一发电脉冲，并在脉冲前后流式采 Z/电流，判定 Z 跳变的方向与幅度。
  *
- * ## 欠账：针尖安全包络**没有移植**
+ * ## 针尖安全包络：**D-TIP-1 的欠账在批 5a 结清了**
  *
  * 旧仓的 `validate_params` 在这里调 `apply_tip_policy(params, ("pulse_v",), …)`：
  * 按**当前登记的针尖**检查方案表包络，**超上限拒绝、不夹紧**（同一条哲学贯穿
  * 粗动电压四重锁 —— 悄悄把 10 V 改成 8 V 会让用户以为自己做的是他要的实验）。
- * 修针流程默认的 ±10 V 是用户对**金属丝针尖**的做法；铂铱（包络 8 V）、
- * 磁性/超导针、qPlus（3 V）上会在那里被拒绝，**那不是 bug 是保护**。
  *
- * 它要的针尖登记表（`tip_conditioning_resolver`）在 Phase 5.3，还没移植。
- * 在那之前这一侧只有全局 ±10 V 的 SafetyGate 在挡 —— 写一个空的 `validateParams`
- * 会让人以为这道闸在，所以这里**不写**，把欠账写在这儿。
+ * 批 3j 当时**没有写一个空的 `validateParams`**（写了会让人以为这道闸在），
+ * 欠账写在这儿。针尖登记表底座落地之后，下面这个 `validateParams` 是**实的**：
+ * 它装在内核 K6，也就是**任何硬件调用之前**，而 K6 的拒绝原样回给调用方。
+ *
+ * ⚠️ 方案表管这个量叫 `pulse_v`，本技能的参数名是 `bias_v` —— 全局 ±10 V 的安全帽
+ * 按**参数名子串**匹配，叫 `pulse_v` 也在帽内，但 `bias_v` 与 `BiasPulse` 保持一致。
  */
 export const BiasPulseWithReadback: Skill = {
   spec: S.BiasPulseWithReadbackSpec,
+  validateParams: (params) => [...applyTipPolicy(params, ['pulse_v'], { pulse_v: 'bias_v' }).plan.refusals],
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
     const calls: SkillCallRecord[] = []
     const biasV = num(params, 'bias_v', 0)
@@ -324,8 +326,22 @@ export function stageBoundaries(
  * 所以它跟 `bias_v` 一样：**省略就跟随 bias_v**，没有 3 V 兜底，而且**回包里要写
  * 实际下发的那一组** —— 以前回包只写 `bias_v`，于是「我关掉了 change_bias」的
  * 调用方看着一份没有电压的回执，而针尖上刚刚过了 3 V。
+ *
+ * ## `validateParams`：**本仓新增**（批 5a，登记成 deviation）
+ *
+ * 旧仓这个技能**没有** `validate_params` —— 而它的孪生兄弟 `TipShape` 在 `execute`
+ * 最前面就过一遍针尖包络。两个技能下发的是**同一串** `TipShaper_PropsSet` +
+ * `TipShaper_Start`，也就是对针尖做同一件事，却一个有闸一个没有。
+ * 这种不对称正是「同一条判据的两份实现，改了一处另一处还是旧的」那一类
+ * （本仓在粗动那次付过账）。这里补上，**判据与 `TipShape` 那一侧逐字同源**。
  */
 export const TipShapeWithReadback: Skill = {
+  validateParams: (params) => [
+    ...applyTipPolicy(params, ['shaper_bias_v', 'shaper_lift_v'], {
+      shaper_bias_v: 'bias_v',
+      shaper_lift_v: 'bias_lift_v',
+    }).plan.refusals,
+  ],
   spec: S.TipShapeWithReadbackSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
     const calls: SkillCallRecord[] = []

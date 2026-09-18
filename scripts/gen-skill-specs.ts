@@ -401,7 +401,17 @@ const BATCH_4D: string[] = [
 ]   // composite.scan_at + 撞针追踪
 
 // ↑ 上一条 ／ ↓ 5A —— 这一行谁都不要动
-const BATCH_5A: string[] = []   // 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
+const BATCH_5A: string[] = [
+  // 两个修针技能。`TipShape` 与批 3j 的 `TipShapeWithReadback` 下发同一串
+  // `TipShaper_PropsSet` + `TipShaper_Start`；`TipPulse` 是第一个**参数由针尖方案表填、
+  // 包络由方案表判**的组合技能（D-TIP-1 在这一批结清）。
+  'TipShape',
+  'TipPulse',
+  // 两个自检。**本仓这一侧有意与旧仓不同**：依赖缺席一律 `ok=false, blocking=true`
+  // （旧仓落进 `except → ok=None` ⇒ 只进 warnings ⇒ 打出一句假的「✅ 可以开工」）。
+  'TipConditioningSelfCheck',
+  'TipForgeSelfCheck',
+]   // 针尖登记表底座 + TipPulse/TipShape + 两个 fail-open 自检
 
 // ↑ 上一条 ／ ↓ 5B —— 这一行谁都不要动
 const BATCH_5B: string[] = []   // A 档零散一批（各自自足，不压子系统）
