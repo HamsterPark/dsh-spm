@@ -1,0 +1,337 @@
+{
+  "ablated_keys": [
+    "approach_damages_surface",
+    "approach_didv_engage_frac",
+    "approach_expected_steps",
+    "approach_i_gain_m_per_s",
+    "approach_p_gain_m",
+    "approach_setpoint_a",
+    "approach_steps_per_cycle",
+    "approach_supervision",
+    "au_step_pm",
+    "avoid_radius_approach_nm",
+    "avoid_radius_crash_nm",
+    "avoid_radius_pulse_nm",
+    "avoid_radius_tip_shape_nm",
+    "bias_applied_to",
+    "coarse_motion_max_pressure_pa",
+    "lockin_mod_amp_v",
+    "lockin_mod_freq_hz",
+    "lockin_readout_form",
+    "lockin_x_signal_index",
+    "lockin_y_signal_index",
+    "preamp_gain_v_per_a",
+    "preamp_model",
+    "qplus_amplitude_baseline",
+    "qplus_amplitude_signal_index",
+    "scan_path_strategy",
+    "scan_spacing_factor",
+    "tilt_limit_deg",
+    "v_tip_max_m_s",
+    "vacuum_gauge_full_scale_pa",
+    "vacuum_gauge_min_pa",
+    "vacuum_interlock_mode",
+    "vacuum_reading_max_age_s",
+    "xy_axis_step_budget",
+    "xy_coarse_motion",
+    "xy_motor_step_m",
+    "xy_site_spacing_steps",
+    "xy_step_uncertainty_frac",
+    "z_noise_floor_m",
+    "z_range_m"
+  ],
+  "calibration": {
+    "filled": {
+      "didv_at_contact_v": 0.0025,
+      "didv_cal_bias_v": 0.05,
+      "didv_cal_mod_amp_v": 0.02,
+      "didv_cal_setpoint_a": 1e-10,
+      "didv_cal_updated_at": 1699996400.0
+    },
+    "never": {},
+    "partial": {
+      "didv_cal_bias_v": 0.05
+    }
+  },
+  "choice_spec": {
+    "retract_motor_dir": {
+      "choices": [
+        "z+",
+        "z-"
+      ],
+      "default": "z+",
+      "display": {
+        "z+": "Z+ (Nanonis 标准: 远离样品)",
+        "z-": "Z- (反向装置)"
+      },
+      "label": "退针方向(粗动马达 远离样品)"
+    },
+    "z_extend_sign": {
+      "choices": [
+        "+1",
+        "-1"
+      ],
+      "default": "+1",
+      "display": {
+        "+1": "伸长时 Z 增大",
+        "-1": "伸长时 Z 减小"
+      },
+      "label": "压电伸长(趋向样品)对应 Z 读数符号"
+    }
+  },
+  "constants": {
+    "calib_keys": [
+      "didv_at_contact_v",
+      "didv_cal_bias_v",
+      "didv_cal_setpoint_a",
+      "didv_cal_mod_amp_v",
+      "didv_cal_updated_at",
+      "tilt_cal_g11",
+      "tilt_cal_g12",
+      "tilt_cal_g21",
+      "tilt_cal_g22",
+      "tilt_cal_cond",
+      "tilt_cal_updated_at",
+      "qplus_f0_measured_hz",
+      "qplus_q_measured",
+      "qplus_fq_updated_at"
+    ],
+    "motor_dir_code": {
+      "z+": 4,
+      "z-": 5
+    },
+    "tilt_cal_keys": [
+      "tilt_cal_g11",
+      "tilt_cal_g12",
+      "tilt_cal_g21",
+      "tilt_cal_g22"
+    ],
+    "tilt_cal_max_cond": 10.0
+  },
+  "get_config": {
+    "choice_filled": {
+      "default": null,
+      "key": "retract_motor_dir",
+      "value": "z-"
+    },
+    "choice_spec_default": {
+      "default": null,
+      "key": "retract_motor_dir",
+      "value": "z+"
+    },
+    "empty_profile_caller_default": {
+      "default": 7,
+      "key": "lockin_signal_index",
+      "value": 7
+    },
+    "empty_profile_no_spec_default": {
+      "default": null,
+      "key": "lockin_signal_index",
+      "value": null
+    },
+    "empty_profile_spec_default": {
+      "default": null,
+      "key": "z_recede_min_nm",
+      "value": 1.0
+    },
+    "empty_profile_unknown_key": {
+      "default": "fallback",
+      "key": "nope",
+      "value": "fallback"
+    },
+    "filled_wins": {
+      "default": null,
+      "key": "z_recede_min_nm",
+      "value": 2.5
+    },
+    "unregistered_nominal_key": {
+      "default": null,
+      "key": "qplus_f0_hz",
+      "value": null
+    },
+    "z_extend_sign_spec_default_is_not_neutral": {
+      "default": null,
+      "key": "z_extend_sign",
+      "value": "+1"
+    }
+  },
+  "retract_dir_code": {
+    "junk": 4,
+    "never": 4,
+    "z_minus": 5,
+    "z_plus": 4
+  },
+  "sanitize": {
+    "bad_choice_dropped": {},
+    "blank_string_dropped": {},
+    "bool_dropped": {
+      "retract_total_steps": 1,
+      "z_recede_min_nm": 1.0
+    },
+    "calib_junk_dropped": {},
+    "calib_passthrough": {
+      "tilt_cal_cond": 1.0,
+      "tilt_cal_g11": 1.0,
+      "tilt_cal_g12": 0.0,
+      "tilt_cal_g21": 0.0,
+      "tilt_cal_g22": 1.0,
+      "tilt_cal_updated_at": 1.0
+    },
+    "clamped_high": {
+      "retract_step_max": 1000,
+      "z_recede_min_nm": 10000.0
+    },
+    "clamped_low": {
+      "xy_prewithdraw_steps": 0,
+      "z_recede_min_nm": 0.0
+    },
+    "empty": {},
+    "empty_string_dropped": {},
+    "filled": {
+      "lockin_signal_index": 86,
+      "preamp_full_scale_a": 1e-08,
+      "retract_motor_dir": "z-",
+      "retract_step_max": 100,
+      "retract_total_steps": 111,
+      "xy_move_chunk_steps": 10,
+      "xy_prewithdraw_steps": 11,
+      "z_extend_sign": "-1",
+      "z_recede_min_nm": 2.5,
+      "z_settle_timeout_s": 9.0
+    },
+    "good_choice_trimmed": {
+      "retract_motor_dir": "z-",
+      "z_extend_sign": "+1"
+    },
+    "int_truncates": {
+      "lockin_signal_index": 12,
+      "retract_total_steps": 7
+    },
+    "nan_and_inf_dropped": {},
+    "none": {},
+    "none_dropped": {},
+    "not_a_dict": {},
+    "numeric_string_coerced": {
+      "z_recede_min_nm": 3.5
+    },
+    "unknown_keys_dropped": {}
+  },
+  "spec": {
+    "lockin_signal_index": {
+      "default": null,
+      "label": "dI/dV lock-in 信号索引",
+      "max": 127,
+      "min": 0,
+      "type": "int",
+      "unit": ""
+    },
+    "preamp_full_scale_a": {
+      "default": null,
+      "label": "前置放大器满量程电流(可测的最大电流)",
+      "max": 0.01,
+      "min": 1e-12,
+      "type": "float",
+      "unit": "A"
+    },
+    "retract_step_max": {
+      "default": 1000,
+      "label": "单次粗动最大步数(Nanonis 硬件上限 1000)",
+      "max": 1000,
+      "min": 1,
+      "type": "int",
+      "unit": "步"
+    },
+    "retract_total_steps": {
+      "default": 3000,
+      "label": "换样品退针总步数(粗动马达)",
+      "max": 1000000,
+      "min": 1,
+      "type": "int",
+      "unit": "步"
+    },
+    "xy_move_chunk_steps": {
+      "default": 50,
+      "label": "横向粗动分块步数(每块之后做一次看护)",
+      "max": 1000,
+      "min": 1,
+      "type": "int",
+      "unit": "步"
+    },
+    "xy_prewithdraw_steps": {
+      "default": 100,
+      "label": "横向粗动前的粗动退针步数(清障)",
+      "max": 100000,
+      "min": 0,
+      "type": "int",
+      "unit": "步"
+    },
+    "z_recede_min_nm": {
+      "default": 1.0,
+      "label": "退针方向自检: Z 伸长超过此阈值判定为远离",
+      "max": 10000.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "nm"
+    },
+    "z_settle_timeout_s": {
+      "default": 20.0,
+      "label": "退针自检: 等 Z 反馈稳定的预算上限",
+      "max": 300.0,
+      "min": 0.5,
+      "type": "float",
+      "unit": "s"
+    }
+  },
+  "spec_default": {
+    "lockin_signal_index": null,
+    "nope": null,
+    "preamp_full_scale_a": null,
+    "retract_motor_dir": "z+",
+    "retract_step_max": 1000,
+    "retract_total_steps": 3000,
+    "xy_move_chunk_steps": 50,
+    "xy_prewithdraw_steps": 100,
+    "z_extend_sign": "+1",
+    "z_recede_min_nm": 1.0,
+    "z_settle_timeout_s": 20.0
+  },
+  "tilt_calibration": {
+    "full": {
+      "cond": 1.1128,
+      "g": [
+        [
+          -1.02,
+          0.07
+        ],
+        [
+          0.03,
+          -0.98
+        ]
+      ],
+      "updated_at": 1699000000.0
+    },
+    "full_without_cond_or_stamp": {
+      "cond": null,
+      "g": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "updated_at": null
+    },
+    "never": null,
+    "three_of_four_is_never": null
+  },
+  "z_extend_sign_or_none": {
+    "declared_minus": -1,
+    "declared_plus": 1,
+    "junk_is_not_declared": null,
+    "never_declared": null,
+    "other_keys_only": null
+  }
+}

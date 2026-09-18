@@ -47157,6 +47157,66 @@
       }
     }
   },
+  "ReadCalibrations": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "didv": {
+            "age_note": "标定于 2023-11-15 05:13:20(1.0 小时前)。",
+            "age_s": 3600.0,
+            "available": true,
+            "condition_note": "这个值**绑定在它被测出来的那个偏压/设定点上** —— 换了条件就不可比。",
+            "didv_at_contact_v": 0.0025,
+            "measured_at_bias_v": 0.05,
+            "measured_at_setpoint_a": 1e-10,
+            "mod_amp_v": 0.02,
+            "updated_at": 1699996400.0,
+            "why": ""
+          },
+          "qplus": {
+            "age_note": "标定于 2023-11-15 06:03:20(10 分钟前)。",
+            "age_s": 600.0,
+            "available": true,
+            "f0_measured_hz": 32768.0,
+            "nominal_f0_hz": null,
+            "nominal_note": "标称值跟着针尖走;实测值**换针即失效**。两者不可互相替代。",
+            "nominal_q": null,
+            "q_measured": 24000.0,
+            "ring_down_note": "τ = Q/(π·f₀) ≈ 0.233 s。**别据此写一个固定等待时长** —— Q 在本机跨 5e3~2e5(τ 0.06~2.5 s),要等就等**振幅回到基线**(带超时)。",
+            "ring_down_tau_s": 0.23313712366976858,
+            "updated_at": 1699999400.0,
+            "why": ""
+          },
+          "read_at": 1700000000.0,
+          "tilt": {
+            "age_note": "标定于 2023-11-03 16:26:40(11.6 天前)。**换过样品/托架之后这条就失效了** —— 倾斜响应是样品与托架的属性。",
+            "age_s": 1000000.0,
+            "available": true,
+            "cond": 1.1128,
+            "cond_note": "条件数 1.113 —— 形状健全。⚠️ **条件数只管形状,不管方向**:它说的是两个轴的响应有没有几乎共线,**对符号与求逆一无所知**。2026-08-10 真机上条件数 1.1128(很漂亮)而 AutoTilt 仍然发散,根因是用了 M 而不是 −M⁻¹。**别把一个好看的条件数读成「标定良好」。**",
+            "convention_note": "存的是 **G = −M⁻¹**(按行的 2×2),其中 M = ∂斜率/∂倾斜。**直接用**:要抵消测到的斜率 s,施加 `Δtilt = G·s` —— 不要再求逆、不要再取负。(08-10 那次发散正是「存的是 M、需要的是 −M⁻¹」;修的是存储端,而这句说明直到 08-11 才跟上。)",
+            "g": [
+              [
+                -1.02,
+                0.07
+              ],
+              [
+                0.03,
+                -0.98
+              ]
+            ],
+            "updated_at": 1699000000.0,
+            "why": ""
+          }
+        },
+        "error": "",
+        "success": true,
+        "summary": "已标定:tilt、didv、qplus。倾斜:标定于 2023-11-03 16:26:40(11.6 天前)。**换过样品/托架之后这条就失效了** —— 倾斜响应是样品与托架的属性。"
+      }
+    }
+  },
   "ReadTipOscillationAmplitude": {
     "params": {},
     "traces": {
@@ -47212,6 +47272,5635 @@
         },
         "error": "",
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "RelocateCoarseXY": {
+    "params": {
+      "axis": "x",
+      "direction": "+",
+      "steps": 20
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+            "completed_steps": [],
+            "composite_name": "RelocateCoarseXY",
+            "current_step": "preflight",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {},
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "checks": {},
+          "clearance": {},
+          "clearance_baseline": null,
+          "clearance_rungs": [],
+          "direction": "x+",
+          "dry_run": false,
+          "lateral_steps_taken": 0,
+          "panic_failures": [],
+          "reapproached": false,
+          "requested_steps": 20,
+          "steps": 0,
+          "watches": []
+        },
+        "error": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+            "completed_steps": [],
+            "composite_name": "RelocateCoarseXY",
+            "current_step": "preflight",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {},
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "checks": {},
+          "clearance": {},
+          "clearance_baseline": null,
+          "clearance_rungs": [],
+          "direction": "x+",
+          "dry_run": false,
+          "lateral_steps_taken": 0,
+          "panic_failures": [],
+          "reapproached": false,
+          "requested_steps": 20,
+          "steps": 0,
+          "watches": []
+        },
+        "error": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_FreqAmpGet"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+            "completed_steps": [],
+            "composite_name": "RelocateCoarseXY",
+            "current_step": "preflight",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {},
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "checks": {},
+          "clearance": {},
+          "clearance_baseline": null,
+          "clearance_rungs": [],
+          "direction": "x+",
+          "dry_run": false,
+          "lateral_steps_taken": 0,
+          "panic_failures": [],
+          "reapproached": false,
+          "requested_steps": 20,
+          "steps": 0,
+          "watches": []
+        },
+        "error": "_phase_preflight failed: 粗动驱动核对失败:本机粗动驱动幅度上限【尚未声明】,拒绝设置驱动电压。\n控制器支持的电压和这台机器的压电叠堆能承受的电压是两个数 —— 有些控制器支持 400 V,但有的叠堆 300 V 就烧了,而且没有任何读数会告诉你是哪一种。\n请用户在【高级】页填写本机上限(需要 admin PIN)。在那之前 MAST 不会替这台机器猜。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "RetractForSampleChange": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@17": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: coarse retract (rung 0, 1 steps) failed: 模拟故障：连接被对端关闭",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: coarse retract (rung 0, 1 steps) failed: 模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "err@19": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@20": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": null,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": null,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@21": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": null,
+                    "setpoint_why": "ZCtrl_SetpntGet 报错:模拟故障：连接被对端关闭",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": null,
+                "setpoint_why": "ZCtrl_SetpntGet 报错:模拟故障：连接被对端关闭",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_StatusGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": null,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@5": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": null,
+                "setpoint_why": "ZCtrl_SetpntGet 报错:模拟故障：连接被对端关闭",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": null
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@6": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.506,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 6,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.5s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "err@7": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [
+          {
+            "args": [
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "AutoApproach_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              5,
+              1,
+              0,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StartMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_SetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              86,
+              0
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Signals_ValGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Motor_StopMove"
+          },
+          {
+            "args": [
+              1,
+              -1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_Withdraw"
+          }
+        ],
+        "data": {
+          "_progress": {
+            "aborted": true,
+            "aborted_reason": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+            "completed_steps": [
+              "stop_powered",
+              "baseline_z",
+              "withdraw_initial"
+            ],
+            "composite_name": "RetractForSampleChange",
+            "current_step": "retract_0_1",
+            "failed_steps": [],
+            "last_update_at": 1700000000.0,
+            "partial_data": {
+              "baseline_settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "baseline_z_m": 0.25,
+              "rungs": [
+                {
+                  "crosstalk_modulation_off": true,
+                  "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+                  "cumulative": 1,
+                  "current_a": 0.25,
+                  "didv_v": 0.25,
+                  "level": 0,
+                  "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+                  "settle": {
+                    "current_a": 0.25,
+                    "drift_m": 0.0,
+                    "elapsed_s": 0.405,
+                    "excursion_m": 0.0,
+                    "loop_confirmed_on": true,
+                    "samples": 5,
+                    "setpoint_a": 0.25,
+                    "setpoint_why": "",
+                    "settled": true,
+                    "state": "tracking",
+                    "timeout_s": 5.0,
+                    "tol_m": 5e-10,
+                    "usable": true,
+                    "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                    "z_m": 0.25
+                  },
+                  "steps": 1,
+                  "verdict": "approaching",
+                  "z_after_m": 0.25
+                }
+              ],
+              "setpoint_a": 0.25
+            },
+            "started_at": 1700000000.0,
+            "total_steps": 0
+          },
+          "baseline_z_m": 0.25,
+          "recede_confirmed_rungs": 0,
+          "retracted": false,
+          "rungs": [
+            {
+              "crosstalk_modulation_off": true,
+              "crosstalk_skipped": "调制读不到 —— 不读 X,也就不翻译。⚠️ 进针/退针流程**开跑前会自动关调制**(用完即关,`d097541`),所以默认情况下这条报告在这些流程里永远是这一句 —— **这不是故障,是两个机制的取舍**:调制开着时电流通道上那层纹波会污染进退针的形态判据(实测 jump_rate 被数成 127.9 次/秒),而串扰导航恰恰需要它开着。要用导航就得为这些流程保留调制,那是一次要单独拍板的取舍(见 KNOWN_ISSUES §2.36)。",
+              "cumulative": 1,
+              "current_a": 0.25,
+              "didv_v": 0.25,
+              "level": 0,
+              "reason": "|I|=2.50e-01 A 远高于退针时应有的~0",
+              "settle": {
+                "current_a": 0.25,
+                "drift_m": 0.0,
+                "elapsed_s": 0.405,
+                "excursion_m": 0.0,
+                "loop_confirmed_on": true,
+                "samples": 5,
+                "setpoint_a": 0.25,
+                "setpoint_why": "",
+                "settled": true,
+                "state": "tracking",
+                "timeout_s": 5.0,
+                "tol_m": 5e-10,
+                "usable": true,
+                "why": "已稳定,反馈正握着隧道结(Z 是真实的间距读数);已等 0.4s,|I| = 0.25 A",
+                "z_m": 0.25
+              },
+              "steps": 1,
+              "verdict": "approaching",
+              "z_after_m": 0.25
+            }
+          ],
+          "total_steps_retracted": 0
+        },
+        "error": "_phase_retract_verify failed: 退针方向自检失败：粗动 1 步后开反馈检测到针尖在**逼近**样品（|I|=2.50e-01 A 远高于退针时应有的~0）——退针方向很可能配置反了。已停止粗动并撤针，只赔了这一级的步数。请核对 instrument_profile 的退针方向/z_extend_sign 后再试。",
+        "runs": [
+          {
+            "params": {},
+            "skill": "GetLockInConfig"
+          }
+        ],
+        "success": false,
         "summary": ""
       }
     }
@@ -69665,6 +75354,62 @@
           "generator": "2ch"
         },
         "success": true,
+        "summary": ""
+      }
+    }
+  },
+  "StepCoarseXY": {
+    "params": {
+      "axis": "x",
+      "direction": "+"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "allow_revisit": true,
+          "delegated_to": "RelocateCoarseXY",
+          "requested_steps": 1
+        },
+        "error": "",
+        "runs": [
+          {
+            "params": {
+              "allow_revisit": true,
+              "axis": "x",
+              "direction": "+",
+              "dry_run": false,
+              "reapproach": true,
+              "steps": 1
+            },
+            "skill": "RelocateCoarseXY"
+          }
+        ],
+        "success": true,
+        "summary": ""
+      },
+      "runerr@0": {
+        "calls": [],
+        "data": {
+          "allow_revisit": true,
+          "delegated_to": "RelocateCoarseXY",
+          "requested_steps": 1
+        },
+        "error": "模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {
+              "allow_revisit": true,
+              "axis": "x",
+              "direction": "+",
+              "dry_run": false,
+              "reapproach": true,
+              "steps": 1
+            },
+            "skill": "RelocateCoarseXY"
+          }
+        ],
+        "success": false,
         "summary": ""
       }
     }

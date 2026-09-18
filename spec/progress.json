@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 398,
+    "done": 402,
     "partial": 0,
-    "todo": 117
+    "todo": 113
   },
-  "modules_complete": 75,
+  "modules_complete": 79,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -101,8 +101,8 @@
     },
     "builtins.calibration_readout": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.capture_signal_buffer": {
       "total": 1,
@@ -146,8 +146,8 @@
     },
     "builtins.coarse_nudge": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.coarse_selfcheck": {
       "total": 1,
@@ -686,13 +686,13 @@
     },
     "composite.relocate_coarse_xy": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.retract_for_sample_change": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.scan_at": {
       "total": 1,
@@ -4180,11 +4180,11 @@
       "module": "builtins.calibration_readout",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "ReadHardwareEvents": {
       "module": "builtins.hardware_events",
@@ -4230,21 +4230,21 @@
       "module": "composite.relocate_coarse_xy",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "RetractForSampleChange": {
       "module": "composite.retract_for_sample_change",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 16,
+      "impl": true,
+      "status": "done"
     },
     "RunBiasSweep": {
       "module": "builtins.bias_sweep",
@@ -5570,11 +5570,11 @@
       "module": "builtins.coarse_nudge",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 2,
+      "impl": true,
+      "status": "done"
     },
     "StopAutoApproach": {
       "module": "builtins.approach",

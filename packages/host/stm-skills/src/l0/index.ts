@@ -75,6 +75,10 @@ import { TipPulse } from '../composite/tip-pulse.js'
 // ── 批 5b（A 档零散一批（各自自足，不压子系统））在这一行下面加 import ──
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面加 import ──
+import { CALIBRATIONS } from './calibrations.js'
+import { RetractForSampleChange } from '../composite/retract-for-sample-change.js'
+import { RelocateCoarseXY } from '../composite/relocate-coarse-xy.js'
+import { StepCoarseXY } from '../composite/step-coarse-xy.js'
 // 组合技能也从这个锚点走 —— 底部那几行是没有锚点的公共区
 import { ScanAt } from '../composite/scan-at.js'
 import { FullScan } from '../composite/full-scan.js'
@@ -162,6 +166,10 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 5b 在这一行下面展开 ──
 
   // ── 批 5c 在这一行下面展开 ──
+  ...CALIBRATIONS,
+  RetractForSampleChange,
+  RelocateCoarseXY,
+  StepCoarseXY,
   ScanAt,
   FullScan,
   ...ANALYSIS_CLUSTERS,
@@ -253,6 +261,12 @@ export * from '../composite/tip-pulse.js'
 // ── 批 5b 在这一行下面 re-export ──
 
 // ── 批 5c 在这一行下面 re-export ──
+export * from './calibrations.js'
+export * from '../composite/z-settle.js'
+export * from '../composite/tip-evidence.js'
+export * from '../composite/retract-for-sample-change.js'
+export * from '../composite/relocate-coarse-xy.js'
+export * from '../composite/step-coarse-xy.js'
 export * from '../composite/scan-at.js'
 export * from '../composite/full-scan.js'
 export * from './analysis-common.js'
