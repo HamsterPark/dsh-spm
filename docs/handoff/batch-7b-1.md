@@ -146,12 +146,12 @@ POINT_ENGINE_SKILL = "SpectroscopyAtPositions"`。
 
 | 登记 | 一句话 |
 |---|---|
-| `D-EXTRA-SPLIT-?` | 旧仓把 `extra_reasons`/`extra_warnings` 拆散在两个类里：`AssessShockleyOnset` **用而未赋值**（每条成功路径 `NameError`），`AssessAtomicPhase` **赋值而未用**（算好的两句话扔了）。本仓接回来 |
-| `D-SUBSTRATE-?` | 注入口默认关 · 只认**四个**洁净金属面 · 无模糊匹配。第 3 条是**量出来的**：金样把七个面都问了一遍 |
-| `D-ROWSPACING-?` | 行间距**不与** `firstOrderPeriodNm` 统一 —— 旧仓两处结合顺序不同，Pt(111) 差 1 ulp |
-| `D-EMPTYPATH-?` | 空 `scan_path` 走「读取失败」而不是「文件不存在」（`Path("") == Path(".")`）|
-| `D-ATOMICPHASE-CHANNEL-?` | 指名通道拿不到时**回落到第一个通道**，与孪生技能刻意不同；也不做几何归位 |
-| `D-CLOSURE-DEPTH-?` | 闭包**不抄** `compliance.py:751` 那个「超过八层就 UNKNOWN」的上限 |
+| `D-EXTRA-SPLIT-1` | 旧仓把 `extra_reasons`/`extra_warnings` 拆散在两个类里：`AssessShockleyOnset` **用而未赋值**（每条成功路径 `NameError`），`AssessAtomicPhase` **赋值而未用**（算好的两句话扔了）。本仓接回来 |
+| `D-SUBSTRATE-1` | 注入口默认关 · 只认**四个**洁净金属面 · 无模糊匹配。第 3 条是**量出来的**：金样把七个面都问了一遍 |
+| `D-ROWSPACING-1` | 行间距**不与** `firstOrderPeriodNm` 统一 —— 旧仓两处结合顺序不同，Pt(111) 差 1 ulp |
+| `D-EMPTYPATH-1` | 空 `scan_path` 走「读取失败」而不是「文件不存在」（`Path("") == Path(".")`）|
+| `D-ATOMICPHASE-CHANNEL-1` | 指名通道拿不到时**回落到第一个通道**，与孪生技能刻意不同；也不做几何归位 |
+| `D-CLOSURE-DEPTH-1` | 闭包**不抄** `compliance.py:751` 那个「超过八层就 UNKNOWN」的上限 |
 
 ### 4.1 `D-EXTRA-SPLIT` 那一格长什么样（金样里钉着）
 
@@ -289,7 +289,7 @@ PokeConditionTip   12 个模块（另加 9 个，其中两个是 matplotlib 面�
 | 1 | 「追 `context.run(...)` 到不动点」 | **追两条边**（`context.run` + `CompositeStep`）| `CompositeStep` 299 处 vs `context.run` 63 处 —— 只追后者覆盖五分之一。协调中途也发了同样的订正，两边独立撞到同一件事 |
 | 2 | 协调消息把 f-string 列成「追不动·第二型」（`bias.py:571/:593/:629`）| **解得开**，落进第三型（`_phase*`，不是技能）| 前缀是模块级常量。不解常量的话 `POINT_ENGINE_SKILL = "SpectroscopyAtPositions"` 会被记成「追不动」—— **而那是一条真边**。`dynamic_run_sites` 里 `shape === 'fstring'` 的是 **0** 条 |
 | 3 | 协调消息的第四型只列了 `graph_executor.py:598/:601` | 还有 `_base.py:75` 与 `interpreter.py:347`，**共 4 处** `in_engine` | 只匹配裸 `context`/`ctx` 会漏掉 `self._context.run(...)` —— 而那两行正是全部 299 条 `CompositeStep` 最后落地的地方 |
-| 4 | 「环与深度按 `skill_footprint` 的办法降 UNKNOWN」 | 环照做（`cycles` + `seen`），**深度上限不抄** | 见 `D-CLOSURE-DEPTH-?`。抄一个「追八层就停」只是把同一个 bug 的阈值调大 |
+| 4 | 「环与深度按 `skill_footprint` 的办法降 UNKNOWN」 | 环照做（`cycles` + `seen`），**深度上限不抄** | 见 `D-CLOSURE-DEPTH-1`。抄一个「追八层就停」只是把同一个 bug 的阈值调大 |
 | 5 | ①只说改 `tip-phase-deps.test.ts` 的 `BLOCKED` | **还改了 `tip-selfcheck.ts` 的两张表** | 同一个一层 bug 的第二处，而且是**生产**的（`missing_skills` 进模型）。原测试名字里写着「闭包」而算的是一层，留着等于主动钉住 bug |
 | 6 | ③「落两条已解封锁的流程」 | **一条都没落**，改成把「为什么落不了」做成账（`non_skill_deps`）| 两条的技能闭包确实是空的，而缺的不是技能。硬落进去的那个东西会在第一发脉冲之前写一条**没人收**的损伤标记，然后第二轮把第一轮的坑原路打一遍 —— 那正是 2026-08-16 真机的原样 |
 | 7 | 「`resolve_substrate` 照 `substrateTolerance` 的范式」 | 照了，**但认得的面只有四个不是七个** | 拿本仓 `SURFACE_LATTICE_NM`（vision 的七个面）当衬底知识库，会让三个面凭空「知道」。这是把七个面都问一遍**量出来**的，不是读代码读出来的 |

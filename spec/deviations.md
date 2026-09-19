@@ -2960,7 +2960,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7b-1：编号**留空**（`?`），由主线统一编。 -->
 
-## D-EXTRA-SPLIT-? · 旧仓把 `extra_reasons` / `extra_warnings` **拆散在两个类里**
+## D-EXTRA-SPLIT-1 · 旧仓把 `extra_reasons` / `extra_warnings` **拆散在两个类里**
 
 `builtins/tip_spectro_assess.py` 一个文件两个技能，而同一次重构的两半落进了两个类：
 
@@ -2997,7 +2997,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 的 `:236-237` 删掉）。在那之前，本仓这一侧是**旧仓自己写下来、却被一次拆分切断**的行为，
 不是发明。
 
-## D-SUBSTRATE-? · `resolve_substrate` 的三处收窄（注入口 + 只认四个洁净金属面 + 无模糊匹配）
+## D-SUBSTRATE-1 · `resolve_substrate` 的三处收窄（注入口 + 只认四个洁净金属面 + 无模糊匹配）
 
 旧仓 `core/sample_facts.py` 走 `get_active_log() → current_sample_id →
 storage.get_sample()` 再查 30570 行的 `knowledge/`。本仓两样都没有，于是：
@@ -3017,7 +3017,7 @@ storage.get_sample()` 再查 30570 行的 `knowledge/`。本仓两样都没有�
 三处的降级都是**诚实拒绝**：拿不到衬底只是不做晶格常数那一项比对，
 其余三条判据照跑 —— 旧仓注释明写「0 或推断不出来时只是不做这一项比对，**不算失败**」。
 
-## D-ROWSPACING-? · 行间距的算式**不与 `firstOrderPeriodNm` 统一**（旧仓两处结合顺序不同）
+## D-ROWSPACING-1 · 行间距的算式**不与 `firstOrderPeriodNm` 统一**（旧仓两处结合顺序不同）
 
 ```
 sample_facts.py:51,196        _ROW_SPACING_FACTOR = math.sqrt(3.0) / 2.0 ; nn_nm * _ROW_SPACING_FACTOR
@@ -3035,7 +3035,7 @@ sample_facts.py:184-185       nn_nm = nearest_neighbor_ang / 10.0        （知�
 `firstOrderPeriodNm` 跟它自己那一份。两条变异各盯一边
 （`atomicphase-row-spacing-is-the-nearest-neighbour` / `-reassociates`）。
 
-## D-EMPTYPATH-? · 空 `scan_path` 走的是「读取失败」，**不是**「文件不存在」
+## D-EMPTYPATH-1 · 空 `scan_path` 走的是「读取失败」，**不是**「文件不存在」
 
 `Path("")` 在 Python 里等价于 `Path(".")`，而当前目录**是存在的** ⇒
 `if not Path(path).exists()` 为假 ⇒ 掉进 `read_sxm("")` 的 OSError ⇒
@@ -3045,7 +3045,7 @@ sample_facts.py:184-185       nn_nm = nearest_neighbor_ang / 10.0        （知�
 一个「看起来显然」的分支走到了另一支，而模型读的正是这两句里的一句。
 本仓用 `path === '' ? existsSync('.') : existsSync(path)` 对齐。
 
-## D-ATOMICPHASE-CHANNEL-? · 指名通道拿不到时**回落到第一个通道**（与孪生技能刻意不同）
+## D-ATOMICPHASE-CHANNEL-1 · 指名通道拿不到时**回落到第一个通道**（与孪生技能刻意不同）
 
 ```
 tip_spectro_assess.py:361     ch = channels.get(channel_name) or next(iter(channels.values()), None)
@@ -3059,7 +3059,7 @@ atomic_lattice._load_frame    拿不到就报错退出
 同理，这个技能**不走** `sxmOrientedFrames`（反扫去镜像 / 按 `SCAN_DIR` 翻正）——
 旧仓这一支是 `ch.get("forward") or ch.get("backward")`，原样取，一次几何归位都不做。
 
-## D-CLOSURE-DEPTH-? · 闭包**不抄**旧仓那个「超过八层就 UNKNOWN」的上限
+## D-CLOSURE-DEPTH-1 · 闭包**不抄**旧仓那个「超过八层就 UNKNOWN」的上限
 
 旧仓同形状的那一份是 `mast/skills/compliance.py:751`：
 
