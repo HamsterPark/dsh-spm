@@ -1,5 +1,35 @@
 # 剩余 186 个技能的依赖盘点
 
+> ## ⚠️ 2026-09-19：这份盘点已经被第六轮吃掉了大半，**不要直接拿它分派**
+>
+> 盘它的时候是 **186 个技能 / 115 个模块**；今天是 **98 个 / 73 个模块**（`spec/progress.json`）。
+> 表里以 `模块名` 形式点名的 **34** 个模块里，**28 个已经整模块完成**，只剩 6 个还开着（括号是 done/total）：
+>
+> `builtins.frame_drift_skill`（0/1） · `builtins.spectrum_assess`（0/1） · `builtins.pattern`（6/7） · `builtins.optics_scan`（0/2） · `builtins.optics_stage`（0/8） · `builtins.optics_pump_probe`（0/1）
+>
+> 其中三个 `optics_*`（共 11 个技能）是 **D 档 —— 压着的东西本仓架构原则上就不要**，
+> 它们开着是**故意的**，不是欠账。真正还能动的只有前三个。
+>
+> ```
+> 已吃掉（28）：acquire_psd adatom_verify atomic_lines cluster_extract cluster_roundness
+>   cluster_select current_monitor current_origin force_inversion frame_corrugation
+>   frame_trust lattice_cell_skill monitor_current_fft saturation_recovery scan_frame
+>   scan_texture scan_watch spectroscopy step_edge step_height thermal_settle
+>   tip_from_spectrum tip_shaper tip_sharpness  ·  composite: batch_regions_scan
+>   bias_settle scan_at tip_pulse
+> ```
+>
+> 这个数是算出来的，不是手数的：`spec/progress.json` 的 `modules[*].complete`。
+> **要重新分派，先重跑一次盘点**，不要在这张表上打勾 ——
+> 一份要靠人记得划掉的清单，比没有清单更坏（第六轮为这句话付过三次学费）。
+>
+> 仍然值钱的是两样，它们不随进度过期：
+> **① 开头那条判据纪律**（依赖按**函数级**追，不按 import 行、不按文件名 ——
+> 批 3i / 3j 两次相反的错都出在拿文件当依赖单位）；
+> **② §四「三个自检技能里两个是 fail-open」** 和 §六「与子 agent 报告相左的三条事实」。
+
+---
+
 盘的是 `spec/progress.json` 里 `status != "done"` 的那 **186** 个，分布在 **115** 个模块。
 判据是**函数级**的：看 `execute` / `validate_params` 实际调到哪些旧仓函数，那些函数各自
 又要什么，一路追到底 —— 不是看 import 行，也不是看文件名。
