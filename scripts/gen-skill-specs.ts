@@ -438,7 +438,15 @@ const BATCH_6A: string[] = []   // 特异化流程 _tip_phases 六个组合技�
 const BATCH_6B: string[] = []   // vision 的 scan_prep 链
 
 // ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
-const BATCH_6C: string[] = []   // 批 5b 欠下的数值原语 + 晶格一族剩余
+const BATCH_6C: string[] = [
+  // 批 5b §5.2 欠下的四个里的三个（`AssessSpectrum` 的 544 行没落，见 batch-6c.md）
+  'AssessTipSharpness',
+  'AssessTipFromSpectrum',
+  'InvertForceSaderJarvis',
+  // 晶格一族剩余里最便宜的那个（批 4b §6 的原话）。同模块的
+  // `CalibratePiezoMultiAngle` 要 `solve_affine` 的 fsolve 多分支求根 ⇒ 不在本批。
+  'AssessAtomicConsistency',
+]   // 批 5b 欠下的数值原语 + 晶格一族剩余
 
 const BATCH_5C: string[] = [
   // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。

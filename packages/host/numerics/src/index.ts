@@ -35,3 +35,5 @@ export * from './curve-fit.js'
 export * from './peaks.js'
 export * from './correlate.js'
 export * from './savgol.js'
+// ── 批 6c：np.gradient(y, x) 与 np.trapezoid（Sader–Jarvis 的两件底座）──
+export * from './calculus.js'

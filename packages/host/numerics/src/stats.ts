@@ -32,6 +32,7 @@
  * 给的是**另一个数**，不是同一个数的不同精度。
  */
 import { pySum } from 'dsh-spm-kernel'
+import { npMean, npSum } from './pairwise.js'
 
 /** float64 的机器精度。 */
 export const EPS = Number.EPSILON
@@ -150,4 +151,68 @@ export function histogram(
   const edges = new Float64Array(bins + 1)
   for (let i = 0; i <= bins; i += 1) edges[i] = lo + width * i
   return { counts, edges }
+}
+
+// ── 批 6c ──────────────────────────────────────────────────────────────────
+
+/**
+ * {@link corrcoef} 与 numpy 比时的容差 —— **绝对**（这个量本来就落在 `[−1, 1]`）。
+ *
+ * 推导：`r = S_ab / √(S_aa·S_bb)`，三个 `S` 都是 `n` 个乘积的归约。
+ *
+ * * 分子：成对求和的误差界是 `sumRelTol(n) · Σ|a'ᵢb'ᵢ|`，而柯西–施瓦茨给
+ *   `Σ|a'b'| ≤ √(S_aa·S_bb)` —— 于是分子那一项对 `r` 的**绝对**贡献
+ *   至多 `sumRelTol(n)`，**与 r 本身多小无关**（近零的 r 是相消的结果，
+ *   相消毁掉相对精度、不毁绝对精度，`numerics.md` 第四节第一条）；
+ * * 分母：两个 `√` 各带半份相对误差，乘上 `|r| ≤ 1` ⇒ 至多再一份 `sumRelTol(n)`；
+ * * 减均值那一步：`Δa'ᵢ ≤ eps·(|aᵢ| + |ā|)`，同样按上式收进 `2·sumRelTol(n)`。
+ *
+ * 合计 `4·sumRelTol(n)`，取 **8** 留一倍余量。
+ *
+ * ⚠️ numpy 那一侧的 `np.dot` 走 BLAS，累加顺序**不是**成对 —— 所以这一件
+ * 与 `pairwise.ts` 不同，**给不出零容差**。界的形状仍然成立（分块累加的误差界
+ * 同样是 `O(log n · eps)` 那一档），但「照抄累加顺序」这条路在这里走不通。
+ */
+export function corrcoefAbsTol(n: number): number {
+  return 8 * sumRelTol(n)
+}
+
+/**
+ * `np.corrcoef(a, b)[0, 1]` —— 两条等长序列的皮尔逊相关，**已按 numpy 夹到 `[−1, 1]`**。
+ *
+ * 运算顺序照 numpy（`cov` 先乘 `1/(n−1)`，`corrcoef` 再**分两次**除以两个标准差）：
+ * `fact` 在分子分母里约掉，所以它不改数学结果 —— 但它改浮点结果，而这一族的答案
+ * 会直接和一个阈值比。
+ *
+ * 任一侧方差为 0 时 numpy 回 `NaN`（`0/0`）并发一条 `RuntimeWarning`；这里同样回
+ * `NaN`，**不回 0** —— 「两条线的相关性无从谈起」和「两条线不相关」是两句话。
+ */
+export function corrcoef(a: readonly number[] | Float64Array, b: readonly number[] | Float64Array): number {
+  const n = a.length
+  if (b.length !== n) throw new RangeError(`corrcoef 的两条序列长度不等：${n} vs ${b.length}`)
+  if (n < 2) return NaN
+  const fact = n - 1
+  const am = npMean(a)
+  const bm = npMean(b)
+  const da = new Float64Array(n)
+  const db = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    da[i] = ((a as readonly number[])[i] as number) - am
+    db[i] = ((b as readonly number[])[i] as number) - bm
+  }
+  const pab = new Float64Array(n)
+  const paa = new Float64Array(n)
+  const pbb = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    pab[i] = (da[i] as number) * (db[i] as number)
+    paa[i] = (da[i] as number) * (da[i] as number)
+    pbb[i] = (db[i] as number) * (db[i] as number)
+  }
+  const inv = 1 / fact
+  const cab = npSum(pab) * inv
+  const caa = npSum(paa) * inv
+  const cbb = npSum(pbb) * inv
+  const r = cab / Math.sqrt(caa) / Math.sqrt(cbb)
+  if (Number.isNaN(r)) return NaN
+  return Math.min(1, Math.max(-1, r))
 }

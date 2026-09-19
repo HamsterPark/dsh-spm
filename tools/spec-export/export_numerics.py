@@ -937,6 +937,111 @@ _g3 = np.random.default_rng(0)
 PCG64["superstructure_stream"] = _plain([float(_g3.uniform(0.15, 0.85)) for _ in range(24)])
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# 17. `np.gradient(y, x)` / `np.trapezoid(y, x)` / `np.corrcoef` —— **批 6c 追加**
+# ──────────────────────────────────────────────────────────────────────────
+#
+# 同第 15/16 节：这一节**不走那条共用的 `rng` 流**（输入全是闭式的），所以它一个
+# 已有节都没动，`git diff` 仍然是纯插入。
+#
+# 每一格都先回答「**哪一格能把我可能犯的那个错照出来**」：
+#
+# | 可能犯的错 | 哪一格照得出来 | 别的格为什么照不出 |
+# |---|---|---|
+# | `gradient` 走成**标量间距**那条分支 | `nonuniform`（间距按几何级数拉开） | 等距格上两条分支**数学相等**，只差最后一位 |
+# | `gradient` 的 `a`/`c` 系数对调 | `nonuniform`（左右间距不等） | 等距格上 `a = −c`，对调看不出来 |
+# | `edge_order` 用了 2 | `curved_ends`（两端曲率大） | 直线上一阶与二阶同解 |
+# | `trapezoid` 把 `x` 当成 `dx=1` | `nonuniform` | 等距且 dx=1 的格上两者同解 |
+# | `trapezoid` 用顺序累加而不是成对 | `cancelling`（301 项、量级横跨 1e16） | 短且同号的积分上两种累加同解 |
+# | `corrcoef` 忘了中心化 | `offset_mean`（均值远大于起伏） | 零均值数据上两者同解 |
+# | `corrcoef` 忘了最后那次 `clip` | `identical`（b 与 a 逐位相同 ⇒ 原始比值可能 1+1ulp） | 一般数据上比值本来就 < 1 |
+# | `corrcoef` 的符号 | `anti`（b = −a ⇒ −1） | 正相关的格上符号错了会当场爆，但**不留证据** |
+CALCULUS: dict = {
+    "_note": "np.gradient(y, x)（**非均匀分支**，edge_order=1）/ np.trapezoid(y, x) / "
+             "np.corrcoef(a, b)[0,1]；前两者容差 0（运算顺序照抄），"
+             "corrcoef 因为 numpy 走 BLAS 的 dot 而只能给界",
+    "gradient": [],
+    "trapezoid": [],
+    "corrcoef": [],
+}
+
+_GRAD_CASES = {
+    # 等距：两条分支数学相等 ⇒ 这一格钉的是「非均匀那条公式的运算顺序」
+    "uniform": (np.linspace(0.0, 3.0, 17), None),
+    # 几何级数拉开的间距 —— 标量分支在这里给**另一个数**，不是另一档精度
+    "nonuniform": (np.cumsum(np.concatenate([[0.0], 0.05 * 1.35 ** np.arange(15)])), None),
+    # 两端曲率大 ⇒ edge_order 1 与 2 分得开
+    "curved_ends": (np.linspace(-1.2, 1.2, 21), None),
+    # 只有两个点：整条曲线都是端点
+    "two_points": (np.array([0.0, 0.37]), None),
+    # 递减的 x（负间距）—— dt 的符号在 Sader–Jarvis 里是有意义的
+    "descending": (np.linspace(2.0, 0.0, 13), None),
+}
+for _name, (_gx, _) in _GRAD_CASES.items():
+    _gy = np.exp(-_gx) * np.cos(3.1 * _gx) + 0.25 * _gx ** 2
+    CALCULUS["gradient"].append({
+        "case": _name,
+        "x": _plain(_gx),
+        "y": _plain(_gy),
+        "grad": _plain(np.gradient(_gy, _gx)),
+    })
+
+_TRAP_CASES = {
+    "uniform": np.linspace(0.0, 2.5, 21),
+    "nonuniform": np.cumsum(np.concatenate([[0.0], 0.02 * 1.4 ** np.arange(18)])),
+    "two_points": np.array([0.0, 1.7]),
+    "descending": np.linspace(3.0, 0.5, 15),
+}
+for _name, _tx in _TRAP_CASES.items():
+    _ty = np.sin(2.3 * _tx) / (1.0 + _tx)
+    CALCULUS["trapezoid"].append({
+        "case": _name,
+        "x": _plain(_tx), "y": _plain(_ty),
+        "integral": _plain(float(np.trapezoid(_ty, _tx))),
+    })
+# **一格必然分岔的**：301 项、量级横跨 1e16 ⇒ 顺序累加与成对求和给不同的答案。
+# 判据是「离成对的那个近、离顺序的那个远」（同 `curve_fit` 的 n−p，零容差）。
+_cx = np.arange(301, dtype=np.float64)
+_cy = np.zeros(301, dtype=np.float64)
+_cy[0] = 2e16
+_cy[1] = -2e16
+_cy[2::2] = 2.0
+_cterms = np.diff(_cx) * (_cy[1:] + _cy[:-1]) / 2.0
+CALCULUS["trapezoid"].append({
+    "case": "cancelling",
+    "x": _plain(_cx), "y": _plain(_cy),
+    "integral": _plain(float(np.trapezoid(_cy, _cx))),
+    "naive_sequential": _plain(float(sum(_cterms.tolist()))),
+    "_note": "顺序累加与成对求和在这一串上不同 —— 这一格是「照抄累加顺序」的钉子",
+})
+
+_CORR_CASES = {}
+_ct = np.linspace(0.0, 6.0, 41)
+_ca = np.sin(_ct) + 0.15 * np.cos(4.0 * _ct)
+_CORR_CASES["noisy"] = (_ca, np.cos(_ct) + 0.3 * np.sin(2.7 * _ct))
+_CORR_CASES["identical"] = (_ca, _ca.copy())
+_CORR_CASES["anti"] = (_ca, -_ca)
+# 均值远大于起伏 —— 忘了中心化的版本在这里给 ~1.0，正确版本给原来那个数
+_CORR_CASES["offset_mean"] = (_ca + 1000.0, np.cos(_ct) + 1000.0)
+_CORR_CASES["antisym_flip"] = (_ca, -_ca[::-1].copy())
+for _name, (_a, _b) in _CORR_CASES.items():
+    CALCULUS["corrcoef"].append({
+        "case": _name, "n": int(_a.size),
+        "a": _plain(_a), "b": _plain(_b),
+        "r": _plain(float(np.corrcoef(_a, _b)[0, 1])),
+    })
+# 一侧是常数 ⇒ 0/0。numpy 回 nan（外加一条 RuntimeWarning）——
+# **不是 0**：「相关性无从谈起」和「不相关」是两句话。
+with np.errstate(invalid="ignore", divide="ignore"):
+    _const = np.full(_ca.size, 3.0)
+    CALCULUS["corrcoef"].append({
+        "case": "constant_b", "n": int(_ca.size),
+        "a": _plain(_ca), "b": _plain(_const),
+        "r": _plain(float(np.corrcoef(_ca, _const)[0, 1])),
+        "_note": "一侧方差为 0 ⇒ nan，不是 0",
+    })
+
+
 def main() -> int:
     doc = {
         "_note": "由 tools/spec-export/export_numerics.py 生成——numpy/scipy 真跑一遍。"
@@ -974,6 +1079,7 @@ def main() -> int:
         "polyfit": POLYFIT,
         "pairwise": PAIRWISE,
         "pcg64": PCG64,
+        "calculus": CALCULUS,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True,

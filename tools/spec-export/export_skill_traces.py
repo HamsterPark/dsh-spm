@@ -415,7 +415,20 @@ BATCH_6A: list[str] = []   # 特异化流程 _tip_phases 六个组合技能
 BATCH_6B: list[str] = []   # vision 的 scan_prep 链
 
 #: ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
-BATCH_6C: list[str] = []   # 批 5b 欠下的数值原语 + 晶格一族剩余
+BATCH_6C: list[str] = [
+    # 判针尖的两件（.sxm / .dat 各一）
+    "AssessTipSharpness", "AssessTipFromSpectrum",
+    # Sader–Jarvis 反演
+    "InvertForceSaderJarvis",
+    # 多帧原子相一致性
+    "AssessAtomicConsistency",
+]   # 批 5b 欠下的数值原语 + 晶格一族剩余
+#
+# ⚠️ 与批 4a/4b 同一种情形：这四个**一次 TCP 都不发**，读的是磁盘上的 `.sxm` /
+# `.dat`。这台导出器的 `_params_for` 给不出一条真实的路径，于是它们在这里录到的
+# 是「文件不存在」那一支。**那仍然是一条判据**（外壳在碰任何东西之前先拒），
+# 但这一批的主判据在 `spec/golden/batch6c.json` 的 `skills` 节 ——
+# 那一节是拿**真的合成字节**喂进旧仓技能录的。
 
 BATCH_5C: list[str] = [
     # 零 TCP —— 它读的全是进程内的仪器档案。所以这四格录的是**报文**，
