@@ -412,7 +412,14 @@ BATCH_5B: list[str] = [
 BATCH_6A: list[str] = []   # 特异化流程 _tip_phases 六个组合技能
 
 #: ↑ 上一条 ／ ↓ 6B —— 这一行谁都不要动
-BATCH_6B: list[str] = []   # vision 的 scan_prep 链
+BATCH_6B: list[str] = [
+    # 两个都**不碰仪器**（读磁盘上的 .sxm），所以这两格录到的是「文件不存在」
+    # 那一支 —— 导出器的 _params_for 给不出真实的 scan_path / folder。
+    # **那仍然是一条判据**（外壳在碰任何东西之前先拒），而主判据在
+    # spec/golden/scan_prep.json 的 skills 节（26 + 6 格，喂真的合成 .sxm）。
+    "AnalyzeScanImage",
+    "AutoProcessScanBatch",
+]   # vision 的 scan_prep 链
 
 #: ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
 BATCH_6C: list[str] = []   # 批 5b 欠下的数值原语 + 晶格一族剩余

@@ -33,7 +33,7 @@
  * 实测（本机，金样**十一格**）：最坏 `1.6e−3`，占容差 `0.32`；
  * 而离闸门最近的一格（`noise`，**3.559**，闸门 8.0）余量 **2.2 倍**，容差只占那段余量的 `1.5e−6`。
  */
-import { fft2, matAt, matOf, type Mat } from 'dsh-spm-numerics'
+import { fft2, ifft2, matAt, matOf, npMean, npSum, type Mat } from 'dsh-spm-numerics'
 import { EPS32 } from './frame-validity.js'
 import { npMedian } from './nd.js'
 import { lstsqPlane } from './plane.js'
@@ -164,4 +164,112 @@ export function fftSharpness(hn: Mat, nmPerPx: number | null): FftSharpness {
   const rad = Math.hypot(py - cy, px - cx)
   const resNm = rad > 0 && nmPerPx && nmPerPx > 0 ? (N / rad) * nmPerPx : null
   return { sharpness: sharp, resolvedNm: hasLat ? resNm : null, hasLattice: hasLat }
+}
+
+// ── 批 6b：`_fwd_bwd_instability` ───────────────────────────────────────
+
+/**
+ * `fwdBwdInstability` 的**绝对**容差。
+ *
+ * 为什么是绝对：输出是 `1 − max_ncc`，而正反扫一致的帧上 `max_ncc ≈ 1` ——
+ * 一次**相消**。相消毁掉相对精度、不毁绝对精度（批 4a §9①），
+ * 所以这里唯一说得通的是绝对界。
+ *
+ * 尺度是 `max_ncc` 自己（归一化过，量级 1）。旧仓整条路在 float32 里
+ * （`_detrend` 给 float32，`np.fft.fft2(float32)` 给 complex64），
+ * 本仓只照抄输入那次量化、变换留在 float64 ⇒ 差额由**单精度 FFT 的本底**定：
+ * `eps32 · log₂n`，`n = 256² = 65536` ⇒ `16·eps32 ≈ 1.9e−6`。取 4 倍余量。
+ *
+ * ⚠️ 判据是 `不稳定度 < fb_instability_max`（缺省 0.50）。金样的帧因此要么
+ * 远在 0.5 以下（一致）、要么远在 0.5 以上（不一致），**不许有一格贴着 0.5**。
+ */
+export const FB_INSTABILITY_ABS_TOL = 64 * EPS32
+
+/** `max_shift_frac` 的缺省：允许 ±12% 边长的横向位移。 */
+export const FB_MAX_SHIFT_FRAC = 0.12
+
+/**
+ * 正反扫不稳定度 ∈ [0, 1]：`1 − 允许横向位移的最大归一化互相关`。
+ * 0 = 正反扫一致（稳定），1 = 完全不相关（不稳 / 针尖振铃）。
+ *
+ * ## 为什么要允许横向位移
+ *
+ * 它吸收的是正反扫之间的**压电迟滞快轴偏移**（真 Createc 硬件上实测 ~6–7 px，
+ * dy ≈ 0）。一个零位移的逐像素指标在真实数据上**饱和**（相关 ~0.29 ⇒
+ * 每一帧都被标红），哪怕针尖完美稳定。7287 张真实扫描上验过：
+ * 允许偏移之后相关从 0.29 涨到 0.58（Agent-B，2026-07-23 跨 agent 发现）。
+ * **合成数据没有这个偏移，所以旧指标只在台子上看着没问题。**
+ *
+ * ## 那道除零守卫为什么是 `1e−30` 而不是 `1e−9`（2026-08-10）
+ *
+ * **一道绝对阈值卡在物理量上就是个 bug。** `na` 是去趋势后的范数，数据以**米**计，
+ * 而 `na ≈ n_px × 起伏RMS` —— 于是判据的答案取决于**帧有多少像素**和
+ * **数据用什么单位**。实测：
+ *
+ * * 同一帧内容只改边长：32/64/96/128 px ⇒ **1.0**（完全不相关）；256 px ⇒ 0.0001；
+ * * 同一个 96×96 帧：米 ⇒ **1.0**；换算成纳米（×1e9）⇒ 0.0001。
+ *
+ * 触发时返回的 `1.0` 正好落在判决阈值（0.40 / 0.50）的**拒绝一侧** ——
+ * 也就是说一块**真正平坦干净**的好表面越平、帧越小，越会被判成「针尖坏」。
+ * 而平坦干净正是好针尖该产生的东西。真机 15 帧里最近的一张只比旧阈值高 2.7 倍。
+ *
+ * 归一化互相关本来就除以 `na·nb`，所以这道守卫**只可能**是防除零 ——
+ * `1e−30` 才是它该有的量级。
+ */
+export function fwdBwdInstability(fwd: Mat, bwd: Mat, maxShiftFrac = FB_MAX_SHIFT_FRAC): number {
+  const a0 = detrend32(fwd)
+  const b0 = detrend32(bwd)
+  const H = a0.rows
+  const W = a0.cols
+  const n = H * W
+  const am = npMean(a0.data)
+  const bm = npMean(b0.data)
+  const a = new Float64Array(n)
+  const b = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    a[i] = (a0.data[i] as number) - am
+    b[i] = (b0.data[i] as number) - bm
+  }
+  const sqA = new Float64Array(n)
+  const sqB = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    sqA[i] = (a[i] as number) * (a[i] as number)
+    sqB[i] = (b[i] as number) * (b[i] as number)
+  }
+  const na = Math.sqrt(npSum(sqA))
+  const nb = Math.sqrt(npSum(sqB))
+  if (na < 1e-30 || nb < 1e-30) return 1.0
+  const fa = fft2(matOf(H, W, a))
+  const fb = fft2(matOf(H, W, b))
+  const pr = new Float64Array(n)
+  const pi = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    const ar = fa.re.data[i] as number
+    const ai = fa.im.data[i] as number
+    const br = fb.re.data[i] as number
+    const bi = -(fb.im.data[i] as number)
+    pr[i] = ar * br - ai * bi
+    pi[i] = ar * bi + ai * br
+  }
+  const xc = ifft2({ re: matOf(H, W, pr), im: matOf(H, W, pi) }).re.data
+  const cy = Math.floor(H / 2)
+  const cx = Math.floor(W / 2)
+  const ry = Math.max(2, Math.trunc(maxShiftFrac * H))
+  const rx = Math.max(2, Math.trunc(maxShiftFrac * W))
+  let mx = -Infinity
+  let any = false
+  for (let sy = cy - ry; sy <= cy + ry; sy += 1) {
+    if (sy < 0 || sy >= H) continue
+    for (let sx = cx - rx; sx <= cx + rx; sx += 1) {
+      if (sx < 0 || sx >= W) continue
+      const r = ((sy - cy) % H + H) % H
+      const c = ((sx - cx) % W + W) % W
+      mx = Math.max(mx, (xc[r * W + c] as number) / (na * nb))
+      any = true
+    }
+  }
+  if (!any) {
+    for (let i = 0; i < n; i += 1) mx = Math.max(mx, (xc[i] as number) / (na * nb))
+  }
+  return Math.min(1.0, Math.max(0.0, 1.0 - mx))
 }

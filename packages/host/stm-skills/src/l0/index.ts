@@ -86,6 +86,7 @@ import { BatchRegionsScan } from '../composite/batch-regions-scan.js'
 // ── 批 6a（特异化流程 _tip_phases 六个组合技能）在这一行下面加 import ──
 
 // ── 批 6b（vision 的 scan_prep 链）在这一行下面加 import ──
+import { SCAN_PREP_SKILLS } from './scan-prep-skills.js'
 
 // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面加 import ──
 import { CALIBRATIONS } from './calibrations.js'
@@ -190,6 +191,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 6a 在这一行下面展开 ──
 
   // ── 批 6b 在这一行下面展开 ──
+  ...SCAN_PREP_SKILLS,
 
   // ── 批 6c 在这一行下面展开 ──
   ...CALIBRATIONS,
@@ -298,6 +300,7 @@ export * from '../composite/batch-regions-scan.js'
 // ── 批 6a 在这一行下面 re-export ──
 
 // ── 批 6b 在这一行下面 re-export ──
+export * from './scan-prep-skills.js'
 
 // ── 批 6c 在这一行下面 re-export ──
 export * from './calibrations.js'

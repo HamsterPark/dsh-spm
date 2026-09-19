@@ -46,3 +46,8 @@ export * from './frame-texture.js'
 export * from './seg-texture.js'
 export * from './tip-metrics.js'
 export * from './atomic-phase.js'
+// ── 批 6b：vision 的 scan_prep 链 ──
+export * from './ndfilters.js'
+export * from './lsq.js'
+export * from './tip-change.js'
+export * from './scan-prep.js'

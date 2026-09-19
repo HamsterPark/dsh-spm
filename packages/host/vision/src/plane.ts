@@ -53,7 +53,8 @@
  * `count > best_count` 保留的是**先抽到的那个**，而「先抽到谁」正是两边不同的
  * 那件事。这不是把判据放松，是把它换成一条**两边都成立**的。
  */
-import { lstsqObservedTol, matAt, matOf, solveNormalEquations, Xoshiro128, type Mat } from 'dsh-spm-numerics'
+import { lstsqObservedTol, matAt, matOf, npMean, solveNormalEquations, Xoshiro128, type Mat } from 'dsh-spm-numerics'
+import { lstsqQr } from './lsq.js'
 import { finiteOf, nanMax, nanMin, npMedian } from './nd.js'
 
 /**
@@ -391,4 +392,96 @@ export function planeRelTol(cond: number): number {
 /** 有限值个数 —— `finiteOf` 的计数版，省一次数组分配。 */
 export function countFinite(m: Mat): number {
   return finiteOf(m.data).length
+}
+
+// ── 批 6b：`scan_prep.poly_subtract` 的完整版（order 1 与 2）───────────────
+
+/**
+ * 减去最小二乘拟合的二维多项式曲面（`order=1` 即平面）。**NaN 安全**：
+ * 只用有限像素拟合，再把曲面从**整幅**图上减掉。
+ *
+ * 与 `data.processors.plane_subtract` 的区别：那个只有一阶，而且遇到 NaN 会把整幅图
+ * 算成 NaN（`lstsq` 吃到 NaN）。**未完成的扫描是常态。**
+ *
+ * 项的顺序照移：`[x^j · y^i for i in 0..order for j in 0..order−i]`
+ * ⇒ order 1 是 `[1, x, y]`，order 2 是 `[1, x, x², y, xy, y²]`。
+ *
+ * ## ⚠️ 两个 order 走**两条**求解路，而这不是随手写的
+ *
+ * | order | 解法 | 为什么 |
+ * |---|---|---|
+ * | 1 | {@link lstsqPlane}（**中心化**正规方程，批 4a 那一份） | 中心化之后 κ ≈ 1，正规方程不吃亏；而裸 `[x,y,1]` 的 κ ≈ 384，QR 反而更差 |
+ * | ≥2 | 列缩放 + Householder QR（{@link lstsqQr}） | `[1,x,x²,y,xy,y²]` 在 256 边长上 κ(A) ≈ 1e6 ⇒ κ(AᵀA) ≈ 1e12，正规方程只剩四位 |
+ *
+ * 一个函数两条路看着别扭，而**合成一条会有一侧变差**：
+ * 统一走 QR 会让 order 1 的结果换一串数（批 4b 的 `frame_texture` 金样全要重录，
+ * 而换来的是更差的条件数）；统一走正规方程会让 order 2 只剩四位有效数字，
+ * 而 `bow_gain` 要拿它跟 1.15 比大小。**这是 D-CHANNELS-1 的反面**：
+ * 两条路**必须**不同，理由写在这里。
+ */
+export function polySubtract(m: Mat, order = 1): Mat {
+  const { rows, cols } = m
+  const n = rows * cols
+  const ord = Math.max(0, Math.trunc(order))
+  const nTerms = ((ord + 1) * (ord + 2)) / 2
+  const idx: number[] = []
+  for (let i = 0; i < n; i += 1) if (Number.isFinite(m.data[i] as number)) idx.push(i)
+  const out = new Float64Array(n)
+  if (idx.length < nTerms + 1) {
+    const fin = idx.map((i) => m.data[i] as number)
+    const mu = fin.length > 0 ? npMean(fin) : 0
+    for (let i = 0; i < n; i += 1) out[i] = (m.data[i] as number) - mu
+    return matOf(rows, cols, out)
+  }
+  if (ord === 1) {
+    const xs = new Float64Array(idx.length)
+    const ys = new Float64Array(idx.length)
+    const zs = new Float64Array(idx.length)
+    for (let k = 0; k < idx.length; k += 1) {
+      const i = idx[k] as number
+      xs[k] = i % cols
+      ys[k] = Math.floor(i / cols)
+      zs[k] = m.data[i] as number
+    }
+    const coef = lstsqPlane(xs, ys, zs) ?? [0, 0, 0]
+    const a1 = coef[0] as number
+    const a2 = coef[1] as number
+    const a0 = coef[2] as number
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) out[r * cols + c] = matAt(m, r, c) - (a0 + a1 * c + a2 * r)
+    }
+    return matOf(rows, cols, out)
+  }
+  const powers: Array<[number, number]> = []
+  for (let i = 0; i <= ord; i += 1) for (let j = 0; j <= ord - i; j += 1) powers.push([j, i])
+  const scale = new Float64Array(powers.length)
+  const colsA = powers.map(([jx, iy], t) => {
+    const col = new Float64Array(idx.length)
+    for (let k = 0; k < idx.length; k += 1) {
+      const i = idx[k] as number
+      col[k] = Math.pow(i % cols, jx) * Math.pow(Math.floor(i / cols), iy)
+    }
+    let s = 0
+    for (let k = 0; k < col.length; k += 1) s += (col[k] as number) * (col[k] as number)
+    s = Math.sqrt(s)
+    scale[t] = s === 0 ? 1 : s
+    for (let k = 0; k < col.length; k += 1) col[k] = (col[k] as number) / (scale[t] as number)
+    return col
+  })
+  const rhs = new Float64Array(idx.length)
+  for (let k = 0; k < idx.length; k += 1) rhs[k] = m.data[idx[k] as number] as number
+  const raw = lstsqQr(colsA, rhs)
+  const coef = new Float64Array(powers.length)
+  for (let t = 0; t < powers.length; t += 1) coef[t] = (raw[t] as number) / (scale[t] as number)
+  for (let r = 0; r < rows; r += 1) {
+    for (let c = 0; c < cols; c += 1) {
+      let s = 0
+      for (let t = 0; t < powers.length; t += 1) {
+        const p = powers[t] as [number, number]
+        s += (coef[t] as number) * Math.pow(c, p[0]) * Math.pow(r, p[1])
+      }
+      out[r * cols + c] = matAt(m, r, c) - s
+    }
+  }
+  return matOf(rows, cols, out)
 }
