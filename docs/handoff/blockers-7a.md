@@ -33,12 +33,18 @@
 | `PreScanCheck` | 1446 | `safe_mode_active`（内核接口）· `VERIFIED_STATE_KEY` · `scan_policy` · `trace_retrace_correlation`（**75 行，但新写的只有约 30** —— 见 §3.1） | **见 §3** | 2 条 |
 | `AssessShockleyOnset` | 309（与下者同文件） | `sample_facts` · `special_tip_workflow` · `tip_intent` · `SUPPRESS_SKILL_PATTERNS` · `_SKILL_KIND_RULES` | 见 §4 | 1 条 |
 | `AssessAtomicPhase` | 同上 | 同上 | 见 §4 | 1 条 |
-| **`BiasWiggle`** | 405 | **一件都不缺** | **0** | 1 条 |
+| **`BiasWiggle`** | 405 | **一件内核侧的**：`SafeCall` 的**中止清理通道**（见 §4.1）—— 判据件确实零 | 见 §4.1 | 1 条 |
 
 `BiasWiggle` 那一行值得单说：它的函数体里**一个 `mast.*` 的 import 都没有**
-（只有收尾的 `wrap_skill`）。**405 行纯 A 档**，而它挡着 `MakeAtomicResolutionTip`。
-这件在批 6a 的账上和另外七件并排列着，看不出它零依赖 ——
+（只有收尾的 `wrap_skill`），**判据件确实零**，而它挡着 `MakeAtomicResolutionTip`。
+这件在批 6a 的账上和另外七件并排列着，看不出它这么便宜 ——
 **一张「谁在等谁」的账，答不出「等的那个有多贵」。**
+
+⚠️ **订正（同日，`builtins` 盘点报的）**：初稿这里写「一件都不缺」，**不对**。
+它缺一件**不是 import 的东西**，见 §4.1。
+我的量法是「函数体里有没有 `mast.*` import」—— 那只照得到 Python 侧的依赖，
+**照不到「本仓这边要有一个什么样的口」**。
+> **一个只看上游的依赖量法，量不出下游要先长出什么。**
 
 ## 2. `FindCleanSpot` 的闭包（1069 行）
 
@@ -105,15 +111,42 @@ exp_map        MapMarker 79 · epoch_of_row 8 · markers_from_rows 6            
 `ForgeAuTip`）同时还等着 `FindCleanSpot` + `AutoTilt` + `FindFlatRegion` + `AnalyzeFrameTilt`。
 **先把那四件落了，它才是那两条流程的最后一件** —— 那时再动它，收益才兑现得了。
 
-## 4. 两个 `tip_forge_selfcheck` 自检技能
+## 4. 两个自检技能（`AssessShockleyOnset` / `AssessAtomicPhase`）
 
-`AssessShockleyOnset` 与 `AssessAtomicPhase` 住在同一个 309 行的文件里，
-依赖也几乎相同。它们各只解锁 1 条流程，而依赖面（`sample_facts` /
-`special_tip_workflow` / `tip_intent` / `monitoring` / `exp_map._SKILL_KIND_RULES`）
-横跨五个子系统 —— **每件都不大，但没有一件是已经在的**。
+⚠️ **订正（同日）**：初稿说它们住在 `tip_forge_selfcheck.py`。**不对，在
+`builtins/tip_spectro_assess.py`**（`class AssessShockleyOnset` 在 `:100`）。
+我用 `grep -rln '"AssessShockleyOnset"'` 取了**首个命中**，而那是一处引用不是定义。
+**今天同一个错犯了两次**（另一次是 `TiltProbeCircle`，见 §7.1 第 1 行）——
+`grep -rln` 给的是「哪些文件提到过这个名字」，不是「谁定义了它」。
 
-⚠️ 这个文件叫 `tip_forge_selfcheck.py`，而批 5a 已经记过一条：
-**三个自检技能里两个是 fail-open**。移之前先核这两个在不在那个名单上。
+`AssessAtomicPhase` 比初稿估的便宜**一个数量级**：上一轮把它列在
+「晶格判据底座 ≈950 行」下面，而那 950 行**已经落了** ——
+`atomic-phase.ts`(632) · `lattice-peaks.ts`(470) · `lattice-cell.ts`(851) ·
+`frame-texture.ts`(538) · `seg-texture.ts`(354) · `tip-metrics.ts`(464)，
+且 `AtomicPhaseResult` 的字段与 `tip_spectro_assess.py:419-435` 消费的**逐个对上**。
+⇒ 它只欠**技能壳 135 行** + `resolve_substrate` 注入口。
+
+而 `resolve_substrate`（`sample_facts.py` 175 行 → `knowledge/` 30570 行）
+**不是缺口，是本仓已有的注入口范式**：`analysis-clusters.ts:612 substrateTolerance`
+已经这么处理过一次（默认关，抬头逐字写明理由）。三个消费方的降级都是**诚实拒绝** ——
+`AssessAtomicPhase` 只是不做那一项比对，旧仓注释明写「不算失败」。
+
+`AssessShockleyOnset` 还欠一件真的：**`curveFit` 的 box bounds（trf）** ——
+本仓 `curve-fit.ts` 全走无约束 LM。那是一次**算法替换**，不是给 LM 打补丁。
+
+⚠️ 批 5a 记过「三个自检技能里两个是 fail-open」，移之前核这两个在不在那个名单上。
+
+### 4.1 `BiasWiggle` 缺的那件：`SafeCall` 的**中止清理通道**
+
+`bias_wiggle.py:25` / `:116` 的纪律：超过 `abort_current_a` **立即恢复初始偏压并中止**，
+「**abort 也不例外**」。⇒ 中止之后它还要再发一次 `Bias_Set`。
+而本仓中止之后不许再发命令 —— 那正是课时 3.16 那道「反着开的闸」管的地方。
+
+处方（照 `builtins` 盘点，已核）：在 `skill-kernel.ts` 照 `emergencyCall`(`:206-212`) /
+`slowCall`(`:213-222`) 加**第三个命名入口**。两处注释都明写反对可选参数：
+「这条路谁在走、走了几次，要能一眼 grep 出来」。
+**不要把 `Bias_Set` 塞进 `ABORT_SAFE_WRITES`** —— 那张表按**「停」的语义**建
+（`gated-call.ts:14-16`），而 `Bias_Set` 没有哪个参数形能表达「停」。
 
 ## 5. 分批建议
 
@@ -170,6 +203,7 @@ AutoTilt（表里有，算「一件封锁件」）
 | 1 | `AutoTilt`（`BLOCKED` 表里的一件） | → `TiltProbeCircle` 353 行（todo，不在表里）→ `fit_circle_tilt` 99 + `CircleTilt` 一族 ≈130 | composite 盘点，我复核 |
 | 2 | `estimate_tilt`（我给 7a-1 的清单里的一件） | → `assess_steps` 36 + `_rotate_slope` 13 → `_segmentation_step_signal` → `seg_scale_adaptive` 251 | 7a-1 自己追出来的 |
 | 3 | `kde_layers`（我给 7a-3 的清单里的一件） | → `_hist_modes` 32 | 我，写协调消息时 |
+| 4 | `BiasWiggle`（我判的「零依赖」） | → 它要的不是 import，是**本仓要先长出**一条中止清理通道 | `builtins` 盘点 |
 
 三处的共同点：**列清单的人（包括我）都只追了一层就停了**，
 而三份清单都是在「要按函数级追、不按文件名」这条纪律下写的。
