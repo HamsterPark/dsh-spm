@@ -2378,6 +2378,20 @@
       }
     }
   },
+  "AnalyzeScanImage": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "ApplyLockInPreset": {
     "params": {},
     "traces": {
@@ -5084,6 +5098,20 @@
           "y_signal_index": null
         },
         "error": "不知道解调 X/Y 在哪一路 RT 信号上 —— **拒绝对齐相位**。请传 x_signal_index / y_signal_index,或在仪器档案里填 lockin_x_signal_index / lockin_y_signal_index。(不猜:猜错读到的是另一路信号,而算出来的角度看上去一样合理,然后它会被写进硬件。)",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AutoProcessScanBatch": {
+    "params": {
+      "folder": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "不是一个目录: spec-export",
         "success": false,
         "summary": ""
       }

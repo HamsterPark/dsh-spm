@@ -97,7 +97,28 @@ function expectCase(name: string, key: string, got: SkillResultLike, want: any, 
 
 // ──────────────────────────────────────────────────────────────────────────
 
-describe('批 4b —— 技能级差分（逐格对旧仓）', () => {
+/**
+ * 这一族的**预算**（批 6b 加）—— 不是把测试改软，是让它说得出话。
+ *
+ * `AssessAtomicResolution > hex` 单独跑是 **4209 ms**，vitest 的缺省预算是 5000 ms
+ * ——只剩 16% 的余量。批 6b 往同一个 worker 池里加了 218 条测试之后，实测
+ * **四趟里有两趟**这一格超时（不加那两个文件时四趟全绿）。
+ *
+ * 一次超时的代价不是「重跑一次」：`tools/mutate/run.ts` 的基线判据是
+ * `failed > 0`，于是**整趟演练拒跑**（green-8 §3.4 第 1 条）。
+ * 也就是说这 800 ms 的余量决定了 553 条变异跑不跑得起来。
+ *
+ * 预算抬到 30 s：这一格真正的开销是 4.2 s，整份文件 30 s，**一次真的挂住照样
+ * 远远超出**——它分得开的仍然是「挂住」与「跑完」，只是不再分「机器忙」与「机器闲」。
+ * 批 3d 的原话：**预算不是优化，是让「挂住」说得出话。**
+ *
+ * ⚠️ 真正的修法是**让它更快**（批 4b 自己就是这么干的：192 → 256 避开 Bluestein），
+ * 而那要动 `lattice.json` 里 `hex` 那张 256² 的帧 —— 连带重录一整节。
+ * 那是一次单独的决定，不该塞进批 6b。
+ */
+const GOLDEN_TIMEOUT_MS = 30_000
+
+describe('批 4b —— 技能级差分（逐格对旧仓）', { timeout: GOLDEN_TIMEOUT_MS }, () => {
   for (const name of ['AssessScanTexture', 'MeasureLatticeCell', 'AssessAtomicResolution', 'AnalyseAtomicLattice'] as const) {
     describe(name, () => {
       const rows = GOLDEN['skills'][name] as any[]
@@ -120,7 +141,7 @@ describe('批 4b —— 技能级差分（逐格对旧仓）', () => {
 // 每条错误分支一条单测（DoD ③）—— **不经金样**，直接钉那一句话
 // ──────────────────────────────────────────────────────────────────────────
 
-describe('错误分支（每一条一句话）', () => {
+describe('错误分支（每一条一句话）', { timeout: GOLDEN_TIMEOUT_MS }, () => {
   const run = async (name: string, params: Record<string, unknown>): Promise<SkillResultLike> =>
     (SKILLS[name] as Skill).execute({} as SkillContext, params)
 

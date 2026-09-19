@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 415,
+    "done": 417,
     "partial": 0,
-    "todo": 100
+    "todo": 98
   },
-  "modules_complete": 91,
+  "modules_complete": 92,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -426,8 +426,8 @@
     },
     "builtins.scan_prep": {
       "total": 2,
-      "done": 0,
-      "complete": false
+      "done": 2,
+      "complete": true
     },
     "builtins.scan_texture": {
       "total": 1,
@@ -1010,11 +1010,11 @@
       "module": "builtins.scan_prep",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "ApplyLockInPreset": {
       "module": "builtins.lockin_presets_skills",
@@ -1320,11 +1320,11 @@
       "module": "builtins.scan_prep",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AutoTilt": {
       "module": "composite.auto_tilt",

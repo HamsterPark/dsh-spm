@@ -47,7 +47,7 @@ import {
   type Mat,
 } from 'dsh-spm-numerics'
 import { npMedian } from './nd.js'
-import { lstsqPlane } from './plane.js'
+import { polySubtract } from './plane.js'
 
 /** 一块里至少要装下这么多个晶格周期，装不下就**整个不给块图**。 */
 export const MIN_PERIODS_PER_TILE = 8.0
@@ -267,46 +267,10 @@ export function latticeAmplitudePm(
   return out
 }
 
-/**
- * 减去最小二乘拟合的二维多项式曲面（`order=1` 即平面）。**NaN 安全**：
- * 只用有限像素拟合，再把曲面从**整幅**图上减掉。
- */
-export function polySubtract(m: Mat, order = 1): Mat {
-  const { rows, cols } = m
-  const n = rows * cols
-  if (order !== 1) throw new RangeError(`polySubtract 只移了 order=1：得到 ${order}`)
-  const idx: number[] = []
-  for (let i = 0; i < n; i += 1) if (Number.isFinite(m.data[i] as number)) idx.push(i)
-  const nTerms = ((order + 1) * (order + 2)) / 2
-  const out = new Float64Array(n)
-  if (idx.length < nTerms + 1) {
-    const fin = idx.map((i) => m.data[i] as number)
-    const mean = fin.length > 0 ? npMean(fin) : 0
-    for (let i = 0; i < n; i += 1) out[i] = (m.data[i] as number) - mean
-    return matOf(rows, cols, out)
-  }
-  // `terms = [x**j * y**i for i in 0..order for j in 0..order-i]` ⇒ `[1, x, y]`。
-  // 拟合走 {@link lstsqPlane}（中心化的正规方程，批 4a 那一份）—— 不写第二份。
-  const xs = new Float64Array(idx.length)
-  const ys = new Float64Array(idx.length)
-  const zs = new Float64Array(idx.length)
-  for (let k = 0; k < idx.length; k += 1) {
-    const i = idx[k] as number
-    xs[k] = i % cols
-    ys[k] = Math.floor(i / cols)
-    zs[k] = m.data[i] as number
-  }
-  const coef = lstsqPlane(xs, ys, zs) ?? [0, 0, 0]
-  const a1 = coef[0] as number
-  const a2 = coef[1] as number
-  const a0 = coef[2] as number
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
-      out[r * cols + c] = matAt(m, r, c) - (a0 + a1 * c + a2 * r)
-    }
-  }
-  return matOf(rows, cols, out)
-}
+// ── 批 6b：`polySubtract` 搬去了 `plane.ts`（那里同时有 order 2，而且两个 order
+//    走两条求解路，理由写在那一份的抬头）。这里只保留一个 re-export，
+//    **不留第二份实现** —— 这正是「十份 cell()」那一课。
+export { polySubtract }
 
 /**
  * **逐行横向短划**的起伏，峰峰值皮米。**输入必须是米。**

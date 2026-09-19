@@ -2803,6 +2803,129 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 
 <!-- ── 批 6b（vision 的 scan_prep 链）的登记写在这一行下面 ── -->
 
+## D-SCANPREP-2 · PNG **没有移**，而 `png_path` 恒为空串**正好是旧仓自己的一条路**
+
+| | |
+|---|---|
+| **Python** | `AnalyzeScanImage` / `AutoProcessScanBatch` 的 `_render()` 走 matplotlib（`plot_flattened_scan` → `savefig`），成功时 `png_path` 是一条真路径、`images` 带上它 |
+| **TS** | `png_path` **恒为空串**、`images` 恒为空表 |
+| **理由** | 盘点把 matplotlib 归在 **D 档**：「本仓没有、也不该有 matplotlib 等价物」（`ComposePanelMontage` 那一行） |
+| **形状对得上** | 旧仓 `_render` 自己就有「画不出来返回空串」那一支，注释写着**「画不出来不该让分析失败」**。所以本仓给出的是它的一条**合法**输出，只是永远走那一支 |
+| **测试** | `l0/scan-prep-skills.test.ts` → `PNG 没移：save_png=true 时除了 png_path/images 之外**每一格逐字相同**`。⚠️ 写成整棵比而**不是** `if ('png_path' in data)` —— 一个「报没报」的问题不能写成「报了的话就检查一下」（green-8 §2.4） |
+
+⚠️ **`_write_report` 反过来照移了**：它是纯字符串拼接 + 一次写文件，而报告正文
+（每一个实测数字 + 每一个决定的理由）是这个技能的产品之一。
+金样里录的是**报告全文**，测试逐字比。
+
+### ⚠️ 这一条最锋利的一面：**给模型的那句话改不了**
+
+`AutoProcessScanBatch` 的描述里写着「**它会渲染出这些 PNG**，并写一份 `_report.md`」，
+参数表里还有 `render`（缺省 true）与 `save_png`。而本仓只做得到后半句。
+
+**DoD ② 要求 515 个技能 / 1642 个参数与旧仓逐字比**，所以那句话不能改 ——
+它只能是一条**响亮的** deviation，外加两条断言把「报告在、图不在」两面都钉住
+（`scan-prep-skills.test.ts` 的 `save_png=true` 与 `render=true` 两格）。
+
+**下一个人要知道的是**：这个技能今天对模型许下了一个它兑现不了的承诺。
+兑现它要的是一条渲染路（本仓没有 matplotlib 等价物，盘点 D 档），
+**而不是**把那句话删掉 —— 删掉就与旧仓的描述对不上，DoD ② 会当场变红。
+
+## D-SCANPREP-3 · `scan_prep_thresholds` 的 20 个字段**带着消费方补上了**，`KNOB_LABELS` 仍然不移
+
+批 4a 的 D-SCANPREP-1 只移了 4 个字段，原话是「真要用的时候照着旧仓那份 docstring 补，
+**那时它们会带着自己的消费方一起来**」。这一刻到了：`measureFrame` / `planFor` /
+`harmoniseBatch` 逐条读那 20 个。
+
+**仍然没移的两张表**：`KNOB_LABELS`（设置 UI 的中文标签）与
+`CALIBRATABLE_FROM_DISTRIBUTION`（标定工具的分组）—— 本仓既没有设置 UI 也没有
+`scan_prep_commission`，那两张表在这里**一个读者都没有**。
+
+⚠️ **两种越界处理并存，照移**：既有数值字段**夹紧**（历史行为，没跟着改），
+{@link SCAN_PREP_NULLABLE_FIELDS} **丢弃 + 说明**（不夹紧）。旧仓 `from_mapping`
+的注释逐字：「对一个 `None` = 判不了的字段来说，夹紧等于**凭空造出一个从没标定过的判据**」。
+⚠️ 本仓多一样：丢弃的那一条**交给调用方**（`dropped`），旧仓那里是一条
+`logger.warning`，而本仓零 I/O —— **静默丢弃与夹紧一样看不出来**。
+
+**另外收 snake_case 的键**：旧仓那份 JSON 与它每一份标定报告都是 snake_case，
+而本仓内部是 camelCase。只认一种写法会把另一种写法的**整份 profile 静默当成「没配」**，
+而 `provenance` 照旧印在报告里说它标定过。
+
+## D-SCANPREP-6 · 两处「旧仓自己就不确定」的地方：多数票的平局，与输出目录
+
+| | Python | TS |
+|---|---|---|
+| `harmonise_batch` 的**平局** | `max(set(methods), key=methods.count)` —— **集合迭代序由字符串哈希定**，而 CPython 默认开哈希随机化（`PYTHONHASHSEED`）。同票时选谁**跨进程都可能不同** | 按**首次出现的顺序**取第一个票数最高的。这是两边唯一可复现的口径 |
+| `_output_dir` 的缺省 | `figures_dir()`（`mast.agents._shared.data_paths`） | **落在那个文件夹旁边**。本仓没有「数据根 / figures 目录」这个概念（D-FRAME-1 已为此销过一次账） |
+
+两处都**没有金样覆盖**：平局在本批的用例里一次都没出现（造一个出来就是造一个
+旧仓自己答不出的问题），输出目录在每一格里都是显式给的。
+登记它们是因为**「旧仓在这里是不确定的」这件事本身要有人知道** ——
+下一个人看到两边不一样时，要能分清「移错了」与「那里本来就没有答案」。
+
+## D-SCANART-2 · `detect_scan_artifacts` 补齐了另外三条路，而 D-SCANART-1 的警告**没有被推翻**
+
+批 4a 只移了 `bad_row_frac`，并点名 `_drift_px` 不要顺手补。这一批补了 ——
+**因为消费方出现了**：`measure_frame` 把六个字段整份转发进 `FrameMetrics.artifacts`，
+而 `_frame_notes` 里有两句话直接读 `oscillation` / `oscillation_severity`。
+
+D-SCANART-1 警告的是「拿 FFT 循环相关去量**漂移矢量**」（旧仓 2026-09-13 把
+`pair_displacement` 的相位相关换掉了，沿慢轴绕回，「沿 y 挪 3 nm 量到 −0.06 nm」）。
+这里这一份**不是**那个用途：它只回答「正反扫之间有没有一个明显偏移」，
+而且自带两道闸 —— **搜索限制在中心 15% 的圆窗**、**偏移峰要比零位移峰高 8%**
+（晶格上「平移一个晶格矢量 = 原图」会与零位移打平，那不是漂移）。
+**要量漂移矢量仍然用 `pair_displacement`，不是这个。**
+
+## D-SCANART-3 · 整条路在 **float32** 里，本仓照抄**输入量化**、累加留 float64
+
+`_to_2d` 一开始就 `np.ascontiguousarray(a, dtype=np.float32)`，此后 `np.median` /
+`np.std` / `np.fft.fft2`（numpy 2.x 对 float32 给 **complex64**）全在单精度里。
+本仓照抄那次量化（`toFloat32Frame`），变换留在 float64 —— 复现单精度 pocketfft
+要把每一次蝶形都降精度（同 D-SHARP-1）。
+
+⇒ 容差：`oscillation_severity` 走 `OSC_REL_TOL = 32·eps32`；计数比（`bad_row_frac` /
+`spike_frac`）与下标（`drift_px` / `oscillation_cycles_per_line`）**容差 0**。
+
+⚠️ **量化必须照抄**的理由是判据级的：`has_artifact` 是四个布尔的或，每一个都是
+「某个统计量 > 某个常数」。输入差第七位与输入差第二位，对一个阈值比较是两件事。
+
+## D-TIPCHANGE-1 · `tr` 通道**没有移**（消融精神）
+
+旧仓 `row_channels` 有第五个通道 `tr`（正反扫逐行最大归一化互相关），只在传了
+retrace 时出现。而本仓这一族**唯一的消费方**是 `scan_prep.measure_frame`，
+它调的是 `detect_tip_change(_fill(span), nm_per_px=…)` —— 一个**二维**数组，
+于是 `_to_pair` 给 `(trace, None)`，**`tr` 那一支在旧仓自己的这条路上也从来没跑过**。
+
+移它要的不是十行，是一整套 `rfft` / `irfft` 的逐行往返（本仓 `numerics` 没有
+`irfft`，得现写一份）。**一条没有输入的分支加一件没有消费方的原语** —— 两条都踩在
+消融精神上。真要它的时候（`PreScanCheck` 那条路给的是正反两帧）连着 `irfft` 一起做。
+
+**测试**：`vision/scan-prep.test.ts` → `` **`tr` 通道没有移** —— 而这里要说得出它不在 ``
+（金样每一格的 `channels` 里都不许有 `tr`）。
+
+## D-SCANPREP-4 · ±k 孪生峰：`fine_angle_deg` 与旧仓**可能差正好 180°**
+
+实信号的谱满足 `|F(−k)| = |F(k)|` —— 精确算术里那是一个**精确的平局**，
+而 `np.argmax` 与本仓的扫描都取「先遇到的最大值」。谁先到手由那一对的**最后一位
+浮点**决定，而两边的 FFT 是两个实现。实测：同一张 `axis_wave` 上一边 `+63.435°`、
+一边 `−116.565°`。
+
+`snr` 与 `period_nm` 对 ±k **完全相同**，所以**只有角度**要折。
+测试两侧都折到 `(−90, 90]` 再比。**与 D-LATTICE-1 是同一件事，理由一字不差。**
+
+⚠️ 这条**没有**在生产代码里折：折了就与旧仓那个值不同，而 `fine_angle_deg`
+是进模型上下文的一个字段。本仓自己是确定的（同输入同输出），只有跨实现才翻。
+
+## D-SCANPREP-5 · 报告里的 `%` 与定点数：`pyFixed(-0, n)` 在 kernel 里**给错了符号**
+
+Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 给 `'0.0'`
+（JS 的 `toFixed` 判 `x < 0`，而 `-0 < 0` 是假）。`round(s, 3)` 把一个很小的负数变成
+`-0` 之后，这一格就印进报文：「最接近的通道是 \`dc\`(-0.0)」。
+
+`formatG` 早就处理过同一件事（`coverage-gaps.test.ts`：`formatG(-0, 6) === '-0'`），
+**`pyFixed` 漏了**。本批**不改 kernel 那一份**（共享文件，波及别人的金样），
+在 `vision/scan-prep.ts` 与 `l0/scan-prep-skills.ts` 各自的 `fx()` 里挡了一层，
+并把它写成一条**给主线的欠账**（见 `docs/handoff/batch-6b.md` §7）。
+
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
 
 ## D-FORCE-? · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）

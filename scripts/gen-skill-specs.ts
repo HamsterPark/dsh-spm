@@ -435,7 +435,12 @@ const BATCH_5B: string[] = [
 const BATCH_6A: string[] = []   // 特异化流程 _tip_phases 六个组合技能
 
 // ↑ 上一条 ／ ↓ 6B —— 这一行谁都不要动
-const BATCH_6B: string[] = []   // vision 的 scan_prep 链
+const BATCH_6B: string[] = [
+  // `builtins.scan_prep` 整模块（2/2）—— 判据本体在 `vision/scan-prep.ts`，
+  // 这一层只做 IO。PNG 那一半没移（matplotlib = D 档），见 deviations 批 6b。
+  'AnalyzeScanImage',
+  'AutoProcessScanBatch',
+]   // vision 的 scan_prep 链
 
 // ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
 const BATCH_6C: string[] = [
