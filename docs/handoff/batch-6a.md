@@ -140,6 +140,15 @@
 **杠杆最大的一件是 `FindCleanSpot`**：它一个人挡着全部六条，而且它压的那套实验地图
 （≈3147 行）是九件里**唯一一件真正大的**。`PulseConditionTip` 只差它。
 
+> **订正（2026-09-20，第七轮开工盘点）**：3147 是 `map_scope`+`map_analysis`+`exp_map`+`coarse_map`
+> **四个文件整份**，不是依赖。`execute` 里真正 import 的是五个函数，闭包量出来 **1069 行**
+> （含技能本体 352）：`analysis_config`143 · `crash_memory_markers`58 · `load_markers`23 ·
+> `AnalysisConfig`103 · `nearest_clean_from`250 · `build_avoid_circles`29 · `_ring_cells`18 ·
+> `MapMarker`79 · `epoch_of_row`8 · `markers_from_rows`6。
+> **`io/coarse_map.py` 那 604 行整个闭包一处都没碰**，它进这个数只因为文件名里有 `map`。
+> ⇒ 本文件开篇立的纪律是「依赖按**函数级**追，不按 import 行、不按文件名」，
+> 而这一行自己是按文件名算的。**一份文档里立的规矩，不会自动约束这份文档后面的段落。**
+
 ### 1.2 ⚠️ 顺手核出来的：`FindFlatRegion` 与 `AutoTilt` 比盘点说的**近得多**
 
 盘点把这两个都算成「压着 vision 一整块」。逐个 import 核下来，下层**几乎都已经在了**：
@@ -409,7 +418,9 @@ selfcheck-each-check-asks-its-own-chain      red  5
 
 按 §1.1 / §1.2 的杠杆排，下一轮该点的是：
 
-1. **`FindCleanSpot` + 实验地图子系统**（≈3147 行）—— 一个人挡着全部六条，
+1. **`FindCleanSpot` + 实验地图子系统**（≈3147 行 —— **订正 2026-09-20：那是四个文件
+   整份，函数级闭包只有 1069 行，其中 `io/coarse_map.py` 604 行一处都没碰。见下**）
+   —— 一个人挡着全部六条，
    而且是九件封锁件里**唯一一件真正大的**。
    **`PulseConditionTip` 只差它**（闭包 15 函数 / 511 行，六条里最小）——
    地图一落，它当天就能移；
