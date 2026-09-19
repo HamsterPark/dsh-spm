@@ -30,7 +30,7 @@
 | `AutoTilt` | 654 | `circle_tilt_resolution_deg` 16 · `z_span_for_frame` 36 | **52** | 5 条 |
 | `FindFlatRegion` | 827 | `kde_layers`（`seg_scale_adaptive`） | **≈45** | 5 条 |
 | `AnalyzeFrameTilt` | 225 | `detrend_quadratic` 42 · `estimate_tilt` 158 · `step_dominance_multiscale` 27 · `structure_dominance` 28 | **255** | 2 条 |
-| `PreScanCheck` | 1446 | `safe_mode_active`（内核接口）· `VERIFIED_STATE_KEY` · `scan_policy` · `trace_retrace_correlation` 74 | **见 §3** | 2 条 |
+| `PreScanCheck` | 1446 | `safe_mode_active`（内核接口）· `VERIFIED_STATE_KEY` · `scan_policy` · `trace_retrace_correlation`（**75 行，但新写的只有约 30** —— 见 §3.1） | **见 §3** | 2 条 |
 | `AssessShockleyOnset` | 309（与下者同文件） | `sample_facts` · `special_tip_workflow` · `tip_intent` · `SUPPRESS_SKILL_PATTERNS` · `_SKILL_KIND_RULES` | 见 §4 | 1 条 |
 | `AssessAtomicPhase` | 同上 | 同上 | 见 §4 | 1 条 |
 | **`BiasWiggle`** | 405 | **一件都不缺** | **0** | 1 条 |
@@ -71,7 +71,35 @@ exp_map        MapMarker 79 · epoch_of_row 8 · markers_from_rows 6            
 | `safe_mode_active` | **一个内核接口决定** —— 技能唯一拿得到的口是 `SkillContext`。去重后解锁 4 个技能（批 6b 写的「5 个」把 `CheckLineQuality` 数了两遍） |
 | `VERIFIED_STATE_KEY` | `core/state.py` 的一个状态键 |
 | `scan_policy`（顶层 import 了一组） | 一个配置族 |
-| `trace_retrace_correlation` | `vision/tip_metrics.py` **74 行**，本仓源码零命中（只在从旧仓导出的金样 JSON 里出现过） |
+| `trace_retrace_correlation` | `vision/tip_metrics.py` **75 行**，本仓源码零命中 —— **但新写的只有约 30 行**。它是 `_fwd_bwd_instability` 的**一维姊妹**，二维支**整个转发**给那一份（本仓已落 `fwdBwdInstability`），共用同一条 `_detrend` 与同一个 `max_shift_frac`。见下 §3.1 |
+
+### 3.1 `trace_retrace_correlation`：一件被自己的行数吓住的活
+
+2026-09-20 追出来的（`paper` 那份盘点先报的，我复核过）：那 75 行里，
+**二维支只有一句转发**，判据本体是已经在仓里的 `fwdBwdInstability`。
+旧仓的注释自己说明了理由：
+
+> 同一个概念不写第三份实现：一维用 `np.correlate`，二维转发给 `_fwd_bwd_instability`，
+> 两条共用 `_detrend` 与 `max_shift_frac`。
+
+⇒ **真正要写的是一维那一支，约 30 行。** 「75 行零命中」这个说法本身没错，
+错在它读起来像「要从头造 75 行」—— **零命中说的是名字，不是工作量。**
+
+⚠️ 顺带捞到一条值得单独讲的物理（旧仓 docstring 里写着，实测数据都在）：
+在这个函数存在之前，`PreScanCheck` 与 `CheckLineQuality` 都在**绝对高度**上算余弦相似度。
+带一个正常的 Z 工作点偏置（~1 nm）时，那个数被**直流项统治** ——
+于是它回答的不是「这两条线走出同一条形貌吗」，而是「这两条线的均值差不多吗」。
+阈值 0.80 下的实测：
+
+```
+两条完全独立的噪声线   → 0.9999  通过
+完全反相（最坏的针尖） → 0.9609  通过
+死平废帧               → 1.0000  通过（六帧真数据里的最高分）
+```
+
+**那道阈值是装饰性的：验证相在它最该失败的方向上不可能失败。**
+减掉均值之后同一批是 0.013 / −1.0。移的时候这一条必须有金样钉住，
+否则本仓会把同一道装饰性的闸原样搬过来。
 
 ⇒ **`PreScanCheck` 不进 7a。** 它只解锁 2 条流程，而那 2 条（`PrepareNobleTip` /
 `ForgeAuTip`）同时还等着 `FindCleanSpot` + `AutoTilt` + `FindFlatRegion` + `AnalyzeFrameTilt`。
