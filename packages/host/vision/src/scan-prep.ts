@@ -87,7 +87,7 @@ import {
 import { assessAtomicPhase, type AtomicPhaseResult } from './atomic-phase.js'
 import { interp, nanMedian, nanStd, npMedian } from './nd.js'
 import { polyfit } from './lsq.js'
-import { uniformFilter2d } from './ndfilters.js'
+import { uniformFilter2d } from 'dsh-spm-numerics'
 import { polySubtract } from './plane.js'
 import { detectScanArtifacts, type ScanArtifacts } from './scan-artifacts.js'
 import { detectTipChange, type TipChange } from './tip-change.js'

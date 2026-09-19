@@ -37,3 +37,6 @@ export * from './correlate.js'
 export * from './savgol.js'
 // ── 批 6c：np.gradient(y, x) 与 np.trapezoid（Sader–Jarvis 的两件底座）──
 export * from './calculus.js'
+// ── 批 6b 的数值原语（收尾支线从 `vision/` 搬来，见该批交接 §7）──
+export * from './ndfilters.js'
+export * from './lsq.js'

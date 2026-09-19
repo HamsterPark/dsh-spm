@@ -2950,7 +2950,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 |---|---|
 | **Python** | dataclass 上有一个 `notes: dict`，**恒为 `{}`** |
 | **TS** | 没有这个字段 |
-| **测试** | `l0/batch6c-units.test.ts` 的 `withoutNotes()` —— 比对前从金样里摘掉 |
+| **测试** | `vision/batch6c-units.test.ts` 的 `withoutNotes()` —— 比对前从金样里摘掉 |
 
 消融精神：技能层一个字段都不读它，而它从来没有被写过。
 
@@ -2986,7 +2986,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 |---|---|
 | **Python** | `lattice_multiframe._UNUSABLE_REASONS` 含 `"too_small"`，而 `find_lattice_peaks` 报的是 `"image_too_small"` |
 | **TS** | **照移**（`UNUSABLE_REASONS` 逐字相同） |
-| **测试** | `l0/batch6c-units.test.ts` → 「`半帧 NaN` 走的是 `incomplete_frame` —— 而 `image_too_small` **落不进** `UNUSABLE_REASONS`」 |
+| **测试** | `vision/batch6c-units.test.ts` → 「`半帧 NaN` 走的是 `incomplete_frame` —— 而 `image_too_small` **落不进** `UNUSABLE_REASONS`」 |
 
 两个串对不上 ⇒ 一帧「太小」被算成**可用帧上没有晶格**，也就是算成了「这个晶格是假的」
 那一侧的证据。而那张四态表存在的全部理由，就是把「帧用不了」与「帧可用但没有晶格」分开。
@@ -3022,3 +3022,47 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 与 `pairwise.ts` 那一族的分界就在这里：**累加顺序照抄得了的给 0，照抄不了的给界**。
 容差写成绝对是因为这个量落在 `[−1, 1]` 而且近零的 `r` 是相消的结果 ——
 相消毁掉相对精度、不毁绝对精度。
+
+## D-TIPMETRIC-? · `_fwd_bwd_instability` 在**只扫了一行**的帧上两边不同
+
+| | |
+|---|---|
+| **Python** | `_detrend` 的 `[x, y, 1]` 在单行上秩亏，`np.linalg.lstsq` 给**最小范数解**、照常去趋势 ⇒ 这个量是一个正常的数（合成 `1×64` 帧实测 `0.78273`） |
+| **TS** | `lstsqPlane` 对秩亏回 `null` ⇒ `detrend` 整帧 NaN ⇒ 这个量是 **NaN** |
+| **测试** | 无 —— **这一格没有金样**，登记在这里正是因为它没有 |
+
+`measureFrame` 喂进来的是 `acquiredRowSpan` 切出来的已扫行段，所以「只有一行」
+是一张刚开扫的帧的**正常形状**，不是构造出来的输入。
+
+**本轮不改**，理由是改它要动 `lstsqPlane` 的秩亏语义（`null` vs 最小范数解），
+而那一份是批 4a 的件、有十几个消费方与四份金样在读；一次没有金样撑着的语义变更，
+会把「移对了没有」这个问题变成「我猜哪一种对」。
+
+要销它需要什么：一格 `H = 1`（以及 `H = 2`、`H = 3`）的 `fwd_bwd_instability` 金样，
+由 `export_scan_prep.py` 从旧仓导出 —— 有了那三格，秩亏那一条该怎么处置就是被
+测出来的，不是被决定的。在那之前，`safeDelegate` 会把 NaN 如实报进
+`measureFrame` 的 `errors`，而**一个 NaN 比一个看起来正常的 `1e−13` 诚实**
+（批 6b 那一份走 `detrend32`，秩亏时系数退化成 0，给出的是后者）。
+
+## D-LSQ-? · `polyfit` 有**两份**，而且是故意的
+
+| | |
+|---|---|
+| **numpy** | `np.polyfit` 一份：列缩放后走 **SVD**（`gelsd`） |
+| **TS** | **两份**：`numerics/savgol.ts`（列缩放 + 正规方程，误差 `κ²·eps`）与 `vision/lsq.ts`（列缩放 + Householder **QR**，误差 `κ·eps`） |
+| **测试** | `numerics.test.ts` 的 `polyfit` 一节（对 `spec/golden/numerics.json`）· `vision/scan-prep.test.ts` 的 `line_subtract` 一族（对 `spec/golden/scan_prep.json`） |
+
+它们**不是同一个函数**：同一份 `n=256, deg=3` 的数据上系数相对差 **`5e−9`**
+（不是最后一位）；某一列范数为 0 时 QR 那份照解、正规方程那份抛
+「设计矩阵不满秩」。
+
+为什么不合并成一份：**各自的消费方要的正是各自那一档精度**。
+`scan_prep.poly_subtract(order=2)` 的设计阵 `[1, x, x², y, xy, y²]` 在 256 边长上
+κ(A) ≈ 1e6 ⇒ 正规方程只剩四位，而 `bow_gain` 要拿残差跟 1.15 比大小；
+`savgol` 那一份则是它自己两端重算的一步，容差按 `lstsqRelTol(κ²)` 推过、金样录过。
+统一成任一份都会**同时**改动 `spec/golden/numerics.json` 与 `spec/golden/scan_prep.json`。
+
+登记在这里而不是悄悄留着，是因为「同一个 numpy 函数在本仓有两份实现」正是
+「十份 `cell()`」那个形状 —— 区别在于**这一份是被验过的**：两者的差不是
+最后一位，而是 `5e−9`，也就是说它们**分得开**，而分开它们的那个输入已经在上面。
+要合并，判据是**先有一格能分开它们的金样**，而不是「看起来一样」。

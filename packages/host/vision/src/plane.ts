@@ -54,7 +54,7 @@
  * 那件事。这不是把判据放松，是把它换成一条**两边都成立**的。
  */
 import { lstsqObservedTol, matAt, matOf, npMean, solveNormalEquations, Xoshiro128, type Mat } from 'dsh-spm-numerics'
-import { lstsqQr } from './lsq.js'
+import { lstsqQr } from 'dsh-spm-numerics'
 import { finiteOf, nanMax, nanMin, npMedian } from './nd.js'
 
 /**

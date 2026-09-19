@@ -47,7 +47,11 @@ export * from './seg-texture.js'
 export * from './tip-metrics.js'
 export * from './atomic-phase.js'
 // ── 批 6b：vision 的 scan_prep 链 ──
-export * from './ndfilters.js'
 export * from './lsq.js'
 export * from './tip-change.js'
 export * from './scan-prep.js'
+// ── 批 6c 的四件判据本体（收尾支线从 `stm-skills/src/l0/` 搬来）──
+// `tip-metrics.js` 上面已经导出过了 —— 那两件并进了它。
+export * from './spectroscopy.js'
+export * from './force-inversion.js'
+export * from './lattice-multiframe.js'
