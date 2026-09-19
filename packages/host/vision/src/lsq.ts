@@ -20,7 +20,7 @@
  * **各自的消费方要的正是各自那一档精度**：这一份的输出会被 `lineSubtract`
  * **减到整行上**，而 `savgol` 那一份是它自己两端重算的一步。
  *
- * 登记在 `spec/deviations.md` 的 `D-LSQ-?`，让下一个人看得见「这里有两份、
+ * 登记在 `spec/deviations.md` 的 `D-LSQ-1`，让下一个人看得见「这里有两份、
  * 而且是故意的」；要合并，判据是**先有一格能分开它们的金样**。
  */
 import { lstsqQr } from 'dsh-spm-numerics'

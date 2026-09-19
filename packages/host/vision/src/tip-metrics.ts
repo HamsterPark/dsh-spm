@@ -102,7 +102,7 @@
  * `null` ⇒ {@link detrend} 整帧变 NaN ⇒ 这个量变 NaN（6b 那份走 `detrend32`，
  * 系数退化成 0，给出一个 `~1e−13` 的假「完全一致」）。两种都不是旧仓的答案
  * （实跑 `1×64` 是 `0.78273`）。**没有金样，本轮不改** —— 见 `spec/deviations.md`
- * 的 `D-TIPMETRIC-?`。
+ * 的 `D-TIPMETRIC-1`。
  */
 import {
   EPS,
