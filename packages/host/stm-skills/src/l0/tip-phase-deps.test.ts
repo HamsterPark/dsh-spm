@@ -146,13 +146,14 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
     MakeAtomicResolutionTip: [
       'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindCleanSpot', 'FindFlatRegion',
     ],
+    // 2026-09-19：`AssessTipSharpness` 从这两行里划掉了 —— **批 6c 当天落的**，
+    // 而这条测试在合并后的第一次全仓跑就红了。这正是它存在的理由：
+    // **封锁账不是一句「还卡着」，是一个会随仓库变化自己失效的判据。**
     PrepareNobleTip: [
-      'AnalyzeFrameTilt', 'AssessTipSharpness', 'AutoTilt', 'FindCleanSpot',
-      'FindFlatRegion', 'PreScanCheck',
+      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
     ],
     ForgeAuTip: [
-      'AnalyzeFrameTilt', 'AssessTipSharpness', 'AutoTilt', 'FindCleanSpot',
-      'FindFlatRegion', 'PreScanCheck',
+      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
     ],
   }
 
