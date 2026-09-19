@@ -114,15 +114,29 @@ describe('两个自检各问各的链', () => {
     return r.data.missing_skills
   }
 
-  it('修针自检报 `PreScanCheck` / `AnalyzeFrameTilt`，**不**报 `BiasWiggle` / `AssessShockleyOnset`', async () => {
+  // ⚠️ **这三条问的是「这个自检数的是哪一条链」，不是「谁还没落」。**
+  //
+  // 第一版写的是 `missing_skills` 里有没有那几个名字 —— 而那等于把「链上有它」
+  // 与「它还没移植」绑在一起：批 7a-1 落了 `AnalyzeFrameTilt` / `AutoTilt` 之后，
+  // 这三条全红了，而**链一个字都没变**。
+  // 断言改问声明表（`*_REQUIRED_SKILLS`），链变了才红；`missing_skills` 那一侧
+  // 只钉住一条**不随移植进度变**的性质：它是声明表的子集，而且**只含还没落的那些**。
+
+  it('修针自检数 `PreScanCheck` / `AnalyzeFrameTilt`，**不**数 `BiasWiggle` / `AssessShockleyOnset`', async () => {
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('PreScanCheck')
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('AnalyzeFrameTilt')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('BiasWiggle')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('AssessShockleyOnset')
     const missing = await missingOf(makeTipConditioningSelfCheck({}))
-    expect(missing).toContain('PreScanCheck')
-    expect(missing).toContain('AnalyzeFrameTilt')
-    expect(missing).not.toContain('BiasWiggle')
-    expect(missing).not.toContain('AssessShockleyOnset')
+    expect(missing.every((n) => CONDITIONING_REQUIRED_SKILLS.includes(n))).toBe(true)
+    expect(missing).not.toContain('AnalyzeFrameTilt') // 批 7a-1 落了
   })
 
-  it('锻造自检报 `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+  it('锻造自检数 `BiasWiggle` / `AssessShockleyOnset`，**不**数 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+    expect(FORGE_REQUIRED_SKILLS).toContain('BiasWiggle')
+    expect(FORGE_REQUIRED_SKILLS).toContain('AssessShockleyOnset')
+    expect(FORGE_REQUIRED_SKILLS).not.toContain('PreScanCheck')
+    expect(FORGE_REQUIRED_SKILLS).not.toContain('AnalyzeFrameTilt')
     const missing = await missingOf(makeTipForgeSelfCheck({}))
     // 2026-09-20：`BiasWiggle` 从这一行里划掉了 —— **批 7a-3 当天落的**。
     // 这条测试问的是「这个自检数的是**哪一条链**」，而链的成员没变；
@@ -133,39 +147,43 @@ describe('两个自检各问各的链', () => {
     expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('BiasWiggle')
     expect(missing).not.toContain('BiasWiggle')
     expect(missing).toContain('AssessShockleyOnset')
-    expect(missing).not.toContain('PreScanCheck')
-    expect(missing).not.toContain('AnalyzeFrameTilt')
   })
 
   it('`AutoTilt` 两条链都要 —— 台面上的调平在 `flat_poke_sites` 里，两条都走它', async () => {
     // 批 6a 之前锻造那张表漏了它：`TipForgeSelfCheck` 少报了一条缺口。
-    expect(await missingOf(makeTipConditioningSelfCheck({}))).toContain('AutoTilt')
-    expect(await missingOf(makeTipForgeSelfCheck({}))).toContain('AutoTilt')
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('AutoTilt')
+    expect(FORGE_REQUIRED_SKILLS).toContain('AutoTilt')
+    // 批 7a-1 落了它 ⇒ 两条链都不该再报它缺。
+    expect(await missingOf(makeTipConditioningSelfCheck({}))).not.toContain('AutoTilt')
+    expect(await missingOf(makeTipForgeSelfCheck({}))).not.toContain('AutoTilt')
   })
 })
 
 describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
   /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
-    // 2026-09-20 一天之内被划了两次，而两次是并行的两条支线各自划的：
-    //   批 7a-2 落 `FindCleanSpot`  —— 从**六行里全部**划掉（它是六条都要的那一件）
-    //   批 7a-3 落 `FindFlatRegion` —— 从五行划掉；落 `BiasWiggle` —— 从一行划掉
-    // 合并这张表 = **两边删除的并集**，不是「两边都留」。
-    // （2026-09-19 批 6c 落 `AssessTipSharpness` 时它第一次自己红；那次是一条支线。）
+    // 2026-09-20 一天之内被划了三次，三次是**并行的三条支线**各自划的：
+    //   批 7a-2 落 `FindCleanSpot`   —— 从六行里全部划掉
+    //   批 7a-3 落 `FindFlatRegion`  —— 从五行划掉；`BiasWiggle` —— 从一行划掉
+    //   批 7a-1 落 `AnalyzeFrameTilt` / `AutoTilt` —— 从各自那几行划掉
+    // 合并这张表 = **三边删除的并集**，不是「都留」。
+    // （2026-09-19 批 6c 第一次让它自己红，那次只有一条支线。）
     //
-    // `PulseConditionTip` 因此**空了 —— 这条流程现在可以移**。
+    // **两条流程因此空了 —— `PulseConditionTip` 与 `PokeConditionTip` 现在可以移。**
+    // 另外四条各只差一件，而那一件恰好各不相同。
     PulseConditionTip: [],
-    PokeConditionTip: ['AutoTilt'],
-    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt'],
-    MakeAtomicResolutionTip: ['AssessAtomicPhase', 'AutoTilt'],
-    PrepareNobleTip: ['AnalyzeFrameTilt', 'AutoTilt', 'PreScanCheck'],
-    ForgeAuTip: ['AnalyzeFrameTilt', 'AutoTilt', 'PreScanCheck'],
+    PokeConditionTip: [],
+    MakeSpectroscopyTip: ['AssessShockleyOnset'],
+    MakeAtomicResolutionTip: ['AssessAtomicPhase'],
+    PrepareNobleTip: ['PreScanCheck'],
+    ForgeAuTip: ['PreScanCheck'],
     //
     // ⚠️ 这张表**只记一层**：它比的是 `GOLDEN.skills[flow].sub_skills` 减去已落的，
-    // 而 `sub_skills` 里的每一个自己还可能有子技能。实测撞到过：
-    // `AutoTilt` → `TiltProbeCircle`（`auto_tilt.py:134`），而 `TiltProbeCircle`
-    // **不在任何一行里**。⇒ 这六行全空的那天，不等于六条流程都能跑。
-    // 改成按闭包算的办法写在 `docs/handoff/blockers-7a.md` §7，7a 合完就做。
+    // 而 `sub_skills` 里的每一个自己还可能有子技能。批 7a-1 实打实撞到过：
+    // `AutoTilt` → `TiltProbeCircle`（`auto_tilt.py:134`），而那个名字**不在任何一行里**。
+    // ⇒ **这六行全空的那天，不等于六条流程都能跑。**
+    // 划掉一行之前，先问一句它自己还等着谁。改成按闭包算的办法写在
+    // `docs/handoff/blockers-7a.md` §7 —— 7a 合完就做。
   }
 
   const installed = new Set(Object.keys(IMPLEMENTED))

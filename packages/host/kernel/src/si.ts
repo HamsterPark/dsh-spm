@@ -168,6 +168,64 @@ export function formatSi(value: number, digits = 6): string {
 }
 
 /**
+ * Python 的 `float(x)`，转不了给 `null`（对面是 `TypeError` / `ValueError`）。
+ *
+ * `'nan'` / `'inf'` / `'-Infinity'` 在 Python 里都是**合法的浮点字面量**，
+ * 所以它们不算转不了 —— 这一条决定了 {@link formatSiReadable} 印的是
+ * `"nan m"` 还是原样的那个对象。
+ */
+function pyFloat(value: unknown): number | null {
+  if (typeof value === 'number') return value
+  if (typeof value === 'boolean') return value ? 1 : 0 // Python 的 float(True) == 1.0
+  if (typeof value !== 'string') return null
+  const s = value.trim()
+  if (s === '') return null
+  if (/^[+-]?(inf|infinity)$/i.test(s)) return s.startsWith('-') ? -Infinity : Infinity
+  if (/^[+-]?nan$/i.test(s)) return NaN
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s)) return null
+  return Number(s)
+}
+
+/**
+ * `3e-12, 'm'` → `"3 pm"`；`0.5, 's'` → `"500 ms"`。**给人读的那一份。**
+ *
+ * 与 {@link formatSi} 的差别是**目的**，不是算术：`formatSi` 为了能被**打回输入框**
+ * 而优化，所以没有前缀的数量级要降一档（`formatSi(10.0) === '10000m'`）——
+ * 在那里是对的，而在一句话里它把「一个 10 V 的脉冲」渲染成「一个 10000 m V 的脉冲」。
+ * 可读性与可回填是两个目标，这一个是可读的那个。两者共用同一张前缀表。
+ *
+ * **住在 `si.ts` 而不是旁白模板里**：这不是旁白的事，任何一句带数字的、给操作员看的
+ * 字符串都需要它。旧仓 2026-08-18 的现场：调平循环把
+ * `第 2 轮后残余 Z 占用 6.4e-09 m` 印进了一句人读的话，
+ * 因为全仓唯一那个可读格式化函数住在隔壁 `mast.chat` 里。
+ *
+ * ⚠️ **不是 {@link formatSi} 的近义词，不许合并。** 三处行为不同：
+ * 零给 `"0 m"`（不是 `'0p'`）、带空格与单位、量级落不进任何前缀时退回 `%.4g`。
+ *
+ * `digits` 走 {@link formatG}（Python 的 `%.{digits}g`），所以 `6.4e-9` 是
+ * `"6.4 nm"` 而不是 `"6.400 nm"`。
+ */
+export function formatSiReadable(value: unknown, unit = '', digits = 4): string {
+  // 旧仓 `try: v = float(value) except (TypeError, ValueError): return str(value)`。
+  // 一个格式化函数**不该因为拿到脏输入就把整个技能带走** —— 它在报错路径上被调用。
+  //
+  // ⚠️ `nan` / `inf` **不走**这条退路：Python 的 `float('nan')` 是成功的，
+  // 于是它们一路落到最后那行 `%.4g` ⇒ `"nan m"` / `"inf m"`。把它们当成
+  // 「转不了」会换一句话，而那句话是模型和操作员读的。
+  const v = pyFloat(value)
+  if (v === null) return value === null || value === undefined ? 'None' : String(value)
+  if (v === 0) return `0 ${unit}`.trim()
+  for (const prefix of ['G', 'M', 'k', '', 'm', 'u', 'n', 'p', 'f', 'a']) {
+    const factor = prefix === '' ? 1 : SI_PREFIXES[prefix]!
+    const scaled = v / factor
+    if (Math.abs(scaled) >= 1 && Math.abs(scaled) < 1000) {
+      return `${formatG(scaled, digits)} ${prefix}${unit}`.trim()
+    }
+  }
+  return `${formatG(v, digits)} ${unit}`.trim()
+}
+
+/**
  * Python 的 `repr(float)`。
  *
  * 文案里出现的数必须逐字对得上，而 JS 的 `String()` 与 Python 的 `repr()`

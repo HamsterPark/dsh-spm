@@ -52,6 +52,11 @@ CONFIG_KEYS = [
     "avoid_radius_tip_shape_nm", "avoid_radius_pulse_nm",
     "avoid_radius_crash_nm", "avoid_radius_approach_nm",
     "scan_spacing_factor",
+    # 批 7a-1 起有消费方：`AutoTilt._thresholds` 拿 z_range_m 当三条阈的分母，
+    # 施加小步时拿 tilt_limit_deg 做单轴限幅。在那之前它们在 `ablated_keys` 里。
+    # ⚠️ 这两个是**数值**键 —— 合并 7a-1 时机械「两边都留」把它们落进了 CHOICE_KEYS，
+    # 导出器当场 KeyError。手写文件的冲突不能机械处理，这是第二次为它交学费。
+    "z_range_m", "tilt_limit_deg",
 ]
 CHOICE_KEYS = [
     "retract_motor_dir", "z_extend_sign",

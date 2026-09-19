@@ -160,7 +160,7 @@ export function localRmsAbsTol(zSpanM: number): number {
  *
  * 有效点太少返回 `null`（那个窗判不了，跳过，而不是给它一个凑出来的分）。
  *
- * ## ⚠️ 设计矩阵奇异时本仓给 `null`，**旧仓给 0**（D-FLAT-? ，不照抄）
+ * ## ⚠️ 设计矩阵奇异时本仓给 `null`，**旧仓给 0**（D-FLAT-1 ，不照抄）
  *
  * 12 个以上的有效点全落在**同一行**（真机上是 NaN 挖出来的形状）时，
  * `[x, y, 1]` 掉秩。`np.linalg.lstsq` 走 SVD，给一个**最小范数解** ——
@@ -286,7 +286,13 @@ export const FindFlatRegion: Skill = {
     }
 
     if (!existsSync(scanPath)) return fail(`scan_path not found: ${scanPath}`)
-    const load = loadSxm(scanPath)
+    // ⚠️ **第二个参数显式给路径**：这个技能的金样里那句报错印的是文件名
+    // （`… Cannot find header end marker in <tmp>/not_sxm.sxm`），而 `loadSxm` 的
+    // 缺省是 `readSxm` 自己的字面量 `<sxm>`。两种都不是错 —— 批 4a/4c/6b/6c 的
+    // 金样里印的确实是 `<sxm>`，改缺省会让它们整排变红，而变的是**模型读的那句话**。
+    // ⇒ **两侧金样各自是事实，而「可选参数」是唯一能同时容下它们的形状。**
+    // （2026-09-20 三条支线合并时定的：7a-3 想改缺省、7a-1 想做成可选，金样判了后者。）
+    const load = loadSxm(scanPath, scanPath)
     if (!load.ok) return fail(`failed to read .sxm: ${load.plain}`)
     const scan = load.scan
 

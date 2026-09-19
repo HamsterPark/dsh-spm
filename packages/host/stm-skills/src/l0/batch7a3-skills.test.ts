@@ -152,7 +152,7 @@ function compare(what: string, got: SkillResultLike, row: any, scales: Map<strin
 // ──────────────────────────────────────────────────────────────────────────
 
 /**
- * **设计矩阵奇异那一格不照抄**（D-FLAT-?，见 `analysis-flat-region.ts` 的推导）：
+ * **设计矩阵奇异那一格不照抄**（D-FLAT-1，见 `analysis-flat-region.ts` 的推导）：
  * 旧仓的 SVD 给一个最小范数解 ⇒ `rms ≈ 4.5e−28`，读起来是**一块完美的平地**；
  * 本仓的正规方程掉秩就抛 ⇒ `null`，那个窗跳过。
  */
@@ -332,7 +332,7 @@ describe('BiasWiggle', () => {
       const h = wiggleHarness(row.verbs as Record<string, any[]>, (row.abort_after ?? null) as number | null)
       await BiasWiggle.execute(h.ctx, row.params as Record<string, unknown>)
       // ⚠️ 只比 `[verb, args]`，**不比 kwargs**：旧仓收尾那几次带
-      // `allow_on_abort=True`，而本仓没有那个口（D-WIGGLE-?，见
+      // `allow_on_abort=True`，而本仓没有那个口（D-WIGGLE-1，见
       // `bias-wiggle.ts` 的抬头）。下面那条测试单独把这件事钉住。
       expect(h.calls.map((c) => [c.verb, c.args])).toEqual(
         (row.calls as any[]).map((c) => [c.verb, c.args]),

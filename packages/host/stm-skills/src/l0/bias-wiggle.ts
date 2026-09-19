@@ -27,7 +27,7 @@
  * 而那是一次内核接口改动，会动到三十来处构造 `SkillContext` 的测试夹具。
  * 今天它**不改变本技能的行为**（本仓还没有任何地方把 `gatedSafeCall` 接进
  * `SkillContext.safeCall`），所以这里照直发，把缺口写进 deviation 与交接。
- * 见 `spec/deviations.md` 的 `D-WIGGLE-?`。
+ * 见 `spec/deviations.md` 的 `D-WIGGLE-1`。
  *
  * ## 时钟：`ctx.now()` 是**毫秒**，旧仓 `time.monotonic()` 是**秒**
  *

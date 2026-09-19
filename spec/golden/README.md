@@ -90,6 +90,23 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 <!-- ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）的驱动器写在这一行下面 ── -->
 
+| 文件 | 导出器 | 为什么要单开一台 |
+|---|---|---|
+| `tilt.json` | `export_tilt.py` | 三个技能里两个要一个**会回话的子技能**（`AutoTilt` / `TiltCalibrate` 的 `context.run("TiltProbeCircle")`），通用驱动器连那个名字都没有；第三个（`AnalyzeFrameTilt`）只读磁盘上的 `.sxm`，于是在 `skill_traces.json` 里只录得到「文件不存在」那一支。这一份自己合成 `.sxm` **字节**（读法归旧仓）、自己搭一台**闭式**假仪器（`ZSim`：横移记位置、读 Z 按斜面给数）、把子技能写成脚本，并把 `time.monotonic` / `time.time` 一起钉死 |
+
+这一份有三条**别处没有**的纪律，值得单写：
+
+* **RANSAC 的谱宽随每一格录**（`ransac_spread`）。两边的抽样序列不同（D-VISION-1），
+  于是「倾斜是多少」在一张高斯噪声的图上是一次抽签 —— 实测 12 个种子之间 `b` 差
+  `3.3e-3`。金样把那个谱宽**量下来**，TS 那侧拿它当容差；
+  而主路那几格的谱宽是 **0**（棋盘噪声让内点恒为全部）。
+  **容差是量出来的，不是调出来的。**
+* **分割器两侧都录**（`*_seg` / `*_noseg`）。本仓没有 `segment_scale_adaptive`，
+  落在旧仓自己的 fail-open 上；把 `sys.modules[...]` 设成 `None` 逼出真的
+  `ImportError`，走的是旧仓那条 `except`，不是我替它编的返回值。
+* **三处不可达各留一节**（`estimate_tilt_unreachable` / `no_action_reason_unreachable`
+  / `fit_circle_tilt.all_same_angle`）。不可达要**量出来**，不是写在注释里。
+
 <!-- ── 批 7a-2（实验地图层 + FindCleanSpot）的驱动器写在这一行下面 ── -->
 
 | `map_scope.json` | `export_map_scope.py` | `FindCleanSpot` 的判据住在**它没发出去的那些调用**里：除一次 `Piezo_RangeGet` 之外，它读的是**实验记录**与**进程内的撞针记忆**，然后在一张锚在可用区中心的格子上做纯几何选点。通用驱动器的假 context 两样都给不出来 ⇒ 那条路上 `map_known` 恒为 False、避让圆一个都没有，**250 行的 `nearest_clean_from` 只走得到「空地图」那一条**。这一份自己摆世界（档案 / 实验记录 / 撞针追踪器 / 仪器回包四样都由它给），10 节：环带生成序 · 25 格配置装配 · 22 行 marker 还原 · 9 组代次 · 7 格三态读地图 · 5 格撞针记忆 · 8 格避让圆 · **26 格选点几何** · 10 格坐标串解析 · **39 格技能端到端** |

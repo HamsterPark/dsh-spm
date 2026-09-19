@@ -176,7 +176,7 @@ kde_layers ──► np.gradient(2D) · np.hypot · np.percentile · np.digitize
 | `terraces`（40/56 行两层，**一像素锐台阶**） | `same_terrace` 真的排掉 14 个跨台阶的窗；最大台面**唯一** ⇒ RANSAC 两边同解 |
 | `kde_layers/pepper`（每 37 个像素丢一个到对面层） | `ndi.median_filter(lab, 5)` 的**唯一**入口 —— 合成的层标签干净到中值滤波一个像素都不改 |
 | `local_plane_rms/too_few`（11 点，**不共线**） | 12 点那道门槛。第一版把 11 个点全放在第 0 行 ⇒ 就算拆掉门槛，`lstsq` 也因奇异给 `None`，两种候选同解 |
-| `local_plane_rms/collinear`（16 点全在第 0 行） | 掉秩那一支（D-FLAT-?） |
+| `local_plane_rms/collinear`（16 点全在第 0 行） | 掉秩那一支（D-FLAT-1） |
 | `window_floor_8px`（`window_fraction=0.05`） | `max(8, …)` 那道下限的唯一入口（`min_value` 就是 0.05，再小进不来） |
 | `count_4_mixed`（在 `fine_only` 上要 4 个） | 「只收过线的」：整帧都干净的图上，收与不收给同一个答案 |
 | `wiggle/current_trip_negative`（−8 nA） | 电流看护那个**绝对值**的唯一入口 —— 另外两格给的是正电流，判带号的与判绝对值的同解 |

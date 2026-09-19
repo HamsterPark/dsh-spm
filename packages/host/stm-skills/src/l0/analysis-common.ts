@@ -35,13 +35,18 @@ import { readSxm, sxmOrientedFrames, type OrientedFrames, type SxmScan } from 'd
  */
 export type SxmLoad = { ok: true; scan: SxmScan } | { ok: false; why: string; plain: string }
 
-export function loadSxm(path: string): SxmLoad {
+/**
+ * `what` 是读取器报错时印的那个名字。
+ *
+ * ⚠️ **缺省仍然是 `readSxm` 自己的 `<sxm>`**，不是路径 —— 批 4a/4c/6b/6c 的金样里
+ * 那几句报文印的就是 `<sxm>`，改缺省会让它们整排变红，而变的是**模型读的那句话**。
+ * 旧仓 `read_sxm(path)` 拿到的是路径，所以印路径的那几个调用方（批 7a-1 的
+ * `AnalyzeFrameTilt`）**显式传**它。两种写法并存不是含糊，是两侧金样的事实。
+ */
+export function loadSxm(path: string, what?: string): SxmLoad {
   try {
-    // ⚠️ **`what` 要给路径**（批 7a-3 改）：`readSxm` 的报错里印的就是这个串，
-    // 而旧仓六个调用方转述的那句异常**全都带着文件名**（异常是 `read_sxm` 抛的）。
-    // 不给的话本仓印的是字面量 `<sxm>` —— 一句「这个文件坏了」而不说哪个文件。
-    // 在这之前没有金样踩到它（只有「文件不存在」那一支有格）。
-    return { ok: true, scan: readSxm(readFileSync(path), path) }
+    const bytes = readFileSync(path)
+    return { ok: true, scan: what === undefined ? readSxm(bytes) : readSxm(bytes, what) }
   } catch (e) {
     const err = e as Error
     return { ok: false, why: `${err.name}: ${err.message}`, plain: err.message }

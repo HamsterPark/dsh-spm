@@ -10,6 +10,25 @@ import { TipWatchdogService, watchdogProvider } from './plugin.js'
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
+/**
+ * 等到 `ok()` 为真，或到上限为止（回 `true`/`false`，不自己断言）。
+ *
+ * ⚠️ 用它替掉「睡够 N 毫秒然后指望某件事已经发生」。后者把**机器有多忙**当成了判据：
+ * 空载时轮询 10 ms 一次、80 ms 能轮八次；而全量并发下同样 80 ms 可能一次都轮不满三次。
+ * 那时红的不是被测的东西，是这台机器。
+ *
+ * 反过来，「等一会儿，然后断言某个数**没变**」不需要换写法 —— 机器越忙只会让它更容易
+ * 通过，因为它是靠「不变」来失败的。**两种等待里只有一种压得坏。**
+ */
+async function until(ok: () => boolean, capMs: number): Promise<boolean> {
+  const t0 = Date.now()
+  while (Date.now() - t0 < capMs) {
+    if (ok()) return true
+    await sleep(5)
+  }
+  return ok()
+}
+
 interface Seen {
   method: string
   args: unknown[]
@@ -277,8 +296,11 @@ describe('ctx.stmWatchdog 的接线', () => {
       const { ins } = host(ctx)
       ctx.plugin(watchdogProvider, { intervalMs: 10 })
       await svcOf(ctx)
-      await sleep(80)
-      expect(ins.seen.length).toBeGreaterThan(2)
+      // 2026-09-20（第七轮 7a 合并后）：这里原本是 `await sleep(80)`。
+      // 那一轮往同一个 worker 池里加了 300 多条测试之后它开始间歇性变红 ——
+      // 单跑 8/8 绿，全量并发下三趟里红两趟。批 6b 撞过同一个形状（`lattice` 那条 4.2 s
+      // 在 5 s 缺省预算下只剩 16% 余量）。问的还是同一件事：**轮询在跑吗**。
+      expect(await until(() => ins.seen.length > 2, 3_000), '3 s 内没轮够三次').toBe(true)
       ctx.registry.delete(watchdogProvider)
       const at = ins.seen.length
       await sleep(120)

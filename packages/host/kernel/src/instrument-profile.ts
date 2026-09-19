@@ -119,6 +119,14 @@ export const CONFIG_SPEC: Readonly<Record<string, ConfigSpecEntry>> = {
   avoid_radius_approach_nm: [
     '进针扎痕避让半径(仅当「进针会扎表面」时生效)', 'nm', 'float', [0.0, 1.0e5], 200.0,
   ],
+  // ── 批 7a-1 `AutoTilt`：三条阈的分母，与单轴限幅 ────────────────────
+  //   `z_range_m` 是调平触发判据的分母：判据统一成「这一帧的斜坡吃掉多少 Z 量程」
+  //   (`z_span = L·tanθ`)，这样同一个角度在 1 µm 帧和 10 nm 帧上自动给出不同的
+  //   紧迫程度，不需要为粗扫/精扫各设一个角度阈值。
+  z_range_m: ['Z 压电总量程', 'm', 'float', [1.0e-9, 1.0e-4], 1.5e-6],
+  //   单轴倾斜补偿的绝对上限。压电倾斜补偿把扫描平面转过来，转过头会吃掉 XY 行程
+  //   并让 Z 在帧角上打满；5° 对任何 STM 都已经是很大的失配角了。
+  tilt_limit_deg: ['压电倾斜补偿绝对上限(单轴)', '°', 'float', [0.0, 45.0], 5.0],
 }
 
 /** 枚举配置项：`[标签, 允许值, 显示名, 出厂默认]`。 */
@@ -226,8 +234,16 @@ export const MOTOR_DIR_CODE: Readonly<Record<string, number>> = { 'z+': 4, 'z-':
  */
 export const processInstrumentProfile: {
   source: (() => unknown) | null
+  /**
+   * 档案的**写口**（批 7a-1 接上）。`null` = 宿主没接 —— 那时
+   * {@link setTiltCalibration} **失败并说出来**，而不是静默成功。
+   *
+   * 写成 patch（只给要改的那几个键）而不是整份快照：本仓的读口是**宿主拥有**的，
+   * 内核手上没有一份可以整体替换的档案。谁来合并、谁来落盘，是宿主的事。
+   */
+  write: ((patch: Readonly<Record<string, unknown>>) => void) | null
   nowS: () => number
-} = { source: null, nowS: () => Date.now() / 1000 }
+} = { source: null, write: null, nowS: () => Date.now() / 1000 }
 
 /** 读档案的结果。**三态里的前两态**，第三态（读到了但没这一项）由调用方判。 */
 export type ProfileRead =
@@ -434,4 +450,66 @@ export function getTiltCalibration(): TiltCalibration {
     cond: typeof cond === 'number' ? cond : null,
     updatedAt: typeof ts === 'number' ? ts : null,
   }
+}
+
+/**
+ * 写倾斜标定的结果。**拒写的理由必须带出来** —— 旧仓那边只有一个 `None`，
+ * 而 `TiltCalibrate` 的报文把「条件数超限」当成了唯一可能的原因。
+ * 形状非法与宿主没接写口在那句话里会被说成「条件数 …… 超过上限」，
+ * 而那两件事该做的完全不同。见 `spec/deviations.md` 批 7a-1。
+ */
+export type TiltCalWrite =
+  | { readonly ok: true; readonly cal: TiltCalibration }
+  | { readonly ok: false; readonly why: 'bad_matrix' | 'not_finite' | 'cond_unknown' | 'cond_too_high' | 'no_sink' }
+
+/**
+ * 写入倾斜响应矩阵（`TiltCalibrate` 的产物）。逐条照移旧仓 `set_tilt_calibration`。
+ *
+ * 条件数超过 {@link TILT_CAL_MAX_COND} 时**拒绝写入**：两个轴的响应几乎共线意味着
+ * 解出来的 G 不可靠，存进去比不存更危险 —— 之后**每一次调平**都会用它。
+ *
+ * ## `cond` 是必需的，而且「算不出」按拒绝处理
+ *
+ * 旧仓 v6.1.3 之前它是 `cond: float | None = None` 配一道
+ * `if cond is not None and cond > MAX` —— 于是**不传 cond 就等于跳过这道闸门**。
+ * 「算不出条件数」不是「条件数良好」的证据，而那份可选性替调用方做了这个决定。
+ * 本仓的类型让它连「忘了传」都写不出来。
+ *
+ * ## `tilt_cal_cond` **无条件写**
+ *
+ * 旧仓改过的另一处：以前是 `if cond is not None:`，传 None 时这个字段**不更新**，
+ * 于是档案里留着**上一次标定**的条件数，配着**这一次**的矩阵。
+ * 那比没有更坏 —— 一个看起来有依据的数，描述的是另一个已经不在那里的矩阵。
+ */
+export function setTiltCalibration(g: unknown, cond: unknown): TiltCalWrite {
+  const rows = coerceMatrix2(g)
+  if (rows === null) return { ok: false, why: 'bad_matrix' }
+  if (!rows.every((row) => row.every((v) => Number.isFinite(v)))) return { ok: false, why: 'not_finite' }
+  const c = typeof cond === 'number' ? cond : Number(cond)
+  if (cond === null || cond === undefined || !Number.isFinite(c)) return { ok: false, why: 'cond_unknown' }
+  if (c > TILT_CAL_MAX_COND) return { ok: false, why: 'cond_too_high' }
+  const sink = processInstrumentProfile.write
+  if (sink === null) return { ok: false, why: 'no_sink' }
+  sink({
+    tilt_cal_g11: rows[0][0],
+    tilt_cal_g12: rows[0][1],
+    tilt_cal_g21: rows[1][0],
+    tilt_cal_g22: rows[1][1],
+    tilt_cal_cond: c,
+    tilt_cal_updated_at: processInstrumentProfile.nowS(),
+  })
+  return { ok: true, cal: getTiltCalibration() }
+}
+
+/** `[[float, float], [float, float]]`，取不出来给 `null`（旧仓 `except (TypeError, ValueError, IndexError)`）。 */
+function coerceMatrix2(g: unknown): [[number, number], [number, number]] | null {
+  if (!Array.isArray(g) || g.length < 2) return null
+  const r0 = g[0] as unknown
+  const r1 = g[1] as unknown
+  if (!Array.isArray(r0) || !Array.isArray(r1) || r0.length < 2 || r1.length < 2) return null
+  const f = (v: unknown): number => (typeof v === 'number' ? v : Number(v))
+  return [
+    [f(r0[0]), f(r0[1])],
+    [f(r1[0]), f(r1[1])],
+  ]
 }

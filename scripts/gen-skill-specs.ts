@@ -454,7 +454,17 @@ const BATCH_6C: string[] = [
 ]   // 批 5b 欠下的数值原语 + 晶格一族剩余
 
 // ↑ 上一条 ／ ↓ 7A-1 —— 这一行谁都不要动
-const BATCH_7A_1: string[] = []   // vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt
+const BATCH_7A_1: string[] = [
+  // `builtins.frame_tilt`（1/1）—— 只读 .sxm。
+  'AnalyzeFrameTilt',
+  // `builtins.tilt_probe`（1/1）—— `AutoTilt` 的**测量那一半**。任务书原来没点它，
+  // 而 `auto_tilt._measure` 里就写着 `context.run("TiltProbeCircle", …)`：
+  // 封锁账那张表记的是**一层**，不是闭包。见 batch-7a-1.md「与任务书不一样」。
+  'TiltProbeCircle',
+  // `composite.auto_tilt`（2/2）。
+  'TiltCalibrate',
+  'AutoTilt',
+]   // vision/tilt 一族 + 三个调平技能
 
 // ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
 const BATCH_7A_2: string[] = [

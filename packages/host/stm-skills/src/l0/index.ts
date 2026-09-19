@@ -91,6 +91,9 @@ import { SCAN_PREP_SKILLS } from './scan-prep-skills.js'
 // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面加 import ──
 
 // ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）在这一行下面加 import ──
+import { AnalyzeFrameTilt } from './frame-tilt.js'
+import { TiltProbeCircle } from './tilt-probe.js'
+import { AutoTilt, TiltCalibrate } from '../composite/auto-tilt.js'
 
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 import ──
 import { CLEAN_SPOT } from './clean-spot.js'
@@ -203,6 +206,10 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 6a 在这一行下面展开 ──
 
   // ── 批 7a-1 在这一行下面展开 ──
+  AnalyzeFrameTilt,
+  TiltProbeCircle,
+  TiltCalibrate,
+  AutoTilt,
 
   // ── 批 7a-2 在这一行下面展开 ──
   ...CLEAN_SPOT,
@@ -333,6 +340,9 @@ export * from './scan-prep-skills.js'
 // ── 批 7a-3 在这一行下面 re-export ──
 export * from './analysis-flat-region.js'
 export * from './bias-wiggle.js'
+export * from './frame-tilt.js'
+export * from './tilt-probe.js'
+export * from '../composite/auto-tilt.js'
 
 // ── 批 6c 在这一行下面 re-export ──
 export * from './analysis-tip.js'

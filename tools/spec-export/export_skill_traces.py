@@ -454,7 +454,19 @@ BATCH_6C: list[str] = [
 # 那一节是拿**真的合成字节**喂进旧仓技能录的。
 
 #: ↑ 上一条 ／ ↓ 7A-1 —— 这一行谁都不要动
-BATCH_7A_1: list[str] = []   # vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt
+BATCH_7A_1: list[str] = [
+    # 只读磁盘上的 .sxm ⇒ 这里录到的是「文件不存在」那一支（同批 4a/6b/6c）。
+    # 主判据在 `spec/golden/tilt.json` 的 `skills.AnalyzeFrameTilt`（12 格，喂真字节）。
+    "AnalyzeFrameTilt",
+    # 这三个**真的发动词**，所以这里录到的是真的调用序列：
+    #   TiltProbeCircle  —— FolMe_XYPosGet → Scan_FrameGet → 一圈 XYPosSet/ZPosGet → 回起点
+    #   TiltCalibrate    —— Piezo_TiltGet 之后就停在「基线测量失败」（通用驱动器没有子技能）
+    #   AutoTilt         —— 停在「没标定过」那一支（通用驱动器的档案是空的）
+    # 后两个的**主判据**同样在 tilt.json（17 + 11 格，子技能由脚本扮演）。
+    "TiltProbeCircle",
+    "TiltCalibrate",
+    "AutoTilt",
+]   # vision/tilt 一族 + 三个调平技能
 
 #: ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
 BATCH_7A_2: list[str] = [
@@ -998,6 +1010,26 @@ def _synth_body(verb: str, table: dict) -> list:
     return out or [0.25]
 
 
+#: **按技能**覆写某几个动词的 body。与 `CUSTOM_ERRORS` 同一条理由：
+#: 通用合成器的恒定回包会让某条判据退化成掷骰子，而那时它需要的是一个**单独的开关**。
+#:
+#: ⚠️ 目前只有一条。`TiltProbeCircle` 在恒定回包上是**退化**的：一圈 Z 全相等 ⇒
+#: 正弦拟合的 A、B 只剩 `1e−17` 量级的舍入噪声，而
+#: `downhill_deg = atan2(−B, −A) % 360` 于是是一次掷骰子 ——
+#: 同一份输入在两台机器上给 0° / 90° / 254° / 316°（实测）。
+#: 那不是判据，是两边 ulp 分布的差。
+#:
+#: 覆写把 Z **跟着针尖的 XY 走**（`echo` 里存着上一次 `FolMe_XYPosSet` 的实参），
+#: 也就是给它一个真实的斜面。这不是「为了让测试过」而放松，是把夹具修对：
+#: 恒流下 Z 跟随表面，正是这个技能成立的前提。
+CUSTOM_BODIES: "dict[str, dict[str, Any]]" = {
+    "TiltProbeCircle": {
+        # 5 mrad / −2 mrad 的斜面 + 一个 1 nm 的基座。闭式，零随机数。
+        "ZCtrl_ZPosGet": lambda xy: [1.0e-9 + 5.0e-3 * xy[0] - 2.0e-3 * xy[1]],
+    },
+}
+
+
 class _FakeContext:
     """按真机形状应答的假 context。
 
@@ -1007,9 +1039,11 @@ class _FakeContext:
 
     def __init__(self, table: dict, *, error_at: int | None = None,
                  empty_at: int | None = None, run_error_at: int | None = None,
-                 no_echo: bool = False,
+                 no_echo: bool = False, skill_name: str = "",
                  error_text: str = "模拟故障：连接被对端关闭"):
         self.table = table
+        self.skill_name = skill_name
+        self.bodies = CUSTOM_BODIES.get(skill_name, {})
         # **写进去什么、读回来就是什么** —— 真仪器就是这样，而常量回包会让每一个
         # 「写后回读」技能都走进「不一致」分支。键是去掉尾部 Set/Get 的动词名，
         # 于是 `ZCtrl_SetpntSet` 的实参成为 `ZCtrl_SetpntGet` 的 body。
@@ -1035,6 +1069,10 @@ class _FakeContext:
             rec.return_value = None
         elif i == self.empty_at:
             rec.return_value = ("", b"", [])
+        elif method_name in self.bodies:
+            xy = self.echo.get("FolMe_XYPos") or [0.0, 0.0]
+            rec.return_value = ("", b"", self.bodies[method_name](
+                [float(xy[0]), float(xy[1] if len(xy) > 1 else 0.0)]))
         else:
             base = method_name[:-3] if method_name.endswith("Set") else (
                 method_name[:-3] if method_name.endswith("Get") else None)
@@ -1345,7 +1383,7 @@ def _trace(skill: Any, params: dict, table: dict, *, _name: str = "", **kw) -> d
             f.unlink(missing_ok=True)
     except Exception:  # noqa: BLE001
         pass
-    ctx = _FakeContext(table, **kw)
+    ctx = _FakeContext(table, skill_name=_name, **kw)
     try:
         r = skill.execute(ctx, dict(params))
         out = _result(r)
