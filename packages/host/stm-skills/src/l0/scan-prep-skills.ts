@@ -115,23 +115,16 @@ function pyList(xs: readonly string[]): string {
   return `[${xs.map(pyRepr).join(', ')}]`
 }
 
-/** Python 的 `f"{x:.Nf}"`（非有限值单列，见 `scan-prep.ts` 的同名助手）。 */
-function fx(x: number, d: number): string {
-  if (Number.isNaN(x)) return 'nan'
-  if (!Number.isFinite(x)) return x > 0 ? 'inf' : '-inf'
-  // ⚠️ **负零**：Python 的 `f"{-0.0:.1f}"` 给 `'-0.0'`，而 `kernel` 的 `pyFixed` 给 `'0.0'`
-  // （JS 的 `toFixed` 判 `x < 0`，而 `-0 < 0` 是假）。`round(s, 3)` 把一个很小的负数
-  // 变成 `-0` 之后，这一格就印在报文里 —— 「最接近的通道是 `dc`(-0.0)」。
-  // 这是 `formatG` 早就处理过的同一件事（`coverage-gaps.test.ts`：`formatG(-0, 6) === '-0'`），
-  // 而 `pyFixed` 漏了。**本批不改 kernel 那一份**（共享文件，波及别人的金样），
-  // 交接里写成一条给主线的欠账。
-  if (Object.is(x, -0)) return `-${pyFixed(0, d)}`
-  return pyFixed(x, d)
-}
-
-/** `f"{x:+.2f}"` —— 非负数也带符号。 */
+/**
+ * `f"{x:+.2f}"` —— 非负数也带符号。
+ *
+ * 2026-09-19：这里原本还有一个本地的 `fx()` 包着 `pyFixed`，挡的是
+ * 「`pyFixed(-0, n)` 丢负号」与非有限值两件事。`pyFixed` 现在两件都自己管
+ * （负号取自输入，`nan`/`inf`/`-inf` 照 Python 印），**那层挡板撤了**，
+ * 十处调用直接走 `pyFixed` —— 留着它，下一个人会以为这里有坑。行为一字未变。
+ */
 function fxSigned(x: number, d: number): string {
-  const s = fx(x, d)
+  const s = pyFixed(x, d)
   return s.startsWith('-') || s === 'nan' ? s : `+${s}`
 }
 
@@ -197,8 +190,8 @@ export const AnalyzeScanImage: Skill = {
     const summary =
       `${basename(scanPath.replace(/\\/g, '/'))} [${channel}] → ${plan.method}` +
       `(${METHOD_LABEL[plan.method] ?? plan.method}), 色阶 ` +
-      `${pyFloatRepr(plan.clip[0])}–${pyFloatRepr(plan.clip[1])} 百分位 | line_gain ${fx(m.lineGain, 2)} ` +
-      `bow_gain ${fx(m.bowGain, 2)} 行相关 ${fx(m.rowcorrMedian, 2)}` +
+      `${pyFloatRepr(plan.clip[0])}–${pyFloatRepr(plan.clip[1])} 百分位 | line_gain ${pyFixed(m.lineGain, 2)} ` +
+      `bow_gain ${pyFixed(m.bowGain, 2)} 行相关 ${pyFixed(m.rowcorrMedian, 2)}` +
       `\n依据: ${plan.why.join(' / ')}` +
       (plan.notes.length > 0 ? `\n注意: ${plan.notes.join(' / ')}` : '') +
       `\n阈值 profile \`${plan.profile}\` — ${plan.provenance}`
@@ -428,10 +421,10 @@ function writeReport(
       const m = it.m
       const plan = it.plan
       const fr = it.fr
-      const pur = Number.isNaN(m.rowPurity) ? '–' : fx(m.rowPurity, 2)
+      const pur = Number.isNaN(m.rowPurity) ? '–' : pyFixed(m.rowPurity, 2)
       const fine = plan.fineStructure
-        ? `**${fx(m.finePeriodicSnr, 0)} / ${fx(m.finePeriodNm, 3)}nm**`
-        : `${fx(m.finePeriodicSnr, 0)} / –`
+        ? `**${pyFixed(m.finePeriodicSnr, 0)} / ${pyFixed(m.finePeriodNm, 3)}nm**`
+        : `${pyFixed(m.finePeriodicSnr, 0)} / –`
       const a = m.atomic
       const atom = a !== null && a.passed ? '**通过**' : a !== null && a.reasons.includes('scale_gate') ? '判不了' : '未通过'
       const tc = m.tipChange
@@ -439,14 +432,14 @@ function writeReport(
         tc !== null && tc.changed
           ? `**是**@${String(tc.change_row)}`
           : tc !== null
-            ? `否(z ${fx(tc.score, 1)})`
+            ? `否(z ${pyFixed(tc.score, 1)})`
             : '–'
-      const fb = m.fbInstability === null ? '–' : fx(m.fbInstability, 2)
+      const fb = m.fbInstability === null ? '–' : pyFixed(m.fbInstability, 2)
       L.push(
         `| ${stemOf(it.path).slice(-4)} | ${gOpt(fr.widthNm, ' nm')} | ` +
           `${gOpt(fr.biasV, ' V')} | ` +
-          `${fx(m.nanFrac * 100, 0)}% | ${fx(m.lineGain, 2)} | ${fx(m.bowGain, 2)} | ` +
-          `${m.nPeaks} / ${fx(m.sepOverRough, 1)} / ${pur} | ${fine} | ` +
+          `${pyFixed(m.nanFrac * 100, 0)}% | ${pyFixed(m.lineGain, 2)} | ${pyFixed(m.bowGain, 2)} | ` +
+          `${m.nPeaks} / ${pyFixed(m.sepOverRough, 1)} / ${pur} | ${fine} | ` +
           `${fxSigned(m.rowcorrMedian, 2)} | ${fb} | ${atom} | ${tcs} | ` +
           `\`${plan.method}\` |`,
       )
@@ -478,7 +471,7 @@ function writeReport(
       L.push(
         `${gOpt(fr.widthNm)} × ${gOpt(fr.heightNm ?? fr.widthNm)} nm, ` +
           `V = ${gOpt(fr.biasV)} V, ${fr.recTime}, ` +
-          `${m.shape[0]}×${m.shape[1]} px (${fx(m.nmPerPx ?? 0, 4)} nm/px)\n`,
+          `${m.shape[0]}×${m.shape[1]} px (${pyFixed(m.nmPerPx ?? 0, 4)} nm/px)\n`,
       )
       L.push(
         `**处理**:${METHOD_LABEL[plan.method] ?? plan.method};` +

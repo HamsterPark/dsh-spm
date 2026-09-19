@@ -443,7 +443,7 @@ selfcheck-each-check-asks-its-own-chain      red  5
 |---|---|
 | 把 `_tip_phases` 的判据核心先搬进 `kernel/`（不落技能） | **消融精神**：它们今天**没有消费方**（消费方就是那六条流程）。落一个没人读的判据模块，与落一个跑满轮数报失败的壳是同一件事，只是低一层 |
 | ~~修 §3.2 的深度包络接线~~ | **第二趟做了**，见 §10。第一趟不做的三条理由里，②（会凭空填一个默认深度）是**真的**，所以第二趟绕开了那条接法 |
-| 给 `tip_policy.json` 加一格「深度边界」 | 见 §10.4：加一行请求 = 全表 +12 格，而「264 格」这句话要在四处改，两处在 `spec/deviations.md` 的 D-TIP-1 段落里 —— **本轮锚点之外** |
+| ~~给 `tip_policy.json` 加一格「深度边界」~~ | 见 §10.4。**2026-09-19 由收尾支线结清**（`docs/handoff/fix-pyfixed.md`）：`shaper_depth_at_limit` 已加，264 → **276 格**，被拒数不变 |
 | 动 `l0/index.ts` · `kernel/src/index.ts` · `gen-skill-specs.ts` 的 `BATCH_6A` · `export_skill_traces.py` 的 `BATCH_6A` 四个锚点 | **没有技能要注册**。四个锚点原样留着 |
 
 ---
@@ -635,6 +635,13 @@ resolve_conditioning(("shaper_depth_m",), {})
 （−0.3 nm 过 / −1.2、−2、−5 nm 拒），线上一格没有。**这一批没有加它**，
 理由是加一行请求 = 全表 +12 格，而「264 格」这句话要在四处改，其中两处在
 `spec/deviations.md` 的 D-TIP-1 段落里 —— **本轮锚点之外**（分派单：共享文件只走批 6a 锚点）。
+
+> **2026-09-19 结清**（收尾支线，`docs/handoff/fix-pyfixed.md`）：限制没有了，那一格加了。
+> `export_tip_policy.py` 第 23 个请求 `shaper_depth_at_limit`
+> （`shaper_depth_m = -1.0e-8`），全表 264 → **276 格**，12 支针尖**全过**，
+> 被拒数不变仍是 **111**。「264 格」实际出现在 **9 处**（不是四处）：
+> `spec/deviations.md` ×4、`spec/golden/README.md` ×1、测试注释 ×4；
+> 另有两份交接按 `订正` 体例加注而不改原数。边界现在两侧都钉住了。
 
 代替做法：边界由**生产路径**钉住（§10.3 第二行），并对旧仓**实跑核过一次**：
 

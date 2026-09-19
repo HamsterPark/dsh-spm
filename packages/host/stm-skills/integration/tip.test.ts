@@ -16,7 +16,7 @@
  *
  * 针尖安全包络（D-TIP-1）装在 `validateParams`，也就是**内核 K6** —— 而这台夹具
  * 不过内核（同 `scan-composites.test.ts` 的抬头：内核的闸门在 `runsub.test.ts` /
- * `skill-kernel.test.ts` 里单独验）。包络的 264 格在
+ * `skill-kernel.test.ts` 里单独验）。包络的 276 格在
  * `kernel/src/tip-conditioning.test.ts`，技能这一层在 `l0/tail-l0-tip.test.ts`。
  * **这里验的是仪器那一侧。**
  */

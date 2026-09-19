@@ -98,18 +98,59 @@ export type StepReason = 'feedback_segment_too_short' | 'feedback_segment_not_ca
  * 这是 `pyFloatRepr` / `formatG` / `pyStr` / `pyMod` / `pySum` 那一族的第六个成员。
  * **它现在住在这里而不是 `si.ts`**：这一轮有四条并行支线在改文件，把它塞进
  * `si.ts` 会让四份改动撞在同一行上。收族的时候它该搬过去。
+ *
+ * ## 两个问题，各自的答案都**不能从算出来的那个数里读**
+ *
+ * 2026-09-19 收尾时对着 CPython 3.13 跑了 10 843 个 double × 7 档小数位
+ * （75 901 格，含全部 `n/2^k` 半分点），这一份当时有 **70 格**与 CPython 不一致，
+ * 分成三类 —— 而三类是**同一个毛病**：判据取自那个被舍入过的中间值。
+ *
+ * ### ① 符号取自**输入**（7 格）
+ *
+ * `toFixed` 判的是 `x < 0`，而 `-0 < 0` 是**假** ⇒ `pyFixed(-0, 1)` 给 `'0.0'`，
+ * CPython 的 `"%.1f" % -0.0` 给 `'-0.0'`。这不只是 `-0` 自己：任何**舍入之后
+ * 变成零、符号还在**的数都走这条路（`-1e-9`、`-0.0004`…），而那才是常见情形 ——
+ * 批 6b 撞见的原话是报文里的「最接近的通道是 `dc`(-0.0)」。
+ *
+ * **与 `formatG` 是同一个坑**（`si.ts:57`，那边早就立过「`-0` 是一条线索，
+ * 别把符号擦掉」的规矩），`pyFixed` 漏了。一个 `-0` 出现在读数里多半意味着
+ * 上游做了一次乘负或取反；把符号擦掉，就把那条线索也擦掉了。
+ *
+ * ### ② 半分点的判据**是精确的**（63 格）
+ *
+ * 上一版判的是「`v · 10^(digits+1)` 是整数且末位是 ±5」，并断言「不精确的数
+ * 落不到半分点上」。**那句断言是假的** —— 它正是 `pyRound`（`spectroscopy.ts`）
+ * 抬头第一条警告写明的写法：**那个乘法自己要舍入**。`2.675` 的精确值是
+ * 2.67499999999999982…，`2.675 * 1000` 却**恰好**得到 `2675`，于是一个不是
+ * 半分点的数被判成半分点，取偶按到 `'2.68'`，而 CPython 给 `'2.67'`。
+ *
+ * 真判据不用看小数：`a` 正好落在第 `digits` 位的半分点上
+ * ⟺ `a = q / 2^(digits+1)`、`q` 为**奇整数**
+ * （因为 `a = (2j+1)/(2·10^d) = (2j+1)/(2^(d+1)·5^d)`，而 `a` 是二进制小数
+ * ⇒ `5^d | (2j+1)`）。`a · 2^(digits+1)` 只是一次**指数平移**，在二进制浮点里
+ * 不会舍入 —— 判据因此没有「像不像」的余地。
+ *
+ * ### ③ 两者叠在一起
+ *
+ * `"%.0f" % -0.5`：半分点分支算出 `0`，正负号在这一步一起没了 ⇒ `'0'`，
+ * CPython 给 `'-0'`。
+ *
+ * 改完之后 75 901 格**零分岔**。探针在 `z-trace.test.ts`，deviation 见
+ * `spec/deviations.md` 的「语言分歧一族」。
  */
 export function pyFixed(v: number, digits: number): string {
   if (!Number.isFinite(v)) return Number.isNaN(v) ? 'nan' : v > 0 ? 'inf' : '-inf'
-  // 半分点的判据：`v · 10^(digits+1)` 是整数且末位是 ±5。能满足它的只有二进制
-  // 精确表示的数，而那时这个乘法本身也是精确的 —— 不精确的数落不到半分点上。
-  const scaled = v * 10 ** (digits + 1)
-  if (Number.isInteger(scaled) && Math.abs(scaled % 10) === 5) {
-    const down = (scaled - (scaled < 0 ? -5 : 5)) / 10 // 朝零那一侧的候选
-    const even = down % 2 === 0 ? down : down + (scaled < 0 ? -1 : 1)
-    return (even / 10 ** digits).toFixed(digits)
+  // ① 符号来自**输入**，不来自算出来的那个数。
+  const sign = v < 0 || Object.is(v, -0) ? '-' : ''
+  const a = Math.abs(v)
+  // ② 半分点：`a · 2^(digits+1)` 是**奇整数**。这个乘法是纯指数平移，不舍入。
+  const halves = a * 2 ** (digits + 1)
+  if (Number.isInteger(halves) && halves % 2 === 1) {
+    const p = 10 ** digits
+    const fl = Math.floor(a * p)
+    return sign + ((fl % 2 === 0 ? fl : fl + 1) / p).toFixed(digits)
   }
-  return v.toFixed(digits)
+  return sign + a.toFixed(digits)
 }
 
 /** 一维轨迹上的一次跳变。 */

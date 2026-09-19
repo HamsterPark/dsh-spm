@@ -504,6 +504,28 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "fe/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "磁性针尖:处理会改变磁构型,不只是几何形状。自旋极化实验中「修针」可能使之前的磁对比不可比。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "fe/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -1048,6 +1070,28 @@
       "trace": {
         "shaper_bias_v": "explicit",
         "shaper_lift_v": "explicit"
+      }
+    },
+    "nb/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "超导针尖:强处理会破坏针尖能隙,而能隙正是测量对象。优先换针而不是反复修。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
       }
     },
     "nb/str_pulse": {
@@ -1618,6 +1662,29 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "ptir_cut/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。",
+        "铂铱剪切针:软 + 多微尖,轻处理多轮。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "ptir_cut/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -2168,6 +2235,28 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "ptir_generic/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "铂铱软:处理要比钨针轻,深压容易钝尖/粘针。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "ptir_generic/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -2714,6 +2803,28 @@
       "trace": {
         "shaper_bias_v": "explicit",
         "shaper_lift_v": "explicit"
+      }
+    },
+    "qplus_generic/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
       }
     },
     "qplus_generic/str_pulse": {
@@ -3264,6 +3375,28 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "qplus_ptir/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 铂铱针:软材质 + 易损传感器,最轻的一档。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "qplus_ptir/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -3812,6 +3945,28 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "qplus_w/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "qPlus 传感器:石英音叉损坏不可逆(需拆机重装 + 重新标定 f₀/Q)。深压与大脉冲一律拒绝,不夹紧。``max_poke_depth_m`` = 5 nm 出自 2026-08-10 用户真机判断(「5 nm 以内的下压对本机 W-qPlus 音叉无损」);本档**其余**数值仍待真机标定。",
+        "qPlus + 钨针:材质耐打但传感器不耐打,按传感器的包络来。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "qplus_w/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -4358,6 +4513,28 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "unknown_material/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "金属丝针尖通用档。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "unknown_material/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -4882,6 +5059,27 @@
       "trace": {
         "shaper_bias_v": "explicit",
         "shaper_lift_v": "explicit"
+      }
+    },
+    "unregistered/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "针尖未登记或组合未收录 —— 用保守通用参数。登记针尖可得到更合适的方案。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
       }
     },
     "unregistered/str_pulse": {
@@ -5448,6 +5646,29 @@
       "trace": {
         "shaper_bias_v": "explicit",
         "shaper_lift_v": "explicit"
+      }
+    },
+    "w_cut/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨剪切针:多微尖先验高,通常需要更多轮成形。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
       }
     },
     "w_cut/str_pulse": {
@@ -6020,6 +6241,29 @@
         "shaper_lift_v": "explicit"
       }
     },
+    "w_etched/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。",
+        "钨电化学腐蚀针:顶端细,宁可多轮轻处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
+      }
+    },
     "w_etched/str_pulse": {
       "explicit": {
         "pulse_v": "abc"
@@ -6568,6 +6812,28 @@
       "trace": {
         "shaper_bias_v": "explicit",
         "shaper_lift_v": "explicit"
+      }
+    },
+    "w_generic/shaper_depth_at_limit": {
+      "explicit": {
+        "shaper_depth_m": -1e-08
+      },
+      "fields": [
+        "shaper_depth_m"
+      ],
+      "human_trace": "shaper_depth_m=-1e-08（调用方指定）",
+      "notes": [
+        "金属丝针尖通用档。",
+        "钨针较硬、耐处理;氧化层可能需要偏强的首轮处理。待真机标定。"
+      ],
+      "ok": true,
+      "overrides": {},
+      "params": {
+        "shaper_depth_m": -1e-08
+      },
+      "refusals": [],
+      "trace": {
+        "shaper_depth_m": "explicit"
       }
     },
     "w_generic/str_pulse": {
