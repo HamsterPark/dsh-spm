@@ -2713,6 +2713,65 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 
 <!-- ── 批 6a（特异化流程 _tip_phases 六个组合技能）的登记写在这一行下面 ── -->
 
+<!-- 批 6a：以下 2 条的**编号留空**（`?`），由主线统一编。 -->
+
+## D-TIPDEPTH-? · **扎针深度到不了深度那半道安全包络**（旧仓同，本仓照移，登记在案）
+
+| | |
+|---|---|
+| **Python** | `TipShape.execute` → `apply_tip_policy(params, ("shaper_bias_v", "shaper_lift_v"), …)`。深度包络 `_check_envelope` 认的键是 `shaper_depth_m` / `poke_shallow_depth_m` / `poke_deep_depth_m` —— **一个都不在那两个字段里** |
+| **TS** | 照移：`TipShape` / `TipShapeWithReadback` 同样只报这两个**电压**字段 |
+| **测试** | `tip-phase-deps.test.ts` → 「⚠️ 每一次扎入到不了深度那半道闸 —— 同一个数，一条路拒、一条路放行」 |
+
+批 5a 结清 D-TIP-1 时写着「真正护音叉的那两样都在：扎针深度包络 `max_poke_depth_m`
+（超了拒绝不夹紧）与扎针前把偏压降到 20 mV」（见 D-TIPREG-5 末段）。**前一样今天接不上。**
+判据本身是好的（`tip_policy.json` 264 格里逐格验过），缺的是**接线**：
+
+* 六条特异化流程的扎入只有一个出口 —— `_poke_step` → `TipShapeWithReadback`，
+  深度走 `tip_lift_m`（`_tip_phases.py:1815`，`tip_lift_m=-abs(depth_m)`）；
+* 而 `resolveConditioning(fields, …)` 只把 **`fields` 里点名的字段**放进 `params`，
+  `checkEnvelope` 也就只看得到那几个。`tip_lift_m` 没有任何一处被映成 `shaper_depth_m`；
+* 于是一发 **50 nm** 的下压：声明范围 ±100 nm **放行**，全局硬闸不管深度，
+  针尖包络**看不见它**。通用档与 qPlus 档的 `max_poke_depth_m` 都是 10 nm。
+
+⚠️ **旧仓自己的 `FIELD_OWNERS` 写着 `shaper_depth_m → ("TipShape",)`** ——
+也就是说这个字段本来就是给它准备的，只是**没有一处把值送进去**（全仓 grep：
+`shaper_depth_m` 只出现在方案表与 `FIELD_OWNERS` 里）。
+**生产方接好了、消费方缺席** —— 同 `_tip_phases.py:2106` 那条
+`exclude_used_spots`（「参数一直就在，只是从来没有调用方传过」）。
+
+**这一批不改它**，三条理由：① 它是一道**安全包络的到达范围**，而批 6a 一个技能都没落
+（改一道闸的辖区不该塞进一次「什么都没落」的提交）；② 最自然的接法
+（把 `shaper_depth_m` 加进 `applyTipPolicy` 的 `policyFields`）会让方案表在调用方**没给**
+`tip_lift_m` 时**填一个默认深度进去**，那是行为改变，不是补一道闸；
+③ 分派单要的是「经不过的，说清为什么」。
+**接法写在这里免得下次再查一遍**：只在 `tip_lift_m` 显式给出时单独调一次
+`resolveConditioning(['shaper_depth_m'], { shaper_depth_m: tipLiftM })`，只取 `refusals`。
+
+## D-TIPDEPS-? · 两张依赖表改成**由旧仓源码算出来**，并修正 `FORGE_REQUIRED_SKILLS`
+
+| | |
+|---|---|
+| **Python** | 无对应物（`CONDITIONING_REQUIRED_SKILLS` / `FORGE_REQUIRED_SKILLS` 是**本仓新增**，见 D-SELFCHK-2） |
+| **TS** | 新金样 `spec/golden/tip_phase_deps.json` + `tip-phase-deps.test.ts` 逐字比 |
+
+批 5a 这两张表是照 `_tip_phases.py` 读出来的。批 6a 给它装了一台驱动器
+（`export_tip_phase_deps.py`，从六个 `plan_dynamic` 求 `CompositeStep(skill_name=…)`
+的传递闭包）。核下来：
+
+* `CONDITIONING_REQUIRED_SKILLS` **一个不差**；
+* `FORGE_REQUIRED_SKILLS` **少四个**：`AutoTilt`（台面上的调平，
+  `flat_poke_sites` → `_level_on_terrace`）· `GetBias` · `CaptureSignalBuffer`
+  （两条都在 `poke_phase` / `_poke_step` 里，与贵金属那张表同因）· `AssessAtomicLines`。
+  四个里 `AutoTilt` 是 todo ⇒ **`TipForgeSelfCheck` 此前少报了一条缺口**；
+* `FORGE_REQUIRED_SKILLS` **多一个**：`PokeConditionTip`。两条特异化流程要的是
+  `poke_phase` 那个**生成器**（`make_special_tip.py:292/855` 写的是 `yield from poke_phase(...)`），
+  不是那个技能 —— `_tip_phases.py` 抬头点名说了为什么（「composite 调 composite 在本仓
+  没有先例，断点续跑与 abort 的交互没人验证过」）。一条**代码**依赖写进技能覆盖表，
+  说的是假话，而缺口数看起来仍然对。移除它不丢信息：那个技能仍由贵金属那张表报着。
+
+变异 `forge-required-covers-the-terrace-leveling` · `selfcheck-each-check-asks-its-own-chain`。
+
 <!-- ── 批 6b（vision 的 scan_prep 链）的登记写在这一行下面 ── -->
 
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
