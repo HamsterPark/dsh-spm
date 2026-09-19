@@ -11,8 +11,8 @@
   },
   "mast_root": "<MAST_ROOT>",
   "spec_source": {
-    "digest": "c3e0c5258b94c960",
+    "digest": "4015a3bf19938071",
     "near_commit": "8f226475",
-    "py_files": 858
+    "py_files": 897
   }
 }

@@ -94,11 +94,22 @@ describe('回复帧与错误段', () => {
   })
 
   it('状态非零但描述为空时，仪器侧会补一句默认描述', () => {
-    expect(parseErrorSection(b(golden.reply_frames.err_no_desc!.body))).toEqual({
-      status: 7,
-      description: 'Nanonis error status 7',
-      errorOnly: true,
-    })
+    const raw = b(golden.reply_frames.err_no_desc!.body)
+    const got = parseErrorSection(raw)
+    expect(got.status).toBe(7)
+    expect(got.errorOnly).toBe(true)
+
+    // 判据是「**补了一句、而且我们逐字读得对**」，不是那句话的内容。
+    //
+    // 2026-09-19：STM-Bench 把这句默认描述从「Nanonis error status 7」改成了
+    // 「controller error status 7」，而这里原本**写死**着前一句 —— 于是一次
+    // 上游改词让一条讲「有没有补描述」的测试变红。
+    //
+    // 那句话是**模拟器**的，不是本仓的契约。要盯住它改没改，靠的是
+    // `spec/golden/wire_frames.json` 本身在 git 里（重导出会出 diff），
+    // **不是在这里抄一份**。这里只留与措辞无关的两条：非空，且长度恒等式成立。
+    expect(got.description).not.toBe('')
+    expect(new TextEncoder().encode(got.description).length).toBe(raw.length - ERROR_HEADER_LEN)
   })
 
   it('带返回字段的 body 不满足恒等式 ⇒ 明确报错，不猜', () => {
