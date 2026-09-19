@@ -1,13 +1,10 @@
 /**
  * `scipy.ndimage` 的三件 —— `uniform_filter` · `median_filter`（一维与二维）。
  *
- * ## 为什么落在 `vision/` 而不是 `numerics/`
- *
- * **只是这一轮的分工**：批 6c 也在往 `numerics/` 加原语，任务书说「不要改
- * `numerics/` 已有的文件；要加数值原语就写进交接，由主线合并时统一放」。
- * 按 `nd.ts` 抬头那条标准（**它有没有第二个消费方**），这三件的答案都是「有」：
- * 它们对的是 `scipy.ndimage` 本身，不是本族的判据。**搬家的建议写在
- * `docs/handoff/batch-6b.md` §7。**
+ * > **来处**：批 6b 落在 `vision/src/ndfilters.ts`（那一轮 `numerics/` 由批 6c 主用），
+ * > 由收尾支线按该批交接 §7 搬来。判据、容差、抬头一个字未改，只改了 import 路径。
+ * > 按 `vision/nd.ts` 抬头那条标准（**它有没有第二个消费方**），这三件的答案都是
+ * > 「有」：它们对的是 `scipy.ndimage` 本身，不是视觉那一族的判据。
  *
  * ## `uniformFilter1d` 是**跑动和**，而这不是实现细节
  *
@@ -38,7 +35,8 @@
  * 两件的容差都是 0，**而这正是它们该待在这一层的理由**：
  * 零容差的那一档是替有容差的那些档报警的人（`numerics-2.md` 第五节第一条）。
  */
-import { boundaryIndex, matOf, type BoundaryMode, type Mat } from 'dsh-spm-numerics'
+import { boundaryIndex, type BoundaryMode } from './filters.js'
+import { matOf, type Mat } from './mat.js'
 
 /**
  * scipy 的窗口约定：`size1 = ⌊size/2⌋` 在左、`size2 = size − size1 − 1` 在右。

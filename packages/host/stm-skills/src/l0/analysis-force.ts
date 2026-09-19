@@ -1,9 +1,8 @@
 /**
  * `InvertForceSaderJarvis` —— 把一条 Δf(z) 的 `.dat` 反演成力 F(z) 与势能 U(z)。
  *
- * 反演本体在 `vision-force-inversion.ts`（纯函数、零 IO；那个文件该住进
- * `packages/host/vision/`，见它的抬头）。这一层负责：找列、取 f0 / k / A、
- * 减背景曲线、把 F(z) 与 U(z) 落盘。
+ * 反演本体在 `dsh-spm-vision` 的 `force-inversion.ts`（纯函数、零 IO）。
+ * 这一层负责：找列、取 f0 / k / A、减背景曲线、把 F(z) 与 U(z) 落盘。
  *
  * ## 三个传感器参数**刻意没有 default**
  *
@@ -21,7 +20,7 @@ import { getConfig, pyFixed, type Skill, type SkillContext, type SkillResultLike
 import { readDat } from 'dsh-spm-nanonis-files'
 import { interp } from 'dsh-spm-vision'
 import * as S from '../generated/specs.js'
-import { invertForceCurve, type ForceInversionResult } from './vision-force-inversion.js'
+import { invertForceCurve, type ForceInversionResult } from 'dsh-spm-vision'
 
 /** 模拟器与真机语料用的两种写法都认。 */
 const DF_PATTERNS: readonly (readonly string[])[] = [

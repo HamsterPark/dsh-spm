@@ -17,7 +17,7 @@ import { matOf, npStd, type Mat } from 'dsh-spm-numerics'
 import { readSxm, sxmOrientedFrames } from 'dsh-spm-nanonis-files'
 import { diffTree, formatMismatches, scalesOf, toGolden } from './golden.js'
 import { nanStd } from './nd.js'
-import { medianFilter1d, medianFilter2d, uniformFilter1d, uniformFilter2d } from './ndfilters.js'
+import { medianFilter1d, medianFilter2d, uniformFilter1d, uniformFilter2d } from 'dsh-spm-numerics'
 import { polySubtract } from './plane.js'
 import {
   FINE_PEAK_REL_TOL,

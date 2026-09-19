@@ -309,10 +309,6 @@ export * from '../composite/batch-regions-scan.js'
 export * from './scan-prep-skills.js'
 
 // ── 批 6c 在这一行下面 re-export ──
-export * from './vision-tip-metrics.js'
-export * from './vision-spectroscopy.js'
-export * from './vision-force-inversion.js'
-export * from './vision-lattice-multiframe.js'
 export * from './analysis-tip.js'
 export * from './analysis-force.js'
 export * from './analysis-multiframe.js'

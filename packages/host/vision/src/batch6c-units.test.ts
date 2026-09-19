@@ -1,8 +1,8 @@
 /**
  * 批 6c 那四件**判据本体**对 `spec/golden/batch6c.json` 的逐格比对。
  *
- * 四件都该住进 `packages/host/vision/`（见各自文件的抬头）；这一轮它们暂住技能层，
- * 所以这份测试也在这里。搬家时连这份一起搬。
+ * 四件判据本体与这份测试原在 `stm-skills/src/l0/`（批 6c 那一轮 `packages/host/vision/`
+ * 由批 6b 主用），由收尾支线按批 6c 交接 §8 整份搬来。**断言与容差一个字未改。**
  *
  * ## 容差从哪来
  *
@@ -10,7 +10,7 @@
  *
  * | 件 | 容差 | 为什么不是 0 |
  * |---|---|---|
- * | `edgeResolution` | {@link EDGE_RESOLUTION_F64_TOL}（`64·eps`） | 这一节喂的是 **float64**（技能那一节才是 float32 那一档，见 `vision-tip-metrics.ts` 抬头） |
+ * | `edgeResolution` | {@link EDGE_RESOLUTION_F64_TOL}（`64·eps`） | 这一节喂的是 **float64**（技能那一节才是 float32 那一档，见 `tip-metrics.ts` 抬头） |
  * | `fwdBwdInstability` | {@link instabilityAbsTol}`(n)`（**绝对**） | 同上，外加 complex64 的 FFT |
  * | `assessIz` / `assessIv` | {@link SPECTRO_REL_TOL} | `polyfit`（正规方程 vs SVD）与 `corrcoef`（BLAS 点乘） |
  * | `saderJarvis` / `invertForceCurve` | {@link forceAbsTolFactor}`(n)` | `a**1.5` 与 `cos` 的 libm 各 1 ulp；正向积分那次点乘 |
@@ -28,14 +28,16 @@ import { fileURLToPath } from 'node:url'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { matFromRows, type Mat } from 'dsh-spm-numerics'
 import { readSxm, sxmOrientedFrames } from 'dsh-spm-nanonis-files'
-import { CELL_REL_TOL, diffTree, findLatticePeaks, formatMismatches, scalesOf, toGolden } from 'dsh-spm-vision'
-import { EDGE_RESOLUTION_F64_TOL, edgeResolution, fwdBwdInstability, instabilityAbsTol } from './vision-tip-metrics.js'
-import { SPECTRO_REL_TOL, assessIv, assessIz } from './vision-spectroscopy.js'
-import { decayLength, decayLengthRelTol, forceAbsTolFactor, invertForceCurve, saderJarvis } from './vision-force-inversion.js'
-import { assessAtomicConsistency, collectObservation, independentPair } from './vision-lattice-multiframe.js'
+import { CELL_REL_TOL } from './lattice-cell.js'
+import { diffTree, formatMismatches, scalesOf, toGolden } from './golden.js'
+import { findLatticePeaks } from './lattice-peaks.js'
+import { EDGE_RESOLUTION_F64_TOL, edgeResolution, fwdBwdInstability, instabilityAbsTol } from './tip-metrics.js'
+import { SPECTRO_REL_TOL, assessIv, assessIz } from './spectroscopy.js'
+import { decayLength, decayLengthRelTol, forceAbsTolFactor, invertForceCurve, saderJarvis } from './force-inversion.js'
+import { assessAtomicConsistency, collectObservation, independentPair } from './lattice-multiframe.js'
 
 const GOLDEN = JSON.parse(
-  readFileSync(fileURLToPath(new URL('../../../../../spec/golden/batch6c.json', import.meta.url)), 'utf8'),
+  readFileSync(fileURLToPath(new URL('../../../../spec/golden/batch6c.json', import.meta.url)), 'utf8'),
 ) as Record<string, any>
 
 let TMP = ''
@@ -108,7 +110,7 @@ describe('_edge_resolution —— 最陡台阶的 10–90 上升宽度', () => {
       expect([c.case, got.widthPx === null]).toEqual([c.case, c.width_px === null])
       expect([c.case, got.widthNm === null]).toEqual([c.case, c.width_nm === null])
       // ⚠️ 这一节走的是 **float64** 那一档（导出器直接喂数组，scipy 全程 float64）。
-      // 用技能那一档的 `16·eps32` 会留五十亿倍余量 —— 见 `vision-tip-metrics.ts`
+      // 用技能那一档的 `16·eps32` 会留五十亿倍余量 —— 见 `tip-metrics.ts`
       // 抬头「两档容差」那一节。
       if (c.width_px !== null) {
         expectAbs(`${c.case}.px`, got.widthPx as number, num(c.width_px), EDGE_RESOLUTION_F64_TOL * num(c.width_px))

@@ -2,10 +2,9 @@
  * 旧仓 `mast/vision/force_inversion.py` —— Δf(z) → F(z)、U(z) 的 **Sader–Jarvis 反演**，
  * 以及「这次反演能不能信」的两条读数。
  *
- * ## ⚠️ 这个文件同样住错了地方 —— 它该在 `packages/host/vision/force-inversion.ts`
- *
- * 理由同 `vision-tip-metrics.ts` 的抬头（本轮 `packages/host/vision/` 由另一条支线
- * 主用）。本文件零技能层依赖，搬家是机械移动。
+ * > **来处**：批 6c 落在 `stm-skills/src/l0/vision-force-inversion.ts`（那一轮
+ * > `packages/host/vision/` 由批 6b 主用），由收尾支线按该批交接 §8 搬来。
+ * > 判据、容差、抬头一个字未改，只改了 import 路径。
  *
  * ## 物理
  *
@@ -50,8 +49,8 @@ import {
   sumRelTol,
   trapezoid,
 } from 'dsh-spm-numerics'
-import { interp } from 'dsh-spm-vision'
-import { polyfitRelTol } from './vision-spectroscopy.js'
+import { interp } from './nd.js'
+import { polyfitRelTol } from './spectroscopy.js'
 
 export { polyfitRelTol }
 

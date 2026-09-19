@@ -56,7 +56,7 @@
  */
 import { fft2, ifft2, labelConnected, matAt, matOf, mean, std, type Mat } from 'dsh-spm-numerics'
 import { npMedian, toFloat32 } from './nd.js'
-import { medianFilter2d } from './ndfilters.js'
+import { medianFilter2d } from 'dsh-spm-numerics'
 import { lstsqPlane } from './plane.js'
 
 /** float32 的机器精度。 */

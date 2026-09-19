@@ -2,12 +2,12 @@
  * 旧仓 `mast/vision/spectroscopy.py` 的 `assess_iz`(41) 与 `assess_iv`(76) ——
  * **从一条谱反推针尖**的两个纯函数。
  *
- * ## ⚠️ 这个文件也住错了地方 —— 它该在 `packages/host/vision/spectroscopy.ts`
+ * 第二个消费方已经点名在等：`AssessSpectrum` 的 `assess_spectrum_quality`
+ * 里这两件各调一次（批 5b §5.2 的 117 行就是它们）。
  *
- * 理由同 `vision-tip-metrics.ts` 的抬头：本轮 `packages/host/vision/` 由另一条
- * 支线主用，本支线一个字节都不碰。第二个消费方已经点名在等：`AssessSpectrum`
- * 的 `assess_spectrum_quality` 里这两件各调一次（批 5b §5.2 的 117 行就是它们）。
- * 搬家是一次机械移动 —— 本文件零技能层依赖。
+ * > **来处**：批 6c 落在 `stm-skills/src/l0/vision-spectroscopy.ts`（那一轮
+ * > `packages/host/vision/` 由批 6b 主用），由收尾支线按该批交接 §8 搬来。
+ * > 判据、容差、抬头一个字未改，只改了 import 路径。
  *
  * ## 这两件回答的是「**这根针**行不行」，不是「这条数据留不留」
  *
@@ -39,7 +39,7 @@
  * 金样里因此**没有平局**（同 D-NUM-18：一格答案本身没有定义的金样比没有更糟）。
  */
 import { corrcoef, corrcoefAbsTol, EPS, lstsqObservedTol, npStd, npSum, polyfit } from 'dsh-spm-numerics'
-import { nanMax, npMedian } from 'dsh-spm-vision'
+import { nanMax, npMedian } from './nd.js'
 
 /** κ[Å⁻¹] ≈ `K_PHI · √(φ[eV])` —— 真空隧道势垒。 */
 export const K_PHI = 0.5123

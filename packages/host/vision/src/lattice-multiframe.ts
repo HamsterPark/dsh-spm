@@ -2,11 +2,11 @@
  * 旧仓 `mast/vision/lattice_multiframe.py` 里 `AssessAtomicConsistency` 用到的那三件：
  * `_independent_pair`(47) · `collect_observation`(54) · `assess_atomic_consistency`(110)。
  *
- * ## ⚠️ 这个文件同样住错了地方 —— 它该在 `packages/host/vision/lattice-multiframe.ts`
+ * 它向 K1（`findLatticePeaks`）与 `assessAtomicPhase` 要数，两件都在本包里。
  *
- * 理由同 `vision-tip-metrics.ts` 的抬头。它向 K1（`findLatticePeaks`）与
- * `assessAtomicPhase` 要数，两件都在 `dsh-spm-vision` 里 —— 也就是说它的**依赖**
- * 已经全在那个包，只有它自己在外面。搬家是机械移动。
+ * > **来处**：批 6c 落在 `stm-skills/src/l0/vision-lattice-multiframe.ts`（那一轮
+ * > `packages/host/vision/` 由批 6b 主用），由收尾支线按该批交接 §8 搬来。
+ * > 判据、容差、抬头一个字未改，只改了 import 路径。
  *
  * ## 单帧做不到的那件事
  *
@@ -40,7 +40,8 @@
  * 不在本批。消融精神：没有消费方的件不写。
  */
 import { EPS, npMean, npStd, type Mat } from 'dsh-spm-numerics'
-import { assessAtomicPhase, findLatticePeaks, type LatticeResult } from 'dsh-spm-vision'
+import { assessAtomicPhase } from './atomic-phase.js'
+import { findLatticePeaks, type LatticeResult } from './lattice-peaks.js'
 import { pyFixed } from 'dsh-spm-kernel'
 
 /** 帧间晶格周期的相对一致性阈值 —— 超过就不是同一个晶格。 */

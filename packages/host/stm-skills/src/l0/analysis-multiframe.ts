@@ -1,8 +1,7 @@
 /**
  * `AssessAtomicConsistency` —— 多帧原子相一致性：那个晶格是不是**真的**。
  *
- * 判据在 `vision-lattice-multiframe.ts`（该文件该住进 `packages/host/vision/`，
- * 见它的抬头）。这一层只做 IO。
+ * 判据在 `dsh-spm-vision` 的 `lattice-multiframe.ts`。这一层只做 IO。
  *
  * ## 它与单帧版是**两种问题**，不是「多扫几张更准」
  *
@@ -25,7 +24,7 @@ import { pyFixed, type Skill, type SkillContext, type SkillResultLike } from 'ds
 import { type Mat } from 'dsh-spm-numerics'
 import * as S from '../generated/specs.js'
 import { loadSxm, orient, strParam } from './analysis-common.js'
-import { assessAtomicConsistency } from './vision-lattice-multiframe.js'
+import { assessAtomicConsistency } from 'dsh-spm-vision'
 
 /** 逗号分隔的路径串 → 列表。Windows 路径里没有逗号，所以这样切是安全的。 */
 export function splitDatPaths(raw: unknown): string[] {

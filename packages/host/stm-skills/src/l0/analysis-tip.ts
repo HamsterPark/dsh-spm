@@ -3,8 +3,7 @@
  * `AssessTipFromSpectrum`（从一条 `.dat`）。
  *
  * **只做 IO 与阈值取用，一个判据都不写**（同批 4a/4b 的分工）：判据在
- * `vision-tip-metrics.ts` 与 `vision-spectroscopy.ts`（那两个文件该住进
- * `packages/host/vision/`，见它们各自的抬头）。
+ * `dsh-spm-vision` 的 `tip-metrics.ts` 与 `spectroscopy.ts`。
  *
  * ## 两个技能各自的那一句「判不了不是不合格」
  *
@@ -27,9 +26,9 @@ import { readDat } from 'dsh-spm-nanonis-files'
 import { judgeFrame, parseXyMeta } from 'dsh-spm-vision'
 import * as S from '../generated/specs.js'
 import { loadSxm, orient, strParam } from './analysis-common.js'
-import { edgeResolution, fwdBwdInstability } from './vision-tip-metrics.js'
+import { edgeResolution, fwdBwdInstability } from 'dsh-spm-vision'
 import { fftSharpness } from 'dsh-spm-vision'
-import { assessIv, assessIz } from './vision-spectroscopy.js'
+import { assessIv, assessIz } from 'dsh-spm-vision'
 
 // ── AssessTipSharpness ─────────────────────────────────────────────────────
 

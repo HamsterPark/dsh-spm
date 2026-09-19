@@ -62,7 +62,7 @@
 import { pyFixed } from 'dsh-spm-kernel'
 import { fft, fft2, matOf, npMean, npStd, npSum, type Mat } from 'dsh-spm-numerics'
 import { npMedian, toRows } from './nd.js'
-import { medianFilter1d } from './ndfilters.js'
+import { medianFilter1d } from 'dsh-spm-numerics'
 
 /** 旧仓 `EPS = 1e-12`。 */
 export const TIP_CHANGE_EPS = 1e-12
