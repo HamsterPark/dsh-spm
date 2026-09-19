@@ -2193,7 +2193,7 @@ D-TIP-1 原文写的是欠账：「**没有写一个空的 `validateParams`** �
 |---|---|
 | **落点** | `kernel/src/tip-registry.ts` + `tip-conditioning-policy.ts` + `tip-conditioning-resolver.ts`；技能层 `l0/tip-policy.ts` 的 `applyTipPolicy` |
 | **闸装在哪** | `BiasPulseWithReadback` / `TipShapeWithReadback` / `TipPulse` 的 `validateParams`（内核 **K6**，任何硬件调用之前）；`TipShape` 在 `execute` 最前面（**照旧仓**，见下条） |
-| **金样** | `spec/golden/tip_policy.json`（**新的专用驱动器**）：12 支针尖 × 23 个请求 = 276 格，111 格被拒（2026-09-19 补第 23 个请求 `shaper_depth_at_limit`，见 D-TIPDEPTH-? 末节） |
+| **金样** | `spec/golden/tip_policy.json`（**新的专用驱动器**）：12 支针尖 × 23 个请求 = 276 格，111 格被拒（2026-09-19 补第 23 个请求 `shaper_depth_at_limit`，见 D-TIPDEPTH-1 末节） |
 | **测试** | `kernel/src/tip-conditioning.test.ts`（287 条）· `l0/tail-l0-tip.test.ts`（31 条）· `integration/tip.test.ts`（5 条，对真 stmsim） |
 
 ⚠️ **D-TIP-1 原文里那句「铂铱（8 V）、qPlus（3 V）会被拒绝」在今天的旧仓已经不成立。**

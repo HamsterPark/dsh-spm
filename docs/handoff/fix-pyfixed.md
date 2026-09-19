@@ -222,7 +222,7 @@ export function pyFixed(v: number, digits: number): string {
 
 | 文件 | 处数 | 处理 |
 |---|---|---|
-| `spec/deviations.md`（D-TIP-1 段落 ×2、D-TIP-1 结清表 ×1、D-TIPDEPTH-? ×1） | 4 | 改成 276；D-TIPDEPTH-? 末节加 `2026-09-19 结清` 块 |
+| `spec/deviations.md`（D-TIP-1 段落 ×2、D-TIP-1 结清表 ×1、D-TIPDEPTH-1 ×1） | 4 | 改成 276；D-TIPDEPTH-1 末节加 `2026-09-19 结清` 块 |
 | `spec/golden/README.md` | 1 | 改成「23 个请求 = 276 格」 |
 | `kernel/src/tip-conditioning.test.ts`（抬头 + `describe` 标题） | 2 | 改成 276 |
 | `stm-skills/integration/tip.test.ts` | 1 | 改成 276 |
@@ -238,7 +238,7 @@ export function pyFixed(v: number, digits: number): string {
 照录不改 —— 但它解释了我一开始为什么以为「qPlus 这一格会被拒」。
 实测：12 支针尖的 `max_poke_depth_m` **一律 `1.0e-8`**，所以 12 格全过。
 「还能分辨针尖的包络字段只剩 `max_pulse_count`」这句话没有因此变假。
-已写进 `D-TIPDEPTH-?` 的结清块。
+已写进 `D-TIPDEPTH-1` 的结清块。
 
 ---
 
@@ -258,7 +258,7 @@ export function pyFixed(v: number, digits: number): string {
 **这条没有改任何一份金样**（41 台全是 Python 侧驱动的）· `vision/scan-prep.ts`
 那处挡板的点名欠账 · `1e21` 那条没修的边界。
 
-`tip_policy` 那一件**没有新开 deviation** —— 它不是分歧，是把既有的 D-TIPDEPTH-?
+`tip_policy` 那一件**没有新开 deviation** —— 它不是分歧，是把既有的 D-TIPDEPTH-1
 末节那条「下一个动 `tip_policy.json` 的人请顺手补上」结清，就地写在那一节里。
 
 ---
