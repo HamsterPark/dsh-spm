@@ -109,6 +109,12 @@ MUTATE=1 node tools/mutate/run.ts <42 个 id>
 42/42 变红
 ```
 
+**日志入仓**：`docs/handoff/drill-7a-1-2026-09-20.log`（87 行，最终树上重跑的那一趟）。
+⚠️ 它是 `git add -f` 进来的 —— `.gitignore:16` 有一条 `*.log`，`git add -A` 会**静默**
+跳过它。核的是 `git ls-files docs/handoff/ | grep log` 里那一行，不是 `ls` / `wc`。
+（主线 7a-2 支线同一天独立撞到同一件事并加了 `!docs/handoff/*.log`；
+本支线从它之前分叉，合并之后 `-f` 就多余了，不冲突。）
+
 分布：`vision/tilt-frame.ts` 16 · `vision/tilt-circle.ts` 5 ·
 `kernel/tilt-loop.ts` + `si.ts` + `instrument-profile.ts` 8 ·
 `l0/frame-tilt.ts` 3 · `l0/tilt-probe.ts` 4 · `composite/auto-tilt.ts` 6。
