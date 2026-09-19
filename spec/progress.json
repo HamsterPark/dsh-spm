@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 417,
+    "done": 418,
     "partial": 0,
-    "todo": 98
+    "todo": 97
   },
-  "modules_complete": 92,
+  "modules_complete": 93,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -121,8 +121,8 @@
     },
     "builtins.clean_spot": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.clean_tip": {
       "total": 1,
@@ -2140,11 +2140,11 @@
       "module": "builtins.clean_spot",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "FindEmptySpot": {
       "module": "paper.data_processing",

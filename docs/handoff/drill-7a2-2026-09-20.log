@@ -1,0 +1,67 @@
+… 基线（1 个 scope）
+… nearest-clean-lattice-is-anchored-at-the-tip
+✓ nearest-clean-lattice-is-anchored-at-the-tip red           10 条变红
+… nearest-clean-prune-ignores-the-tip-offset
+✓ nearest-clean-prune-ignores-the-tip-offset red           6 条变红
+… nearest-clean-reach-is-the-hard-piezo-edge
+✓ nearest-clean-reach-is-the-hard-piezo-edge red           17 条变红
+… nearest-clean-margin-is-the-frame-not-the-spot
+✓ nearest-clean-margin-is-the-frame-not-the-spot red           3 条变红
+… nearest-clean-zone-release-is-off
+✓ nearest-clean-zone-release-is-off red           1 条变红
+… nearest-clean-reach-boundary-is-exclusive
+✓ nearest-clean-reach-boundary-is-exclusive red           1 条变红
+… nearest-clean-touching-a-keep-out-is-blocked
+✓ nearest-clean-touching-a-keep-out-is-blocked red           4 条变红
+… nearest-clean-keep-out-accounts-for-the-new-spot
+✓ nearest-clean-keep-out-accounts-for-the-new-spot red           8 条变红
+… nearest-clean-exclude-boundary-is-inclusive
+✓ nearest-clean-exclude-boundary-is-inclusive red           6 条变红
+… nearest-clean-exclude-keeps-one-diameter
+✓ nearest-clean-exclude-keeps-one-diameter red           1 条变红
+… nearest-clean-max-distance-boundary-is-exclusive
+✓ nearest-clean-max-distance-boundary-is-exclusive red           3 条变红
+… nearest-clean-step-has-a-grid-floor
+✓ nearest-clean-step-has-a-grid-floor red           1 条变红
+… nearest-clean-result-is-sorted-by-distance
+✓ nearest-clean-result-is-sorted-by-distance red           6 条变红
+… ring-cells-corners-are-emitted-once
+✓ ring-cells-corners-are-emitted-once red           12 条变红
+… avoid-radius-zero-is-not-a-circle
+✓ avoid-radius-zero-is-not-a-circle red           2 条变红
+… avoid-circle-cap-skips-damage-kinds
+✓ avoid-circle-cap-skips-damage-kinds red           1 条变红
+… epoch-of-row-rejects-non-finite
+✓ epoch-of-row-rejects-non-finite  red           3 条变红
+… filter-epoch-prefers-the-stored-column
+✓ filter-epoch-prefers-the-stored-column red           9 条变红
+… map-marker-footprint-needs-positive-sides
+✓ map-marker-footprint-needs-positive-sides red           2 条变红
+… map-pulse-radius-does-not-read-the-spec-default
+✓ map-pulse-radius-does-not-read-the-spec-default red           55 条变红
+… map-center-zone-needs-coarse-motion
+✓ map-center-zone-needs-coarse-motion red           2 条变红
+… map-effective-range-takes-the-min
+✓ map-effective-range-takes-the-min red           1 条变红
+… map-safety-limit-is-truthy-checked
+✓ map-safety-limit-is-truthy-checked red           1 条变红
+… load-markers-keeps-one-epoch
+✓ load-markers-keeps-one-epoch     red           3 条变红
+… crash-memory-reports-the-unlocated
+✓ crash-memory-reports-the-unlocated red           5 条变红
+… clean-spot-pulse-drops-the-frame-margin
+✓ clean-spot-pulse-drops-the-frame-margin red           1 条变红
+… clean-spot-piezo-source-is-three-state
+✓ clean-spot-piezo-source-is-three-state red           4 条变红
+… clean-spot-recentres-from-outside-the-zone
+✓ clean-spot-recentres-from-outside-the-zone red           1 条变红
+… clean-spot-says-the-map-is-unreadable
+✓ clean-spot-says-the-map-is-unreadable red           32 条变红
+… clean-spot-unknown-purpose-falls-back-to-pulse
+✓ clean-spot-unknown-purpose-falls-back-to-pulse red           1 条变红
+… clean-spot-max-distance-zero-is-ignored
+✓ clean-spot-max-distance-zero-is-ignored red           1 条变红
+… clean-spot-refusal-names-the-blockers
+✓ clean-spot-refusal-names-the-blockers red           3 条变红
+
+32/32 变红

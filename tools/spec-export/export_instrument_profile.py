@@ -48,8 +48,16 @@ CONFIG_KEYS = [
     "z_recede_min_nm", "z_settle_timeout_s",
     "retract_total_steps", "retract_step_max", "lockin_signal_index",
     "xy_prewithdraw_steps", "xy_move_chunk_steps", "preamp_full_scale_a",
+    # ── 批 7a-2：实验地图层（`map_scope.analysis_config` 是它们的消费方）──
+    "avoid_radius_tip_shape_nm", "avoid_radius_pulse_nm",
+    "avoid_radius_crash_nm", "avoid_radius_approach_nm",
+    "scan_spacing_factor",
 ]
-CHOICE_KEYS = ["retract_motor_dir", "z_extend_sign"]
+CHOICE_KEYS = [
+    "retract_motor_dir", "z_extend_sign",
+    # ── 批 7a-2 ──
+    "xy_coarse_motion", "approach_damages_surface", "scan_path_strategy",
+]
 
 #: 一台**填过**的机器，与 `export_skill_traces.PROFILE_FIXTURE` 同形（少几个标定键）。
 FILLED = {
@@ -85,6 +93,20 @@ SANITIZE_CASES: list[tuple[str, Any]] = [
                            "tilt_cal_cond": 1.0, "tilt_cal_updated_at": 1.0}),
     ("calib_junk_dropped", {"tilt_cal_g11": "abc", "tilt_cal_cond": float("nan")}),
     ("filled", dict(FILLED)),
+    # ── 批 7a-2：地图层那几个键的洗法 ───────────────────────────────────
+    # `scan_spacing_factor` 的区间是 [1, 20] ⇒ 0.5 被**夹到 1.0**。
+    # 这就是为什么 `analysis_config._spacing` 里 `v < 1` 那一支从档案这条路不可达。
+    ("map_keys_clamped", {"scan_spacing_factor": 0.5,
+                          "avoid_radius_pulse_nm": -10.0,
+                          "avoid_radius_crash_nm": 1e9}),
+    ("map_choices", {"xy_coarse_motion": "no",
+                     "approach_damages_surface": " no ",
+                     "scan_path_strategy": "perimeter_inward"}),
+    ("map_choices_bad", {"xy_coarse_motion": "maybe",
+                         "approach_damages_surface": "NO",
+                         "scan_path_strategy": "spiral"}),
+    # 未注册 ⇒ 静默丢掉（这条规则本身咬过人：D-QPLUS-1）。
+    ("center_zone_side_nm_dropped", {"center_zone_side_nm": 500.0}),
 ]
 
 #: `get_config` 的用例：`(profile, key, default)`。
@@ -100,6 +122,22 @@ GET_CONFIG_CASES: list[tuple[str, dict, str, Any]] = [
     ("choice_spec_default", {}, "retract_motor_dir", None),
     ("choice_filled", dict(FILLED), "retract_motor_dir", None),
     ("z_extend_sign_spec_default_is_not_neutral", {}, "z_extend_sign", None),
+    # ── 批 7a-2：地图层那几个键 ─────────────────────────────────────────
+    # ⚠️ `avoid_radius_pulse_nm` 的**出厂默认 150** 正是 2026-08-13 那个坑：
+    #    `get_config` 会拿它把调用方给的默认整个遮蔽掉，所以 `analysis_config`
+    #    对这一个键走的是 `get_profile()`（`_nm_unless_set`）而不是这里。
+    ("pulse_radius_spec_default_shadows_the_caller", {},
+     "avoid_radius_pulse_nm", 200.0),
+    ("pulse_radius_from_profile", {"avoid_radius_pulse_nm": 500.0},
+     "avoid_radius_pulse_nm", 200.0),
+    # `center_zone_side_nm` **从来没在键表里注册过** ⇒ 这个旋钮拧不动
+    # （与上面 `qplus_f0_hz` 同一个形状的旧仓缺陷，批 7a-2 又撞见一次）。
+    ("center_zone_side_nm_is_unregistered", {"center_zone_side_nm": 500.0},
+     "center_zone_side_nm", None),
+    ("xy_coarse_motion_default", {}, "xy_coarse_motion", None),
+    ("approach_damages_default_is_unknown", {}, "approach_damages_surface", None),
+    ("scan_path_strategy_default_is_auto", {}, "scan_path_strategy", None),
+    ("scan_spacing_factor_default", {}, "scan_spacing_factor", 1.2),
 ]
 
 #: `z_extend_sign_or_none` 的三态。

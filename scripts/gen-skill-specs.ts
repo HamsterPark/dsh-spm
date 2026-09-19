@@ -453,6 +453,13 @@ const BATCH_6C: string[] = [
   'AssessAtomicConsistency',
 ]   // 批 5b 欠下的数值原语 + 晶格一族剩余
 
+// ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
+const BATCH_7A2: string[] = [
+  // 实验地图层（`core/map_scope` + `io/map_analysis` + `io/exp_map` 的函数级闭包）。
+  // 它一个人挡着全部六条针尖特异化流程 —— 每一条的第一个动作都是它。
+  'FindCleanSpot',
+]   // 实验地图层 + FindCleanSpot
+
 const BATCH_5C: string[] = [
   // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。
   'ReadCalibrations',
@@ -565,6 +572,8 @@ function main(): number {
     ...BATCH_6B,
     // ↑ ／ ↓ 6C
     ...BATCH_6C,
+    // ↑ ／ ↓ 7A-2
+    ...BATCH_7A2,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -611,7 +620,9 @@ function main(): number {
     // ↑ ／ ↓ 6B
     `批 6b ${BATCH_6B.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 6C
-    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个\n` +
+    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7A-2
+    `批 7a-2 ${BATCH_7A2.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

@@ -100,6 +100,25 @@ export const CONFIG_SPEC: Readonly<Record<string, ConfigSpecEntry>> = {
   xy_move_chunk_steps: ['横向粗动分块步数(每块之后做一次看护)', '步', 'int', [1, 1000], 50],
   //   `judgeRecedeClearance`：读不到 setpoint 时那个**与工作点无关**的界
   preamp_full_scale_a: ['前置放大器满量程电流(可测的最大电流)', 'A', 'float', [1e-12, 1e-2], null],
+  // ── 批 7a-2 · `map-scope.ts` 的 `analysisConfig`：避让半径与候选间距 ──
+  //
+  // ⚠️ `avoid_radius_pulse_nm` 的出厂默认 **150** 是一个陷阱：`getConfig` 的
+  // 回退顺序里它排在调用方默认之前，会把后者整个遮蔽掉（2026-08-13 真机：
+  // 按「有没有 XY 粗动」算出来的那个数一次都没生效过）。所以 `analysisConfig`
+  // 对这一个键走 `readProfile()`，**不走 `getConfig`** —— 这一行的出厂值只给
+  // 设置页显示用。
+  avoid_radius_tip_shape_nm: [
+    '修针尖避让半径(该点周围多大范围内不再扫图)', 'nm', 'float', [0.0, 1.0e5], 30.0,
+  ],
+  scan_spacing_factor: [
+    '计划扫描点的间距(相邻帧中心相距几个扫描框;1.2=紧挨着,3=留两帧空)', '', 'float',
+    [1.0, 20.0], 1.2,
+  ],
+  avoid_radius_pulse_nm: ['电脉冲避让半径', 'nm', 'float', [0.0, 1.0e5], 150.0],
+  avoid_radius_crash_nm: ['撞针避让半径', 'nm', 'float', [0.0, 1.0e5], 150.0],
+  avoid_radius_approach_nm: [
+    '进针扎痕避让半径(仅当「进针会扎表面」时生效)', 'nm', 'float', [0.0, 1.0e5], 200.0,
+  ],
 }
 
 /** 枚举配置项：`[标签, 允许值, 显示名, 出厂默认]`。 */
@@ -124,6 +143,35 @@ export const CHOICE_SPEC: Readonly<Record<string, ChoiceSpecEntry>> = {
     // ⚠️ 这个出厂值**只给显示与诊断用**。方向自检走 `zExtendSignOrNone()`，
     //    它在没声明时返回 `null` —— 见抬头③的最后一行。
     '+1',
+  ],
+  // ── 批 7a-2 · `map-scope.ts` 的三个能力位 ────────────────────────
+  xy_coarse_motion: [
+    '是否有 XY 粗动马达(可换区)',
+    ['yes', 'no'],
+    { yes: '有 — 可粗动换到新区域', no: '无 — 只能用当前压电范围内的表面(换区靠插拔样品)' },
+    'yes',
+  ],
+  approach_damages_surface: [
+    '进针是否会在表面留下扎痕',
+    ['yes', 'no', 'unknown'],
+    {
+      yes: '会 — 避开进针点',
+      no: '不会(好机器) — 进针点只作历史记录',
+      unknown: '未知 — 按保守处理(同「会」)',
+    },
+    // 「未知」**故意**解成「会」：往这个方向错的代价是几百纳米表面，
+    // 往另一个方向错的代价是一张扎在坑上的图，外加可能一根针。
+    'unknown',
+  ],
+  scan_path_strategy: [
+    '扫描选点策略',
+    ['auto', 'center_first', 'perimeter_inward'],
+    {
+      auto: '自动 — 按有无 XY 粗动推导',
+      center_first: '中心优先 — 压电蠕变最小',
+      perimeter_inward: '外圈→内圈 — 可用面积利用最大化',
+    },
+    'auto',
   ],
 }
 

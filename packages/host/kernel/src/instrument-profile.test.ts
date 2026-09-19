@@ -169,6 +169,18 @@ const RAW: Record<string, unknown> = {
     xy_prewithdraw_steps: 11, xy_move_chunk_steps: 10,
     lockin_signal_index: 86, preamp_full_scale_a: 1e-8,
   },
+  // ── 批 7a-2：地图层那几个键 ─────────────────────────────────────────
+  map_keys_clamped: {
+    scan_spacing_factor: 0.5, avoid_radius_pulse_nm: -10.0, avoid_radius_crash_nm: 1e9,
+  },
+  map_choices: {
+    xy_coarse_motion: 'no', approach_damages_surface: ' no ',
+    scan_path_strategy: 'perimeter_inward',
+  },
+  map_choices_bad: {
+    xy_coarse_motion: 'maybe', approach_damages_surface: 'NO', scan_path_strategy: 'spiral',
+  },
+  center_zone_side_nm_dropped: { center_zone_side_nm: 500.0 },
 }
 
 const FILLED = RAW['filled'] as Record<string, unknown>
@@ -184,6 +196,14 @@ describe('仪器档案 · `getConfig` 的三级回落', () => {
     choice_spec_default: {},
     choice_filled: FILLED,
     z_extend_sign_spec_default_is_not_neutral: {},
+    // ── 批 7a-2 ──
+    pulse_radius_spec_default_shadows_the_caller: {},
+    pulse_radius_from_profile: { avoid_radius_pulse_nm: 500.0 },
+    center_zone_side_nm_is_unregistered: { center_zone_side_nm: 500.0 },
+    xy_coarse_motion_default: {},
+    approach_damages_default_is_unknown: {},
+    scan_path_strategy_default_is_auto: {},
+    scan_spacing_factor_default: {},
   }
   for (const [name, want] of Object.entries(G.get_config)) {
     it(name, () => {

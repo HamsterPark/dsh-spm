@@ -2964,6 +2964,168 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7a-2：编号**留空**（`?`），由主线统一编。 -->
 
+## D-MAP-? · `AnalysisConfig` 21 个字段里**只搬了 15 个**
+
+| | |
+|---|---|
+| **Python** | `dataclass` 21 个字段 |
+| **TS** | 15 个。没搬：`reuse_overlap_frac` · `min_usable_unscanned_frac` · `center_zone_frac` · `center_zone_blocked_frac` · `max_sts_points` · `max_candidates` |
+| **测试** | `packages/host/kernel/src/map-layer.test.ts` → `字段集：本仓的 15 个 + **写明没搬的 6 个** = 旧仓的 21 个` |
+
+这六个在本批的闭包里**既没有生产方也没有消费方**：`analysis_config` 一个都不设
+（它们只是 dataclass 的静态默认），`nearest_clean_from` / `build_avoid_circles`
+一个都不读 —— 它们服务的是栅格化与巡览路线（`rasterize` / `candidate_positions` /
+`coarse_move_advice`，本批没移）。按消融精神不写。
+
+名单写成 `ANALYSIS_CONFIG_FIELDS_NOT_PORTED` 而不是一句注释，是因为金样比字段集时
+要拿它去补：**一次静默的少写与一次说好的少写，在 diff 里长得一模一样。**
+
+## D-MAP-? · 写侧 `record_damage_marker` **没搬** —— 一笔点名的欠账
+
+| | |
+|---|---|
+| **Python** | `map_scope.record_damage_marker`（49 行），`load_markers` 的写侧对偶，同一个 storage、同一个 scope |
+| **TS** | 不存在 |
+| **测试** | —— |
+
+旧仓把这两个函数放在同一个文件里，抬头写着理由：**写进 A 而从 B 读，几何上等于没写**
+——而症状是「它怎么又在同一个地方动手」，没有任何一处会报错（2026-08-16 真机：
+第二轮把第一轮的坑原路重打了一遍，`map_known=True`，地图读得到，里面就是没有脉冲标记）。
+
+本批没搬的理由是**本仓还没有任何一个消费方**：没有技能会写损伤标记
+（`TipPulse` / `TipShape` 都不写），搬过来就是一段没有调用者的代码。
+
+⚠️ **它是一笔点名的欠账，不是一次遗漏**：第一个要写标记的技能落地时，
+它必须和那个技能**同批** —— 否则 `map_known=true` 而地图永远是空的，
+而那正是这条链最难看出来的失效方式。
+
+## D-MAP-? · 地图读口的三态由**宿主**给，`storage.get_markers(...) or []` 移到适配器
+
+| | |
+|---|---|
+| **Python** | `marker_rows()` 自己问 `get_active_log()` → `_storage` → `get_markers(...) or []`，三条「读不到」（没有活动实验 / 没有存储 / 取数抛）在函数内部分开 |
+| **TS** | `processExpMap.markerRows`：读口为 `null`（宿主没接）、返回 `null`、或者抛 —— 三条都是「读不到」；返回一个表（可以是空的）才是「读到了」 |
+| **测试** | `map-layer.test.ts` → `读口**返回 `null`** ⇒ 读不到` / `读口**抛了** ⇒ 读不到，而且**不往外抛**` |
+
+内核零 I/O（PLAN §6.1-2），拿不到 storage，也就无从区分「存储说没有」与「问不到存储」。
+`or []` 那一步因此属于宿主适配器。**判据没有丢**：`available` 这个布尔的含义
+（「不知道」≠「干净」）一字未动，而它正是整条链的要害。
+
+## D-MAP-? · `state.snapshot()` 的 fail-soft 从内核挪到技能层
+
+| | |
+|---|---|
+| **Python** | `analysis_config` 里 `try: snap = state.snapshot() … except: pass` |
+| **TS** | `analysisConfig` 收的是**已经读出来的**扫描框宽度；那道 `try` 在 `FindCleanSpot` 里 |
+| **测试** | `packages/host/stm-skills/src/l0/clean-spot.test.ts` → `实时状态**抛了** ⇒ 帧尺寸回落到 100 nm，选点照常` |
+
+同一条保护，同一个位置（读那一刻），只是换了个函数。内核那一侧因此连
+`state_raises` 这条路径都不存在 —— 金样里那一格在 TS 侧等价于「没有 state」。
+
+## D-MAP-? · `crashMemoryMarkers` 读不到时的返回值，与「问过了、没有」**逐字节相同**
+
+| | |
+|---|---|
+| **Python** | `except Exception: return [], 0` |
+| **TS** | 照移 |
+| **测试** | `map-layer.test.ts` → `⚠️ **读不到**与**问过了没有**给出逐字节相同的返回值（照移的 fail-open）` |
+
+**这是一条 fail-open，而且它和旧仓自己的抬头打架。** 旧仓写着「读不到这一路来源
+≠ 没撞过，调用方按『少了一个来源』处理」——**而这个返回值让调用方做不到**：
+`FindCleanSpot` 的 `avoidance_sources` 靠 `crash_mem` 非空来判断这一路答没答上，
+于是「追踪器炸了」和「追踪器好好的、只是没撞过」给出**同一份回包**。
+
+**照移，没有偷偷加一个布尔**：那会改掉模型面的回包，而 DoD ② 要的是逐字对齐 ——
+要补它得连 `FindCleanSpot` 的报文一起改，那是一个该由人拍板的决定，
+不该塞进一次移植里。（同形先例：`TipCrashSnapshot.since_s` 是本仓**加**的一个
+字段，那一次动的是一个旧仓没有的结构。）
+
+## D-MAP-? · `build_avoid_circles` 的圈数上限，对**损伤** marker 常常不生效
+
+| | |
+|---|---|
+| **Python** | 损伤那一支 `out.append(...)` 之后直接 `continue`，**跳过**了 `if len(out) >= cfg.max_avoid_circles: break` |
+| **TS** | 照移 |
+| **测试** | `map-layer.test.ts` → `cap_not_enforced_on_damage`（5 个损伤 marker、上限 3 ⇒ 5 个圈）与 `cap_enforced_after_a_non_damage`（中间夹一个 `move` ⇒ 当场截断） |
+
+**旧仓缺陷，照移。** 不改的理由是方向：上限截掉的是**避让圈**，而
+**少画一个圈就是多一个可以打下去的坑**。今天这条上限在损伤这一路上不生效，
+等于「一个都不少画」——那是安全的那一侧。要修它，得先回答
+「400 个圈之后该怎么办」，而那不是这一批的题。
+
+## D-MAP-? · `center_zone_side_nm` 是一个**拧不动的旋钮**
+
+| | |
+|---|---|
+| **Python** | `_nm_unless_set("center_zone_side_nm", 1200e-9)`，而这个键**不在 `_CONFIG_SPEC` 里** ⇒ `sanitize` 丢掉它 ⇒ `get_profile()` 永远没有它 |
+| **TS** | 照移（`sanitizeProfile` 同样丢掉未注册的键） |
+| **测试** | `map-layer.test.ts` → `` `center_zone_side_nm` 这个旋钮**拧不动** —— 档案里设了也不生效 ``；金样 `config.center_zone_knob_is_dead` |
+
+与 D-QPLUS-1 完全同形（「两个键必须先注册，否则写得干干净净、读回来永远是 `None`」），
+也与 `qplus_f0_hz` 那条同形。**照移**：注册它等于给这台机器加一个从来没有人用过的
+旋钮，而它连着的那条设计（「中心区与脉冲避让半径是一对」）要求改一个就得改另一个。
+`nearest_clean_from` 的抬头写得很清楚：**改这两个数中的任何一个，都要回答
+「改完之后中心区里还剩几个落点？」答案是 1 或 0 的话，那不是一条约束，是一个死锁。**
+
+## D-MAP-? · marker 行的非数值列，本仓读作「没有这一列」
+
+| | |
+|---|---|
+| **Python** | `marker_from_row` **一次转换都不做**：`row.get("x_m")` 原样带走，一路走到 `float(m.x_m)` 才炸 |
+| **TS** | `numCol` / `strOr`：不是数（不是串）就读作 `null`（落回默认值） |
+| **测试** | `map-layer.test.ts` → `本仓比旧仓**窄一档**：非数值的坐标读作「没有这一列」` |
+
+`map_markers` 的这几列在 schema 上是 `REAL` / `TEXT`，所以这条窄化从真实存储走不到。
+窄的方向是安全的那一侧：**一个读不懂的坐标画不出避让圈，那正是它该有的下场** ——
+而旧仓那条路会在几十行之后以一句看不懂的 `TypeError` 结束。
+
+## D-MAP-? · `distance_m` 的最后一位 —— D-HYPOT-1 在这一族的落点
+
+| | |
+|---|---|
+| **Python** | `math.hypot(4e-7, 4e-7)` → `5.65685424949238e-07` |
+| **TS** | `Math.hypot(4e-7, 4e-7)` → `5.656854249492381e-07`（差 1 ULP） |
+| **测试** | `map-layer.test.ts` / `clean-spot.test.ts` → `distance ULP：实测占容差的比例 < 1`；`traces.test.ts` 的 `HYPOT_KEYS` |
+
+D-HYPOT-1 已经裁过这件事（保留 `Math.hypot`，登记差异）。这里要补的是
+**它在这一族里改不了任何一个决定**，而那不是运气，是**造金样时刻意安排的**：
+
+* 落点坐标是 `gx * step`（整数乘一个 double）⇒ **两边逐位相同**，顺序与个数零容差；
+* 同距候选由**对称的同一个表达式**算出（`hypot(s,0)` 对 `hypot(0,s)`、
+  `hypot(s,s)` 对 `hypot(s,-s)`）⇒ 两种语言各自内部相等，稳定排序不会翻；
+* **每一条边界判据都造在轴上**（`hypot(a, 0)` 两边都精确）——
+  `circle_touching_is_blocked` / `exclude_exact_diameter_is_kept` /
+  `max_distance_exact_is_kept` 三格；
+* 报文里的距离是 `:.0f` / `:.1f`，最后一位在字符串这一侧**表示不出来**。
+
+容差 `4 · eps`（一个 ULP 的四倍）。它盖不住任何一次真的算错：这一族的错要么是
+**选错了点**（坐标就不一样了），要么是**量错了距离**（纳米级）。
+
+## D-MAP-? · `nanonis_calls` 那一栏不存在 ⇒「读针尖那一次不记账」这条区分没有落点
+
+| | |
+|---|---|
+| **Python** | `read_tip_xy` 的那一次 `safe_call` **不进** `SkillResult.nanonis_calls`（`Piezo_RangeGet` 进） |
+| **TS** | `SkillResultLike` 没有这一栏 —— 调用台账由内核记（同 `RetractForSampleChange` 抬头） |
+| **测试** | `clean-spot.test.ts` → 每一格都断言**真正下发了什么**（`calls`），而不是回包里的那一栏 |
+
+## D-MAP-? · 三处「没有任何输入能验它」（照移、注明、**不打变异**）
+
+green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**变异清单里一条都没打**
+——打了也永远绿，而那会让一条「闸不存在」混进 32 条真闸里。
+
+| 处 | 为什么不可达 |
+|---|---|
+| `analysisConfig` 的 `spacing()` 里 `v < 1.0 ? 1.2 : v` | `sanitizeProfile` 已经把 `scan_spacing_factor` 夹进 `[1, 20]`，而缺省是 1.2 ⇒ 小于 1 的值进不来（金样 `config.spacing_below_one_is_clamped` 把这条钉死） |
+| `FindCleanSpot` 拒绝话术外面那道 `try` | 它防的是「报错的修饰把报错本身弄坏」，而 `nearestCleanFrom` 在**同一份 marker 表**上已经先调过一次 `buildAvoidCircles` ⇒ 唯一能让它抛的东西会在那里先炸。测试 `没有任何输入能验它（证明在这里）` 把这条**证明**钉住 |
+| `nearestCleanFrom` 的 `maxRing = trunc(reach/step) + 2` | 第 r 环上每个格至少有一个坐标是 `±r·step`，`r·step > reach` 时整环出局 ⇒ 超出 `trunc(reach/step)` 的环一个点都贡献不了。`+2` 是取整余量，不是一道闸 |
+
+另有一处**在 TS 里结构上不可达**（不是照移的问题）：`exp-map.ts` 的
+`coerceFloat` 显式拒 `bool`。Python 里 `isinstance(True, int)` 为真，所以那一条在旧仓
+是真的在挡；TS 里 `true` 既不是 `number` 也不是 `string`，最后那个 `else return null`
+本来就接住了它。**守卫留着**（它写的是意图，而 `epochOfRow` 的语义确实要求拒 bool），
+变异不打它。
+
 <!-- ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）的登记写在这一行下面 ── -->
 
 <!-- 批 7a-3：编号**留空**（`?`），由主线统一编。 -->
