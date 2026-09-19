@@ -3504,6 +3504,39 @@ function physicallyAbsurdViolations_unused(`,
     replace: 'addSkillCoverage(sheet, FORGE_REQUIRED_SKILLS, deps)',
     scope: 'packages/host',
   },
+  // ── 深度那半道包络的接线（批 6a 第二趟补上，本仓比旧仓严） ────────────
+  {
+    id: 'tipshape-readback-depth-goes-through-the-envelope',
+    why: '扎入的深度走 `tip_lift_m`，而这个技能报给方案表的两个字段都是**电压**。拆掉这一行 ⇒ 一发 50 nm 的下压全程放行（声明范围 ±100 nm，qPlus 包络 10 nm）',
+    file: `${SK}/l0/readback-skills.ts`,
+    find: '    ...tipDepthRefusals(params),',
+    replace: '    ...tipDepthRefusals({}),',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tipshape-depth-goes-through-the-envelope',
+    why: '孪生兄弟那一侧同一道闸。少一侧 ⇒ 同一串 `TipShaper_PropsSet` 一个技能挡、一个不挡（D-TIPREG-3 那次不对称的回归）',
+    file: `${SK}/l0/tip-shape.ts`,
+    find: '  validateParams: (params) => [...tipDepthRefusals(params)],',
+    replace: '  validateParams: (params) => [...tipDepthRefusals(params).slice(1)],',
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-depth-is-judged-only-when-given',
+    why: '**没给 `tip_lift_m` 就不判**。去掉这道守卫 ⇒ `resolveConditioning` 会去方案表**填一个默认深度**，于是操作员把包络收到 0.5 nm 时，一次根本没要求下压的调用被通用档出厂的 −1 nm 拒掉 ——「出厂默认落在自己包络之外」那条路复活',
+    file: `${SK}/l0/tip-policy.ts`,
+    find: "  if (typeof given !== 'number' || !Number.isFinite(given) || given >= 0) return []",
+    replace: "  if (typeof given === 'number' && !Number.isFinite(given)) return []",
+    scope: 'packages/host',
+  },
+  {
+    id: 'tip-depth-boundary-is-exclusive',
+    why: '深度上限也是「不许超」不是「不许到」。这条 `>` 此前**一格输入都没有**（金样的深度用例全在线两侧，线上一格没有）—— 接上 `tip_lift_m` 之后才轮得到它做决定',
+    file: `${K}/tip-conditioning-resolver.ts`,
+    find: '    if (Math.abs(val) > maxDepth) {',
+    replace: '    if (Math.abs(val) >= maxDepth) {',
+    scope: 'packages/host',
+  },
 
   // ── 批 6b（vision 的 scan_prep 链）的演练写在这一行下面 ──
 

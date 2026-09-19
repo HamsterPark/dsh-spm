@@ -2715,38 +2715,67 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 
 <!-- 批 6a：以下 2 条的**编号留空**（`?`），由主线统一编。 -->
 
-## D-TIPDEPTH-? · **扎针深度到不了深度那半道安全包络**（旧仓同，本仓照移，登记在案）
+## D-TIPDEPTH-? · **扎针深度接上了那半道安全包络 —— 本仓有，旧仓没有**
 
 | | |
 |---|---|
-| **Python** | `TipShape.execute` → `apply_tip_policy(params, ("shaper_bias_v", "shaper_lift_v"), …)`。深度包络 `_check_envelope` 认的键是 `shaper_depth_m` / `poke_shallow_depth_m` / `poke_deep_depth_m` —— **一个都不在那两个字段里** |
-| **TS** | 照移：`TipShape` / `TipShapeWithReadback` 同样只报这两个**电压**字段 |
-| **测试** | `tip-phase-deps.test.ts` → 「⚠️ 每一次扎入到不了深度那半道闸 —— 同一个数，一条路拒、一条路放行」 |
+| **Python** | **没有这道闸**。`TipShape.execute` → `apply_tip_policy(params, ("shaper_bias_v", "shaper_lift_v"), …)` —— 两个都是**电压**；深度包络 `_check_envelope` 认的键是 `shaper_depth_m` / `poke_shallow_depth_m` / `poke_deep_depth_m`，**全仓没有一处把值送进去** |
+| **TS** | `tipDepthRefusals()`（`l0/tip-policy.ts`）：`tip_lift_m` 显式给出且为**下压**（负）时，单独调一次 `resolveConditioning(['shaper_depth_m'], { shaper_depth_m: tipLiftM })`，**只取 `refusals`**。装在 `TipShape` 与 `TipShapeWithReadback` 的 `validateParams`（内核 **K6**，任何硬件调用之前） |
+| **测试** | `tip-phase-deps.test.ts` → 「每一次扎入也经过深度那半道闸」·「上限是不许超不是不许到」·「没给 `tip_lift_m` 就什么都不判」·「抬起不是下压」 |
+| **变异** | `tipshape-readback-depth-goes-through-the-envelope` · `tipshape-depth-goes-through-the-envelope` · `tip-depth-is-judged-only-when-given` · `tip-depth-boundary-is-exclusive` |
 
-批 5a 结清 D-TIP-1 时写着「真正护音叉的那两样都在：扎针深度包络 `max_poke_depth_m`
-（超了拒绝不夹紧）与扎针前把偏压降到 20 mV」（见 D-TIPREG-5 末段）。**前一样今天接不上。**
-判据本身是好的（`tip_policy.json` 264 格里逐格验过），缺的是**接线**：
-
-* 六条特异化流程的扎入只有一个出口 —— `_poke_step` → `TipShapeWithReadback`，
-  深度走 `tip_lift_m`（`_tip_phases.py:1815`，`tip_lift_m=-abs(depth_m)`）；
-* 而 `resolveConditioning(fields, …)` 只把 **`fields` 里点名的字段**放进 `params`，
-  `checkEnvelope` 也就只看得到那几个。`tip_lift_m` 没有任何一处被映成 `shaper_depth_m`；
-* 于是一发 **50 nm** 的下压：声明范围 ±100 nm **放行**，全局硬闸不管深度，
-  针尖包络**看不见它**。通用档与 qPlus 档的 `max_poke_depth_m` 都是 10 nm。
+**这是本仓比旧仓严的一条**，而理由是 D-TIP-1 原话的反面。D-TIP-1 当年不写空壳
+`validateParams` 的理由是「**写了会让人以为这道闸在**」；这里的状态一模一样地坏，
+只是方向相反：**闸是实的、`tip_policy.json` 264 格逐格验过、而生产路径上没有任何输入
+到得了它**。批 5a 结清 D-TIP-1 时那句「真正护音叉的那两样都在」（D-TIPREG-5 末段）
+于是成了一句静静变假的话 —— 一发 **50 nm** 的下压过去全程放行：
+声明范围 ±100 nm 放行，全局硬闸按参数名子串只管电压，针尖包络看不见它，
+而通用档与 qPlus 档的 `max_poke_depth_m` 都是 **10 nm**。
 
 ⚠️ **旧仓自己的 `FIELD_OWNERS` 写着 `shaper_depth_m → ("TipShape",)`** ——
-也就是说这个字段本来就是给它准备的，只是**没有一处把值送进去**（全仓 grep：
-`shaper_depth_m` 只出现在方案表与 `FIELD_OWNERS` 里）。
-**生产方接好了、消费方缺席** —— 同 `_tip_phases.py:2106` 那条
-`exclude_used_spots`（「参数一直就在，只是从来没有调用方传过」）。
+这个字段本来就是给它准备的，只是**没有一处把值送进去**（全仓 grep：`shaper_depth_m`
+只出现在方案表与 `FIELD_OWNERS` 里）。**生产方接好了、消费方缺席** ——
+同 `_tip_phases.py:2106` 那条 `exclude_used_spots`（「参数一直就在，只是从来没有
+调用方传过」）。**旧仓那一侧今天仍然不通**，这条登记记的就是这个差。
 
-**这一批不改它**，三条理由：① 它是一道**安全包络的到达范围**，而批 6a 一个技能都没落
-（改一道闸的辖区不该塞进一次「什么都没落」的提交）；② 最自然的接法
-（把 `shaper_depth_m` 加进 `applyTipPolicy` 的 `policyFields`）会让方案表在调用方**没给**
-`tip_lift_m` 时**填一个默认深度进去**，那是行为改变，不是补一道闸；
-③ 分派单要的是「经不过的，说清为什么」。
-**接法写在这里免得下次再查一遍**：只在 `tip_lift_m` 显式给出时单独调一次
-`resolveConditioning(['shaper_depth_m'], { shaper_depth_m: tipLiftM })`，只取 `refusals`。
+### 三处刻意，每一处都是「别把一道闸变成一次行为改变」
+
+**① 不塞进 `applyTipPolicy` 的 `policyFields`。** 那是最自然的接法，而它会让
+`resolveConditioning` 在调用方**没给** `tip_lift_m` 时去方案表**填一个默认深度**。
+后果不是多一道闸，是多一次**假拒绝**：操作员把 `max_poke_depth_m` 覆写收到 0.5 nm 时，
+通用档出厂的 `shaper_depth_m = −1 nm` 会让一次根本没要求下压的调用被拒 ——
+「出厂默认落在自己包络之外」那条路（`tippulse-refuses-before-planning` 钉着的那一条，
+旧仓真出过）复活。旧仓实跑确认过这个填值：
+`resolve_conditioning(("shaper_depth_m",), {})` → `params={'shaper_depth_m': -1e-09}`，
+`trace={'shaper_depth_m': 'factory_default'}`。
+变异 `tip-depth-is-judged-only-when-given` 钉着这道守卫，而它的输入正是那个覆写。
+
+**② 只判下压那一半（`tip_lift_m < 0`）。** `tip_lift_m` 是**有符号的方向量**
+（负 = 压向表面，正 = 抬离），而 `shaper_depth_m` 的定义域是下压（方案表全表负数）。
+`checkEnvelope` 按绝对值比，是因为那个字段按构造就是负的 —— **不是**在声明「抬起也危险」。
+⚠️ 这一处与旧仓解析器的取值范围不同，说清楚：旧仓 `resolve_conditioning` 拿
+`shaper_depth_m = +5e-8` 是**拒**的（实跑确认）。但旧仓**从不把 `tip_lift_m` 送进这个字段**，
+所以那里没有「一次抬离该不该被拒」这个问题 —— 这个问题是本仓这条接线新造出来的，
+答案由本仓给：一次抬离表面 50 nm 不会戳坏音叉，把它送进下压字段等于凭空多一条
+方案表从来没声明过的限制。**哪天有人用正向 `tip_lift_m` 做拉伸修针，这一条要重新想。**
+
+**③ 装在 K6 而不是 `TipShape.execute`。** D-TIPREG-4 说 `TipShape` 的包络在 `execute`，
+理由是它那两个策略字段要先经过「方案表填不填」才知道最终值；**这一条不需要那一步**
+（只在显式给出时判），所以按本仓的规矩它属于 K6 —— 而且那里更早。
+两个孪生技能因此**用同一个函数、装在同一层**，这正是 D-TIPREG-3 那次不对称要防的事。
+
+### 金样：这一条**进不了** `tip_policy.json`
+
+那台驱动器驱动的是**解析层**，网格的键是方案表字段名；而 `tip_lift_m` 是**技能参数名**，
+`tip_lift_m → shaper_depth_m` 这条映射是本仓新增的，**旧仓没有对应行为可录**。
+判据本身（`shaper_depth_m` 超限的拒绝文案，逐字）已经由 `*/all_deep` 那 12 格录着。
+**唯一还缺的一格是深度的边界**（正好等于上限）—— 金样里深度用例全在线两侧
+（−0.3 nm 过 / −1.2、−2、−5 nm 拒），线上一格没有。这一批**没有**加它：
+加一行请求 = 全表 +12 格，而「264 格」这句话要在四处改，其中两处在
+`spec/deviations.md` 的 D-TIP-1 段落里 —— 本轮锚点之外。
+边界改由**生产路径**钉住（`tip_lift_m = −1e-8` 放行、`−1.0000001e-8` 拒），
+并已对旧仓实跑核过一次（两边一致）。**下一个动 `tip_policy.json` 的人请顺手补上
+`shaper_depth_at_limit`。**
 
 ## D-TIPDEPS-? · 两张依赖表改成**由旧仓源码算出来**，并修正 `FORGE_REQUIRED_SKILLS`
 
