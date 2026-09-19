@@ -64,3 +64,9 @@ export * from './seg-scale-adaptive.js'
 export * from './spectroscopy.js'
 export * from './force-inversion.js'
 export * from './lattice-multiframe.js'
+
+// ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）在这一行下面加 export ──
+
+// ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 export ──
+
+// ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 export ──

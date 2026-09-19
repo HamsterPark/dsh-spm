@@ -479,6 +479,18 @@ BATCH_7A_2: list[str] = [
 ]   # 实验地图层 + FindCleanSpot
 
 #: ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
+
+#: ↑ 上一条 ／ ↓ 7B-1 —— 这一行谁都不要动
+BATCH_7B_1: list[str] = []
+
+
+#: ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
+BATCH_7B_2: list[str] = []
+
+
+#: ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
+BATCH_7B_3: list[str] = []
+
 BATCH_7A_3: list[str] = [
     # 读磁盘上的 .sxm，一次 TCP 都不发 ⇒ 这里录到的是「文件不存在」那一支
     # （`_params_for` 给不出真实路径）。主判据在 `spec/golden/batch7a3.json`。

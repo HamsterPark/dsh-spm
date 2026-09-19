@@ -48,3 +48,9 @@ export * from './lsq.js'
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 export ──
 export * from './np-grid.js'
 export * from './mt19937.js'
+
+// ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）在这一行下面加 export ──
+
+// ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 export ──
+
+// ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 export ──

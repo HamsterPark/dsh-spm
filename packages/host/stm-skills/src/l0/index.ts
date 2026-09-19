@@ -99,6 +99,12 @@ import { AutoTilt, TiltCalibrate } from '../composite/auto-tilt.js'
 import { CLEAN_SPOT } from './clean-spot.js'
 
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 import ──
+
+// ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）在这一行下面加 import ──
+
+// ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 import ──
+
+// ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 import ──
 import { ANALYSIS_FLAT_REGION } from './analysis-flat-region.js'
 import { BIAS_WIGGLE } from './bias-wiggle.js'
 import { ANALYSIS_TIP } from './analysis-tip.js'
@@ -215,6 +221,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...CLEAN_SPOT,
 
   // ── 批 7a-3 在这一行下面展开 ──
+
+  // ── 批 7b-1 在这一行下面展开 ──
+
+  // ── 批 7b-2 在这一行下面展开 ──
+
+  // ── 批 7b-3 在这一行下面展开 ──
   ...ANALYSIS_FLAT_REGION,
   ...BIAS_WIGGLE,
 

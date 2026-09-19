@@ -474,6 +474,18 @@ const BATCH_7A_2: string[] = [
 ]   // 实验地图层 + FindCleanSpot
 
 // ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
+
+// ↑ 上一条 ／ ↓ 7B-1 —— 这一行谁都不要动
+const BATCH_7B_1: string[] = []
+
+
+// ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
+const BATCH_7B_2: string[] = []
+
+
+// ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
+const BATCH_7B_3: string[] = []
+
 const BATCH_7A_3: string[] = [
   // `kde_layers`(15) + `_hist_modes`(30) 落了之后，这个 827 行的技能就没有缺件了。
   'FindFlatRegion',
