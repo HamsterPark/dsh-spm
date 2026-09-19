@@ -71,6 +71,47 @@ function build(): { code: number; out: string } {
   return run(['node_modules/typescript/bin/tsc', '-b'], { allowFail: true })
 }
 
+/**
+ * 手上这一份**已经改了、还没还原**的文件。`finally` 管得住异常，管不住**被杀**。
+ *
+ * 2026-09-19 实打实撞到：一趟演练跑到一半被杀掉，`graph-executor.ts` 就留着
+ * `aborted && reason.length >= 0`（一道恒真的闸）躺在工作树里。`git status` 只多一行 `M`，
+ * `tsc` 照样过 —— **下一步只要是 git commit，这条变异就进仓了**，
+ * 而它长得就像一次普通的重构。
+ *
+ * ⚠️ **下面这个处理器盖不住那一次，而且当场量过。** 补上它之后照原样再杀一趟，
+ * 文件**仍然是变异状态** —— SIGKILL 本来就不可捕获，而杀一条
+ * `node … | tail` 管道时 node 收不到可捕获的那一种。它只盖得住**可捕获**的中断
+ * （终端里的 Ctrl-C、`kill` 缺省的 SIGTERM）。**别把它当成关上了窗口。**
+ *
+ * 真正兜住这件事的不是这里，是**「提交前跑一趟套件」**：
+ * 593 条变异**每一条都是红的**（这就是全红的含义），所以任何一条漏在树上的变异
+ * 都会让套件变红。判据④ 会在**下一趟演练**再抓一次，但那时那次提交已经发生了。
+ *
+ * ⇒ **一道挡不住主要失败方式的闸，价值不是零 —— 但它的注释必须说清自己挡不住什么，
+ * 否则下一个人会以为这件事已经有人管了。**
+ */
+let inFlight: { readonly path: string; readonly original: string } | null = null
+
+function restoreInFlight(): void {
+  if (inFlight === null) return
+  writeFileSync(inFlight.path, inFlight.original, 'utf8')
+  process.stderr.write(`\n… 被打断，已还原 ${inFlight.path}\n`)
+  inFlight = null
+}
+
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK'] as const) {
+  process.on(sig, () => {
+    restoreInFlight()
+    process.exit(130)
+  })
+}
+// 未捕获异常同理 —— `finally` 在这条路上也可能来不及
+process.on('uncaughtException', (e) => {
+  restoreInFlight()
+  throw e
+})
+
 export function runOne(m: Mutation): MutationResult {
   const path = ROOT + m.file
   const original = readFileSync(path, 'utf8')
@@ -86,6 +127,7 @@ export function runOne(m: Mutation): MutationResult {
   const hits = original.split(m.find).length - 1
   if (hits !== 1) return fail(`替换串命中 ${hits} 次（要求恰好 1 次）`)
   const mutated = original.replace(m.find, m.replace)
+  inFlight = { path, original }
   writeFileSync(path, mutated, 'utf8')
 
   try {
@@ -140,6 +182,7 @@ export function runOne(m: Mutation): MutationResult {
   } finally {
     // 还原并**强制重建**：见文件抬头的 mtime 陷阱
     writeFileSync(path, original, 'utf8')
+    inFlight = null
     build()
   }
 }

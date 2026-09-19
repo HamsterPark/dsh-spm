@@ -819,13 +819,15 @@ export interface FlattenPlan {
 function fx(x: number, d: number): string {
   if (Number.isNaN(x)) return 'nan'
   if (!Number.isFinite(x)) return x > 0 ? 'inf' : '-inf'
-  // ⚠️ **负零**：Python 的 `f"{-0.0:.1f}"` 给 `'-0.0'`，而 `kernel` 的 `pyFixed` 给 `'0.0'`
-  // （JS 的 `toFixed` 判 `x < 0`，而 `-0 < 0` 是假）。`round(s, 3)` 把一个很小的负数
-  // 变成 `-0` 之后，这一格就印在报文里 —— 「最接近的通道是 `dc`(-0.0)」。
-  // 这是 `formatG` 早就处理过的同一件事（`coverage-gaps.test.ts`：`formatG(-0, 6) === '-0'`），
-  // 而 `pyFixed` 漏了。**本批不改 kernel 那一份**（共享文件，波及别人的金样），
-  // 交接里写成一条给主线的欠账。
-  if (Object.is(x, -0)) return `-${pyFixed(0, d)}`
+  // 2026-09-19 结清 D-LANG-3 点名的那笔欠账。这里原本挡着一层负零守卫
+  // （`if (Object.is(x, -0)) return \`-${pyFixed(0, d)}\``），因为当时 `kernel` 的
+  // `pyFixed` 从**算完的那个数**里读符号、把 `-0` 的负号丢了。那一份已经修好
+  // （符号改从**输入**读），于是这层守卫成了**冗余**，不是不可达 ——
+  // 输入 `-0` 照样进得去，只是两条路逐字给出同一个 `'-0.000'`。
+  //
+  // 「走不到」和「走了也一样」是两件事，而只有后者可以直接删：
+  // 前者删掉会改变将来某个输入的命运，后者删掉今天明天都不改变任何输出。
+  // `kernel/src/z-trace.test.ts` 里 `[-0, 0|1|2] → '-0' / '-0.0' / '-0.00'` 三格钉着它。
   return pyFixed(x, d)
 }
 

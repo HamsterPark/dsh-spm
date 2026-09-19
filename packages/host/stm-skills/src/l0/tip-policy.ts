@@ -162,7 +162,10 @@ export function applyTipPolicy(
  * 两个 shaper 技能报给方案表的是 `shaper_bias_v` / `shaper_lift_v` —— **两个都是电压**；
  * 而 `checkEnvelope` 判深度认的键是 `shaper_depth_m` / `poke_shallow_depth_m` /
  * `poke_deep_depth_m`，一个都没送进去。于是一发 **50 nm** 的下压：声明范围 ±100 nm 放行，
- * 全局硬闸按参数名子串只管电压，针尖包络**看不见它** —— 而 qPlus 档的上限是 10 nm。
+ * 全局硬闸**是管深度的**（`GLOBAL_CHECKS` 里 `tip_lift` / `lift_height` / `deep_depth` 三行），
+ * 只是它的界 `tip_lift_min_m/max_m` = ±100 nm 与 K6 声明范围同宽 ⇒ **50 nm 照样放行**；
+ * 针尖包络才是那道紧的，而它**看不见这个参数** —— 而 qPlus 档的上限是 10 nm。
+ * （2026-09-19 订正：原文写「只管电压」。结论不变，理由是错的 —— 见 D-TIPDEPTH-1。）
  *
  * 旧仓同样如此，**而且旧仓自己的 `FIELD_OWNERS` 写着 `shaper_depth_m → ("TipShape",)`**：
  * 这个字段本来就是给它准备的，只是全仓没有一处把值送进去（生产方接好了、消费方缺席，
