@@ -1,6 +1,7 @@
 # dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.5-rc.2**（2026-09-13 升级并核实）
 
-> **2026-09-13 升级到 `0.1.5-rc.2`**（`next` 通道；`latest` 仍停在 rc.1）。
+> **2026-09-13 升级到 `0.1.5-rc.2`**（当时走 `next` 通道；`latest` 仍停在 rc.1）。
+> **2026-09-20 实测：`latest` 也追到 `0.1.5-rc.2` 了** —— 稳定通道两条都与本仓锁的版本一致，无动作。
 > **本仓接触面零变化**：compat 依赖的六个包（`dsh-tools` / `dsh-commands` / `dsh-host-webserver`
 > / `dsh-session-projection` / `dsh-system-prompt` / `dsh-attachment`）两版**逐文件相同**，
 > 差的只有各自 `package.json` 里的版本号；组合树 539→539 行**零 diff**。
@@ -159,6 +160,34 @@
 
 
 ## 8. 逐版本变更与对本计划的影响
+
+### 8.-4 **0.1.6-alpha.2 —— 仍然只读不升**（2026-09-20 开工自检）
+
+按 `upgrades.md` 09-13 的补记：**alpha 只读发布说明、把影响记进这里，不升。**
+稳定通道今天两条都是 `0.1.5-rc.2`（`latest` 从 rc.1 追上来了），**本仓锁的就是它，已是最新**。
+
+**顶层依赖 73 → 77**，五增一删：
+
+| | 包 | 读法 |
+|---|---|---|
+| **新增** | **`@deepseek-ai/dsh-plugin-manager`** | **落在本仓接触面上的唯一一件** —— 我们自己就是个插件。真要升之前必须先看它接管了什么：装载路径变了的话，B10 / B12 那两条（dev 态 `link:` 与安装态走两条不同解析路径）要重新测一遍 |
+| 新增 | `@deepseek-ai/dsh-hmr` | 与下面那条是**一对**：HMR 从 cordis 插件搬成自家包。同 alpha.1 的 `workflow-worker-thread → workflow-ptc`，**连着两个 alpha 都在把 cordis 侧的件收回自家** |
+| 删除 | `@deepseek-ai/cordis-plugin-hmr` | ↑ |
+| 新增 | `@deepseek-ai/dsh-atomic-write` | 原子写。会话持久化那条路上的，本仓不直接用 |
+| 新增 | `dsh-experimental-agent-team-profile` / `…-web-profile` | 两个 experimental profile，与本仓无关 |
+
+**本仓接触面（compat 的六个）**：`dsh-commands` / `dsh-host-webserver` /
+`dsh-session-projection` / `dsh-system-prompt` / `dsh-tools` **五个都发了 0.1.6-alpha.2**；
+`@deepseek-ai/cordis` 仍在自己那条版本线上（**没有 0.1.6-alpha.2 这个版本号**，同 §1）。
+⇒ 接触面**在**，不是「包没了」的那种升级。
+
+**升的时候要先看的两条**（第一条继承自 §8.-3，第二条新增）：
+
+1. workflow 从 worker-thread 换成 `ptc` —— `dsh-jobs-local`（课时 5.2 要用）在它上面，
+   升级前先确认 `ctx.jobs` 的取消语义没变（「后台 job cancel 1 s 内停扫」是 Phase 5 的完成判据）。
+2. `dsh-plugin-manager` 接管了什么。**这一条比第一条更要紧**：我们整个交付物就是一个插件，
+   而 B7 已经证过「`dsh plugin add <本地目录>` 用 `link:`，pnpm 完全不解析我们的 dependencies」。
+   一个叫 plugin-manager 的新包出现，正好落在那条已知没测过的路径上。
 
 ### 8.-3 **0.1.6-alpha.1 —— 只读不升**（2026-09-16 记录）
 
