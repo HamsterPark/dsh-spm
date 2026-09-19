@@ -2956,6 +2956,18 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 在 `vision/scan-prep.ts` 与 `l0/scan-prep-skills.ts` 各自的 `fx()` 里挡了一层，
 并把它写成一条**给主线的欠账**（见 `docs/handoff/batch-6b.md` §7）。
 
+<!-- ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）的登记写在这一行下面 ── -->
+
+<!-- 批 7a-1：编号**留空**（`?`），由主线统一编。 -->
+
+<!-- ── 批 7a-2（实验地图层 + FindCleanSpot）的登记写在这一行下面 ── -->
+
+<!-- 批 7a-2：编号**留空**（`?`），由主线统一编。 -->
+
+<!-- ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）的登记写在这一行下面 ── -->
+
+<!-- 批 7a-3：编号**留空**（`?`），由主线统一编。 -->
+
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
 
 ## D-FORCE-1 · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）

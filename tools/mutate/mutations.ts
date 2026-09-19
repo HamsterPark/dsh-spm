@@ -3929,6 +3929,12 @@ function physicallyAbsurdViolations_unused(`,
 
   // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的演练写在这一行下面 ──
 
+  // ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）的演练写在这一行下面 ──
+
+  // ── 批 7a-2（实验地图层 + FindCleanSpot）的演练写在这一行下面 ──
+
+  // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）的演练写在这一行下面 ──
+
   // ── 数值原语：`np.gradient(y, x)` / `np.trapezoid` / `np.corrcoef` ──────
   {
     id: 'numerics-gradient-uniform-spacing-is-its-own-branch',
