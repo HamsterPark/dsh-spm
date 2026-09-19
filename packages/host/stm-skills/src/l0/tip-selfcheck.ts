@@ -69,6 +69,19 @@ export const SPECTROSCOPY_TIP_POKE_DEPTH_NM = 0.3
 export const ATOMIC_TIP_EVAL_FRAME_NM = 5.0
 export const ATOMIC_TIP_EVAL_PIXELS = 256
 
+// ── 两张依赖表：**由旧仓源码算出来，不是手抄的**（批 6a） ────────────────────
+//
+// 批 5a 写这两张表时是照着 `_tip_phases.py` 一行行读出来的。批 6a 给这件事装了
+// 一台驱动器：`tools/spec-export/export_tip_phase_deps.py` 从六个 `plan_dynamic`
+// 出发求 `CompositeStep(skill_name=…)` 的传递闭包，落成
+// `spec/golden/tip_phase_deps.json`；`tip-phase-deps.test.ts` 逐字比这两张表。
+//
+// 核下来 `CONDITIONING_REQUIRED_SKILLS` **一个不差**，`FORGE_REQUIRED_SKILLS`
+// 差了四个（`AutoTilt` / `GetBias` / `CaptureSignalBuffer` / `AssessAtomicLines`）
+// 并且多了一个（`PokeConditionTip`，见下）。四个里 `AutoTilt` 是 todo ——
+// 也就是说 `TipForgeSelfCheck` 此前**少报了一条缺口**。
+// 一个少报自己依赖的自检，正是这两个自检存在的理由的反面。
+
 /** 修针流程依赖的全部技能。少一个就有一条链是断的 —— 而且断得很安静。 */
 export const CONDITIONING_REQUIRED_SKILLS: readonly string[] = [
   // 本层新增
@@ -85,16 +98,26 @@ export const CONDITIONING_REQUIRED_SKILLS: readonly string[] = [
   'AssessClusterRoundness',
 ]
 
-/** 两条锻造流程真正会调到的技能。 */
+/**
+ * 两条锻造流程真正会调到的技能。
+ *
+ * ⚠️ **`PokeConditionTip` 不在这里**（批 6a 移除）。两条特异化流程要的是
+ * **`poke_phase` 那个生成器**，不是那个技能：`make_special_tip.py:292/855` 写的是
+ * `yield from poke_phase(...)`，而 `_tip_phases.py` 的模块抬头点名说了为什么 ——
+ * 「composite 调 composite 在本仓没有先例，断点续跑与 abort 的交互没人验证过」。
+ * 那是一条**代码**依赖，不是技能依赖；写进一张技能覆盖表里，说的是一句假话
+ * （而它照样会让缺口数看起来是对的 —— 这正是难查的那一型）。
+ * 那个技能本身仍由 {@link CONDITIONING_REQUIRED_SKILLS} 报着，全局一条都没少。
+ */
 export const FORGE_REQUIRED_SKILLS: readonly string[] = [
   // 本层新增
   'MakeSpectroscopyTip', 'MakeAtomicResolutionTip',
   'AssessShockleyOnset', 'AssessAtomicPhase', 'BiasWiggle',
   // 被当作子步骤调用的既有技能
-  'PokeConditionTip', 'TipShapeWithReadback', 'AssessClusterRoundness',
-  'FindCleanSpot', 'FindFlatRegion', 'MoveToXY', 'ScanAt', 'SaveScan',
+  'TipShapeWithReadback', 'AssessClusterRoundness', 'AssessAtomicLines',
+  'FindCleanSpot', 'FindFlatRegion', 'AutoTilt', 'MoveToXY', 'ScanAt', 'SaveScan',
   'GetLatestScanFile', 'ConfigureScan', 'StartScan', 'StopScan',
-  'SetBias', 'SetSetpoint', 'ZControllerOnOff',
+  'GetBias', 'SetBias', 'SetSetpoint', 'ZControllerOnOff', 'CaptureSignalBuffer',
   'ConfigureLockIn', 'ConfigureSTS', 'AcquireSTS',
 ]
 

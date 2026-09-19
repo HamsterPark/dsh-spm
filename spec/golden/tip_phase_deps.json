@@ -1,0 +1,2225 @@
+{
+  "_note": "批 6a：`_tip_phases` 六个流程的子技能依赖，从旧仓源码静态算出来的**上界**。由 tools/spec-export/export_tip_phase_deps.py 生成，不要手工改。",
+  "functions": {
+    "_tip_phases:_amp_capture": {
+      "first_line": 1538,
+      "last_line": 1550,
+      "lines": 13
+    },
+    "_tip_phases:_amp_rms": {
+      "first_line": 1553,
+      "last_line": 1565,
+      "lines": 13
+    },
+    "_tip_phases:_amp_signal_index": {
+      "first_line": 1522,
+      "last_line": 1535,
+      "lines": 14
+    },
+    "_tip_phases:_bump_marker_failure": {
+      "first_line": 398,
+      "last_line": 408,
+      "lines": 11
+    },
+    "_tip_phases:_cluster_look": {
+      "first_line": 1878,
+      "last_line": 1990,
+      "lines": 113
+    },
+    "_tip_phases:_data": {
+      "first_line": 40,
+      "last_line": 45,
+      "lines": 6
+    },
+    "_tip_phases:_decide": {
+      "first_line": 454,
+      "last_line": 477,
+      "lines": 24
+    },
+    "_tip_phases:_dirty": {
+      "first_line": 292,
+      "last_line": 295,
+      "lines": 4
+    },
+    "_tip_phases:_err": {
+      "first_line": 53,
+      "last_line": 66,
+      "lines": 14
+    },
+    "_tip_phases:_finite_num": {
+      "first_line": 418,
+      "last_line": 426,
+      "lines": 9
+    },
+    "_tip_phases:_level_on_terrace": {
+      "first_line": 2251,
+      "last_line": 2291,
+      "lines": 41
+    },
+    "_tip_phases:_log_damage_marker": {
+      "first_line": 375,
+      "last_line": 395,
+      "lines": 21
+    },
+    "_tip_phases:_mark_dirty": {
+      "first_line": 328,
+      "last_line": 372,
+      "lines": 45
+    },
+    "_tip_phases:_move_to": {
+      "first_line": 567,
+      "last_line": 596,
+      "lines": 30
+    },
+    "_tip_phases:_narrate_indent": {
+      "first_line": 1661,
+      "last_line": 1720,
+      "lines": 60
+    },
+    "_tip_phases:_ok": {
+      "first_line": 48,
+      "last_line": 50,
+      "lines": 3
+    },
+    "_tip_phases:_poke_step": {
+      "first_line": 1732,
+      "last_line": 1875,
+      "lines": 144
+    },
+    "_tip_phases:_relocate": {
+      "first_line": 599,
+      "last_line": 733,
+      "lines": 135
+    },
+    "_tip_phases:_remember_searched": {
+      "first_line": 552,
+      "last_line": 564,
+      "lines": 13
+    },
+    "_tip_phases:_say": {
+      "first_line": 429,
+      "last_line": 451,
+      "lines": 23
+    },
+    "_tip_phases:_scan_path": {
+      "first_line": 267,
+      "last_line": 274,
+      "lines": 8
+    },
+    "_tip_phases:_spot_list": {
+      "first_line": 298,
+      "last_line": 325,
+      "lines": 28
+    },
+    "_tip_phases:_spots_str": {
+      "first_line": 69,
+      "last_line": 70,
+      "lines": 2
+    },
+    "_tip_phases:_stash": {
+      "first_line": 958,
+      "last_line": 965,
+      "lines": 8
+    },
+    "_tip_phases:_stash_poke": {
+      "first_line": 2785,
+      "last_line": 2797,
+      "lines": 13
+    },
+    "_tip_phases:_step_split_look": {
+      "first_line": 484,
+      "last_line": 549,
+      "lines": 66
+    },
+    "_tip_phases:_tilt_readout": {
+      "first_line": 80,
+      "last_line": 141,
+      "lines": 62
+    },
+    "_tip_phases:flat_poke_sites": {
+      "first_line": 1993,
+      "last_line": 2248,
+      "lines": 256
+    },
+    "_tip_phases:level_phase": {
+      "first_line": 1187,
+      "last_line": 1517,
+      "lines": 331
+    },
+    "_tip_phases:poke_bias_v": {
+      "first_line": 1608,
+      "last_line": 1658,
+      "lines": 51
+    },
+    "_tip_phases:poke_phase": {
+      "first_line": 2294,
+      "last_line": 2782,
+      "lines": 489
+    },
+    "_tip_phases:pulse_phase": {
+      "first_line": 738,
+      "last_line": 955,
+      "lines": 218
+    },
+    "_tip_phases:ringdown_report": {
+      "first_line": 1568,
+      "last_line": 1605,
+      "lines": 38
+    },
+    "_tip_phases:scan_at_params": {
+      "first_line": 173,
+      "last_line": 264,
+      "lines": 92
+    },
+    "_tip_phases:verify_phase": {
+      "first_line": 970,
+      "last_line": 1182,
+      "lines": 213
+    },
+    "forge_au_tip:ForgeAuTip._accept": {
+      "first_line": 1014,
+      "last_line": 1104,
+      "lines": 91
+    },
+    "forge_au_tip:ForgeAuTip._decide_outcome": {
+      "first_line": 1249,
+      "last_line": 1261,
+      "lines": 13
+    },
+    "forge_au_tip:ForgeAuTip._read_junction_now": {
+      "first_line": 1220,
+      "last_line": 1247,
+      "lines": 28
+    },
+    "forge_au_tip:ForgeAuTip._relocate": {
+      "first_line": 1108,
+      "last_line": 1152,
+      "lines": 45
+    },
+    "forge_au_tip:ForgeAuTip._relocation_plan": {
+      "first_line": 1156,
+      "last_line": 1180,
+      "lines": 25
+    },
+    "forge_au_tip:ForgeAuTip._stash": {
+      "first_line": 1184,
+      "last_line": 1187,
+      "lines": 4
+    },
+    "forge_au_tip:ForgeAuTip._work_one_site": {
+      "first_line": 730,
+      "last_line": 1012,
+      "lines": 283
+    },
+    "forge_au_tip:ForgeAuTip.aggregate": {
+      "first_line": 1200,
+      "last_line": 1218,
+      "lines": 19
+    },
+    "forge_au_tip:ForgeAuTip.metadata": {
+      "first_line": 329,
+      "last_line": 504,
+      "lines": 176
+    },
+    "forge_au_tip:ForgeAuTip.on_step_failed": {
+      "first_line": 1189,
+      "last_line": 1198,
+      "lines": 10
+    },
+    "forge_au_tip:ForgeAuTip.plan_dynamic": {
+      "first_line": 529,
+      "last_line": 726,
+      "lines": 198
+    },
+    "forge_au_tip:ForgeAuTip.validate_params": {
+      "first_line": 506,
+      "last_line": 525,
+      "lines": 20
+    },
+    "forge_au_tip:_CriticalWatch.__init__": {
+      "first_line": 1432,
+      "last_line": 1433,
+      "lines": 2
+    },
+    "forge_au_tip:_CriticalWatch.check": {
+      "first_line": 1435,
+      "last_line": 1452,
+      "lines": 18
+    },
+    "forge_au_tip:_critical_since": {
+      "first_line": 1498,
+      "last_line": 1523,
+      "lines": 26
+    },
+    "forge_au_tip:_fmt_measured": {
+      "first_line": 1353,
+      "last_line": 1377,
+      "lines": 25
+    },
+    "forge_au_tip:_forge_wf": {
+      "first_line": 321,
+      "last_line": 323,
+      "lines": 3
+    },
+    "forge_au_tip:_forge_wf_notes": {
+      "first_line": 261,
+      "last_line": 318,
+      "lines": 58
+    },
+    "forge_au_tip:_halts_tip_work": {
+      "first_line": 1455,
+      "last_line": 1495,
+      "lines": 41
+    },
+    "forge_au_tip:_looks_like_operator_stop": {
+      "first_line": 235,
+      "last_line": 238,
+      "lines": 4
+    },
+    "forge_au_tip:_measured_cn": {
+      "first_line": 1380,
+      "last_line": 1416,
+      "lines": 37
+    },
+    "forge_au_tip:_site_measured_something": {
+      "first_line": 161,
+      "last_line": 176,
+      "lines": 16
+    },
+    "forge_au_tip:_summary": {
+      "first_line": 1264,
+      "last_line": 1350,
+      "lines": 87
+    },
+    "forge_au_tip:make_tools": {
+      "first_line": 1585,
+      "last_line": 1588,
+      "lines": 4
+    },
+    "forge_au_tip:sharpness_verdict_kind": {
+      "first_line": 224,
+      "last_line": 232,
+      "lines": 9
+    },
+    "make_special_tip:MakeAtomicResolutionTip.metadata": {
+      "first_line": 474,
+      "last_line": 571,
+      "lines": 98
+    },
+    "make_special_tip:MakeAtomicResolutionTip.plan_dynamic": {
+      "first_line": 573,
+      "last_line": 908,
+      "lines": 336
+    },
+    "make_special_tip:MakeSpectroscopyTip.metadata": {
+      "first_line": 154,
+      "last_line": 235,
+      "lines": 82
+    },
+    "make_special_tip:MakeSpectroscopyTip.plan_dynamic": {
+      "first_line": 252,
+      "last_line": 441,
+      "lines": 190
+    },
+    "make_special_tip:MakeSpectroscopyTip.validate_params": {
+      "first_line": 237,
+      "last_line": 250,
+      "lines": 14
+    },
+    "make_special_tip:_budget_left": {
+      "first_line": 102,
+      "last_line": 107,
+      "lines": 6
+    },
+    "make_special_tip:_preflight": {
+      "first_line": 137,
+      "last_line": 146,
+      "lines": 10
+    },
+    "make_special_tip:_qplus_blocked": {
+      "first_line": 125,
+      "last_line": 134,
+      "lines": 10
+    },
+    "make_special_tip:_wrap": {
+      "first_line": 110,
+      "last_line": 122,
+      "lines": 13
+    },
+    "make_special_tip:make_tools": {
+      "first_line": 911,
+      "last_line": 915,
+      "lines": 5
+    },
+    "prepare_noble_tip:PokeConditionTip.metadata": {
+      "first_line": 236,
+      "last_line": 262,
+      "lines": 27
+    },
+    "prepare_noble_tip:PokeConditionTip.plan_dynamic": {
+      "first_line": 278,
+      "last_line": 292,
+      "lines": 15
+    },
+    "prepare_noble_tip:PokeConditionTip.validate_params": {
+      "first_line": 264,
+      "last_line": 276,
+      "lines": 13
+    },
+    "prepare_noble_tip:PrepareNobleTip.metadata": {
+      "first_line": 298,
+      "last_line": 340,
+      "lines": 43
+    },
+    "prepare_noble_tip:PrepareNobleTip.plan_dynamic": {
+      "first_line": 342,
+      "last_line": 444,
+      "lines": 103
+    },
+    "prepare_noble_tip:PulseConditionTip.metadata": {
+      "first_line": 202,
+      "last_line": 219,
+      "lines": 18
+    },
+    "prepare_noble_tip:PulseConditionTip.plan_dynamic": {
+      "first_line": 221,
+      "last_line": 230,
+      "lines": 10
+    },
+    "prepare_noble_tip:_TipComposite.aggregate": {
+      "first_line": 184,
+      "last_line": 194,
+      "lines": 11
+    },
+    "prepare_noble_tip:_poke_params": {
+      "first_line": 127,
+      "last_line": 158,
+      "lines": 32
+    },
+    "prepare_noble_tip:_poke_summary": {
+      "first_line": 482,
+      "last_line": 488,
+      "lines": 7
+    },
+    "prepare_noble_tip:_pulse_params": {
+      "first_line": 91,
+      "last_line": 124,
+      "lines": 34
+    },
+    "prepare_noble_tip:_pulse_summary": {
+      "first_line": 475,
+      "last_line": 479,
+      "lines": 5
+    },
+    "prepare_noble_tip:_qplus_blocked": {
+      "first_line": 464,
+      "last_line": 472,
+      "lines": 9
+    },
+    "prepare_noble_tip:_tip_shaper_preflight": {
+      "first_line": 449,
+      "last_line": 461,
+      "lines": 13
+    },
+    "prepare_noble_tip:_verify_params": {
+      "first_line": 161,
+      "last_line": 178,
+      "lines": 18
+    },
+    "prepare_noble_tip:_wf_from": {
+      "first_line": 57,
+      "last_line": 67,
+      "lines": 11
+    },
+    "prepare_noble_tip:_wrap": {
+      "first_line": 505,
+      "last_line": 517,
+      "lines": 13
+    },
+    "prepare_noble_tip:make_tools": {
+      "first_line": 520,
+      "last_line": 523,
+      "lines": 4
+    }
+  },
+  "skills": {
+    "ForgeAuTip": {
+      "code_lines": 3362,
+      "entry": "forge_au_tip:ForgeAuTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_amp_capture",
+        "_tip_phases:_amp_rms",
+        "_tip_phases:_amp_signal_index",
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_cluster_look",
+        "_tip_phases:_data",
+        "_tip_phases:_decide",
+        "_tip_phases:_dirty",
+        "_tip_phases:_err",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_level_on_terrace",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_move_to",
+        "_tip_phases:_narrate_indent",
+        "_tip_phases:_ok",
+        "_tip_phases:_poke_step",
+        "_tip_phases:_relocate",
+        "_tip_phases:_remember_searched",
+        "_tip_phases:_say",
+        "_tip_phases:_scan_path",
+        "_tip_phases:_spot_list",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash",
+        "_tip_phases:_stash_poke",
+        "_tip_phases:_step_split_look",
+        "_tip_phases:_tilt_readout",
+        "_tip_phases:flat_poke_sites",
+        "_tip_phases:level_phase",
+        "_tip_phases:poke_bias_v",
+        "_tip_phases:poke_phase",
+        "_tip_phases:pulse_phase",
+        "_tip_phases:ringdown_report",
+        "_tip_phases:scan_at_params",
+        "_tip_phases:verify_phase",
+        "forge_au_tip:ForgeAuTip._accept",
+        "forge_au_tip:ForgeAuTip._relocate",
+        "forge_au_tip:ForgeAuTip._relocation_plan",
+        "forge_au_tip:ForgeAuTip._stash",
+        "forge_au_tip:ForgeAuTip._work_one_site",
+        "forge_au_tip:ForgeAuTip.plan_dynamic",
+        "forge_au_tip:_forge_wf_notes",
+        "forge_au_tip:_site_measured_something",
+        "forge_au_tip:sharpness_verdict_kind",
+        "prepare_noble_tip:_qplus_blocked",
+        "prepare_noble_tip:_tip_shaper_preflight"
+      ],
+      "sub_skills": {
+        "AnalyzeFrameTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1249,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1322,
+              "optional": true
+            }
+          ]
+        },
+        "AssessClusterRoundness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1907,
+              "optional": true
+            }
+          ]
+        },
+        "AssessTipSharpness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "forge_au_tip.py",
+              "in": "ForgeAuTip._accept",
+              "line": 1060,
+              "optional": true
+            }
+          ]
+        },
+        "AutoTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1496,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_level_on_terrace",
+              "line": 2284,
+              "optional": true
+            }
+          ]
+        },
+        "BiasPulseWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 839,
+              "optional": false
+            }
+          ]
+        },
+        "CaptureSignalBuffer": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_amp_capture",
+              "line": 1544,
+              "optional": true
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "FindFlatRegion": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1387,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1436,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2077,
+              "optional": true
+            }
+          ]
+        },
+        "GetBias": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2343,
+              "optional": true
+            }
+          ]
+        },
+        "GetLatestScanFile": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1105,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1229,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1316,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1899,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2064,
+              "optional": true
+            },
+            {
+              "file": "forge_au_tip.py",
+              "in": "ForgeAuTip._accept",
+              "line": 1045,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 593,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "PreScanCheck": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1046,
+              "optional": false
+            }
+          ]
+        },
+        "RelocateCoarseXY": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "forge_au_tip.py",
+              "in": "ForgeAuTip._relocate",
+              "line": 1123,
+              "optional": true
+            }
+          ]
+        },
+        "SaveScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1102,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1226,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1313,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1896,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2061,
+              "optional": true
+            },
+            {
+              "file": "forge_au_tip.py",
+              "in": "ForgeAuTip._accept",
+              "line": 1042,
+              "optional": true
+            }
+          ]
+        },
+        "ScanAt": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1215,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1303,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1884,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2047,
+              "optional": true
+            },
+            {
+              "file": "forge_au_tip.py",
+              "in": "ForgeAuTip._accept",
+              "line": 1032,
+              "optional": true
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 769,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1003,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1785,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1859,
+              "optional": true
+            }
+          ]
+        },
+        "SetSetpoint": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 773,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1007,
+              "optional": false
+            }
+          ]
+        },
+        "TipShapeWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1815,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 589,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2769,
+              "optional": true
+            }
+          ]
+        }
+      }
+    },
+    "MakeAtomicResolutionTip": {
+      "code_lines": 2216,
+      "entry": "make_special_tip:MakeAtomicResolutionTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_amp_capture",
+        "_tip_phases:_amp_rms",
+        "_tip_phases:_amp_signal_index",
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_cluster_look",
+        "_tip_phases:_data",
+        "_tip_phases:_decide",
+        "_tip_phases:_dirty",
+        "_tip_phases:_err",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_level_on_terrace",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_move_to",
+        "_tip_phases:_narrate_indent",
+        "_tip_phases:_ok",
+        "_tip_phases:_poke_step",
+        "_tip_phases:_relocate",
+        "_tip_phases:_remember_searched",
+        "_tip_phases:_say",
+        "_tip_phases:_scan_path",
+        "_tip_phases:_spot_list",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash_poke",
+        "_tip_phases:_step_split_look",
+        "_tip_phases:_tilt_readout",
+        "_tip_phases:flat_poke_sites",
+        "_tip_phases:poke_bias_v",
+        "_tip_phases:poke_phase",
+        "_tip_phases:ringdown_report",
+        "_tip_phases:scan_at_params",
+        "make_special_tip:MakeAtomicResolutionTip.plan_dynamic",
+        "make_special_tip:_budget_left",
+        "make_special_tip:_preflight",
+        "make_special_tip:_qplus_blocked",
+        "make_special_tip:_wrap"
+      ],
+      "sub_skills": {
+        "AssessAtomicLines": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 697,
+              "optional": true
+            }
+          ]
+        },
+        "AssessAtomicPhase": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 761,
+              "optional": true
+            }
+          ]
+        },
+        "AssessClusterRoundness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1907,
+              "optional": true
+            }
+          ]
+        },
+        "AutoTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_level_on_terrace",
+              "line": 2284,
+              "optional": true
+            }
+          ]
+        },
+        "BiasWiggle": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 682,
+              "optional": true
+            }
+          ]
+        },
+        "CaptureSignalBuffer": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_amp_capture",
+              "line": 1544,
+              "optional": true
+            }
+          ]
+        },
+        "ConfigureScan": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 671,
+              "optional": false
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "FindFlatRegion": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2077,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "GetBias": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2343,
+              "optional": true
+            }
+          ]
+        },
+        "GetLatestScanFile": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1899,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2064,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 617,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 740,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 593,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "SaveScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1896,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2061,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 614,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 737,
+              "optional": true
+            }
+          ]
+        },
+        "ScanAt": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1884,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2047,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 608,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 728,
+              "optional": false
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1785,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1859,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 663,
+              "optional": false
+            }
+          ]
+        },
+        "SetSetpoint": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 667,
+              "optional": false
+            }
+          ]
+        },
+        "StartScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 678,
+              "optional": true
+            }
+          ]
+        },
+        "StopScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeAtomicResolutionTip.plan_dynamic",
+              "line": 721,
+              "optional": true
+            }
+          ]
+        },
+        "TipShapeWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1815,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 589,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2769,
+              "optional": true
+            }
+          ]
+        }
+      }
+    },
+    "MakeSpectroscopyTip": {
+      "code_lines": 2064,
+      "entry": "make_special_tip:MakeSpectroscopyTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_amp_capture",
+        "_tip_phases:_amp_rms",
+        "_tip_phases:_amp_signal_index",
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_cluster_look",
+        "_tip_phases:_data",
+        "_tip_phases:_decide",
+        "_tip_phases:_dirty",
+        "_tip_phases:_err",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_level_on_terrace",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_move_to",
+        "_tip_phases:_narrate_indent",
+        "_tip_phases:_ok",
+        "_tip_phases:_poke_step",
+        "_tip_phases:_relocate",
+        "_tip_phases:_remember_searched",
+        "_tip_phases:_say",
+        "_tip_phases:_scan_path",
+        "_tip_phases:_spot_list",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash_poke",
+        "_tip_phases:_step_split_look",
+        "_tip_phases:_tilt_readout",
+        "_tip_phases:flat_poke_sites",
+        "_tip_phases:poke_bias_v",
+        "_tip_phases:poke_phase",
+        "_tip_phases:ringdown_report",
+        "_tip_phases:scan_at_params",
+        "make_special_tip:MakeSpectroscopyTip.plan_dynamic",
+        "make_special_tip:_preflight",
+        "make_special_tip:_qplus_blocked",
+        "make_special_tip:_wrap"
+      ],
+      "sub_skills": {
+        "AcquireSTS": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 377,
+              "optional": false
+            }
+          ]
+        },
+        "AssessClusterRoundness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1907,
+              "optional": true
+            }
+          ]
+        },
+        "AssessShockleyOnset": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 393,
+              "optional": true
+            }
+          ]
+        },
+        "AutoTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_level_on_terrace",
+              "line": 2284,
+              "optional": true
+            }
+          ]
+        },
+        "CaptureSignalBuffer": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_amp_capture",
+              "line": 1544,
+              "optional": true
+            }
+          ]
+        },
+        "ConfigureLockIn": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 359,
+              "optional": false
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 434,
+              "optional": true
+            }
+          ]
+        },
+        "ConfigureSTS": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 364,
+              "optional": false
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "FindFlatRegion": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2077,
+              "optional": true
+            }
+          ]
+        },
+        "GetBias": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2343,
+              "optional": true
+            }
+          ]
+        },
+        "GetLatestScanFile": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1899,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2064,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 593,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "SaveScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1896,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2061,
+              "optional": true
+            }
+          ]
+        },
+        "ScanAt": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1884,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2047,
+              "optional": true
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1785,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1859,
+              "optional": true
+            },
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 351,
+              "optional": false
+            }
+          ]
+        },
+        "SetSetpoint": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "make_special_tip.py",
+              "in": "MakeSpectroscopyTip.plan_dynamic",
+              "line": 355,
+              "optional": false
+            }
+          ]
+        },
+        "TipShapeWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1815,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 589,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2769,
+              "optional": true
+            }
+          ]
+        }
+      }
+    },
+    "PokeConditionTip": {
+      "code_lines": 1896,
+      "entry": "prepare_noble_tip:PokeConditionTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_amp_capture",
+        "_tip_phases:_amp_rms",
+        "_tip_phases:_amp_signal_index",
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_cluster_look",
+        "_tip_phases:_data",
+        "_tip_phases:_decide",
+        "_tip_phases:_dirty",
+        "_tip_phases:_err",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_level_on_terrace",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_move_to",
+        "_tip_phases:_narrate_indent",
+        "_tip_phases:_ok",
+        "_tip_phases:_poke_step",
+        "_tip_phases:_relocate",
+        "_tip_phases:_remember_searched",
+        "_tip_phases:_say",
+        "_tip_phases:_scan_path",
+        "_tip_phases:_spot_list",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash_poke",
+        "_tip_phases:_step_split_look",
+        "_tip_phases:_tilt_readout",
+        "_tip_phases:flat_poke_sites",
+        "_tip_phases:poke_bias_v",
+        "_tip_phases:poke_phase",
+        "_tip_phases:ringdown_report",
+        "_tip_phases:scan_at_params",
+        "prepare_noble_tip:PokeConditionTip.plan_dynamic",
+        "prepare_noble_tip:_poke_summary",
+        "prepare_noble_tip:_qplus_blocked",
+        "prepare_noble_tip:_tip_shaper_preflight",
+        "prepare_noble_tip:_wf_from"
+      ],
+      "sub_skills": {
+        "AssessClusterRoundness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1907,
+              "optional": true
+            }
+          ]
+        },
+        "AutoTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_level_on_terrace",
+              "line": 2284,
+              "optional": true
+            }
+          ]
+        },
+        "CaptureSignalBuffer": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_amp_capture",
+              "line": 1544,
+              "optional": true
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "FindFlatRegion": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2077,
+              "optional": true
+            }
+          ]
+        },
+        "GetBias": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2343,
+              "optional": true
+            }
+          ]
+        },
+        "GetLatestScanFile": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1899,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2064,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 593,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "SaveScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1896,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2061,
+              "optional": true
+            }
+          ]
+        },
+        "ScanAt": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1884,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2047,
+              "optional": true
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1785,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1859,
+              "optional": true
+            }
+          ]
+        },
+        "TipShapeWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1815,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 589,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2769,
+              "optional": true
+            }
+          ]
+        }
+      }
+    },
+    "PrepareNobleTip": {
+      "code_lines": 2772,
+      "entry": "prepare_noble_tip:PrepareNobleTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_amp_capture",
+        "_tip_phases:_amp_rms",
+        "_tip_phases:_amp_signal_index",
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_cluster_look",
+        "_tip_phases:_data",
+        "_tip_phases:_decide",
+        "_tip_phases:_dirty",
+        "_tip_phases:_err",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_level_on_terrace",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_move_to",
+        "_tip_phases:_narrate_indent",
+        "_tip_phases:_ok",
+        "_tip_phases:_poke_step",
+        "_tip_phases:_relocate",
+        "_tip_phases:_remember_searched",
+        "_tip_phases:_say",
+        "_tip_phases:_scan_path",
+        "_tip_phases:_spot_list",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash",
+        "_tip_phases:_stash_poke",
+        "_tip_phases:_step_split_look",
+        "_tip_phases:_tilt_readout",
+        "_tip_phases:flat_poke_sites",
+        "_tip_phases:level_phase",
+        "_tip_phases:poke_bias_v",
+        "_tip_phases:poke_phase",
+        "_tip_phases:pulse_phase",
+        "_tip_phases:ringdown_report",
+        "_tip_phases:scan_at_params",
+        "_tip_phases:verify_phase",
+        "prepare_noble_tip:PrepareNobleTip.plan_dynamic",
+        "prepare_noble_tip:_poke_summary",
+        "prepare_noble_tip:_pulse_summary",
+        "prepare_noble_tip:_qplus_blocked",
+        "prepare_noble_tip:_tip_shaper_preflight",
+        "prepare_noble_tip:_wf_from",
+        "prepare_noble_tip:_wrap"
+      ],
+      "sub_skills": {
+        "AnalyzeFrameTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1249,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1322,
+              "optional": true
+            }
+          ]
+        },
+        "AssessClusterRoundness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1907,
+              "optional": true
+            }
+          ]
+        },
+        "AssessTipSharpness": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "prepare_noble_tip.py",
+              "in": "PrepareNobleTip.plan_dynamic",
+              "line": 432,
+              "optional": true
+            }
+          ]
+        },
+        "AutoTilt": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1496,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_level_on_terrace",
+              "line": 2284,
+              "optional": true
+            }
+          ]
+        },
+        "BiasPulseWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 839,
+              "optional": false
+            }
+          ]
+        },
+        "CaptureSignalBuffer": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_amp_capture",
+              "line": 1544,
+              "optional": true
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "FindFlatRegion": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1387,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1436,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2077,
+              "optional": true
+            }
+          ]
+        },
+        "GetBias": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2343,
+              "optional": true
+            }
+          ]
+        },
+        "GetLatestScanFile": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1105,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1229,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1316,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1899,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2064,
+              "optional": true
+            },
+            {
+              "file": "prepare_noble_tip.py",
+              "in": "PrepareNobleTip.plan_dynamic",
+              "line": 422,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 593,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "PreScanCheck": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1046,
+              "optional": false
+            }
+          ]
+        },
+        "SaveScan": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1102,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1226,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1313,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1896,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2061,
+              "optional": true
+            },
+            {
+              "file": "prepare_noble_tip.py",
+              "in": "PrepareNobleTip.plan_dynamic",
+              "line": 419,
+              "optional": true
+            }
+          ]
+        },
+        "ScanAt": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1215,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "level_phase",
+              "line": 1303,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_cluster_look",
+              "line": 1884,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "flat_poke_sites",
+              "line": 2047,
+              "optional": true
+            },
+            {
+              "file": "prepare_noble_tip.py",
+              "in": "PrepareNobleTip.plan_dynamic",
+              "line": 409,
+              "optional": true
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 769,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1003,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1785,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1859,
+              "optional": true
+            }
+          ]
+        },
+        "SetSetpoint": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 773,
+              "optional": false
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "verify_phase",
+              "line": 1007,
+              "optional": false
+            }
+          ]
+        },
+        "TipShapeWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_poke_step",
+              "line": 1815,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_move_to",
+              "line": 589,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            },
+            {
+              "file": "_tip_phases.py",
+              "in": "poke_phase",
+              "line": 2769,
+              "optional": true
+            }
+          ]
+        }
+      }
+    },
+    "PulseConditionTip": {
+      "code_lines": 511,
+      "entry": "prepare_noble_tip:PulseConditionTip.plan_dynamic",
+      "functions": [
+        "_tip_phases:_bump_marker_failure",
+        "_tip_phases:_data",
+        "_tip_phases:_dirty",
+        "_tip_phases:_finite_num",
+        "_tip_phases:_log_damage_marker",
+        "_tip_phases:_mark_dirty",
+        "_tip_phases:_ok",
+        "_tip_phases:_relocate",
+        "_tip_phases:_say",
+        "_tip_phases:_spots_str",
+        "_tip_phases:_stash",
+        "_tip_phases:pulse_phase",
+        "prepare_noble_tip:PulseConditionTip.plan_dynamic",
+        "prepare_noble_tip:_pulse_summary",
+        "prepare_noble_tip:_wf_from"
+      ],
+      "sub_skills": {
+        "BiasPulseWithReadback": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 839,
+              "optional": false
+            }
+          ]
+        },
+        "FindCleanSpot": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 623,
+              "optional": true
+            }
+          ]
+        },
+        "MoveToXY": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 724,
+              "optional": false
+            }
+          ]
+        },
+        "SetBias": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 769,
+              "optional": false
+            }
+          ]
+        },
+        "SetSetpoint": {
+          "required_somewhere": true,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "pulse_phase",
+              "line": 773,
+              "optional": false
+            }
+          ]
+        },
+        "ZControllerOnOff": {
+          "required_somewhere": false,
+          "sites": [
+            {
+              "file": "_tip_phases.py",
+              "in": "_relocate",
+              "line": 704,
+              "optional": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

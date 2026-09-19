@@ -3484,6 +3484,26 @@ function physicallyAbsurdViolations_unused(`,
   // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的演练写在这一行下面 ──
 
   // ── 批 6a（特异化流程 _tip_phases 六个组合技能）的演练写在这一行下面 ──
+  //
+  // 这一批**一个技能都没落**（六条流程全部还卡着，账在 `docs/handoff/batch-6a.md`），
+  // 所以这里只有两条 —— 它们挡的是**那本账自己**：一张手抄的依赖表会静静过期，
+  // 而一个少报自己缺口的自检，正是这两个自检存在的理由的反面。
+  {
+    id: 'forge-required-covers-the-terrace-leveling',
+    why: '`AutoTilt`（台面上的调平，`flat_poke_sites` → `_level_on_terrace`）两条特异化流程都走。漏掉它 ⇒ `TipForgeSelfCheck` 少报一条缺口，而缺口数看起来仍然是对的',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    find: "  'FindCleanSpot', 'FindFlatRegion', 'AutoTilt', 'MoveToXY', 'ScanAt', 'SaveScan',",
+    replace: "  'FindCleanSpot', 'FindFlatRegion', 'MoveToXY', 'ScanAt', 'SaveScan',",
+    scope: 'packages/host',
+  },
+  {
+    id: 'selfcheck-each-check-asks-its-own-chain',
+    why: '两个自检各背书一条链。数错链 ⇒ 修针自检不问 `PreScanCheck`（贵金属验证帧唯一的入口）也照样说缺口数对得上',
+    file: `${SK}/l0/tip-selfcheck.ts`,
+    find: 'addSkillCoverage(sheet, CONDITIONING_REQUIRED_SKILLS, deps)',
+    replace: 'addSkillCoverage(sheet, FORGE_REQUIRED_SKILLS, deps)',
+    scope: 'packages/host',
+  },
 
   // ── 批 6b（vision 的 scan_prep 链）的演练写在这一行下面 ──
 
