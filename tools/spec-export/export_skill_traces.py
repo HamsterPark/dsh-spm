@@ -437,6 +437,23 @@ BATCH_6C: list[str] = [
 # 但这一批的主判据在 `spec/golden/batch6c.json` 的 `skills` 节 ——
 # 那一节是拿**真的合成字节**喂进旧仓技能录的。
 
+#: ↑ 上一条 ／ ↓ 7A-1 —— 这一行谁都不要动
+BATCH_7A_1: list[str] = []   # vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt
+
+#: ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
+BATCH_7A_2: list[str] = []   # 实验地图层 + FindCleanSpot
+
+#: ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
+BATCH_7A_3: list[str] = [
+    # 读磁盘上的 .sxm，一次 TCP 都不发 ⇒ 这里录到的是「文件不存在」那一支
+    # （`_params_for` 给不出真实路径）。主判据在 `spec/golden/batch7a3.json`。
+    "FindFlatRegion",
+    # 这一个**真发命令**：反馈门 → 起点确认 → 斜坡 + 电流看护 → 收尾放回偏压。
+    # 通用驱动器给每个动词一个常数回包，于是它在这里录到的是**完整的一次 burst**
+    # （假钟 + seed=0 走非确定分支 ⇒ 见 PARAM_OVERRIDES）。
+    "BiasWiggle",
+]   # kde_layers + FindFlatRegion + BiasWiggle
+
 BATCH_5C: list[str] = [
     # 零 TCP —— 它读的全是进程内的仪器档案。所以这四格录的是**报文**，
     # 而报文正是这个技能的全部产物（「从未标定过」vs「读不到档案」）。
@@ -581,6 +598,14 @@ PARAM_OVERRIDES: dict[str, dict] = {
     # 槽位号的中点是 32，而白名单夹具里只有 3 与 5 ⇒ `ok` 那一趟会落在拒绝上，
     # 下发那一路一条金样都没有。**已审**的槽位走 3。
     "RunNanonisScript": {"slot": 3},
+    # 批 7a-3：`seed` 的缺省是 **0**，而 `0` 在这个技能里是「非确定性」那一档
+    # （`random.Random(seed) if seed else random.Random()`）—— 不显式给的话
+    # 这一格每跑一遍都不一样，**整份 `skill_traces.json` 就不再逐字节可复现**。
+    # `base_bias_v` 的中点是 0，通用规则避开 0 之后给的是 5.0 V，而
+    # `|base| > 0.1 + upper` 会当场拒 ⇒ 下发那一路一条金样都没有。
+    # `burst_s` 的中点 5.05 s 在假钟下会录出上百条调用；0.3 s 录得完，
+    # 而且形状一样（反馈门 → 起点 → 若干次斜坡 + 电流看护 → 收尾）。
+    "BiasWiggle": {"base_bias_v": 0.02, "seed": 7, "burst_s": 0.3},
     "DeployNanonisScript": {"slot": 3},
     "LoadScriptLUT": {"slot": 3, "lut_index": 1, "values": "0, 2.5, 5, 7.5, 10"},
     # 反过来：`LoadNanonisScript` 拒的是**已审**槽位，所以它的成功路要一个**未审**的。
@@ -1329,7 +1354,13 @@ def main() -> int:
                  # ↑ ／ ↓ 6B
                  + BATCH_6B
                  # ↑ ／ ↓ 6C
-                 + BATCH_6C):
+                 + BATCH_6C
+                 # ↑ ／ ↓ 7A-1
+                 + BATCH_7A_1
+                 # ↑ ／ ↓ 7A-2
+                 + BATCH_7A_2
+                 # ↑ ／ ↓ 7A-3
+                 + BATCH_7A_3):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

@@ -37,7 +37,11 @@ export type SxmLoad = { ok: true; scan: SxmScan } | { ok: false; why: string; pl
 
 export function loadSxm(path: string): SxmLoad {
   try {
-    return { ok: true, scan: readSxm(readFileSync(path)) }
+    // ⚠️ **`what` 要给路径**（批 7a-3 改）：`readSxm` 的报错里印的就是这个串，
+    // 而旧仓六个调用方转述的那句异常**全都带着文件名**（异常是 `read_sxm` 抛的）。
+    // 不给的话本仓印的是字面量 `<sxm>` —— 一句「这个文件坏了」而不说哪个文件。
+    // 在这之前没有金样踩到它（只有「文件不存在」那一支有格）。
+    return { ok: true, scan: readSxm(readFileSync(path), path) }
   } catch (e) {
     const err = e as Error
     return { ok: false, why: `${err.name}: ${err.message}`, plain: err.message }

@@ -8779,6 +8779,400 @@
       }
     }
   },
+  "BiasWiggle": {
+    "params": {
+      "base_bias_v": 0.02,
+      "burst_s": 0.3,
+      "seed": 7
+    },
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          }
+        ],
+        "data": {
+          "feedback_on": null
+        },
+        "error": "读不到 Z 反馈状态(ZCtrl_OnOffGet) —— 偏压扰动靠的是恒流反馈在低偏压下把针尖推近，反馈不开这一步什么也不会发生。先开反馈(ZControllerOnOff enable=true)，或显式传 allow_feedback_off=true。",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          }
+        ],
+        "data": {
+          "feedback_on": null
+        },
+        "error": "读不到 Z 反馈状态(ZCtrl_OnOffGet) —— 偏压扰动靠的是恒流反馈在低偏压下把针尖推近，反馈不开这一步什么也不会发生。先开反馈(ZControllerOnOff enable=true)，或显式传 allow_feedback_off=true。",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前偏压(Bias_Get: 模拟故障：连接被对端关闭) —— 不知道起点就不能受控地改变偏压。拒绝执行，不从假设的 0 V 开始。",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0.16360622525422314
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.135
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [
+              0.01999999999999999
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "abort_current_a": 5e-09,
+          "aborted_reason": "Bias_Set 失败: 模拟故障：连接被对端关闭",
+          "base_bias_v": 0.02,
+          "bias_restored": true,
+          "burst_s": 0.053,
+          "flips_executed": 1,
+          "log": [
+            {
+              "crossed_zero": true,
+              "reached_v": 0.25,
+              "t_s": 0.002,
+              "target_v": -0.009181
+            }
+          ],
+          "seed": 7,
+          "slew_rate_v_per_s": 1.0,
+          "wiggle_lower_v": 0.004,
+          "wiggle_upper_v": 0.02
+        },
+        "error": "扰动在第 1 次跳变时停下：Bias_Set 失败: 模拟故障：连接被对端关闭。偏压已恢复到 0.02 V。",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0.16360622525422314
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              0.07721245050844627
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              0.020000000000000004
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "abort_current_a": 5e-09,
+          "aborted_reason": "电流 0.25 A 超过中止阈 5e-09 A",
+          "base_bias_v": 0.02,
+          "bias_restored": true,
+          "burst_s": 0.053,
+          "flips_executed": 1,
+          "log": [
+            {
+              "crossed_zero": true,
+              "reached_v": 0.077212,
+              "t_s": 0.052,
+              "target_v": -0.009181
+            }
+          ],
+          "seed": 7,
+          "slew_rate_v_per_s": 1.0,
+          "wiggle_lower_v": 0.004,
+          "wiggle_upper_v": 0.02
+        },
+        "error": "扰动在第 1 次跳变时停下：电流 0.25 A 超过中止阈 5e-09 A。偏压已恢复到 0.02 V。",
+        "success": false,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0.16360622525422314
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              0.01999999999999999
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "abort_current_a": 5e-09,
+          "aborted_reason": "电流 0.25 A 超过中止阈 5e-09 A",
+          "base_bias_v": 0.02,
+          "bias_restored": true,
+          "burst_s": 0.003,
+          "flips_executed": 1,
+          "log": [
+            {
+              "crossed_zero": true,
+              "reached_v": 0.163606,
+              "t_s": 0.002,
+              "target_v": -0.009181
+            }
+          ],
+          "seed": 7,
+          "slew_rate_v_per_s": 1.0,
+          "wiggle_lower_v": 0.004,
+          "wiggle_upper_v": 0.02
+        },
+        "error": "扰动在第 1 次跳变时停下：电流 0.25 A 超过中止阈 5e-09 A。偏压已恢复到 0.02 V。",
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0.16360622525422314
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              0.01999999999999999
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "abort_current_a": 5e-09,
+          "aborted_reason": "电流 0.25 A 超过中止阈 5e-09 A",
+          "base_bias_v": 0.02,
+          "bias_restored": true,
+          "burst_s": 0.003,
+          "flips_executed": 1,
+          "log": [
+            {
+              "crossed_zero": true,
+              "reached_v": 0.163606,
+              "t_s": 0.002,
+              "target_v": -0.009181
+            }
+          ],
+          "seed": 7,
+          "slew_rate_v_per_s": 1.0,
+          "wiggle_lower_v": 0.004,
+          "wiggle_upper_v": 0.02
+        },
+        "error": "扰动在第 1 次跳变时停下：电流 0.25 A 超过中止阈 5e-09 A。偏压已恢复到 0.02 V。",
+        "success": false,
+        "summary": ""
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_OnOffGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Get"
+          },
+          {
+            "args": [
+              0.16360622525422314
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Bias_Set"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Current_Get"
+          },
+          {
+            "args": [
+              0.01999999999999999
+            ],
+            "error": "",
+            "kwargs": {
+              "allow_on_abort": true
+            },
+            "verb": "Bias_Set"
+          }
+        ],
+        "data": {
+          "abort_current_a": 5e-09,
+          "aborted_reason": "电流 0.25 A 超过中止阈 5e-09 A",
+          "base_bias_v": 0.02,
+          "bias_restored": true,
+          "burst_s": 0.003,
+          "flips_executed": 1,
+          "log": [
+            {
+              "crossed_zero": true,
+              "reached_v": 0.163606,
+              "t_s": 0.002,
+              "target_v": -0.009181
+            }
+          ],
+          "seed": 7,
+          "slew_rate_v_per_s": 1.0,
+          "wiggle_lower_v": 0.004,
+          "wiggle_upper_v": 0.02
+        },
+        "error": "扰动在第 1 次跳变时停下：电流 0.25 A 超过中止阈 5e-09 A。偏压已恢复到 0.02 V。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "CaptureSignalBuffer": {
     "params": {
       "duration_s": 0.05
@@ -19856,6 +20250,20 @@
         "calls": [],
         "data": {},
         "error": "Failed to load image: image file not found: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "FindFlatRegion": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "scan_path not found: spec-export",
         "success": false,
         "summary": ""
       }

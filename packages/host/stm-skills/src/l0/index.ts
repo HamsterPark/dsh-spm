@@ -95,6 +95,8 @@ import { SCAN_PREP_SKILLS } from './scan-prep-skills.js'
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 import ──
 
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 import ──
+import { ANALYSIS_FLAT_REGION } from './analysis-flat-region.js'
+import { BIAS_WIGGLE } from './bias-wiggle.js'
 import { ANALYSIS_TIP } from './analysis-tip.js'
 import { ANALYSIS_FORCE } from './analysis-force.js'
 import { ANALYSIS_MULTIFRAME } from './analysis-multiframe.js'
@@ -204,6 +206,8 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 7a-2 在这一行下面展开 ──
 
   // ── 批 7a-3 在这一行下面展开 ──
+  ...ANALYSIS_FLAT_REGION,
+  ...BIAS_WIGGLE,
 
   // ── 批 6b 在这一行下面展开 ──
   ...SCAN_PREP_SKILLS,
@@ -319,6 +323,14 @@ export * from '../composite/batch-regions-scan.js'
 
 // ── 批 6b 在这一行下面 re-export ──
 export * from './scan-prep-skills.js'
+
+// ── 批 7a-1 在这一行下面 re-export ──
+
+// ── 批 7a-2 在这一行下面 re-export ──
+
+// ── 批 7a-3 在这一行下面 re-export ──
+export * from './analysis-flat-region.js'
+export * from './bias-wiggle.js'
 
 // ── 批 6c 在这一行下面 re-export ──
 export * from './analysis-tip.js'

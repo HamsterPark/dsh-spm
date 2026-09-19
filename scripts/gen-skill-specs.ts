@@ -453,6 +453,20 @@ const BATCH_6C: string[] = [
   'AssessAtomicConsistency',
 ]   // 批 5b 欠下的数值原语 + 晶格一族剩余
 
+// ↑ 上一条 ／ ↓ 7A-1 —— 这一行谁都不要动
+const BATCH_7A_1: string[] = []   // vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt
+
+// ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
+const BATCH_7A_2: string[] = []   // 实验地图层 + FindCleanSpot
+
+// ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
+const BATCH_7A_3: string[] = [
+  // `kde_layers`(15) + `_hist_modes`(30) 落了之后，这个 827 行的技能就没有缺件了。
+  'FindFlatRegion',
+  // 零判据缺件（函数体里一个 `mast.*` import 都没有）。挡着 MakeAtomicResolutionTip。
+  'BiasWiggle',
+]   // kde_layers + FindFlatRegion + BiasWiggle
+
 const BATCH_5C: string[] = [
   // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。
   'ReadCalibrations',
@@ -565,6 +579,12 @@ function main(): number {
     ...BATCH_6B,
     // ↑ ／ ↓ 6C
     ...BATCH_6C,
+    // ↑ ／ ↓ 7A-1
+    ...BATCH_7A_1,
+    // ↑ ／ ↓ 7A-2
+    ...BATCH_7A_2,
+    // ↑ ／ ↓ 7A-3
+    ...BATCH_7A_3,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -611,7 +631,13 @@ function main(): number {
     // ↑ ／ ↓ 6B
     `批 6b ${BATCH_6B.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 6C
-    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个\n` +
+    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7A-1
+    `批 7a-1 ${BATCH_7A_1.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7A-2
+    `批 7a-2 ${BATCH_7A_2.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7A-3
+    `批 7a-3 ${BATCH_7A_3.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

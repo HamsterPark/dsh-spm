@@ -96,6 +96,10 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 | 文件 | 导出器 | 为什么要单开一台 |
 |---|---|---|
+| `batch7a3.json` | `export_batch7a3.py` | 通用驱动器对这两个技能各自照不到一整半。`FindFlatRegion` 的 `_params_for` 给不出一条真实的 `.sxm` 路径 ⇒ 那一份里只有「文件不存在」那一支，而十一个参数、两次不同步长的扫描、三条失败路径、`count > 1` 的多落点**一条都没被验到**；`BiasWiggle` 每个动词只拿得到一个**常数**回包，于是电流跳闸 / `Bias_Set` 失败 / 反馈关着 / 读不到起点四条全走不到，而随机数与墙钟这两样在那份驱动器里也不是用例能控的。这一份自己合成 `.sxm` 字节（闭式 sin-hash，零随机数）再喂进旧仓两个技能，外加五节判据本体：`np_grid`（`linspace` / `digitize` / **按边界数组**的 `histogram` / 二维 `gradient` / `argsort[::-1]`）· `hist_modes` · `kde_layers` · `local_plane_rms` · **`mt19937`**。<br>⚠️ `mt19937` 那一节对的是 **CPython 的 `random`**（不是 numpy）：`BiasWiggle` 的每一个扰动目标与每一段停留都是它的直接产物，而停留时长决定一次 burst 打得出几次跳变 —— 换一个 RNG，这个技能整条轨迹就没有判据了。<br>⚠️ `local_plane_rms` 每一格随金样录一个 **`z_span`**，`FindFlatRegion` 每一格随金样录一个 **`leveled_span_m`** —— 那是 `localRmsAbsTol` 的**入口**（同批 6c 的 `polyfit_cond`：容差里唯一的未知数，录下来就不再是未知数）。 |
+
+| 文件 | 导出器 | 为什么要单开一台 |
+|---|---|---|
 | `batch6c.json` | `export_batch6c.py` | 四个技能**一次 Nanonis 调用都不发**：两个读 `.sxm`、两个读 `.dat`。通用驱动器的 `_params_for` 给不出真实路径 ⇒ 它们在 `skill_traces.json` 里只录得到「文件不存在」那一支。这一份自己合成字节（闭式、零随机数）再喂进旧仓四个技能，外加九节判据本体（`_edge_resolution` / `_fwd_bwd_instability` / `assess_iz` / `assess_iv` / `sader_jarvis` / `invert_force_curve` / 多帧一致性）。**`polyfit` 的条件数与解向量分量比随每一格录** —— 容差要用它们 |
 
 

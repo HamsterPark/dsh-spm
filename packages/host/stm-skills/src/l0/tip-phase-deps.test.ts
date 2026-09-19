@@ -122,9 +122,16 @@ describe('两个自检各问各的链', () => {
     expect(missing).not.toContain('AssessShockleyOnset')
   })
 
-  it('锻造自检报 `BiasWiggle` / `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+  it('锻造自检报 `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
     const missing = await missingOf(makeTipForgeSelfCheck({}))
-    expect(missing).toContain('BiasWiggle')
+    // 2026-09-20：`BiasWiggle` 从这一行里划掉了 —— **批 7a-3 当天落的**。
+    // 这条测试问的是「这个自检数的是**哪一条链**」，而链的成员没变；
+    // 变的是那条链上还差几件。所以判据换成**两条链的分界**本身：
+    // 锻造那条要 `BiasWiggle`（现在它在 `IMPLEMENTED` 里，于是不再是缺口），
+    // 而修针那条从来不问它。
+    expect(FORGE_REQUIRED_SKILLS).toContain('BiasWiggle')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('BiasWiggle')
+    expect(missing).not.toContain('BiasWiggle')
     expect(missing).toContain('AssessShockleyOnset')
     expect(missing).not.toContain('PreScanCheck')
     expect(missing).not.toContain('AnalyzeFrameTilt')
@@ -141,20 +148,21 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
   /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
     PulseConditionTip: ['FindCleanSpot'],
-    PokeConditionTip: ['AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
-    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
-    MakeAtomicResolutionTip: [
-      'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindCleanSpot', 'FindFlatRegion',
-    ],
+    PokeConditionTip: ['AutoTilt', 'FindCleanSpot'],
+    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindCleanSpot'],
+    MakeAtomicResolutionTip: ['AssessAtomicPhase', 'AutoTilt', 'FindCleanSpot'],
     // 2026-09-19：`AssessTipSharpness` 从这两行里划掉了 —— **批 6c 当天落的**，
     // 而这条测试在合并后的第一次全仓跑就红了。这正是它存在的理由：
     // **封锁账不是一句「还卡着」，是一个会随仓库变化自己失效的判据。**
-    PrepareNobleTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
-    ],
-    ForgeAuTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
-    ],
+    //
+    // 2026-09-20：`FindFlatRegion` 从五行里划掉、`BiasWiggle` 从
+    // `MakeAtomicResolutionTip` 那一行划掉 —— **批 7a-3 当天落的**，
+    // 同一条理由第二次生效。⚠️ 划的时候顺手核过 `_tip_phases.py` 那六条流程：
+    // 六条现在**全部**只卡在 `FindCleanSpot`（批 7a-2）与 `AutoTilt`（批 7a-1）
+    // 这两件公共前提上，外加两条自己的（`AssessShockleyOnset` /
+    // `AssessAtomicPhase`）与两条要 `PreScanCheck`。
+    PrepareNobleTip: ['AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'PreScanCheck'],
+    ForgeAuTip: ['AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'PreScanCheck'],
   }
 
   const installed = new Set(Object.keys(IMPLEMENTED))
