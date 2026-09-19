@@ -2715,7 +2715,7 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 
 <!-- 批 6a：以下 2 条的**编号留空**（`?`），由主线统一编。 -->
 
-## D-TIPDEPTH-? · **扎针深度接上了那半道安全包络 —— 本仓有，旧仓没有**
+## D-TIPDEPTH-1 · **扎针深度接上了那半道安全包络 —— 本仓有，旧仓没有**
 
 | | |
 |---|---|
@@ -2777,7 +2777,7 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 并已对旧仓实跑核过一次（两边一致）。**下一个动 `tip_policy.json` 的人请顺手补上
 `shaper_depth_at_limit`。**
 
-## D-TIPDEPS-? · 两张依赖表改成**由旧仓源码算出来**，并修正 `FORGE_REQUIRED_SKILLS`
+## D-TIPDEPS-1 · 两张依赖表改成**由旧仓源码算出来**，并修正 `FORGE_REQUIRED_SKILLS`
 
 | | |
 |---|---|
@@ -2928,7 +2928,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
 
-## D-FORCE-? · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）
+## D-FORCE-1 · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）
 
 | | |
 |---|---|
@@ -2944,7 +2944,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 本仓是 `process.cwd()/artifacts/force_inversion`，并按 `frames.ts` / `readback-stream.ts` 的既有体例
 留了一个注入口（`makeInvertForceSaderJarvis({ curveDir })`）。金样两侧都归一成 `<artifacts>`。
 
-## D-FORCE-? · `ForceInversionResult.notes` 不实现
+## D-FORCE-2 · `ForceInversionResult.notes` 不实现
 
 | | |
 |---|---|
@@ -2954,7 +2954,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 消融精神：技能层一个字段都不读它，而它从来没有被写过。
 
-## D-FORCE-? · `forward_df` 的**小振幅极限**那一支不实现，改成抛
+## D-FORCE-3 · `forward_df` 的**小振幅极限**那一支不实现，改成抛
 
 | | |
 |---|---|
@@ -2967,7 +2967,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 要验它需要什么：一格 `a ≤ 1e-13` 的入参，而且那一格的答案要与本式在 `a → 0` 的极限**不同**
 （否则两种候选分不开）。在那之前，一条抛出来的 `RangeError` 比一段没人验的分支诚实。
 
-## D-SHARP-? · 没有像素标度时 `verdict` 报 `no_step`，而同一格的 `has_step` 是 `true`
+## D-SHARP-2 · 没有像素标度时 `verdict` 报 `no_step`，而同一格的 `has_step` 是 `true`
 
 | | |
 |---|---|
@@ -2980,7 +2980,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 统一成一种写法会让金样里那条报文对不上，而那条报文是这个技能的产品。
 写在这里是为了让它**看得见**：读 `verdict` 的下游在无标度的帧上会得到一个假的否定。
 
-## D-LATTICE-? · `_UNUSABLE_REASONS` 里的 `"too_small"` **永远匹配不上**
+## D-LATTICE-4 · `_UNUSABLE_REASONS` 里的 `"too_small"` **永远匹配不上**
 
 | | |
 |---|---|
@@ -2995,7 +2995,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 正是按现在这个分法录的。哪天改，要连同「下游的四态表跟着变了吗」一起问。
 那条测试就是为这一天留的：它一红，先问那个问题。
 
-## D-NUM-? · `np.gradient(y, x)`：**间距恰好相等就退回标量分支**
+## D-NUM-24 · `np.gradient(y, x)`：**间距恰好相等就退回标量分支**
 
 | | |
 |---|---|
@@ -3011,7 +3011,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 这不是「与 numpy 不同」，是「与 numpy 相同**所以必须照抄一个看起来像优化的分支**」。
 登记在这里，是因为下一个人很容易把它当成冗余删掉。
 
-## D-NUM-? · `np.corrcoef` **给不出零容差**（`np.dot` 走 BLAS）
+## D-NUM-25 · `np.corrcoef` **给不出零容差**（`np.dot` 走 BLAS）
 
 | | |
 |---|---|

@@ -109,17 +109,17 @@ Sader–Jarvis 不是一个 numpy 调用，它是一条物理反演 —— 所�
 
 ---
 
-## 3. 该登记成 deviation 的（**编号留空**，我按 `D-*-?` 临时标了）
+## 3. 该登记成 deviation 的（**主线已编号并登记进 `spec/deviations.md`**）
 
 | 临时号 | 一句话 |
 |---|---|
-| `D-FORCE-?` | **`InvertForceSaderJarvis` 真的把 F(z)/U(z) 落盘** —— 旧仓 `_save_curve` 里 `from mast.core._runtime_paths import project_root` **那个模块不存在**（全仓另外十几处写的都是 `mast._runtime_paths`），外面套着 `except Exception: return None` ⇒ `curve_path` 恒为 `None`，这个技能的曲线**一次都没产出过**。按 DoD ⑤ 不照抄 |
-| `D-FORCE-?` | `ForceInversionResult.notes`（恒为 `{}`、无人读）**不实现** |
-| `D-FORCE-?` | `forward_df` 的**小振幅极限**（`a < 1e-13`）不实现，改成抛 —— 那一支从这个技能出发不可达（声明下界就是 `1e-13`） |
-| `D-SHARP-?` | 没有像素标度时 `verdict` 报 `no_step`，**而同一格的 `has_step` 是 `true`、`edge_resolution_px` 是个数**。照移未改 |
-| `D-LATTICE-?` | `_UNUSABLE_REASONS` 里的 `"too_small"` 与 `find_lattice_peaks` 报的 `"image_too_small"` **对不上** ⇒「帧太小」被算成「可用帧上没有晶格」。照移未改 |
-| `D-NUM-?` | `np.gradient(y, x)` 在**间距恰好相等**时退回标量分支 —— 那**换的是算法不是速度**，必须照抄 |
-| `D-NUM-?` | `np.corrcoef` **给不出零容差**（numpy 那次 `dot` 走 BLAS） |
+| `D-FORCE-1` | **`InvertForceSaderJarvis` 真的把 F(z)/U(z) 落盘** —— 旧仓 `_save_curve` 里 `from mast.core._runtime_paths import project_root` **那个模块不存在**（全仓另外十几处写的都是 `mast._runtime_paths`），外面套着 `except Exception: return None` ⇒ `curve_path` 恒为 `None`，这个技能的曲线**一次都没产出过**。按 DoD ⑤ 不照抄 |
+| `D-FORCE-2` | `ForceInversionResult.notes`（恒为 `{}`、无人读）**不实现** |
+| `D-FORCE-3` | `forward_df` 的**小振幅极限**（`a < 1e-13`）不实现，改成抛 —— 那一支从这个技能出发不可达（声明下界就是 `1e-13`） |
+| `D-SHARP-2` | 没有像素标度时 `verdict` 报 `no_step`，**而同一格的 `has_step` 是 `true`、`edge_resolution_px` 是个数**。照移未改 |
+| `D-LATTICE-4` | `_UNUSABLE_REASONS` 里的 `"too_small"` 与 `find_lattice_peaks` 报的 `"image_too_small"` **对不上** ⇒「帧太小」被算成「可用帧上没有晶格」。照移未改 |
+| `D-NUM-24` | `np.gradient(y, x)` 在**间距恰好相等**时退回标量分支 —— 那**换的是算法不是速度**，必须照抄 |
+| `D-NUM-25` | `np.corrcoef` **给不出零容差**（numpy 那次 `dot` 走 BLAS） |
 
 前两条 `D-FORCE` 与 `D-SHARP` / `D-LATTICE` 的分界值得记一笔：
 **「旧仓这里写错了」与「旧仓这里的话自相矛盾」不是同一件事。**

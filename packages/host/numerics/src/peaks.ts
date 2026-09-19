@@ -68,7 +68,7 @@
  * | `rel_height ≠ 0.5` | 无（`width` 那一处用的是缺省 0.5） | `prom·rel_height` 不再是 2 的幂乘法，容差要从 `8·eps` 重推 |
  * | `(min, max)` 区间形式的条件 | 无（五处传的全是标量下界） | 上界那一侧的闭开性 |
  *
- * ## D-NUM-?? · 等高峰在 `distance` 里谁赢，scipy **没有定义**
+ * ## D-NUM-18 · 等高峰在 `distance` 里谁赢，scipy **没有定义**
  *
  * scipy 用 `np.argsort`（quicksort，**不稳定**）给峰按高度排序，然后从高到低处理。
  * 两个**等高**且互相在 `distance` 之内的峰，留下哪一个由排序实现决定 ——
