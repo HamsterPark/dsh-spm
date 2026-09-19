@@ -49,3 +49,6 @@ desktop.ini
 
 # ---- agent worktree（并行支线的隔离副本，不入仓）----
 .claude/
+
+# 变异演练日志属于验证证据，必须入仓；上面的例外规则覆盖该目录。
+!docs/handoff/*.log

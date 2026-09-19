@@ -1,0 +1,1189 @@
+… 基线（7 个 scope）
+… k2-abort-latch
+✓ k2-abort-latch                   red           11 条变红
+… k3-sample-gate
+✓ k3-sample-gate                   red           1 条变红
+… k6-required
+✓ k6-required                      red           1 条变红
+… k7-safety-gate
+✓ k7-safety-gate                   red           2 条变红
+… k16-record-every-outcome
+✓ k16-record-every-outcome         red           13 条变红
+… k16-record-parsed-params
+✓ k16-record-parsed-params         red           2 条变红
+… safety-physically-absurd
+✓ safety-physically-absurd         red           9 条变红
+… schema-effective-bounds
+✓ schema-effective-bounds          red           8 条变红
+… schema-enum-skips-si
+✓ schema-enum-skips-si             red           4 条变红
+… tool-bounds-into-description
+✓ tool-bounds-into-description     red           2 条变红
+… tool-validation-teaching-text
+✓ tool-validation-teaching-text    red           2 条变红
+… rec-unscoped-sentinel
+✓ rec-unscoped-sentinel            red           11 条变红
+… rec-approval-row
+✓ rec-approval-row                 red           2 条变红
+… rec-status-rolled-back
+✓ rec-status-rolled-back           red           1 条变红
+… ledger-success-only-artifacts
+✓ ledger-success-only-artifacts    red           2 条变红
+… ledger-absent-is-undefined
+✓ ledger-absent-is-undefined       red           2 条变红
+… audit-windows-path-semantics
+✓ audit-windows-path-semantics     red           1 条变红
+… park-undeclared-before-missing
+✓ park-undeclared-before-missing   red           3 条变红
+… park-rail-side-by-sign
+✓ park-rail-side-by-sign           red           11 条变红
+… park-soft-limits-need-enabled
+✓ park-soft-limits-need-enabled    red           2 条变红
+… park-is-parked-only-parked
+✓ park-is-parked-only-parked       red           8 条变红
+… retract-retry-useful-exit
+✓ retract-retry-useful-exit        red           2 条变红
+… engage-fail-closed-no-current
+✓ engage-fail-closed-no-current    red           3 条变红
+… engage-fail-closed-loop-open
+✓ engage-fail-closed-loop-open     red           2 条变红
+… move-stall-counter
+✓ move-stall-counter               red           2 条变红
+… gated-call-abort-verbs
+✓ gated-call-abort-verbs           red           1 条变红
+… k2-abort-reason-honesty
+✓ k2-abort-reason-honesty          red           2 条变红
+… graph-terminal-guard
+✓ graph-terminal-guard             red           6 条变红
+… graph-drop-stale-abort
+✓ graph-drop-stale-abort           red           5 条变红
+… graph-clear-completed-sidecar
+✓ graph-clear-completed-sidecar    red           34 条变红
+… graph-abort-before-step
+✓ graph-abort-before-step          red           20 条变红
+… graph-halt-must-be-a-reason
+✓ graph-halt-must-be-a-reason      red           3 条变红
+… graph-abort-facts-operator-only
+✓ graph-abort-facts-operator-only  red           30 条变红
+… wait-lines-mismatch-refusal
+✓ wait-lines-mismatch-refusal      red           9 条变红
+… wait-never-started
+✓ wait-never-started               red           2 条变红
+… wait-extension-needs-progress
+✓ wait-extension-needs-progress    red           5 条变红
+… wait-frame-restarted
+✓ wait-frame-restarted             red           2 条变红
+… wait-stop-scan-on-abort
+✓ wait-stop-scan-on-abort          red           5 条变红
+… ramp-no-fake-start
+✓ ramp-no-fake-start               red           7 条变红
+… ramp-endpoint-exact
+✓ ramp-endpoint-exact              red           2 条变红
+… engage-noise-floor
+✓ engage-noise-floor               red           9 条变红
+… engage-bar-needs-setpoint
+✓ engage-bar-needs-setpoint        red           3 条变红
+… engage-two-agreeing-reads
+✓ engage-two-agreeing-reads        red           33 条变红
+… engage-unreadable-breaks-run
+✓ engage-unreadable-breaks-run     red           1 条变红
+… engage-unknown-is-not-zero
+✓ engage-unknown-is-not-zero       red           6 条变红
+… engage-parse-running-unreadable
+✓ engage-parse-running-unreadable  red           6 条变红
+… engage-z-travel-is-evidence
+✓ engage-z-travel-is-evidence      red           18 条变红
+… approach-confirm-stopped
+✓ approach-confirm-stopped         red           13 条变红
+… approach-stop-on-abort
+✓ approach-stop-on-abort           red           2 条变红
+… approach-stop-failure-is-visible
+✓ approach-stop-failure-is-visible red           3 条变红
+… approach-timeout-not-success
+✓ approach-timeout-not-success     red           14 条变红
+… refusal-clear-is-chain-scoped
+✓ refusal-clear-is-chain-scoped    red           4 条变红
+… refusal-expires
+✓ refusal-expires                  red           5 条变红
+… refusal-gate-denies
+✓ refusal-gate-denies              red           2 条变红
+… tip-records-refusal-on-engage-fail
+✓ tip-records-refusal-on-engage-fail red           2 条变红
+… tip-no-approach-on-a-maybe
+✓ tip-no-approach-on-a-maybe       red           4 条变红
+… tip-verifies-after-approach
+✓ tip-verifies-after-approach      red           9 条变红
+… kernel-composition-depth-cap
+✓ kernel-composition-depth-cap     red           1 条变红
+… tier-bound-tolerance
+✓ tier-bound-tolerance             red           57 条变红
+… line-time-explicit-must-be-positive
+✓ line-time-explicit-must-be-positive red           3 条变红
+… frame-extent-honours-angle
+✓ frame-extent-honours-angle       red           7 条变红
+… frame-exceeds-needs-half-range
+✓ frame-exceeds-needs-half-range   red           2 条变红
+… frame-readback-unreadable-is-not-ok
+✓ frame-readback-unreadable-is-not-ok red           4 条变红
+… match-signal-prefix-needs-boundary
+✓ match-signal-prefix-needs-boundary red           3 条变红
+… props-module-count-must-agree
+✓ props-module-count-must-agree    red           7 条变红
+… continuous-state-is-three-valued
+✓ continuous-state-is-three-valued red           18 条变红
+… configure-scan-refuses-unread-angle
+✓ configure-scan-refuses-unread-angle red           4 条变红
+… configure-scan-frame-readback-gate
+✓ configure-scan-frame-readback-gate red           4 条变红
+… configure-scan-piezo-range-gate
+✓ configure-scan-piezo-range-gate  red           2 条变红
+… start-scan-continuous-gate
+✓ start-scan-continuous-gate       red           8 条变红
+… start-scan-props-need-read-list
+✓ start-scan-props-need-read-list  red           2 条变红
+… frame-must-keep-2d
+✓ frame-must-keep-2d               red           3 条变红
+… frame-name-must-be-free
+✓ frame-name-must-be-free          red           1 条变红
+… searched-dirs-must-exist
+✓ searched-dirs-must-exist         red           1 条变红
+… session-path-may-be-prefix
+✓ session-path-may-be-prefix       red           1 条变红
+… preset-never-clamps
+✓ preset-never-clamps              red           6 条变红
+… preset-duplicate-needs-overwrite
+✓ preset-duplicate-needs-overwrite red           6 条变红
+… npy-header-64-align
+✓ npy-header-64-align              red           9 条变红
+… py-repr-exponent-band
+✓ py-repr-exponent-band            red           21 条变红
+… readback-tolerance-is-load-bearing
+✓ readback-tolerance-is-load-bearing red           7 条变红
+… readback-rejects-unreadable
+✓ readback-rejects-unreadable      red           1 条变红
+… preset-approach-needs-profile
+✓ preset-approach-needs-profile    red           18 条变红
+… preset-scan-needs-frame-size
+✓ preset-scan-needs-frame-size     red           6 条变红
+… preset-tier-needs-gains
+✓ preset-tier-needs-gains          red           8 条变红
+… apply-preset-stops-on-gain-failure
+✓ apply-preset-stops-on-gain-failure red           3 条变红
+… approach-preset-restores
+✓ approach-preset-restores         red           4 条变红
+… approach-preset-soft-stop-keeps-setpoint
+✓ approach-preset-soft-stop-keeps-setpoint red           1 条变红
+… approach-preset-snapshot-on-failure
+✓ approach-preset-snapshot-on-failure red           1 条变红
+… crash-status-is-three-valued
+✓ crash-status-is-three-valued     red           5 条变红
+… crash-nan-is-a-crash
+✓ crash-nan-is-a-crash             red           14 条变红
+… crash-bad-channel-token-skipped
+✓ crash-bad-channel-token-skipped  red           1 条变红
+… readmany-lists-unreadable
+✓ readmany-lists-unreadable        red           42 条变红
+… readmany-one-failure-keeps-the-batch
+✓ readmany-one-failure-keeps-the-batch red           42 条变红
+… tipshaper-naming-is-all-or-nothing
+✓ tipshaper-naming-is-all-or-nothing red           1 条变红
+… lockin-values-before-modulation
+✓ lockin-values-before-modulation  red           10 条变红
+… lockin-zero-amplitude-is-a-value
+✓ lockin-zero-amplitude-is-a-value red           2 条变红
+… lockin-unwritten-field-is-null
+✓ lockin-unwritten-field-is-null   red           5 条变红
+… lockin-demod-null-means-unset
+✓ lockin-demod-null-means-unset    red           1 条变红
+… lockin-readback-unreadable-is-null
+✓ lockin-readback-unreadable-is-null red           7 条变红
+… datalog-channels-are-strict
+✓ datalog-channels-are-strict      red           1 条变红
+… datalog-timed-vs-continuous
+✓ datalog-timed-vs-continuous      red           4 条变红
+… marks-line-needs-both-ends
+✓ marks-line-needs-both-ends       red           2 条变红
+… lockin-preset-no-factory-default
+✓ lockin-preset-no-factory-default red           8 条变红
+… lockin-preset-phase-never-sent
+✓ lockin-preset-phase-never-sent   red           13 条变红
+… lockin-readback-key-map
+✓ lockin-readback-key-map          red           11 条变红
+… lockin-apply-readback-blocks
+✓ lockin-apply-readback-blocks     red           5 条变红
+… autophase-pymod-not-remainder
+✓ autophase-pymod-not-remainder    red           7 条变红
+… autophase-noise-floor
+✓ autophase-noise-floor            red           4 条变红
+… autophase-phase-readback-tol
+✓ autophase-phase-readback-tol     red           2 条变红
+… pysum-neumaier
+✓ pysum-neumaier                   red           16 条变红
+… autophase-abort-writes-nothing
+✓ autophase-abort-writes-nothing   red           2 条变红
+… autophase-closes-modulation
+✓ autophase-closes-modulation      red           12 条变红
+… autophase-never-guesses-indices
+✓ autophase-never-guesses-indices  red           2 条变红
+… autophase-needs-current-phase
+✓ autophase-needs-current-phase    red           1 条变红
+… atomtrack-enable-failure-is-failure
+✓ atomtrack-enable-failure-is-failure red           2 条变红
+… atomtrack-status-from-body
+✓ atomtrack-status-from-body       red           4 条变红
+… osci-needmodule-vs-link-error
+✓ osci-needmodule-vs-link-error    red           4 条变红
+… osci-samples-all-or-nothing
+✓ osci-samples-all-or-nothing      red           1 条变红
+… spectrum-zero-is-a-value
+✓ spectrum-zero-is-a-value         red           2 条变红
+… spectrum-band-lo-lt-hi
+✓ spectrum-band-lo-lt-hi           red           4 条变红
+… biassweep-limits-swapped
+✓ biassweep-limits-swapped         red           2 条变红
+… biassweep-props-four-args
+✓ biassweep-props-four-args        red           7 条变红
+… biassweep-zero-is-a-value
+✓ biassweep-zero-is-a-value        red           2 条变红
+… biaspulse-position-before-pulse
+✓ biaspulse-position-before-pulse  red           6 条变红
+… script-allowlist-empty-means-no
+✓ script-allowlist-empty-means-no  red           2 条变红
+… script-allowlist-unvetted-slot
+✓ script-allowlist-unvetted-slot   red           6 条变红
+… script-lut-range-is-enforced
+✓ script-lut-range-is-enforced     red           5 条变红
+… script-load-gate-is-inverted
+✓ script-load-gate-is-inverted     red           7 条变红
+… script-lut-write-permission
+✓ script-lut-write-permission      red           2 条变红
+… script-run-leaves-a-record
+✓ script-run-leaves-a-record       red           1 条变红
+… zlimits-enable-failure-is-failure
+✓ zlimits-enable-failure-is-failure red           2 条变红
+… zlimits-enabled-is-read-not-inferred
+✓ zlimits-enabled-is-read-not-inferred red           1 条变红
+… zlimits-widened-is-tristate
+✓ zlimits-widened-is-tristate      red           3 条变红
+… piezo-limits-lo-lt-hi
+✓ piezo-limits-lo-lt-hi            red           2 条变红
+… limits-floats-all-or-nothing
+✓ limits-floats-all-or-nothing     red           5 条变红
+… pll-output-failure-is-failure
+✓ pll-output-failure-is-failure    red           2 条变红
+… pll-given-not-in
+✓ pll-given-not-in                 red           1 条变红
+… pll-unparsable-omits-the-key
+✓ pll-unparsable-omits-the-key     red           1 条变红
+… tipxy-magnitude-guard
+✓ tipxy-magnitude-guard            red           21 条变红
+… numerics-morph-dilation-reflects-se
+✓ numerics-morph-dilation-reflects-se red           4 条变红
+… numerics-interp-mirror-keeps-last-span
+✓ numerics-interp-mirror-keeps-last-span red           1 条变红
+… numerics-interp-wrap-period-is-n-minus-1
+✓ numerics-interp-wrap-period-is-n-minus-1 red           6 条变红
+… numerics-subpixel-dftshift-is-fix
+✓ numerics-subpixel-dftshift-is-fix red           2 条变红
+… numerics-xcorr-damps-tiny-magnitudes
+✓ numerics-xcorr-damps-tiny-magnitudes red           3 条变红
+… numerics-findpeaks-prominence-is-the-lower-base
+✓ numerics-findpeaks-prominence-is-the-lower-base red           10 条变红
+… numerics-findpeaks-plateau-midpoint-floors
+✓ numerics-findpeaks-plateau-midpoint-floors red           3 条变红
+… numerics-findpeaks-distance-keeps-the-taller
+✓ numerics-findpeaks-distance-keeps-the-taller red           5 条变红
+… numerics-curvefit-pcov-divides-by-dof
+✓ numerics-curvefit-pcov-divides-by-dof red           3 条变红
+… numerics-correlate2d-origin-is-half-of-size-minus-one
+✓ numerics-correlate2d-origin-is-half-of-size-minus-one red           6 条变红
+… numerics-xcorr-normalization-is-switchable
+✓ numerics-xcorr-normalization-is-switchable red           10 条变红
+… numerics-xcorr-conjugates-the-upsampled-peak
+✓ numerics-xcorr-conjugates-the-upsampled-peak red           5 条变红
+… numerics-savgol-row-scaling-also-scales-y
+✓ numerics-savgol-row-scaling-also-scales-y red           10 条变红
+… numerics-savgol-refits-both-edges
+✓ numerics-savgol-refits-both-edges red           5 条变红
+… numerics-polyfit-scales-its-columns
+✓ numerics-polyfit-scales-its-columns red           2 条变红
+… 3ds-missing-pixels-are-nan-not-zero
+✓ 3ds-missing-pixels-are-nan-not-zero red           2 条变红
+… 3ds-pixels-written-is-counted-not-declared
+✓ 3ds-pixels-written-is-counted-not-declared red           3 条变红
+… sxm-direction-decides-frame-count
+✓ sxm-direction-decides-frame-count red           1 条变红
+… sxm-negative-pixels-are-not-zero-pixels
+✓ sxm-negative-pixels-are-not-zero-pixels red           1 条变红
+… dat-mode-width-breaks-ties-by-first-seen
+✓ dat-mode-width-breaks-ties-by-first-seen red           1 条变红
+… file-size-gate-is-gt-not-gte
+✓ file-size-gate-is-gt-not-gte     red           1 条变红
+… hsswp-zero-means-continuous
+✓ hsswp-zero-means-continuous      red           2 条变红
+… pi-limits-before-tuning
+✓ pi-limits-before-tuning          red           7 条变红
+… pi-inverted-limits-refused
+✓ pi-inverted-limits-refused       red           3 条变红
+… kelvin-inverted-limits-refused
+✓ kelvin-inverted-limits-refused   red           2 条变红
+… probe-gain-pair-preserved
+✓ probe-gain-pair-preserved        red           2 条变红
+… rf-stop-cuts-output-anyway
+✓ rf-stop-cuts-output-anyway       red           2 条变红
+… rf-sweep-never-infinite
+✓ rf-sweep-never-infinite          red           7 条变红
+… psd-failure-keeps-the-trace
+✓ psd-failure-keeps-the-trace      red           1 条变红
+… preamp-nothing-given-is-refused
+✓ preamp-nothing-given-is-refused  red           3 条变红
+… optional-multiread-null-not-zero
+✓ optional-multiread-null-not-zero red           46 条变红
+… beam-deflection-unknown-axis
+✓ beam-deflection-unknown-axis     red           2 条变红
+… optional-channels-all-or-nothing
+✓ optional-channels-all-or-nothing red           2 条变红
+… userout-unreadable-limits-refuse
+✓ userout-unreadable-limits-refuse red           2 条变红
+… userout-honours-instrument-envelope
+✓ userout-honours-instrument-envelope red           2 条变红
+… userout-widened-is-recorded
+✓ userout-widened-is-recorded      red           1 条变红
+… userout-digital-line-range
+✓ userout-digital-line-range       red           2 条变红
+… waveform-period-not-frequency
+✓ waveform-period-not-frequency    red           2 条变红
+… waitscan-slice-is-milliseconds
+✓ waitscan-slice-is-milliseconds   red           5 条变红
+… waitscan-unreadable-means-finished
+✓ waitscan-unreadable-means-finished red           1 条变红
+… quit-withdraw-is-not-optional
+✓ quit-withdraw-is-not-optional    red           3 条变红
+… quit-verifies-against-rt-controller
+✓ quit-verifies-against-rt-controller red           11 条变红
+… pattern-cloud-json-must-be-a-list
+✓ pattern-cloud-json-must-be-a-list red           2 条变红
+… spectroscopy-firstint-rejects-floats
+✓ spectroscopy-firstint-rejects-floats red           4 条变红
+… sweep-rows-all-or-nothing
+✓ sweep-rows-all-or-nothing        red           1 条变红
+… sweep-acquire-turns-z-feedback-off
+✓ sweep-acquire-turns-z-feedback-off red           7 条变红
+… sweep-fallback-matches-declaration
+✓ sweep-fallback-matches-declaration red           5 条变红
+… piezo-unknown-is-not-ok
+✓ piezo-unknown-is-not-ok          red           1 条变红
+… piezo-two-axes-take-the-smaller
+✓ piezo-two-axes-take-the-smaller  red           2 条变红
+… qplus-excitation-needs-two-witnesses
+✓ qplus-excitation-needs-two-witnesses red           3 条变红
+… qplus-unreadable-excitation-is-undecidable
+✓ qplus-unreadable-excitation-is-undecidable red           5 条变红
+… qplus-no-baseline-is-not-ok
+✓ qplus-no-baseline-is-not-ok      red           2 条变红
+… qplus-amplitude-channel-needs-both-hints
+✓ qplus-amplitude-channel-needs-both-hints red           1 条变红
+… qplus-sentinel-is-not-an-index
+✓ qplus-sentinel-is-not-an-index   red           1 条变红
+… scope-trigger-zero-is-a-value
+✓ scope-trigger-zero-is-a-value    red           2 条变红
+… z-trace-seg4-too-short-is-not-no-change
+✓ z-trace-seg4-too-short-is-not-no-change red           8 条变红
+… z-trace-no-return-is-not-no-press
+✓ z-trace-no-return-is-not-no-press red           5 条变红
+… z-trace-must-confirm-it-pressed-in
+✓ z-trace-must-confirm-it-pressed-in red           14 条变红
+… z-trace-post-window-starved-fallback
+✓ z-trace-post-window-starved-fallback red           2 条变红
+… z-trace-pre-window-has-no-fallback
+✓ z-trace-pre-window-has-no-fallback red           2 条变红
+… z-trace-insufficient-keeps-diagnostics
+✓ z-trace-insufficient-keeps-diagnostics red           18 条变红
+… z-trace-windows-take-second-half
+✓ z-trace-windows-take-second-half red           1 条变红
+… z-trace-tol-has-an-absolute-floor
+✓ z-trace-tol-has-an-absolute-floor red           32 条变红
+… pyfixed-rounds-half-to-even
+✓ pyfixed-rounds-half-to-even      red           13 条变红
+… pyfixed-sign-comes-from-the-input
+✓ pyfixed-sign-comes-from-the-input red           5 条变红
+… pyfixed-half-point-test-is-exact
+✓ pyfixed-half-point-test-is-exact red           20 条变红
+… pulse-start-blocked-floor-is-20ms
+✓ pulse-start-blocked-floor-is-20ms red           1 条变红
+… shaper-bias-has-no-3v-fallback
+✓ shaper-bias-has-no-3v-fallback   red           16 条变红
+… shaper-bias-lift-follows-bias
+✓ shaper-bias-lift-follows-bias    red           13 条变红
+… capture-signal-repeated-bits-anomaly
+✓ capture-signal-repeated-bits-anomaly red           8 条变红
+… capture-signal-channel-is-a-python-int
+✓ capture-signal-channel-is-a-python-int red           1 条变红
+… lift-height-zero-is-a-real-height
+✓ lift-height-zero-is-a-real-height red           3 条变红
+… spectrum-rows-are-channels
+✓ spectrum-rows-are-channels       red           6 条变红
+… spectrum-num-points-is-cols
+✓ spectrum-num-points-is-cols      red           3 条变红
+… spectrum-block-may-be-a-typed-array
+✓ spectrum-block-may-be-a-typed-array red           1 条变红
+… spectrum-unparsed-has-a-reason
+✓ spectrum-unparsed-has-a-reason   red           12 条变红
+… spectrum-no-names-is-not-zero-points
+✓ spectrum-no-names-is-not-zero-points red           1 条变红
+… sweep-budget-unreadable-is-not-fast
+✓ sweep-budget-unreadable-is-not-fast red           5 条变红
+… sweep-budget-backward-doubles
+✓ sweep-budget-backward-doubles    red           5 条变红
+… pyround-is-bankers-rounding
+✓ pyround-is-bankers-rounding      red           5 条变红
+… recv-budget-is-capped
+✓ recv-budget-is-capped            red           2 条变红
+… recv-budget-zero-is-not-a-budget
+✓ recv-budget-zero-is-not-a-budget red           2 条变红
+… recv-budget-unwired-is-null
+✓ recv-budget-unwired-is-null      red           3 条变红
+… sts-unparsed-with-saved-dat-is-not-failure
+✓ sts-unparsed-with-saved-dat-is-not-failure red           1 条变红
+… zspectr-unparsed-is-always-failure
+✓ zspectr-unparsed-is-always-failure red           5 条变红
+… sts-spectrum-parsed-is-always-present
+✓ sts-spectrum-parsed-is-always-present red           1 条变红
+… z-channel-fallback-is-load-bearing
+✓ z-channel-fallback-is-load-bearing red           1 条变红
+… mls-bias-bound-is-the-only-gate
+✓ mls-bias-bound-is-the-only-gate  red           3 条变红
+… mls-arrays-must-be-equal-length
+✓ mls-arrays-must-be-equal-length  red           1 条变红
+… mls-limits-are-injected
+✓ mls-limits-are-injected          red           1 条变红
+… sts-channels-strict-parser-stays-strict
+✓ sts-channels-strict-parser-stays-strict red           1 条变红
+… lattice-ridge-score-is-the-max-of-two-axes
+✓ lattice-ridge-score-is-the-max-of-two-axes red           1 条变红
+… lattice-ridge-neighbours-are-the-median
+✓ lattice-ridge-neighbours-are-the-median red           4 条变红
+… lattice-ridges-are-counted-as-evidence
+✓ lattice-ridges-are-counted-as-evidence red           52 条变红
+… lattice-peak-budget-counts-the-ridges
+✓ lattice-peak-budget-counts-the-ridges red           8 条变红
+… lattice-dc-block-is-zeroed
+✓ lattice-dc-block-is-zeroed       red           2 条变红
+… lattice-angles-are-python-modulo
+✓ lattice-angles-are-python-modulo red           3 条变红
+… lattice-hex-needs-all-three-gaps
+✓ lattice-hex-needs-all-three-gaps red           1 条变红
+… lattice-first-order-is-the-row-spacing
+✓ lattice-first-order-is-the-row-spacing red           13 条变红
+… lattice-square-surfaces-skip-the-factor
+✓ lattice-square-surfaces-skip-the-factor red           1 条变红
+… lattice-plane-is-subtracted-before-the-fft
+✓ lattice-plane-is-subtracted-before-the-fft red           3 条变红
+… cell-band-cap-follows-the-frame-width
+✓ cell-band-cap-follows-the-frame-width red           1 条变红
+… cell-basis-must-be-the-strong-peaks
+✓ cell-basis-must-be-the-strong-peaks red           2 条变红
+… cell-index-score-is-power-not-count
+✓ cell-index-score-is-power-not-count red           3 条变红
+… cell-px-per-period-floor
+✓ cell-px-per-period-floor         red           1 条变红
+… cell-independent-pair-angle-floor
+✓ cell-independent-pair-angle-floor red           1 条变红
+… cell-a1-is-the-longer-basis
+✓ cell-a1-is-the-longer-basis      red           13 条变红
+… cell-gamma-is-the-acute-representative
+✓ cell-gamma-is-the-acute-representative red           12 条变红
+… cell-peaks-are-refined-to-subpixel
+✓ cell-peaks-are-refined-to-subpixel red           13 条变红
+… cell-upper-half-plane-representative
+✓ cell-upper-half-plane-representative red           11 条变红
+… cell-weak-evidence-is-said-out-loud
+✓ cell-weak-evidence-is-said-out-loud red           1 条变红
+… cell-scale-off-is-said-out-loud
+✓ cell-scale-off-is-said-out-loud  red           1 条变红
+… cell-combine-needs-both-directions
+✓ cell-combine-needs-both-directions red           5 条变红
+… cell-min-indexed-drops-weak-frames
+✓ cell-min-indexed-drops-weak-frames red           2 条变红
+… super-controls-come-from-numpy-pcg64
+✓ super-controls-come-from-numpy-pcg64 red           2 条变红
+… super-controls-avoid-the-half-order
+✓ super-controls-avoid-the-half-order red           1 条变红
+… super-present-needs-to-clear-the-controls
+✓ super-present-needs-to-clear-the-controls red           2 条变红
+… super-absent-is-a-real-verdict
+✓ super-absent-is-a-real-verdict   red           2 条变红
+… texture-streak-windows-the-slow-axis
+✓ texture-streak-windows-the-slow-axis red           8 条变红
+… texture-streak-band-is-at-most-16-rows
+✓ texture-streak-band-is-at-most-16-rows red           8 条变红
+… texture-other-band-excludes-the-lattice
+✓ texture-other-band-excludes-the-lattice red           4 条变红
+… texture-tile-needs-eight-periods
+✓ texture-tile-needs-eight-periods red           3 条变红
+… texture-tile-needs-16-pixels
+✓ texture-tile-needs-16-pixels     red           1 条变红
+… texture-angle-mask-keeps-both-signs
+✓ texture-angle-mask-keeps-both-signs red           6 条变红
+… texture-grid-summary-is-the-median
+✓ texture-grid-summary-is-the-median red           4 条变红
+… texture-top-and-bottom-are-two-bands
+✓ texture-top-and-bottom-are-two-bands red           4 条变红
+… phase-radius-cv-uses-all-maxima
+✓ phase-radius-cv-uses-all-maxima  red           28 条变红
+… phase-peaks-are-ridges-is-evidence
+✓ phase-peaks-are-ridges-is-evidence red           44 条变红
+… phase-fast-axis-disagreement-is-a-refusal
+✓ phase-fast-axis-disagreement-is-a-refusal red           11 条变红
+… phase-fast-axis-takes-the-smallest-period
+✓ phase-fast-axis-takes-the-smallest-period red           28 条变红
+… phase-scale-reduced-is-refused-by-default
+✓ phase-scale-reduced-is-refused-by-default red           64 条变红
+… phase-acquired-rows-are-cropped
+✓ phase-acquired-rows-are-cropped  red           2 条变红
+… phase-too-few-periods-is-undetermined
+✓ phase-too-few-periods-is-undetermined red           1 条变红
+… phase-half-check-guards-by-nanometres
+✓ phase-half-check-guards-by-nanometres red           3 条变红
+… phase-concentration-is-max-over-median
+✓ phase-concentration-is-max-over-median red           66 条变红
+… phase-detrend-subtracts-the-row-median
+✓ phase-detrend-subtracts-the-row-median red           32 条变红
+… phase-detrend-output-is-float32
+✓ phase-detrend-output-is-float32  red           1 条变红
+… seg-band-peak-takes-the-smallest-period
+✓ seg-band-peak-takes-the-smallest-period red           23 条变红
+… seg-align-rows-is-the-median-of-diffs
+✓ seg-align-rows-is-the-median-of-diffs red           47 条变红
+… seg-level-iterates-three-times
+✓ seg-level-iterates-three-times   red           20 条变红
+… seg-inlier-clip-is-2.5-sigma
+✓ seg-inlier-clip-is-2.5-sigma     red           20 条变红
+… seg-texture-needs-the-snr-floor
+✓ seg-texture-needs-the-snr-floor  red           33 条变红
+… window-unknown-conditions-pass
+✓ window-unknown-conditions-pass   red           1 条变红
+… window-bias-gate-is-absolute
+✓ window-bias-gate-is-absolute     red           1 条变红
+… window-setpoint-floor
+✓ window-setpoint-floor            red           1 条变红
+… skill-texture-scan-order-maps-from-scan-dir
+✓ skill-texture-scan-order-maps-from-scan-dir red           1 条变红
+… skill-texture-good-ratio-has-no-default
+✓ skill-texture-good-ratio-has-no-default red           3 条变红
+… skill-lattice-only-scale-says-so
+✓ skill-lattice-only-scale-says-so red           4 条变红
+… skill-resolution-undetermined-covers-data-gaps
+✓ skill-resolution-undetermined-covers-data-gaps red           3 条变红
+… skill-resolution-imaging-window-gate
+✓ skill-resolution-imaging-window-gate red           2 条变红
+… skill-cell-io-failure-is-not-undetermined
+✓ skill-cell-io-failure-is-not-undetermined red           4 条变红
+… skill-load-frame-scale-requirement-differs
+✓ skill-load-frame-scale-requirement-differs red           2 条变红
+… skill-lattice-unknown-surface-is-refused
+✓ skill-lattice-unknown-surface-is-refused red           1 条变红
+… numerics-pairwise-blocksize-is-eight
+✓ numerics-pairwise-blocksize-is-eight red           12 条变红
+… numerics-pairwise-split-is-a-multiple-of-eight
+✓ numerics-pairwise-split-is-a-multiple-of-eight red           1 条变红
+… numerics-pcg64-inc-is-shifted-and-odd
+✓ numerics-pcg64-inc-is-shifted-and-odd red           4 条变红
+… numerics-seedseq-mixes-both-ways
+✓ numerics-seedseq-mixes-both-ways red           4 条变红
+… numerics-pcg64-double-drops-eleven-bits
+✓ numerics-pcg64-double-drops-eleven-bits red           4 条变红
+… numerics-generate-state-is-little-endian
+✓ numerics-generate-state-is-little-endian red           4 条变红
+… regions-size-has-a-lower-bound
+✓ regions-size-has-a-lower-bound   red           2 条变红
+… regions-max-is-a-limit
+✓ regions-max-is-a-limit           red           1 条变红
+… regions-missing-field-says-which
+✓ regions-missing-field-says-which red           2 条变红
+… regions-non-numbers-are-refused
+✓ regions-non-numbers-are-refused  red           3 条变红
+… image-channel-looks-for-topography
+✓ image-channel-looks-for-topography red           4 条变红
+… image-channel-current-is-not-topography
+✓ image-channel-current-is-not-topography red           1 条变红
+… ransac-refits-on-all-inliers
+✓ ransac-refits-on-all-inliers     red           2 条变红
+… level-lines-median-is-np-median
+✓ level-lines-median-is-np-median  red           1 条变红
+… level-lines-unknown-method-does-nothing
+✓ level-lines-unknown-method-does-nothing red           1 条变红
+… empty-spot-empty-cells-stay-infinite
+✓ empty-spot-empty-cells-stay-infinite red           1 条变红
+… xcorr-window-removes-dc
+✓ xcorr-window-removes-dc          red           4 条变红
+… xcorr-nonfinite-pixels-are-filled
+✓ xcorr-nonfinite-pixels-are-filled red           1 条变红
+… poly2d-design-matrix-is-a-tensor-product
+✓ poly2d-design-matrix-is-a-tensor-product red           5 条变红
+… poly2d-mask-excludes-those-pixels
+✓ poly2d-mask-excludes-those-pixels red           1 条变红
+… destripe-soft-needs-a-hard-neighbour
+✓ destripe-soft-needs-a-hard-neighbour red           2 条变红
+… destripe-short-runs-are-opened-away
+✓ destripe-short-runs-are-opened-away red           4 条变红
+… destripe-interpolates-between-neighbours
+✓ destripe-interpolates-between-neighbours red           3 条变红
+… destripe-dead-flat-threshold-is-tiny
+✓ destripe-dead-flat-threshold-is-tiny red           3 条变红
+… denoise-noise-is-what-was-removed
+✓ denoise-noise-is-what-was-removed red           3 条变红
+… crop-block-threshold-is-a-fraction
+✓ crop-block-threshold-is-a-fraction red           5 条变红
+… crop-refuses-to-crop-everything
+✓ crop-refuses-to-crop-everything  red           1 条变红
+… crop-iterates-until-nothing-is-left
+✓ crop-iterates-until-nothing-is-left red           2 条变红
+… crop-failed-write-is-not-success
+✓ crop-failed-write-is-not-success red           1 条变红
+… jump-too-short-is-undecidable
+✓ jump-too-short-is-undecidable    red           1 条变红
+… jump-dead-flat-is-not-a-jump
+✓ jump-dead-flat-is-not-a-jump     red           1 条变红
+… jump-length-is-the-first-axis
+✓ jump-length-is-the-first-axis    red           1 条变红
+… load-frame-backward-is-mirrored
+✓ load-frame-backward-is-mirrored  red           1 条变红
+… load-frame-missing-direction-is-its-own-failure
+✓ load-frame-missing-direction-is-its-own-failure red           1 条变红
+… load-frame-name-collision-takes-the-next-free
+✓ load-frame-name-collision-takes-the-next-free red           1 条变红
+… drift-size-mismatch-is-a-note-not-a-crash
+✓ drift-size-mismatch-is-a-note-not-a-crash red           1 条变红
+… drift-centres-on-half-the-shape
+✓ drift-centres-on-half-the-shape  red           3 条变红
+… drift-reads-the-reference-before-the-instrument
+✓ drift-reads-the-reference-before-the-instrument red           2 条变红
+… spectrum-ext-list-is-the-old-repos
+✓ spectrum-ext-list-is-the-old-repos red           1 条变红
+… tip-envelope-compares-absolute-value
+✓ tip-envelope-compares-absolute-value red           26 条变红
+… tip-envelope-boundary-is-exclusive
+✓ tip-envelope-boundary-is-exclusive red           18 条变红
+… tip-depth-envelope-compares-absolute-value
+✓ tip-depth-envelope-compares-absolute-value red           28 条变红
+… tip-count-limit-is-the-tips-not-the-specs
+✓ tip-count-limit-is-the-tips-not-the-specs red           44 条变红
+… tip-unregistered-is-not-fail-open
+✓ tip-unregistered-is-not-fail-open red           9 条变红
+… tip-explicit-zero-is-a-real-value
+✓ tip-explicit-zero-is-a-real-value red           12 条变红
+… tip-policy-chain-is-coarse-to-fine
+✓ tip-policy-chain-is-coarse-to-fine red           217 条变红
+… tip-override-can-tighten-the-envelope
+✓ tip-override-can-tighten-the-envelope red           42 条变红
+… tip-registry-normalizes-at-the-door
+✓ tip-registry-normalizes-at-the-door red           2 条变红
+… tip-human-trace-prints-python-repr
+✓ tip-human-trace-prints-python-repr red           269 条变红
+… tippulse-envelope-is-checked-before-hardware
+✓ tippulse-envelope-is-checked-before-hardware red           2 条变红
+… tippulse-refuses-before-planning
+✓ tippulse-refuses-before-planning red           1 条变红
+… tippulse-counts-the-pulses
+✓ tippulse-counts-the-pulses       red           5 条变红
+… tippulse-holds-z-during-the-pulse
+✓ tippulse-holds-z-during-the-pulse red           1 条变红
+… tippulse-original-bias-unknown-is-not-zero
+✓ tippulse-original-bias-unknown-is-not-zero red           4 条变红
+… tipshape-refuses-before-any-call
+✓ tipshape-refuses-before-any-call red           1 条变红
+… tipshape-bias-is-the-imaging-bias-not-3v
+✓ tipshape-bias-is-the-imaging-bias-not-3v red           10 条变红
+… tipshape-policy-wins-over-reading
+✓ tipshape-policy-wins-over-reading red           1 条变红
+… selfcheck-missing-dependency-blocks
+✓ selfcheck-missing-dependency-blocks red           8 条变红
+… selfcheck-skill-coverage-blocks
+✓ selfcheck-skill-coverage-blocks  red           6 条变红
+… selfcheck-dry-run-needs-a-counterexample
+✓ selfcheck-dry-run-needs-a-counterexample red           4 条变红
+… selfcheck-envelope-item-really-resolves
+✓ selfcheck-envelope-item-really-resolves red           1 条变红
+… readback-tip-envelope-is-wired
+✓ readback-tip-envelope-is-wired   red           2 条变红
+… current-saturation-is-three-valued
+✓ current-saturation-is-three-valued red           8 条变红
+… current-zero-point-is-the-discriminator
+✓ current-zero-point-is-the-discriminator red           1 条变红
+… current-flat-ratio-is-raw-not-fit
+✓ current-flat-ratio-is-raw-not-fit red           1 条变红
+… current-abs-floor-matches-this-machine
+✓ current-abs-floor-matches-this-machine red           7 条变红
+… current-exponent-drops-noise-floor-points
+✓ current-exponent-drops-noise-floor-points red           4 条变红
+… current-field-emission-threshold-is-three
+✓ current-field-emission-threshold-is-three red           1 条变红
+… current-median-of-nothing-is-null
+✓ current-median-of-nothing-is-null red           8 条变红
+… bias-deadband-refuses-on-unknown-feedback
+✓ bias-deadband-refuses-on-unknown-feedback red           2 条变红
+… bias-cross-zero-uses-the-fast-slew
+✓ bias-cross-zero-uses-the-fast-slew red           2 条变红
+… bias-ramp-threshold-and-settle-agree
+✓ bias-ramp-threshold-and-settle-agree red           2 条变红
+… batch-empty-region-list-is-refused
+✓ batch-empty-region-list-is-refused red           2 条变红
+… batch-falsy-label-falls-back
+✓ batch-falsy-label-falls-back     red           3 条变红
+… batch-line-time-is-per-region
+✓ batch-line-time-is-per-region    red           8 条变红
+… batch-center-limit-is-a-limit
+✓ batch-center-limit-is-a-limit    red           1 条变红
+… poll-schedule-is-absolute
+✓ poll-schedule-is-absolute        red           17 条变红
+… poll-sleep-has-a-cap
+✓ poll-sleep-has-a-cap             red           1 条变红
+… fft-window-is-symmetric
+✓ fft-window-is-symmetric          red           3 条变红
+… fft-window-name-picks-the-window
+✓ fft-window-name-picks-the-window red           4 条变红
+… fft-detrend-removes-the-mean
+✓ fft-detrend-removes-the-mean     red           8 条变红
+… fft-onesided-skips-dc-and-nyquist
+✓ fft-onesided-skips-dc-and-nyquist red           1 条变红
+… fft-psd-scale-is-the-window-power
+✓ fft-psd-scale-is-the-window-power red           1 条变红
+… rfft-keeps-half-plus-one
+✓ rfft-keeps-half-plus-one         red           10 条变红
+… monitor-contact-streak-is-consecutive
+✓ monitor-contact-streak-is-consecutive red           1 条变红
+… monitor-stats-are-on-absolute-current
+✓ monitor-stats-are-on-absolute-current red           3 条变红
+… monitor-zero-samples-is-a-failure
+✓ monitor-zero-samples-is-a-failure red           1 条变红
+… classify-restores-the-entry-state
+✓ classify-restores-the-entry-state red           1 条变红
+… classify-zero-bias-is-added
+✓ classify-zero-bias-is-added      red           2 条变红
+… classify-biases-descend-by-magnitude
+✓ classify-biases-descend-by-magnitude red           1 条变红
+… classify-saturation-is-checked-first
+✓ classify-saturation-is-checked-first red           7 条变红
+… recover-checks-the-lock-first
+✓ recover-checks-the-lock-first    red           1 条变红
+… recover-ladder-budget-is-cumulative
+✓ recover-ladder-budget-is-cumulative red           1 条变红
+… recover-failed-step-does-not-count
+✓ recover-failed-step-does-not-count red           1 条变红
+… recover-unreadable-current-is-not-recovered
+✓ recover-unreadable-current-is-not-recovered red           6 条变红
+… thermal-rate-needs-five-points
+✓ thermal-rate-needs-five-points   red           1 条变红
+… thermal-both-gates-are-and
+✓ thermal-both-gates-are-and       red           5 条变红
+… thermal-misses-are-consecutive
+✓ thermal-misses-are-consecutive   red           1 条变红
+… thermal-rate-is-per-minute
+✓ thermal-rate-is-per-minute       red           4 条变红
+… thermal-window-slides
+✓ thermal-window-slides            red           4 条变红
+… watch-new-lines-side-follows-the-fill-direction
+✓ watch-new-lines-side-follows-the-fill-direction red           4 条变红
+… watch-rows-are-centred-per-row
+✓ watch-rows-are-centred-per-row   red           10 条变红
+… watch-saturation-is-per-row-extremes
+✓ watch-saturation-is-per-row-extremes red           10 条变红
+… watch-empty-buffer-says-so
+✓ watch-empty-buffer-says-so       red           1 条变红
+… watch-stall-is-the-first-observation
+✓ watch-stall-is-the-first-observation red           1 条变红
+… watch-corr-hint-has-a-threshold
+✓ watch-corr-hint-has-a-threshold  red           1 条变红
+… watch-max-lines-takes-the-newest
+✓ watch-max-lines-takes-the-newest red           1 条变红
+… psd-capture-failure-aborts
+✓ psd-capture-failure-aborts       red           2 条变红
+… psd-chset-failure-is-fatal
+✓ psd-chset-failure-is-fatal       red           1 条变红
+… psd-reads-the-range-before-the-data
+✓ psd-reads-the-range-before-the-data red           11 条变红
+… psd-top-level-is-the-first-range
+✓ psd-top-level-is-the-first-range red           1 条变红
+… psd-ignored-list-is-reported
+✓ psd-ignored-list-is-reported     red           1 条变红
+… bias-settle-needs-the-starting-point
+✓ bias-settle-needs-the-starting-point red           1 条变红
+… batch-only-successful-regions-contribute-paths
+✓ batch-only-successful-regions-contribute-paths red           3 条变红
+… batch-zero-success-is-a-failure
+✓ batch-zero-success-is-a-failure  red           1 条变红
+… batch-shortfall-reaches-the-summary
+✓ batch-shortfall-reaches-the-summary red           2 条变红
+… batch-timeout-and-stop-are-two-messages
+✓ batch-timeout-and-stop-are-two-messages red           1 条变红
+… batch-first-error-wins
+✓ batch-first-error-wins           red           1 条变红
+… batch-region-steps-are-optional
+✓ batch-region-steps-are-optional  red           1 条变红
+… batch-assess-step-is-opt-in
+✓ batch-assess-step-is-opt-in      red           6 条变红
+… forge-required-covers-the-terrace-leveling
+✓ forge-required-covers-the-terrace-leveling red           2 条变红
+… selfcheck-each-check-asks-its-own-chain
+✓ selfcheck-each-check-asks-its-own-chain red           5 条变红
+… tipshape-readback-depth-goes-through-the-envelope
+✓ tipshape-readback-depth-goes-through-the-envelope red           1 条变红
+… tipshape-depth-goes-through-the-envelope
+✓ tipshape-depth-goes-through-the-envelope red           2 条变红
+… tip-depth-is-judged-only-when-given
+✓ tip-depth-is-judged-only-when-given red           2 条变红
+… tip-depth-boundary-is-exclusive
+✓ tip-depth-boundary-is-exclusive  red           14 条变红
+… scanprep-line-gain-is-plane-over-line
+✓ scanprep-line-gain-is-plane-over-line red           90 条变红
+… scanprep-row-purity-is-not-a-step
+✓ scanprep-row-purity-is-not-a-step red           2 条变红
+… scanprep-masked-line-needs-both
+✓ scanprep-masked-line-needs-both  red           30 条变红
+… scanprep-fine-beats-step-for-clip
+✓ scanprep-fine-beats-step-for-clip red           4 条变红
+… scanprep-nan-note-has-a-threshold
+✓ scanprep-nan-note-has-a-threshold red           4 条变红
+… scanprep-roughness-is-a-mean-filter
+✓ scanprep-roughness-is-a-mean-filter red           72 条变红
+… scanprep-roughness-window-is-one-row
+✓ scanprep-roughness-window-is-one-row red           71 条变红
+… scanprep-row-corr-of-nothing-is-nan
+✓ scanprep-row-corr-of-nothing-is-nan red           6 条变红
+… scanprep-span-is-the-longest-run
+✓ scanprep-span-is-the-longest-run red           65 条变红
+… scanprep-axis-guard-covers-both-axes
+✓ scanprep-axis-guard-covers-both-axes red           66 条变红
+… scanprep-fine-band-needs-three-px
+✓ scanprep-fine-band-needs-three-px red           1 条变红
+… scanprep-fine-band-needs-fifty-bins
+✓ scanprep-fine-band-needs-fifty-bins red           1 条变红
+… scanprep-terrace-half-width-uses-separation
+✓ scanprep-terrace-half-width-uses-separation red           4 条变红
+… scanprep-masked-line-drops-row-bias-first
+✓ scanprep-masked-line-drops-row-bias-first red           2 条变红
+… scanprep-thin-rows-are-interpolated
+✓ scanprep-thin-rows-are-interpolated red           3 条变红
+… scanprep-tip-change-row-is-frame-coords
+✓ scanprep-tip-change-row-is-frame-coords red           3 条变红
+… scanprep-fwd-bwd-shape-must-match
+✓ scanprep-fwd-bwd-shape-must-match red           2 条变红
+… scanprep-harmonise-exempts-step-frames
+✓ scanprep-harmonise-exempts-step-frames red           5 条变红
+… scanprep-harmonise-needs-a-quorum
+✓ scanprep-harmonise-needs-a-quorum red           1 条变红
+… artifacts-on-axis-is-within-one-bin
+✓ artifacts-on-axis-is-within-one-bin red           11 条变红
+… artifacts-dc-core-is-excluded
+✓ artifacts-dc-core-is-excluded    red           2 条变红
+… artifacts-drift-must-beat-zero-lag
+✓ artifacts-drift-must-beat-zero-lag red           2 条变红
+… artifacts-drift-search-is-central
+✓ artifacts-drift-search-is-central red           2 条变红
+… artifacts-spikes-are-isolated
+✓ artifacts-spikes-are-isolated    red           8 条变红
+… artifacts-early-exit-is-not-a-verdict
+✓ artifacts-early-exit-is-not-a-verdict red           42 条变红
+… artifacts-bad-rows-uses-mean-and-std
+✓ artifacts-bad-rows-uses-mean-and-std red           10 条变红
+… artifacts-bad-rows-keep-row-offsets
+✓ artifacts-bad-rows-keep-row-offsets red           2 条变红
+… artifacts-shortcut-has-the-same-early-exit
+✓ artifacts-shortcut-has-the-same-early-exit red           1 条变红
+… tipchange-calib-table-follows-scale
+✓ tipchange-calib-table-follows-scale red           2 条变红
+… tipchange-score-is-the-best-channel
+✓ tipchange-score-is-the-best-channel red           70 条变红
+… tipchange-row-is-a-smoothed-centroid
+✓ tipchange-row-is-a-smoothed-centroid red           7 条变红
+… tipchange-lagk-recentres-by-half-k
+✓ tipchange-lagk-recentres-by-half-k red           10 条变红
+… tipchange-trend-goes-into-the-null
+✓ tipchange-trend-goes-into-the-null red           80 条变红
+… tipchange-mad-floor-is-numerical-only
+✓ tipchange-mad-floor-is-numerical-only red           2 条变红
+… tipchange-dc-channel-is-deplaned
+✓ tipchange-dc-channel-is-deplaned red           8 条变红
+… tipchange-short-frame-is-not-a-verdict
+✓ tipchange-short-frame-is-not-a-verdict red           1 条变红
+… tipchange-bragg-needs-prominence
+✓ tipchange-bragg-needs-prominence red           44 条变红
+… ndfilters-uniform-is-a-running-sum
+✓ ndfilters-uniform-is-a-running-sum red           1 条变红
+… ndfilters-even-window-takes-the-upper-median
+✓ ndfilters-even-window-takes-the-upper-median red           1 条变红
+… scanprep-nullable-threshold-is-dropped-not-clamped
+✓ scanprep-nullable-threshold-is-dropped-not-clamped red           2 条变红
+… scanprep-profile-reads-snake-case
+✓ scanprep-profile-reads-snake-case red           5 条变红
+… scanprep-missing-channel-says-what-is-there
+✓ scanprep-missing-channel-says-what-is-there red           3 条变红
+… scanprep-report-thresholds-are-sorted
+✓ scanprep-report-thresholds-are-sorted red           1 条变红
+… numerics-gradient-uniform-spacing-is-its-own-branch
+✓ numerics-gradient-uniform-spacing-is-its-own-branch red           1 条变红
+… numerics-gradient-coefficients-are-not-symmetric
+✓ numerics-gradient-coefficients-are-not-symmetric red           1 条变红
+… numerics-trapezoid-weighs-by-the-spacing
+✓ numerics-trapezoid-weighs-by-the-spacing red           1 条变红
+… numerics-trapezoid-sums-pairwise
+✓ numerics-trapezoid-sums-pairwise red           2 条变红
+… numerics-corrcoef-centres-its-inputs
+✓ numerics-corrcoef-centres-its-inputs red           2 条变红
+… edge-resolution-step-floor-is-a-real-gate
+✓ edge-resolution-step-floor-is-a-real-gate red           1 条变红
+… edge-resolution-outlier-ratio-is-six
+✓ edge-resolution-outlier-ratio-is-six red           1 条变红
+… edge-resolution-width-is-point-eight-of-the-step
+✓ edge-resolution-width-is-point-eight-of-the-step red           4 条变红
+… edge-resolution-smooths-at-one-pixel
+✓ edge-resolution-smooths-at-one-pixel red           4 条变红
+… instability-zero-guard-is-not-a-physical-threshold
+✓ instability-zero-guard-is-not-a-physical-threshold red           11 条变红
+… instability-allows-a-lateral-shift
+✓ instability-allows-a-lateral-shift red           13 条变红
+… instability-conjugates-the-second-frame
+✓ instability-conjugates-the-second-frame red           24 条变红
+… spectro-iz-floor-follows-the-curve
+✓ spectro-iz-floor-follows-the-curve red           2 条变红
+… spectro-jump-is-eight-mads
+✓ spectro-jump-is-eight-mads       red           5 条变红
+… spectro-iv-symmetry-is-antisymmetry
+✓ spectro-iv-symmetry-is-antisymmetry red           5 条变红
+… spectro-iz-sorts-by-z
+✓ spectro-iz-sorts-by-z            red           1 条变红
+… spectro-iv-sorts-by-bias
+✓ spectro-iv-sorts-by-bias         red           1 条变红
+… force-first-interval-is-integrated-analytically
+✓ force-first-interval-is-integrated-analytically red           16 条变红
+… force-last-point-copies-its-neighbour
+✓ force-last-point-copies-its-neighbour red           15 条变红
+… force-energy-is-referenced-far-away
+✓ force-energy-is-referenced-far-away red           12 条变红
+… force-smooth-needs-five-points
+✓ force-smooth-needs-five-points   red           1 条变红
+… force-unbracketed-well-is-undecidable
+✓ force-unbracketed-well-is-undecidable red           1 条变红
+… force-residual-line-is-ten-percent
+✓ force-residual-line-is-ten-percent red           2 条变红
+… lattice-consistency-subtracts-the-scan-angle
+✓ lattice-consistency-subtracts-the-scan-angle red           1 条变红
+… lattice-unusable-is-not-evidence
+✓ lattice-unusable-is-not-evidence red           3 条变红
+… lattice-pair-is-forced-obtuse
+✓ lattice-pair-is-forced-obtuse    red           2 条变红
+… lattice-angle-spread-is-per-sixty-degrees
+✓ lattice-angle-spread-is-per-sixty-degrees red           5 条变红
+… tip-sharpness-floor-is-two-pixels
+✓ tip-sharpness-floor-is-two-pixels red           2 条变红
+… tip-verdict-unrated-needs-a-gated-criterion
+✓ tip-verdict-unrated-needs-a-gated-criterion red           2 条变红
+… tip-barrier-needs-a-fit-that-stands-up
+✓ tip-barrier-needs-a-fit-that-stands-up red           4 条变红
+… consistency-scale-must-match
+✓ consistency-scale-must-match     red           2 条变红
+… consistency-needs-two-frames
+✓ consistency-needs-two-frames     red           3 条变红
+… profile-missing-source-is-not-an-empty-profile
+✓ profile-missing-source-is-not-an-empty-profile red           3 条变红
+… profile-z-extend-sign-falls-back-to-factory
+✓ profile-z-extend-sign-falls-back-to-factory red           6 条变红
+… profile-tilt-three-of-four-is-enough
+✓ profile-tilt-three-of-four-is-enough red           2 条变红
+… profile-blank-string-becomes-zero
+✓ profile-blank-string-becomes-zero red           1 条变红
+… coarse-undeclared-falls-back-to-a-number
+✓ coarse-undeclared-falls-back-to-a-number red           13 条变红
+… coarse-absolute-ceiling-after-the-configurable-one
+✓ coarse-absolute-ceiling-after-the-configurable-one red           5 条变红
+… coarse-clamps-instead-of-refusing
+✓ coarse-clamps-instead-of-refusing red           5 条变红
+… coarse-readback-unreadable-passes
+✓ coarse-readback-unreadable-passes red           6 条变红
+… coarse-frequency-mismatch-refuses
+✓ coarse-frequency-mismatch-refuses red           2 条变红
+… zsettle-not-moving-is-enough
+✓ zsettle-not-moving-is-enough     red           1 条变红
+… zsettle-window-of-one
+✓ zsettle-window-of-one            red           2 条变红
+… zsettle-tolerance-is-not-derived
+✓ zsettle-tolerance-is-not-derived red           2 条变红
+… zsettle-unsettled-is-approaching
+✓ zsettle-unsettled-is-approaching red           2 条变红
+… zsettle-no-sign-guesses
+✓ zsettle-no-sign-guesses          red           1 条变红
+… zsettle-no-displacement-fires-without-a-ruler
+✓ zsettle-no-displacement-fires-without-a-ruler red           3 条变红
+… retract-baseline-degrades-instead-of-refusing
+✓ retract-baseline-degrades-instead-of-refusing red           1 条变红
+… relocate-clearance-baseline-degrades
+✓ relocate-clearance-baseline-degrades red           2 条变红
+… relocate-move-current-trip-off
+✓ relocate-move-current-trip-off   red           2 条变红
+… relocate-prove-clear-accepts-a-live-junction
+✓ relocate-prove-clear-accepts-a-live-junction red           1 条变红
+… relocate-panic-failure-is-still-a-success
+✓ relocate-panic-failure-is-still-a-success red           1 条变红
+… relocate-bias-not-lowered-before-move
+✓ relocate-bias-not-lowered-before-move red           1 条变红
+… step-coarse-xy-nudge-cap-off
+✓ step-coarse-xy-nudge-cap-off     red           1 条变红
+… readcalibrations-summary-claims-it-read-the-archive
+✓ readcalibrations-summary-claims-it-read-the-archive red           2 条变红
+… scan-size-zero-is-refused-not-clamped
+✓ scan-size-zero-is-refused-not-clamped red           4 条变红
+… scan-tip-speed-is-a-combined-constraint
+✓ scan-tip-speed-is-a-combined-constraint red           10 条变红
+… scan-intent-needs-the-tier-to-be-named
+✓ scan-intent-needs-the-tier-to-be-named red           5 条变红
+… scan-prefs-yield-to-operator-tier
+✓ scan-prefs-yield-to-operator-tier red           2 条变红
+… scan-pi-must-be-a-pair
+✓ scan-pi-must-be-a-pair           red           67 条变红
+… scan-clamp-must-declare
+✓ scan-clamp-must-declare          red           9 条变红
+… scan-null-human-is-not-zero
+✓ scan-null-human-is-not-zero      red           1 条变红
+… tipcrash-threshold-is-inclusive
+✓ tipcrash-threshold-is-inclusive  red           25 条变红
+… tipcrash-unknown-position-still-counts
+✓ tipcrash-unknown-position-still-counts red           7 条变红
+… tipcrash-unlocated-is-never-a-point
+✓ tipcrash-unlocated-is-never-a-point red           7 条变红
+… tipcrash-stale-crash-expires
+✓ tipcrash-stale-crash-expires     red           3 条变红
+… tipcrash-coarse-move-clears-everything
+✓ tipcrash-coarse-move-clears-everything red           2 条变红
+… tipcrash-diag-failure-is-not-a-pass
+✓ tipcrash-diag-failure-is-not-a-pass red           1 条变红
+… scanat-timeout-stops-the-scan
+✓ scanat-timeout-stops-the-scan    red           2 条变红
+… scanat-stopped-early-does-not-write
+✓ scanat-stopped-early-does-not-write red           1 条变红
+… scanat-explicit-timeout-is-a-floor
+✓ scanat-explicit-timeout-is-a-floor red           1 条变红
+… scanat-truncation-is-a-failure
+✓ scanat-truncation-is-a-failure   red           1 条变红
+… scanat-buffer-after-configure
+✓ scanat-buffer-after-configure    red           9 条变红
+… fullscan-crash-guard-refuses
+✓ fullscan-crash-guard-refuses     red           2 条变红
+… fullscan-records-the-crash
+✓ fullscan-records-the-crash       red           3 条变红
+… fullscan-clean-scan-clears-the-ledger
+✓ fullscan-clean-scan-clears-the-ledger red           1 条变红
+… fullscan-probes-the-acquired-channels
+✓ fullscan-probes-the-acquired-channels red           7 条变红
+… fullscan-stopped-early-skips-crash-check
+✓ fullscan-stopped-early-skips-crash-check red           2 条变红
+… frame-row-mask-is-the-whole-row
+✓ frame-row-mask-is-the-whole-row  red           1 条变红
+… frame-zero-rows-are-not-data
+✓ frame-zero-rows-are-not-data     red           3 条变红
+… frame-dead-flat-second-gate-is-a-ratio
+✓ frame-dead-flat-second-gate-is-a-ratio red           3 条变红
+… frame-dead-flat-std-is-float32
+✓ frame-dead-flat-std-is-float32   red           1 条变红
+… np-median-is-not-percentile
+✓ np-median-is-not-percentile      red           2 条变红
+… plane-inlier-threshold-is-adaptive
+✓ plane-inlier-threshold-is-adaptive red           8 条变红
+… plane-zero-noise-floor-has-a-fallback
+✓ plane-zero-noise-floor-has-a-fallback red           2 条变红
+… plane-refits-on-all-inliers
+✓ plane-refits-on-all-inliers      red           8 条变红
+… cluster-line-leveling-is-refused
+✓ cluster-line-leveling-is-refused red           1 条变红
+… cluster-axes-are-full-length
+✓ cluster-axes-are-full-length     red           16 条变红
+… cluster-covariance-is-in-metres
+✓ cluster-covariance-is-in-metres  red           12 条变红
+… xy-meta-angle-known-is-a-flag
+✓ xy-meta-angle-known-is-a-flag    red           2 条变红
+… xy-meta-rotates-around-the-centre
+✓ xy-meta-rotates-around-the-centre red           1 条变红
+… roundness-subtracts-the-pixelation-floor
+✓ roundness-subtracts-the-pixelation-floor red           17 条变红
+… roundness-small-blobs-are-undecidable
+✓ roundness-small-blobs-are-undecidable red           3 条变红
+… roundness-background-is-the-mode
+✓ roundness-background-is-the-mode red           5 条变红
+… step-levels-min-sep-keeps-shoulders-out
+✓ step-levels-min-sep-keeps-shoulders-out red           2 条变红
+… step-edge-direction-is-double-angle
+✓ step-edge-direction-is-double-angle red           6 条变红
+… step-edge-not-straight-is-undecidable
+✓ step-edge-not-straight-is-undecidable red           2 条变红
+… step-edge-box-cumsum-order
+✓ step-edge-box-cumsum-order       red           7 条变红
+… row-jump-is-mad-not-std
+✓ row-jump-is-mad-not-std          red           5 条变红
+… big-jump-needs-both-conditions
+✓ big-jump-needs-both-conditions   red           3 条变红
+… line-score-says-it-cannot-tell
+✓ line-score-says-it-cannot-tell   red           1 条变红
+… advisory-uses-the-median
+✓ advisory-uses-the-median         red           5 条变红
+… corrugation-threshold-pair-is-atomic
+✓ corrugation-threshold-pair-is-atomic red           4 条变红
+… corrugation-no-threshold-is-undecidable
+✓ corrugation-no-threshold-is-undecidable red           2 条变红
+… corrugation-scale-is-never-converted
+✓ corrugation-scale-is-never-converted red           3 条变红
+… scan-prep-unknown-profile-says-so
+✓ scan-prep-unknown-profile-says-so red           4 条变红
+… select-out-of-tolerance-abstains
+✓ select-out-of-tolerance-abstains red           1 条变红
+… select-thresholds-are-not-guessed
+✓ select-thresholds-are-not-guessed red           1 条变红
+… roundness-retired-param-is-refused
+✓ roundness-retired-param-is-refused red           1 条变红
+… adatom-frame-block-is-where-the-geometry-is
+✓ adatom-frame-block-is-where-the-geometry-is red           1 条变红
+… atomline-z-channel-is-not-guessed
+✓ atomline-z-channel-is-not-guessed red           3 条变红
+… atomline-scale-is-not-guessed
+✓ atomline-scale-is-not-guessed    red           3 条变红
+… frame-trust-needs-100-finite-px
+✓ frame-trust-needs-100-finite-px  red           1 条变红
+… step-height-does-not-normalise-to-d111
+✓ step-height-does-not-normalise-to-d111 red           1 条变红
+… corrugation-rel-tol-zero-is-a-threshold
+✓ corrugation-rel-tol-zero-is-a-threshold red           1 条变红
+… vac-allowlist-not-denylist
+✓ vac-allowlist-not-denylist       red           1 条变红
+… vac-status-must-be-ok
+✓ vac-status-must-be-ok            red           13 条变红
+… vac-unknown-unit-is-refused
+✓ vac-unknown-unit-is-refused      red           4 条变红
+… vac-no-timestamp-is-not-now
+✓ vac-no-timestamp-is-not-now      red           1 条变红
+… vac-age-is-a-criterion
+✓ vac-age-is-a-criterion           red           4 条变红
+… vac-over-range-is-not-a-reading
+✓ vac-over-range-is-not-a-reading  red           1 条变红
+… vac-under-range-depends-on-the-floor
+✓ vac-under-range-depends-on-the-floor red           1 条变红
+… vac-gauge-only-refuses-signatures
+✓ vac-gauge-only-refuses-signatures red           2 条变红
+… vac-expired-signature-is-not-a-signature
+✓ vac-expired-signature-is-not-a-signature red           2 条变红
+… temp-warning-is-still-a-reading
+✓ temp-warning-is-still-a-reading  red           24 条变红
+… temp-unknown-real-is-not-placeholder
+✓ temp-unknown-real-is-not-placeholder red           1 条变红
+… temp-unknown-age-is-not-fresh
+✓ temp-unknown-age-is-not-fresh    red           2 条变红
+… temp-ambiguous-is-not-a-pick
+✓ temp-ambiguous-is-not-a-pick     red           3 条变红
+… temp-stage-preference
+✓ temp-stage-preference            red           1 条变红
+… temp-channels-null-is-not-empty
+✓ temp-channels-null-is-not-empty  red           1 条变红
+… temp-zero-max-age-is-a-threshold
+✓ temp-zero-max-age-is-a-threshold red           1 条变红
+… temp-freshness-is-explicit-only
+✓ temp-freshness-is-explicit-only  red           6 条变红
+
+593/593 变红
