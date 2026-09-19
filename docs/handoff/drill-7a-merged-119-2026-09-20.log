@@ -1,0 +1,241 @@
+… 基线（4 个 scope）
+… tilt-detrend-needs-six-finite
+✓ tilt-detrend-needs-six-finite    red           5 条变红
+… tilt-detrend-is-second-order
+✓ tilt-detrend-is-second-order     red           30 条变红
+… tilt-dominance-needs-two-by-two-blocks
+✓ tilt-dominance-needs-two-by-two-blocks red           4 条变红
+… tilt-dominance-local-sigma-is-median
+✓ tilt-dominance-local-sigma-is-median red           42 条变红
+… tilt-dominance-zero-local-sigma-is-not-a-ratio
+✓ tilt-dominance-zero-local-sigma-is-not-a-ratio red           1 条变红
+… tilt-multiscale-tile-needs-two-blocks-per-side
+✓ tilt-multiscale-tile-needs-two-blocks-per-side red           61 条变红
+… tilt-multiscale-takes-the-max
+✓ tilt-multiscale-takes-the-max    red           39 条变红
+… tilt-step-gates-are-or-not-and
+✓ tilt-step-gates-are-or-not-and   red           12 条变红
+… tilt-segmenter-failure-is-fail-open
+✓ tilt-segmenter-failure-is-fail-open red           1 条变红
+… tilt-nan-gate-comes-before-geometry
+✓ tilt-nan-gate-comes-before-geometry red           1 条变红
+… tilt-frame-too-small-uses-the-short-side
+✓ tilt-frame-too-small-uses-the-short-side red           1 条变红
+… tilt-low-inliers-line-is-half
+✓ tilt-low-inliers-line-is-half    red           3 条变红
+… tilt-rotation-epsilon-is-one-nanodegree
+✓ tilt-rotation-epsilon-is-one-nanodegree red           1 条变红
+… tilt-slow-axis-is-never-trusted
+✓ tilt-slow-axis-is-never-trusted  red           12 条变红
+… tilt-resolution-needs-all-three-positive
+✓ tilt-resolution-needs-all-three-positive red           2 条变红
+… tilt-z-span-takes-degrees
+✓ tilt-z-span-takes-degrees        red           18 条变红
+… tiltcircle-min-points-is-eight
+✓ tiltcircle-min-points-is-eight   red           1 条变红
+… tiltcircle-drift-column-needs-finite-times
+✓ tiltcircle-drift-column-needs-finite-times red           1 条变红
+… tiltcircle-jump-is-measured-around-the-ring
+✓ tiltcircle-jump-is-measured-around-the-ring red           6 条变红
+… tiltcircle-veto-is-or-not-and
+✓ tiltcircle-veto-is-or-not-and    red           2 条变红
+… tiltcircle-downhill-points-down
+✓ tiltcircle-downhill-points-down  red           23 条变红
+… tilt-trigger-takes-the-smaller
+✓ tilt-trigger-takes-the-smaller   red           18 条变红
+… tilt-substeps-never-zero
+✓ tilt-substeps-never-zero         red           3 条变红
+… tilt-clamp-is-strict
+✓ tilt-clamp-is-strict             red           1 条变红
+… tilt-g-is-minus-m-inverse
+✓ tilt-g-is-minus-m-inverse        red           5 条变红
+… tilt-cond-uses-the-stable-form
+✓ tilt-cond-uses-the-stable-form   red           3 条变红
+… tilt-si-readable-keeps-the-prefix
+✓ tilt-si-readable-keeps-the-prefix red           13 条变红
+… tiltcal-refuses-when-there-is-no-sink
+✓ tiltcal-refuses-when-there-is-no-sink red           2 条变红
+… tiltcal-cond-line-is-closed
+✓ tiltcal-cond-line-is-closed      red           2 条变红
+… frametilt-reads-the-raw-block
+✓ frametilt-reads-the-raw-block    red           1 条变红
+… frametilt-check-steps-defaults-to-on
+✓ frametilt-check-steps-defaults-to-on red           6 条变红
+… frametilt-error-names-the-file
+✓ frametilt-error-names-the-file   red           1 条变红
+… tiltprobe-returns-to-the-start
+✓ tiltprobe-returns-to-the-start   red           1 条变红
+… tiltprobe-estimates-noise-once
+✓ tiltprobe-estimates-noise-once   red           2 条变红
+… tiltprobe-radius-is-clamped
+✓ tiltprobe-radius-is-clamped      red           9 条变红
+… tiltprobe-too-few-points-is-a-failure
+✓ tiltprobe-too-few-points-is-a-failure red           1 条变红
+… autotilt-refuses-without-calibration
+✓ autotilt-refuses-without-calibration red           3 条变红
+… autotilt-rolls-back-to-the-original
+✓ autotilt-rolls-back-to-the-original red           1 条变红
+… autotilt-soft-stop-does-not-move
+✓ autotilt-soft-stop-does-not-move red           1 条变红
+… autotilt-accept-cannot-be-below-resolution
+✓ autotilt-accept-cannot-be-below-resolution red           2 条变红
+… autotilt-zero-iterations-means-the-default
+✓ autotilt-zero-iterations-means-the-default red           11 条变红
+… tiltcalibrate-checks-response-magnitude
+✓ tiltcalibrate-checks-response-magnitude red           1 条变红
+… nearest-clean-lattice-is-anchored-at-the-tip
+✓ nearest-clean-lattice-is-anchored-at-the-tip red           10 条变红
+… nearest-clean-prune-ignores-the-tip-offset
+✓ nearest-clean-prune-ignores-the-tip-offset red           6 条变红
+… nearest-clean-reach-is-the-hard-piezo-edge
+✓ nearest-clean-reach-is-the-hard-piezo-edge red           17 条变红
+… nearest-clean-margin-is-the-frame-not-the-spot
+✓ nearest-clean-margin-is-the-frame-not-the-spot red           3 条变红
+… nearest-clean-zone-release-is-off
+✓ nearest-clean-zone-release-is-off red           1 条变红
+… nearest-clean-reach-boundary-is-exclusive
+✓ nearest-clean-reach-boundary-is-exclusive red           1 条变红
+… nearest-clean-touching-a-keep-out-is-blocked
+✓ nearest-clean-touching-a-keep-out-is-blocked red           4 条变红
+… nearest-clean-keep-out-accounts-for-the-new-spot
+✓ nearest-clean-keep-out-accounts-for-the-new-spot red           8 条变红
+… nearest-clean-exclude-boundary-is-inclusive
+✓ nearest-clean-exclude-boundary-is-inclusive red           6 条变红
+… nearest-clean-exclude-keeps-one-diameter
+✓ nearest-clean-exclude-keeps-one-diameter red           1 条变红
+… nearest-clean-max-distance-boundary-is-exclusive
+✓ nearest-clean-max-distance-boundary-is-exclusive red           3 条变红
+… nearest-clean-step-has-a-grid-floor
+✓ nearest-clean-step-has-a-grid-floor red           1 条变红
+… nearest-clean-result-is-sorted-by-distance
+✓ nearest-clean-result-is-sorted-by-distance red           6 条变红
+… ring-cells-corners-are-emitted-once
+✓ ring-cells-corners-are-emitted-once red           12 条变红
+… avoid-radius-zero-is-not-a-circle
+✓ avoid-radius-zero-is-not-a-circle red           2 条变红
+… avoid-circle-cap-skips-damage-kinds
+✓ avoid-circle-cap-skips-damage-kinds red           1 条变红
+… epoch-of-row-rejects-non-finite
+✓ epoch-of-row-rejects-non-finite  red           3 条变红
+… filter-epoch-prefers-the-stored-column
+✓ filter-epoch-prefers-the-stored-column red           9 条变红
+… map-marker-footprint-needs-positive-sides
+✓ map-marker-footprint-needs-positive-sides red           2 条变红
+… map-pulse-radius-does-not-read-the-spec-default
+✓ map-pulse-radius-does-not-read-the-spec-default red           55 条变红
+… map-center-zone-needs-coarse-motion
+✓ map-center-zone-needs-coarse-motion red           2 条变红
+… map-effective-range-takes-the-min
+✓ map-effective-range-takes-the-min red           1 条变红
+… map-safety-limit-is-truthy-checked
+✓ map-safety-limit-is-truthy-checked red           1 条变红
+… load-markers-keeps-one-epoch
+✓ load-markers-keeps-one-epoch     red           3 条变红
+… crash-memory-reports-the-unlocated
+✓ crash-memory-reports-the-unlocated red           5 条变红
+… clean-spot-pulse-drops-the-frame-margin
+✓ clean-spot-pulse-drops-the-frame-margin red           1 条变红
+… clean-spot-piezo-source-is-three-state
+✓ clean-spot-piezo-source-is-three-state red           4 条变红
+… clean-spot-recentres-from-outside-the-zone
+✓ clean-spot-recentres-from-outside-the-zone red           1 条变红
+… clean-spot-says-the-map-is-unreadable
+✓ clean-spot-says-the-map-is-unreadable red           32 条变红
+… clean-spot-unknown-purpose-falls-back-to-pulse
+✓ clean-spot-unknown-purpose-falls-back-to-pulse red           1 条变红
+… clean-spot-max-distance-zero-is-ignored
+✓ clean-spot-max-distance-zero-is-ignored red           1 条变红
+… clean-spot-refusal-names-the-blockers
+✓ clean-spot-refusal-names-the-blockers red           3 条变红
+… npgrid-linspace-last-point-is-stop
+✓ npgrid-linspace-last-point-is-stop red           1 条变红
+… npgrid-digitize-is-left-closed
+✓ npgrid-digitize-is-left-closed   red           6 条变红
+… npgrid-histogram-last-bin-is-right-closed
+✓ npgrid-histogram-last-bin-is-right-closed red           1 条变红
+… npgrid-gradient-interior-is-a-central-difference
+✓ npgrid-gradient-interior-is-a-central-difference red           2 条变红
+… npgrid-gradient-edges-are-one-sided
+✓ npgrid-gradient-edges-are-one-sided red           3 条变红
+… npgrid-argsort-desc-takes-the-largest
+✓ npgrid-argsort-desc-takes-the-largest red           4 条变红
+… mt-seed-goes-through-init-by-array
+✓ mt-seed-goes-through-init-by-array red           40 条变红
+… mt-getrandbits-takes-the-high-bits
+✓ mt-getrandbits-takes-the-high-bits red           25 条变红
+… mt-randbelow-k-is-bit-length-of-n
+✓ mt-randbelow-k-is-bit-length-of-n red           15 条变红
+… mt-random-is-53-bits-from-two-draws
+✓ mt-random-is-53-bits-from-two-draws red           15 条变红
+… kde-histogram-is-padded-at-both-ends
+✓ kde-histogram-is-padded-at-both-ends red           16 条变红
+… kde-prominence-is-relative-to-the-tallest-bin
+✓ kde-prominence-is-relative-to-the-tallest-bin red           1 条变红
+… kde-valley-merge-is-relative-to-the-shorter-peak
+✓ kde-valley-merge-is-relative-to-the-shorter-peak red           1 条变红
+… kde-valley-merge-keeps-the-taller-peak
+✓ kde-valley-merge-keeps-the-taller-peak red           2 条变红
+… kde-samples-only-low-gradient-pixels
+✓ kde-samples-only-low-gradient-pixels red           6 条变红
+… kde-falls-back-to-the-whole-frame
+✓ kde-falls-back-to-the-whole-frame red           2 条变红
+… kde-layer-bounds-are-midway-between-peaks
+✓ kde-layer-bounds-are-midway-between-peaks red           6 条变红
+… kde-labels-are-median-filtered
+✓ kde-labels-are-median-filtered   red           1 条变红
+… flat-local-rms-refits-inside-the-window
+✓ flat-local-rms-refits-inside-the-window red           28 条变红
+… flat-fit-needs-twelve-points
+✓ flat-fit-needs-twelve-points     red           2 条变红
+… flat-window-needs-half-its-pixels
+✓ flat-window-needs-half-its-pixels red           1 条变红
+… flat-same-terrace-frac-is-98-percent
+✓ flat-same-terrace-frac-is-98-percent red           4 条变红
+… flat-usable-line-is-25-pm
+✓ flat-usable-line-is-25-pm        red           23 条变红
+… flat-refusing-costs-a-fine-sweep
+✓ flat-refusing-costs-a-fine-sweep red           7 条变红
+… flat-min-window-refuses-instead-of-shrinking
+✓ flat-min-window-refuses-instead-of-shrinking red           1 条变红
+… flat-window-floor-is-eight-pixels
+✓ flat-window-floor-is-eight-pixels red           1 条变红
+… flat-coordinate-is-the-window-centre
+✓ flat-coordinate-is-the-window-centre red           24 条变红
+… flat-unparseable-exclusion-is-refused
+✓ flat-unparseable-exclusion-is-refused red           2 条变红
+… flat-verdict-says-no-usable-region
+✓ flat-verdict-says-no-usable-region red           2 条变红
+… flat-small-window-carries-a-scale-caveat
+✓ flat-small-window-carries-a-scale-caveat red           4 条变红
+… flat-sites-stop-at-the-usable-line
+✓ flat-sites-stop-at-the-usable-line red           1 条变红
+… flat-sites-are-spaced-apart
+✓ flat-sites-are-spaced-apart      red           3 条变红
+… wiggle-amplitude-cap-refuses-not-clamps
+✓ wiggle-amplitude-cap-refuses-not-clamps red           2 条变红
+… wiggle-range-must-not-be-empty
+✓ wiggle-range-must-not-be-empty   red           2 条变红
+… wiggle-burst-cap-is-ten-seconds
+✓ wiggle-burst-cap-is-ten-seconds  red           2 条变红
+… wiggle-slew-cap-is-two-volts-per-second
+✓ wiggle-slew-cap-is-two-volts-per-second red           2 条变红
+… wiggle-base-must-be-near-the-band
+✓ wiggle-base-must-be-near-the-band red           2 条变红
+… wiggle-dwell-bounds-are-swapped-not-refused
+✓ wiggle-dwell-bounds-are-swapped-not-refused red           2 条变红
+… wiggle-needs-the-feedback-on
+✓ wiggle-needs-the-feedback-on     red           35 条变红
+… wiggle-unreadable-feedback-is-not-a-yes
+✓ wiggle-unreadable-feedback-is-not-a-yes red           4 条变红
+… wiggle-start-bias-must-be-read
+✓ wiggle-start-bias-must-be-read   red           5 条变红
+… wiggle-small-step-still-checks-the-current
+✓ wiggle-small-step-still-checks-the-current red           15 条变红
+… wiggle-zero-crossing-uses-the-max-slew
+✓ wiggle-zero-crossing-uses-the-max-slew red           9 条变红
+… wiggle-restores-the-bias-on-every-path
+✓ wiggle-restores-the-bias-on-every-path red           11 条变红
+… wiggle-current-trip-is-on-the-magnitude
+✓ wiggle-current-trip-is-on-the-magnitude red           2 条变红
+
+119/119 变红
