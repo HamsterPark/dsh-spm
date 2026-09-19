@@ -114,26 +114,41 @@ describe('两个自检各问各的链', () => {
     return r.data.missing_skills
   }
 
-  it('修针自检报 `PreScanCheck` / `AnalyzeFrameTilt`，**不**报 `BiasWiggle` / `AssessShockleyOnset`', async () => {
+  // ⚠️ **这三条问的是「这个自检数的是哪一条链」，不是「谁还没落」。**
+  //
+  // 第一版写的是 `missing_skills` 里有没有那几个名字 —— 而那等于把「链上有它」
+  // 与「它还没移植」绑在一起：批 7a-1 落了 `AnalyzeFrameTilt` / `AutoTilt` 之后，
+  // 这三条全红了，而**链一个字都没变**。
+  // 断言改问声明表（`*_REQUIRED_SKILLS`），链变了才红；`missing_skills` 那一侧
+  // 只钉住一条**不随移植进度变**的性质：它是声明表的子集，而且**只含还没落的那些**。
+
+  it('修针自检数 `PreScanCheck` / `AnalyzeFrameTilt`，**不**数 `BiasWiggle` / `AssessShockleyOnset`', async () => {
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('PreScanCheck')
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('AnalyzeFrameTilt')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('BiasWiggle')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('AssessShockleyOnset')
     const missing = await missingOf(makeTipConditioningSelfCheck({}))
-    expect(missing).toContain('PreScanCheck')
-    expect(missing).toContain('AnalyzeFrameTilt')
-    expect(missing).not.toContain('BiasWiggle')
-    expect(missing).not.toContain('AssessShockleyOnset')
+    expect(missing.every((n) => CONDITIONING_REQUIRED_SKILLS.includes(n))).toBe(true)
+    expect(missing).not.toContain('AnalyzeFrameTilt') // 批 7a-1 落了
   })
 
-  it('锻造自检报 `BiasWiggle` / `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+  it('锻造自检数 `BiasWiggle` / `AssessShockleyOnset`，**不**数 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+    expect(FORGE_REQUIRED_SKILLS).toContain('BiasWiggle')
+    expect(FORGE_REQUIRED_SKILLS).toContain('AssessShockleyOnset')
+    expect(FORGE_REQUIRED_SKILLS).not.toContain('PreScanCheck')
+    expect(FORGE_REQUIRED_SKILLS).not.toContain('AnalyzeFrameTilt')
     const missing = await missingOf(makeTipForgeSelfCheck({}))
     expect(missing).toContain('BiasWiggle')
     expect(missing).toContain('AssessShockleyOnset')
-    expect(missing).not.toContain('PreScanCheck')
-    expect(missing).not.toContain('AnalyzeFrameTilt')
   })
 
   it('`AutoTilt` 两条链都要 —— 台面上的调平在 `flat_poke_sites` 里，两条都走它', async () => {
     // 批 6a 之前锻造那张表漏了它：`TipForgeSelfCheck` 少报了一条缺口。
-    expect(await missingOf(makeTipConditioningSelfCheck({}))).toContain('AutoTilt')
-    expect(await missingOf(makeTipForgeSelfCheck({}))).toContain('AutoTilt')
+    expect(CONDITIONING_REQUIRED_SKILLS).toContain('AutoTilt')
+    expect(FORGE_REQUIRED_SKILLS).toContain('AutoTilt')
+    // 批 7a-1 落了它 ⇒ 两条链都不该再报它缺。
+    expect(await missingOf(makeTipConditioningSelfCheck({}))).not.toContain('AutoTilt')
+    expect(await missingOf(makeTipForgeSelfCheck({}))).not.toContain('AutoTilt')
   })
 })
 
@@ -141,20 +156,24 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
   /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
     PulseConditionTip: ['FindCleanSpot'],
-    PokeConditionTip: ['AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
-    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
+    PokeConditionTip: ['FindCleanSpot', 'FindFlatRegion'],
+    MakeSpectroscopyTip: ['AssessShockleyOnset', 'FindCleanSpot', 'FindFlatRegion'],
     MakeAtomicResolutionTip: [
-      'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindCleanSpot', 'FindFlatRegion',
+      'AssessAtomicPhase', 'BiasWiggle', 'FindCleanSpot', 'FindFlatRegion',
     ],
     // 2026-09-19：`AssessTipSharpness` 从这两行里划掉了 —— **批 6c 当天落的**，
     // 而这条测试在合并后的第一次全仓跑就红了。这正是它存在的理由：
     // **封锁账不是一句「还卡着」，是一个会随仓库变化自己失效的判据。**
-    PrepareNobleTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
-    ],
-    ForgeAuTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
-    ],
+    //
+    // 2026-09-20：`AutoTilt`（五行）与 `AnalyzeFrameTilt`（两行）也划掉了 —— 批 7a-1。
+    // ⚠️ 顺带记一笔这张表**自己的**一个毛病：它记的是**一层**，不是闭包。
+    // `AutoTilt` 在这里之所以曾经是一行，是因为它出现在这六条流程的 `sub_skills`
+    // 里；而 `AutoTilt` 自己 `context.run("TiltProbeCircle")` 的那一层，
+    // 这张表**从来没有过一行**。批 7a-1 的任务书因此漏了 353 + 130 行
+    // （见 `docs/handoff/batch-7a-1.md` 的「与任务书不一样」）。
+    // 划掉一行之前，先问一句「它自己还等着谁」。
+    PrepareNobleTip: ['FindCleanSpot', 'FindFlatRegion', 'PreScanCheck'],
+    ForgeAuTip: ['FindCleanSpot', 'FindFlatRegion', 'PreScanCheck'],
   }
 
   const installed = new Set(Object.keys(IMPLEMENTED))

@@ -51,6 +51,8 @@ export * from './lsq.js'
 export * from './tip-change.js'
 export * from './scan-prep.js'
 // ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）在这一行下面加 export ──
+export * from './tilt-frame.js'
+export * from './tilt-circle.js'
 
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 export ──
 

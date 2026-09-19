@@ -26,7 +26,6 @@
     "qplus_amplitude_signal_index",
     "scan_path_strategy",
     "scan_spacing_factor",
-    "tilt_limit_deg",
     "v_tip_max_m_s",
     "vacuum_gauge_full_scale_pa",
     "vacuum_gauge_min_pa",
@@ -37,8 +36,7 @@
     "xy_motor_step_m",
     "xy_site_spacing_steps",
     "xy_step_uncertainty_frac",
-    "z_noise_floor_m",
-    "z_range_m"
+    "z_noise_floor_m"
   ],
   "calibration": {
     "filled": {
@@ -249,6 +247,14 @@
       "type": "int",
       "unit": "步"
     },
+    "tilt_limit_deg": {
+      "default": 5.0,
+      "label": "压电倾斜补偿绝对上限(单轴)",
+      "max": 45.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "°"
+    },
     "xy_move_chunk_steps": {
       "default": 50,
       "label": "横向粗动分块步数(每块之后做一次看护)",
@@ -264,6 +270,14 @@
       "min": 0,
       "type": "int",
       "unit": "步"
+    },
+    "z_range_m": {
+      "default": 1.5e-06,
+      "label": "Z 压电总量程",
+      "max": 0.0001,
+      "min": 1e-09,
+      "type": "float",
+      "unit": "m"
     },
     "z_recede_min_nm": {
       "default": 1.0,
@@ -289,9 +303,11 @@
     "retract_motor_dir": "z+",
     "retract_step_max": 1000,
     "retract_total_steps": 3000,
+    "tilt_limit_deg": 5.0,
     "xy_move_chunk_steps": 50,
     "xy_prewithdraw_steps": 100,
     "z_extend_sign": "+1",
+    "z_range_m": 1.5e-06,
     "z_recede_min_nm": 1.0,
     "z_settle_timeout_s": 20.0
   },

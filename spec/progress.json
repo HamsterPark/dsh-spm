@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 417,
+    "done": 421,
     "partial": 0,
-    "todo": 98
+    "todo": 94
   },
-  "modules_complete": 92,
+  "modules_complete": 95,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -231,8 +231,8 @@
     },
     "builtins.frame_tilt": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.frame_trust": {
       "total": 1,
@@ -506,8 +506,8 @@
     },
     "builtins.tilt_probe": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip": {
       "total": 2,
@@ -596,8 +596,8 @@
     },
     "composite.auto_tilt": {
       "total": 2,
-      "done": 0,
-      "complete": false
+      "done": 2,
+      "complete": true
     },
     "composite.batch_regions_scan": {
       "total": 1,
@@ -1000,11 +1000,11 @@
       "module": "builtins.frame_tilt",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AnalyzeScanImage": {
       "module": "builtins.scan_prep",
@@ -1330,11 +1330,11 @@
       "module": "composite.auto_tilt",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AutoZeroBeamDeflection": {
       "module": "builtins.optional_afm",
@@ -5770,21 +5770,21 @@
       "module": "composite.auto_tilt",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "TiltProbeCircle": {
       "module": "builtins.tilt_probe",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 10,
+      "impl": true,
+      "status": "done"
     },
     "TipConditioningSelfCheck": {
       "module": "builtins.tip_conditioning_selfcheck",

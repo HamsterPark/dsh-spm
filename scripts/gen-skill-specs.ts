@@ -453,6 +453,22 @@ const BATCH_6C: string[] = [
   'AssessAtomicConsistency',
 ]   // 批 5b 欠下的数值原语 + 晶格一族剩余
 
+// ↑ 上一条 ／ ↓ 7A-1 —— 这一行谁都不要动
+const BATCH_7A_1: string[] = [
+  // `builtins.frame_tilt`（1/1）—— 只读 .sxm。
+  'AnalyzeFrameTilt',
+  // `builtins.tilt_probe`（1/1）—— `AutoTilt` 的**测量那一半**。任务书原来没点它，
+  // 而 `auto_tilt._measure` 里就写着 `context.run("TiltProbeCircle", …)`：
+  // 封锁账那张表记的是**一层**，不是闭包。见 batch-7a-1.md「与任务书不一样」。
+  'TiltProbeCircle',
+  // `composite.auto_tilt`（2/2）。
+  'TiltCalibrate',
+  'AutoTilt',
+]   // vision/tilt 一族 + 三个调平技能
+
+// ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
+// ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
+
 const BATCH_5C: string[] = [
   // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。
   'ReadCalibrations',
@@ -565,6 +581,8 @@ function main(): number {
     ...BATCH_6B,
     // ↑ ／ ↓ 6C
     ...BATCH_6C,
+    // ↑ ／ ↓ 7A-1
+    ...BATCH_7A_1,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -611,7 +629,9 @@ function main(): number {
     // ↑ ／ ↓ 6B
     `批 6b ${BATCH_6B.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 6C
-    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个\n` +
+    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7A-1
+    `批 7a-1 ${BATCH_7A_1.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

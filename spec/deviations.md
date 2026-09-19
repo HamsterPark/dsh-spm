@@ -2960,6 +2960,124 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7a-1：编号**留空**（`?`），由主线统一编。 -->
 
+## D-TILT-? · `_segmentation_step_signal` 落在旧仓**自己的 fail-open 分支**上
+
+| | |
+|---|---|
+| **Python** | `from mast.vision.seg_scale_adaptive import segment_scale_adaptive, summarize_segmentation` —— 分割器在场，`terraces_8` 上报 `(True, 0.7061)` |
+| **TS** | 本仓**没有** `segment_scale_adaptive`（`vision/seg-texture.ts` 抬头明写「只移这一条链，不移它」）。于是走旧仓那个 `except Exception: return (False, 0.0)` |
+| **测试** | `vision/src/tilt.test.ts` → `没有分割器 ⇒ 与旧仓「缺依赖」那一支逐字` / `把金样录下来的分割器输出注进去 ⇒ 与旧仓「分割器在场」那一支逐字` |
+
+**不是把 `(False, 0.0)` 写死**：`assessSteps` 收一个注入口 `segSignal`，
+缺省不注入就是「缺依赖」，注入了会抛的就是 `except`（那一支有单测），
+哪天分割器真落了接上来即可，**这个文件一个字都不用改**。
+
+金样**两侧都录**（`seg_signal.with_segmenter` / `.segmenter_unavailable`，
+`assess_steps.verdict_seg` / `.verdict_noseg`），做法是把
+`sys.modules['mast.vision.seg_scale_adaptive']` 设成 `None` 逼出真的 `ImportError`
+—— 走的是旧仓自己那条 except，不是我替它编的返回值。
+`terraces_8` / `terraces_16` 两格上两侧**真的不同**（`triggered_by` 是 `both` 对
+`dominance`，`step_area_frac` 是 0.7061 对 0），所以这不是一组分辨不出两种候选的金样。
+
+**差在哪儿**：分割器缺席**只会让台阶判据更宽松**（两个判据取「或」）。
+也就是说本仓在「完全平行于快扫轴的台阶」上会给出一个倾斜数字，而旧仓会拒答。
+那一档由 7a-3 的 `kde_layers` 那条线补。
+
+## D-TILT-? · `frame_not_2d` 在本仓由**类型系统**承担
+
+| | |
+|---|---|
+| **Python** | `estimate_tilt(np.arange(8))` → `invalid_reason: 'frame_not_2d'` |
+| **TS** | `Mat` 由 `matOf` 保证是二维的，**一维输入构造不出来**。最接近的形状是 `1×N` 的 `Mat`，而它走的是 `frame_too_small` |
+| **测试** | `vision/src/tilt.test.ts` → ``​`frame_not_2d` 在本仓由类型系统承担`` —— 金样里对面的答案与本仓这一侧的答案**都写着** |
+
+`structure_dominance` / `step_dominance_multiscale` 的 `ndim != 2` 守卫同理。
+**不补一条 runtime 检查**（消融精神：它现在什么都挡不住），但金样里留着对面的答案，
+这样「不可达」是一句量出来的话，不是一句我说的话。
+
+## D-TILT-? · `estimate_tilt` 的 `fit_failed` **不可达**（两侧都是）
+
+`fit_plane_robust` 只在有限像素 < 3 时交 `None`，而 64×64 上那意味着 NaN 占比
+**99.9%** —— `too_many_nan`（0.20 的线）在它前面。金样
+`estimate_tilt_unreachable` 逐格量着这条推理（finite = 0…4，`fit_is_none` 与
+`invalid_reason` 并排）。
+
+**不删那一支**（`MIN_FRAME_PX` 哪天调小就用得上），但它现在是一段没有闸的代码，
+所以这一族的变异不打在它上面 —— 同 green-8 §2.8 的处置。
+
+## D-TILTCIRCLE-? · 秩亏的圆拟合，两边给出**差一倍**的倾斜，而两边都判 `valid`
+
+| | |
+|---|---|
+| **Python** | 12 个点全在同一个角度上 ⇒ `np.linalg.lstsq(rcond=None)` 给**最小范数**解（系数平分给两根相同的列）⇒ `slope_mag_deg = 1.4321°` |
+| **TS** | 列缩放 Householder QR 把系数全压在第一根列上 ⇒ `slope_mag_deg = 2.8624°`（**斜率整整 2 倍**） |
+| **测试** | `vision/src/tilt.test.ts` → `秩亏那一格两边**差整整一倍**，而两边都判 valid` |
+
+两边的残差都是 `~1e-25`，也就是说「哪一个对」这个问题**本身没有答案** ——
+解不唯一。
+
+**为什么不改**（不加一条秩闸）：它**没有下游**。`TiltProbeCircle` 的角度是
+`2πk/n`，互不相同，这一格从那里到不了。加一条旧仓没有的闸等于给一个不存在的
+输入写代码。但断言留着：哪天有别的调用方，它会当场说出「这两边不是一回事」。
+
+## D-TILTCAL-? · 写档案：本仓多出**两态**，而旧仓只有一个 `None`
+
+| | |
+|---|---|
+| **Python** | `set_tilt_calibration` 拒写时一律返回 `None`，而 `TiltCalibrate` 的报文把它**全部**说成「标定被拒绝(条件数 … 超过上限 10.0)」 |
+| **TS** | `setTiltCalibration` 交一个联合类型：`bad_matrix` / `not_finite` / `cond_unknown` / `cond_too_high` / `no_sink` |
+| **测试** | `kernel/src/tilt-loop.test.ts` → `五条拒写理由各一条`；`l0/tilt-skills.test.ts` → `宿主没接写口 ⇒ **另一句话**` |
+
+两件事：
+
+1. **形状非法 / 条件数算不出**在旧仓那句话里被说成「两轴响应几乎共线」——
+   一句关于**硬件**的假话，而真相是调用方传错了东西。
+   本仓其余四态照旧仓逐字（那几条在技能层到不了：响应幅度闸与奇异闸在前面），
+   只有 `no_sink` 换一句。
+2. **`no_sink` 是旧仓没有的一态**：它的档案是进程内的一份 dict，永远写得进；
+   本仓的写口由宿主注入（批 7a-1 新加的 `processInstrumentProfile.write`）。
+   **不许静默成功** —— 那会让技能报「标定完成」而档案里一个字都没有。
+
+同一条也落在 `AutoTilt` 的**读**侧：`calibration_unreadable` 是本仓的第三态
+（旧仓只有「有」与「没有」），`next_action_hint` 从 `run_tilt_calibrate` 换成
+`fix_profile_host` —— 一个去跑标定，一个去修宿主接线，**该做的事完全不同**。
+登记在 `traces.test.ts` 的 `DEVIATIONS`（`AutoTilt/*`），期望值**从金样算出来**。
+
+## D-TILT-? · `AutoTilt` 的 `no_action_needed` 里那句空 `reason` **不可达**
+
+`trigger = min(0.05·zr, 10·rms) ≤ 0.05·zr`，`hard = 0.20·zr`，而走到那一支的前提是
+`span ≤ trigger` ⇒ `span < hard` 恒成立（`zr > 0`，`CONFIG_SPEC` 把 `z_range_m`
+夹在 `[1e-9, 1e-4]`）。于是 `"within_budget" if span < hard else ""` 的 `else`
+永远不取。金样 `no_action_reason_unreachable` 用 15 格（3 个量程 × 5 个起伏）量着它。
+
+照移、不删；变异不打在它上面。
+
+## D-HYPOT-1 补充 · 本批给它添了三个消费方
+
+`Math.hypot` 与 CPython 的 `math.hypot` 差 1 ULP（原条目在上面）。批 7a-1 的三处：
+**补偿增量的幅度**（`tiltDelta` 之后）、**帧对角线**（`frameDiagonal`）、
+**合成倾斜角**（`estimateTilt` 的 `slope_mag_deg`）。
+
+实测 `hypot(1e-7, 1e-7)` 两边差 1 ULP，而 `hypot(3e-7, 2e-7)` 一样 ——
+所以这不是「换个写法就好了」。三处都只用来跟阈值比大小或印给人看，
+按 `HYPOT_REL_TOL`（2 ULP）比，其余字段照旧逐字。
+`AutoTilt` 的 `frame_fallback` 那一格**故意**让扫描框是 300×200 nm 而不是 100 nm ——
+兜底对角线恰好是 `hypot(1e-7, 1e-7)`，用 100 nm 的框会让「读到了框」与
+「读不到、走兜底」给出同一个数。
+
+## D-TILT-? · `AnalyzeFrameTilt` 读的是**裸块**，不做几何归位
+
+旧仓写的是 `scan["channels"][name]["forward"]`，一次 `sxm_oriented_frames` 都没有。
+与 `AssessClusterRoundness` 是同一种情形（`analysis-common.ts` 抬头点过名）：
+**不是本仓的选择，是旧仓的现状**。归位会翻 `backward` 块、会把 `up` 帧翻正，
+而那两件都会改变报出来的 `tilt_slow_deg` 的符号。照移，并留一条变异
+（`frametilt-reads-the-raw-block`）钉住它。
+
+顺带一条**本仓比旧仓多说的**：`.sxm` 读取失败那句话里印**路径**
+（旧仓 `read_sxm(path)` 天然有它，本仓的读取器缺省印 `<sxm>`）。
+`loadSxm` 因此多一个可选参数，**缺省不变** —— 改缺省会让批 4a/4c/6b/6c 的
+那几句报文整排变红，而变的是模型读的那句话。
+
 <!-- ── 批 7a-2（实验地图层 + FindCleanSpot）的登记写在这一行下面 ── -->
 
 <!-- 批 7a-2：编号**留空**（`?`），由主线统一编。 -->

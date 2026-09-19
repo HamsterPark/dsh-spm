@@ -48,6 +48,9 @@ CONFIG_KEYS = [
     "z_recede_min_nm", "z_settle_timeout_s",
     "retract_total_steps", "retract_step_max", "lockin_signal_index",
     "xy_prewithdraw_steps", "xy_move_chunk_steps", "preamp_full_scale_a",
+    # 批 7a-1 起有消费方：`AutoTilt._thresholds` 拿 z_range_m 当三条阈的分母，
+    # 施加小步时拿 tilt_limit_deg 做单轴限幅。在那之前它们在 `ablated_keys` 里。
+    "z_range_m", "tilt_limit_deg",
 ]
 CHOICE_KEYS = ["retract_motor_dir", "z_extend_sign"]
 

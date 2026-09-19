@@ -2378,6 +2378,20 @@
       }
     }
   },
+  "AnalyzeFrameTilt": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AnalyzeScanImage": {
     "params": {
       "scan_path": "spec-export"
@@ -5114,6 +5128,23 @@
         "error": "不是一个目录: spec-export",
         "success": false,
         "summary": ""
+      }
+    }
+  },
+  "AutoTilt": {
+    "params": {},
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {
+          "detail": "这台仪器还没做过倾斜响应标定。Piezo_TiltSet 的轴对应与符号取决于接线,猜错方向会把倾斜往反方向加倍 —— 先跑一次 TiltCalibrate。",
+          "next_action_hint": "run_tilt_calibrate",
+          "outcome": "skipped",
+          "reason": "calibration_missing"
+        },
+        "error": "skipped: calibration_missing",
+        "success": false,
+        "summary": "AutoTilt: skipped(calibration_missing)"
       }
     }
   },
@@ -109002,6 +109033,3583 @@
         "error": "Failed to load image: image file not found: spec-export",
         "success": false,
         "summary": ""
+      }
+    }
+  },
+  "TiltCalibrate": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前压电倾斜(Piezo_TiltGet)—— 无法标定,也无法回滚",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前压电倾斜(Piezo_TiltGet)—— 无法标定,也无法回滚",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Piezo_TiltSet"
+          }
+        ],
+        "raised": "KeyError: 'tilt_x_deg'",
+        "runs": [
+          {
+            "params": {},
+            "skill": "TiltProbeCircle"
+          }
+        ]
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltSet"
+          }
+        ],
+        "raised": "KeyError: 'tilt_x_deg'",
+        "runs": [
+          {
+            "params": {},
+            "skill": "TiltProbeCircle"
+          }
+        ]
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltSet"
+          }
+        ],
+        "raised": "KeyError: 'tilt_x_deg'",
+        "runs": [
+          {
+            "params": {},
+            "skill": "TiltProbeCircle"
+          }
+        ]
+      },
+      "runerr@0": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Piezo_TiltGet"
+          }
+        ],
+        "data": {},
+        "error": "基线测量失败: 模拟故障：子技能失败",
+        "runs": [
+          {
+            "params": {},
+            "skill": "TiltProbeCircle"
+          }
+        ],
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "TiltProbeCircle": {
+    "params": {},
+    "traces": {
+      "empty@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          }
+        ],
+        "data": {},
+        "error": "读不到针尖当前位置(FolMe_XYPosGet)",
+        "success": false,
+        "summary": ""
+      },
+      "err@0": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          }
+        ],
+        "data": {},
+        "error": "读不到针尖当前位置(FolMe_XYPosGet)",
+        "success": false,
+        "summary": ""
+      },
+      "err@1": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          }
+        ],
+        "data": {},
+        "error": "读不到当前扫描框尺寸,无法推导圆半径 —— 请显式给 radius_m",
+        "success": false,
+        "summary": ""
+      },
+      "err@2": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051730117,
+          "drift_rate_m_s": 1.2677532608978069e-17,
+          "elapsed_s": 0.025000001187436283,
+          "failed_points": 0,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 24,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1120782413695608e-19,
+          "slope_mag_deg": 0.3085442328607426,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028506693,
+          "tilt_y_deg": -0.11459140621979583,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 24 点"
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051556753,
+          "drift_rate_m_s": 1.09808235413203e-17,
+          "elapsed_s": 0.02400000113993883,
+          "failed_points": 1,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 23,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1471889942030495e-19,
+          "slope_mag_deg": 0.3085442328572484,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651027835536,
+          "tilt_y_deg": -0.11459140622716625,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 23 点"
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051730117,
+          "drift_rate_m_s": 1.2677532608978069e-17,
+          "elapsed_s": 0.025000001187436283,
+          "failed_points": 0,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 24,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1120782413695608e-19,
+          "slope_mag_deg": 0.3085442328607426,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028506693,
+          "tilt_y_deg": -0.11459140621979583,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 24 点"
+      },
+      "err@58": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.1985905153129,
+          "drift_rate_m_s": 5.924995466043831e-18,
+          "elapsed_s": 0.02400000113993883,
+          "failed_points": 1,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 23,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 9.983059529508761e-20,
+          "slope_mag_deg": 0.3085442328621832,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028242793,
+          "tilt_y_deg": -0.11459140623027222,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 23 点"
+      },
+      "err@59": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051730117,
+          "drift_rate_m_s": 1.2677532608978069e-17,
+          "elapsed_s": 0.025000001187436283,
+          "failed_points": 0,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 24,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1120782413695608e-19,
+          "slope_mag_deg": 0.3085442328607426,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028506693,
+          "tilt_y_deg": -0.11459140621979583,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 24 点"
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051730117,
+          "drift_rate_m_s": 1.2677532608978069e-17,
+          "elapsed_s": 0.025000001187436283,
+          "failed_points": 0,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 24,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1120782413695608e-19,
+          "slope_mag_deg": 0.3085442328607426,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028506693,
+          "tilt_y_deg": -0.11459140621979583,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 24 点"
+      },
+      "ok": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "Scan_FrameGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosGet"
+          },
+          {
+            "args": [
+              0.2500005,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5000005,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.5000004829629131,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.5000004330127019,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.5000003535533906,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.50000025,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.5000001294095225,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999951703708687,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499995669872981,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2499996464466094,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999975,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.24999987059047746,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.4999995,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000012940952254,
+              0.49999951703708684,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000025,
+              0.4999995669872981,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500003535533906,
+              0.4999996464466094,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.2500004330127019,
+              0.49999975,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25000048296291316,
+              0.49999987059047746,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZCtrl_ZPosGet"
+          },
+          {
+            "args": [
+              0.25,
+              0.5,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "FolMe_XYPosSet"
+          }
+        ],
+        "data": {
+          "center_x_m": 0.25,
+          "center_y_m": 0.5,
+          "downhill_deg": 158.19859051730117,
+          "drift_rate_m_s": 1.2677532608978069e-17,
+          "elapsed_s": 0.025000001187436283,
+          "failed_points": 0,
+          "geometry_note": "半径由扫描框推导: min(0.75, 1) × 0.4 = 0.3 m",
+          "invalid_reason": "",
+          "max_jump_ratio": 0.0,
+          "max_residual_ratio": 0.0,
+          "n_points": 24,
+          "noise_floor_m": 0.0,
+          "radius_m": 5e-07,
+          "residual_ratio": 0.0,
+          "residual_rms_m": 1.1120782413695608e-19,
+          "slope_mag_deg": 0.3085442328607426,
+          "slow_axis_trusted": true,
+          "tilt_x_deg": 0.28647651028506693,
+          "tilt_y_deg": -0.11459140621979583,
+          "valid": true
+        },
+        "error": "",
+        "success": true,
+        "summary": "倾斜 0.3085° (x=+0.2865°, y=-0.1146°), 下坡方向 158°, 半径 500.0 nm / 24 点"
       }
     }
   },

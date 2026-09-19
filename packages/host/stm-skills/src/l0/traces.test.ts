@@ -15,6 +15,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
+  NO_PROFILE_SOURCE,
   attest,
   emptyHardwareState,
   processCoarseDrive,
@@ -97,6 +98,20 @@ function synthBody(verb: string): unknown[] {
 }
 
 /** 与导出脚本同形的假 context：回显记忆 + 按序号注错 + 空 body。 */
+/**
+ * **按技能**覆写某几个动词的 body —— 与导出脚本 `export_skill_traces.CUSTOM_BODIES`
+ * **同一张表**（那边的抬头写着为什么）。
+ *
+ * 一句话：`TiltProbeCircle` 在恒定回包上是**退化**的（一圈 Z 全相等 ⇒ 正弦拟合
+ * 只剩舍入噪声 ⇒ `downhill_deg` 是掷骰子）。给 Z 一个跟着 XY 走的斜面，
+ * 它才是那个技能真正要面对的东西。
+ */
+const CUSTOM_BODIES: Readonly<Record<string, Readonly<Record<string, (xy: [number, number]) => unknown[]>>>> = {
+  TiltProbeCircle: {
+    ZCtrl_ZPosGet: (xy) => [1.0e-9 + 5.0e-3 * xy[0] - 2.0e-3 * xy[1]],
+  },
+}
+
 function fakeCtx(
   opts: {
     errorAt?: number
@@ -105,6 +120,8 @@ function fakeCtx(
     runErrorAt?: number
     /** 注错的**文案**。有技能按错误里的子串分流（`NeedModule`），文案就是开关。 */
     errorText?: string
+    /** 哪个技能在跑 —— 只给 {@link CUSTOM_BODIES} 用（批 7a-1）。 */
+    skill?: string
   } = {},
 ): {
   ctx: SkillContext
@@ -129,6 +146,11 @@ function fakeCtx(
       return Promise.resolve({ method, args, error: opts.errorText ?? '模拟故障：连接被对端关闭' })
     }
     if (i === opts.emptyAt) return Promise.resolve({ method, args, values: [] })
+    const custom = CUSTOM_BODIES[opts.skill ?? '']?.[method]
+    if (custom !== undefined) {
+      const xy = (echo.get('FolMe_XYPos') ?? [0, 0]).map(Number)
+      return Promise.resolve({ method, args, values: custom([xy[0] ?? 0, xy[1] ?? 0]) })
+    }
     const base = method.endsWith('Set') || method.endsWith('Get') ? method.slice(0, -3) : undefined
     if (method.endsWith('Set') && base !== undefined) {
       echo.set(base, [...args])
@@ -280,6 +302,30 @@ interface Deviation {
    * 分毫不动**：它们全都不在 {@link CLOCK_KEYS} 里。
    */
   readonly clockApprox?: true
+  /**
+   * **最小二乘算出来的**那几个数按容差比，而不是逐位比（批 7a-1）。
+   *
+   * 与 `clockApprox` 同一种形状、不同的理由，所以**另开一个名字**：
+   * 那一条说的是夹具的钟不在同一个量级，这一条说的是**两边解的是同一个方程、
+   * 用的是两种分解**。
+   *
+   * `TiltProbeCircle` 的整份 `data` 都从一次 `Z(θ)` 的正弦拟合出来：
+   * 旧仓走 `np.linalg.lstsq`（LAPACK `gelsd`，SVD），本仓走列缩放 Householder QR
+   * （`numerics/lsq.ts`，抬头写着为什么不能用正规方程）。两个算法都向后稳定，
+   * 而它们**不是同一串浮点运算** —— 实测角度差 `8e−15`（相对），
+   * 残差派生量差 `1.1e−11`（相消 + 小分量放大，推导在 `vision/tilt-circle.ts`）。
+   *
+   * 逐位比在这里不是「更严」，是**不可能**：要它成立得把 LAPACK 也移植一份。
+   * 判据留在别处，而且留得住 —— 动词序列、点数、`valid`、`invalid_reason`、
+   * 报文全都不在 {@link FIT_KEYS} 里，照旧逐位 / 逐字。
+   *
+   * ⚠️ 这一族的**主判据不在这份金样里**：`spec/golden/tilt.json` 的
+   * `fit_circle_tilt`（12 格）与 `skills.TiltProbeCircle`（13 格）用的是一台
+   * 会给斜面的假仪器，那边按 `CIRCLE_REL_TOL` / `CIRCLE_RESIDUAL_REL_TOL`
+   * **逐格**比，两条容差各有推导。这边钉的是「它在注册表里、被真调度链调得动、
+   * 发的是那一串动词」。
+   */
+  readonly fitApprox?: true
 }
 
 /**
@@ -299,6 +345,16 @@ const CLOCK_KEYS = new Set([
 ])
 const CLOCK_REL = 1e-6
 
+/**
+ * 最小二乘派生的叶子键名（批 7a-1）。与 {@link CLOCK_KEYS} 同一条路子：
+ * 按名字认，**不丢，只是换成容差比**。只在登记了 `fitApprox` 的那几格上起作用。
+ */
+const FIT_KEYS = new Set([
+  'tilt_x_deg', 'tilt_y_deg', 'slope_mag_deg', 'downhill_deg',
+  'residual_rms_m', 'residual_ratio', 'max_residual_ratio', 'max_jump_ratio',
+  'drift_rate_m_s',
+])
+
 function clockClose(a: unknown, b: unknown): boolean {
   return (
     typeof a === 'number' &&
@@ -314,16 +370,16 @@ function clockClose(a: unknown, b: unknown): boolean {
  *
  * 换而不是跳过：不够近时它留在原地，`toEqual` 照样把两个数并排印出来。
  */
-function alignClock(want: unknown, got: unknown, key = ''): unknown {
-  if (CLOCK_KEYS.has(key) && clockClose(want, got)) return got
+function alignClock(want: unknown, got: unknown, key = '', keys: ReadonlySet<string> = CLOCK_KEYS): unknown {
+  if (keys.has(key) && clockClose(want, got)) return got
   if (Array.isArray(want) && Array.isArray(got) && want.length === got.length) {
-    return want.map((x, i) => alignClock(x, got[i], key))
+    return want.map((x, i) => alignClock(x, got[i], key, keys))
   }
   if (want !== null && typeof want === 'object' && got !== null && typeof got === 'object') {
     return Object.fromEntries(
       Object.entries(want as Record<string, unknown>).map(([k, x]) => [
         k,
-        alignClock(x, (got as Record<string, unknown>)[k], k),
+        alignClock(x, (got as Record<string, unknown>)[k], k, keys),
       ]),
     )
   }
@@ -1083,6 +1139,48 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, { clockApprox: true } as const]),
     ),
   ),
+  // ── 批 7a-1 · 圆拟合那一族按 `fitApprox` 比（见那个字段的抬头）──
+  //
+  // `TiltProbeCircle` 的整份 `data` 都从一次最小二乘出来，而两边解的是同一个方程、
+  // 用的是两种分解（LAPACK `gelsd` 对列缩放 Householder QR）。
+  // 判据（动词序列、`n_points`、`valid`、报文）一个都不在 `FIT_KEYS` 里。
+  ...Object.fromEntries(
+    Object.keys(golden['TiltProbeCircle']?.traces ?? {}).map((t) => [
+      `TiltProbeCircle/${t}`,
+      { fitApprox: true } as const,
+    ]),
+  ),
+  // ── 批 7a-1 · 本仓比旧仓**多一态**：读不到档案 ≠ 从未标定过 ──
+  //
+  // 旧仓的仪器档案是进程内的一份 dict，永远读得到，于是 `get_tilt_calibration()`
+  // 只有「有」与「没有」两种答案。本仓的读口由宿主注入，而这台驱动器**没有注入**
+  // —— 那是第三种状态，该做的事完全不同（一个去跑 `TiltCalibrate`，
+  // 一个去修宿主接线）。把它说成「从未标定过」等于把一次配置故障报成一次待办。
+  //
+  // 期望**从金样算出来**（替换那两处措辞），所以旧仓哪天改了那句话，这条会跟着变。
+  ...Object.fromEntries(
+    Object.keys(golden['AutoTilt']?.traces ?? {}).map((t) => {
+      const w = golden['AutoTilt']?.traces[t]
+      const detail = String(
+        (w?.data as { detail?: unknown } | undefined)?.detail ?? '',
+      )
+      return [
+        `AutoTilt/${t}`,
+        {
+          error: 'skipped: calibration_unreadable',
+          summary: 'AutoTilt: skipped(calibration_unreadable)',
+          data: {
+            ...(w?.data as Record<string, unknown>),
+            reason: 'calibration_unreadable',
+            next_action_hint: 'fix_profile_host',
+            // 那句话换成**本仓真有的**那一句（`NO_PROFILE_SOURCE`），
+            // 而金样那一侧的原话在上面 `detail` 里，差异消失时这条会变红。
+            detail: detail === '' ? '' : NO_PROFILE_SOURCE,
+          },
+        } as const,
+      ]
+    }),
+  ),
 }
 
 /**
@@ -1359,7 +1457,7 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
       for (const [traceName, want] of comparable) {
         it(`${traceName}：动词序列与返回都相等`, async () => {
           resetProcessState(name)
-          const { ctx, calls } = fakeCtx(optsOf(traceName))
+          const { ctx, calls } = fakeCtx({ ...optsOf(traceName), skill: name })
           const got = await skill.execute(ctx, want.params ?? entry.params)
 
           const dev = DEVIATIONS[`${name}/${traceName}`]
@@ -1414,7 +1512,10 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
               expect(dropPath(wantData, path), `金样里没有 ${path}，这条 absent 登记过期了`)
                 .toBe(true)
             }
-            expect(gotData).toEqual(dev?.clockApprox === true ? alignClock(wantData, gotData) : wantData)
+            let aligned = wantData
+            if (dev?.clockApprox === true) aligned = alignClock(aligned, gotData) as typeof wantData
+            if (dev?.fitApprox === true) aligned = alignClock(aligned, gotData, '', FIT_KEYS) as typeof wantData
+            expect(gotData).toEqual(aligned)
           } else {
             expect(stripVolatile(got.data ?? {})).toEqual(dev.data)
             expect(stripVolatile(want.data ?? {})).not.toEqual(dev.data)
