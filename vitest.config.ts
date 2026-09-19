@@ -91,7 +91,21 @@ export default defineConfig({
       thresholds: COVERAGE_THRESHOLDS,
     },
     projects: [
-      { resolve: { alias: WORKSPACE_ALIAS }, test: { name: 'unit', include: ['packages/*/*/src/**/*.test.ts'] } },
+      {
+        resolve: { alias: WORKSPACE_ALIAS },
+        test: {
+          name: 'unit',
+          include: ['packages/*/*/src/**/*.test.ts'],
+          // 缺省 5 s 在**裸跑**时绰绰有余（全仓 5700+ 条 15 秒跑完），
+          // 但 `--coverage` 的插桩会把最重的那几条金样驱动测试拖到 6 s 以上
+          // （2026-09-19：批 4b 的 lattice 那条实测 6.35 s）。
+          //
+          // 写成显式的 20 s 而不是让人记得加 `--testTimeout`：
+          // **一个要靠人记得加的参数，等于没有这个参数**。
+          // 20 s 仍然能把「真的挂住了」照出来 —— 那一类是分钟级，不是秒级。
+          testTimeout: 20_000,
+        },
+      },
       { resolve: { alias: WORKSPACE_ALIAS }, test: { name: 'contract', include: ['packages/*/*/contract/**/*.test.ts'] } },
       {
         resolve: { alias: WORKSPACE_ALIAS },
