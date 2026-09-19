@@ -4557,6 +4557,182 @@ function physicallyAbsurdViolations_unused(`,
 
   // ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）的演练写在这一行下面 ──
 
+  // ── 批 7b-1 ①：封锁账**按闭包算**（`tip-phase-closure.ts`）─────────────
+  {
+    id: 'closure-stops-at-one-layer',
+    why: '闭包**不递归**就退回成一层 —— 而那正是这一批修的东西。`AutoTilt` 落了、`TiltProbeCircle` 没落的那一天，一层的账会说「这条流程可以移了」，而它移了也跑不起来',
+    file: `${SK}/l0/tip-phase-closure.ts`,
+    find: '    for (const m of next) stack.push(m)',
+    replace: '    for (const m of next) if (seeds.includes(m)) stack.push(m)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'closure-never-says-where-it-stopped',
+    why: '`stoppedAt` 恒为空表。空表有两种 —— 没有东西，和这段代码从不往里放东西，**而它们在 JSON 里长得一模一样**。一个说不清自己追到哪儿的闭包，比一层还坏',
+    file: `${SK}/l0/tip-phase-closure.ts`,
+    find: '      stopped.add(name)\n      continue',
+    replace: '      continue',
+    scope: 'packages/host',
+  },
+  {
+    id: 'closure-drops-the-autotilt-edge',
+    why: '`AutoTilt → TiltProbeCircle`（`auto_tilt.py:134` 的 `context.run`）从边表里掉了。这条边是整批 7b-1 的现场：批 7a-1 落 `AutoTilt` 时才发现那 353 行不在任何一行账上',
+    file: `${SK}/l0/tip-phase-closure.ts`,
+    find: "  AutoTilt: ['TiltProbeCircle'],",
+    replace: '  AutoTilt: [],',
+    scope: 'packages/host',
+  },
+  {
+    id: 'closure-scanat-loses-the-zctrl-gain',
+    why: '`ScanAt` 的 `SetZCtrlGain` 掉了。它只从 `CompositeStep` 那条边来 —— 旧仓 299 处 `CompositeStep` vs 63 处 `context.run`，**只追后者就只覆盖五分之一的边**',
+    file: `${SK}/l0/tip-phase-closure.ts`,
+    find: "    'ConfigureScan', 'SetBias', 'SetScanBuffer', 'SetSetpoint', 'SetZCtrlGain', 'StartScan',",
+    replace: "    'ConfigureScan', 'SetBias', 'SetScanBuffer', 'SetSetpoint', 'StartScan',",
+    scope: 'packages/host',
+  },
+  {
+    id: 'closure-forge-chain-forgets-a-flow',
+    why: '锻造那条链的种子少一条流程 ⇒ `FORGE_REQUIRED_SKILLS` 少报一批依赖。一个**少报自己依赖**的自检，正是这两个自检存在的理由的反面',
+    file: `${SK}/l0/tip-phase-closure.ts`,
+    find: "export const SPECIAL_FLOWS: readonly string[] = ['MakeSpectroscopyTip', 'MakeAtomicResolutionTip']",
+    replace: "export const SPECIAL_FLOWS: readonly string[] = ['MakeSpectroscopyTip']",
+    scope: 'packages/host',
+  },
+
+  // ── 批 7b-1 ②：`AssessAtomicPhase`（`tip-spectro-assess.ts`）───────────
+  {
+    id: 'atomicphase-coverage-gate-is-inclusive',
+    why: '覆盖率门从**严格小于**改成小于等于 ⇒ 正好扫了一半的帧被判成残帧。线上那一格是这道闸唯一分得开两种写法的输入',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    const incomplete = coverage < MIN_COVERAGE',
+    replace: '    const incomplete = coverage <= MIN_COVERAGE',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-coverage-gate-moves',
+    why: '门从 0.5 挪到 0.25。真机 0084/0085 是 2%、25%，完整帧是 100% —— 挪到 0.25 之后那两帧里有一帧**再也拦不住**，而它会报「有原子分辨」',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: 'export const MIN_COVERAGE = 0.5',
+    replace: 'export const MIN_COVERAGE = 0.25',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-coverage-gate-does-not-gate',
+    why: '门算了却不压 `passed`。这道门存在的全部理由就是：判据在残帧上照样说「有原子相」（2026-08-19：2% 的像素、角向集中度 94），而那是一句关于针尖的假话',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    const passed = res.passed && !incomplete',
+    replace: '    const passed = res.passed',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-incomplete-reason-is-dropped',
+    why: '`incomplete_frame` 不进 `reasons`（= 照抄旧仓那个拆散事故）。出局词是**机器可读**的那一路，掉了它，下游只能去匹配中文散文',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    // `.slice(1)` 而不是整段删掉：`extraReasons` 删了就成了未使用的局部量，
+    // `tsc -b` 直接不过 —— 而一条**编译不过**的变异判 `inconclusive`，
+    // 它问不出「这道闸在不在挡」。同批 4b 那条「打错了行」的近亲。
+    find: '      reasons: [...res.reasons, ...extraReasons],',
+    replace: '      reasons: [...res.reasons, ...extraReasons.slice(1)],',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-incomplete-warning-is-dropped',
+    why: '那句「**不要把这个结果读成「针尖不好」**」不发出来（= 照抄旧仓）。旧仓自己写好了这句话、也算出来了，然后把它扔了 —— 因为同一次重构的另一半落进了另一个类',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '      warnings: [...res.warnings, ...extraWarnings],',
+    replace: '      warnings: [...res.warnings],',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-summary-contradicts-the-verdict',
+    why: 'summary 分支回到 `res.passed`（= 照抄旧仓）⇒ 同一个回包里，模型读的那一句说「有原子相」，机器读的那一格是 `passed=false`。**两句话里模型只读得到一句**',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    if (incomplete) {',
+    replace: '    if (incomplete && !res.passed) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-channel-does-not-fall-back',
+    why: '指名通道拿不到时报错退出，而不是取第一个通道。这一条与孪生技能 `AssessAtomicResolution` **刻意不同**，统一它就是把一格金样改掉',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    const ch = channels[channelName] ?? Object.values(channels)[0]',
+    replace: '    const ch = channels[channelName]',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-empty-path-is-a-missing-file',
+    why: '空串走成「文件不存在」。旧仓的 `Path("")` 等价于 `Path(".")`，当前目录**是存在的** ⇒ 它掉进 `.sxm 读取失败`。这是实跑出来的，而模型读的正是这两句里的一句',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: "    if (!(path === '' ? existsSync('.') : existsSync(path))) {",
+    replace: '    if (!existsSync(path)) {',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-read-error-loses-the-path',
+    why: '读取失败那句话里不带路径。旧仓 `read_sxm` 把路径写进去（`Cannot find header end marker in <路径>`）—— 一次批处理里五个文件，报文不说是哪一个，等于没报',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    const load = loadSxm(path, path)',
+    replace: '    const load = loadSxm(path)',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-expected-zero-falls-back-to-the-substrate',
+    why: '把「填 0」读成「从衬底取」—— 参数说明的两句话（「留空则从衬底取；填 0 则关掉这项比较」）里最自然的那个误读。它只在**同时**给 0 与一个解得开的衬底时才分得开，而金样里为它专门造了一格',
+    // ⚠️ 这一条原来打在 `rawExpected > 0` 上（改成 `>= 0`），**实跑是绿的**：
+    // 0 传下去之后 `atomic-phase.ts` 的 `expectedANm && expectedANm > 0` 又挡了一次，
+    // 两种写法给出同一个答案 ⇒ **那一行不是一道闸**，它是下游那道闸的复读。
+    // 按 green-8 §2.8 的办法：先证明它不做决定，再把变异改打在**真正做决定的那一行**上。
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '    else if (rawExpected === null) expectedA = facts.rowSpacingNm',
+    replace: '    else expectedA = facts.rowSpacingNm',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-substrate-table-is-the-vision-one',
+    why: '衬底表混进 `SURFACE_LATTICE_NM` 里那几个**不是洁净金属**的面。旧仓的 `resolve_substrate` 只认四个 —— 多认一个，那个面就从「判不了」变成「按这个常数判」，而那个常数来自另一张表、回答的是另一个问题',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: "  'Cu(111)': 2.556,",
+    replace: "  'Cu(111)': 2.556,\n  HOPG: 2.464,",
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-row-spacing-is-the-nearest-neighbour',
+    why: '把**原子行间距**写成最近邻距离（漏掉 √3/2）。两者差 15.5%，而典型的压电偏差是 10% —— 错了会得到一个看起来很合理的错数',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    // `Math.max(1, ROW_SPACING_FACTOR)` 恒为 1，而 `ROW_SPACING_FACTOR` 仍被读到 ——
+    // 直接删掉它会让那个常量变成未使用的局部量，`tsc -b` 不过 ⇒ 判 inconclusive，
+    // 而一条编译不过的变异问不出「这道闸在不在挡」。
+    find: '  return { available: true, material, source, rowSpacingNm: (ang / 10.0) * ROW_SPACING_FACTOR }',
+    replace: '  return { available: true, material, source, rowSpacingNm: (ang / 10.0) * Math.max(1, ROW_SPACING_FACTOR) }',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-row-spacing-reassociates',
+    why: '结合顺序从 `(ang/10)·(√3/2)` 改成 `ang·√3/2/10`。Pt(111) 上差 **1 ulp** —— 而它是晶格常数比对的入口。旧仓两处各写各的，这一处跟的是 `sample_facts`，不是 `lattice_calibration`',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    // `ROW_SPACING_FACTOR * 2` **精确**等于 `√3`（乘 2 在二进制里无误差），
+    // 所以这一条改的只有结合顺序，没有别的。常量仍被读到 ⇒ 编译得过。
+    find: 'rowSpacingNm: (ang / 10.0) * ROW_SPACING_FACTOR }',
+    replace: 'rowSpacingNm: (ang * (ROW_SPACING_FACTOR * 2)) / 2 / 10.0 }',
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-substrate-injection-is-on-by-default',
+    why: '注入口默认改成「不知道也当成 Au(111)」。「不知道」不等于「Au(111)」：在 Ag(111) 上按 Au 的常数找判据会一直不过，而流程会把这个误读成「针尖不行」，反复去修一根其实没问题的针',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '  currentSample: null,',
+    replace: "  currentSample: () => 'Au(111)',",
+    scope: 'packages/host',
+  },
+  {
+    id: 'atomicphase-injection-failure-is-not-soft',
+    why: '注入口抛异常时不再 fail-soft ⇒ 一个拿不到实验记录的现场，这个**只读**技能会整个失败。旧仓那一路是「读不到就说不知道」，不是「读不到就炸」',
+    file: `${SK}/l0/tip-spectro-assess.ts`,
+    find: '      try {\n        material = src()\n      } catch {',
+    replace: '      try {\n        material = src()\n      } catch (e) {\n        if (e) throw e',
+    scope: 'packages/host',
+  },
+
   // ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的演练写在这一行下面 ──
 
   // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的演练写在这一行下面 ──

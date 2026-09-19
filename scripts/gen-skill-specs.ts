@@ -476,7 +476,16 @@ const BATCH_7A_2: string[] = [
 // ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
 
 // ↑ 上一条 ／ ↓ 7B-1 —— 这一行谁都不要动
-const BATCH_7B_1: string[] = []
+const BATCH_7B_1: string[] = [
+  // `builtins.tip_spectro_assess`（1/2）—— 判据本体**零行**：晶格底座那 ≈950 行
+  // 上一轮就落完了（`atomic-phase.ts` 632 · `lattice-peaks.ts` 470 · …），
+  // 而 `AtomicPhaseResult` 的字段与 `tip_spectro_assess.py:419-435` 逐个对上。
+  // 只欠技能壳 + 覆盖率门 `_MIN_COVERAGE=0.5`。
+  // ⚠️ 同文件的 `AssessShockleyOnset` **不在这一批**：它在旧仓每条成功路径都炸
+  // `NameError`（`:236-237` 用的 `extra_reasons` 只在另一个类的另一个方法里赋值），
+  // 「怎么验收」是一个还没答的问题。见 `docs/handoff/batch-7b-1.md`。
+  'AssessAtomicPhase',
+]   // 原子相自检的技能壳
 
 
 // ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
@@ -611,6 +620,8 @@ function main(): number {
     ...BATCH_7A_2,
     // ↑ ／ ↓ 7A-3
     ...BATCH_7A_3,
+    // ↑ ／ ↓ 7B-1
+    ...BATCH_7B_1,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -663,7 +674,9 @@ function main(): number {
     // ↑ ／ ↓ 7A-2
     `批 7a-2 ${BATCH_7A_2.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 7A-3
-    `批 7a-3 ${BATCH_7A_3.filter((n) => byName.has(n)).length} 个\n` +
+    `批 7a-3 ${BATCH_7A_3.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7B-1
+    `批 7b-1 ${BATCH_7B_1.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

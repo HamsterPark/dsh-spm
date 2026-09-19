@@ -1,0 +1,43 @@
+… 基线（1 个 scope）
+… closure-stops-at-one-layer
+✓ closure-stops-at-one-layer       red           7 条变红
+… closure-never-says-where-it-stopped
+✓ closure-never-says-where-it-stopped red           1 条变红
+… closure-drops-the-autotilt-edge
+✓ closure-drops-the-autotilt-edge  red           4 条变红
+… closure-scanat-loses-the-zctrl-gain
+✓ closure-scanat-loses-the-zctrl-gain red           3 条变红
+… closure-forge-chain-forgets-a-flow
+✓ closure-forge-chain-forgets-a-flow red           2 条变红
+… atomicphase-coverage-gate-is-inclusive
+✓ atomicphase-coverage-gate-is-inclusive red           2 条变红
+… atomicphase-coverage-gate-moves
+✓ atomicphase-coverage-gate-moves  red           7 条变红
+… atomicphase-coverage-gate-does-not-gate
+✓ atomicphase-coverage-gate-does-not-gate red           2 条变红
+… atomicphase-incomplete-reason-is-dropped
+✓ atomicphase-incomplete-reason-is-dropped red           1 条变红
+… atomicphase-incomplete-warning-is-dropped
+✓ atomicphase-incomplete-warning-is-dropped red           1 条变红
+… atomicphase-summary-contradicts-the-verdict
+✓ atomicphase-summary-contradicts-the-verdict red           1 条变红
+… atomicphase-channel-does-not-fall-back
+✓ atomicphase-channel-does-not-fall-back red           2 条变红
+… atomicphase-empty-path-is-a-missing-file
+✓ atomicphase-empty-path-is-a-missing-file red           2 条变红
+… atomicphase-read-error-loses-the-path
+✓ atomicphase-read-error-loses-the-path red           1 条变红
+… atomicphase-expected-zero-falls-back-to-the-substrate
+✓ atomicphase-expected-zero-falls-back-to-the-substrate red           2 条变红
+… atomicphase-substrate-table-is-the-vision-one
+✓ atomicphase-substrate-table-is-the-vision-one red           2 条变红
+… atomicphase-row-spacing-is-the-nearest-neighbour
+✓ atomicphase-row-spacing-is-the-nearest-neighbour red           2 条变红
+… atomicphase-row-spacing-reassociates
+✓ atomicphase-row-spacing-reassociates red           1 条变红
+… atomicphase-substrate-injection-is-on-by-default
+✓ atomicphase-substrate-injection-is-on-by-default red           1 条变红
+… atomicphase-injection-failure-is-not-soft
+✓ atomicphase-injection-failure-is-not-soft red           1 条变红
+
+20/20 变红

@@ -35,6 +35,7 @@ import {
   makeTipConditioningSelfCheck,
   makeTipForgeSelfCheck,
 } from './tip-selfcheck.js'
+import { NOBLE_FLOWS, SPECIAL_FLOWS, SUB_SKILL_RUNS, skillClosure } from './tip-phase-closure.js'
 import {
   processTipRegistry,
   resolveConditioning,
@@ -53,6 +54,32 @@ interface FlowDep {
   readonly functions: readonly string[]
   readonly code_lines: number
   readonly sub_skills: Readonly<Record<string, SubSkillDep>>
+  /** 批 7b-1：闭包里那些函数要的、**不是技能**的东西（旧仓模块 → 名字）。 */
+  readonly non_skill_deps: Readonly<Record<string, readonly string[]>>
+}
+/** 批 7b-1：一个技能**自己**还会发出去的技能名（`context.run` / `CompositeStep`）。 */
+interface SkillRuns {
+  readonly defined_in: readonly string[]
+  readonly runs: readonly string[]
+  readonly internal_phases?: readonly string[]
+  readonly unresolved?: readonly { readonly file: string; readonly line: number; readonly expr: string }[]
+}
+/** 批 7b-1：这套追法**追到哪儿为止**。缺这一节的闭包不算闭包。 */
+interface ClosureLimits {
+  readonly scanned_root: string
+  readonly modules_scanned: number
+  readonly skills_indexed: number
+  readonly follow_rule: string
+  readonly unknown_skills: readonly string[]
+  readonly dynamic_run_sites: readonly {
+    readonly file: string
+    readonly line: number
+    readonly expr: string
+    readonly shape: string
+    readonly in_engine: boolean
+  }[]
+  readonly internal_phase_targets: Readonly<Record<string, readonly string[]>>
+  readonly cycles: readonly (readonly string[])[]
 }
 
 const GOLDEN = JSON.parse(
@@ -60,9 +87,13 @@ const GOLDEN = JSON.parse(
     fileURLToPath(new URL('../../../../../spec/golden/tip_phase_deps.json', import.meta.url)),
     'utf8',
   ),
-) as { skills: Readonly<Record<string, FlowDep>> }
+) as {
+  skills: Readonly<Record<string, FlowDep>>
+  skill_runs: Readonly<Record<string, SkillRuns>>
+  closure_limits: ClosureLimits
+}
 
-/** 这个自检替哪几个技能背书 —— 依赖表 = 它们 ∪ 它们的子技能闭包。 */
+/** 这个自检替哪几个技能背书 —— 依赖表 = 它们出发的**闭包**（批 7b-1 之前是一层）。 */
 const NOBLE = ['PrepareNobleTip', 'PokeConditionTip', 'PulseConditionTip'] as const
 const SPECIAL = ['MakeSpectroscopyTip', 'MakeAtomicResolutionTip'] as const
 
@@ -72,17 +103,84 @@ function unionOf(flows: readonly string[]): string[] {
   return [...out].sort()
 }
 
+/**
+ * 金样侧的闭包 —— **独立于生产代码那一份**（`tip-phase-closure.ts`）。
+ *
+ * 两份实现算出同一个集合才算数：生产那一份用手写的边表
+ * {@link SUB_SKILL_RUNS}，这一份直接走旧仓导出的 `skill_runs`。
+ * 用生产那一个函数来验生产那张表，问的就只是「代码等于它自己」。
+ */
+function goldenClosure(seeds: readonly string[]): string[] {
+  const seen = new Set<string>()
+  const stack = [...seeds]
+  while (stack.length > 0) {
+    const n = stack.pop() as string
+    if (seen.has(n)) continue
+    seen.add(n)
+    const rec = GOLDEN.skill_runs[n]
+    // 没有这一行 ⇒ 追不动。金样的 `closure_limits.unknown_skills` 负责把这种
+    // 名字显式列出来，下面有一条测试盯着那张表是空的。
+    if (rec !== undefined) for (const m of rec.runs) stack.push(m)
+  }
+  return [...seen].sort()
+}
+
 describe('批 6a：两张依赖表由旧仓源码算出来', () => {
-  it('`CONDITIONING_REQUIRED_SKILLS` = 三条贵金属流程 ∪ 它们的子技能闭包', () => {
-    expect([...CONDITIONING_REQUIRED_SKILLS].sort()).toEqual(
-      [...new Set([...NOBLE, ...unionOf(NOBLE)])].sort(),
-    )
+  it('`CONDITIONING_REQUIRED_SKILLS` = 三条贵金属流程出发的**闭包**', () => {
+    expect([...CONDITIONING_REQUIRED_SKILLS].sort()).toEqual(goldenClosure(NOBLE))
   })
 
-  it('`FORGE_REQUIRED_SKILLS` = 两条特异化流程 ∪ 它们的子技能闭包', () => {
-    expect([...FORGE_REQUIRED_SKILLS].sort()).toEqual(
-      [...new Set([...SPECIAL, ...unionOf(SPECIAL)])].sort(),
-    )
+  it('`FORGE_REQUIRED_SKILLS` = 两条特异化流程出发的**闭包**', () => {
+    expect([...FORGE_REQUIRED_SKILLS].sort()).toEqual(goldenClosure(SPECIAL))
+  })
+
+  it('闭包**比一层多**七个 / 四个 —— 不多出来就说明这一批白做了', () => {
+    // 这一条是整批 7b-1 的反面输入。上面两条用的是同一个金样：如果哪天
+    // `goldenClosure` 退回成 `unionOf`（= 一层），它们**照样全绿** ——
+    // 两边一起变，比出来的永远是「代码等于它自己」。
+    //
+    // 所以在这里把差额本身钉住：那七个名字全是**第二层**的，而第二层里
+    // `TiltProbeCircle` 是 353 行的真技能，不是一条无关紧要的边。
+    expect(goldenClosure(NOBLE).filter((n) => !unionOf(NOBLE).includes(n) && !NOBLE.includes(n as never))).toEqual([
+      'ConfigureScan', 'SetScanBuffer', 'SetScanSpeed', 'SetZCtrlGain', 'StartScan',
+      'TiltProbeCircle', 'WaitScanComplete',
+    ])
+    expect(
+      goldenClosure(SPECIAL).filter((n) => !unionOf(SPECIAL).includes(n) && !SPECIAL.includes(n as never)),
+    ).toEqual(['SetScanBuffer', 'SetZCtrlGain', 'TiltProbeCircle', 'WaitScanComplete'])
+  })
+
+  it('两条链上**每一个**名字都有一行边表 —— 空表是「查过了」，缺行是「没查」', () => {
+    // `tip-phase-closure.ts` 的那张手写边表与金样逐行对账。
+    // 旧仓多一条 `context.run`，这一条当场红 —— 这就是那张表不会静静过期的理由。
+    const reach = [...new Set([...goldenClosure(NOBLE), ...goldenClosure(SPECIAL)])].sort()
+    expect(Object.keys(SUB_SKILL_RUNS).sort()).toEqual(reach)
+    for (const n of reach) {
+      expect([...(SUB_SKILL_RUNS[n] as readonly string[])].sort(), n).toEqual([...GOLDEN.skill_runs[n]!.runs].sort())
+    }
+    // 而且这张表自己**没有停在半路**：两条链的闭包里一行都不缺。
+    expect(skillClosure(NOBLE_FLOWS, SUB_SKILL_RUNS).stoppedAt).toEqual([])
+    expect(skillClosure(SPECIAL_FLOWS, SUB_SKILL_RUNS).stoppedAt).toEqual([])
+  })
+
+  it('缺行会被报成 `stoppedAt`，**不会**被当成叶子静静吞掉', () => {
+    // 上一条断言的是「今天不缺」。这一条断言的是「缺了会说出来」——
+    // 没有它，`stoppedAt` 恒为空表也能过，而那正是「一个说不清自己追到哪儿的闭包」。
+    const holed = { ...SUB_SKILL_RUNS } as Record<string, readonly string[]>
+    delete holed['TiltProbeCircle']
+    const r = skillClosure(NOBLE_FLOWS, holed)
+    expect(r.stoppedAt).toEqual(['TiltProbeCircle'])
+    // 名字照样在闭包里（它确实被叫到了），只是「它自己还叫谁」不知道。
+    expect(r.names).toContain('TiltProbeCircle')
+  })
+
+  it('防环：自己叫自己也停得下来，闭包还是对的', () => {
+    // 旧仓今天零环（金样 `closure_limits.cycles` 是空表，下面那一组盯着）。
+    // 「今天没有」不是「不会有」—— 而一个会挂死的闭包，第一次出现环时
+    // 拿到的不是红色，是一个跑不完的测试。
+    const loop = { A: ['B'], B: ['C'], C: ['A'] } as Record<string, readonly string[]>
+    expect(skillClosure(['A'], loop)).toEqual({ names: ['A', 'B', 'C'], stoppedAt: [] })
+    expect(GOLDEN.closure_limits.cycles).toEqual([])
   })
 
   it('`PokeConditionTip` **不是**特异化流程的子技能 —— 它们共用的是生成器，不是技能', () => {
@@ -159,8 +257,117 @@ describe('两个自检各问各的链', () => {
   })
 })
 
+describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的闭包不算闭包', () => {
+  const L = GOLDEN.closure_limits
+
+  it('规模与追法本身录在金样里', () => {
+    expect(L.scanned_root).toBe('mast/skills')
+    expect(L.modules_scanned).toBe(211)
+    expect(L.skills_indexed).toBe(515)
+    expect(L.follow_rule).toContain('框架基类')
+    expect(L.follow_rule).toContain('mast/skills/**` 之外的函数')
+  })
+
+  it('**没有**「被谁叫到、却找不到定义」的名字', () => {
+    // 这一条是闭包的下边界。非空 = 某条链走到一个名字就停了，而停的理由是
+    // 「我们找不到它」，不是「它没有下一层」。
+    //
+    // ⚠️ 它曾经非空过一次：`adatom_verify.py:31` 写的是 `_NAME = "VerifyAdatomAt"`，
+    // 而第一版导出器的 `SkillMetadata(name=…)` 只认字面量 ⇒ 这个技能「有人叫、
+    // 没人定义」。**一条假的边界比没有边界更坏** —— 它把「我们追不到」和
+    // 「旧仓真的没有」写成了同一句话。
+    expect(L.unknown_skills).toEqual([])
+  })
+
+  it('两条边都在追 —— 只追 `context.run` 只覆盖五分之一', () => {
+    // 2026-09-20 实测旧仓 `mast/skills/**`：`CompositeStep(` **299 处** ·
+    // `context.run(` **63 处**。少追 `CompositeStep` 那条边，漏掉的正是
+    // `ScanAt` / `PreScanCheck` 压着的四个（`SetScanBuffer` / `WaitScanComplete` /
+    // `SetZCtrlGain` / `SetScanSpeed`）—— 它们今天全是 done，所以那张一层的表
+    // **今天的答案碰巧是对的**，而救它的是盘点，不是判据。
+    expect(L.follow_rule).toContain('CompositeStep(skill_name=X')
+    expect(L.follow_rule).toContain('context.run(X')
+    // 这四个只能从 `CompositeStep` 那条边来 —— 它们在两个 composite 的行里。
+    expect([...GOLDEN.skill_runs['ScanAt']!.runs]).toContain('SetZCtrlGain')
+    expect([...GOLDEN.skill_runs['ScanAt']!.runs]).toContain('WaitScanComplete')
+    expect([...GOLDEN.skill_runs['PreScanCheck']!.runs]).toContain('SetScanSpeed')
+    expect([...GOLDEN.skill_runs['PreScanCheck']!.runs]).toContain('SetScanBuffer')
+    // 而 `AutoTilt → TiltProbeCircle` 是另一条边（`context.run`）。两条都要。
+    expect([...GOLDEN.skill_runs['AutoTilt']!.runs]).toEqual(['TiltProbeCircle'])
+  })
+
+  it('追不动的七处**逐条列出来**，连形状一起', () => {
+    // 全量（不限于闭包之内）：这个数必须与起点无关，否则读的人分不清
+    // 「闭包里没有」与「这套追法看不见」。
+    expect(L.dynamic_run_sites.map((s) => `${s.shape}${s.in_engine ? '/engine' : ''} ${s.file}:${s.line} ${s.expr}`)).toEqual([
+      // ① 循环变量：噪声普查按一张**技能名表**循环着跑。
+      'loop_var builtins/characterise_noise.py:345 skill',
+      'loop_var builtins/characterise_noise.py:762 skill',
+      // ④ 编排引擎自己：`CompositeSkillGraph.step` 的动词是它的形参。
+      // 追进去会给每个继承者各记一条同样的 `<dynamic>` —— 那不是七处，是五百处。
+      'loop_var/engine composite/_base.py:75 skill_name',
+      'loop_var composite/achieve_atomic.py:805 skill',
+      // ④ 真正下发 `CompositeStep` 的那两行 —— 所有 299 条边最后都从这里出去。
+      'Attribute/engine composite/graph_executor.py:598 step.skill_name',
+      'Attribute/engine composite/graph_executor.py:601 step.skill_name',
+      // ④ 声明式 composite：步骤表来自 YAML，静态读不到。
+      "subscript/engine composite/interpreter.py:347 node['skill']",
+    ])
+    // 四型里的 ④ 单独标出来：它不是「我们照不到这个名字」，是「这里本来就没有
+    // 一个固定的名字」。两件事混成一句「追不动」，那张清单就不能用了。
+    expect(L.dynamic_run_sites.filter((s) => s.in_engine).length).toBe(4)
+  })
+
+  it('② f-string 拼出来的名字**解得开** —— 所以它不在追不动那张表里', () => {
+    // 协调消息把 `bias.py:571/:593/:629` 列成「追不动·f-string」。实测：
+    // 它们的前缀是模块级常量（`_PHASE_RAMP_STEP_PREFIX`），解得开，
+    // 解出来是 `_phase_*` ⇒ 落进第三型（解得开、但不是注册技能）。
+    // **报这个是为了那条纪律**：追不动的清单长一条短一条不要紧，
+    // 要紧的是每一条都说得清自己为什么在上面。
+    expect(L.dynamic_run_sites.filter((s) => s.shape === 'fstring')).toEqual([])
+    expect([...(GOLDEN.skill_runs['SetBiasRamp']!.internal_phases ?? [])]).toEqual([
+      '_phase_get_current', '_phase_set_step_{…}',
+    ])
+    // 而同一个文件里的 `SetBias` 一条都不该有 —— 按**模块**扫会把它算进来
+    // （`bias.py` 里那三处 f-string 属于 `SetBiasRamp`:457，不属于 `SetBias`:97）。
+    // 这台追法按**类体的可达范围**扫，同旧仓 `compliance.py:744 skill_footprint`。
+    expect([...GOLDEN.skill_runs['SetBias']!.runs]).toEqual([])
+    expect(GOLDEN.skill_runs['SetBias']!.internal_phases).toBeUndefined()
+  })
+
+  it('③ `_phase*` 解得开、**但不是技能** —— 所以不进闭包', () => {
+    // 它们解得出名字（`_P_CLEAR = "_phase_clear"`），但 `ctx.run("_phase_*")` 被
+    // 包装层短路，不过注册表（旧仓 `composite/assess_quality.py:15`）。
+    //
+    // ⚠️ **解得开 ≠ 是技能。** 把 `_phase_preflight` 当成子技能，闭包会多出三十来个
+    // 永远落不了的名字 —— 那比少一个更坏：封锁账会**永远红**，
+    // 而一张永远红的账和一张永远绿的账一样，不做任何决定。
+    const phases = Object.keys(L.internal_phase_targets)
+    expect(phases.length).toBe(31)
+    expect(phases.every((p) => p.startsWith('_phase'))).toBe(true)
+    expect(L.internal_phase_targets['_phase_preflight']).toEqual(['RelocateCoarseXY'])
+    // 而这一族里没有任何一个名字混进了某个技能的 `runs`。
+    const everyRun = new Set(Object.values(GOLDEN.skill_runs).flatMap((r) => [...r.runs]))
+    expect([...everyRun].filter((n) => n.startsWith('_phase'))).toEqual([])
+    // 反面：`RelocateCoarseXY` 的五个相位一个都没进它的 `runs`。
+    expect([...GOLDEN.skill_runs['RelocateCoarseXY']!.runs]).toEqual([])
+    expect([...(GOLDEN.skill_runs['RelocateCoarseXY']!.internal_phases ?? [])].length).toBe(5)
+  })
+
+  it('两台追法在六条流程上给出**同一张**子技能表', () => {
+    // 专用那台（`ENTRIES` → `plan_dynamic` → `CompositeStep`）与通用那台
+    // （技能类 → 方法 → 可达函数 → `CompositeStep`/`context.run`）各走各的。
+    // 六条流程上逐字相同 —— 通用那台因此可以接管封锁账，而不是「另一个说法」。
+    for (const flow of Object.keys(GOLDEN.skills)) {
+      expect([...GOLDEN.skill_runs[flow]!.runs].sort(), flow).toEqual(
+        Object.keys(GOLDEN.skills[flow]!.sub_skills).sort(),
+      )
+    }
+  })
+})
+
 describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
-  /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
+  /** 每条流程**今天**还缺的子技能（**按闭包算**，批 7b-1 之前是一层）。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
     // 2026-09-20 一天之内被划了三次，三次是**并行的三条支线**各自划的：
     //   批 7a-2 落 `FindCleanSpot`   —— 从六行里全部划掉
@@ -174,25 +381,113 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
     PulseConditionTip: [],
     PokeConditionTip: [],
     MakeSpectroscopyTip: ['AssessShockleyOnset'],
-    MakeAtomicResolutionTip: ['AssessAtomicPhase'],
+    MakeAtomicResolutionTip: [],
     PrepareNobleTip: ['PreScanCheck'],
     ForgeAuTip: ['PreScanCheck'],
     //
-    // ⚠️ 这张表**只记一层**：它比的是 `GOLDEN.skills[flow].sub_skills` 减去已落的，
+    // ✅ 批 7b-1：这张表**改成按闭包算了**（上面 `closureBlocked`）。
+    // 在它之前它只记一层：比的是 `GOLDEN.skills[flow].sub_skills` 减去已落的，
     // 而 `sub_skills` 里的每一个自己还可能有子技能。批 7a-1 实打实撞到过：
     // `AutoTilt` → `TiltProbeCircle`（`auto_tilt.py:134`），而那个名字**不在任何一行里**。
-    // ⇒ **这六行全空的那天，不等于六条流程都能跑。**
-    // 划掉一行之前，先问一句它自己还等着谁。改成按闭包算的办法写在
-    // `docs/handoff/blockers-7a.md` §7 —— 7a 合完就做。
+    // 于是「这六行全空」不等于「六条流程都能跑」，而这张表会说能跑。
+    //
+    // 现在那个「红」覆盖得到第二层（今天实测多覆盖 7 个名字，见上一组）。
+    // **判据不变**：红了说明某条流程的最后一个封锁件落了，那一批可以重开。
+    // ⚠️ 还是那句：划掉一行之前先自己追一遍 —— 只是「追」这件事现在是机器做的，
+    // 而它追到哪儿为止写在 `closure_limits` 里，不写在谁的脑子里。
   }
 
   const installed = new Set(Object.keys(IMPLEMENTED))
 
-  it.each(Object.keys(BLOCKED))('%s', (flow) => {
-    const blocked = Object.keys(GOLDEN.skills[flow]!.sub_skills)
+  /** 一条流程的**闭包**里还没落的那些。与 `goldenClosure` 同一台机器。 */
+  function closureBlocked(flow: string): string[] {
+    return goldenClosure(Object.keys(GOLDEN.skills[flow]!.sub_skills))
       .filter((n) => !installed.has(n))
       .sort()
-    expect(blocked).toEqual([...BLOCKED[flow]!])
+  }
+
+  it.each(Object.keys(BLOCKED))('%s', (flow) => {
+    expect(closureBlocked(flow)).toEqual([...BLOCKED[flow]!])
+  })
+
+  it('⚠️ 封锁件为空 ≠ 可以移 —— 缺的那些**不是技能**', () => {
+    // ═════════════════════════════════════════════════════════════════════
+    // 这一条是批 7b-1 的第二个发现，而它推翻了这一批任务书的一半。
+    // ═════════════════════════════════════════════════════════════════════
+    // `PulseConditionTip` / `PokeConditionTip` 的封锁件按**闭包**算是空的
+    // （上面那六行），而两条今天都移不了 —— 它们缺的东西不是技能：
+    //
+    //   `core.map_scope.record_damage_marker`  地图的**写侧**。批 7a-2 把它
+    //     写成了「一笔点名的欠账」：「第一个要写标记的技能落地时，它必须和那个
+    //     技能同批，否则 `map_known=true` 而地图永远是空的」——
+    //     而 `pulse_phase` 正是那第一个（每一发脉冲**打之前**就标记落点）。
+    //   `core.noble_tip_workflow.{resolve, reconcile_with_tip_envelope}`
+    //     那张 1273 行的流程表 + 与针尖包络的对账。
+    //
+    // 形状与 `blockers-7a.md` §7.1 第 4 行一模一样（`BiasWiggle` 缺的是
+    // 「本仓要先长出一条中止清理通道」，不是一个 import）：
+    // **一个只数技能的账，数不出非技能的债。**
+    // 所以那一维现在也在账上 —— 不判「本仓有没有」（那要一张模块对照表），
+    // 只保证它**有一行**，而不是只活在某份交接的散文里。
+    const pulse = GOLDEN.skills['PulseConditionTip']!.non_skill_deps
+    expect(Object.keys(pulse).sort()).toEqual([
+      'mast.chat.narration',
+      'mast.core.map_scope',
+      'mast.core.noble_tip_workflow',
+    ])
+    expect(pulse['mast.core.map_scope']).toEqual(['record_damage_marker'])
+    expect([...(pulse['mast.core.noble_tip_workflow'] as readonly string[])].sort()).toEqual([
+      'reconcile_with_tip_envelope',
+      'resolve',
+    ])
+    // 六条流程**每一条**都压着这两件 —— 也就是说这两件是整个 `_tip_phases`
+    // 的公共前提，而封锁账此前一个字都没说过它们。
+    for (const flow of Object.keys(GOLDEN.skills)) {
+      const n = GOLDEN.skills[flow]!.non_skill_deps
+      expect(n['mast.core.map_scope'], flow).toEqual(['record_damage_marker'])
+      expect(Object.keys(n), flow).toContain('mast.core.noble_tip_workflow')
+    }
+    // 而 `PulseConditionTip` 是六条里非技能面**最小**的那一条（3 个模块，
+    // 其余五条 12–14 个）—— 那正是「下一批从它开始」的理由，不是「它现在能移」。
+    const sizes = Object.fromEntries(
+      Object.keys(GOLDEN.skills).map((f) => [f, Object.keys(GOLDEN.skills[f]!.non_skill_deps).length]),
+    )
+    expect(sizes['PulseConditionTip']).toBe(3)
+    expect(Math.min(...Object.values(sizes))).toBe(3)
+  })
+
+  it('两个 matplotlib 面板只压着五条 —— `PulseConditionTip` 躲开了它们', () => {
+    // D 档（matplotlib 本仓架构上就不要）的那两个渲染器。它们出现在哪几条流程上，
+    // 决定了那几条的**验收**长什么样：一条要画图的流程，移过来之后画不出图。
+    const panels = ['mast.vision.poke_trace_panel', 'mast.vision.terrace_panel']
+    const withPanels = Object.keys(GOLDEN.skills)
+      .filter((f) => panels.every((p) => p in GOLDEN.skills[f]!.non_skill_deps))
+      .sort()
+    expect(withPanels).toEqual([
+      'ForgeAuTip', 'MakeAtomicResolutionTip', 'MakeSpectroscopyTip', 'PokeConditionTip', 'PrepareNobleTip',
+    ])
+    expect(withPanels).not.toContain('PulseConditionTip')
+  })
+
+  it('封锁账**确实**在按闭包算 —— 把第二层挖空，它必须变', () => {
+    // 这一条问的是「上面那六行是闭包算的，还是一层算的」。
+    // 今天两种算法给出同一个答案（第二层的名字全都已落），于是上面六行
+    // **两种写法都能过** —— 那正是这种判据最容易悄悄退回去的时刻。
+    //
+    // 做法：假装 `TiltProbeCircle` 没落（它是 `AutoTilt` 的第二层，353 行）。
+    // 按闭包算 ⇒ 五条流程各多一件；按一层算 ⇒ 一条都不变。
+    const asIf = new Set(installed)
+    asIf.delete('TiltProbeCircle')
+    for (const flow of ['PokeConditionTip', 'PrepareNobleTip', 'ForgeAuTip', 'MakeSpectroscopyTip']) {
+      const oneLayer = Object.keys(GOLDEN.skills[flow]!.sub_skills).filter((n) => !asIf.has(n))
+      const closed = goldenClosure(Object.keys(GOLDEN.skills[flow]!.sub_skills)).filter((n) => !asIf.has(n))
+      expect(oneLayer, flow).not.toContain('TiltProbeCircle')
+      expect(closed, flow).toContain('TiltProbeCircle')
+    }
+    // 而 `PulseConditionTip` 那条链上本来就没有 `AutoTilt` —— 它的闭包等于它的一层。
+    expect(goldenClosure(Object.keys(GOLDEN.skills['PulseConditionTip']!.sub_skills))).toEqual(
+      Object.keys(GOLDEN.skills['PulseConditionTip']!.sub_skills).sort(),
+    )
   })
 
   it('六条**全部**经过 `FindCleanSpot`，而且它每一处都是 `optional=True`', () => {

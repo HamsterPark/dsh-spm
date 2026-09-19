@@ -126,6 +126,11 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 <!-- ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）的驱动器写在这一行下面 ── -->
 
+| 文件 | 导出器 | 为什么要单开一台 |
+|---|---|---|
+| `batch7b1.json` | `export_batch7b1.py` | `AssessAtomicPhase` 读磁盘上的 `.sxm`，一次 TCP 都不发 ⇒ 通用驱动器（`_params_for` 给不出真实路径）只录得到「文件不存在」那一支，而**技能壳自己那三道门一格都验不到**：覆盖率门 `_MIN_COVERAGE=0.5`（`tip_spectro_assess.py:385-410`）· `expected_a_nm` 的三态（给正数 / 给 0 / 不给）· 通道回落（要 `Z` 拿不到时**取第一个通道**，与孪生技能 `AssessAtomicResolution` 刻意不同）。这一份自己合成 12 个 `.sxm`（闭式 sin-hash，零随机数，**只存正扫** —— 这个技能只读 `forward`，存反扫会让金样大一倍），26 格技能 + 10 格 `resolve_substrate`。<br>⚠️ **覆盖率门录三格，而线上那一格是判据**：0.25（门下）· **0.4375（门下、而判据本身 `passed=True`）** · 0.5（**正好在门上，不算残帧**）。`incomplete = coverage < 0.5` 是严格小于 —— 少了 0.5 那一格，`<` 与 `<=` 给出同一个答案；少了 0.4375 那一格，「门压住的是 `passed` 而不是判据本身」这件事一格输入都没有（那正是真机 0084/0085 的形状：2% 的像素、报 `passed=True`、角向集中度 94）。<br>⚠️ **`expected_a_nm: 0` 与「不给」的分界只有 `expected_zero_with_substrate` 那一格分得开**：参数说明是两句话（「留空则从衬底取；填 0 则关掉这项比较」），而**没有衬底时它们给出同一个答案**。第一版漏了这一格，`atomicphase-expected-zero-*` 那条变异当场跑成绿的（green-8 §2.1 那个形状：闸只有一侧有输入）。<br>⚠️ `resolve_substrate` 把 `SURFACE_LATTICE_NM` 的**全部七个面**都问了一遍，不是只问对得上的那三个 —— 正是这四格多出来的问答量出了两件事：旧仓只认**四个**洁净金属面（`HOPG` / `NaCl(100)` / `Si(111)-1x1` 一律 `available=false`），以及 Pt(111) 上 `2.775/10 ≠ 0.2775`（差 1 ulp，见 D-ROWSPACING-?）。 |
+| `tip_phase_deps.json`（扩） | `export_tip_phase_deps.py` | 原来只有「六条流程 → 它 `yield` 的 `CompositeStep`」**一层**。批 7b-1 加两节：**`skill_runs`**（扫整棵 `mast/skills/**`，515 个技能各一行「它自己还会发出去谁」，TS 侧据此自己求闭包）与 **`closure_limits`**（这套追法**追到哪儿为止**）。<br>⚠️ 边有**两条**不是一条：旧仓 `CompositeStep(` **299 处** · `context.run(` **63 处** —— 只追后者只覆盖五分之一，而漏掉的正是 `ScanAt` / `PreScanCheck` 压着的 `SetScanBuffer` / `WaitScanComplete` / `SetZCtrlGain` / `SetScanSpeed`。<br>⚠️ `closure_limits` 是判据的一部分，不是说明：`unknown_skills`（被叫到而找不到定义的名字，今天**空表**）· `dynamic_run_sites`（追不动的 7 处，带 `shape` 与 `in_engine`）· `internal_phase_targets`（31 个 `_phase*` —— **解得开但不是技能**，进 `runs` 会让封锁账永远红）· `cycles`（今天空表）。<br>⚠️ 还加了 `non_skill_deps`：闭包里每个函数要的、**不是技能**的东西。`PulseConditionTip` 的封锁件按闭包算是空的，而它今天仍然移不了 —— 缺的是 `core.map_scope.record_damage_marker`（批 7a-2 点名的欠账）与 `core.noble_tip_workflow.{resolve, reconcile_with_tip_envelope}`。**一个只数技能的账，数不出非技能的债。** |
+
 <!-- ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的驱动器写在这一行下面 ── -->
 
 <!-- ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的驱动器写在这一行下面 ── -->

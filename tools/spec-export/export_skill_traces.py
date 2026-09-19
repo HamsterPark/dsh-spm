@@ -481,7 +481,15 @@ BATCH_7A_2: list[str] = [
 #: ↑ 上一条 ／ ↓ 7A-3 —— 这一行谁都不要动
 
 #: ↑ 上一条 ／ ↓ 7B-1 —— 这一行谁都不要动
-BATCH_7B_1: list[str] = []
+BATCH_7B_1: list[str] = [
+    # 读磁盘上的 .sxm，一次 TCP 都不发 ⇒ 这台通用驱动器只录得到「文件不存在」那一支
+    # （`_params_for` 给不出真实路径）。**主判据在 `spec/golden/batch7b1.json`**：
+    # 那一份自己合成 .sxm 字节，把覆盖率门、尺度闸、四条 IO 失败路径与
+    # `expected_a_nm` 的三态逐格录下来。
+    # 这一格留着的理由只有一个：`scan_path` 是必填，而必填参数缺席时那句拒绝
+    # 是**模型面**的，通用驱动器是唯一录得到它的地方。
+    "AssessAtomicPhase",
+]   # 原子相自检的技能壳
 
 
 #: ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
@@ -1446,7 +1454,9 @@ def main() -> int:
                  # ↑ ／ ↓ 7A-2
                  + BATCH_7A_2
                  # ↑ ／ ↓ 7A-3
-                 + BATCH_7A_3):
+                 + BATCH_7A_3
+                 # ↑ ／ ↓ 7B-1
+                 + BATCH_7B_1):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
