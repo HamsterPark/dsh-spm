@@ -140,20 +140,23 @@ describe('两个自检各问各的链', () => {
 describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
   /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
-    PulseConditionTip: ['FindCleanSpot'],
-    PokeConditionTip: ['AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
-    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion'],
+    // 2026-09-20（批 7a-2）：`FindCleanSpot` 从**六行里全部**划掉了。
+    // 它是六条流程的第一个动作，也是这张表上唯一一件六条都要的 ——
+    // `PulseConditionTip` 因此**空了**：这条流程现在可以移。
+    PulseConditionTip: [],
+    PokeConditionTip: ['AutoTilt', 'FindFlatRegion'],
+    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindFlatRegion'],
     MakeAtomicResolutionTip: [
-      'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindCleanSpot', 'FindFlatRegion',
+      'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindFlatRegion',
     ],
     // 2026-09-19：`AssessTipSharpness` 从这两行里划掉了 —— **批 6c 当天落的**，
     // 而这条测试在合并后的第一次全仓跑就红了。这正是它存在的理由：
     // **封锁账不是一句「还卡着」，是一个会随仓库变化自己失效的判据。**
     PrepareNobleTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
+      'AnalyzeFrameTilt', 'AutoTilt', 'FindFlatRegion', 'PreScanCheck',
     ],
     ForgeAuTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindCleanSpot', 'FindFlatRegion', 'PreScanCheck',
+      'AnalyzeFrameTilt', 'AutoTilt', 'FindFlatRegion', 'PreScanCheck',
     ],
   }
 
@@ -166,16 +169,20 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
     expect(blocked).toEqual([...BLOCKED[flow]!])
   })
 
-  it('六条**全部**卡在 `FindCleanSpot` 上，而且它每一处都是 `optional=True`', () => {
+  it('六条**全部**经过 `FindCleanSpot`，而且它每一处都是 `optional=True`', () => {
     for (const flow of Object.keys(BLOCKED)) {
       const dep = GOLDEN.skills[flow]!.sub_skills['FindCleanSpot']
       expect(dep, flow).toBeDefined()
       // 「可选」在这里不是「可以不要」：它失败时流程接着跑，然后报
       // 「这片表面已经没有可用的落点了」—— 一句关于样品的假话。
+      //
+      // ⚠️ 批 7a-2 把它落了，所以这条**不再是**一句「卡着」的账。
+      // 留着的是那半条判据：`optional=True` 这件事没有变，而现在它更要紧了 ——
+      // 一个**会返回结果**的技能，它的失败路径才真的会被走到。
       expect(dep!.required_somewhere, flow).toBe(false)
       expect(dep!.sites.every((s) => s.optional), flow).toBe(true)
     }
-    expect(installed.has('FindCleanSpot')).toBe(false)
+    expect(installed.has('FindCleanSpot')).toBe(true)
   })
 
   it('每一发脉冲都经过针尖包络 —— `pulse_phase` 只从 `BiasPulseWithReadback` 出去', () => {

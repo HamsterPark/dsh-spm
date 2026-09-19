@@ -1,6 +1,5 @@
 {
   "ablated_keys": [
-    "approach_damages_surface",
     "approach_didv_engage_frac",
     "approach_expected_steps",
     "approach_i_gain_m_per_s",
@@ -9,10 +8,6 @@
     "approach_steps_per_cycle",
     "approach_supervision",
     "au_step_pm",
-    "avoid_radius_approach_nm",
-    "avoid_radius_crash_nm",
-    "avoid_radius_pulse_nm",
-    "avoid_radius_tip_shape_nm",
     "bias_applied_to",
     "coarse_motion_max_pressure_pa",
     "lockin_mod_amp_v",
@@ -24,8 +19,6 @@
     "preamp_model",
     "qplus_amplitude_baseline",
     "qplus_amplitude_signal_index",
-    "scan_path_strategy",
-    "scan_spacing_factor",
     "tilt_limit_deg",
     "v_tip_max_m_s",
     "vacuum_gauge_full_scale_pa",
@@ -33,7 +26,6 @@
     "vacuum_interlock_mode",
     "vacuum_reading_max_age_s",
     "xy_axis_step_budget",
-    "xy_coarse_motion",
     "xy_motor_step_m",
     "xy_site_spacing_steps",
     "xy_step_uncertainty_frac",
@@ -54,6 +46,20 @@
     }
   },
   "choice_spec": {
+    "approach_damages_surface": {
+      "choices": [
+        "yes",
+        "no",
+        "unknown"
+      ],
+      "default": "unknown",
+      "display": {
+        "no": "不会(好机器) — 进针点只作历史记录",
+        "unknown": "未知 — 按保守处理(同「会」)",
+        "yes": "会 — 避开进针点"
+      },
+      "label": "进针是否会在表面留下扎痕"
+    },
     "retract_motor_dir": {
       "choices": [
         "z+",
@@ -65,6 +71,32 @@
         "z-": "Z- (反向装置)"
       },
       "label": "退针方向(粗动马达 远离样品)"
+    },
+    "scan_path_strategy": {
+      "choices": [
+        "auto",
+        "center_first",
+        "perimeter_inward"
+      ],
+      "default": "auto",
+      "display": {
+        "auto": "自动 — 按有无 XY 粗动推导",
+        "center_first": "中心优先 — 压电蠕变最小",
+        "perimeter_inward": "外圈→内圈 — 可用面积利用最大化"
+      },
+      "label": "扫描选点策略"
+    },
+    "xy_coarse_motion": {
+      "choices": [
+        "yes",
+        "no"
+      ],
+      "default": "yes",
+      "display": {
+        "no": "无 — 只能用当前压电范围内的表面(换区靠插拔样品)",
+        "yes": "有 — 可粗动换到新区域"
+      },
+      "label": "是否有 XY 粗动马达(可换区)"
     },
     "z_extend_sign": {
       "choices": [
@@ -109,6 +141,16 @@
     "tilt_cal_max_cond": 10.0
   },
   "get_config": {
+    "approach_damages_default_is_unknown": {
+      "default": null,
+      "key": "approach_damages_surface",
+      "value": "unknown"
+    },
+    "center_zone_side_nm_is_unregistered": {
+      "default": null,
+      "key": "center_zone_side_nm",
+      "value": null
+    },
     "choice_filled": {
       "default": null,
       "key": "retract_motor_dir",
@@ -144,10 +186,35 @@
       "key": "z_recede_min_nm",
       "value": 2.5
     },
+    "pulse_radius_from_profile": {
+      "default": 200.0,
+      "key": "avoid_radius_pulse_nm",
+      "value": 500.0
+    },
+    "pulse_radius_spec_default_shadows_the_caller": {
+      "default": 200.0,
+      "key": "avoid_radius_pulse_nm",
+      "value": 150.0
+    },
+    "scan_path_strategy_default_is_auto": {
+      "default": null,
+      "key": "scan_path_strategy",
+      "value": "auto"
+    },
+    "scan_spacing_factor_default": {
+      "default": 1.2,
+      "key": "scan_spacing_factor",
+      "value": 1.2
+    },
     "unregistered_nominal_key": {
       "default": null,
       "key": "qplus_f0_hz",
       "value": null
+    },
+    "xy_coarse_motion_default": {
+      "default": null,
+      "key": "xy_coarse_motion",
+      "value": "yes"
     },
     "z_extend_sign_spec_default_is_not_neutral": {
       "default": null,
@@ -177,6 +244,7 @@
       "tilt_cal_g22": 1.0,
       "tilt_cal_updated_at": 1.0
     },
+    "center_zone_side_nm_dropped": {},
     "clamped_high": {
       "retract_step_max": 1000,
       "z_recede_min_nm": 10000.0
@@ -207,6 +275,17 @@
       "lockin_signal_index": 12,
       "retract_total_steps": 7
     },
+    "map_choices": {
+      "approach_damages_surface": "no",
+      "scan_path_strategy": "perimeter_inward",
+      "xy_coarse_motion": "no"
+    },
+    "map_choices_bad": {},
+    "map_keys_clamped": {
+      "avoid_radius_crash_nm": 100000.0,
+      "avoid_radius_pulse_nm": 0.0,
+      "scan_spacing_factor": 1.0
+    },
     "nan_and_inf_dropped": {},
     "none": {},
     "none_dropped": {},
@@ -217,6 +296,38 @@
     "unknown_keys_dropped": {}
   },
   "spec": {
+    "avoid_radius_approach_nm": {
+      "default": 200.0,
+      "label": "进针扎痕避让半径(仅当「进针会扎表面」时生效)",
+      "max": 100000.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "nm"
+    },
+    "avoid_radius_crash_nm": {
+      "default": 150.0,
+      "label": "撞针避让半径",
+      "max": 100000.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "nm"
+    },
+    "avoid_radius_pulse_nm": {
+      "default": 150.0,
+      "label": "电脉冲避让半径",
+      "max": 100000.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "nm"
+    },
+    "avoid_radius_tip_shape_nm": {
+      "default": 30.0,
+      "label": "修针尖避让半径(该点周围多大范围内不再扫图)",
+      "max": 100000.0,
+      "min": 0.0,
+      "type": "float",
+      "unit": "nm"
+    },
     "lockin_signal_index": {
       "default": null,
       "label": "dI/dV lock-in 信号索引",
@@ -248,6 +359,14 @@
       "min": 1,
       "type": "int",
       "unit": "步"
+    },
+    "scan_spacing_factor": {
+      "default": 1.2,
+      "label": "计划扫描点的间距(相邻帧中心相距几个扫描框;1.2=紧挨着,3=留两帧空)",
+      "max": 20.0,
+      "min": 1.0,
+      "type": "float",
+      "unit": ""
     },
     "xy_move_chunk_steps": {
       "default": 50,
@@ -283,12 +402,20 @@
     }
   },
   "spec_default": {
+    "approach_damages_surface": "unknown",
+    "avoid_radius_approach_nm": 200.0,
+    "avoid_radius_crash_nm": 150.0,
+    "avoid_radius_pulse_nm": 150.0,
+    "avoid_radius_tip_shape_nm": 30.0,
     "lockin_signal_index": null,
     "nope": null,
     "preamp_full_scale_a": null,
     "retract_motor_dir": "z+",
     "retract_step_max": 1000,
     "retract_total_steps": 3000,
+    "scan_path_strategy": "auto",
+    "scan_spacing_factor": 1.2,
+    "xy_coarse_motion": "yes",
     "xy_move_chunk_steps": 50,
     "xy_prewithdraw_steps": 100,
     "z_extend_sign": "+1",

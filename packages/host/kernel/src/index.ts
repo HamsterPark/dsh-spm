@@ -77,5 +77,8 @@ export * from './temperature.js'
 // ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）在这一行下面加 export ──
 
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 export ──
+export * from './exp-map.js'
+export * from './map-analysis.js'
+export * from './map-scope.js'
 
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 export ──

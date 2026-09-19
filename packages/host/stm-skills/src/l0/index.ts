@@ -93,6 +93,7 @@ import { SCAN_PREP_SKILLS } from './scan-prep-skills.js'
 // ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）在这一行下面加 import ──
 
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 import ──
+import { CLEAN_SPOT } from './clean-spot.js'
 
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 import ──
 import { ANALYSIS_TIP } from './analysis-tip.js'
@@ -202,6 +203,7 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 7a-1 在这一行下面展开 ──
 
   // ── 批 7a-2 在这一行下面展开 ──
+  ...CLEAN_SPOT,
 
   // ── 批 7a-3 在这一行下面展开 ──
 

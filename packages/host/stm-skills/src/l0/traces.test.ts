@@ -18,7 +18,9 @@ import {
   attest,
   emptyHardwareState,
   processCoarseDrive,
+  processExpMap,
   processInstrumentProfile,
+  processTipCrash,
   processTemperature,
   processTipRegistry,
   processVacuum,
@@ -324,6 +326,43 @@ function alignClock(want: unknown, got: unknown, key = ''): unknown {
       Object.entries(want as Record<string, unknown>).map(([k, x]) => [
         k,
         alignClock(x, (got as Record<string, unknown>)[k], k),
+      ]),
+    )
+  }
+  return want
+}
+
+/**
+ * 走 `Math.hypot` 的那几个字段 —— **D-HYPOT-1**：两种语言的 `hypot` 不是同一个
+ * 函数（`hypot(4e-7, 4e-7)`：Python `…38e-7`，JS `…381e-7`，差 1 ULP）。
+ *
+ * 只有 `distance_m` 一个键（`FindCleanSpot` 的落点距离）。容差 `4·eps` ——
+ * 一个 ULP 的四倍，**小到任何一次真的算错都盖不住**：这一族的错要么是选错了点
+ * （坐标就不一样了，而坐标是整数乘 step，逐位相同），要么是量错了距离（纳米级）。
+ */
+const HYPOT_KEYS = new Set(['distance_m'])
+const HYPOT_REL = 4 * Number.EPSILON
+
+/** 同 {@link alignClock}：够近就换成 `got` 的那一个，不够近留在原地让 diff 印出来。 */
+function alignHypot(want: unknown, got: unknown, key = ''): unknown {
+  if (
+    HYPOT_KEYS.has(key) &&
+    typeof want === 'number' &&
+    typeof got === 'number' &&
+    Number.isFinite(want) &&
+    Number.isFinite(got) &&
+    Math.abs(want - got) <= HYPOT_REL * Math.max(Math.abs(want), Number.MIN_VALUE)
+  ) {
+    return got
+  }
+  if (Array.isArray(want) && Array.isArray(got) && want.length === got.length) {
+    return want.map((x, i) => alignHypot(x, got[i], key))
+  }
+  if (want !== null && typeof want === 'object' && got !== null && typeof got === 'object') {
+    return Object.fromEntries(
+      Object.entries(want as Record<string, unknown>).map(([k, x]) => [
+        k,
+        alignHypot(x, (got as Record<string, unknown>)[k], k),
       ]),
     )
   }
@@ -1308,6 +1347,12 @@ function resetProcessState(skillName: string): void {
   processInstrumentProfile.nowS = () => ENV_NOW_S
   processInstrumentProfile.source = null
   processCoarseDrive.source = null
+  // 批 7a-2。**先全清** —— 撞针记忆是进程级的，而 `FindCleanSpot` 把它当成第二个
+  // 避让来源：漏清一次，它就会「因为上一格撞过针」而躲开一个本来干净的点，
+  // 而那种绿看起来和「它真的躲开了一个坑」一模一样。地图读口同理：
+  // 导出那一侧的进程里没有活动实验（`get_active_log()` 恒为 None）。
+  processExpMap.markerRows = null
+  processTipCrash.tracker = null
   if (NEEDS_PROFILE.has(skillName)) {
     processInstrumentProfile.source = () => PROFILE_FIXTURE
   }
@@ -1414,7 +1459,10 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
               expect(dropPath(wantData, path), `金样里没有 ${path}，这条 absent 登记过期了`)
                 .toBe(true)
             }
-            expect(gotData).toEqual(dev?.clockApprox === true ? alignClock(wantData, gotData) : wantData)
+            const aligned = dev?.clockApprox === true ? alignClock(wantData, gotData) : wantData
+            // `distance_m` 那一档**无条件**过一遍 D-HYPOT-1 的对齐：容差是 4·eps，
+            // 它盖不住任何一次真的算错（见 `HYPOT_KEYS` 抬头）。
+            expect(gotData).toEqual(alignHypot(aligned, gotData))
           } else {
             expect(stripVolatile(got.data ?? {})).toEqual(dev.data)
             expect(stripVolatile(want.data ?? {})).not.toEqual(dev.data)

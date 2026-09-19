@@ -452,6 +452,16 @@ BATCH_5C: list[str] = [
     "RelocateCoarseXY",
     "StepCoarseXY",
 ]   # 仪器档案 + Z 稳定 + 粗动驱动三个子系统
+
+# ↑ 上一条 ／ ↓ 7A-2 —— 这一行谁都不要动
+BATCH_7A2: list[str] = [
+    # 实验地图层。这台导出器的假 context **给不出实验记录、也给不出撞针记忆**，
+    # 于是这里录到的一律是「地图读不到 + 本进程没撞过」那一条 ——
+    # 而那**正是它最该被钉住的一条**：`map_known=false` 的那句话逐字、
+    # `avoidance_sources` 是空表、落点照样给得出来。
+    # 主判据在 `spec/golden/map_scope.json`（自己摆世界的那一台，37 格）。
+    "FindCleanSpot",
+]   # 实验地图层 + FindCleanSpot
 #
 # ⚠️ 这九个里**八个只读文件**，而这台导出器的 `_params_for` 给不出一条真实的
 # `scan_path` —— 于是它们在这里录到的是「文件不存在」那一支，一次 TCP 都不发。
@@ -870,6 +880,20 @@ EXTRA_PARAMS: dict[str, dict[str, dict]] = {
         # 显式给第二段高度 ⇒ 不再等于 −tip_lift_m；顺带关掉反馈恢复
         "explicit_lift": {"lift_height_m": 5e-9, "restore_feedback": False},
     },
+    # ── 批 7a-2 ────────────────────────────────────────────────────────
+    # 合成的 `FolMe_XYPosGet` 回的是 0.25 / 0.5 **米** ⇒ 量级判据一律拒
+    # （`abs(x) < 1e-3`），于是 `ok` 那一趟录到的是「读不到针尖位置」。
+    # 显式给起点就绕开那一步，后面整条选点几何才走得到 —— 而那正是这个技能。
+    "FindCleanSpot": {
+        "from_origin": {"from_x_m": 0.0, "from_y_m": 0.0, "count": 4},
+        # 扎针那一档半径小（30 nm）、而且**要减帧边距**（落点上要扫一张簇图），
+        # 与上一格的脉冲档走的是两条不同的 reach。
+        "tip_shape_off_centre": {"from_x_m": 3.0e-7, "from_y_m": -1.0e-7,
+                                 "purpose": "tip_shape", "count": 3},
+        # 已用点：`exclude_spots` 的解析 + 「差一点点就撞上」那条 `< 2·r` 判据。
+        "exclude_used": {"from_x_m": 0.0, "from_y_m": 0.0,
+                         "exclude_spots": "0,0;4e-7,0", "count": 4},
+    },
 }
 
 
@@ -1250,6 +1274,15 @@ def _reset_state(name: str) -> None:
         _cd.set_declaration({})
     except Exception:  # noqa: BLE001
         pass
+    # 批 7a-2：撞针记忆是**进程级**的，而 `FindCleanSpot` 把它当成第二个避让来源。
+    # 漏清一次，它就会「因为上一格撞过针」而躲开一个本来干净的点 ——
+    # 而那种绿看起来和「它真的躲开了一个坑」一模一样。
+    # （地图那一路不用清：这个进程里没有活动实验，`get_active_log()` 恒为 None。）
+    try:
+        import mast.core.tip_crash_tracker as _tct
+        _tct.reset_tip_crash_tracker()
+    except Exception:  # noqa: BLE001
+        pass
     # 批 3k：温度。源自己带 `now`（见 `_FAKE_NOW_ISO` 那段注释）。
     try:
         import datetime as _dt
@@ -1329,7 +1362,9 @@ def main() -> int:
                  # ↑ ／ ↓ 6B
                  + BATCH_6B
                  # ↑ ／ ↓ 6C
-                 + BATCH_6C):
+                 + BATCH_6C
+                 # ↑ ／ ↓ 7A-2
+                 + BATCH_7A2):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
