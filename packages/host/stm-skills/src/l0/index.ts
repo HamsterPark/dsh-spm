@@ -82,6 +82,12 @@ import { BiasSettleChange } from '../composite/bias-settle.js'
 import { BatchRegionsScan } from '../composite/batch-regions-scan.js'
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面加 import ──
+
+// ── 批 6a（特异化流程 _tip_phases 六个组合技能）在这一行下面加 import ──
+
+// ── 批 6b（vision 的 scan_prep 链）在这一行下面加 import ──
+
+// ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面加 import ──
 import { CALIBRATIONS } from './calibrations.js'
 import { RetractForSampleChange } from '../composite/retract-for-sample-change.js'
 import { RelocateCoarseXY } from '../composite/relocate-coarse-xy.js'
@@ -180,6 +186,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   BatchRegionsScan,
 
   // ── 批 5c 在这一行下面展开 ──
+
+  // ── 批 6a 在这一行下面展开 ──
+
+  // ── 批 6b 在这一行下面展开 ──
+
+  // ── 批 6c 在这一行下面展开 ──
   ...CALIBRATIONS,
   RetractForSampleChange,
   RelocateCoarseXY,
@@ -282,6 +294,12 @@ export * from '../composite/bias-settle.js'
 export * from '../composite/batch-regions-scan.js'
 
 // ── 批 5c 在这一行下面 re-export ──
+
+// ── 批 6a 在这一行下面 re-export ──
+
+// ── 批 6b 在这一行下面 re-export ──
+
+// ── 批 6c 在这一行下面 re-export ──
 export * from './calibrations.js'
 export * from '../composite/z-settle.js'
 export * from '../composite/tip-evidence.js'

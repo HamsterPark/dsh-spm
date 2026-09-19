@@ -408,6 +408,15 @@ BATCH_5B: list[str] = [
 ]   # A 档零散一批（各自自足，不压子系统）
 
 #: ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
+#: ↑ 上一条 ／ ↓ 6A —— 这一行谁都不要动
+BATCH_6A: list[str] = []   # 特异化流程 _tip_phases 六个组合技能
+
+#: ↑ 上一条 ／ ↓ 6B —— 这一行谁都不要动
+BATCH_6B: list[str] = []   # vision 的 scan_prep 链
+
+#: ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
+BATCH_6C: list[str] = []   # 批 5b 欠下的数值原语 + 晶格一族剩余
+
 BATCH_5C: list[str] = [
     # 零 TCP —— 它读的全是进程内的仪器档案。所以这四格录的是**报文**，
     # 而报文正是这个技能的全部产物（「从未标定过」vs「读不到档案」）。
@@ -1294,7 +1303,13 @@ def main() -> int:
                  # ↑ ／ ↓ 5B
                  + BATCH_5B
                  # ↑ ／ ↓ 5C
-                 + BATCH_5C):
+                 + BATCH_5C
+                 # ↑ ／ ↓ 6A
+                 + BATCH_6A
+                 # ↑ ／ ↓ 6B
+                 + BATCH_6B
+                 # ↑ ／ ↓ 6C
+                 + BATCH_6C):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

@@ -57,6 +57,12 @@ export * from './bias-settle.js'
 export * from './batch-regions.js'
 
 // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）在这一行下面 export ──
+
+// ── 批 6a（特异化流程 _tip_phases 六个组合技能）在这一行下面 export ──
+
+// ── 批 6b（vision 的 scan_prep 链）在这一行下面 export ──
+
+// ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面 export ──
 export * from './instrument-profile.js'
 export * from './coarse-drive.js'
 export * from './z-settle.js'

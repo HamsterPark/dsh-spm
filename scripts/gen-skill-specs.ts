@@ -431,6 +431,15 @@ const BATCH_5B: string[] = [
 ]   // A 档零散一批（各自自足，不压子系统）
 
 // ↑ 上一条 ／ ↓ 5C —— 这一行谁都不要动
+// ↑ 上一条 ／ ↓ 6A —— 这一行谁都不要动
+const BATCH_6A: string[] = []   // 特异化流程 _tip_phases 六个组合技能
+
+// ↑ 上一条 ／ ↓ 6B —— 这一行谁都不要动
+const BATCH_6B: string[] = []   // vision 的 scan_prep 链
+
+// ↑ 上一条 ／ ↓ 6C —— 这一行谁都不要动
+const BATCH_6C: string[] = []   // 批 5b 欠下的数值原语 + 晶格一族剩余
+
 const BATCH_5C: string[] = [
   // 仪器档案的**只读窗口**。它的全部价值是区分「从未标定过」与「读不到档案」。
   'ReadCalibrations',
@@ -537,6 +546,12 @@ function main(): number {
     ...BATCH_5B,
     // ↑ ／ ↓ 5C
     ...BATCH_5C,
+    // ↑ ／ ↓ 6A
+    ...BATCH_6A,
+    // ↑ ／ ↓ 6B
+    ...BATCH_6B,
+    // ↑ ／ ↓ 6C
+    ...BATCH_6C,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -577,7 +592,13 @@ function main(): number {
     // ↑ ／ ↓ 5B
     `批 5b ${BATCH_5B.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 5C
-    `批 5c ${BATCH_5C.filter((n) => byName.has(n)).length} 个\n` +
+    `批 5c ${BATCH_5C.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 6A
+    `批 6a ${BATCH_6A.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 6B
+    `批 6b ${BATCH_6B.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 6C
+    `批 6c ${BATCH_6C.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +

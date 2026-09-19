@@ -3482,6 +3482,12 @@ function physicallyAbsurdViolations_unused(`,
   },
 
   // ── 批 5c（仪器档案 + Z 稳定 + 粗动驱动三个子系统）的演练写在这一行下面 ──
+
+  // ── 批 6a（特异化流程 _tip_phases 六个组合技能）的演练写在这一行下面 ──
+
+  // ── 批 6b（vision 的 scan_prep 链）的演练写在这一行下面 ──
+
+  // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的演练写在这一行下面 ──
   // ── 仪器档案：**区分两种否定** ────────────────────────────────────
   {
     id: 'profile-missing-source-is-not-an-empty-profile',
