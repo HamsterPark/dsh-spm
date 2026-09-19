@@ -139,3 +139,53 @@ exp_map        MapMarker 79 · epoch_of_row 8 · markers_from_rows 6            
 重算的办法：`BLOCKED` 并集减去 `progress.json` 里 `status === 'done'` 的，
 再对每件重跑一次函数体 `import` 的追踪。
 **一份要靠人记得划掉的清单，比没有清单更坏** —— 上一轮为这句话付过三次学费。
+
+## 7. 封锁账自己记浅了一层（2026-09-20，composite 盘点报的，已复核）
+
+`packages/host/stm-skills/src/l0/tip-phase-deps.test.ts:142-158` 的 `BLOCKED` 表
+**记的是一层，不是闭包**。实测：
+
+```
+AutoTilt（表里有，算「一件封锁件」）
+  └─ auto_tilt.py:134  context.run("TiltProbeCircle", …)
+       └─ TiltProbeCircle   builtins/tilt_probe.py  353 行   **progress.json 里是 todo**
+            └─ vision/tilt.py  fit_circle_tilt 99 行 + CIRCLE_MIN_POINTS
+```
+
+**`TiltProbeCircle` 这个名字不在 `BLOCKED` 表的任何一行里。** 也就是说：
+把 `AutoTilt` 落了，那五条流程**仍然解不开**，而封锁账会说解开了。
+
+⚠️ 这条比它看起来严重，因为**这张表的全部价值就是「它会自己失效」**：
+课时 6.1 讲的正是「一本会自己失效的账」，课时 6.3 讲的是它在合并批 6c 当天
+**当场红了**一次。它确实会为「某个封锁件落了」而失效 ——
+**而它不会为「某个封锁件自己还有封锁件」而失效，因为那一层它根本没记。**
+
+> 一个会自己失效的判据，只在它**记全了的那一维**上会自己失效。
+> 它在没记的那一维上和一张手抄清单没有区别 —— 而它看起来比手抄清单可信。
+
+**怎么改**（合并 7a 之后做，现在动会和三条支线撞）：
+`BLOCKED` 的值从「名字数组」改成由**闭包**算出来 —— 对每个封锁件再查一次它自己的
+`context.run(...)` 目标，递归到全部已落为止。判据不变（红了说明可以重开），
+但那个「红」现在覆盖得到第二层。
+
+## 8. 另外两条要带进 7b 的（composite 盘点报的，已复核）
+
+### 8.1 `ScanPublicationFrame` 默认参数下**永远拒跑** —— 而本仓已经把正确的键移对了
+
+```
+生产方 atomic_lattice.py:203-206   → data = { "passed_forward": …, "passed_backward": … }
+消费方 publication_frame.py:211    → v.get("passed")          ← 这个键从来不存在
+```
+
+`atomic_lattice.py` 全文件裸 `"passed"` **零命中**（核过）。于是
+`bool(v.get("passed"))` 恒为 `False`，`if not v.get("passed") or …` 恒真 ⇒ **恒拒**。
+
+本仓 `packages/host/stm-skills/src/l0/analysis-lattice.ts:558-575` 逐字照移了生产方那一侧，
+键名是对的。⇒ **移 `ScanPublicationFrame` 时照抄 `v.get("passed")` 会把这个 bug 搬过来**，
+按 DoD ⑤ 不照抄，并在登记里写清「为什么不照抄」与「改它需要什么证据」。
+
+### 8.2 三个 STS 技能的采集路径**旧仓出厂就不可达**
+
+`sts_workflow.py:251` 的 `CONDITIONS` 只有一个组、四个样品事实全 `None` ⇒ `usable` 恒 `False`。
+⇒ **验收标准是「拒绝得对不对」，不是「采到了几条谱」。**
+造金样时别去造一格「采成功」的 —— 那一格在旧仓里造不出来，造出来的只会是本仓自己发明的行为。
