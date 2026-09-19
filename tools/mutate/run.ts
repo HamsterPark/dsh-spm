@@ -38,8 +38,12 @@ const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
 export interface MutationResult {
   readonly id: string
-  /** `red` = 达成目的；`green` = 拆了也没人喊；`inconclusive` = 三判据没走完 */
-  readonly verdict: 'red' | 'green' | 'inconclusive'
+  /**
+   * `red` = 达成目的；`green` = 拆了也没人喊；`inconclusive` = 判据没走完；
+   * `narrow-scope` = **在声明的 scope 里没人喊，而放到 `packages/host` 就喊了**
+   * —— 那不是「闸不存在」，是这条记录的 `scope` 过期了（2026-09-19 搬家撞出来的）。
+   */
+  readonly verdict: 'red' | 'green' | 'inconclusive' | 'narrow-scope'
   readonly failed: number
   readonly passed: number
   readonly note: string
@@ -110,19 +114,38 @@ export function runOne(m: Mutation): MutationResult {
     const { failed, passed } = r
     if (failed + passed === 0) return fail('测试跑了 0 条')
 
-    return {
-      id: m.id,
-      verdict: failed > 0 ? 'red' : 'green',
-      failed,
-      passed,
-      note: failed > 0 ? `${failed} 条变红` : '拆掉也没人喊',
+    if (failed > 0) {
+      return { id: m.id, verdict: 'red', failed, passed, note: `${failed} 条变红` }
     }
+
+    // ── 绿了先别下结论：**换全包范围再问一次** ──
+    //
+    // 一次重构可以把判据搬到另一个包，而看着它的那条测试留在原地 ——
+    // 于是这条记录的 `scope` 悄悄不再覆盖它的证人。那时它报绿，
+    // 和「这条闸真的没人看」长得一模一样。**预检查不出来**（`file` 仍在 `scope` 里），
+    // 只有真跑才看得见（2026-09-19：搬家之后三条晶格变异就是这样）。
+    if (m.scope !== WIDE_SCOPE) {
+      const w = suite(WIDE_SCOPE)
+      if (w !== null && w.failed > 0) {
+        return {
+          id: m.id,
+          verdict: 'narrow-scope',
+          failed: w.failed,
+          passed: w.passed,
+          note: `${m.scope} 里没人喊，而 ${WIDE_SCOPE} 里红了 ${w.failed} 条 —— 把 scope 放宽`,
+        }
+      }
+    }
+    return { id: m.id, verdict: 'green', failed, passed, note: '拆掉也没人喊' }
   } finally {
     // 还原并**强制重建**：见文件抬头的 mtime 陷阱
     writeFileSync(path, original, 'utf8')
     build()
   }
 }
+
+/** 绿了之后用来复问的全包范围。 */
+const WIDE_SCOPE = 'packages/host'
 
 /** 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。 */
 function suite(scope: string): { failed: number; passed: number } | null {
@@ -186,7 +209,8 @@ function main(): number {
     const r = runOne(m)
     results.push(r)
     if (!json) {
-      const mark = r.verdict === 'red' ? '✓' : r.verdict === 'green' ? '✗' : '?'
+      const mark =
+        r.verdict === 'red' ? '✓' : r.verdict === 'green' ? '✗' : r.verdict === 'narrow-scope' ? '↔' : '?'
       console.log(`${mark} ${r.id.padEnd(32)} ${r.verdict.padEnd(13)} ${r.note}`)
     }
   }
@@ -198,7 +222,9 @@ function main(): number {
     console.log(`\n${red}/${results.length} 变红`)
     for (const r of results.filter((x) => x.verdict !== 'red')) {
       const m = MUTATIONS.find((x) => x.id === r.id)!
-      console.log(`  ${r.verdict === 'green' ? '⚠ 没人喊' : '? 没验成'}：${r.id} —— ${m.why}`)
+      const tag =
+        r.verdict === 'green' ? '⚠ 没人喊' : r.verdict === 'narrow-scope' ? '↔ scope 过期' : '? 没验成'
+      console.log(`  ${tag}：${r.id} —— ${r.verdict === 'narrow-scope' ? r.note : m.why}`)
     }
   }
   return results.every((r) => r.verdict === 'red') ? 0 : 1
