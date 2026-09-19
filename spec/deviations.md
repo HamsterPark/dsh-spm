@@ -3130,6 +3130,83 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 <!-- 批 7a-3：编号**留空**（`?`），由主线统一编。 -->
 
+## D-FLAT-? · 设计阵**掉秩**时 `_local_plane_rms` 给 `null`，旧仓给「一块完美的平地」
+
+| | |
+|---|---|
+| **Python** | 窗内 ≥ 12 个有效点**全落在同一行**（真机上是 NaN 挖出来的形状）时 `[x, y, 1]` 掉秩，`np.linalg.lstsq` 走 SVD 给一个**最小范数解** —— 一条直线被一个平面拟合的残差恰好是 0，于是它报 `rms = 4.5e−28` |
+| **TS** | `lstsqPlane` 走中心化正规方程，掉秩时 Cholesky 抛 ⇒ `localPlaneRms` 返回 `null`，那个窗**跳过** |
+| **测试** | `l0/batch7a3-skills.test.ts` → `_local_plane_rms > collinear`（两侧都断言：本仓 `null`，而金样是一个 `< 1e−20` 的数 —— 差异消失这条就红） |
+
+**为什么有意**：那个 `4.5e−28` 会**赢下 `argmin`**，然后调用方拿着它的坐标去移动针尖。
+这与本技能自己那道前置（`judge_frame` 拦死平帧）挡的是同一件事，原话就在那里：
+「读起来像『找到了一块完美的平地』，而调用方拿这个坐标去移动针尖。」
+按 DoD ⑤ 缺陷判据不照抄。
+
+本仓这一侧**不是碰巧**：`numerics/fit.ts` 的抬头写着「不满秩就抛 —— 一个不满秩的系统
+解出来的是『某一个解』，而调用方会把它当成『那个解』」。掉秩的窗判不了，就该说判不了。
+
+## D-WIGGLE-? · `BiasWiggle` 的收尾**没有 `allow_on_abort` 那个逃生口**（本批的欠账）
+
+| | |
+|---|---|
+| **Python** | `_restore` 两处写的是 `context.safe_call("Bias_Set", …, allow_on_abort=True)` —— 中止闩上之后 `Bias_Set` 被动词闸拒，而这次写**是因为 abort 才要做的**，所以显式走逃生口 |
+| **TS** | `SafeCall` 的签名是 `(method, ...args)`，**本仓没有这个口**；`Bias_Set` 也不在 `ABORT_SAFE_WRITES` 里（那张表按「停」的语义建，而 `Bias_Set` 没有哪个实参形能表达「停」）。收尾照直发 `ctx.safeCall` |
+| **测试** | `l0/batch7a3-skills.test.ts` → 「⚠️ 中止闩上时：`Bias_Set` 全被拒，而 `bias_restored` 照样报 true（本批的欠账）」，以及「**收尾那几次在旧仓是带 `allow_on_abort=True` 的**，本仓没有那个口」（后者从金样的 `calls[].kwargs` 里证明那个差异还在） |
+
+**为什么有意**：**今天它不改变任何人的行为** —— 本仓还没有任何地方把 `gatedSafeCall`
+接进 `SkillContext.safeCall`（中止闩在工具入口的 K2 与 `stm-safety` 的 guard 上）。
+而那一天来的时候，这个技能会：每一次 `Bias_Set` 被拒 ⇒ 第一次跳变就停 ⇒ 收尾也被拒
+⇒ **而 `data.bias_restored` 照样报 `true`**。
+
+本批**没有发明那个口**，三条理由（逐条可核）：
+
+1. **它今天没有流量。** 没有消费方 ⇒ 金样到不了它、变异也红不了它 —— 按 green-8 §2.8，
+   那是一段没有闸的守卫；
+2. **口的形状是内核接口改动。** 按 `SkillContext` 自己的原话，它要写成**一个单独命名的
+   入口**（同 `emergencyCall` / `slowCall`：「这条路谁在走、走了几次，要能一眼 grep 出来」），
+   而那会动到三十来处构造 `SkillContext` 的夹具 —— 在三条支线并行的一轮里，
+   那是一次看不见别人工作树的破坏性改动。**做成可选的更坏**：静默回落到 `safeCall`，
+   洞还在，而且看起来补上了；
+3. **它是一个安全口，需要的是政策不是通道。** 「中止之后谁还能发命令」在本仓的答案一直是
+   **一张按动词与实参判的表**（`ABORT_SAFE_WRITES`）；照抄旧仓那个「任何技能想走就走」的
+   参数，等于把更松的那个模型换个名字请回来。
+
+⇒ 本批的处置是**把洞钉住**：那条测试今天绿（它断言的正是「放不回去、而回包说放回去了」），
+**开口的那天它会红**，于是 `bias_restored` 必须跟着改成实话。
+完整的落地建议写在 `docs/handoff/batch-7a-3.md` §7。
+
+## D-WIGGLE-? · `_restore` 的 `except Exception: pass` **不照抄**（在这一侧不可达）
+
+| | |
+|---|---|
+| **Python** | `_restore` 整段套着 `except Exception: pass`（「收尾绝不能把已经发生的事变成异常」） |
+| **TS** | **没有这个 try/catch** |
+| **测试** | 无 —— 正因为它不可达才不写；`SkillContext.safeCall` 的约定是**永不抛**（失败表达成 `record.error`），`ctx.sleep` 同理 |
+
+**为什么有意**：同 green-8 §2.8 与批 6c 的 `D-FORCE-3`。旧仓那个 `except` 挡的是
+`safe_call` 可能抛出来的东西，而本仓这条约定写在 `SkillContext` 的抬头里、由内核保证。
+照抄它等于留一段**永远进不去**的守卫，而那种东西的坏处 green-8 已经量过：
+它看起来在挡什么，于是没有人再去问那里到底有没有闸。
+
+## 指回 **D-SI-1** · `exclude_used_spots` 里的 `nan,0` / `inf,0`（**不要新编号**）
+
+这一条**不是新差异**，是 D-SI-1（「宽松档拒绝 `inf` / `nan`」）在 `FindFlatRegion` 上的
+**第二例**，写在这里只是为了让它有一处指得到的落点。
+
+| | |
+|---|---|
+| **Python** | `parse_quantity('nan', strict=False)` 走 `float()` ⇒ `NaN` 被当成一个**合法坐标**收下（金样 `parse_excluded` 那两格逐字录着） |
+| **TS** | 抛 `SIParseError` ⇒ 进 `bad`，整次调用被「exclude_used_spots 里有解析不了的坐标」拒掉 |
+| **测试** | `l0/batch7a3-skills.test.ts` → `_parse_excluded（逐格对金样）> "nan,0"` / `"inf,0"`（两侧都断言） |
+
+**为什么有意**：D-SI-1 那条登记里写的后果在这里**原样发生**了一次 ——
+一个 NaN 坐标穿过之后，`(cx − nan)² + (cy − nan)² < min_sep²` **恒为假**，
+于是「别再选这几个点」悄悄变成「一个都不排除」。
+而这个技能的拒绝文案自己就写着：**「没有把这些点排除掉就选点是危险的 ——
+它们正是你要避开的位置。」** 旧仓在同一个函数里为了这句话把
+`except ValueError: continue` 改成了报错，却在 `parse_quantity` 那一层把 NaN 放了进来。
+
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
 
 ## D-FORCE-1 · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）

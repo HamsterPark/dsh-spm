@@ -46,3 +46,5 @@ export * from './lsq.js'
 // ── 批 7a-2（实验地图层 + FindCleanSpot）在这一行下面加 export ──
 
 // ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）在这一行下面加 export ──
+export * from './np-grid.js'
+export * from './mt19937.js'

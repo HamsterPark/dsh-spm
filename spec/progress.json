@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 418,
+    "done": 420,
     "partial": 0,
-    "todo": 97
+    "todo": 95
   },
-  "modules_complete": 93,
+  "modules_complete": 95,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -96,8 +96,8 @@
     },
     "builtins.bias_wiggle": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.calibration_readout": {
       "total": 1,
@@ -206,8 +206,8 @@
     },
     "builtins.flat_region": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.folme": {
       "total": 8,
@@ -1400,11 +1400,11 @@
       "module": "builtins.bias_wiggle",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "CalibrateCoarseStep": {
       "module": "builtins.coarse_step_calib",
@@ -2160,11 +2160,11 @@
       "module": "builtins.flat_region",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "FindGoodRegion_Heuristic": {
       "module": "paper.autonomous",

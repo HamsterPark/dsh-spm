@@ -122,9 +122,16 @@ describe('两个自检各问各的链', () => {
     expect(missing).not.toContain('AssessShockleyOnset')
   })
 
-  it('锻造自检报 `BiasWiggle` / `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
+  it('锻造自检报 `AssessShockleyOnset`，**不**报 `PreScanCheck` / `AnalyzeFrameTilt`', async () => {
     const missing = await missingOf(makeTipForgeSelfCheck({}))
-    expect(missing).toContain('BiasWiggle')
+    // 2026-09-20：`BiasWiggle` 从这一行里划掉了 —— **批 7a-3 当天落的**。
+    // 这条测试问的是「这个自检数的是**哪一条链**」，而链的成员没变；
+    // 变的是那条链上还差几件。所以判据换成**两条链的分界**本身：
+    // 锻造那条要 `BiasWiggle`（现在它在 `IMPLEMENTED` 里，于是不再是缺口），
+    // 而修针那条从来不问它。
+    expect(FORGE_REQUIRED_SKILLS).toContain('BiasWiggle')
+    expect(CONDITIONING_REQUIRED_SKILLS).not.toContain('BiasWiggle')
+    expect(missing).not.toContain('BiasWiggle')
     expect(missing).toContain('AssessShockleyOnset')
     expect(missing).not.toContain('PreScanCheck')
     expect(missing).not.toContain('AnalyzeFrameTilt')
@@ -140,24 +147,25 @@ describe('两个自检各问各的链', () => {
 describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
   /** 每条流程**今天**还缺的子技能。空表 = 这条流程可以移了。 */
   const BLOCKED: Readonly<Record<string, readonly string[]>> = {
-    // 2026-09-20（批 7a-2）：`FindCleanSpot` 从**六行里全部**划掉了。
-    // 它是六条流程的第一个动作，也是这张表上唯一一件六条都要的 ——
-    // `PulseConditionTip` 因此**空了**：这条流程现在可以移。
+    // 2026-09-20 一天之内被划了两次，而两次是并行的两条支线各自划的：
+    //   批 7a-2 落 `FindCleanSpot`  —— 从**六行里全部**划掉（它是六条都要的那一件）
+    //   批 7a-3 落 `FindFlatRegion` —— 从五行划掉；落 `BiasWiggle` —— 从一行划掉
+    // 合并这张表 = **两边删除的并集**，不是「两边都留」。
+    // （2026-09-19 批 6c 落 `AssessTipSharpness` 时它第一次自己红；那次是一条支线。）
+    //
+    // `PulseConditionTip` 因此**空了 —— 这条流程现在可以移**。
     PulseConditionTip: [],
-    PokeConditionTip: ['AutoTilt', 'FindFlatRegion'],
-    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt', 'FindFlatRegion'],
-    MakeAtomicResolutionTip: [
-      'AssessAtomicPhase', 'AutoTilt', 'BiasWiggle', 'FindFlatRegion',
-    ],
-    // 2026-09-19：`AssessTipSharpness` 从这两行里划掉了 —— **批 6c 当天落的**，
-    // 而这条测试在合并后的第一次全仓跑就红了。这正是它存在的理由：
-    // **封锁账不是一句「还卡着」，是一个会随仓库变化自己失效的判据。**
-    PrepareNobleTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindFlatRegion', 'PreScanCheck',
-    ],
-    ForgeAuTip: [
-      'AnalyzeFrameTilt', 'AutoTilt', 'FindFlatRegion', 'PreScanCheck',
-    ],
+    PokeConditionTip: ['AutoTilt'],
+    MakeSpectroscopyTip: ['AssessShockleyOnset', 'AutoTilt'],
+    MakeAtomicResolutionTip: ['AssessAtomicPhase', 'AutoTilt'],
+    PrepareNobleTip: ['AnalyzeFrameTilt', 'AutoTilt', 'PreScanCheck'],
+    ForgeAuTip: ['AnalyzeFrameTilt', 'AutoTilt', 'PreScanCheck'],
+    //
+    // ⚠️ 这张表**只记一层**：它比的是 `GOLDEN.skills[flow].sub_skills` 减去已落的，
+    // 而 `sub_skills` 里的每一个自己还可能有子技能。实测撞到过：
+    // `AutoTilt` → `TiltProbeCircle`（`auto_tilt.py:134`），而 `TiltProbeCircle`
+    // **不在任何一行里**。⇒ 这六行全空的那天，不等于六条流程都能跑。
+    // 改成按闭包算的办法写在 `docs/handoff/blockers-7a.md` §7，7a 合完就做。
   }
 
   const installed = new Set(Object.keys(IMPLEMENTED))
