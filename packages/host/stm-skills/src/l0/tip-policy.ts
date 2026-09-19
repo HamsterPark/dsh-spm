@@ -154,6 +154,43 @@ export function applyTipPolicy(
 }
 
 /**
+ * 扎针**深度**过针尖包络 —— 只拒绝，不夹紧，**不填任何默认值**（批 6a 补，本仓新增）。
+ *
+ * ## 为什么要单独一个函数，而不是加进 {@link applyTipPolicy} 的 `policyFields`
+ *
+ * 批 6a 核出来：深度那半道包络（`max_poke_depth_m`）**生产路径上没有任何输入到得了它**。
+ * 两个 shaper 技能报给方案表的是 `shaper_bias_v` / `shaper_lift_v` —— **两个都是电压**；
+ * 而 `checkEnvelope` 判深度认的键是 `shaper_depth_m` / `poke_shallow_depth_m` /
+ * `poke_deep_depth_m`，一个都没送进去。于是一发 **50 nm** 的下压：声明范围 ±100 nm 放行，
+ * 全局硬闸按参数名子串只管电压，针尖包络**看不见它** —— 而 qPlus 档的上限是 10 nm。
+ *
+ * 旧仓同样如此，**而且旧仓自己的 `FIELD_OWNERS` 写着 `shaper_depth_m → ("TipShape",)`**：
+ * 这个字段本来就是给它准备的，只是全仓没有一处把值送进去（生产方接好了、消费方缺席，
+ * 同 `_tip_phases.py:2106` 那条 `exclude_used_spots`）。**本仓这一条比旧仓严。**
+ *
+ * 最自然的接法（把 `shaper_depth_m` 加进 `applyTipPolicy` 的 `policyFields`）**不行**：
+ * `resolveConditioning` 对**没给**的字段会去方案表取值填进 `params`，于是调用方不传
+ * `tip_lift_m` 时会凭空多出一个下压深度 —— 那是**行为改变**，不是补一道闸。
+ * 更糟的是它会让「出厂默认落在自己包络之外」那条路复活（`tippulse-refuses-before-planning`
+ * 钉着的那一条，旧仓真出过）：操作员把 `max_poke_depth_m` 收到 0.5 nm 时，
+ * 通用档的出厂 `shaper_depth_m = -1 nm` 会让一次**根本没要求下压**的调用被拒。
+ *
+ * 所以这里**只在 `tip_lift_m` 显式给出时**单独判一次，且只取 `refusals`。
+ *
+ * ## 只判**下压**那一半
+ *
+ * `tip_lift_m` 是有符号的方向量（负 = 压向表面，正 = 抬离），而 `shaper_depth_m` 的
+ * 定义域是**下压**（方案表里全表是负数）。`checkEnvelope` 按绝对值比，是因为那个字段
+ * 按构造就是负的；把一次**抬起**送进去，等于拿抬起去撞下压的上限 ——
+ * 凭空多一条方案表从来没声明过的限制。一次 50 nm 的**抬离**不会戳坏音叉。
+ */
+export function tipDepthRefusals(params: Readonly<Record<string, unknown>>): string[] {
+  const given = params['tip_lift_m']
+  if (typeof given !== 'number' || !Number.isFinite(given) || given >= 0) return []
+  return [...resolveConditioning(['shaper_depth_m'], { shaper_depth_m: given }).refusals]
+}
+
+/**
  * 放进 `SkillResult.data` 的方案痕迹 —— **每个数字是谁给的，事后查得到**。
  *
  * 键与旧仓逐字相同（它们进金样）：`tip_policy` / `tip_policy_notes` /

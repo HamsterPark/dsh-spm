@@ -23,6 +23,12 @@
  * 要先经过「方案表填不填」这一步才知道最终值是多少，而 `validate_params` 拿不到
  * 那一步的结果。**两个读回技能那边不同**：它们的量是调用方直接给的，所以装在 K6。
  *
+ * ④ **下压深度那半道包络在 K6**（批 6a 补，本仓新增）。它与 ③ 分在两处，理由正是 ③ 那句话
+ * 的另一面：`tip_lift_m` 是**调用方直接给的**量，不经过方案表填值，所以按本仓的规矩
+ * 它属于 K6 —— 而且那里比 `execute` 更早。接法与「为什么不能塞进 `applyTipPolicy`」
+ * 写在 {@link tipDepthRefusals}。同一条判据两个孪生技能**用同一个函数、装在同一层**，
+ * 这正是 D-TIPREG-3 那次不对称要防的事。
+ *
  * ## 没有移植：`module_down_hint`
  *
  * 旧仓在这两条错误路径上给报文追一句「去 Nanonis 里打开 Tip Shaper 模块」，判据是
@@ -38,7 +44,13 @@ import {
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { fail, ok } from './common.js'
-import { applyTipPolicy, policyFieldsForResult, resolvedLiftHeightM, shaperBiasDefault } from './tip-policy.js'
+import {
+  applyTipPolicy,
+  policyFieldsForResult,
+  resolvedLiftHeightM,
+  shaperBiasDefault,
+  tipDepthRefusals,
+} from './tip-policy.js'
 import { tipXyFields } from './tip-xy.js'
 
 const num = (p: Readonly<Record<string, unknown>>, k: string, dflt: number): number =>
@@ -47,6 +59,9 @@ const flag = (p: Readonly<Record<string, unknown>>, k: string, dflt: boolean): b
   p[k] === undefined || p[k] === null ? dflt : Boolean(p[k])
 
 export const TipShape: Skill = {
+  // ④ 见抬头：下压深度是调用方直接给的量，所以与孪生兄弟一样装在 K6
+  // ——**任何硬件调用之前**，而且用的是同一个函数。
+  validateParams: (params) => [...tipDepthRefusals(params)],
   spec: S.TipShapeSpec,
   execute: async (ctx: SkillContext, rawParams): Promise<SkillResultLike> => {
     // ── 0) 方案表 + 安全包络 ────────────────────────────────────────────────

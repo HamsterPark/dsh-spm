@@ -59,7 +59,7 @@ import {
   type ReadbackCapture,
   type TraceDeps,
 } from './readback-stream.js'
-import { applyTipPolicy, resolvedLiftHeightM, shaperBiasDefault } from './tip-policy.js'
+import { applyTipPolicy, resolvedLiftHeightM, shaperBiasDefault, tipDepthRefusals } from './tip-policy.js'
 import { tipXyFields } from './tip-xy.js'
 
 const num = (p: Readonly<Record<string, unknown>>, k: string, dflt: number): number =>
@@ -341,6 +341,9 @@ export const TipShapeWithReadback: Skill = {
       shaper_bias_v: 'bias_v',
       shaper_lift_v: 'bias_lift_v',
     }).plan.refusals,
+    // 上面那两个都是**电压**。下压深度走 `tip_lift_m`，而它此前谁都没送进包络 ——
+    // 一发 50 nm 的下压全程放行。见 {@link tipDepthRefusals}（批 6a 补，本仓比旧仓严）。
+    ...tipDepthRefusals(params),
   ],
   spec: S.TipShapeWithReadbackSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {

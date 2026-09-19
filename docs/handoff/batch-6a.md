@@ -9,22 +9,27 @@
 `FindCleanSpot`（六条流程全部，第一个动作）与 `FindFlatRegion`（六条里五条），
 它们各压着一个这一轮不在范围内的子系统。详见 §1。
 
+> **这一批做了两趟。** 第一趟（§0–§9）：核出六条全部还卡着 ⇒ 零技能落地，账做实。
+> 第二趟（**§10**，主线看完第一趟之后决定的）：把 §3.2 那半道**接不上的**深度包络
+> **接上了** —— 这是唯一一处改了运行时行为的地方，也是本仓**比旧仓严**的一条。
+
 | | |
 |---|---|
 | 技能 | 411 → **411 / 515**（模块 88 → **88 / 165**）—— **没变** |
-| 测试 | `--project '!integration'` 101 文件 / 5761 条 → **102 文件 / 5777 条**全绿（新增 16 条） |
+| 测试 | `--project '!integration'` 101 文件 / 5761 条 → **102 文件 / 5780 条**全绿（新增 19 条） |
 | 集成 | **15 文件 / 86 条**对真 stmsim 全绿（没新增，跑了一遍确认没碰坏） |
 | 新金样 | `spec/golden/tip_phase_deps.json`（**第六台专用驱动器，唯一一台静态的**） |
-| 变异 | **新增 2 条，实跑到 red；基线干净**（见 §4） |
-| 偏差 | 新登记 **2 条**（编号留空，主线统一编） |
+| 变异 | **新增 6 条（2 + 4），全部实跑到 red；两趟基线都干净**（见 §4） |
+| 偏差 | 新登记 **2 条**（编号留空，主线统一编），其中 D-TIPDEPTH **第二趟改写**为「本仓接上了，旧仓没有」 |
 
-落地的三样，全部服务于一件事：**让「这一批还卡着」这句话由判据算出来，而不是由人抄下来**。
+落地的四样，前三样服务于一件事：**让「这一批还卡着」这句话由判据算出来，而不是由人抄下来**。
 
 1. `tools/spec-export/export_tip_phase_deps.py` —— 从六个 `plan_dynamic` 求
    `CompositeStep(skill_name=…)` 的传递闭包，出 `spec/golden/tip_phase_deps.json`；
-2. `packages/host/stm-skills/src/l0/tip-phase-deps.test.ts`（16 条）—— 拿那份金样
+2. `packages/host/stm-skills/src/l0/tip-phase-deps.test.ts`（19 条）—— 拿那份金样
    比两张依赖表、比封锁账、比「每一发脉冲 / 每一次扎入过没过那道闸」；
-3. `l0/tip-selfcheck.ts` 的 `FORGE_REQUIRED_SKILLS` 修正（**少报四个、多报一个**，见 §2）。
+3. `l0/tip-selfcheck.ts` 的 `FORGE_REQUIRED_SKILLS` 修正（**少报四个、多报一个**，见 §2）；
+4. **`l0/tip-policy.ts` 的 `tipDepthRefusals()`** —— 扎针深度终于过得了那半道包络（§10）。
 
 ---
 
@@ -218,6 +223,10 @@
 
 ## 3. 要害 ③ 的答案：脉冲过，**扎入不过**
 
+> **2026-09-19 第二趟：扎入这一半接上了。** §3.2 记的是**第一趟核出来的状态**，
+> 原样留着（它是这条闸为什么存在的全部理由）。**接线、四条刻意、以及为什么它进不了
+> `tip_policy.json`，全部写在新加的 §10。**
+
 ### 3.1 每一发脉冲都过闸 ✅
 
 六条流程里**脉冲只有一个出口**：`_tip_phases.py:839` 的 `BiasPulseWithReadback`
@@ -226,7 +235,7 @@
 `validateParams` 把 `bias_v` 映到方案表的 `pulse_v`（批 5a，D-TIP-1 结清），
 装在内核 **K6 —— 任何硬件调用之前**。测试里实判了一次：±12 V 各拒一条，10.0 V 放行。
 
-### 3.2 ⚠️ 每一次扎入**过不了深度那半道闸** ❌
+### 3.2 ⚠️ 每一次扎入**过不了深度那半道闸** ❌ —— 第一趟的状态，**第二趟接上了（§10）**
 
 六条流程的扎入也只有一个出口：`_poke_step` → `TipShapeWithReadback`
 （`_tip_phases.py:1815`），深度走 **`tip_lift_m`**（`tip_lift_m = -abs(depth_m)`）。
@@ -256,19 +265,25 @@
 **生产方接好了、消费方缺席** —— 同 `_tip_phases.py:2106` 那条 `exclude_used_spots`
 （「参数一直就在，只是从来没有调用方传过」）。
 
-**这一批不改它**，理由三条（也写进了 deviation）：① 改的是一道**安全包络的辖区**，
-而这一批一个技能都没落；② 最自然的接法（把 `shaper_depth_m` 加进 `applyTipPolicy` 的
-`policyFields`）会让方案表在调用方**没给** `tip_lift_m` 时**填一个默认深度进去**，
-那是行为改变不是补闸；③ 分派单要的是「经不过的，说清为什么」。
-**接法写在 deviation 里免得下次再查一遍。**
+第一趟**没有改它**，理由三条：① 改的是一道**安全包络的辖区**，而那一趟一个技能都没落；
+② 最自然的接法（把 `shaper_depth_m` 加进 `applyTipPolicy` 的 `policyFields`）会让方案表
+在调用方**没给** `tip_lift_m` 时**填一个默认深度进去**，那是行为改变不是补闸；
+③ 分派单要的是「经不过的，说清为什么」。
 
 > 批 5a 结清 D-TIP-1 时那句「真正护音叉的那两样都在」（D-TIPREG-5 末段），
-> **前一样今天接不上**。又一次「修好之后旧理由会静静变成假话」——
+> **前一样当时接不上**。又一次「修好之后旧理由会静静变成假话」——
 > 只不过这一次那句话是**我们自己**写的。
+
+**⇒ 第二趟（主线决定）把它接上了。理由只有一条，而且是 D-TIP-1 原话的反面**：
+当年不写空壳 `validateParams` 是因为「写了会让人以为这道闸在」；
+现在的状态一模一样地坏，只是方向相反 —— **闸是实的、264 格验过、而没有任何输入到得了它**，
+结果一样：有人会以为深度被护着。见 **§10**。
 
 ---
 
-## 4. 变异清单（**2** 条，全部实跑到 red；**基线干净**）
+## 4. 变异清单（**6** 条，全部实跑到 red；**基线干净**）
+
+**第一趟 2 条**（依赖账自己）——
 
 ```
 node tools/mutate/run.ts forge-required-covers-the-terrace-leveling \
@@ -282,24 +297,57 @@ node tools/mutate/run.ts forge-required-covers-the-terrace-leveling \
 | `forge-required-covers-the-terrace-leveling` | `AutoTilt`（台面上的调平）两条特异化流程都走。漏掉它 ⇒ `TipForgeSelfCheck` 少报一条缺口，**而缺口数看起来仍然是对的** | 2 |
 | `selfcheck-each-check-asks-its-own-chain` | 两个自检各背书一条链。数错链 ⇒ 修针自检不问 `PreScanCheck`（贵金属验证帧唯一的入口）也照样说缺口数对得上 | 5 |
 
-**这一批只有两条，因为它一个技能都没落** —— 两条挡的是**这本账自己**：
+**第二趟 4 条**（深度包络的接线，§10）——
+
+```
+node tools/mutate/run.ts tipshape-readback-depth-goes-through-the-envelope \
+     tipshape-depth-goes-through-the-envelope tip-depth-is-judged-only-when-given \
+     tip-depth-boundary-is-exclusive
+… 基线（1 个 scope）        ← 没有拒跑 ⇒ 基线 0 条红
+4/4 变红
+```
+
+| id | 挡的是什么 | 变红 |
+|---|---|---|
+| `tipshape-readback-depth-goes-through-the-envelope` | 扎入的深度走 `tip_lift_m`，而这个技能报给方案表的两个字段都是**电压**。拆掉 ⇒ 50 nm 下压全程放行 | 1 |
+| `tipshape-depth-goes-through-the-envelope` | 孪生兄弟那一侧同一道闸。少一侧 ⇒ 同一串 `TipShaper_PropsSet` 一个挡一个不挡（D-TIPREG-3 那次不对称的回归） | 2 |
+| `tip-depth-is-judged-only-when-given` | **没给就不判**。去掉守卫 ⇒ 方案表填一个默认深度进去，操作员把包络收到 0.5 nm 时，一次根本没要求下压的调用被出厂的 −1 nm 拒掉 | 2 |
+| `tip-depth-boundary-is-exclusive` | 深度上限也是「不许超」不是「不许到」。这条 `>` 此前**一格输入都没有** | 1 |
+
+**第一趟只有两条，因为它一个技能都没落** —— 两条挡的是**这本账自己**：
 一张手抄的依赖表会静静过期，而一个少报自己缺口的自检，正是这两个自检存在的理由的反面。
 
-### 4.1 血缘范围内的六条 5a 老变异也重跑了（我改了 `tip-selfcheck.ts`）
+### 4.1 血缘范围内的老变异重跑（我改了 `tip-selfcheck.ts` / `tip-policy.ts` / 两个 shaper）
+
+第一趟 6 条 + 第二趟把整个针尖包络族一起重跑，**18/18 全红，基线干净**：
 
 ```
-tippulse-envelope-is-checked-before-hardware red 2
-selfcheck-missing-dependency-blocks          red 8
-selfcheck-skill-coverage-blocks              red 6
-selfcheck-dry-run-needs-a-counterexample     red 4
-selfcheck-envelope-item-really-resolves      red 1
-readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
+tip-envelope-compares-absolute-value         red 26   ← 批 5a 记 25
+tip-envelope-boundary-is-exclusive           red 18   ← 批 5a 记 17
+tip-depth-envelope-compares-absolute-value   red 28   ← 批 5a 记 25
+tip-count-limit-is-the-tips-not-the-specs    red 44
+tip-unregistered-is-not-fail-open            red  9   ← 批 5a 记 8
+tip-explicit-zero-is-a-real-value            red 12
+tip-policy-chain-is-coarse-to-fine           red 208
+tip-override-can-tighten-the-envelope        red 42   ← 批 5a 记 41
+tip-registry-normalizes-at-the-door          red  2
+tip-human-trace-prints-python-repr           red 257
+tippulse-envelope-is-checked-before-hardware red  2
+tippulse-refuses-before-planning             red  1
+tipshape-refuses-before-any-call             red  1
+tipshape-bias-is-the-imaging-bias-not-3v     red 10
+tipshape-policy-wins-over-reading            red  1
+readback-tip-envelope-is-wired               red  2   ← 批 5a 记 1
+forge-required-covers-the-terrace-leveling   red  2
+selfcheck-each-check-asks-its-own-chain      red  5
 ```
 
-**8/8 变红。** 最后一条从 1 涨到 2 是这一批新加的那条「每一发脉冲都过闸」
-（它也在验同一道闸）—— 不是底噪，基线那一趟是干净的。
+⚠️ **涨上去的那五条不是底噪**（两趟的基线都是 0）：它们涨，是因为
+**这一批给那几道闸补上了生产路径的输入**。`tip-depth-envelope-compares-absolute-value`
+从 25 涨到 28 尤其说明问题 —— 它此前那 25 条**全部**走的是「驱动器直调解析器」，
+现在才有三条是从一个真技能的 `validateParams` 走进去的。
 
-### 4.2 按 green-8 的规矩，两条都先问过「这道闸要在什么输入下才轮得到它做决定」
+### 4.2 按 green-8 的规矩，每一条都先问过「这道闸要在什么输入下才轮得到它做决定」
 
 * `forge-required-…`：两侧输入 = **金样算出来的闭包**（一侧）与**表**（另一侧）。
   拿掉 `AutoTilt`，两边不等 ⇒ 红。不是「断言把自己抵消」那一型 ——
@@ -308,6 +356,15 @@ readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
   （`PreScanCheck` / `AnalyzeFrameTilt` 只在贵金属那条；
   `BiasWiggle` / `AssessShockleyOnset` 只在锻造那条）。
   少了这个「两种候选各占一边」的输入，换一张表跑出来的结果会一模一样。
+* `tip-depth-is-judged-only-when-given`：**这一条差点就是绿的。** 拆掉守卫之后
+  `resolveConditioning` 会去方案表填值，而通用档出厂的 `shaper_depth_m = −1 nm`
+  **落在自己的包络（10 nm）之内** ⇒ 不产生拒绝 ⇒ 输出一个字都不变。
+  所以那一格必须先把 `max_poke_depth_m` 覆写收到 **0.5 nm**：
+  只有这样「查表」与「不查表」才给出不同的答案，这道守卫才轮得到它做决定。
+  （green-8 第一型「闸只有一侧有输入」，这次是在**写变异之前**就问出来的。）
+* `tip-depth-boundary-is-exclusive`：金样里深度用例全在线两侧
+  （−0.3 nm 过 / −1.2、−2、−5 nm 拒），**线上一格都没有**。
+  这一批补的那一格（正好 −10 nm 放行）走的是生产路径，见 §10.4。
 
 ---
 
@@ -385,7 +442,8 @@ readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
 | | 为什么 |
 |---|---|
 | 把 `_tip_phases` 的判据核心先搬进 `kernel/`（不落技能） | **消融精神**：它们今天**没有消费方**（消费方就是那六条流程）。落一个没人读的判据模块，与落一个跑满轮数报失败的壳是同一件事，只是低一层 |
-| 修 §3.2 的深度包络接线 | 见 §3.2 第三段：三条理由 |
+| ~~修 §3.2 的深度包络接线~~ | **第二趟做了**，见 §10。第一趟不做的三条理由里，②（会凭空填一个默认深度）是**真的**，所以第二趟绕开了那条接法 |
+| 给 `tip_policy.json` 加一格「深度边界」 | 见 §10.4：加一行请求 = 全表 +12 格，而「264 格」这句话要在四处改，两处在 `spec/deviations.md` 的 D-TIP-1 段落里 —— **本轮锚点之外** |
 | 动 `l0/index.ts` · `kernel/src/index.ts` · `gen-skill-specs.ts` 的 `BATCH_6A` · `export_skill_traces.py` 的 `BATCH_6A` 四个锚点 | **没有技能要注册**。四个锚点原样留着 |
 
 ---
@@ -414,6 +472,15 @@ readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
    **驱动器直调解析器**那条路。**没有一个技能把 `tip_lift_m` 送进去。**
    这是 green-8 三种形状之外的第四种：**闸有输入，但输入只来自测试**。
    判读规则：**问「生产路径上谁给它喂过值」，不是「它被测过没有」。**
+   第二趟接上之后那条变异从 25 涨到 28 —— **涨的那三条就是生产路径**（§4.1）。
+   ⇒ 可以更进一步：**一道闸的变异条数里，有几条是从真技能走进去的？**
+   全部来自驱动器时，它就还是这一型。
+
+4b. **「不写空壳」与「写了但没人送值」是同一个失败的两个方向。**
+   D-TIP-1 当年不写空壳 `validateParams` 的原话是「**写了会让人以为这道闸在**」；
+   而深度这一半是闸写实了、验过了、**却没有任何输入到得了它** —— 读的人一样会以为
+   它在（写第一趟交接的我就差点这么写）。两者都靠「谁在生产路径上喂它」来分辨，
+   而那件事**不在覆盖率里，也不在金样格数里**。
 
 5. **一份盘点的「差什么」有效期只到下一次合并为止。** `AutoTilt` 的四个
    `instrument_profile` 入口批 5c 落了、`FindFlatRegion` 的六个下层件分散在
@@ -435,16 +502,19 @@ readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
 
 * `spec/deviations.md` 批 6a 锚点 —— 2 条，**编号一律留空（`?`）**
 * `spec/golden/README.md` 批 6a 锚点 —— 专用驱动器加一行
-* `tools/mutate/mutations.ts` 批 6a 锚点 —— 2 条
+* `tools/mutate/mutations.ts` 批 6a 锚点 —— **6 条**（第一趟 2 + 第二趟 4）
 
 **四个锚点原样没动**（没有技能要注册）：`l0/index.ts`（三处）· `kernel/src/index.ts` ·
 `gen-skill-specs.ts` 的 `BATCH_6A` · `export_skill_traces.py` 的 `BATCH_6A`。
 
-**锚点之外动过的**（一个文件，请过一眼）：
+**锚点之外动过的**（四个文件，请过一眼）：
 
 | 文件 | 改了什么 | 为什么 |
 |---|---|---|
-| `packages/host/stm-skills/src/l0/tip-selfcheck.ts` | `FORGE_REQUIRED_SKILLS` 加四个、去一个；两处抬头注释 | §2。这是这一批唯一动了行为的一处，已登记 deviation |
+| `l0/tip-selfcheck.ts` | `FORGE_REQUIRED_SKILLS` 加四个、去一个；两处抬头注释 | §2，已登记 deviation |
+| `l0/tip-policy.ts` | **新增 `tipDepthRefusals()`**（+ 一大段抬头写清为什么不能塞进 `applyTipPolicy`） | §10，已登记 deviation |
+| `l0/readback-skills.ts` | `TipShapeWithReadback.validateParams` 多一行 `...tipDepthRefusals(params)` | §10 |
+| `l0/tip-shape.ts` | **新增 `validateParams`**（只做深度）；抬头加第 ④ 条 | §10.3：`tip_lift_m` 是调用方直接给的量，按本仓的规矩属于 K6 |
 
 **新文件**（无冲突面）：`tools/spec-export/export_tip_phase_deps.py` ·
 `spec/golden/tip_phase_deps.json` · `packages/host/stm-skills/src/l0/tip-phase-deps.test.ts`。
@@ -459,20 +529,125 @@ readback-tip-envelope-is-wired               red 2   ← 批 5a 记的是 1
 ```
 pnpm install --frozen-lockfile
 pnpm build && node scripts/gen-skill-specs.ts && node scripts/build-progress.ts
-npx vitest run --project '!integration'                       # 102 文件 / 5777 条
+npx vitest run --project '!integration'                       # 102 文件 / 5780 条
 STMSIM_PYTHON=D:\...\.venv-v2-py313\Scripts\python.exe \
 STMSIM_ROOT=<STMSIM_ROOT> \
   npx vitest run --project integration                        # 15 文件 / 86 条
 node tools/mutate/run.ts forge-required-covers-the-terrace-leveling \
-                         selfcheck-each-check-asks-its-own-chain   # 2/2 red，基线干净
+     selfcheck-each-check-asks-its-own-chain \
+     tipshape-readback-depth-goes-through-the-envelope \
+     tipshape-depth-goes-through-the-envelope \
+     tip-depth-is-judged-only-when-given tip-depth-boundary-is-exclusive  # 6/6 red
 D:\...\python.exe tools\spec-export\export_tip_phase_deps.py  # 两次逐字节相同
 ```
 
 ⚠️ **演练之前一定先跑 `pnpm build → gen:skills → gen:progress`**（第四判据，green-8 §3.4）。
-这一批跑之前跑过，`git status` 里生成物**零改变**。
+两趟跑之前都跑过，`git status` 里生成物**零改变**。
 
 **本段术语表**：*闭包* = 从一个 `plan_dynamic` 出发、顺着函数调用能到达的全部
 `CompositeStep`；*上界* = 这条流程**可能**发出去的子技能集合（分支可能让某一步这一趟
 不发，但不会多出来）；*封锁件* = 闭包里还没移植的子技能；*绑定约束* = 若干缺件里
 **最后一个**落地的那个（解开别的都不会让这条流程能跑）；*`optional=True`* = 这一步失败
 执行器不中止，流程拿着空结果继续判 —— 缺席时它比必需步骤更危险。
+
+---
+
+## 10. 深度包络接线（第二趟）—— **本仓比旧仓严的一条**
+
+§3.2 核出来的状态：深度那半道包络是实的、264 格验过、**而生产路径上没有任何输入
+到得了它**。主线看完之后决定接上，理由只有一条，也是 D-TIP-1 原话的反面 ——
+当年不写空壳 `validateParams` 是因为「**写了会让人以为这道闸在**」；
+现在的状态一模一样地坏，只是方向相反。
+
+### 10.1 接线长什么样
+
+```ts
+// l0/tip-policy.ts
+export function tipDepthRefusals(params: Readonly<Record<string, unknown>>): string[] {
+  const given = params['tip_lift_m']
+  if (typeof given !== 'number' || !Number.isFinite(given) || given >= 0) return []
+  return [...resolveConditioning(['shaper_depth_m'], { shaper_depth_m: given }).refusals]
+}
+```
+
+消费方两处，**同一个函数、同一层**：
+
+* `TipShapeWithReadback.validateParams` —— 在原有两个电压字段之后多一行；
+* `TipShape.validateParams` —— **本仓新增**（它原本没有 `validateParams`）。
+
+两个技能下发的是**同一串** `TipShaper_PropsSet` + `TipShaper_Start`。
+一个挡一个不挡，正是 D-TIPREG-3 那次不对称要防的事。
+
+### 10.2 三处刻意 —— 每一处都是「别把一道闸变成一次行为改变」
+
+**① 不塞进 `applyTipPolicy` 的 `policyFields`。** 那是最自然的接法，而
+`resolveConditioning` 对**没给**的字段会去方案表取值填进 `params`。
+后果不是多一道闸，是多一次**假拒绝**。旧仓实跑确认过那个填值：
+
+```
+resolve_conditioning(("shaper_depth_m",), {})
+  → params={'shaper_depth_m': -1e-09}   trace={'shaper_depth_m': 'factory_default'}
+```
+
+于是操作员把 `max_poke_depth_m` 覆写收到 0.5 nm 时，通用档出厂的 −1 nm 会让一次
+**根本没要求下压**的调用被拒 ——「出厂默认落在自己包络之外」那条路
+（`tippulse-refuses-before-planning` 钉着的，旧仓真出过）复活。
+
+⇒ 守卫是「**显式给出**才判」，而这道守卫**本身**由变异
+`tip-depth-is-judged-only-when-given` 钉着（那一格的输入就是那个 0.5 nm 覆写，
+没有它这道守卫永远轮不到做决定 —— 见 §4.2）。
+
+**② 只判下压那一半（`tip_lift_m < 0`）。** `tip_lift_m` 是有符号的方向量
+（负 = 压向表面，正 = 抬离），`shaper_depth_m` 的定义域是下压（方案表全表负数）。
+`checkEnvelope` 按绝对值比，是因为那个字段按构造就是负的 —— 不是在声明「抬起也危险」。
+
+⚠️ **与旧仓解析器的取值范围不同，说清楚**：旧仓 `resolve_conditioning` 拿
+`shaper_depth_m = +5e-8` 是**拒**的（实跑确认，见 §10.4）。但旧仓**从不把 `tip_lift_m`
+送进这个字段**，所以那边没有「一次抬离该不该被拒」这个问题 —— 这个问题是本仓这条
+接线新造出来的，答案由本仓给：一次抬离表面 50 nm 不会戳坏音叉，把它送进下压字段
+等于凭空多一条方案表从来没声明过的限制。
+**哪天有人用正向 `tip_lift_m` 做拉伸修针，这一条要重新想。**（测试里钉着。）
+
+**③ 装在 K6 而不是 `TipShape.execute`。** D-TIPREG-4 说 `TipShape` 的包络在 `execute`，
+理由是它那两个策略字段要先经过「方案表填不填」才知道最终值；**这一条不需要那一步**，
+所以按本仓自己的规矩（批 5a 原话：「它们的量是调用方直接给的，所以装在 K6」）
+它属于 K6 —— 而且那里比 `execute` 更早。`TipShape` 于是同时有 `validateParams`（深度）
+与 `execute` 里那一判（两个电压），抬头第 ④ 条写清了为什么分在两处。
+
+### 10.3 四条测试（`tip-phase-deps.test.ts`）
+
+| 测试 | 它问的 |
+|---|---|
+| 每一次扎入也经过深度那半道闸 | 两个孪生技能对 `tip_lift_m = −50 nm` 都给**同一条**拒绝，且文案与解析器**同源**（不自己写第二句话） |
+| 上限是「不许超」不是「不许到」 | −10 nm 放行、−10.000001 nm 拒 —— 这条 `>` 此前一格输入都没有 |
+| 没给 `tip_lift_m` 就什么都不判 | 覆写把包络收到 0.5 nm（⇒ 出厂默认此刻确实超了它自己的包络，这是**反面输入**），而没给深度的三种调用一个字都不说 |
+| 抬起不是下压 | `+50 nm` 不拒，附理由 |
+
+### 10.4 金样：这一格**进不了** `tip_policy.json`，而缺的那一格是什么
+
+分派单问「能不能在 `tip_policy.json` 里加一格『深度经由 `tip_lift_m` 进来』」。
+**不能** —— 那台驱动器驱动的是**解析层**，网格的键是方案表字段名；
+`tip_lift_m` 是**技能参数名**，`tip_lift_m → shaper_depth_m` 这条映射是本仓新增的，
+**旧仓没有对应行为可录**。判据本身（`shaper_depth_m` 超限的拒绝文案，逐字）
+已经由 `*/all_deep` 那 12 格录着。
+
+**真正还缺的一格是深度的边界**（正好等于上限）：金样里深度用例全在线两侧
+（−0.3 nm 过 / −1.2、−2、−5 nm 拒），线上一格没有。**这一批没有加它**，
+理由是加一行请求 = 全表 +12 格，而「264 格」这句话要在四处改，其中两处在
+`spec/deviations.md` 的 D-TIP-1 段落里 —— **本轮锚点之外**（分派单：共享文件只走批 6a 锚点）。
+
+代替做法：边界由**生产路径**钉住（§10.3 第二行），并对旧仓**实跑核过一次**：
+
+```
+-1e-08          ok=True   (no refusal)          ← 正好等于上限，放行
+-1.0000001e-08  ok=False  shaper_depth_m=-1.000e-08 m 的下压深度超出未登记针尖的
+                          通用档的上限 1.000e-08 m。拒绝执行。
+-5e-08          ok=False  （同上，-5.000e-08）
++5e-08          ok=False  ← 旧仓按绝对值拒；本仓这条接线不把抬起送进去（§10.2 ②）
+```
+
+两边一致（除了 `+5e-8` 那一格，那是本仓新造的问题，见 §10.2 ②）。
+⚠️ 注意第二行：`-1.0000001e-08` 的拒绝文案里那个数被 `%g` 抹平成 `-1.000e-08`，
+看起来和上限一模一样 —— 那是 **D-TIPREG-11** 记的同一件事，照移。
+
+**下一个动 `tip_policy.json` 的人请顺手补上 `shaper_depth_at_limit`。**

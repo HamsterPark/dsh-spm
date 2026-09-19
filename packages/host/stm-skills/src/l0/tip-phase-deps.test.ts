@@ -35,7 +35,12 @@ import {
   makeTipConditioningSelfCheck,
   makeTipForgeSelfCheck,
 } from './tip-selfcheck.js'
-import { resolveConditioning, setCurrentTip, type SkillContext } from 'dsh-spm-kernel'
+import {
+  processTipRegistry,
+  resolveConditioning,
+  setCurrentTip,
+  type SkillContext,
+} from 'dsh-spm-kernel'
 import { BiasPulseWithReadback, TipShapeWithReadback } from './readback-skills.js'
 import { TipShape } from './tip-shape.js'
 
@@ -192,26 +197,65 @@ describe('批 6a 的封锁账 —— 红了说明可以重开这一批', () => {
     }
   })
 
-  it('⚠️ **每一次扎入到不了深度那半道闸** —— 同一个数，一条路拒、一条路放行', () => {
-    // 要害 ③ 的后一半，而答案是「经不过」。
+  it('**每一次扎入也经过深度那半道闸** —— 两个孪生技能同一个函数、同一层（K6）', () => {
+    // 要害 ③ 的后一半。批 6a 第一趟核出来它**经不过**（登记成 D-TIPDEPTH）；
+    // 这一趟把它接上了 —— 接线与「为什么不能塞进 `applyTipPolicy`」见 `tipDepthRefusals`。
     //
     // 六条流程的扎入只有一个出口：`_poke_step` → `TipShapeWithReadback`，
     // 深度走 `tip_lift_m`（`_tip_phases.py:1815`，`tip_lift_m: -abs(depth_m)`）。
-    // 而那个技能的 `validateParams` 报给方案表的字段是 `shaper_bias_v` / `shaper_lift_v`
-    // —— **两个都是电压**。深度包络 `max_poke_depth_m` 认的键是
-    // `shaper_depth_m` / `poke_shallow_depth_m` / `poke_deep_depth_m`，一个都没送进去。
-    //
-    // 旧仓同样如此，而且旧仓自己的 `FIELD_OWNERS` 写着 `shaper_depth_m → ("TipShape",)`：
-    // **生产方接好了、消费方缺席**（同 `_tip_phases.py:2106` 那条 `exclude_used_spots`）。
-    // 登记在 `spec/deviations.md` 批 6a 那一节；这一批不改它。
     setCurrentTip(null)
-    const DEEP = -5e-8 // 50 nm：在声明范围 ±100 nm 之内，在通用档包络 10 nm 之外
-    expect(TipShapeWithReadback.validateParams?.({ tip_lift_m: DEEP })).toEqual([])
-    expect(TipShape.validateParams?.({ tip_lift_m: DEEP })).toBeUndefined()
-    // 而同一个数喂给解析器认得的那个键，它当场就拒 —— 判据本身是好的，接线不在。
-    const refused = resolveConditioning(['shaper_depth_m'], { shaper_depth_m: DEEP })
-    expect(refused.ok).toBe(false)
-    expect(refused.refusals.join('')).toContain('下压深度超出')
+    const DEEP = -5e-8 // 50 nm 下压：在声明范围 ±100 nm 之内，在通用档包络 10 nm 之外
+    for (const [name, skill] of [
+      ['TipShapeWithReadback', TipShapeWithReadback],
+      ['TipShape', TipShape],
+    ] as const) {
+      const got = skill.validateParams?.({ tip_lift_m: DEEP })
+      expect(got, name).toHaveLength(1)
+      // 文案逐字与解析器同源 —— 这一层不自己写第二句话。
+      expect(got, name).toEqual(
+        resolveConditioning(['shaper_depth_m'], { shaper_depth_m: DEEP }).refusals,
+      )
+    }
+  })
+
+  it('上限是「不许超」不是「不许到」—— 正好 10 nm 放行，多一点点就拒', () => {
+    // 深度那条 `>` 此前**一格输入都没有**：金样里的深度用例是 −0.3 nm（过）与
+    // −1.2 / −2 / −5 nm（拒），线上一格没有。变异 `tip-depth-boundary-is-exclusive` 钉着它。
+    setCurrentTip(null)
+    expect(TipShape.validateParams?.({ tip_lift_m: -1e-8 })).toEqual([])
+    expect(TipShape.validateParams?.({ tip_lift_m: -1.0000001e-8 })).toHaveLength(1)
+  })
+
+  it('**没给 `tip_lift_m` 就什么都不判** —— 不查表、不凭空造一个深度', () => {
+    // 这一条挡的是那个「最自然但错的」接法：把 `shaper_depth_m` 加进
+    // `applyTipPolicy` 的 `policyFields`。那样没给深度时方案表会**填一个进去**，
+    // 于是一次根本没要求下压的调用会被拒 —— 「出厂默认落在自己包络之外」那条路复活。
+    //
+    // 两侧输入齐了才验得到：把包络收到 **0.5 nm**（通用档出厂 `shaper_depth_m` 是 −1 nm）。
+    // 没有这个覆写，查不查表都得到同一个答案（空表），这道闸就永远轮不到它做决定。
+    setCurrentTip(null)
+    processTipRegistry.overrides = { max_poke_depth_m: 5e-10 }
+    try {
+      // 出厂默认此刻确实**超了**它自己的包络 —— 这是这一格的反面输入。
+      expect(
+        resolveConditioning(['shaper_depth_m'], {}).refusals.join(''),
+      ).toContain('下压深度超出')
+      // 而没给 `tip_lift_m` 的调用**一个字都不该说**。
+      expect(TipShape.validateParams?.({})).toEqual([])
+      expect(TipShapeWithReadback.validateParams?.({})).toEqual([])
+      expect(TipShape.validateParams?.({ bias_v: 0.02 })).toEqual([])
+    } finally {
+      processTipRegistry.overrides = {}
+    }
+  })
+
+  it('抬起不是下压 —— `tip_lift_m` 为正时这道闸没有话说', () => {
+    // `shaper_depth_m` 的定义域是下压（方案表全表负数）。`checkEnvelope` 按绝对值比，
+    // 是因为那个字段按构造就是负的；把一次**抬离表面 50 nm** 送进去，等于凭空多一条
+    // 方案表从来没声明过的限制。一次抬离不会戳坏音叉。
+    setCurrentTip(null)
+    expect(TipShape.validateParams?.({ tip_lift_m: 5e-8 })).toEqual([])
+    expect(TipShapeWithReadback.validateParams?.({ tip_lift_m: 5e-8 })).toEqual([])
   })
 
   it('`AssessClusterRoundness` 已经落了 —— 盘点说的那道闸**不是**还卡着的那一道', () => {
