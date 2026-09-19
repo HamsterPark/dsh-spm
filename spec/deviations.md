@@ -2964,7 +2964,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7a-2：编号**留空**（`?`），由主线统一编。 -->
 
-## D-MAP-? · `AnalysisConfig` 21 个字段里**只搬了 15 个**
+## D-MAP-1 · `AnalysisConfig` 21 个字段里**只搬了 15 个**
 
 | | |
 |---|---|
@@ -2980,7 +2980,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 名单写成 `ANALYSIS_CONFIG_FIELDS_NOT_PORTED` 而不是一句注释，是因为金样比字段集时
 要拿它去补：**一次静默的少写与一次说好的少写，在 diff 里长得一模一样。**
 
-## D-MAP-? · 写侧 `record_damage_marker` **没搬** —— 一笔点名的欠账
+## D-MAP-2 · 写侧 `record_damage_marker` **没搬** —— 一笔点名的欠账
 
 | | |
 |---|---|
@@ -2999,7 +2999,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 它必须和那个技能**同批** —— 否则 `map_known=true` 而地图永远是空的，
 而那正是这条链最难看出来的失效方式。
 
-## D-MAP-? · 地图读口的三态由**宿主**给，`storage.get_markers(...) or []` 移到适配器
+## D-MAP-3 · 地图读口的三态由**宿主**给，`storage.get_markers(...) or []` 移到适配器
 
 | | |
 |---|---|
@@ -3011,7 +3011,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 `or []` 那一步因此属于宿主适配器。**判据没有丢**：`available` 这个布尔的含义
 （「不知道」≠「干净」）一字未动，而它正是整条链的要害。
 
-## D-MAP-? · `state.snapshot()` 的 fail-soft 从内核挪到技能层
+## D-MAP-4 · `state.snapshot()` 的 fail-soft 从内核挪到技能层
 
 | | |
 |---|---|
@@ -3022,7 +3022,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 同一条保护，同一个位置（读那一刻），只是换了个函数。内核那一侧因此连
 `state_raises` 这条路径都不存在 —— 金样里那一格在 TS 侧等价于「没有 state」。
 
-## D-MAP-? · `crashMemoryMarkers` 读不到时的返回值，与「问过了、没有」**逐字节相同**
+## D-MAP-5 · `crashMemoryMarkers` 读不到时的返回值，与「问过了、没有」**逐字节相同**
 
 | | |
 |---|---|
@@ -3040,7 +3040,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 不该塞进一次移植里。（同形先例：`TipCrashSnapshot.since_s` 是本仓**加**的一个
 字段，那一次动的是一个旧仓没有的结构。）
 
-## D-MAP-? · `build_avoid_circles` 的圈数上限，对**损伤** marker 常常不生效
+## D-MAP-6 · `build_avoid_circles` 的圈数上限，对**损伤** marker 常常不生效
 
 | | |
 |---|---|
@@ -3053,7 +3053,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 等于「一个都不少画」——那是安全的那一侧。要修它，得先回答
 「400 个圈之后该怎么办」，而那不是这一批的题。
 
-## D-MAP-? · `center_zone_side_nm` 是一个**拧不动的旋钮**
+## D-MAP-7 · `center_zone_side_nm` 是一个**拧不动的旋钮**
 
 | | |
 |---|---|
@@ -3067,7 +3067,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 `nearest_clean_from` 的抬头写得很清楚：**改这两个数中的任何一个，都要回答
 「改完之后中心区里还剩几个落点？」答案是 1 或 0 的话，那不是一条约束，是一个死锁。**
 
-## D-MAP-? · marker 行的非数值列，本仓读作「没有这一列」
+## D-MAP-8 · marker 行的非数值列，本仓读作「没有这一列」
 
 | | |
 |---|---|
@@ -3079,7 +3079,7 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 窄的方向是安全的那一侧：**一个读不懂的坐标画不出避让圈，那正是它该有的下场** ——
 而旧仓那条路会在几十行之后以一句看不懂的 `TypeError` 结束。
 
-## D-MAP-? · `distance_m` 的最后一位 —— D-HYPOT-1 在这一族的落点
+## D-MAP-9 · `distance_m` 的最后一位 —— D-HYPOT-1 在这一族的落点
 
 | | |
 |---|---|
@@ -3101,7 +3101,7 @@ D-HYPOT-1 已经裁过这件事（保留 `Math.hypot`，登记差异）。这里
 容差 `4 · eps`（一个 ULP 的四倍）。它盖不住任何一次真的算错：这一族的错要么是
 **选错了点**（坐标就不一样了），要么是**量错了距离**（纳米级）。
 
-## D-MAP-? · `nanonis_calls` 那一栏不存在 ⇒「读针尖那一次不记账」这条区分没有落点
+## D-MAP-10 · `nanonis_calls` 那一栏不存在 ⇒「读针尖那一次不记账」这条区分没有落点
 
 | | |
 |---|---|
@@ -3109,7 +3109,7 @@ D-HYPOT-1 已经裁过这件事（保留 `Math.hypot`，登记差异）。这里
 | **TS** | `SkillResultLike` 没有这一栏 —— 调用台账由内核记（同 `RetractForSampleChange` 抬头） |
 | **测试** | `clean-spot.test.ts` → 每一格都断言**真正下发了什么**（`calls`），而不是回包里的那一栏 |
 
-## D-MAP-? · 三处「没有任何输入能验它」（照移、注明、**不打变异**）
+## D-MAP-11 · 三处「没有任何输入能验它」（照移、注明、**不打变异**）
 
 green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**变异清单里一条都没打**
 ——打了也永远绿，而那会让一条「闸不存在」混进 32 条真闸里。
