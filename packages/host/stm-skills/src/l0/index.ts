@@ -105,6 +105,13 @@ import { CLEAN_SPOT } from './clean-spot.js'
 // ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 import ──
 
 // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 import ──
+import { PAPER_REGION } from './paper-region.js'
+import { GridSTS } from '../composite/grid-sts.js'
+import { DemoScanAndSTS } from '../composite/demo-scan-and-sts.js'
+import { TrackDrift_ReferenceScan } from '../composite/drift-track.js'
+import { AcquireBiasImagingSeries } from '../composite/bias-imaging-series.js'
+import { MoveAtomTo } from '../composite/move-atom-to.js'
+
 import { ANALYSIS_FLAT_REGION } from './analysis-flat-region.js'
 import { BIAS_WIGGLE } from './bias-wiggle.js'
 import { ANALYSIS_TIP } from './analysis-tip.js'
@@ -227,6 +234,13 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 7b-2 在这一行下面展开 ──
 
   // ── 批 7b-3 在这一行下面展开 ──
+  ...PAPER_REGION,
+  GridSTS,
+  DemoScanAndSTS,
+  TrackDrift_ReferenceScan,
+  AcquireBiasImagingSeries,
+  MoveAtomTo,
+
   ...ANALYSIS_FLAT_REGION,
   ...BIAS_WIGGLE,
 

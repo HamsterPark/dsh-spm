@@ -1268,6 +1268,18 @@ const STAMP_RE = /(frame_ch\d+_dir\d+_)[0-9a-f]+(?=(?:_\d\d)?\.npy)/g
  * 抹掉 UTC 时刻与那 8 位随机，**留下技能名、后缀，以及「取第一个空名」的 `_NN`**。
  */
 const TRACE_STAMP_RE = /([A-Za-z0-9_]{1,40})_\d{8}T\d{6}Z_[0-9a-f]{8}(?=(?:_\d\d)?\.json)/g
+/**
+ * 批 7b-3：`TrackDrift_ReferenceScan` 第一趟采参考时落的
+ * `drift_ref_<毫秒>.npy`。同上两条，抹掉毫秒、**留下目录与命名模板** ——
+ * 而 `drift_ref_` 这个前缀是判据（路径要原样进 `message`，让调用方下一次带回来）。
+ *
+ * ⚠️ 这一条**只加在这一侧**，与上面两条不同。理由：导出脚本把墙钟钉死成
+ * `1_700_000_000.0`（`_fake_time`），于是金样那一侧的毫秒**本来就是常数**
+ * （重跑逐字节相同）；会变的只有 TS 这一侧的 `Date.now()`。而 `scrubPaths`
+ * 对 `want` 与 `got` **都跑一遍**（见 `stripVolatile`），所以一条规则就够，
+ * 两侧仍然落在同一个占位符上。
+ */
+const DRIFT_STAMP_RE = /(drift_ref_)\d+(?=\.npy)/g
 function scrubPaths(v: unknown): unknown {
   if (typeof v !== 'string') return v
   return v
@@ -1280,6 +1292,7 @@ function scrubPaths(v: unknown): unknown {
     .join('<project-root>')
     .replace(STAMP_RE, '$1<stamp>')
     .replace(TRACE_STAMP_RE, '$1_<stamp>')
+    .replace(DRIFT_STAMP_RE, '$1<stamp>')
 }
 
 /**

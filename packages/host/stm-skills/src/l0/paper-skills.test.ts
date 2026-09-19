@@ -41,6 +41,7 @@ import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-
 import { PAPER_DATA, STD_REL_TOL, xcorrErrorSqScale } from './paper-data.js'
 import { PAPER_IMAGE } from './paper-image.js'
 import { PAPER_CROP, statisticalDetect } from './paper-crop.js'
+import { PAPER_REGION, rlOutputRelTol } from './paper-region.js'
 import { makeLoadScanFrameFromFile, ParseRegions, ComputeDriftVector } from './scan-frame-offline.js'
 import { loadImage2d } from './paper-common.js'
 
@@ -58,6 +59,10 @@ const SKILLS = (): Record<string, Skill> => ({
   ...PAPER_DATA,
   ...PAPER_IMAGE,
   ...PAPER_CROP,
+  // 批 7b-3 的四个走**同一张金样、同一套夹具** —— 它们与批 4c 那九个
+  // 是同一个形状（吃路径、`context` 收下不用、产物是几个标量加一张 `.npy`），
+  // 再造一份 `realPath`/`normalize`/`expectOutput` 只会让两份实现日后分岔。
+  ...PAPER_REGION,
   ParseRegions,
   ComputeDriftVector,
   LoadScanFrameFromFile,
@@ -156,6 +161,12 @@ function tolFor(path: string, key: string): number {
   }
   if (p === '.data.plane_coefficients') return lstsqRelTol(COND['plane_32x32'] as number)
   if (p === '.data.tolerance') return 0
+  // ── 批 7b-3 ──
+  // `rms_improvement = (1 − after/before)·100` —— 一次除法一次减法，
+  // 两个 RMS 各带 `STD_REL_TOL`，所以这一条取两倍。
+  if (p === '.data.rms_improvement') return 2 * STD_REL_TOL(32 * 32)
+  // `class_areas` 是**整数除整数**（像素数 / 总数），两侧同一次除法 ⇒ 0。
+  // `positions` 是整数与半整数的质心，`iterations_used` 是收敛判据数出来的轮数 ⇒ 都是 0。
   return 0
 }
 
@@ -253,7 +264,20 @@ const OUTPUT_TOL: Record<string, (key: string) => number> = {
   AutoCrop_UnscannedRegion: () => 0,
   // 可分离高斯：两轴各一次一维相关，照抄了 scipy 的轴序与累加顺序。
   Denoise_AE: () => 16 * Number.EPSILON,
+  // ── 批 7b-3 ──
+  // 差图是 `a − b`，两个数都是从**同一批字节**读出来的 float64 ⇒ 一次减法 ⇒ **0**。
+  DiffScans_ChangeDetect: () => 0,
+  // RL：每轮两次卷积，旧仓走 FFT、本仓直接算。容差从 PSF 的抽头数与轮数推，
+  // 两者都从金样里取（`rl_facts.psf_shape` + 实际跑到的 `iterations_used`）。
+  DeconvolveTip_RL: (key) => {
+    const f = RL_FACTS[key]
+    if (f === undefined) throw new Error(`rl_facts 里没有 ${key} —— 容差算不出来`)
+    return rlOutputRelTol((f.psf_shape[0] as number) * (f.psf_shape[1] as number), f.changes.length)
+  },
 }
+
+/** RL 每一轮的 `change` 与 PSF 形状 —— 导出器算的，容差与「余量够不够」都从它来。 */
+const RL_FACTS = GOLDEN['rl_facts'] as Record<string, { psf_shape: number[]; changes: number[] }>
 
 /** 这一格的**输入**有多大 —— 拟合误差按它走（见 `expectOutput` 的抬头）。 */
 function inputScale(params: Record<string, unknown>): number {
@@ -286,6 +310,8 @@ describe('批 4c —— 技能级差分（逐格对旧仓）', () => {
     'SubtractPlane_RANSAC', 'LevelLines_Median', 'FindEmptySpot', 'CorrectDrift_XCorr',
     'SubtractPoly2D', 'Destripe_MorphOpen', 'AutoCrop_UnscannedRegion', 'Denoise_AE',
     'DetectAtomJump', 'LoadScanFrameFromFile', 'ParseRegions',
+    // ── 批 7b-3 ──
+    'DiffScans_ChangeDetect', 'DeconvolveTip_RL', 'SegmentRegion_UNet', 'DetectAtoms_FCN',
   ] as const) {
     describe(name, () => {
       const rows = GOLDEN['skills'][name] as any[]

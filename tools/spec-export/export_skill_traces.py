@@ -489,7 +489,33 @@ BATCH_7B_2: list[str] = []
 
 
 #: ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
-BATCH_7B_3: list[str] = []
+BATCH_7B_3: list[str] = [
+    # 甲 · 五个组合技能。通用驱动器喂常数回包、子技能一律
+    # `success=True, data={}` —— 于是这里录到的是**调用序列与报文**，
+    # 碰不到各自的判据。五个的主判据在 `spec/golden/batch7b3.json`
+    # （那一台自己摆子技能的返回，见它的抬头）。
+    #
+    # 这一路仍然值钱：它是**另一套夹具**对同一份移植的交叉核对，
+    # 而且它录到的恰好是每个技能「子技能什么都不说」时的形状 ——
+    #   GridSTS                  —— 全成功（`data={}` 不妨碍计数）
+    #   DemoScanAndSTS           —— 同上，wait 那一步的 `data={}` ⇒ `scan_completed=True`
+    #   TrackDrift_ReferenceScan —— 第一趟采参考：抓帧走的是**裸** `Scan_FrameDataGrab`
+    #   AcquireBiasImagingSeries —— `GetBias` 回 `{}` ⇒ 每一帧都落「偏压没跟上：…读回 None」
+    #   MoveAtomTo               —— 读回全空 ⇒ prior 走缺省，verify 无 verdict
+    "GridSTS",
+    "DemoScanAndSTS",
+    "TrackDrift_ReferenceScan",
+    "AcquireBiasImagingSeries",
+    "MoveAtomTo",
+    # 乙 · 四个 paper 纯函数。只读磁盘上的图，一次 TCP 都不发 ⇒ 这里录到的是
+    # 「文件不存在」那一支（同批 4a/4c/6b/6c —— `_params_for` 给不出真实路径）。
+    # **那仍然是一条判据**（外壳在碰任何东西之前先拒），
+    # 主判据在 `spec/golden/paper_data.json` 的 `skills` 节（喂真的合成字节）。
+    "DiffScans_ChangeDetect",
+    "DeconvolveTip_RL",
+    "SegmentRegion_UNet",
+    "DetectAtoms_FCN",
+]   # composite 零新原语五个 + paper 四个纯函数
 
 BATCH_7A_3: list[str] = [
     # 读磁盘上的 .sxm，一次 TCP 都不发 ⇒ 这里录到的是「文件不存在」那一支
@@ -1446,7 +1472,13 @@ def main() -> int:
                  # ↑ ／ ↓ 7A-2
                  + BATCH_7A_2
                  # ↑ ／ ↓ 7A-3
-                 + BATCH_7A_3):
+                 + BATCH_7A_3
+                 # ↑ ／ ↓ 7B-1
+                 + BATCH_7B_1
+                 # ↑ ／ ↓ 7B-2
+                 + BATCH_7B_2
+                 # ↑ ／ ↓ 7B-3
+                 + BATCH_7B_3):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)
