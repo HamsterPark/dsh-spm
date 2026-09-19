@@ -288,8 +288,10 @@ export const FindFlatRegion: Skill = {
     if (!existsSync(scanPath)) return fail(`scan_path not found: ${scanPath}`)
     // ⚠️ **第二个参数显式给路径**：这个技能的金样里那句报错印的是文件名
     // （`… Cannot find header end marker in <tmp>/not_sxm.sxm`），而 `loadSxm` 的
-    // 缺省是 `readSxm` 自己的字面量 `<sxm>`。两种都不是错 —— 批 4a/4c/6b/6c 的
-    // 金样里印的确实是 `<sxm>`，改缺省会让它们整排变红，而变的是**模型读的那句话**。
+    // 缺省是 `readSxm` 自己的字面量 `<sxm>`。⚠️ **2026-09-20 订正**：这里原写
+    // 「批 4a/4c/6b/6c 的金样里印的确实是 `<sxm>`」—— **不成立**，`<sxm>` 在
+    // `spec/golden/` 里零命中。真正的理由（10/12 个调用点吃缺省而没有一格金样看着）
+    // 写在 `analysis-common.ts` 的 `loadSxm` 抬头。
     // ⇒ **两侧金样各自是事实，而「可选参数」是唯一能同时容下它们的形状。**
     // （2026-09-20 三条支线合并时定的：7a-3 想改缺省、7a-1 想做成可选，金样判了后者。）
     const load = loadSxm(scanPath, scanPath)

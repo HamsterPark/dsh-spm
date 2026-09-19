@@ -246,7 +246,7 @@ MUTATE=1 node tools/mutate/run.ts <42 个 id>
 |---|---|---|
 | `kernel/src/si.ts` | 追加 `formatSiReadable` + `pyFloat` | `diverged` / `not_converged` 那两句话逐字要它；放进 `si.ts` 而不是另开一个文件，理由是「一族里的成员各自为政，第六个和第七个就会互相拆台」 |
 | `kernel/src/instrument-profile.ts` | 加 `processInstrumentProfile.write` + `setTiltCalibration`；`CONFIG_SPEC` 加 `z_range_m` / `tilt_limit_deg` | 该文件 `TILT_CAL_MAX_COND` 的抬头自己写着「写入侧接上来的那天，拒写闸要用同一个常量」。那两个配置键从 `ablated_keys` 移进来，是因为**它们现在有消费方了** |
-| `l0/analysis-common.ts` | `loadSxm` 多一个**可选** `what` | 旧仓 `read_sxm(path)` 报错印路径；缺省不变（改缺省会让四个批的报文整排变红） |
+| `l0/analysis-common.ts` | `loadSxm` 多一个**可选** `what` | 旧仓 `read_sxm(path)` 报错印路径；缺省不变。⚠️ **2026-09-20 订正**：括号里原写「改缺省会让四个批的报文整排变红」——**不成立**，`<sxm>` 在 `spec/golden/` 里零命中。真正的理由见 `analysis-common.ts` 抬头 |
 
 ### 7.5 改了三个共享**测试**文件（都在它们自己的机制里）
 
