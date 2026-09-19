@@ -27,9 +27,19 @@ r"""z(t) 跳变判定 —— **逐格驱动旧仓 `mast/io/z_trace.py` 的真实
 from __future__ import annotations
 
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
+
+# 旧仓是**只读规格书**。`project_root()` 读不到 MAST2_PROJECT_ROOT 就退回仓根 ——
+# 于是任何一处 `_save_*` / 缓存 / 日志都会落进旧仓。这台导出器 import 的是
+# `mast.io.z_trace` 与 `tip_shaper_readback`，**41 台里唯独它裸着 import 而没钉**
+# （2026-09-19 核出来的；另三台没钉是因为它们根本不 import mast）。
+# 补上之后实测重跑逐字节相同 —— 也就是说这道钉子今天什么都没挡住，
+# **而它存在的理由正是「今天没挡住」不等于「明天不会」。**
+os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-z-trace-"))
 
 MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
 REPO = Path(__file__).resolve().parents[2]
