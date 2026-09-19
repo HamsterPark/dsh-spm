@@ -156,6 +156,10 @@ export function pyFixed(v: number, digits: number): string {
 以为有坑」的挡板**。已在 `D-LANG-3` 里写成一条点名的欠账：
 **下一个动 `vision/scan-prep.ts` 的人请顺手撤掉那两行连同上面那段注释。**
 
+> 订正（2026-09-19 当天晚些时候）：**已撤，D-LANG-3 结清**。另两处：撤掉的是**冗余**
+> 不是「恒假」（`-0` 照样走进去，只是两条路输出相同）；`l0/scan-prep-skills.ts` 那边
+> 是 **15 处**调用不是十处。
+
 ### 1.6 还剩一处已知分岔（**没修**，出了这条的范围）
 
 `|v| ≥ 1e21` 时 `toFixed` 按 ECMA-262 回 `ToString(v)`（`'1e+21'`），CPython 印完整展开。
