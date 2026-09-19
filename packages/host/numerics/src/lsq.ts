@@ -9,7 +9,7 @@
  * > 同一份 `n=256, deg=3` 的数据上系数相对差 `5e−9`（不是最后一位），
  * > 退化输入上一个回解、一个抛。`export *` 撞名，而统一成一份会同时改动
  * > `spec/golden/numerics.json` 与 `spec/golden/scan_prep.json`。
- * > 详见 `docs/handoff/move-home.md` 与 `spec/deviations.md` 的 `D-LSQ-?`。
+ * > 详见 `docs/handoff/move-home.md` 与 `spec/deviations.md` 的 `D-LSQ-1`。
  *
  * ## 为什么不用 `solveNormalEquations`
  *
