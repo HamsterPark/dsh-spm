@@ -136,6 +136,38 @@ exp_map        MapMarker 79 · epoch_of_row 8 · markers_from_rows 6            
 
 ⚠️ 批 5a 记过「三个自检技能里两个是 fail-open」，移之前核这两个在不在那个名单上。
 
+### 4.2 `AssessShockleyOnset` 在旧仓**每条成功路径都炸**
+
+`builtins` 盘点报的，我逐行复核过：
+
+```
+tip_spectro_assess.py
+   151  def execute(...)            ← AssessShockleyOnset.execute 开始
+   236      "reasons":  list(res.reasons)  + extra_reasons,
+   237      "warnings": list(res.warnings) + extra_warnings,
+   242  （execute 结束）
+   263  class AssessAtomicPhase(BaseSkill):
+   318      def execute(...)
+   405          extra_reasons = ["incomplete_frame"] if incomplete else []   ← 唯一的赋值
+```
+
+`extra_reasons` / `extra_warnings` 全文件**只在 405 行赋值**，而那在**另一个类的另一个方法**里。
+`AssessShockleyOnset.execute` 的 151–242 之间**一处赋值都没有**（核过）。
+⇒ 凡是走到 236 行的路径 —— 也就是**每一条成功路径** —— 必然 `NameError`。
+
+**这件事决定了这个技能怎么验收**，和 §8.2 那三个 STS 技能是同一个形状：
+
+- **造不出「成功」那一格金样。** 旧仓根本产不出那个回包。
+  硬造一格，造出来的是本仓自己发明的行为，不是规格。
+- 按 DoD ⑤ **不照抄**。但这里比普通的「不照抄」多一步：
+  `AssessAtomicPhase` 那一侧的 `extra_reasons` 语义是「帧不完整就记一条 `incomplete_frame`」，
+  **而 Shockley onset 这一侧没有对应的输入** —— 照搬那个语义是猜。
+  ⇒ **登记里要写的不是「我们修好了」，是「这两行想表达什么，旧仓没有说」。**
+
+⚠️ 这条还改了一件事：`AssessShockleyOnset` 挡着 `MakeSpectroscopyTip`。
+**它在旧仓从来没有成功过**，所以那条流程的「成功」端在规格书里是空的。
+移它之前先答一句：**那条流程的验收，验的是它拒绝得对，还是它采到了什么？**
+
 ### 4.1 `BiasWiggle` 缺的那件：`SafeCall` 的**中止清理通道**
 
 `bias_wiggle.py:25` / `:116` 的纪律：超过 `abort_current_a` **立即恢复初始偏压并中止**，
