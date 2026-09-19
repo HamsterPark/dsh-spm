@@ -74,6 +74,10 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的驱动器写在这一行下面 ── -->
 
+| 文件 | 导出器 | 为什么要单开一台 |
+|---|---|---|
+| `batch6c.json` | `export_batch6c.py` | 四个技能**一次 Nanonis 调用都不发**：两个读 `.sxm`、两个读 `.dat`。通用驱动器的 `_params_for` 给不出真实路径 ⇒ 它们在 `skill_traces.json` 里只录得到「文件不存在」那一支。这一份自己合成字节（闭式、零随机数）再喂进旧仓四个技能，外加九节判据本体（`_edge_resolution` / `_fwd_bwd_instability` / `assess_iz` / `assess_iv` / `sader_jarvis` / `invert_force_curve` / 多帧一致性）。**`polyfit` 的条件数与解向量分量比随每一格录** —— 容差要用它们 |
+
 
 通用轨迹金样喂的是**常数回包**，于是一整族判据可能一格都没被走到。
 **格数只决定走了几遍同一条路，驱动器才决定能走到哪条路。**

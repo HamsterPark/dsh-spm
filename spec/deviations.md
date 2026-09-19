@@ -2804,3 +2804,98 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 <!-- ── 批 6b（vision 的 scan_prep 链）的登记写在这一行下面 ── -->
 
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的登记写在这一行下面 ── -->
+
+## D-FORCE-? · `InvertForceSaderJarvis` **真的把 F(z)/U(z) 落盘**（旧仓那一份从没落过）
+
+| | |
+|---|---|
+| **Python** | `_save_curve` 里写的是 `from mast.core._runtime_paths import project_root` —— **那个模块不存在**（全仓另外十几处写的都是 `mast._runtime_paths`）。外面套着 `except Exception: return None` ⇒ `curve_path` **恒为 `None`** |
+| **TS** | 真的写 `<curveDir>/<stem>_force.json`，`curve_path` 带着它 |
+| **测试** | `l0/batch6c-skills.test.ts` → 「F(z)/U(z) **真的落了盘**，而路径进回包」（读回文件、比点数、确认 `data` 里**没有**曲线本身） |
+
+按 DoD ⑤「KNOWN_ISSUES 里的缺陷判据不照抄」。这不是风格差异：`data` 里**只有** `curve_path`，
+没有 `z_m` / `force_n` / `energy_ev` —— 也就是说这个技能唯一的产品（那条力曲线）在旧仓里
+**一次都没有产出过**，而调用方拿到的是一份看起来完整、只是没有曲线的报告。
+
+⚠️ 顺带一条**目录的**差异：旧仓的根是 `project_root()`（`MAST2_PROJECT_ROOT` 或仓根），
+本仓是 `process.cwd()/artifacts/force_inversion`，并按 `frames.ts` / `readback-stream.ts` 的既有体例
+留了一个注入口（`makeInvertForceSaderJarvis({ curveDir })`）。金样两侧都归一成 `<artifacts>`。
+
+## D-FORCE-? · `ForceInversionResult.notes` 不实现
+
+| | |
+|---|---|
+| **Python** | dataclass 上有一个 `notes: dict`，**恒为 `{}`** |
+| **TS** | 没有这个字段 |
+| **测试** | `l0/batch6c-units.test.ts` 的 `withoutNotes()` —— 比对前从金样里摘掉 |
+
+消融精神：技能层一个字段都不读它，而它从来没有被写过。
+
+## D-FORCE-? · `forward_df` 的**小振幅极限**那一支不实现，改成抛
+
+| | |
+|---|---|
+| **Python** | `a < 1e-13` 时走有限差分的 `−f₀/(2k)·F′` |
+| **TS** | 抛 `RangeError`，消息里说明为什么 |
+| **测试** | 无 —— **它没有输入**（见下） |
+
+`amplitude_m` 的声明下界就是 `1e-13`，另外两条来源（`.dat` 头 / 振幅列）都要
+`1e-13 < v < 1e-8` ⇒ 从这个技能出发**无论如何走不到**那一支。
+要验它需要什么：一格 `a ≤ 1e-13` 的入参，而且那一格的答案要与本式在 `a → 0` 的极限**不同**
+（否则两种候选分不开）。在那之前，一条抛出来的 `RangeError` 比一段没人验的分支诚实。
+
+## D-SHARP-? · 没有像素标度时 `verdict` 报 `no_step`，而同一格的 `has_step` 是 `true`
+
+| | |
+|---|---|
+| **Python** | `verdict` 只看 `edge_resolution_nm`，而那一项需要标度；`has_step` 看的是 `nm` **或** `px` |
+| **TS** | **照移** |
+| **测试** | `l0/batch6c-skills.test.ts` → 「没有像素标度时 `verdict` 报 `no_step`，**而 `has_step` 是 true**」 |
+
+**照移未改**：同一格里两句话互相矛盾（`edge_resolution_px` 是个数、`has_step` 是 true、
+而 `verdict` 说「这张图里没有清晰台阶」）。改掉的正是模型读的那一句 ——
+统一成一种写法会让金样里那条报文对不上，而那条报文是这个技能的产品。
+写在这里是为了让它**看得见**：读 `verdict` 的下游在无标度的帧上会得到一个假的否定。
+
+## D-LATTICE-? · `_UNUSABLE_REASONS` 里的 `"too_small"` **永远匹配不上**
+
+| | |
+|---|---|
+| **Python** | `lattice_multiframe._UNUSABLE_REASONS` 含 `"too_small"`，而 `find_lattice_peaks` 报的是 `"image_too_small"` |
+| **TS** | **照移**（`UNUSABLE_REASONS` 逐字相同） |
+| **测试** | `l0/batch6c-units.test.ts` → 「`半帧 NaN` 走的是 `incomplete_frame` —— 而 `image_too_small` **落不进** `UNUSABLE_REASONS`」 |
+
+两个串对不上 ⇒ 一帧「太小」被算成**可用帧上没有晶格**，也就是算成了「这个晶格是假的」
+那一侧的证据。而那张四态表存在的全部理由，就是把「帧用不了」与「帧可用但没有晶格」分开。
+
+照移，因为改它会**同时**改掉下游那四个态的分布，而金样里 `absent` / `undetermined` 两格
+正是按现在这个分法录的。哪天改，要连同「下游的四态表跟着变了吗」一起问。
+那条测试就是为这一天留的：它一红，先问那个问题。
+
+## D-NUM-? · `np.gradient(y, x)`：**间距恰好相等就退回标量分支**
+
+| | |
+|---|---|
+| **numpy** | 进函数前先 `if (diff(x) == diff(x)[0]).all(): dx = diff(x)[0]`（源码注释写的是「a consistent speedup」） |
+| **TS** | **照抄那一条**（`calculus.ts` 的 `uniform` 分支） |
+| **测试** | `numerics.test.ts` → 「五格**逐位**等于 numpy（容差 0）」的 `uniform` 那一格 |
+
+它换的**是算法不是速度**：标量分支算 `(f[i+1] − f[i−1]) / (2·dx)`，非均匀分支算
+`a·f[i−1] + b·f[i] + c·f[i+1]`，两者数学相等、浮点差一两个 ulp。
+本仓第一版没写这一条，`calculus.gradient.uniform` 当场红在最后一位上 ——
+**而只有等距那一格分得开**（非等距的格上两条分支给的是完全不同的数，错了一眼看出来）。
+
+这不是「与 numpy 不同」，是「与 numpy 相同**所以必须照抄一个看起来像优化的分支**」。
+登记在这里，是因为下一个人很容易把它当成冗余删掉。
+
+## D-NUM-? · `np.corrcoef` **给不出零容差**（`np.dot` 走 BLAS）
+
+| | |
+|---|---|
+| **numpy** | `cov` 里那次 `X @ Xᵀ` 走 BLAS，累加顺序不是成对 |
+| **TS** | 走 {@link npSum}（成对），容差 `corrcoefAbsTol(n) = 8·sumRelTol(n)`，**绝对** |
+| **测试** | `numerics.test.ts` → 「六格对 numpy」+ 三条**结构性**断言（自相关恰好 1、反相关恰好 −1、平移不改） |
+
+与 `pairwise.ts` 那一族的分界就在这里：**累加顺序照抄得了的给 0，照抄不了的给界**。
+容差写成绝对是因为这个量落在 `[−1, 1]` 而且近零的 `r` 是相消的结果 ——
+相消毁掉相对精度、不毁绝对精度。

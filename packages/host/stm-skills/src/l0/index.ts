@@ -88,6 +88,9 @@ import { BatchRegionsScan } from '../composite/batch-regions-scan.js'
 // ── 批 6b（vision 的 scan_prep 链）在这一行下面加 import ──
 
 // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面加 import ──
+import { ANALYSIS_TIP } from './analysis-tip.js'
+import { ANALYSIS_FORCE } from './analysis-force.js'
+import { ANALYSIS_MULTIFRAME } from './analysis-multiframe.js'
 import { CALIBRATIONS } from './calibrations.js'
 import { RetractForSampleChange } from '../composite/retract-for-sample-change.js'
 import { RelocateCoarseXY } from '../composite/relocate-coarse-xy.js'
@@ -192,6 +195,9 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   // ── 批 6b 在这一行下面展开 ──
 
   // ── 批 6c 在这一行下面展开 ──
+  ...ANALYSIS_TIP,
+  ...ANALYSIS_FORCE,
+  ...ANALYSIS_MULTIFRAME,
   ...CALIBRATIONS,
   RetractForSampleChange,
   RelocateCoarseXY,
@@ -300,6 +306,13 @@ export * from '../composite/batch-regions-scan.js'
 // ── 批 6b 在这一行下面 re-export ──
 
 // ── 批 6c 在这一行下面 re-export ──
+export * from './vision-tip-metrics.js'
+export * from './vision-spectroscopy.js'
+export * from './vision-force-inversion.js'
+export * from './vision-lattice-multiframe.js'
+export * from './analysis-tip.js'
+export * from './analysis-force.js'
+export * from './analysis-multiframe.js'
 export * from './calibrations.js'
 export * from '../composite/z-settle.js'
 export * from '../composite/tip-evidence.js'

@@ -37,9 +37,13 @@ import {
   Xoshiro128,
   boundaryIndex,
   convRelTol,
+  corrcoef,
+  corrcoefAbsTol,
   correlate2d,
   correlate2dRelTol,
   crossSE,
+  gradient1d,
+  trapezoid,
   curveFit,
   decodeNpy,
   fft,
@@ -1358,5 +1362,87 @@ describe('numpy 的 PCG64', () => {
   it('种子必须是非负整数 —— 负数 / 小数**抛**，不悄悄取整', () => {
     expect(() => Pcg64.fromSeed(-1)).toThrow(/非负整数/)
     expect(() => Pcg64.fromSeed(1.5)).toThrow(/非负整数/)
+  })
+})
+
+// ──────────────────────────────────────────────────────────────────────────
+// 批 6c 追加：np.gradient(y, x) / np.trapezoid / np.corrcoef
+// ──────────────────────────────────────────────────────────────────────────
+
+describe('np.gradient(y, x) —— 非均匀分支，edge_order=1', () => {
+  it('五格**逐位**等于 numpy（容差 0）', () => {
+    for (const c of golden['calculus'].gradient as any[]) {
+      const x = (c.x as unknown[]).map(num)
+      const y = (c.y as unknown[]).map(num)
+      // 不是 `toBeCloseTo`：这一族的判据是「照抄了那三个系数与相加的顺序」，
+      // 而那是一个是非题（同 `pairwise`）。
+      expect([c.case, [...gradient1d(y, x)]]).toEqual([c.case, (c.grad as unknown[]).map(num)])
+    }
+  })
+
+  it('长度不等 / 少于两个点**抛**', () => {
+    expect(() => gradient1d([1, 2, 3], [0, 1])).toThrow(/长度不等/)
+    expect(() => gradient1d([1], [0])).toThrow(/至少要 2 个点/)
+  })
+})
+
+describe('np.trapezoid(y, x)', () => {
+  it('四格**逐位**等于 numpy（容差 0）', () => {
+    for (const c of golden['calculus'].trapezoid as any[]) {
+      if (c.case === 'cancelling') continue
+      const x = (c.x as unknown[]).map(num)
+      const y = (c.y as unknown[]).map(num)
+      expect([c.case, trapezoid(y, x)]).toEqual([c.case, num(c.integral)])
+    }
+  })
+
+  it('**「照抄累加顺序」不能拿普通数据来证** —— 一格必然分岔的', () => {
+    // 301 项、量级横跨 1e16：顺序累加与成对求和给不同的答案。
+    // 判据是「离成对的那个近（逐位）、离顺序的那个远」。
+    const c = (golden['calculus'].trapezoid as any[]).find((r) => r.case === 'cancelling')
+    const x = (c.x as unknown[]).map(num)
+    const y = (c.y as unknown[]).map(num)
+    expect(num(c.naive_sequential)).not.toBe(num(c.integral))
+    expect(trapezoid(y, x)).toBe(num(c.integral))
+  })
+
+  it('少于两个点回 0（同 numpy：空的差分数组求和是 0）', () => {
+    expect(trapezoid([], [])).toBe(0)
+    expect(trapezoid([7], [1])).toBe(0)
+    expect(() => trapezoid([1, 2], [0])).toThrow(/长度不等/)
+  })
+})
+
+describe('np.corrcoef(a, b)[0,1]', () => {
+  it('六格对 numpy —— 容差 `corrcoefAbsTol(n)`（**绝对**，这个量落在 [−1,1]）', () => {
+    for (const c of golden['calculus'].corrcoef as any[]) {
+      const a = (c.a as unknown[]).map(num)
+      const b = (c.b as unknown[]).map(num)
+      const got = corrcoef(a, b)
+      const want = num(c.r)
+      if (Number.isNaN(want)) {
+        // 一侧方差为 0 ⇒ nan，**不是 0**：「相关性无从谈起」和「不相关」是两句话。
+        expect([c.case, Number.isNaN(got)]).toEqual([c.case, true])
+        continue
+      }
+      expect(Math.abs(got - want) <= corrcoefAbsTol(c.n as number) || `${c.case}: ${got} vs ${want}`).toBe(true)
+    }
+  })
+
+  it('三条**结构性**断言 —— 它们不看金样，所以容差在这里是 0', () => {
+    const c = (golden['calculus'].corrcoef as any[]).find((r) => r.case === 'identical')
+    const a = (c.a as unknown[]).map(num)
+    // ① 自己和自己 ⇒ 恰好 1（**最后那次 clip 就是为它存在的**）
+    expect(corrcoef(a, a)).toBe(1)
+    // ② 和自己的相反数 ⇒ 恰好 −1
+    expect(corrcoef(a, a.map((v: number) => -v))).toBe(-1)
+    // ③ 加一个常数不改相关性（**中心化**那一步就是为它存在的）。
+    const shifted = a.map((v: number) => v + 1000)
+    expect(Math.abs(corrcoef(shifted, a) - 1)).toBeLessThanOrEqual(corrcoefAbsTol(a.length))
+  })
+
+  it('长度不等抛；少于两个点回 NaN', () => {
+    expect(() => corrcoef([1, 2, 3], [1, 2])).toThrow(/长度不等/)
+    expect(Number.isNaN(corrcoef([1], [2]))).toBe(true)
   })
 })

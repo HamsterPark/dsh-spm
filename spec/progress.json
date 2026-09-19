@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 411,
+    "done": 415,
     "partial": 0,
-    "todo": 104
+    "todo": 100
   },
-  "modules_complete": 88,
+  "modules_complete": 91,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -51,7 +51,7 @@
     },
     "builtins.atomic_multiframe": {
       "total": 2,
-      "done": 0,
+      "done": 1,
       "complete": false
     },
     "builtins.barrier_height": {
@@ -216,8 +216,8 @@
     },
     "builtins.force_inversion": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.frame_corrugation": {
       "total": 1,
@@ -526,8 +526,8 @@
     },
     "builtins.tip_from_spectrum": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_shaper": {
       "total": 1,
@@ -541,8 +541,8 @@
     },
     "builtins.tip_sharpness": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.tip_spectro_assess": {
       "total": 2,
@@ -1050,11 +1050,11 @@
       "module": "builtins.atomic_multiframe",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessAtomicLines": {
       "module": "builtins.atomic_lines",
@@ -1190,21 +1190,21 @@
       "module": "builtins.tip_from_spectrum",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessTipSharpness": {
       "module": "builtins.tip_sharpness",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessTip_ResNet": {
       "module": "paper.tip_assessment",
@@ -3620,11 +3620,11 @@
       "module": "builtins.force_inversion",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "LevelLines_Median": {
       "module": "paper.data_processing",

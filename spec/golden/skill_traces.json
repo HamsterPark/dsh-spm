@@ -2647,6 +2647,20 @@
       }
     }
   },
+  "AssessAtomicConsistency": {
+    "params": {
+      "scan_paths": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "至少要两帧。单帧请用 AssessAtomicResolution —— 它给的是「这一帧像不像晶格」，不是「这个晶格是不是真的」。",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AssessAtomicLines": {
     "params": {},
     "traces": {
@@ -2915,6 +2929,34 @@
     }
   },
   "AssessScanTexture": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessTipFromSpectrum": {
+    "params": {
+      "dat_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
+  "AssessTipSharpness": {
     "params": {
       "scan_path": "spec-export"
     },
@@ -44016,6 +44058,20 @@
         "error": "",
         "success": true,
         "summary": "Z 已回到 home（当前 Z = 2.500e-01 m）"
+      }
+    }
+  },
+  "InvertForceSaderJarvis": {
+    "params": {
+      "dat_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
       }
     }
   },
