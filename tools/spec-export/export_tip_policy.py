@@ -118,6 +118,15 @@ REQUESTS: dict[str, tuple[tuple[str, ...], dict[str, Any], dict[str, Any]]] = {
     "count_50": (("pulse_count",), {"pulse_count": 50}, {}),
     "shallow_poke": (("poke_deep_depth_m",), {"poke_deep_depth_m": -3.0e-10}, {}),
     "deep_poke": (("poke_deep_depth_m",), {"poke_deep_depth_m": -1.2e-8}, {}),
+    # **深度正好等于上限** ⇒ 放行（判据是 `abs(v) > max`，**闭区间**）。
+    # 2026-09-19 补：此前这条线**两侧都有、线上一格没有** —— 深度用例是
+    # −0.3 nm（过）与 −1.2 / −2 / −5 nm（拒）。而「正好 10 nm 放行」与
+    # 「正好 10 nm 拒」在那四格里给出的答案一模一样，于是金样分不出 `>` 和 `>=`。
+    # 生产路径那一侧 6a 已经钉了（`tip-phase-deps.test.ts`：−1e-8 过 /
+    # −1.0000001e-8 拒），这一格把金样这一侧补齐。
+    # 12 支针尖的 `max_poke_depth_m` **现在一律是 1.0e-8**（见方案表抬头：
+    # 只有 `max_pulse_count` 还在分辨针尖），所以 12 格全过、被拒数不变。
+    "shaper_depth_at_limit": (("shaper_depth_m",), {"shaper_depth_m": -1.0e-8}, {}),
     # 三个深度字段一起超 ⇒ 三条拒绝各说各的
     "all_deep": (("shaper_depth_m", "poke_shallow_depth_m", "poke_deep_depth_m"),
                  {"shaper_depth_m": -2.0e-8, "poke_shallow_depth_m": -1.1e-8,

@@ -145,7 +145,7 @@ max_ncc = float(win.max()) if win.size else float(xc.max())
 6b 那份走 `detrend32`（秩亏时系数退化成 `[0,0,0]`），给出 `~1e−13` 的**假「完全一致」**。
 两种都不是旧仓的答案。**本轮不改**（没有金样，改它要动 `lstsqPlane` 的秩亏语义，
 而那一份有十几个消费方与四份金样在读）——
-登记为 `D-TIPMETRIC-?`，并写清销它需要什么。
+登记为 `D-TIPMETRIC-1`，并写清销它需要什么。
 
 > 顺带核出来的一件：`vision` 里**已经有两份 `_detrend`** ——
 > `frame-validity.detrend`（批 4a）与 `tip-metrics.detrend32`（批 4b）。
@@ -179,7 +179,7 @@ max_ncc = float(win.max()) if win.size else float(xc.max())
 
 ⇒ **`lstsqQr` 搬了，`polyfit` 留在 `vision/src/lsq.ts`**（54 行，从
 `dsh-spm-numerics` 拿 `lstsqQr`）。两个文件的抬头各写清了另一半在哪、为什么。
-登记为 `D-LSQ-?`，并写明要合并的判据是**先有一格能分开它们的金样**。
+登记为 `D-LSQ-1`，并写明要合并的判据是**先有一格能分开它们的金样**。
 
 ---
 
@@ -290,10 +290,10 @@ lattice-angle-spread-is-per-sixty-degrees
 
 ## 8. 留给下一个人的三件
 
-1. **`D-TIPMETRIC-?`（`H = 1` 的帧）** —— 要销它需要 `H = 1/2/3` 三格
+1. **`D-TIPMETRIC-1`（`H = 1` 的帧）** —— 要销它需要 `H = 1/2/3` 三格
    `fwd_bwd_instability` 金样，由 `export_scan_prep.py` 从旧仓导出。
    有了那三格，`lstsqPlane` 的秩亏语义该怎么处置就是**被测出来的**，不是被决定的。
-2. **`D-LSQ-?`（两份 `polyfit`）** —— 要合并，判据是**先有一格能分开它们的金样**
+2. **`D-LSQ-1`（两份 `polyfit`）** —— 要合并，判据是**先有一格能分开它们的金样**
    （已经知道 `n=256, deg=3` 分得开，差 `5e−9`）。
 3. **两份 `_detrend`** —— 同 2 的形状，而且更近：有限输入上逐位相同，
    所以「看起来一样」这一关它是过得去的。**正因为过得去，才要先造那一格。**

@@ -2,8 +2,12 @@
  * 针尖方案表 + 安全包络 —— 逐格对 `spec/golden/tip_policy.json`。
  *
  * 那份金样由**旧仓真实的解析层**跑出来（`tools/spec-export/export_tip_policy.py`），
- * 12 支针尖 × 22 个请求 = 264 格，其中 111 格被拒。通用轨迹金样一格都照不到这里：
+ * 12 支针尖 × 23 个请求 = 276 格，其中 111 格被拒。通用轨迹金样一格都照不到这里：
  * 它直调 `execute`，而这一层全部住在 `validate_params` / 解析层。
+ *
+ * 2026-09-19：第 23 个请求 `shaper_depth_at_limit`（深度**正好等于上限**，−10 nm）
+ * 是补上来的 —— 此前深度用例全在线两侧（−0.3 nm 过 / −1.2、−2、−5 nm 拒），
+ * 线上一格没有，于是金样分不出判据是 `>` 还是 `>=`。12 格全过，被拒数不变。
  */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -80,9 +84,36 @@ describe('方案表：每一档查出来的整组值 + 来源 + 说明', () => {
     expect([...depth]).toEqual([1e-8])
     expect([...count].sort()).toEqual([2, 5])
   })
+
+  /**
+   * **深度上限是「不许超」不是「不许到」** —— 金样这一侧（2026-09-19 补）。
+   *
+   * 生产路径那一侧批 6a 已经钉了（`l0/tip-phase-deps.test.ts`：`tip_lift_m = -1e-8`
+   * 放行、`-1.0000001e-8` 拒）。**金样这一侧当时没有**：深度用例全在线两侧
+   * （−0.3 nm 过 / −1.2、−2、−5 nm 拒），线上一格没有 ⇒ 那 264 格分不出
+   * `>` 和 `>=`。少了这一格，把判据写成 `>=` 也一样全绿。
+   *
+   * 上面那条 `解析 + 包络：276 格` 的循环已经逐格比过它；这一条把**它是什么**
+   * 单独说出来 —— 一格金样躺在 276 格里，读的人看不出它在钉哪条边。
+   */
+  it('深度上限是**闭**的 —— 正好等于上限那 12 格全过（`shaper_depth_at_limit`）', () => {
+    const atLimit = Object.entries(golden.cases).filter(([k]) => k.endsWith('/shaper_depth_at_limit'))
+    expect(atLimit).toHaveLength(12) // 12 支针尖各一格
+    for (const [key, want] of atLimit) {
+      expect(want.explicit, key).toEqual({ shaper_depth_m: -1e-8 })
+      expect(want.refusals, key).toEqual([]) // 正好等于上限 ⇒ **放行**
+      expect(want.ok, key).toBe(true)
+      // 而且本仓的解析器在同一格上给同一个答案
+      const facts = golden.tips[key.split('/')[0]!]!.facts
+      expect(
+        resolveConditioning(want.fields, want.explicit, { facts, overrides: want.overrides }).refusals,
+        key,
+      ).toEqual([])
+    }
+  })
 })
 
-describe('解析 + 包络：264 格逐条对旧仓', () => {
+describe('解析 + 包络：276 格逐条对旧仓', () => {
   for (const [key, want] of Object.entries(golden.cases)) {
     it(`${key}：参数 / 来源 / 拒绝文案`, () => {
       const facts = golden.tips[key.split('/')[0]!]!.facts
