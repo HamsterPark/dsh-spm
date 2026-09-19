@@ -2705,6 +2705,20 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 只是渲染精度不够**。改它等于在本仓与旧仓之间多一条只影响可读性的分叉，
 而分叉的维护成本要由每一次金样比对来付。
 
+**⚠️ 2026-09-19 补：同一个失败形状有两处，而此前只登记了一处。**
+深度那句走的**不是** `%g`，是 `{val:.3e}`（`tip_conditioning_resolver.py:198`）：
+
+> `shaper_depth_m=-1.000e-08 m 的下压深度超出…的上限 1.000e-08 m。`
+
+输入是 `-1.0000001e-8`（真的超限、真的被拒），印出来两个数**逐字相同**。
+形状与 `%g` 那一处一样，格式化器不是同一个 —— 所以按「哪个函数出的问题」去找，
+只会找到一半。**要找的是「渲染后的值等于渲染后的界」这个形状，不是某个格式化符。**
+
+而这一句**没有任何一格金样录着**：金样 `tip_policy.json` 里 48 条深度拒绝的值是
+−11 / −12 / −20 / −50 nm（上限 10 nm），印出来都离上限足够远；唯一到得了那个数的输入在
+`l0/tip-phase-deps.test.ts` 里，**而那条测试只断言「拒了一条」，不看文案**。
+⇒ 要让这一处也被看住，得先造一格把它印出来的金样。
+
 **什么情况下才改**（照旧仓表头那段反问的形状，先把要回答的问题写下来）：
 只要出现**一次**「有人因为这句话去查那道闸有没有坏」的记录 —— 那时它就不再是
 可读性问题，而是**一句会把人引向错误下一步的拒绝**（同 D-CAL-2 那条说反了的 summary）。
@@ -2943,13 +2957,19 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 | | |
 |---|---|
-| **Python** | `_save_curve` 里写的是 `from mast.core._runtime_paths import project_root` —— **那个模块不存在**（全仓另外十几处写的都是 `mast._runtime_paths`）。外面套着 `except Exception: return None` ⇒ `curve_path` **恒为 `None`** |
+| **Python** | `_save_curve` 里写的是 `from mast.core._runtime_paths import project_root` —— **那个模块不存在**（2026-09-19 实测：全仓另外 **79 处**写的都是 `mast._runtime_paths`，错写成 `mast.core.` 的只有 **2 处**。订正自本条初稿的「十几处」—— 那是估的）。外面套着 `except Exception: return None` ⇒ `curve_path` **恒为 `None`** |
 | **TS** | 真的写 `<curveDir>/<stem>_force.json`，`curve_path` 带着它 |
 | **测试** | `l0/batch6c-skills.test.ts` → 「F(z)/U(z) **真的落了盘**，而路径进回包」（读回文件、比点数、确认 `data` 里**没有**曲线本身） |
 
 按 DoD ⑤「KNOWN_ISSUES 里的缺陷判据不照抄」。这不是风格差异：`data` 里**只有** `curve_path`，
 没有 `z_m` / `force_n` / `energy_ev` —— 也就是说这个技能唯一的产品（那条力曲线）在旧仓里
 **一次都没有产出过**，而调用方拿到的是一份看起来完整、只是没有曲线的报告。
+
+⚠️ **同一个死导入在旧仓还有第二处**（`skills/builtins/dispersion_fit.py:315` 的 `_save_table`），
+而那一处**不照这条办**：它的 `except` 后面带着一句注释，大意是「数才是产品，表只是附赠」——
+对色散拟合成立，所以那里落不落盘都不改变技能交付了什么。
+**分界线是「唯一的产品在不在」**：力反演的 `data` 里只有标量（见下），曲线就是它的全部产出；
+色散拟合的数在回包里。同一个 bug，两种处置，靠的不是它长什么样，是它挡住了什么。
 
 ⚠️ 顺带一条**目录的**差异：旧仓的根是 `project_root()`（`MAST2_PROJECT_ROOT` 或仓根），
 本仓是 `process.cwd()/artifacts/force_inversion`，并按 `frames.ts` / `readback-stream.ts` 的既有体例
