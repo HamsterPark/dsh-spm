@@ -286,7 +286,8 @@ export function pyFixed(v: number, digits: number): string {
 | 针尖包络 / 方案表 / depth 共 14 条 | `tip_policy.json` 变了 | 14/14 red |
 
 **合计 63 条（4 + 8 + 2 + 3 + 7 + 7 + 19 + 13），63/63 red。**
-全量 593 条**没有跑**（每条一次 `tsc -b` + 一遍 vitest，整趟数小时）。
+全量 593 条**这条支线没有跑**（收口那一趟跑了，593/593 全红 ——
+日志见 `docs/handoff/drill-593-2026-09-19.log`，比本行晚约两小时）（每条一次 `tsc -b` + 一遍 vitest，整趟数小时）。
 演练前已按第四判据要求 `pnpm build → gen:skills → gen:progress`，
 每一趟的基线行都打出来了、都为 0。
 
