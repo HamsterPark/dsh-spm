@@ -2960,6 +2960,123 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7b-1：编号**留空**（`?`），由主线统一编。 -->
 
+## D-EXTRA-SPLIT-? · 旧仓把 `extra_reasons` / `extra_warnings` **拆散在两个类里**
+
+`builtins/tip_spectro_assess.py` 一个文件两个技能，而同一次重构的两半落进了两个类：
+
+```
+ 151  def execute(...)                    ← AssessShockleyOnset.execute
+ 236      "reasons":  list(res.reasons)  + extra_reasons,     ← **用而未赋值**
+ 237      "warnings": list(res.warnings) + extra_warnings,
+ 242  （execute 结束；151–242 之间一处赋值都没有，逐行核过）
+ 263  class AssessAtomicPhase(BaseSkill):
+ 405          extra_reasons  = ["incomplete_frame"] if incomplete else []   ← **赋值而未用**
+ 406-410      extra_warnings = ["只有 %.0f%% 的像素有数据 —— 这一帧**判不了**…"]
+ 412-435      data = { …, "reasons": list(res.reasons), "warnings": list(res.warnings) }
+```
+
+两侧各错一半，**而两半互为对方的证据**：`AssessShockleyOnset` 每条成功路径
+必然 `NameError`（那个技能这一批不落，见交接），`AssessAtomicPhase` 把自己算好的
+两句话**扔了**。`grep -n "extra_reasons\|extra_warnings"` 全文件只有这四行。
+
+**本仓不照抄（DoD ⑤）**，三处接回来：
+
+| | 旧仓 | 本仓 |
+|---|---|---|
+| `data.reasons` | 残帧上**不含** `incomplete_frame` | 含（`:405` 写的就是它） |
+| `data.warnings` | 残帧上是**空表** | 含 `:406-410` 那句话，**逐字**，一个字没新造 |
+| `summary` | 分支在 `res.passed` 上 ⇒ 残帧上说「有原子相」，而同一个回包里 `data.passed=false` | 残帧上用 `:406-410` 那句话当 summary |
+
+⚠️ 第三行是**模型面**的：`data.passed` 是机器读的，`summary` 是模型读的，
+**而模型只读得到后者**。金样 `batch7b1.json / coverage_below_gate_but_judged`
+把旧仓那一格钉着（`summary` 含「有原子相」而 `data.passed` 是 `false`），
+本仓那一侧由 `batch7b1-skills.test.ts` 的「D-EXTRA-SPLIT」一组各写一条断言 ——
+**差异消失的那天这几条会红，这条登记必须跟着删。**
+
+**改它需要什么证据**：旧仓某天把那两个变量移回各自的类（或者把 `AssessShockleyOnset`
+的 `:236-237` 删掉）。在那之前，本仓这一侧是**旧仓自己写下来、却被一次拆分切断**的行为，
+不是发明。
+
+## D-SUBSTRATE-? · `resolve_substrate` 的三处收窄（注入口 + 只认四个洁净金属面 + 无模糊匹配）
+
+旧仓 `core/sample_facts.py` 走 `get_active_log() → current_sample_id →
+storage.get_sample()` 再查 30570 行的 `knowledge/`。本仓两样都没有，于是：
+
+| # | 旧仓 | 本仓 | 证据 |
+|---|---|---|---|
+| 1 | 不给名字时**问实验记录**「台面上现在放的是什么」 | {@link substrateFacts.currentSample} 注入口，**默认关** ⇒ 走「不知道」那条路 | 与旧仓在**没有样品记录**时同解（金样 `resolve_substrate` 的 `null` / `""` 两格）。同 `analysis-clusters.ts:612 substrateTolerance` |
+| 2 | 精确查不中时再走一趟 `match_material` 模糊匹配（只收 `type_id=="clean_metal"`） | **整条不在**：认不出就是认不出 | 那一趟存在的理由是知识库里有非金属条目（实测 `match_material("au111")` 返回 `MoS2_on_Au111`）。本仓没有那张表 ⇒ 没有那个陷阱，也没有那条兜底 |
+| 3 | 认得的面由知识库的 `clean_metal` 表定 | 一张 **4 条**的埃值表（`CLEAN_METAL_NN_ANG`） | **量出来的，不是猜的**：金样把 `SURFACE_LATTICE_NM` 的全部七个面都问了一遍，旧仓对 `HOPG` / `NaCl(100)` / `Si(111)-1x1` 一律 `available=false` |
+
+⚠️ 第 3 行原本差点写错：拿本仓已有的 `SURFACE_LATTICE_NM`（vision 的七个面）
+当衬底知识库，会让三个面**凭空「知道」** —— 而知道之后走的是完全另一条路
+（做晶格常数比对而不是跳过它）。两张表在旧仓里本来就是两张：一张在
+`vision/lattice_calibration`（FFT 一阶峰的几何常数），一张在知识库（样品事实）。
+**合成一张不是消除重复，是把两个不同的问题合成一个。**
+
+三处的降级都是**诚实拒绝**：拿不到衬底只是不做晶格常数那一项比对，
+其余三条判据照跑 —— 旧仓注释明写「0 或推断不出来时只是不做这一项比对，**不算失败**」。
+
+## D-ROWSPACING-? · 行间距的算式**不与 `firstOrderPeriodNm` 统一**（旧仓两处结合顺序不同）
+
+```
+sample_facts.py:51,196        _ROW_SPACING_FACTOR = math.sqrt(3.0) / 2.0 ; nn_nm * _ROW_SPACING_FACTOR
+lattice_calibration.py:88     a * math.sqrt(3) / 2.0
+sample_facts.py:184-185       nn_nm = nearest_neighbor_ang / 10.0        （知识库存的是**埃**）
+```
+
+三处合起来，Pt(111) 上与「本仓 nm 表 × `(a·√3)/2`」差 **1 ulp**
+（`0.2403220495501817` vs `…174`；`2.775/10 = 0.27749999999999997 ≠ 0.2775`）。
+
+**照着「同一个概念不写第二份」去统一是错的**：`expected_a_nm` 是晶格常数比对的
+**入口**，而下游是一个 15% 的容差判决 —— 入口差一位不改判决，但它会让金样
+逐格比对整列对不上，于是**下一个人分不清「容差写松了」与「算错了」**。
+所以这里跟 `sample_facts` 那一份（存埃、除 10、乘预算好的 √3/2），
+`firstOrderPeriodNm` 跟它自己那一份。两条变异各盯一边
+（`atomicphase-row-spacing-is-the-nearest-neighbour` / `-reassociates`）。
+
+## D-EMPTYPATH-? · 空 `scan_path` 走的是「读取失败」，**不是**「文件不存在」
+
+`Path("")` 在 Python 里等价于 `Path(".")`，而当前目录**是存在的** ⇒
+`if not Path(path).exists()` 为假 ⇒ 掉进 `read_sxm("")` 的 OSError ⇒
+`.sxm 读取失败: …`。本仓 `existsSync('')` 返回 `false`，照写就会说「文件不存在」。
+
+**这是实跑出来的，不是读代码读出来的**（金样 `batch7b1.json / empty_path`）——
+一个「看起来显然」的分支走到了另一支，而模型读的正是这两句里的一句。
+本仓用 `path === '' ? existsSync('.') : existsSync(path)` 对齐。
+
+## D-ATOMICPHASE-CHANNEL-? · 指名通道拿不到时**回落到第一个通道**（与孪生技能刻意不同）
+
+```
+tip_spectro_assess.py:361     ch = channels.get(channel_name) or next(iter(channels.values()), None)
+atomic_lattice._load_frame    拿不到就报错退出
+```
+
+两个技能读同一种文件、回答相近的问题，而在这一点上给出完全不同的行为。
+**两条都照移**：统一成一种会让金样里有一格对不上，而对不上的那一格正是模型读的那一句。
+⇒ 「文件里没有可用通道」这句话**只在通道表为空时**说得出来（金样 `no_channels`）。
+
+同理，这个技能**不走** `sxmOrientedFrames`（反扫去镜像 / 按 `SCAN_DIR` 翻正）——
+旧仓这一支是 `ch.get("forward") or ch.get("backward")`，原样取，一次几何归位都不做。
+
+## D-CLOSURE-DEPTH-? · 闭包**不抄**旧仓那个「超过八层就 UNKNOWN」的上限
+
+旧仓同形状的那一份是 `mast/skills/compliance.py:751`：
+
+```python
+if name in _seen or len(_seen) > 8:
+    return SkillFootprint(UNKNOWN, reasons=(f"{name}：子技能循环引用或嵌套太深",))
+```
+
+它那么写有它的道理（那台是**运行时**跑的，要对付声明式 spec 与动态注册）。
+本仓 `tip-phase-closure.ts` 的 `skillClosure` **没有深度上限**：这一批修的正是
+「追一层就停」，抄一个「追八层就停」过来只是把同一个 bug 的阈值调大。
+这里的图是静态有限的（515 个技能，金样 `skill_runs`），完整不动点一定收敛；
+环由 `seen` 挡，挡掉了什么由 `closure_limits.cycles` 说出来（今天空表，有测试盯着）。
+
+⚠️ 记这一条是因为：**一处刻意的不一致，没写下理由就等于一处疏忽** ——
+下一个人看到「旧仓有上限而本仓没有」，会以为是漏了。
+
 <!-- ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的登记写在这一行下面 ── -->
 
 <!-- 批 7b-2：编号**留空**（`?`），由主线统一编。 -->

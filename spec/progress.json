@@ -2,9 +2,9 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 424,
+    "done": 425,
     "partial": 0,
-    "todo": 91
+    "todo": 90
   },
   "modules_complete": 98,
   "modules_total": 165,
@@ -546,7 +546,7 @@
     },
     "builtins.tip_spectro_assess": {
       "total": 2,
-      "done": 0,
+      "done": 1,
       "complete": false
     },
     "builtins.user_output": {
@@ -1070,11 +1070,11 @@
       "module": "builtins.tip_spectro_assess",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "AssessAtomicResolution": {
       "module": "builtins.atomic_lattice",

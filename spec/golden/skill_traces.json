@@ -2900,6 +2900,20 @@
       }
     }
   },
+  "AssessAtomicPhase": {
+    "params": {
+      "scan_path": "spec-export"
+    },
+    "traces": {
+      "ok": {
+        "calls": [],
+        "data": {},
+        "error": "文件不存在: spec-export",
+        "success": false,
+        "summary": ""
+      }
+    }
+  },
   "AssessAtomicResolution": {
     "params": {
       "scan_path": "spec-export"

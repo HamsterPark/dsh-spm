@@ -1,5 +1,159 @@
 {
-  "_note": "批 6a：`_tip_phases` 六个流程的子技能依赖，从旧仓源码静态算出来的**上界**。由 tools/spec-export/export_tip_phase_deps.py 生成，不要手工改。",
+  "_note": "批 6a：`_tip_phases` 六个流程的子技能依赖，从旧仓源码静态算出来的**上界**。由 tools/spec-export/export_tip_phase_deps.py 生成，不要手工改。 批 7b-1 加了 `skill_runs`（每个技能自己还调谁）与 `closure_limits`（这套追法追到哪儿为止）—— 封锁账的 BLOCKED 按**闭包**算，不是一层。",
+  "closure_limits": {
+    "cycles": [],
+    "dynamic_run_sites": [
+      {
+        "expr": "skill",
+        "file": "builtins/characterise_noise.py",
+        "in_engine": false,
+        "line": 345,
+        "shape": "loop_var"
+      },
+      {
+        "expr": "skill",
+        "file": "builtins/characterise_noise.py",
+        "in_engine": false,
+        "line": 762,
+        "shape": "loop_var"
+      },
+      {
+        "expr": "skill_name",
+        "file": "composite/_base.py",
+        "in_engine": true,
+        "line": 75,
+        "shape": "loop_var"
+      },
+      {
+        "expr": "skill",
+        "file": "composite/achieve_atomic.py",
+        "in_engine": false,
+        "line": 805,
+        "shape": "loop_var"
+      },
+      {
+        "expr": "step.skill_name",
+        "file": "composite/graph_executor.py",
+        "in_engine": true,
+        "line": 598,
+        "shape": "Attribute"
+      },
+      {
+        "expr": "step.skill_name",
+        "file": "composite/graph_executor.py",
+        "in_engine": true,
+        "line": 601,
+        "shape": "Attribute"
+      },
+      {
+        "expr": "node['skill']",
+        "file": "composite/interpreter.py",
+        "in_engine": true,
+        "line": 347,
+        "shape": "subscript"
+      }
+    ],
+    "follow_rule": "技能类的方法 + **同模块**基类的方法 → 从那里可达的、`mast/skills/**` 之内的模块级函数与同模块类（跨文件跟 `from … import`）。框架基类（BaseSkill / CompositeSkillGraph / SpecComposite）的方法体不追；`mast/skills/**` 之外的函数（mast.core / mast.io / mast.vision）不追。边认两种形状：`context.run(X, …)`/`ctx.run(X, …)` 与 `CompositeStep(skill_name=X, …)`，其中 X 是字面量、模块级字符串常量，或由这两者拼出来的 f-string（填空那一格写成 {…}）。",
+    "internal_phase_targets": {
+      "_phase_baseline": [
+        "RetractForSampleChange"
+      ],
+      "_phase_cleanup": [
+        "RunGridExperiment"
+      ],
+      "_phase_clear": [
+        "RelocateCoarseXY"
+      ],
+      "_phase_collect_{…}": [
+        "CharacteriseCurrentNoise"
+      ],
+      "_phase_configure": [
+        "AcquirePSD"
+      ],
+      "_phase_fft": [
+        "AssessImageQuality"
+      ],
+      "_phase_finalize": [
+        "WaitScanComplete"
+      ],
+      "_phase_finish": [
+        "CharacteriseCurrentNoise"
+      ],
+      "_phase_get_current": [
+        "SetBiasRamp"
+      ],
+      "_phase_load": [
+        "AssessImageQuality"
+      ],
+      "_phase_move": [
+        "RelocateCoarseXY"
+      ],
+      "_phase_noise": [
+        "AssessImageQuality"
+      ],
+      "_phase_open_module": [
+        "AutoApproach"
+      ],
+      "_phase_poll_{…}": [
+        "WaitScanComplete"
+      ],
+      "_phase_preflight": [
+        "RelocateCoarseXY"
+      ],
+      "_phase_range_{…}": [
+        "AcquirePSD"
+      ],
+      "_phase_reapproach": [
+        "RelocateCoarseXY"
+      ],
+      "_phase_retract_verify": [
+        "RetractForSampleChange"
+      ],
+      "_phase_roughness": [
+        "AssessImageQuality"
+      ],
+      "_phase_set_step_{…}": [
+        "SetBiasRamp"
+      ],
+      "_phase_setup_grid": [
+        "RunGridExperiment"
+      ],
+      "_phase_ssim": [
+        "AssessImageQuality"
+      ],
+      "_phase_start_approach": [
+        "AutoApproach"
+      ],
+      "_phase_start_experiment": [
+        "RunGridExperiment"
+      ],
+      "_phase_stop_powered": [
+        "RetractForSampleChange"
+      ],
+      "_phase_tick_{…}": [
+        "RunGridExperiment"
+      ],
+      "_phase_training_sample": [
+        "AssessImageQuality"
+      ],
+      "_phase_verify": [
+        "RelocateCoarseXY"
+      ],
+      "_phase_verify_status": [
+        "AutoApproach"
+      ],
+      "_phase_wait_complete": [
+        "AutoApproach"
+      ],
+      "_phase_withdraw_initial": [
+        "RetractForSampleChange"
+      ]
+    },
+    "modules_scanned": 211,
+    "scanned_root": "mast/skills",
+    "skills_indexed": 515,
+    "unknown_skills": []
+  },
   "functions": {
     "_tip_phases:_amp_capture": {
       "first_line": 1538,
@@ -442,6 +596,6471 @@
       "lines": 4
     }
   },
+  "skill_runs": {
+    "AchieveAtomicResolution": {
+      "defined_in": [
+        "composite/achieve_atomic.py:AchieveAtomicResolution"
+      ],
+      "runs": [
+        "FindFlatRegion",
+        "ForgeAuTip",
+        "GetZControllerState",
+        "MakeAtomicResolutionTip",
+        "PokeConditionTip",
+        "RelocateCoarseXY",
+        "ScanUntilAtomicResolution",
+        "VerifyAtomicResolution"
+      ],
+      "sites": {
+        "FindFlatRegion": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 678
+          }
+        ],
+        "ForgeAuTip": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 883
+          }
+        ],
+        "GetZControllerState": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 563
+          }
+        ],
+        "MakeAtomicResolutionTip": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 751
+          }
+        ],
+        "PokeConditionTip": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 839
+          }
+        ],
+        "RelocateCoarseXY": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 722
+          }
+        ],
+        "ScanUntilAtomicResolution": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 617
+          },
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 853
+          },
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 892
+          }
+        ],
+        "VerifyAtomicResolution": [
+          {
+            "file": "composite/achieve_atomic.py",
+            "line": 924
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "skill",
+          "file": "composite/achieve_atomic.py",
+          "line": 805
+        }
+      ]
+    },
+    "AcquireAngleSeriesForCalibration": {
+      "defined_in": [
+        "composite/angle_series_calibration.py:AcquireAngleSeriesForCalibration"
+      ],
+      "runs": [
+        "CalibratePiezoMultiAngle",
+        "ConfigureScan",
+        "FullScan",
+        "GetLatestScanFile",
+        "GetScanFrame",
+        "GetScanSpeed",
+        "SaveScan",
+        "SetScanSpeed"
+      ],
+      "sites": {
+        "CalibratePiezoMultiAngle": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 286
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 191
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 239
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 261
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 157
+          },
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 222
+          }
+        ],
+        "GetScanSpeed": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 223
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 250
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/angle_series_calibration.py",
+            "line": 204
+          }
+        ]
+      }
+    },
+    "AcquireBiasImagingSeries": {
+      "defined_in": [
+        "composite/bias_imaging_series.py:AcquireBiasImagingSeries"
+      ],
+      "runs": [
+        "AssessAtomicResolution",
+        "ConfigureScan",
+        "FullScan",
+        "GetBias",
+        "GetScanFrame",
+        "GetSetpoint",
+        "SaveScan",
+        "SetBias",
+        "SetScanSpeed"
+      ],
+      "sites": {
+        "AssessAtomicResolution": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 256
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 217
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 233
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 198
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 145
+          }
+        ],
+        "GetSetpoint": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 154
+          },
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 203
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 243
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 180
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/bias_imaging_series.py",
+            "line": 225
+          }
+        ]
+      }
+    },
+    "AcquireBiasSeries": {
+      "defined_in": [
+        "builtins/bias_series.py:AcquireBiasSeries"
+      ],
+      "runs": [
+        "AssessFrameTrust",
+        "ScanAt"
+      ],
+      "sites": {
+        "AssessFrameTrust": [
+          {
+            "file": "builtins/bias_series.py",
+            "line": 157
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "builtins/bias_series.py",
+            "line": 145
+          }
+        ]
+      }
+    },
+    "AcquireBiasSweep": {
+      "defined_in": [
+        "builtins/sweep.py:AcquireBiasSweep"
+      ],
+      "runs": []
+    },
+    "AcquireDeltaFCurve": {
+      "defined_in": [
+        "builtins/deltaf_curve.py:AcquireDeltaFCurve"
+      ],
+      "runs": []
+    },
+    "AcquireLockInSweep": {
+      "defined_in": [
+        "builtins/sweep.py:AcquireLockInSweep"
+      ],
+      "runs": []
+    },
+    "AcquireOsciTrace": {
+      "defined_in": [
+        "builtins/acquire_osci_trace.py:AcquireOsciTrace"
+      ],
+      "runs": []
+    },
+    "AcquirePLLFreqSweep": {
+      "defined_in": [
+        "builtins/pll.py:AcquirePLLFreqSweep"
+      ],
+      "runs": []
+    },
+    "AcquirePSD": {
+      "defined_in": [
+        "builtins/acquire_psd.py:AcquirePSD"
+      ],
+      "internal_phases": [
+        "_phase_configure",
+        "_phase_range_{…}"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AcquireSTS": {
+      "defined_in": [
+        "builtins/spectroscopy.py:AcquireSTS"
+      ],
+      "runs": []
+    },
+    "AcquireSignalPoint": {
+      "defined_in": [
+        "builtins/optics_scan.py:AcquireSignalPoint"
+      ],
+      "runs": []
+    },
+    "AcquireZSpectr": {
+      "defined_in": [
+        "builtins/spectroscopy.py:AcquireZSpectr"
+      ],
+      "runs": []
+    },
+    "AdaptiveSTS_GP": {
+      "defined_in": [
+        "paper/optimization.py:AdaptiveSTS_GP"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "ConfigureSTS",
+        "MoveToXY"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "paper/optimization.py",
+            "line": 725
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "paper/optimization.py",
+            "line": 645
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "paper/optimization.py",
+            "line": 708
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AnalyseAtomicLattice": {
+      "defined_in": [
+        "builtins/atomic_lattice.py:AnalyseAtomicLattice"
+      ],
+      "runs": []
+    },
+    "AnalyseSlowDrift": {
+      "defined_in": [
+        "builtins/slow_drift_skill.py:AnalyseSlowDrift"
+      ],
+      "runs": []
+    },
+    "AnalyzeFrameTilt": {
+      "defined_in": [
+        "builtins/frame_tilt.py:AnalyzeFrameTilt"
+      ],
+      "runs": []
+    },
+    "AnalyzeScanImage": {
+      "defined_in": [
+        "builtins/scan_prep.py:AnalyzeScanImage"
+      ],
+      "runs": []
+    },
+    "ApplyLockInPreset": {
+      "defined_in": [
+        "builtins/lockin_presets_skills.py:ApplyLockInPreset"
+      ],
+      "runs": [
+        "ConfigureLockIn",
+        "GetLockInConfig"
+      ],
+      "sites": {
+        "ConfigureLockIn": [
+          {
+            "file": "builtins/lockin_presets_skills.py",
+            "line": 151
+          }
+        ],
+        "GetLockInConfig": [
+          {
+            "file": "builtins/lockin_presets_skills.py",
+            "line": 164
+          }
+        ]
+      }
+    },
+    "ApplyZCtrlPreset": {
+      "defined_in": [
+        "builtins/zctrl_presets_skills.py:ApplyZCtrlPreset"
+      ],
+      "runs": [
+        "SetSetpoint",
+        "SetZCtrlGain"
+      ],
+      "sites": {
+        "SetSetpoint": [
+          {
+            "file": "builtins/zctrl_presets_skills.py",
+            "line": 109
+          }
+        ],
+        "SetZCtrlGain": [
+          {
+            "file": "builtins/zctrl_presets_skills.py",
+            "line": 93
+          }
+        ]
+      }
+    },
+    "ApproachTip": {
+      "defined_in": [
+        "builtins/approach.py:ApproachTip"
+      ],
+      "runs": [
+        "ApplyZCtrlPreset",
+        "AutoApproach",
+        "ConfigureLockIn",
+        "GetCurrent",
+        "GetSetpoint",
+        "GetZCtrlGain",
+        "SetSetpoint",
+        "SetZCtrlGain",
+        "TryEngageController"
+      ],
+      "sites": {
+        "ApplyZCtrlPreset": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 503
+          }
+        ],
+        "AutoApproach": [
+          {
+            "file": "builtins/approach.py",
+            "line": 1473
+          }
+        ],
+        "ConfigureLockIn": [
+          {
+            "file": "builtins/approach.py",
+            "line": 1614
+          }
+        ],
+        "GetCurrent": [
+          {
+            "file": "builtins/approach.py",
+            "line": 1561
+          }
+        ],
+        "GetSetpoint": [
+          {
+            "file": "builtins/approach.py",
+            "line": 1567
+          },
+          {
+            "file": "composite/_preflight.py",
+            "line": 440
+          }
+        ],
+        "GetZCtrlGain": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 422
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 567
+          }
+        ],
+        "SetZCtrlGain": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 546
+          }
+        ],
+        "TryEngageController": [
+          {
+            "file": "builtins/approach.py",
+            "line": 1408
+          }
+        ]
+      }
+    },
+    "AssessAtomicConsistency": {
+      "defined_in": [
+        "builtins/atomic_multiframe.py:AssessAtomicConsistency"
+      ],
+      "runs": []
+    },
+    "AssessAtomicLines": {
+      "defined_in": [
+        "builtins/atomic_lines.py:AssessAtomicLines"
+      ],
+      "runs": []
+    },
+    "AssessAtomicPhase": {
+      "defined_in": [
+        "builtins/tip_spectro_assess.py:AssessAtomicPhase"
+      ],
+      "runs": []
+    },
+    "AssessAtomicResolution": {
+      "defined_in": [
+        "builtins/atomic_lattice.py:AssessAtomicResolution"
+      ],
+      "runs": []
+    },
+    "AssessClusterRoundness": {
+      "defined_in": [
+        "builtins/cluster_roundness.py:AssessClusterRoundness"
+      ],
+      "runs": []
+    },
+    "AssessDomainPhase": {
+      "defined_in": [
+        "builtins/domain_assess.py:AssessDomainPhase"
+      ],
+      "runs": []
+    },
+    "AssessFeedbackTracking": {
+      "defined_in": [
+        "builtins/feedback_tracking.py:AssessFeedbackTracking"
+      ],
+      "runs": []
+    },
+    "AssessFrameCorrugation": {
+      "defined_in": [
+        "builtins/frame_corrugation.py:AssessFrameCorrugation"
+      ],
+      "runs": []
+    },
+    "AssessFrameTrust": {
+      "defined_in": [
+        "builtins/frame_trust.py:AssessFrameTrust"
+      ],
+      "runs": []
+    },
+    "AssessHerringbone": {
+      "defined_in": [
+        "builtins/herringbone_assess.py:AssessHerringbone"
+      ],
+      "runs": []
+    },
+    "AssessImageQuality": {
+      "defined_in": [
+        "composite/assess_quality.py:AssessImageQuality"
+      ],
+      "internal_phases": [
+        "_phase_fft",
+        "_phase_load",
+        "_phase_noise",
+        "_phase_roughness",
+        "_phase_ssim",
+        "_phase_training_sample"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AssessScanTexture": {
+      "defined_in": [
+        "builtins/scan_texture.py:AssessScanTexture"
+      ],
+      "runs": []
+    },
+    "AssessShockleyOnset": {
+      "defined_in": [
+        "builtins/tip_spectro_assess.py:AssessShockleyOnset"
+      ],
+      "runs": []
+    },
+    "AssessSpectrum": {
+      "defined_in": [
+        "builtins/spectrum_assess.py:AssessSpectrum"
+      ],
+      "runs": []
+    },
+    "AssessTipFromSpectrum": {
+      "defined_in": [
+        "builtins/tip_from_spectrum.py:AssessTipFromSpectrum"
+      ],
+      "runs": []
+    },
+    "AssessTipSharpness": {
+      "defined_in": [
+        "builtins/tip_sharpness.py:AssessTipSharpness"
+      ],
+      "runs": []
+    },
+    "AssessTip_ResNet": {
+      "defined_in": [
+        "paper/tip_assessment.py:AssessTip_ResNet"
+      ],
+      "runs": []
+    },
+    "AssessTip_VGG": {
+      "defined_in": [
+        "paper/tip_assessment.py:AssessTip_VGG"
+      ],
+      "runs": []
+    },
+    "AtomManip_SAC": {
+      "defined_in": [
+        "paper/autonomous.py:AtomManip_SAC"
+      ],
+      "runs": [
+        "MoveToXY",
+        "SetBias",
+        "SetSetpoint"
+      ],
+      "sites": {
+        "MoveToXY": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1688
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1666
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1677
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AtomTrackDriftComp": {
+      "defined_in": [
+        "builtins/atom_track.py:AtomTrackDriftComp"
+      ],
+      "runs": []
+    },
+    "AtomTrackQuickCompStart": {
+      "defined_in": [
+        "builtins/atom_track.py:AtomTrackQuickCompStart"
+      ],
+      "runs": []
+    },
+    "AtomTrackStatusGet": {
+      "defined_in": [
+        "builtins/atom_track.py:AtomTrackStatusGet"
+      ],
+      "runs": []
+    },
+    "AtomicBiasSeries": {
+      "defined_in": [
+        "composite/atomic_bias_series.py:AtomicBiasSeries"
+      ],
+      "runs": [
+        "BiasSettleChange",
+        "PreScanCheck",
+        "SaveScan",
+        "ScanAt",
+        "VerifyAtomicResolution"
+      ],
+      "sites": {
+        "BiasSettleChange": [
+          {
+            "file": "composite/atomic_bias_series.py",
+            "line": 368
+          }
+        ],
+        "PreScanCheck": [
+          {
+            "file": "composite/atomic_bias_series.py",
+            "line": 480
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/atomic_bias_series.py",
+            "line": 427
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/atomic_bias_series.py",
+            "line": 389
+          }
+        ],
+        "VerifyAtomicResolution": [
+          {
+            "file": "composite/atomic_bias_series.py",
+            "line": 444
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AutoApproach": {
+      "defined_in": [
+        "builtins/approach.py:AutoApproach"
+      ],
+      "internal_phases": [
+        "_phase_open_module",
+        "_phase_start_approach",
+        "_phase_verify_status",
+        "_phase_wait_complete"
+      ],
+      "runs": [
+        "ApplyZCtrlPreset",
+        "GetSetpoint",
+        "GetZCtrlGain",
+        "SetSetpoint",
+        "SetZCtrlGain"
+      ],
+      "sites": {
+        "ApplyZCtrlPreset": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 503
+          }
+        ],
+        "GetSetpoint": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 440
+          }
+        ],
+        "GetZCtrlGain": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 422
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 567
+          }
+        ],
+        "SetZCtrlGain": [
+          {
+            "file": "composite/_preflight.py",
+            "line": 546
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AutoCrop_UnscannedRegion": {
+      "defined_in": [
+        "paper/scan_crop.py:AutoCrop_UnscannedRegion"
+      ],
+      "runs": []
+    },
+    "AutoOSS_Dehalogenation": {
+      "defined_in": [
+        "paper/autonomous.py:AutoOSS_Dehalogenation"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "FullScan",
+        "MoveToXY",
+        "TipPulse"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1949
+          },
+          {
+            "file": "paper/autonomous.py",
+            "line": 2034
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1935
+          },
+          {
+            "file": "paper/autonomous.py",
+            "line": 2020
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1924
+          }
+        ],
+        "TipPulse": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 2005
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "AutoPhase": {
+      "defined_in": [
+        "builtins/lockin_presets_skills.py:AutoPhase"
+      ],
+      "runs": []
+    },
+    "AutoProcessScanBatch": {
+      "defined_in": [
+        "builtins/scan_prep.py:AutoProcessScanBatch"
+      ],
+      "runs": []
+    },
+    "AutoTilt": {
+      "defined_in": [
+        "composite/auto_tilt.py:AutoTilt"
+      ],
+      "runs": [
+        "TiltProbeCircle"
+      ],
+      "sites": {
+        "TiltProbeCircle": [
+          {
+            "file": "composite/auto_tilt.py",
+            "line": 134
+          }
+        ]
+      }
+    },
+    "AutoZeroBeamDeflection": {
+      "defined_in": [
+        "builtins/optional_afm.py:AutoZeroBeamDeflection"
+      ],
+      "runs": []
+    },
+    "AutonomousSurvey_Scanbot": {
+      "defined_in": [
+        "paper/autonomous.py:AutonomousSurvey_Scanbot"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "ConditionTip",
+        "FullScan",
+        "MoveToXY",
+        "SetBias"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1135
+          }
+        ],
+        "ConditionTip": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1157
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1120
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1091
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1067
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "BatchRegionsScan": {
+      "defined_in": [
+        "composite/batch_regions_scan.py:BatchRegionsScan"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "ConfigureScan",
+        "SaveScan",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 255
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 217
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 249
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 227
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 237
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/batch_regions_scan.py",
+            "line": 242
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "BiasPulse": {
+      "defined_in": [
+        "builtins/bias_pulse.py:BiasPulse"
+      ],
+      "runs": []
+    },
+    "BiasPulseWithReadback": {
+      "defined_in": [
+        "builtins/bias_pulse_readback.py:BiasPulseWithReadback"
+      ],
+      "runs": []
+    },
+    "BiasSettleChange": {
+      "defined_in": [
+        "composite/bias_settle.py:BiasSettleChange"
+      ],
+      "runs": [
+        "SetBias",
+        "SetBiasRamp"
+      ],
+      "sites": {
+        "SetBias": [
+          {
+            "file": "composite/bias_settle.py",
+            "line": 209
+          }
+        ],
+        "SetBiasRamp": [
+          {
+            "file": "composite/bias_settle.py",
+            "line": 211
+          }
+        ]
+      }
+    },
+    "BiasWiggle": {
+      "defined_in": [
+        "builtins/bias_wiggle.py:BiasWiggle"
+      ],
+      "runs": []
+    },
+    "CalibrateCoarseStep": {
+      "defined_in": [
+        "builtins/coarse_step_calib.py:CalibrateCoarseStep"
+      ],
+      "runs": [
+        "ApproachTip",
+        "GetCurrent",
+        "GetScanFrame",
+        "MotorMove",
+        "ScanAt",
+        "SetBias",
+        "TipShape",
+        "WithdrawTip"
+      ],
+      "sites": {
+        "ApproachTip": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 219
+          }
+        ],
+        "GetCurrent": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 141
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 187
+          }
+        ],
+        "MotorMove": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 131
+          },
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 214
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 146
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 137
+          }
+        ],
+        "TipShape": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 194
+          }
+        ],
+        "WithdrawTip": [
+          {
+            "file": "builtins/coarse_step_calib.py",
+            "line": 139
+          }
+        ]
+      }
+    },
+    "CalibratePiezoFromLattice": {
+      "defined_in": [
+        "builtins/atomic_lattice.py:CalibratePiezoFromLattice"
+      ],
+      "runs": []
+    },
+    "CalibratePiezoMultiAngle": {
+      "defined_in": [
+        "builtins/atomic_multiframe.py:CalibratePiezoMultiAngle"
+      ],
+      "runs": []
+    },
+    "CaptureSignalBuffer": {
+      "defined_in": [
+        "builtins/capture_signal_buffer.py:CaptureSignalBuffer"
+      ],
+      "runs": []
+    },
+    "CharacteriseCurrentNoise": {
+      "defined_in": [
+        "builtins/characterise_noise.py:CharacteriseCurrentNoise"
+      ],
+      "internal_phases": [
+        "_phase_collect_{…}",
+        "_phase_finish"
+      ],
+      "runs": [
+        "SetBias",
+        "SetSetpoint"
+      ],
+      "sites": {
+        "SetBias": [
+          {
+            "file": "builtins/characterise_noise.py",
+            "line": 306
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "builtins/characterise_noise.py",
+            "line": 271
+          },
+          {
+            "file": "builtins/characterise_noise.py",
+            "line": 290
+          },
+          {
+            "file": "builtins/characterise_noise.py",
+            "line": 311
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "skill",
+          "file": "builtins/characterise_noise.py",
+          "line": 345
+        },
+        {
+          "expr": "skill",
+          "file": "builtins/characterise_noise.py",
+          "line": 762
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "CharacteriseQuietDrift": {
+      "defined_in": [
+        "builtins/quiet_drift.py:CharacteriseQuietDrift"
+      ],
+      "runs": [
+        "StopScan"
+      ],
+      "sites": {
+        "StopScan": [
+          {
+            "file": "builtins/quiet_drift.py",
+            "line": 108
+          }
+        ]
+      }
+    },
+    "CheckLineQuality": {
+      "defined_in": [
+        "paper/line_check.py:CheckLineQuality"
+      ],
+      "runs": []
+    },
+    "CheckPiezoRange": {
+      "defined_in": [
+        "builtins/piezo_range_check.py:CheckPiezoRange"
+      ],
+      "runs": []
+    },
+    "CheckScanForCrash": {
+      "defined_in": [
+        "builtins/scan_frame.py:CheckScanForCrash"
+      ],
+      "runs": []
+    },
+    "CheckTipCrashByAmplitude": {
+      "defined_in": [
+        "builtins/qplus_amplitude.py:CheckTipCrashByAmplitude"
+      ],
+      "runs": []
+    },
+    "ClassifyUnexplainedCurrent": {
+      "defined_in": [
+        "builtins/current_origin.py:ClassifyUnexplainedCurrent"
+      ],
+      "runs": [
+        "GetBias",
+        "GetCurrent",
+        "GetZControllerState",
+        "SetBias",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "GetBias": [
+          {
+            "file": "builtins/current_origin.py",
+            "line": 296
+          }
+        ],
+        "GetCurrent": [
+          {
+            "file": "builtins/current_origin.py",
+            "line": 245
+          }
+        ],
+        "GetZControllerState": [
+          {
+            "file": "builtins/current_origin.py",
+            "line": 306
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "builtins/current_origin.py",
+            "line": 334
+          },
+          {
+            "file": "builtins/current_origin.py",
+            "line": 344
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "builtins/current_origin.py",
+            "line": 317
+          },
+          {
+            "file": "builtins/current_origin.py",
+            "line": 345
+          }
+        ]
+      }
+    },
+    "CleanTipUntilBarrier": {
+      "defined_in": [
+        "builtins/clean_tip.py:CleanTipUntilBarrier"
+      ],
+      "runs": [
+        "BiasPulse",
+        "GetBias",
+        "MeasureBarrierHeight",
+        "TipShape"
+      ],
+      "sites": {
+        "BiasPulse": [
+          {
+            "file": "builtins/clean_tip.py",
+            "line": 138
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "builtins/clean_tip.py",
+            "line": 185
+          }
+        ],
+        "MeasureBarrierHeight": [
+          {
+            "file": "builtins/clean_tip.py",
+            "line": 149
+          }
+        ],
+        "TipShape": [
+          {
+            "file": "builtins/clean_tip.py",
+            "line": 129
+          }
+        ]
+      }
+    },
+    "ClusterDefects_rVAE": {
+      "defined_in": [
+        "paper/defect_cluster.py:ClusterDefects_rVAE"
+      ],
+      "runs": []
+    },
+    "CoarseMotionSelfCheck": {
+      "defined_in": [
+        "builtins/coarse_selfcheck.py:CoarseMotionSelfCheck"
+      ],
+      "runs": []
+    },
+    "ComposePanelMontage": {
+      "defined_in": [
+        "paper/montage.py:ComposePanelMontage"
+      ],
+      "runs": []
+    },
+    "ComputeDriftVector": {
+      "defined_in": [
+        "builtins/scan_frame.py:ComputeDriftVector"
+      ],
+      "runs": []
+    },
+    "ConditionTip": {
+      "defined_in": [
+        "composite/condition_tip.py:ConditionTip"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "ConfigureScan",
+        "SetScanSpeed",
+        "StartScan",
+        "TipPulse"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "composite/condition_tip.py",
+            "line": 190
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/condition_tip.py",
+            "line": 148
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/condition_tip.py",
+            "line": 157
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/condition_tip.py",
+            "line": 166
+          }
+        ],
+        "TipPulse": [
+          {
+            "file": "composite/condition_tip.py",
+            "line": 310
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "ConditionTip_DQN": {
+      "defined_in": [
+        "paper/autonomous.py:ConditionTip_DQN"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "FullScan",
+        "TipPulse"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 802
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 787
+          }
+        ],
+        "TipPulse": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 751
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "ConfigureAtomTrack": {
+      "defined_in": [
+        "builtins/atom_track.py:ConfigureAtomTrack"
+      ],
+      "runs": []
+    },
+    "ConfigureBeamDeflection": {
+      "defined_in": [
+        "builtins/optional_afm.py:ConfigureBeamDeflection"
+      ],
+      "runs": []
+    },
+    "ConfigureBiasSweep": {
+      "defined_in": [
+        "builtins/sweep.py:ConfigureBiasSweep"
+      ],
+      "runs": []
+    },
+    "ConfigureCalculatedOutput": {
+      "defined_in": [
+        "builtins/user_output.py:ConfigureCalculatedOutput"
+      ],
+      "runs": []
+    },
+    "ConfigureDigitalLine": {
+      "defined_in": [
+        "builtins/user_output.py:ConfigureDigitalLine"
+      ],
+      "runs": []
+    },
+    "ConfigureDualScope": {
+      "defined_in": [
+        "builtins/optional_scopes.py:ConfigureDualScope"
+      ],
+      "runs": []
+    },
+    "ConfigureHighResScope": {
+      "defined_in": [
+        "builtins/optional_scopes.py:ConfigureHighResScope"
+      ],
+      "runs": []
+    },
+    "ConfigureHighSpeedSweep": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:ConfigureHighSpeedSweep"
+      ],
+      "runs": []
+    },
+    "ConfigureInterferometer": {
+      "defined_in": [
+        "builtins/optional_afm.py:ConfigureInterferometer"
+      ],
+      "runs": []
+    },
+    "ConfigureKelvinController": {
+      "defined_in": [
+        "builtins/optional_afm.py:ConfigureKelvinController"
+      ],
+      "runs": []
+    },
+    "ConfigureLockIn": {
+      "defined_in": [
+        "builtins/lockin.py:ConfigureLockIn"
+      ],
+      "runs": []
+    },
+    "ConfigureLockInDemod": {
+      "defined_in": [
+        "builtins/lockin.py:ConfigureLockInDemod"
+      ],
+      "runs": []
+    },
+    "ConfigureLockInSweep": {
+      "defined_in": [
+        "builtins/sweep.py:ConfigureLockInSweep"
+      ],
+      "runs": []
+    },
+    "ConfigureOcSync": {
+      "defined_in": [
+        "builtins/optional_controllers.py:ConfigureOcSync"
+      ],
+      "runs": []
+    },
+    "ConfigurePLL": {
+      "defined_in": [
+        "builtins/pll.py:ConfigurePLL"
+      ],
+      "runs": []
+    },
+    "ConfigurePLLExcitation": {
+      "defined_in": [
+        "builtins/pll.py:ConfigurePLLExcitation"
+      ],
+      "runs": []
+    },
+    "ConfigurePiController": {
+      "defined_in": [
+        "builtins/optional_controllers.py:ConfigurePiController"
+      ],
+      "runs": []
+    },
+    "ConfigurePllSignalAnalyzer": {
+      "defined_in": [
+        "builtins/optional_controllers.py:ConfigurePllSignalAnalyzer"
+      ],
+      "runs": []
+    },
+    "ConfigurePreamp": {
+      "defined_in": [
+        "builtins/optional_controllers.py:ConfigurePreamp"
+      ],
+      "runs": []
+    },
+    "ConfigureProbeCurrentGain": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:ConfigureProbeCurrentGain"
+      ],
+      "runs": []
+    },
+    "ConfigureProbeScanner": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:ConfigureProbeScanner"
+      ],
+      "runs": []
+    },
+    "ConfigureRfGenerator": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:ConfigureRfGenerator"
+      ],
+      "runs": []
+    },
+    "ConfigureSTS": {
+      "defined_in": [
+        "builtins/spectroscopy.py:ConfigureSTS"
+      ],
+      "runs": []
+    },
+    "ConfigureSTSChannels": {
+      "defined_in": [
+        "builtins/spectroscopy.py:ConfigureSTSChannels"
+      ],
+      "runs": []
+    },
+    "ConfigureSTSTiming": {
+      "defined_in": [
+        "builtins/spectroscopy.py:ConfigureSTSTiming"
+      ],
+      "runs": []
+    },
+    "ConfigureScan": {
+      "defined_in": [
+        "builtins/imaging.py:ConfigureScan"
+      ],
+      "runs": []
+    },
+    "ConfigureScopeTrigger": {
+      "defined_in": [
+        "builtins/misc_setters.py:ConfigureScopeTrigger"
+      ],
+      "runs": []
+    },
+    "ConfigureSignalChart": {
+      "defined_in": [
+        "builtins/optional_scopes.py:ConfigureSignalChart"
+      ],
+      "runs": []
+    },
+    "ConfigureSpectrumAnalyzer": {
+      "defined_in": [
+        "builtins/spectrum_analyzer.py:ConfigureSpectrumAnalyzer"
+      ],
+      "runs": []
+    },
+    "ConfigureTipRecorder": {
+      "defined_in": [
+        "builtins/optional_controllers.py:ConfigureTipRecorder"
+      ],
+      "runs": []
+    },
+    "ConfigureWaveform": {
+      "defined_in": [
+        "builtins/function_generator.py:ConfigureWaveform"
+      ],
+      "runs": []
+    },
+    "ConfigureZSpectr": {
+      "defined_in": [
+        "builtins/spectroscopy.py:ConfigureZSpectr"
+      ],
+      "runs": []
+    },
+    "ConfigureZSpectrTiming": {
+      "defined_in": [
+        "builtins/spectroscopy.py:ConfigureZSpectrTiming"
+      ],
+      "runs": []
+    },
+    "ContinuousImaging_Auto": {
+      "defined_in": [
+        "paper/autonomous.py:ContinuousImaging_Auto"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "ConditionTip",
+        "FindGoodRegion_Heuristic",
+        "FullScan"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1357
+          }
+        ],
+        "ConditionTip": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1401
+          }
+        ],
+        "FindGoodRegion_Heuristic": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1385
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 1342
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "CorrectDrift_BraggPeak": {
+      "defined_in": [
+        "paper/drift_bragg.py:CorrectDrift_BraggPeak"
+      ],
+      "runs": []
+    },
+    "CorrectDrift_XCorr": {
+      "defined_in": [
+        "paper/data_processing.py:CorrectDrift_XCorr"
+      ],
+      "runs": []
+    },
+    "CreateZCtrlPreset": {
+      "defined_in": [
+        "builtins/zctrl_presets_skills.py:CreateZCtrlPreset"
+      ],
+      "runs": []
+    },
+    "CrossPointTipCheck": {
+      "defined_in": [
+        "composite/cross_point_tip_check.py:CrossPointTipCheck"
+      ],
+      "runs": [
+        "AssessFrameCorrugation",
+        "FindCleanSpot",
+        "MoveToXY",
+        "PreScanCheck",
+        "SaveScan"
+      ],
+      "sites": {
+        "AssessFrameCorrugation": [
+          {
+            "file": "composite/cross_point_tip_check.py",
+            "line": 449
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/cross_point_tip_check.py",
+            "line": 344
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/cross_point_tip_check.py",
+            "line": 399
+          }
+        ],
+        "PreScanCheck": [
+          {
+            "file": "composite/cross_point_tip_check.py",
+            "line": 416
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/cross_point_tip_check.py",
+            "line": 435
+          }
+        ]
+      }
+    },
+    "DeconvolveTip_RL": {
+      "defined_in": [
+        "paper/deconvolution.py:DeconvolveTip_RL"
+      ],
+      "runs": []
+    },
+    "DelayLineGetDelay": {
+      "defined_in": [
+        "builtins/optics_stage.py:DelayLineGetDelay"
+      ],
+      "runs": []
+    },
+    "DelayLineMoveTo": {
+      "defined_in": [
+        "builtins/optics_stage.py:DelayLineMoveTo"
+      ],
+      "runs": []
+    },
+    "DemoScanAndSTS": {
+      "defined_in": [
+        "composite/demo_scan_and_sts.py:DemoScanAndSTS"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "ConfigureSTS",
+        "ConfigureScan",
+        "MoveToXY",
+        "SaveScan",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 258
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 235
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 184
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 250
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 227
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 197
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 211
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/demo_scan_and_sts.py",
+            "line": 219
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "Denoise_AE": {
+      "defined_in": [
+        "paper/denoise.py:Denoise_AE"
+      ],
+      "runs": []
+    },
+    "DeployNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script.py:DeployNanonisScript"
+      ],
+      "runs": []
+    },
+    "DeployScriptLUT": {
+      "defined_in": [
+        "builtins/nanonis_script.py:DeployScriptLUT"
+      ],
+      "runs": []
+    },
+    "Destripe_MorphOpen": {
+      "defined_in": [
+        "paper/image_filters.py:Destripe_MorphOpen"
+      ],
+      "runs": []
+    },
+    "DetectAtomJump": {
+      "defined_in": [
+        "paper/atom_jump.py:DetectAtomJump"
+      ],
+      "runs": []
+    },
+    "DetectAtoms_FCN": {
+      "defined_in": [
+        "paper/region_analysis.py:DetectAtoms_FCN"
+      ],
+      "runs": []
+    },
+    "DiffScans_ChangeDetect": {
+      "defined_in": [
+        "paper/scan_diff.py:DiffScans_ChangeDetect"
+      ],
+      "runs": []
+    },
+    "DrawScanMarker": {
+      "defined_in": [
+        "builtins/marks.py:DrawScanMarker"
+      ],
+      "runs": []
+    },
+    "EmergencyRetract": {
+      "defined_in": [
+        "builtins/tip.py:EmergencyRetract"
+      ],
+      "runs": []
+    },
+    "EnableSafeTip": {
+      "defined_in": [
+        "builtins/safety_hw.py:EnableSafeTip"
+      ],
+      "runs": []
+    },
+    "EraseScanMarkers": {
+      "defined_in": [
+        "builtins/marks.py:EraseScanMarkers"
+      ],
+      "runs": []
+    },
+    "ExecuteScanPlan": {
+      "defined_in": [
+        "composite/execute_scan_plan.py:ExecuteScanPlan"
+      ],
+      "runs": [
+        "BiasSettleChange",
+        "SaveScan",
+        "ScanAt"
+      ],
+      "sites": {
+        "BiasSettleChange": [
+          {
+            "file": "composite/execute_scan_plan.py",
+            "line": 268
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/execute_scan_plan.py",
+            "line": 289
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/execute_scan_plan.py",
+            "line": 278
+          }
+        ]
+      }
+    },
+    "ExtractClusters": {
+      "defined_in": [
+        "builtins/cluster_extract.py:ExtractClusters"
+      ],
+      "runs": []
+    },
+    "FindCleanSpot": {
+      "defined_in": [
+        "builtins/clean_spot.py:FindCleanSpot"
+      ],
+      "runs": []
+    },
+    "FindEmptySpot": {
+      "defined_in": [
+        "paper/data_processing.py:FindEmptySpot"
+      ],
+      "runs": []
+    },
+    "FindFlatRegion": {
+      "defined_in": [
+        "builtins/flat_region.py:FindFlatRegion"
+      ],
+      "runs": []
+    },
+    "FindGoodRegion_Heuristic": {
+      "defined_in": [
+        "paper/autonomous.py:FindGoodRegion_Heuristic"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "FullScan",
+        "MoveToXY"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 270
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 255
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 313
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "FindGoodRegion_UNet": {
+      "defined_in": [
+        "paper/autonomous.py:FindGoodRegion_UNet"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "FullScan",
+        "MoveToXY"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 474
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 459
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "paper/autonomous.py",
+            "line": 528
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "FindSpectralPeaks": {
+      "defined_in": [
+        "builtins/spectral_peaks.py:FindSpectralPeaks"
+      ],
+      "runs": []
+    },
+    "FitDispersion": {
+      "defined_in": [
+        "builtins/dispersion_fit.py:FitDispersion"
+      ],
+      "runs": []
+    },
+    "FitFano_Kondo": {
+      "defined_in": [
+        "paper/spectral_analysis.py:FitFano_Kondo"
+      ],
+      "runs": []
+    },
+    "FitGap_BCS": {
+      "defined_in": [
+        "paper/spectral_analysis.py:FitGap_BCS"
+      ],
+      "runs": []
+    },
+    "ForgeAuTip": {
+      "defined_in": [
+        "composite/forge_au_tip.py:ForgeAuTip"
+      ],
+      "runs": [
+        "AnalyzeFrameTilt",
+        "AssessClusterRoundness",
+        "AssessTipSharpness",
+        "AutoTilt",
+        "BiasPulseWithReadback",
+        "CaptureSignalBuffer",
+        "FindCleanSpot",
+        "FindFlatRegion",
+        "GetBias",
+        "GetLatestScanFile",
+        "MoveToXY",
+        "PreScanCheck",
+        "RelocateCoarseXY",
+        "SaveScan",
+        "ScanAt",
+        "SetBias",
+        "SetSetpoint",
+        "TipShapeWithReadback",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AnalyzeFrameTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1249
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1322
+          }
+        ],
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1907
+          }
+        ],
+        "AssessTipSharpness": [
+          {
+            "file": "composite/forge_au_tip.py",
+            "line": 1060
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1496
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2284
+          }
+        ],
+        "BiasPulseWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 839
+          }
+        ],
+        "CaptureSignalBuffer": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1544
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1387
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1436
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2077
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2343
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1105
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1229
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1316
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1899
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2064
+          },
+          {
+            "file": "composite/forge_au_tip.py",
+            "line": 1045
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 593
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "PreScanCheck": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1046
+          }
+        ],
+        "RelocateCoarseXY": [
+          {
+            "file": "composite/forge_au_tip.py",
+            "line": 1123
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1102
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1226
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1313
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1896
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2061
+          },
+          {
+            "file": "composite/forge_au_tip.py",
+            "line": 1042
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1215
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1303
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1884
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2047
+          },
+          {
+            "file": "composite/forge_au_tip.py",
+            "line": 1032
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 769
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1003
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1785
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1859
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 773
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1007
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1815
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 589
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2769
+          }
+        ]
+      }
+    },
+    "FullScan": {
+      "defined_in": [
+        "composite/full_scan.py:FullScan"
+      ],
+      "runs": [
+        "ConfigureScan",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "ConfigureScan": [
+          {
+            "file": "composite/full_scan.py",
+            "line": 247
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/full_scan.py",
+            "line": 255
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/full_scan.py",
+            "line": 269
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/full_scan.py",
+            "line": 277
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "GenSwpAcqChsGet": {
+      "defined_in": [
+        "builtins/sweep.py:GenSwpAcqChsGet"
+      ],
+      "runs": []
+    },
+    "GenSwpPropsGet": {
+      "defined_in": [
+        "builtins/sweep.py:GenSwpPropsGet"
+      ],
+      "runs": []
+    },
+    "GenSwpStop": {
+      "defined_in": [
+        "builtins/sweep.py:GenSwpStop"
+      ],
+      "runs": []
+    },
+    "GenSwpSwpSignalGet": {
+      "defined_in": [
+        "builtins/sweep.py:GenSwpSwpSignalGet"
+      ],
+      "runs": []
+    },
+    "GetAcqPeriod": {
+      "defined_in": [
+        "builtins/util.py:GetAcqPeriod"
+      ],
+      "runs": []
+    },
+    "GetAutoApproachStatus": {
+      "defined_in": [
+        "builtins/approach.py:GetAutoApproachStatus"
+      ],
+      "runs": []
+    },
+    "GetBeamDeflection": {
+      "defined_in": [
+        "builtins/optional_afm.py:GetBeamDeflection"
+      ],
+      "runs": []
+    },
+    "GetBias": {
+      "defined_in": [
+        "builtins/bias.py:GetBias"
+      ],
+      "runs": []
+    },
+    "GetBiasCalibration": {
+      "defined_in": [
+        "builtins/bias.py:GetBiasCalibration"
+      ],
+      "runs": []
+    },
+    "GetCalculatedOutputConfig": {
+      "defined_in": [
+        "builtins/user_output.py:GetCalculatedOutputConfig"
+      ],
+      "runs": []
+    },
+    "GetChamberPressure": {
+      "defined_in": [
+        "builtins/chamber.py:GetChamberPressure"
+      ],
+      "runs": []
+    },
+    "GetCpdCompensation": {
+      "defined_in": [
+        "builtins/optional_afm.py:GetCpdCompensation"
+      ],
+      "runs": []
+    },
+    "GetCurrent": {
+      "defined_in": [
+        "builtins/bias.py:GetCurrent"
+      ],
+      "runs": []
+    },
+    "GetCurrentBEEM": {
+      "defined_in": [
+        "builtins/current.py:GetCurrentBEEM"
+      ],
+      "runs": []
+    },
+    "GetCurrentGains": {
+      "defined_in": [
+        "builtins/current.py:GetCurrentGains"
+      ],
+      "runs": []
+    },
+    "GetDataLogStatus": {
+      "defined_in": [
+        "builtins/datalog.py:GetDataLogStatus"
+      ],
+      "runs": []
+    },
+    "GetDemodHPFilter": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodHPFilter"
+      ],
+      "runs": []
+    },
+    "GetDemodHarmonic": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodHarmonic"
+      ],
+      "runs": []
+    },
+    "GetDemodLPFilter": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodLPFilter"
+      ],
+      "runs": []
+    },
+    "GetDemodPhasReg": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodPhasReg"
+      ],
+      "runs": []
+    },
+    "GetDemodPhase": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodPhase"
+      ],
+      "runs": []
+    },
+    "GetDemodSignal": {
+      "defined_in": [
+        "builtins/lockin.py:GetDemodSignal"
+      ],
+      "runs": []
+    },
+    "GetDigitalLineTTL": {
+      "defined_in": [
+        "builtins/user_output.py:GetDigitalLineTTL"
+      ],
+      "runs": []
+    },
+    "GetDriftCompensation": {
+      "defined_in": [
+        "builtins/piezo.py:GetDriftCompensation"
+      ],
+      "runs": []
+    },
+    "GetDualScopeData": {
+      "defined_in": [
+        "builtins/optional_scopes.py:GetDualScopeData"
+      ],
+      "runs": []
+    },
+    "GetGenericPiController": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetGenericPiController"
+      ],
+      "runs": []
+    },
+    "GetHighResScopeData": {
+      "defined_in": [
+        "builtins/optional_scopes.py:GetHighResScopeData"
+      ],
+      "runs": []
+    },
+    "GetHighResScopeStatus": {
+      "defined_in": [
+        "builtins/optional_scopes.py:GetHighResScopeStatus"
+      ],
+      "runs": []
+    },
+    "GetHighSpeedSweepStatus": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:GetHighSpeedSweepStatus"
+      ],
+      "runs": []
+    },
+    "GetHomeProps": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetHomeProps"
+      ],
+      "runs": []
+    },
+    "GetInterferometer": {
+      "defined_in": [
+        "builtins/optional_afm.py:GetInterferometer"
+      ],
+      "runs": []
+    },
+    "GetKelvinController": {
+      "defined_in": [
+        "builtins/optional_afm.py:GetKelvinController"
+      ],
+      "runs": []
+    },
+    "GetLaser": {
+      "defined_in": [
+        "builtins/optional_afm.py:GetLaser"
+      ],
+      "runs": []
+    },
+    "GetLatestScanFile": {
+      "defined_in": [
+        "builtins/scan_extra.py:GetLatestScanFile"
+      ],
+      "runs": []
+    },
+    "GetLockInConfig": {
+      "defined_in": [
+        "builtins/lockin.py:GetLockInConfig"
+      ],
+      "runs": []
+    },
+    "GetLockInSweepLimits": {
+      "defined_in": [
+        "builtins/sweep.py:GetLockInSweepLimits"
+      ],
+      "runs": []
+    },
+    "GetLockInSweepProps": {
+      "defined_in": [
+        "builtins/sweep.py:GetLockInSweepProps"
+      ],
+      "runs": []
+    },
+    "GetLockInSweepSignal": {
+      "defined_in": [
+        "builtins/sweep.py:GetLockInSweepSignal"
+      ],
+      "runs": []
+    },
+    "GetMiscInstrumentConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetMiscInstrumentConfig"
+      ],
+      "runs": []
+    },
+    "GetMotorFreqAmp": {
+      "defined_in": [
+        "builtins/motor.py:GetMotorFreqAmp"
+      ],
+      "runs": []
+    },
+    "GetMotorStepCounter": {
+      "defined_in": [
+        "builtins/motor.py:GetMotorStepCounter"
+      ],
+      "runs": []
+    },
+    "GetOcSync": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetOcSync"
+      ],
+      "runs": []
+    },
+    "GetOsciTimebases": {
+      "defined_in": [
+        "builtins/acquire_osci_trace.py:GetOsciTimebases"
+      ],
+      "runs": []
+    },
+    "GetPLLAddOnOff": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLAddOnOff"
+      ],
+      "runs": []
+    },
+    "GetPLLAmpCtrlOnOff": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLAmpCtrlOnOff"
+      ],
+      "runs": []
+    },
+    "GetPLLDemodFilter": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLDemodFilter"
+      ],
+      "runs": []
+    },
+    "GetPLLDemodHarmonic": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLDemodHarmonic"
+      ],
+      "runs": []
+    },
+    "GetPLLDemodInput": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLDemodInput"
+      ],
+      "runs": []
+    },
+    "GetPLLExcRange": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLExcRange"
+      ],
+      "runs": []
+    },
+    "GetPLLFreqRange": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLFreqRange"
+      ],
+      "runs": []
+    },
+    "GetPLLFreqSwpParams": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLFreqSwpParams"
+      ],
+      "runs": []
+    },
+    "GetPLLInpCalibr": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLInpCalibr"
+      ],
+      "runs": []
+    },
+    "GetPLLInpProps": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLInpProps"
+      ],
+      "runs": []
+    },
+    "GetPLLPhasCtrlOnOff": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLPhasCtrlOnOff"
+      ],
+      "runs": []
+    },
+    "GetPLLSignalAnlzrCh": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLSignalAnlzrCh"
+      ],
+      "runs": []
+    },
+    "GetPLLSignalAnlzrFFTProps": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLSignalAnlzrFFTProps"
+      ],
+      "runs": []
+    },
+    "GetPLLSignalAnlzrTimebase": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLSignalAnlzrTimebase"
+      ],
+      "runs": []
+    },
+    "GetPLLStatus": {
+      "defined_in": [
+        "builtins/pll.py:GetPLLStatus"
+      ],
+      "runs": []
+    },
+    "GetPatternCloud": {
+      "defined_in": [
+        "builtins/pattern.py:GetPatternCloud"
+      ],
+      "runs": []
+    },
+    "GetPatternProps": {
+      "defined_in": [
+        "builtins/pattern.py:GetPatternProps"
+      ],
+      "runs": []
+    },
+    "GetPiController": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetPiController"
+      ],
+      "runs": []
+    },
+    "GetPiezoConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetPiezoConfig"
+      ],
+      "runs": []
+    },
+    "GetPiezoHVAInfo": {
+      "defined_in": [
+        "builtins/piezo.py:GetPiezoHVAInfo"
+      ],
+      "runs": []
+    },
+    "GetPiezoHVAStatusLED": {
+      "defined_in": [
+        "builtins/piezo.py:GetPiezoHVAStatusLED"
+      ],
+      "runs": []
+    },
+    "GetPiezoSensitivity": {
+      "defined_in": [
+        "builtins/piezo.py:GetPiezoSensitivity"
+      ],
+      "runs": []
+    },
+    "GetPiezoTilt": {
+      "defined_in": [
+        "builtins/piezo.py:GetPiezoTilt"
+      ],
+      "runs": []
+    },
+    "GetPiezoXYZLimits": {
+      "defined_in": [
+        "builtins/piezo.py:GetPiezoXYZLimits"
+      ],
+      "runs": []
+    },
+    "GetPllConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetPllConfig"
+      ],
+      "runs": []
+    },
+    "GetPllSignalAnalyzerData": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetPllSignalAnalyzerData"
+      ],
+      "runs": []
+    },
+    "GetPllZoomFftData": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetPllZoomFftData"
+      ],
+      "runs": []
+    },
+    "GetPointShootOnOff": {
+      "defined_in": [
+        "builtins/folme.py:GetPointShootOnOff"
+      ],
+      "runs": []
+    },
+    "GetPointShootProps": {
+      "defined_in": [
+        "builtins/folme.py:GetPointShootProps"
+      ],
+      "runs": []
+    },
+    "GetPreamp": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetPreamp"
+      ],
+      "runs": []
+    },
+    "GetProbeBias": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:GetProbeBias"
+      ],
+      "runs": []
+    },
+    "GetProbeCurrent": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:GetProbeCurrent"
+      ],
+      "runs": []
+    },
+    "GetProbeZController": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:GetProbeZController"
+      ],
+      "runs": []
+    },
+    "GetRTFreq": {
+      "defined_in": [
+        "builtins/util.py:GetRTFreq"
+      ],
+      "runs": []
+    },
+    "GetRTOversample": {
+      "defined_in": [
+        "builtins/util.py:GetRTOversample"
+      ],
+      "runs": []
+    },
+    "GetRfGeneratorStatus": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:GetRfGeneratorStatus"
+      ],
+      "runs": []
+    },
+    "GetSTSAltZCtrl": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSAltZCtrl"
+      ],
+      "runs": []
+    },
+    "GetSTSChannels": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSChannels"
+      ],
+      "runs": []
+    },
+    "GetSTSDigSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSDigSync"
+      ],
+      "runs": []
+    },
+    "GetSTSLimits": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSLimits"
+      ],
+      "runs": []
+    },
+    "GetSTSMLSLockinPerSeg": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSMLSLockinPerSeg"
+      ],
+      "runs": []
+    },
+    "GetSTSPulseSeqSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSPulseSeqSync"
+      ],
+      "runs": []
+    },
+    "GetSTSSafeCond1": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSSafeCond1"
+      ],
+      "runs": []
+    },
+    "GetSTSTTLSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSTTLSync"
+      ],
+      "runs": []
+    },
+    "GetSTSTiming": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSTiming"
+      ],
+      "runs": []
+    },
+    "GetSTSZOffRevert": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetSTSZOffRevert"
+      ],
+      "runs": []
+    },
+    "GetSafeTipProps": {
+      "defined_in": [
+        "builtins/safety_hw.py:GetSafeTipProps"
+      ],
+      "runs": []
+    },
+    "GetSafeTipSignal": {
+      "defined_in": [
+        "builtins/safety_hw.py:GetSafeTipSignal"
+      ],
+      "runs": []
+    },
+    "GetSafeTipStatus": {
+      "defined_in": [
+        "builtins/safety_hw.py:GetSafeTipStatus"
+      ],
+      "runs": []
+    },
+    "GetScanBuffer": {
+      "defined_in": [
+        "builtins/scan_extra.py:GetScanBuffer"
+      ],
+      "runs": []
+    },
+    "GetScanFrame": {
+      "defined_in": [
+        "builtins/scan_utils.py:GetScanFrame"
+      ],
+      "runs": []
+    },
+    "GetScanPatternConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetScanPatternConfig"
+      ],
+      "runs": []
+    },
+    "GetScanSpeed": {
+      "defined_in": [
+        "builtins/scan_extra.py:GetScanSpeed"
+      ],
+      "runs": []
+    },
+    "GetScanXYPosition": {
+      "defined_in": [
+        "builtins/imaging.py:GetScanXYPosition"
+      ],
+      "runs": []
+    },
+    "GetScriptChannels": {
+      "defined_in": [
+        "builtins/nanonis_script.py:GetScriptChannels"
+      ],
+      "runs": []
+    },
+    "GetScriptData": {
+      "defined_in": [
+        "builtins/nanonis_script.py:GetScriptData"
+      ],
+      "runs": []
+    },
+    "GetSessionPath": {
+      "defined_in": [
+        "builtins/util.py:GetSessionPath"
+      ],
+      "runs": []
+    },
+    "GetSetpoint": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetSetpoint"
+      ],
+      "runs": []
+    },
+    "GetSignalCalibration": {
+      "defined_in": [
+        "builtins/bias_sweep.py:GetSignalCalibration"
+      ],
+      "runs": []
+    },
+    "GetSignalRange": {
+      "defined_in": [
+        "builtins/signals.py:GetSignalRange"
+      ],
+      "runs": []
+    },
+    "GetSignalValues": {
+      "defined_in": [
+        "builtins/signals.py:GetSignalValues"
+      ],
+      "runs": []
+    },
+    "GetSignalsAddRT": {
+      "defined_in": [
+        "builtins/signals.py:GetSignalsAddRT"
+      ],
+      "runs": []
+    },
+    "GetSpectroscopyConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetSpectroscopyConfig"
+      ],
+      "runs": []
+    },
+    "GetSpectroscopyStatus": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:GetSpectroscopyStatus"
+      ],
+      "runs": []
+    },
+    "GetSpectrumAnalyzerData": {
+      "defined_in": [
+        "builtins/spectrum_analyzer.py:GetSpectrumAnalyzerData"
+      ],
+      "runs": []
+    },
+    "GetTcpLogStatus": {
+      "defined_in": [
+        "builtins/datalog.py:GetTcpLogStatus"
+      ],
+      "runs": []
+    },
+    "GetTemperature": {
+      "defined_in": [
+        "builtins/temperature.py:GetTemperature"
+      ],
+      "runs": []
+    },
+    "GetTipLift": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetTipLift"
+      ],
+      "runs": []
+    },
+    "GetTipRecorderData": {
+      "defined_in": [
+        "builtins/optional_controllers.py:GetTipRecorderData"
+      ],
+      "runs": []
+    },
+    "GetTipShaperConfig": {
+      "defined_in": [
+        "builtins/readback.py:GetTipShaperConfig"
+      ],
+      "runs": []
+    },
+    "GetTipSpeed": {
+      "defined_in": [
+        "builtins/folme.py:GetTipSpeed"
+      ],
+      "runs": []
+    },
+    "GetUserOutputLimits": {
+      "defined_in": [
+        "builtins/user_output.py:GetUserOutputLimits"
+      ],
+      "runs": []
+    },
+    "GetUserOutputMode": {
+      "defined_in": [
+        "builtins/user_output.py:GetUserOutputMode"
+      ],
+      "runs": []
+    },
+    "GetUserOutputMonitorChannel": {
+      "defined_in": [
+        "builtins/user_output.py:GetUserOutputMonitorChannel"
+      ],
+      "runs": []
+    },
+    "GetWaveformStatus": {
+      "defined_in": [
+        "builtins/function_generator.py:GetWaveformStatus"
+      ],
+      "runs": []
+    },
+    "GetWithdrawRate": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetWithdrawRate"
+      ],
+      "runs": []
+    },
+    "GetZControllerState": {
+      "defined_in": [
+        "builtins/readback.py:GetZControllerState"
+      ],
+      "runs": []
+    },
+    "GetZCtrlGain": {
+      "defined_in": [
+        "builtins/zctrl_gain.py:GetZCtrlGain"
+      ],
+      "runs": []
+    },
+    "GetZCtrlList": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetZCtrlList"
+      ],
+      "runs": []
+    },
+    "GetZLimitsEnabled": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetZLimitsEnabled"
+      ],
+      "runs": []
+    },
+    "GetZPosition": {
+      "defined_in": [
+        "builtins/zcontrol.py:GetZPosition"
+      ],
+      "runs": []
+    },
+    "GetZSpectrChannels": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrChannels"
+      ],
+      "runs": []
+    },
+    "GetZSpectrDigSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrDigSync"
+      ],
+      "runs": []
+    },
+    "GetZSpectrPulseSeqSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrPulseSeqSync"
+      ],
+      "runs": []
+    },
+    "GetZSpectrRange": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrRange"
+      ],
+      "runs": []
+    },
+    "GetZSpectrRetract": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrRetract"
+      ],
+      "runs": []
+    },
+    "GetZSpectrRetract2nd": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrRetract2nd"
+      ],
+      "runs": []
+    },
+    "GetZSpectrTTLSync": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrTTLSync"
+      ],
+      "runs": []
+    },
+    "GetZSpectrTiming": {
+      "defined_in": [
+        "builtins/spectroscopy.py:GetZSpectrTiming"
+      ],
+      "runs": []
+    },
+    "GrabScanFrameData": {
+      "defined_in": [
+        "builtins/scan_frame.py:GrabScanFrameData"
+      ],
+      "runs": []
+    },
+    "GridSTS": {
+      "defined_in": [
+        "composite/grid_sts.py:GridSTS"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "ConfigureSTS",
+        "MoveToXY"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "composite/grid_sts.py",
+            "line": 162
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "composite/grid_sts.py",
+            "line": 142
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/grid_sts.py",
+            "line": 154
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "HomeOpticalStage": {
+      "defined_in": [
+        "builtins/optics_stage.py:HomeOpticalStage"
+      ],
+      "runs": []
+    },
+    "HomeZController": {
+      "defined_in": [
+        "builtins/instrument_limits.py:HomeZController"
+      ],
+      "runs": []
+    },
+    "IdentifyTopology_CARP": {
+      "defined_in": [
+        "paper/region_analysis.py:IdentifyTopology_CARP"
+      ],
+      "runs": []
+    },
+    "InvertForceSaderJarvis": {
+      "defined_in": [
+        "builtins/force_inversion.py:InvertForceSaderJarvis"
+      ],
+      "runs": []
+    },
+    "LevelLines_Median": {
+      "defined_in": [
+        "paper/data_processing.py:LevelLines_Median"
+      ],
+      "runs": []
+    },
+    "LineSTSAcrossWall": {
+      "defined_in": [
+        "composite/line_sts_across_wall.py:LineSTSAcrossWall"
+      ],
+      "runs": [
+        "SpectroscopyAtPositions"
+      ],
+      "sites": {
+        "SpectroscopyAtPositions": [
+          {
+            "file": "composite/line_sts_across_wall.py",
+            "line": 517
+          }
+        ]
+      }
+    },
+    "ListLockInPresets": {
+      "defined_in": [
+        "builtins/lockin_presets_skills.py:ListLockInPresets"
+      ],
+      "runs": []
+    },
+    "ListNanonisScripts": {
+      "defined_in": [
+        "builtins/nanonis_script.py:ListNanonisScripts"
+      ],
+      "runs": []
+    },
+    "ListOpticalDevices": {
+      "defined_in": [
+        "builtins/optics_stage.py:ListOpticalDevices"
+      ],
+      "runs": []
+    },
+    "ListScanMarkers": {
+      "defined_in": [
+        "builtins/marks.py:ListScanMarkers"
+      ],
+      "runs": []
+    },
+    "ListSignalChannels": {
+      "defined_in": [
+        "builtins/signals.py:ListSignalChannels"
+      ],
+      "runs": []
+    },
+    "ListZCtrlPresets": {
+      "defined_in": [
+        "builtins/zctrl_presets_skills.py:ListZCtrlPresets"
+      ],
+      "runs": []
+    },
+    "LoadLayout": {
+      "defined_in": [
+        "builtins/util.py:LoadLayout"
+      ],
+      "runs": []
+    },
+    "LoadMultiPassConfig": {
+      "defined_in": [
+        "builtins/advanced_ops.py:LoadMultiPassConfig"
+      ],
+      "runs": []
+    },
+    "LoadNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script_files.py:LoadNanonisScript"
+      ],
+      "runs": []
+    },
+    "LoadPiezoHysteresisFile": {
+      "defined_in": [
+        "builtins/piezo.py:LoadPiezoHysteresisFile"
+      ],
+      "runs": []
+    },
+    "LoadScanFrameFromFile": {
+      "defined_in": [
+        "builtins/scan_frame.py:LoadScanFrameFromFile"
+      ],
+      "runs": []
+    },
+    "LoadScriptLUT": {
+      "defined_in": [
+        "builtins/nanonis_script.py:LoadScriptLUT"
+      ],
+      "runs": []
+    },
+    "LocateStepEdge": {
+      "defined_in": [
+        "builtins/step_edge.py:LocateStepEdge"
+      ],
+      "runs": []
+    },
+    "LockNanonisUI": {
+      "defined_in": [
+        "builtins/util.py:LockNanonisUI"
+      ],
+      "runs": []
+    },
+    "MakeAtomicResolutionTip": {
+      "defined_in": [
+        "composite/make_special_tip.py:MakeAtomicResolutionTip"
+      ],
+      "runs": [
+        "AssessAtomicLines",
+        "AssessAtomicPhase",
+        "AssessClusterRoundness",
+        "AutoTilt",
+        "BiasWiggle",
+        "CaptureSignalBuffer",
+        "ConfigureScan",
+        "FindCleanSpot",
+        "FindFlatRegion",
+        "GetBias",
+        "GetLatestScanFile",
+        "MoveToXY",
+        "SaveScan",
+        "ScanAt",
+        "SetBias",
+        "SetSetpoint",
+        "StartScan",
+        "StopScan",
+        "TipShapeWithReadback",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AssessAtomicLines": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 697
+          }
+        ],
+        "AssessAtomicPhase": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 761
+          }
+        ],
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1907
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2284
+          }
+        ],
+        "BiasWiggle": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 682
+          }
+        ],
+        "CaptureSignalBuffer": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1544
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 671
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2077
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 623
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2343
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1899
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2064
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 617
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 740
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 593
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1896
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2061
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 614
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 737
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1884
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2047
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 608
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 728
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1785
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1859
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 663
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 667
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 678
+          }
+        ],
+        "StopScan": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 721
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1815
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 589
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2769
+          }
+        ]
+      }
+    },
+    "MakeSpectroscopyTip": {
+      "defined_in": [
+        "composite/make_special_tip.py:MakeSpectroscopyTip"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "AssessClusterRoundness",
+        "AssessShockleyOnset",
+        "AutoTilt",
+        "CaptureSignalBuffer",
+        "ConfigureLockIn",
+        "ConfigureSTS",
+        "FindCleanSpot",
+        "FindFlatRegion",
+        "GetBias",
+        "GetLatestScanFile",
+        "MoveToXY",
+        "SaveScan",
+        "ScanAt",
+        "SetBias",
+        "SetSetpoint",
+        "TipShapeWithReadback",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 377
+          }
+        ],
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1907
+          }
+        ],
+        "AssessShockleyOnset": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 393
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2284
+          }
+        ],
+        "CaptureSignalBuffer": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1544
+          }
+        ],
+        "ConfigureLockIn": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 359
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 434
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 364
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2077
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2343
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1899
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2064
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 593
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1896
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2061
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1884
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2047
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1785
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1859
+          },
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 351
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/make_special_tip.py",
+            "line": 355
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1815
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 589
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2769
+          }
+        ]
+      }
+    },
+    "MapBarrierHeight": {
+      "defined_in": [
+        "builtins/barrier_map.py:MapBarrierHeight"
+      ],
+      "runs": [
+        "MeasureBarrierHeight",
+        "ScanAt"
+      ],
+      "sites": {
+        "MeasureBarrierHeight": [
+          {
+            "file": "builtins/barrier_map.py",
+            "line": 175
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "builtins/barrier_map.py",
+            "line": 167
+          }
+        ]
+      }
+    },
+    "MeasureBarrierHeight": {
+      "defined_in": [
+        "builtins/barrier_height.py:MeasureBarrierHeight"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "ConfigureSTS",
+        "ConfigureSTSChannels",
+        "ConfigureSTSTiming",
+        "GetBias",
+        "SetBias"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 233
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 227
+          },
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 326
+          }
+        ],
+        "ConfigureSTSChannels": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 200
+          }
+        ],
+        "ConfigureSTSTiming": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 201
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 300
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "builtins/barrier_height.py",
+            "line": 307
+          }
+        ]
+      }
+    },
+    "MeasureFrameDrift": {
+      "defined_in": [
+        "builtins/frame_drift_skill.py:MeasureFrameDrift"
+      ],
+      "runs": []
+    },
+    "MeasureLatticeCell": {
+      "defined_in": [
+        "builtins/lattice_cell_skill.py:MeasureLatticeCell"
+      ],
+      "runs": []
+    },
+    "MeasureStepHeight": {
+      "defined_in": [
+        "builtins/step_height.py:MeasureStepHeight"
+      ],
+      "runs": []
+    },
+    "MonitorCurrent": {
+      "defined_in": [
+        "builtins/current_monitor.py:MonitorCurrent"
+      ],
+      "runs": []
+    },
+    "MonitorCurrentFFT": {
+      "defined_in": [
+        "builtins/monitor_current_fft.py:MonitorCurrentFFT"
+      ],
+      "runs": []
+    },
+    "MotorGetPos": {
+      "defined_in": [
+        "builtins/motor.py:MotorGetPos"
+      ],
+      "runs": []
+    },
+    "MotorMove": {
+      "defined_in": [
+        "builtins/motor.py:MotorMove"
+      ],
+      "runs": []
+    },
+    "MotorMoveClosedLoop": {
+      "defined_in": [
+        "builtins/motor.py:MotorMoveClosedLoop"
+      ],
+      "runs": []
+    },
+    "MoveAtomTo": {
+      "defined_in": [
+        "composite/move_atom_to.py:MoveAtomTo"
+      ],
+      "runs": [
+        "GetBias",
+        "GetCurrentGains",
+        "GetSetpoint",
+        "GetTipSpeed",
+        "MoveToXY",
+        "ScanAt",
+        "SetBias",
+        "SetCurrentGain",
+        "SetSetpoint",
+        "SetTipSpeed",
+        "VerifyAdatomAt"
+      ],
+      "sites": {
+        "GetBias": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 119
+          }
+        ],
+        "GetCurrentGains": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 128
+          }
+        ],
+        "GetSetpoint": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 121
+          }
+        ],
+        "GetTipSpeed": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 123
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 141
+          },
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 160
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 183
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 151
+          },
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 169
+          }
+        ],
+        "SetCurrentGain": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 146
+          },
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 173
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 153
+          },
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 165
+          }
+        ],
+        "SetTipSpeed": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 156
+          },
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 176
+          }
+        ],
+        "VerifyAdatomAt": [
+          {
+            "file": "composite/move_atom_to.py",
+            "line": 193
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "MoveProbeXY": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:MoveProbeXY"
+      ],
+      "runs": []
+    },
+    "MoveToXY": {
+      "defined_in": [
+        "builtins/navigation.py:MoveToXY"
+      ],
+      "runs": []
+    },
+    "OpenPatternExperiment": {
+      "defined_in": [
+        "builtins/pattern.py:OpenPatternExperiment"
+      ],
+      "runs": []
+    },
+    "OpticalStageGetPos": {
+      "defined_in": [
+        "builtins/optics_stage.py:OpticalStageGetPos"
+      ],
+      "runs": []
+    },
+    "OpticalStageMove": {
+      "defined_in": [
+        "builtins/optics_stage.py:OpticalStageMove"
+      ],
+      "runs": []
+    },
+    "OpticalStageScan": {
+      "defined_in": [
+        "builtins/optics_scan.py:OpticalStageScan"
+      ],
+      "runs": []
+    },
+    "OpticalStageWiggle": {
+      "defined_in": [
+        "builtins/optics_stage.py:OpticalStageWiggle"
+      ],
+      "runs": []
+    },
+    "OptimizeResolution_BO": {
+      "defined_in": [
+        "paper/optimization.py:OptimizeResolution_BO"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "FullScan",
+        "GetScanFrame",
+        "SetBias",
+        "SetSetpoint"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "paper/optimization.py",
+            "line": 316
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "paper/optimization.py",
+            "line": 298
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "paper/optimization.py",
+            "line": 215
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "paper/optimization.py",
+            "line": 264
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "paper/optimization.py",
+            "line": 283
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "PLLFreqShiftAutoCenter": {
+      "defined_in": [
+        "builtins/pll.py:PLLFreqShiftAutoCenter"
+      ],
+      "runs": []
+    },
+    "PLLOnOff": {
+      "defined_in": [
+        "builtins/pll.py:PLLOnOff"
+      ],
+      "runs": []
+    },
+    "PLLPerfectPLLUpdtZTC": {
+      "defined_in": [
+        "builtins/pll.py:PLLPerfectPLLUpdtZTC"
+      ],
+      "runs": []
+    },
+    "PLLSignalAnalyzer": {
+      "defined_in": [
+        "builtins/pll.py:PLLSignalAnalyzer"
+      ],
+      "runs": []
+    },
+    "PLLSignalAnlzrTrigAuto": {
+      "defined_in": [
+        "builtins/pll.py:PLLSignalAnlzrTrigAuto"
+      ],
+      "runs": []
+    },
+    "ParseRegions": {
+      "defined_in": [
+        "builtins/scan_frame.py:ParseRegions"
+      ],
+      "runs": []
+    },
+    "PausePatternExperiment": {
+      "defined_in": [
+        "builtins/pattern.py:PausePatternExperiment"
+      ],
+      "runs": []
+    },
+    "PokeConditionTip": {
+      "defined_in": [
+        "composite/prepare_noble_tip.py:PokeConditionTip"
+      ],
+      "runs": [
+        "AssessClusterRoundness",
+        "AutoTilt",
+        "CaptureSignalBuffer",
+        "FindCleanSpot",
+        "FindFlatRegion",
+        "GetBias",
+        "GetLatestScanFile",
+        "MoveToXY",
+        "SaveScan",
+        "ScanAt",
+        "SetBias",
+        "TipShapeWithReadback",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1907
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2284
+          }
+        ],
+        "CaptureSignalBuffer": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1544
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2077
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2343
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1899
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2064
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 593
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1896
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2061
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1884
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2047
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1785
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1859
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1815
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 589
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2769
+          }
+        ]
+      }
+    },
+    "PreScanCheck": {
+      "defined_in": [
+        "composite/prescan_check.py:PreScanCheck"
+      ],
+      "runs": [
+        "ConfigureScan",
+        "GetLatestScanFile",
+        "SaveScan",
+        "SetScanBuffer",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "ConfigureScan": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 444
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 557
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 549
+          }
+        ],
+        "SetScanBuffer": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 510
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 481
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 520
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/prescan_check.py",
+            "line": 538
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "PredictSpectrumFromTopo": {
+      "defined_in": [
+        "paper/imspec.py:PredictSpectrumFromTopo"
+      ],
+      "runs": []
+    },
+    "PredictStructure_ASD": {
+      "defined_in": [
+        "paper/region_analysis.py:PredictStructure_ASD"
+      ],
+      "runs": []
+    },
+    "PrepareNobleTip": {
+      "defined_in": [
+        "composite/prepare_noble_tip.py:PrepareNobleTip"
+      ],
+      "runs": [
+        "AnalyzeFrameTilt",
+        "AssessClusterRoundness",
+        "AssessTipSharpness",
+        "AutoTilt",
+        "BiasPulseWithReadback",
+        "CaptureSignalBuffer",
+        "FindCleanSpot",
+        "FindFlatRegion",
+        "GetBias",
+        "GetLatestScanFile",
+        "MoveToXY",
+        "PreScanCheck",
+        "SaveScan",
+        "ScanAt",
+        "SetBias",
+        "SetSetpoint",
+        "TipShapeWithReadback",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AnalyzeFrameTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1249
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1322
+          }
+        ],
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1907
+          }
+        ],
+        "AssessTipSharpness": [
+          {
+            "file": "composite/prepare_noble_tip.py",
+            "line": 432
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1496
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2284
+          }
+        ],
+        "BiasPulseWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 839
+          }
+        ],
+        "CaptureSignalBuffer": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1544
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1387
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1436
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2077
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2343
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1105
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1229
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1316
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1899
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2064
+          },
+          {
+            "file": "composite/prepare_noble_tip.py",
+            "line": 422
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 593
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "PreScanCheck": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1046
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1102
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1226
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1313
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1896
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2061
+          },
+          {
+            "file": "composite/prepare_noble_tip.py",
+            "line": 419
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1215
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1303
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1884
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2047
+          },
+          {
+            "file": "composite/prepare_noble_tip.py",
+            "line": 409
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 769
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1003
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1785
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1859
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 773
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1007
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 1815
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 589
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          },
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 2769
+          }
+        ]
+      }
+    },
+    "PulseConditionTip": {
+      "defined_in": [
+        "composite/prepare_noble_tip.py:PulseConditionTip"
+      ],
+      "runs": [
+        "BiasPulseWithReadback",
+        "FindCleanSpot",
+        "MoveToXY",
+        "SetBias",
+        "SetSetpoint",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "BiasPulseWithReadback": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 839
+          }
+        ],
+        "FindCleanSpot": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 623
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 724
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 769
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 773
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/_tip_phases.py",
+            "line": 704
+          }
+        ]
+      }
+    },
+    "PulseDigitalLine": {
+      "defined_in": [
+        "builtins/user_output.py:PulseDigitalLine"
+      ],
+      "runs": []
+    },
+    "PulseProbeBias": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:PulseProbeBias"
+      ],
+      "runs": []
+    },
+    "PumpProbeScan": {
+      "defined_in": [
+        "builtins/optics_pump_probe.py:PumpProbeScan"
+      ],
+      "runs": []
+    },
+    "QueryMonitorHistory": {
+      "defined_in": [
+        "builtins/history_query.py:QueryMonitorHistory"
+      ],
+      "runs": []
+    },
+    "QuitNanonis": {
+      "defined_in": [
+        "builtins/advanced_ops.py:QuitNanonis"
+      ],
+      "runs": []
+    },
+    "ReadCalibrations": {
+      "defined_in": [
+        "builtins/calibration_readout.py:ReadCalibrations"
+      ],
+      "runs": []
+    },
+    "ReadHardwareEvents": {
+      "defined_in": [
+        "builtins/hardware_events.py:ReadHardwareEvents"
+      ],
+      "runs": []
+    },
+    "ReadTipOscillationAmplitude": {
+      "defined_in": [
+        "builtins/qplus_amplitude.py:ReadTipOscillationAmplitude"
+      ],
+      "runs": []
+    },
+    "ReconcileSafetyEnvelope": {
+      "defined_in": [
+        "builtins/envelope_reconcile_skill.py:ReconcileSafetyEnvelope"
+      ],
+      "runs": []
+    },
+    "RecoverTipFromSaturation": {
+      "defined_in": [
+        "builtins/saturation_recovery.py:RecoverTipFromSaturation"
+      ],
+      "runs": [
+        "GetCurrent",
+        "MotorMove",
+        "SetBias",
+        "WithdrawTip"
+      ],
+      "sites": {
+        "GetCurrent": [
+          {
+            "file": "builtins/saturation_recovery.py",
+            "line": 120
+          }
+        ],
+        "MotorMove": [
+          {
+            "file": "builtins/saturation_recovery.py",
+            "line": 139
+          },
+          {
+            "file": "builtins/saturation_recovery.py",
+            "line": 188
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "builtins/saturation_recovery.py",
+            "line": 166
+          }
+        ],
+        "WithdrawTip": [
+          {
+            "file": "builtins/saturation_recovery.py",
+            "line": 170
+          }
+        ]
+      }
+    },
+    "RelocateCoarseXY": {
+      "defined_in": [
+        "composite/relocate_coarse_xy.py:RelocateCoarseXY"
+      ],
+      "internal_phases": [
+        "_phase_clear",
+        "_phase_move",
+        "_phase_preflight",
+        "_phase_reapproach",
+        "_phase_verify"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "RetractForSampleChange": {
+      "defined_in": [
+        "composite/retract_for_sample_change.py:RetractForSampleChange"
+      ],
+      "internal_phases": [
+        "_phase_baseline",
+        "_phase_retract_verify",
+        "_phase_stop_powered",
+        "_phase_withdraw_initial"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "RunBiasSweep": {
+      "defined_in": [
+        "builtins/bias_sweep.py:RunBiasSweep"
+      ],
+      "runs": []
+    },
+    "RunCpdCompensation": {
+      "defined_in": [
+        "builtins/optional_afm.py:RunCpdCompensation"
+      ],
+      "runs": []
+    },
+    "RunGridExperiment": {
+      "defined_in": [
+        "builtins/pattern.py:RunGridExperiment"
+      ],
+      "internal_phases": [
+        "_phase_cleanup",
+        "_phase_setup_grid",
+        "_phase_start_experiment",
+        "_phase_tick_{…}"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "RunHighResScope": {
+      "defined_in": [
+        "builtins/optional_scopes.py:RunHighResScope"
+      ],
+      "runs": []
+    },
+    "RunHighSpeedSweep": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:RunHighSpeedSweep"
+      ],
+      "runs": []
+    },
+    "RunNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script.py:RunNanonisScript"
+      ],
+      "runs": []
+    },
+    "RunPllPhaseSweep": {
+      "defined_in": [
+        "builtins/optional_controllers.py:RunPllPhaseSweep"
+      ],
+      "runs": []
+    },
+    "RunPllZoomFft": {
+      "defined_in": [
+        "builtins/optional_controllers.py:RunPllZoomFft"
+      ],
+      "runs": []
+    },
+    "RunRfFrequencySweep": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:RunRfFrequencySweep"
+      ],
+      "runs": []
+    },
+    "STSConditionSeries": {
+      "defined_in": [
+        "composite/sts_condition_series.py:STSConditionSeries"
+      ],
+      "runs": [
+        "SpectroscopyAtPositions"
+      ],
+      "sites": {
+        "SpectroscopyAtPositions": [
+          {
+            "file": "composite/sts_condition_series.py",
+            "line": 291
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "SafeRetract": {
+      "defined_in": [
+        "builtins/tip.py:SafeRetract"
+      ],
+      "runs": []
+    },
+    "SaveLayout": {
+      "defined_in": [
+        "builtins/util.py:SaveLayout"
+      ],
+      "runs": []
+    },
+    "SaveMultiPassConfig": {
+      "defined_in": [
+        "builtins/advanced_ops.py:SaveMultiPassConfig"
+      ],
+      "runs": []
+    },
+    "SaveNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script_files.py:SaveNanonisScript"
+      ],
+      "runs": []
+    },
+    "SaveNanonisScriptLut": {
+      "defined_in": [
+        "builtins/nanonis_script_files.py:SaveNanonisScriptLut"
+      ],
+      "runs": []
+    },
+    "SaveScan": {
+      "defined_in": [
+        "builtins/scan_extra.py:SaveScan"
+      ],
+      "runs": []
+    },
+    "SaveSettings": {
+      "defined_in": [
+        "builtins/util.py:SaveSettings"
+      ],
+      "runs": []
+    },
+    "ScanAt": {
+      "defined_in": [
+        "composite/scan_at.py:ScanAt"
+      ],
+      "runs": [
+        "ConfigureScan",
+        "SetBias",
+        "SetScanBuffer",
+        "SetSetpoint",
+        "SetZCtrlGain",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "ConfigureScan": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 317
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 288
+          }
+        ],
+        "SetScanBuffer": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 328
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 298
+          }
+        ],
+        "SetZCtrlGain": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 308
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 336
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/scan_at.py",
+            "line": 343
+          }
+        ]
+      }
+    },
+    "ScanBackgroundDelete": {
+      "defined_in": [
+        "builtins/imaging.py:ScanBackgroundDelete"
+      ],
+      "runs": []
+    },
+    "ScanBackgroundPaste": {
+      "defined_in": [
+        "builtins/imaging.py:ScanBackgroundPaste"
+      ],
+      "runs": []
+    },
+    "ScanIntelSelfCheck": {
+      "defined_in": [
+        "builtins/scan_intel_selfcheck.py:ScanIntelSelfCheck"
+      ],
+      "runs": []
+    },
+    "ScanPublicationFrame": {
+      "defined_in": [
+        "composite/publication_frame.py:ScanPublicationFrame"
+      ],
+      "runs": [
+        "AssessAtomicResolution",
+        "AutoTilt",
+        "ConfigureScan",
+        "GetLatestScanFile",
+        "GetScanFrame",
+        "GetScanSpeed",
+        "MoveToXY",
+        "SaveScan",
+        "ScanAt",
+        "SetScanBuffer",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "AssessAtomicResolution": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 195
+          },
+          {
+            "file": "composite/publication_frame.py",
+            "line": 316
+          }
+        ],
+        "AutoTilt": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 265
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 242
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 185
+          },
+          {
+            "file": "composite/publication_frame.py",
+            "line": 304
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 157
+          }
+        ],
+        "GetScanSpeed": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 232
+          },
+          {
+            "file": "composite/publication_frame.py",
+            "line": 248
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 279
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 182
+          },
+          {
+            "file": "composite/publication_frame.py",
+            "line": 301
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 177
+          }
+        ],
+        "SetScanBuffer": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 238
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 225
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 293
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/publication_frame.py",
+            "line": 297
+          }
+        ]
+      }
+    },
+    "ScanUntilAtomicResolution": {
+      "defined_in": [
+        "composite/scan_until_atomic.py:ScanUntilAtomicResolution"
+      ],
+      "runs": [
+        "AssessAtomicResolution",
+        "FullScan",
+        "GetLatestScanFile",
+        "GetScanBuffer",
+        "GetScanFrame",
+        "GetScanSpeed",
+        "SaveScan"
+      ],
+      "sites": {
+        "AssessAtomicResolution": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 482
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 386
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 444
+          }
+        ],
+        "GetScanBuffer": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 115
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 307
+          }
+        ],
+        "GetScanSpeed": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 128
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/scan_until_atomic.py",
+            "line": 433
+          }
+        ]
+      }
+    },
+    "SearchDomainBoundary": {
+      "defined_in": [
+        "composite/search_domain_boundary.py:SearchDomainBoundary"
+      ],
+      "runs": [
+        "AssessDomainPhase",
+        "GetLatestScanFile",
+        "ScanAt"
+      ],
+      "sites": {
+        "AssessDomainPhase": [
+          {
+            "file": "composite/search_domain_boundary.py",
+            "line": 1853
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/search_domain_boundary.py",
+            "line": 1833
+          }
+        ],
+        "ScanAt": [
+          {
+            "file": "composite/search_domain_boundary.py",
+            "line": 1824
+          }
+        ]
+      }
+    },
+    "SegmentRegion_UNet": {
+      "defined_in": [
+        "paper/region_analysis.py:SegmentRegion_UNet"
+      ],
+      "runs": []
+    },
+    "SelectPokedCluster": {
+      "defined_in": [
+        "builtins/cluster_select.py:SelectPokedCluster"
+      ],
+      "runs": []
+    },
+    "SetAcquisitionPeriod": {
+      "defined_in": [
+        "builtins/bias_sweep.py:SetAcquisitionPeriod"
+      ],
+      "runs": []
+    },
+    "SetActiveZController": {
+      "defined_in": [
+        "builtins/instrument_limits.py:SetActiveZController"
+      ],
+      "runs": []
+    },
+    "SetAdditionalRealtimeSignals": {
+      "defined_in": [
+        "builtins/bias_sweep.py:SetAdditionalRealtimeSignals"
+      ],
+      "runs": []
+    },
+    "SetBias": {
+      "defined_in": [
+        "builtins/bias.py:SetBias"
+      ],
+      "runs": []
+    },
+    "SetBiasCalibration": {
+      "defined_in": [
+        "builtins/bias.py:SetBiasCalibration"
+      ],
+      "runs": []
+    },
+    "SetBiasRamp": {
+      "defined_in": [
+        "builtins/bias.py:SetBiasRamp"
+      ],
+      "internal_phases": [
+        "_phase_get_current",
+        "_phase_set_step_{…}"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "SetBiasRange": {
+      "defined_in": [
+        "builtins/bias.py:SetBiasRange"
+      ],
+      "runs": []
+    },
+    "SetCurrentCalibration": {
+      "defined_in": [
+        "builtins/current.py:SetCurrentCalibration"
+      ],
+      "runs": []
+    },
+    "SetCurrentGain": {
+      "defined_in": [
+        "builtins/current.py:SetCurrentGain"
+      ],
+      "runs": []
+    },
+    "SetDemodRTSignals": {
+      "defined_in": [
+        "builtins/lockin.py:SetDemodRTSignals"
+      ],
+      "runs": []
+    },
+    "SetDemodSyncFilter": {
+      "defined_in": [
+        "builtins/lockin.py:SetDemodSyncFilter"
+      ],
+      "runs": []
+    },
+    "SetDigitalLineStatus": {
+      "defined_in": [
+        "builtins/user_output.py:SetDigitalLineStatus"
+      ],
+      "runs": []
+    },
+    "SetDriftCompensation": {
+      "defined_in": [
+        "builtins/piezo.py:SetDriftCompensation"
+      ],
+      "runs": []
+    },
+    "SetFolMeOversampling": {
+      "defined_in": [
+        "builtins/folme.py:SetFolMeOversampling"
+      ],
+      "runs": []
+    },
+    "SetGenericPiOutput": {
+      "defined_in": [
+        "builtins/optional_controllers.py:SetGenericPiOutput"
+      ],
+      "runs": []
+    },
+    "SetHomeProps": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetHomeProps"
+      ],
+      "runs": []
+    },
+    "SetInterferometerOnOff": {
+      "defined_in": [
+        "builtins/optional_afm.py:SetInterferometerOnOff"
+      ],
+      "runs": []
+    },
+    "SetKelvinControllerOnOff": {
+      "defined_in": [
+        "builtins/optional_afm.py:SetKelvinControllerOnOff"
+      ],
+      "runs": []
+    },
+    "SetLaserOnOff": {
+      "defined_in": [
+        "builtins/optional_afm.py:SetLaserOnOff"
+      ],
+      "runs": []
+    },
+    "SetLaserPower": {
+      "defined_in": [
+        "builtins/optional_afm.py:SetLaserPower"
+      ],
+      "runs": []
+    },
+    "SetLockInDemodPhaseRegister": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetLockInDemodPhaseRegister"
+      ],
+      "runs": []
+    },
+    "SetLockInFrequencySweepSignal": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetLockInFrequencySweepSignal"
+      ],
+      "runs": []
+    },
+    "SetMlsLockinPerSegment": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:SetMlsLockinPerSegment"
+      ],
+      "runs": []
+    },
+    "SetModHarmonic": {
+      "defined_in": [
+        "builtins/lockin.py:SetModHarmonic"
+      ],
+      "runs": []
+    },
+    "SetModPhasReg": {
+      "defined_in": [
+        "builtins/lockin.py:SetModPhasReg"
+      ],
+      "runs": []
+    },
+    "SetModSignal": {
+      "defined_in": [
+        "builtins/lockin.py:SetModSignal"
+      ],
+      "runs": []
+    },
+    "SetMotorFreqAmp": {
+      "defined_in": [
+        "builtins/motor.py:SetMotorFreqAmp"
+      ],
+      "runs": []
+    },
+    "SetMultiPass": {
+      "defined_in": [
+        "builtins/advanced_ops.py:SetMultiPass"
+      ],
+      "runs": []
+    },
+    "SetOsciTimebase": {
+      "defined_in": [
+        "builtins/acquire_osci_trace.py:SetOsciTimebase"
+      ],
+      "runs": []
+    },
+    "SetPLLAmpCtrlBandwidth": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLAmpCtrlBandwidth"
+      ],
+      "runs": []
+    },
+    "SetPLLAmpCtrlSetpnt": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLAmpCtrlSetpnt"
+      ],
+      "runs": []
+    },
+    "SetPLLDemodFilter": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLDemodFilter"
+      ],
+      "runs": []
+    },
+    "SetPLLDemodInput": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLDemodInput"
+      ],
+      "runs": []
+    },
+    "SetPLLDemodPhasRef": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLDemodPhasRef"
+      ],
+      "runs": []
+    },
+    "SetPLLFreqExcOverwrite": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLFreqExcOverwrite"
+      ],
+      "runs": []
+    },
+    "SetPLLFreqRange": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLFreqRange"
+      ],
+      "runs": []
+    },
+    "SetPLLInpCalibr": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLInpCalibr"
+      ],
+      "runs": []
+    },
+    "SetPLLInpProps": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLInpProps"
+      ],
+      "runs": []
+    },
+    "SetPLLInpRange": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLInpRange"
+      ],
+      "runs": []
+    },
+    "SetPLLPhasCtrlBandwidth": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLPhasCtrlBandwidth"
+      ],
+      "runs": []
+    },
+    "SetPLLSignalAnlzrTrig": {
+      "defined_in": [
+        "builtins/pll.py:SetPLLSignalAnlzrTrig"
+      ],
+      "runs": []
+    },
+    "SetPatternCloud": {
+      "defined_in": [
+        "builtins/pattern.py:SetPatternCloud"
+      ],
+      "runs": []
+    },
+    "SetPatternExperiment": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetPatternExperiment"
+      ],
+      "runs": []
+    },
+    "SetPatternLine": {
+      "defined_in": [
+        "builtins/pattern.py:SetPatternLine"
+      ],
+      "runs": []
+    },
+    "SetPiControllerOnOff": {
+      "defined_in": [
+        "builtins/optional_controllers.py:SetPiControllerOnOff"
+      ],
+      "runs": []
+    },
+    "SetPiezoHysteresisOnOff": {
+      "defined_in": [
+        "builtins/piezo.py:SetPiezoHysteresisOnOff"
+      ],
+      "runs": []
+    },
+    "SetPiezoHysteresisValues": {
+      "defined_in": [
+        "builtins/piezo.py:SetPiezoHysteresisValues"
+      ],
+      "runs": []
+    },
+    "SetPiezoLimits": {
+      "defined_in": [
+        "builtins/instrument_limits.py:SetPiezoLimits"
+      ],
+      "runs": []
+    },
+    "SetPiezoRange": {
+      "defined_in": [
+        "builtins/piezo.py:SetPiezoRange"
+      ],
+      "runs": []
+    },
+    "SetPiezoSensitivity": {
+      "defined_in": [
+        "builtins/piezo.py:SetPiezoSensitivity"
+      ],
+      "runs": []
+    },
+    "SetPiezoTilt": {
+      "defined_in": [
+        "builtins/piezo.py:SetPiezoTilt"
+      ],
+      "runs": []
+    },
+    "SetPllDemodHarmonic": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetPllDemodHarmonic"
+      ],
+      "runs": []
+    },
+    "SetPllExcitationAdd": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetPllExcitationAdd"
+      ],
+      "runs": []
+    },
+    "SetPointShootExperiment": {
+      "defined_in": [
+        "builtins/folme.py:SetPointShootExperiment"
+      ],
+      "runs": []
+    },
+    "SetPointShootOnOff": {
+      "defined_in": [
+        "builtins/folme.py:SetPointShootOnOff"
+      ],
+      "runs": []
+    },
+    "SetPointShootProps": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetPointShootProps"
+      ],
+      "runs": []
+    },
+    "SetProbeBias": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:SetProbeBias"
+      ],
+      "runs": []
+    },
+    "SetProbeZController": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:SetProbeZController"
+      ],
+      "runs": []
+    },
+    "SetRTFreq": {
+      "defined_in": [
+        "builtins/util.py:SetRTFreq"
+      ],
+      "runs": []
+    },
+    "SetRTOversample": {
+      "defined_in": [
+        "builtins/util.py:SetRTOversample"
+      ],
+      "runs": []
+    },
+    "SetSTSAdvancedProps": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSAdvancedProps"
+      ],
+      "runs": []
+    },
+    "SetSTSChannels": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSChannels"
+      ],
+      "runs": []
+    },
+    "SetSTSMLSMode": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSMLSMode"
+      ],
+      "runs": []
+    },
+    "SetSTSMLSVals": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSMLSVals"
+      ],
+      "runs": []
+    },
+    "SetSTSSafeCond1": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSSafeCond1"
+      ],
+      "runs": []
+    },
+    "SetSTSSafeCond2": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetSTSSafeCond2"
+      ],
+      "runs": []
+    },
+    "SetSafeTipProps": {
+      "defined_in": [
+        "builtins/instrument_limits.py:SetSafeTipProps"
+      ],
+      "runs": []
+    },
+    "SetScanBuffer": {
+      "defined_in": [
+        "builtins/scan_buffer.py:SetScanBuffer"
+      ],
+      "runs": []
+    },
+    "SetScanSpeed": {
+      "defined_in": [
+        "builtins/imaging.py:SetScanSpeed"
+      ],
+      "runs": []
+    },
+    "SetScriptAutosave": {
+      "defined_in": [
+        "builtins/nanonis_script.py:SetScriptAutosave"
+      ],
+      "runs": []
+    },
+    "SetScriptChannels": {
+      "defined_in": [
+        "builtins/nanonis_script.py:SetScriptChannels"
+      ],
+      "runs": []
+    },
+    "SetSessionPath": {
+      "defined_in": [
+        "builtins/util.py:SetSessionPath"
+      ],
+      "runs": []
+    },
+    "SetSetpoint": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetSetpoint"
+      ],
+      "runs": []
+    },
+    "SetSpectroscopyPulseSync": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:SetSpectroscopyPulseSync"
+      ],
+      "runs": []
+    },
+    "SetSpectroscopyTtlSync": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:SetSpectroscopyTtlSync"
+      ],
+      "runs": []
+    },
+    "SetSpectroscopyZControl": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:SetSpectroscopyZControl"
+      ],
+      "runs": []
+    },
+    "SetSpectrumAnalyzerBand": {
+      "defined_in": [
+        "builtins/spectrum_analyzer.py:SetSpectrumAnalyzerBand"
+      ],
+      "runs": []
+    },
+    "SetSwitchOffDelay": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetSwitchOffDelay"
+      ],
+      "runs": []
+    },
+    "SetTipLift": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetTipLift"
+      ],
+      "runs": []
+    },
+    "SetTipSpeed": {
+      "defined_in": [
+        "builtins/folme.py:SetTipSpeed"
+      ],
+      "runs": []
+    },
+    "SetUserOutput": {
+      "defined_in": [
+        "builtins/user_output.py:SetUserOutput"
+      ],
+      "runs": []
+    },
+    "SetUserOutputCalibration": {
+      "defined_in": [
+        "builtins/user_output.py:SetUserOutputCalibration"
+      ],
+      "runs": []
+    },
+    "SetUserOutputLimits": {
+      "defined_in": [
+        "builtins/user_output.py:SetUserOutputLimits"
+      ],
+      "runs": []
+    },
+    "SetUserOutputMode": {
+      "defined_in": [
+        "builtins/user_output.py:SetUserOutputMode"
+      ],
+      "runs": []
+    },
+    "SetUserOutputMonitorChannel": {
+      "defined_in": [
+        "builtins/user_output.py:SetUserOutputMonitorChannel"
+      ],
+      "runs": []
+    },
+    "SetWaveformChannelOnOff": {
+      "defined_in": [
+        "builtins/function_generator.py:SetWaveformChannelOnOff"
+      ],
+      "runs": []
+    },
+    "SetWaveformIdleValue": {
+      "defined_in": [
+        "builtins/function_generator.py:SetWaveformIdleValue"
+      ],
+      "runs": []
+    },
+    "SetWaveformSignal": {
+      "defined_in": [
+        "builtins/misc_setters.py:SetWaveformSignal"
+      ],
+      "runs": []
+    },
+    "SetWithdrawRate": {
+      "defined_in": [
+        "builtins/instrument_limits.py:SetWithdrawRate"
+      ],
+      "runs": []
+    },
+    "SetZCtrlGain": {
+      "defined_in": [
+        "builtins/zctrl_gain.py:SetZCtrlGain"
+      ],
+      "runs": []
+    },
+    "SetZLimits": {
+      "defined_in": [
+        "builtins/instrument_limits.py:SetZLimits"
+      ],
+      "runs": []
+    },
+    "SetZLimitsEnabled": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetZLimitsEnabled"
+      ],
+      "runs": []
+    },
+    "SetZPosition": {
+      "defined_in": [
+        "builtins/zcontrol.py:SetZPosition"
+      ],
+      "runs": []
+    },
+    "SetZSpectrAdvProps": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetZSpectrAdvProps"
+      ],
+      "runs": []
+    },
+    "SetZSpectrChannels": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetZSpectrChannels"
+      ],
+      "runs": []
+    },
+    "SetZSpectrRange": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetZSpectrRange"
+      ],
+      "runs": []
+    },
+    "SetZSpectrRetract": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetZSpectrRetract"
+      ],
+      "runs": []
+    },
+    "SetZSpectrRetractDelay": {
+      "defined_in": [
+        "builtins/spectroscopy.py:SetZSpectrRetractDelay"
+      ],
+      "runs": []
+    },
+    "SetZSpectroscopySecondRetract": {
+      "defined_in": [
+        "builtins/spectroscopy_sync.py:SetZSpectroscopySecondRetract"
+      ],
+      "runs": []
+    },
+    "ShapeTipOnSurface": {
+      "defined_in": [
+        "composite/shape_tip_on_surface.py:ShapeTipOnSurface"
+      ],
+      "runs": [
+        "AssessClusterRoundness",
+        "ConfigureScan",
+        "FindFlatRegion",
+        "GetLatestScanFile",
+        "GetScanFrame",
+        "SaveScan",
+        "StartScan",
+        "TipShapeWithReadback",
+        "WaitScanComplete",
+        "ZControllerOnOff"
+      ],
+      "sites": {
+        "AssessClusterRoundness": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 603
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 366
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 451
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 540
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 676
+          }
+        ],
+        "FindFlatRegion": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 428
+          }
+        ],
+        "GetLatestScanFile": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 403
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 579
+          }
+        ],
+        "GetScanFrame": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 333
+          }
+        ],
+        "SaveScan": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 395
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 571
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 379
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 553
+          }
+        ],
+        "TipShapeWithReadback": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 478
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 387
+          },
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 563
+          }
+        ],
+        "ZControllerOnOff": [
+          {
+            "file": "composite/shape_tip_on_surface.py",
+            "line": 664
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "SpectroscopyAtPositions": {
+      "defined_in": [
+        "composite/spectroscopy_at_positions.py:SpectroscopyAtPositions"
+      ],
+      "runs": [
+        "AcquireSTS",
+        "AssessSpectrum",
+        "BiasSettleChange",
+        "ConfigureLockIn",
+        "ConfigureSTS",
+        "GetLockInConfig",
+        "MoveToXY",
+        "SetSTSMLSMode",
+        "SetSTSMLSVals",
+        "SetSetpoint"
+      ],
+      "sites": {
+        "AcquireSTS": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 655
+          }
+        ],
+        "AssessSpectrum": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 704
+          }
+        ],
+        "BiasSettleChange": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 547
+          }
+        ],
+        "ConfigureLockIn": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 559
+          }
+        ],
+        "ConfigureSTS": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 569
+          }
+        ],
+        "GetLockInConfig": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 565
+          }
+        ],
+        "MoveToXY": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 626
+          }
+        ],
+        "SetSTSMLSMode": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 576
+          }
+        ],
+        "SetSTSMLSVals": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 580
+          }
+        ],
+        "SetSetpoint": [
+          {
+            "file": "composite/spectroscopy_at_positions.py",
+            "line": 551
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "StartDataLog": {
+      "defined_in": [
+        "builtins/datalog.py:StartDataLog"
+      ],
+      "runs": []
+    },
+    "StartRfGenerator": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:StartRfGenerator"
+      ],
+      "runs": []
+    },
+    "StartScan": {
+      "defined_in": [
+        "builtins/imaging.py:StartScan"
+      ],
+      "runs": []
+    },
+    "StartTcpLog": {
+      "defined_in": [
+        "builtins/datalog.py:StartTcpLog"
+      ],
+      "runs": []
+    },
+    "StartWaveform": {
+      "defined_in": [
+        "builtins/function_generator.py:StartWaveform"
+      ],
+      "runs": []
+    },
+    "StepCoarseXY": {
+      "defined_in": [
+        "builtins/coarse_nudge.py:StepCoarseXY"
+      ],
+      "runs": [
+        "RelocateCoarseXY"
+      ],
+      "sites": {
+        "RelocateCoarseXY": [
+          {
+            "file": "builtins/coarse_nudge.py",
+            "line": 128
+          }
+        ]
+      }
+    },
+    "StopAutoApproach": {
+      "defined_in": [
+        "builtins/approach.py:StopAutoApproach"
+      ],
+      "runs": []
+    },
+    "StopDataLog": {
+      "defined_in": [
+        "builtins/datalog.py:StopDataLog"
+      ],
+      "runs": []
+    },
+    "StopFolMe": {
+      "defined_in": [
+        "builtins/folme.py:StopFolMe"
+      ],
+      "runs": []
+    },
+    "StopHighSpeedSweep": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:StopHighSpeedSweep"
+      ],
+      "runs": []
+    },
+    "StopMotor": {
+      "defined_in": [
+        "builtins/motor.py:StopMotor"
+      ],
+      "runs": []
+    },
+    "StopNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script.py:StopNanonisScript"
+      ],
+      "runs": []
+    },
+    "StopOpticalStage": {
+      "defined_in": [
+        "builtins/optics_stage.py:StopOpticalStage"
+      ],
+      "runs": []
+    },
+    "StopPLLFreqSwp": {
+      "defined_in": [
+        "builtins/pll.py:StopPLLFreqSwp"
+      ],
+      "runs": []
+    },
+    "StopPllPhaseSweep": {
+      "defined_in": [
+        "builtins/optional_controllers.py:StopPllPhaseSweep"
+      ],
+      "runs": []
+    },
+    "StopProbeScanner": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:StopProbeScanner"
+      ],
+      "runs": []
+    },
+    "StopRfGenerator": {
+      "defined_in": [
+        "builtins/optional_sweepers.py:StopRfGenerator"
+      ],
+      "runs": []
+    },
+    "StopSTS": {
+      "defined_in": [
+        "builtins/spectroscopy.py:StopSTS"
+      ],
+      "runs": []
+    },
+    "StopScan": {
+      "defined_in": [
+        "builtins/imaging.py:StopScan"
+      ],
+      "runs": []
+    },
+    "StopTcpLog": {
+      "defined_in": [
+        "builtins/datalog.py:StopTcpLog"
+      ],
+      "runs": []
+    },
+    "StopWaveform": {
+      "defined_in": [
+        "builtins/function_generator.py:StopWaveform"
+      ],
+      "runs": []
+    },
+    "StopZSpectr": {
+      "defined_in": [
+        "builtins/spectroscopy.py:StopZSpectr"
+      ],
+      "runs": []
+    },
+    "SubtractPlane_RANSAC": {
+      "defined_in": [
+        "paper/data_processing.py:SubtractPlane_RANSAC"
+      ],
+      "runs": []
+    },
+    "SubtractPoly2D": {
+      "defined_in": [
+        "paper/background.py:SubtractPoly2D"
+      ],
+      "runs": []
+    },
+    "SurveySurface_TileScan": {
+      "defined_in": [
+        "composite/survey_surface.py:SurveySurface_TileScan"
+      ],
+      "runs": [
+        "AssessImageQuality",
+        "ConfigureScan",
+        "SetScanSpeed",
+        "StartScan",
+        "WaitScanComplete"
+      ],
+      "sites": {
+        "AssessImageQuality": [
+          {
+            "file": "composite/survey_surface.py",
+            "line": 324
+          }
+        ],
+        "ConfigureScan": [
+          {
+            "file": "composite/survey_surface.py",
+            "line": 279
+          }
+        ],
+        "SetScanSpeed": [
+          {
+            "file": "composite/survey_surface.py",
+            "line": 293
+          }
+        ],
+        "StartScan": [
+          {
+            "file": "composite/survey_surface.py",
+            "line": 307
+          }
+        ],
+        "WaitScanComplete": [
+          {
+            "file": "composite/survey_surface.py",
+            "line": 315
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "TiltCalibrate": {
+      "defined_in": [
+        "composite/auto_tilt.py:TiltCalibrate"
+      ],
+      "runs": [
+        "TiltProbeCircle"
+      ],
+      "sites": {
+        "TiltProbeCircle": [
+          {
+            "file": "composite/auto_tilt.py",
+            "line": 134
+          }
+        ]
+      }
+    },
+    "TiltProbeCircle": {
+      "defined_in": [
+        "builtins/tilt_probe.py:TiltProbeCircle"
+      ],
+      "runs": []
+    },
+    "TipConditioningSelfCheck": {
+      "defined_in": [
+        "builtins/tip_conditioning_selfcheck.py:TipConditioningSelfCheck"
+      ],
+      "runs": []
+    },
+    "TipForgeSelfCheck": {
+      "defined_in": [
+        "builtins/tip_forge_selfcheck.py:TipForgeSelfCheck"
+      ],
+      "runs": []
+    },
+    "TipPulse": {
+      "defined_in": [
+        "composite/tip_pulse.py:TipPulse"
+      ],
+      "runs": [
+        "BiasPulse",
+        "GetBias"
+      ],
+      "sites": {
+        "BiasPulse": [
+          {
+            "file": "composite/tip_pulse.py",
+            "line": 138
+          }
+        ],
+        "GetBias": [
+          {
+            "file": "composite/tip_pulse.py",
+            "line": 126
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "TipShape": {
+      "defined_in": [
+        "builtins/tip_shaper.py:TipShape"
+      ],
+      "runs": []
+    },
+    "TipShapeWithReadback": {
+      "defined_in": [
+        "builtins/tip_shaper_readback.py:TipShapeWithReadback"
+      ],
+      "runs": []
+    },
+    "TrackBestFrame": {
+      "defined_in": [
+        "builtins/best_frame.py:TrackBestFrame"
+      ],
+      "runs": []
+    },
+    "TrackDrift_ReferenceScan": {
+      "defined_in": [
+        "composite/drift_track.py:TrackDrift_ReferenceScan"
+      ],
+      "runs": [
+        "ConfigureScan",
+        "FullScan",
+        "SetBias"
+      ],
+      "sites": {
+        "ConfigureScan": [
+          {
+            "file": "composite/drift_track.py",
+            "line": 208
+          }
+        ],
+        "FullScan": [
+          {
+            "file": "composite/drift_track.py",
+            "line": 131
+          }
+        ],
+        "SetBias": [
+          {
+            "file": "composite/drift_track.py",
+            "line": 119
+          }
+        ]
+      }
+    },
+    "TryEngageController": {
+      "defined_in": [
+        "builtins/zcontrol.py:TryEngageController"
+      ],
+      "runs": []
+    },
+    "UndeployNanonisScript": {
+      "defined_in": [
+        "builtins/nanonis_script.py:UndeployNanonisScript"
+      ],
+      "runs": []
+    },
+    "UnlockNanonisUI": {
+      "defined_in": [
+        "builtins/util.py:UnlockNanonisUI"
+      ],
+      "runs": []
+    },
+    "UnmixSpectra": {
+      "defined_in": [
+        "paper/spectral_unmix.py:UnmixSpectra"
+      ],
+      "runs": []
+    },
+    "VerifyAdatomAt": {
+      "defined_in": [
+        "builtins/adatom_verify.py:VerifyAdatomAt"
+      ],
+      "runs": []
+    },
+    "VerifyAtomicResolution": {
+      "defined_in": [
+        "composite/verify_atomic_resolution.py:VerifyAtomicResolution"
+      ],
+      "runs": [
+        "AnalyzeScanImage",
+        "AssessAtomicPhase"
+      ],
+      "sites": {
+        "AnalyzeScanImage": [
+          {
+            "file": "composite/verify_atomic_resolution.py",
+            "line": 547
+          }
+        ],
+        "AssessAtomicPhase": [
+          {
+            "file": "composite/verify_atomic_resolution.py",
+            "line": 580
+          }
+        ]
+      }
+    },
+    "WaitForScanEndBlocking": {
+      "defined_in": [
+        "builtins/advanced_ops.py:WaitForScanEndBlocking"
+      ],
+      "runs": []
+    },
+    "WaitForThermalSettle": {
+      "defined_in": [
+        "builtins/thermal_settle.py:WaitForThermalSettle"
+      ],
+      "runs": [
+        "GetTemperature"
+      ],
+      "sites": {
+        "GetTemperature": [
+          {
+            "file": "builtins/thermal_settle.py",
+            "line": 133
+          }
+        ]
+      }
+    },
+    "WaitScanComplete": {
+      "defined_in": [
+        "builtins/scan_utils.py:WaitScanComplete"
+      ],
+      "internal_phases": [
+        "_phase_finalize",
+        "_phase_poll_{…}"
+      ],
+      "runs": [],
+      "unresolved": [
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 598
+        },
+        {
+          "expr": "step.skill_name",
+          "file": "composite/graph_executor.py",
+          "line": 601
+        }
+      ]
+    },
+    "WatchScanLines": {
+      "defined_in": [
+        "builtins/scan_watch.py:WatchScanLines"
+      ],
+      "runs": []
+    },
+    "WithdrawProbe": {
+      "defined_in": [
+        "builtins/optional_multiprobe.py:WithdrawProbe"
+      ],
+      "runs": []
+    },
+    "WithdrawTip": {
+      "defined_in": [
+        "builtins/approach.py:WithdrawTip"
+      ],
+      "runs": []
+    },
+    "ZControllerOnOff": {
+      "defined_in": [
+        "builtins/zcontrol.py:ZControllerOnOff"
+      ],
+      "runs": []
+    }
+  },
   "skills": {
     "ForgeAuTip": {
       "code_lines": 3362,
@@ -494,6 +7113,56 @@
         "prepare_noble_tip:_qplus_blocked",
         "prepare_noble_tip:_tip_shaper_preflight"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core": [
+          "coarse_map_provider"
+        ],
+        "mast.core.instrument_profile": [
+          "get_config"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "descend_sequence",
+          "forge_fallback_line_time_s",
+          "forge_line_time_s",
+          "forge_speed_notes",
+          "reconcile_with_tip_envelope",
+          "resolve"
+        ],
+        "mast.core.scan_policy": [
+          "estimate_scan_seconds"
+        ],
+        "mast.core.tip_state": [
+          "is_qplus"
+        ],
+        "mast.io.coarse_map": [
+          "CoarseMapConfig",
+          "build_coarse_map"
+        ],
+        "mast.io.nanonis_files": [
+          "read_sxm"
+        ],
+        "mast.skills.builtins._tip_policy": [
+          "qplus_gate"
+        ],
+        "mast.skills.composite._preflight": [
+          "preflight_modules"
+        ],
+        "mast.vision.double_tip": [
+          "step_splitting"
+        ],
+        "mast.vision.poke_trace_panel": [
+          "render_poke_trace_panel"
+        ],
+        "mast.vision.terrace_panel": [
+          "render_terrace_panel"
+        ]
+      },
       "sub_skills": {
         "AnalyzeFrameTilt": {
           "required_somewhere": false,
@@ -897,6 +7566,47 @@
         "make_special_tip:_qplus_blocked",
         "make_special_tip:_wrap"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core.instrument_profile": [
+          "get_config"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "forge_line_time_s"
+        ],
+        "mast.core.scan_policy": [
+          "estimate_scan_seconds"
+        ],
+        "mast.core.special_tip_workflow": [
+          "resolve_atomic"
+        ],
+        "mast.core.tip_state": [
+          "is_qplus"
+        ],
+        "mast.io.nanonis_files": [
+          "read_sxm"
+        ],
+        "mast.skills.builtins._tip_policy": [
+          "qplus_gate"
+        ],
+        "mast.skills.composite._preflight": [
+          "preflight_modules"
+        ],
+        "mast.vision.double_tip": [
+          "step_splitting"
+        ],
+        "mast.vision.poke_trace_panel": [
+          "render_poke_trace_panel"
+        ],
+        "mast.vision.terrace_panel": [
+          "render_terrace_panel"
+        ]
+      },
       "sub_skills": {
         "AssessAtomicLines": {
           "required_somewhere": false,
@@ -1250,6 +7960,50 @@
         "make_special_tip:_qplus_blocked",
         "make_special_tip:_wrap"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core.instrument_profile": [
+          "get_config"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "forge_line_time_s"
+        ],
+        "mast.core.sample_facts": [
+          "resolve_substrate"
+        ],
+        "mast.core.scan_policy": [
+          "estimate_scan_seconds"
+        ],
+        "mast.core.special_tip_workflow": [
+          "resolve_spectroscopy"
+        ],
+        "mast.core.tip_state": [
+          "is_qplus"
+        ],
+        "mast.io.nanonis_files": [
+          "read_sxm"
+        ],
+        "mast.skills.builtins._tip_policy": [
+          "qplus_gate"
+        ],
+        "mast.skills.composite._preflight": [
+          "preflight_modules"
+        ],
+        "mast.vision.double_tip": [
+          "step_splitting"
+        ],
+        "mast.vision.poke_trace_panel": [
+          "render_poke_trace_panel"
+        ],
+        "mast.vision.terrace_panel": [
+          "render_terrace_panel"
+        ]
+      },
       "sub_skills": {
         "AcquireSTS": {
           "required_somewhere": true,
@@ -1546,6 +8300,46 @@
         "prepare_noble_tip:_tip_shaper_preflight",
         "prepare_noble_tip:_wf_from"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core.instrument_profile": [
+          "get_config"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "forge_line_time_s",
+          "reconcile_with_tip_envelope",
+          "resolve"
+        ],
+        "mast.core.scan_policy": [
+          "estimate_scan_seconds"
+        ],
+        "mast.core.tip_state": [
+          "is_qplus"
+        ],
+        "mast.io.nanonis_files": [
+          "read_sxm"
+        ],
+        "mast.skills.builtins._tip_policy": [
+          "qplus_gate"
+        ],
+        "mast.skills.composite._preflight": [
+          "preflight_modules"
+        ],
+        "mast.vision.double_tip": [
+          "step_splitting"
+        ],
+        "mast.vision.poke_trace_panel": [
+          "render_poke_trace_panel"
+        ],
+        "mast.vision.terrace_panel": [
+          "render_terrace_panel"
+        ]
+      },
       "sub_skills": {
         "AssessClusterRoundness": {
           "required_somewhere": false,
@@ -1781,6 +8575,48 @@
         "prepare_noble_tip:_wf_from",
         "prepare_noble_tip:_wrap"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core.instrument_profile": [
+          "get_config"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "descend_sequence",
+          "forge_fallback_line_time_s",
+          "forge_line_time_s",
+          "reconcile_with_tip_envelope",
+          "resolve"
+        ],
+        "mast.core.scan_policy": [
+          "estimate_scan_seconds"
+        ],
+        "mast.core.tip_state": [
+          "is_qplus"
+        ],
+        "mast.io.nanonis_files": [
+          "read_sxm"
+        ],
+        "mast.skills.builtins._tip_policy": [
+          "qplus_gate"
+        ],
+        "mast.skills.composite._preflight": [
+          "preflight_modules"
+        ],
+        "mast.vision.double_tip": [
+          "step_splitting"
+        ],
+        "mast.vision.poke_trace_panel": [
+          "render_poke_trace_panel"
+        ],
+        "mast.vision.terrace_panel": [
+          "render_terrace_panel"
+        ]
+      },
       "sub_skills": {
         "AnalyzeFrameTilt": {
           "required_somewhere": false,
@@ -2152,6 +8988,18 @@
         "prepare_noble_tip:_pulse_summary",
         "prepare_noble_tip:_wf_from"
       ],
+      "non_skill_deps": {
+        "mast.chat.narration": [
+          "narrate"
+        ],
+        "mast.core.map_scope": [
+          "record_damage_marker"
+        ],
+        "mast.core.noble_tip_workflow": [
+          "reconcile_with_tip_envelope",
+          "resolve"
+        ]
+      },
       "sub_skills": {
         "BiasPulseWithReadback": {
           "required_somewhere": true,

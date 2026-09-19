@@ -52,6 +52,7 @@ import {
 import { Xoshiro128, matOf } from 'dsh-spm-numerics'
 import { assessAtomicPhase, scaleGate } from 'dsh-spm-vision'
 import * as S from '../generated/specs.js'
+import { NOBLE_FLOWS, SPECIAL_FLOWS, SUB_SKILL_RUNS, skillClosure } from './tip-phase-closure.js'
 
 // ── 从旧仓工作流搬过来的**几个数**（不是搬那两个文件） ──────────────────────
 //
@@ -81,25 +82,21 @@ export const ATOMIC_TIP_EVAL_PIXELS = 256
 // 并且多了一个（`PokeConditionTip`，见下）。四个里 `AutoTilt` 是 todo ——
 // 也就是说 `TipForgeSelfCheck` 此前**少报了一条缺口**。
 // 一个少报自己依赖的自检，正是这两个自检存在的理由的反面。
+//
+// ⚠️ 批 7b-1：上面那两句话在它自己的那一维上是对的，**而那一维只有一层深**。
+// 两张表都不含 `TiltProbeCircle`（`AutoTilt` 的 `context.run` 目标，353 行），
+// 也不含 `ScanAt` / `PreScanCheck` 各自压着的那五到七个。
+// ⇒ 改成由 {@link skillClosure} 从 {@link SUB_SKILL_RUNS} 算出来 ——
+// 一层变闭包，两张表各多 7 / 4 个名字。今天这几个都已落，所以
+// **`missing_skills` 一个字都没变**；变的是这两张表**下次**会不会漏报。
+// 追到哪儿为止写在 `tip-phase-closure.ts` 的抬头里。
 
-/** 修针流程依赖的全部技能。少一个就有一条链是断的 —— 而且断得很安静。 */
-export const CONDITIONING_REQUIRED_SKILLS: readonly string[] = [
-  // 本层新增
-  'PrepareNobleTip', 'PulseConditionTip', 'PokeConditionTip',
-  'BiasPulseWithReadback', 'FindCleanSpot', 'AssessTipSharpness',
-  // 被它们当作子步骤调用的既有技能。
-  // `GetBias`：扎针前要把当前偏压读下来存着，好在扎完放回去（qPlus 上扎针要先降到
-  // 20 mV）。读不到就不改偏压，所以这一条是那条物理修正**能不能生效**的前提。
-  // `CaptureSignalBuffer`：扎针前后采振幅，用来发现音叉起跳。采不到只是没有诊断。
-  'TipShapeWithReadback', 'MoveToXY', 'GetBias', 'SetBias', 'SetSetpoint',
-  'CaptureSignalBuffer',
-  'ZControllerOnOff', 'ScanAt', 'SaveScan', 'GetLatestScanFile',
-  'PreScanCheck', 'FindFlatRegion', 'AutoTilt', 'AnalyzeFrameTilt',
-  'AssessClusterRoundness',
-]
+/** 修针流程依赖的全部技能（**闭包**）。少一个就有一条链是断的 —— 而且断得很安静。 */
+export const CONDITIONING_REQUIRED_SKILLS: readonly string[] =
+  skillClosure(NOBLE_FLOWS, SUB_SKILL_RUNS).names
 
 /**
- * 两条锻造流程真正会调到的技能。
+ * 两条锻造流程真正会调到的技能（**闭包**）。
  *
  * ⚠️ **`PokeConditionTip` 不在这里**（批 6a 移除）。两条特异化流程要的是
  * **`poke_phase` 那个生成器**，不是那个技能：`make_special_tip.py:292/855` 写的是
@@ -108,18 +105,12 @@ export const CONDITIONING_REQUIRED_SKILLS: readonly string[] = [
  * 那是一条**代码**依赖，不是技能依赖；写进一张技能覆盖表里，说的是一句假话
  * （而它照样会让缺口数看起来是对的 —— 这正是难查的那一型）。
  * 那个技能本身仍由 {@link CONDITIONING_REQUIRED_SKILLS} 报着，全局一条都没少。
+ *
+ * 批 7b-1 起这件事**不再靠人记得**：边表是从旧仓的 `CompositeStep` 算出来的，
+ * 而那两行里本来就没有 `PokeConditionTip`。
  */
-export const FORGE_REQUIRED_SKILLS: readonly string[] = [
-  // 本层新增
-  'MakeSpectroscopyTip', 'MakeAtomicResolutionTip',
-  'AssessShockleyOnset', 'AssessAtomicPhase', 'BiasWiggle',
-  // 被当作子步骤调用的既有技能
-  'TipShapeWithReadback', 'AssessClusterRoundness', 'AssessAtomicLines',
-  'FindCleanSpot', 'FindFlatRegion', 'AutoTilt', 'MoveToXY', 'ScanAt', 'SaveScan',
-  'GetLatestScanFile', 'ConfigureScan', 'StartScan', 'StopScan',
-  'GetBias', 'SetBias', 'SetSetpoint', 'ZControllerOnOff', 'CaptureSignalBuffer',
-  'ConfigureLockIn', 'ConfigureSTS', 'AcquireSTS',
-]
+export const FORGE_REQUIRED_SKILLS: readonly string[] =
+  skillClosure(SPECIAL_FLOWS, SUB_SKILL_RUNS).names
 
 export interface SelfCheckItem {
   readonly check: string
