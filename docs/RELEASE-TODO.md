@@ -1,11 +1,11 @@
 # Public release checklist
 
-> Updated 2026-09-20. The initial review used `22f655b`; the authorized remote replacement uses cleanup commit `8d4a8a6`. Public release does not require completing every skill or proving packaged installation, but it does require a reviewed publication boundary, adequate source rights, and an honest account of validation.
+> Updated 2026-09-20. The initial review used `22f655b`; the existing private remote contains cleanup commit `8d4a8a6` followed by audit documentation at `5afb99c`. Publication will use a new, independent `HamsterPark/dsh-spm` repository with a different immutable GitHub repository ID. Public release does not require completing every skill or proving packaged installation, but it does require a reviewed publication boundary, adequate source rights, and an honest account of validation.
 
 ## Initial inspection
 
 - The initial local and remote `master` resolved to `22f655b6ca27e54d2fac3fb337044f9636725406`. The remote was subsequently replaced from the reviewed publication checkout; see [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
-- The remote exposes one branch (`master`) and no tags. The repository is private.
+- The existing `HamsterPark/dsh-spm` remote exposes one branch (`master`) and no tags. It remains private as an archive and is not the publication target.
 - The review covered 626 tracked files, 207 reachable commits, deleted historical paths, commit subjects and author identities, current GitHub Actions runs, and current repository metadata.
 - GitHub shows no description or topics. Issues are enabled and Discussions are disabled.
 - The remote README, Actions logs, and repository metadata were accessible. Release assets and package registries were not part of the current repository publication boundary.
@@ -65,13 +65,17 @@ The final path pass added **117 passing z-trace tests and 25 passing claim-audit
 - [x] Remove confirmed developer-machine paths from exporter entry points and frozen provenance.
 - [x] Choose history-preserving cleanup with a complete local private backup.
 - [x] Verify the isolated rewritten history and assemble the reviewed publication copy; results are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
-- [x] Replace the sole remote branch from the reviewed publication copy using an explicit expected-old-commit lease, keep the repository private, and verify a fresh clone against the reviewed history and files.
+- [x] Replace the sole branch in the existing private archive from the reviewed publication copy using an explicit expected-old-commit lease, and verify a fresh clone against the reviewed history and files.
 - [x] Inventory the additional remote surfaces, scan all 62 available workflow logs for confirmed identifying strings, and remove the three uninspectable old dependency caches. Scope and results are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
-- [ ] Resolve retained server-side old commits before changing visibility. The audit confirmed that original commit IDs remain readable through GitHub's authenticated API; a clean fresh clone does not establish that these retained objects are gone.
+- [ ] Confirm that the proposed private archive name `HamsterPark/dsh-spm-private-archive` is available. If it is occupied, choose another explicit private archive name. Rename the existing private repository first; do not change its visibility.
+- [ ] Before reusing `HamsterPark/dsh-spm`, repoint or disable pushes from the retained original local repository and all nine worktrees that share its Git configuration. They must target only the renamed private archive; the publication checkout alone will target the new repository.
+- [ ] Create a new, empty, private, independent repository at `HamsterPark/dsh-spm`: do not fork the archive and do not import or transfer objects from it. Record and compare GitHub's immutable repository IDs so the renamed archive and the new repository are distinguished independently of URL redirects.
+- [ ] Push the reviewed local `master`, and only that branch, to the new private repository. Retain the cleaned 207-commit development history rather than publishing an orphan snapshot.
+- [ ] Verify the new repository has a different immutable repository ID from the renamed archive and reports `fork: false`; verify a fresh clone against the reviewed tree and history; and verify that all 207 original commit IDs and the old root file cannot be read through routes under the new `HamsterPark/dsh-spm`. Treat only definitive absence as evidence: HTTP 403 and 429 are inconclusive.
 - [x] Record the cross-platform CI failures as an accepted runtime limitation. The public README does not claim that current CI is green.
 - [x] Review the final combined diff, including the separate source/configuration comment cleanup authorized for this release-preparation pass.
-- [ ] Add the repository description and topics after the reviewed commit is pushed.
-- [ ] Switch visibility only after an explicit instruction to publish.
+- [ ] Add the repository description and topics to the new repository after the reviewed commit is pushed.
+- [ ] Switch only the verified new `HamsterPark/dsh-spm` repository to public, and only after an explicit publication instruction. Keep the renamed archive private.
 
 ## Repository presentation
 
@@ -81,7 +85,7 @@ Proposed description:
 
 Proposed topics: `stm`, `scanning-tunneling-microscopy`, `llm-agent`, `scientific-instruments`, `typescript`.
 
-Issues are currently enabled. The earlier checklist proposed leaving them off; changing this setting is a repository-maintenance choice and is not part of content cleanup.
+Issues are currently enabled on the private archive. Settings for the new repository should be chosen when it is created; changing them is repository maintenance rather than content cleanup.
 
 ## Out of scope for publication preparation
 
@@ -89,4 +93,4 @@ Issues are currently enabled. The earlier checklist proposed leaving them off; c
 - completing the remaining 60 in-scope skills;
 - packaged plugin installation and model invocation;
 - simulator CI setup or hardware use;
-- Remote pushes, visibility changes or messages to third parties without the corresponding instruction. The authorized local history cleanup and publication-copy commit are part of this preparation.
+- Creating the new repository, pushing to it, changing visibility or messaging third parties during this documentation update. The new repository has not been created, pushed or made public.
