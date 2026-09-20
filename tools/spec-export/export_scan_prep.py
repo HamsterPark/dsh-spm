@@ -11,8 +11,9 @@ r"""扫描图自动预处理的金样 —— **旧仓 `mast/vision/scan_prep*` �
    于是它永远不做决定，而覆盖率对此一言不发。下面每一张合成帧后面都写着
    「它一个人撑着哪道闸」。
 
-    python \
-        tools/spec-export/export_scan_prep.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_scan_prep.py
 """
 
 from __future__ import annotations
@@ -25,13 +26,15 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-scanprep-root-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "scan_prep.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

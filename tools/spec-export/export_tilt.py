@@ -1,7 +1,8 @@
 r"""批 7a-1 的金样 —— **旧仓 `mast/vision/tilt.py` 的帧法一族 + 三个调平技能真跑一遍**。
 
-    python \
-        tools/spec-export/export_tilt.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_tilt.py
 
 ## 为什么单开一台
 
@@ -54,6 +55,8 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 _ROOT = tempfile.mkdtemp(prefix="mast-tilt-root-")
@@ -74,7 +77,7 @@ _time.time = lambda: 1_700_000_000.0  # type: ignore[assignment]
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "tilt.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

@@ -11,8 +11,9 @@
 录下来的是：**发出的动词与参数序列**、`success`、`error` 逐字、`data` 的键与值、
 `summary` 逐字。TS 侧拿同一份脚本喂同一批技能，逐条比。
 
-    python \\
-        tools/spec-export/export_skill_traces.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_skill_traces.py
 
 为什么不用 AST 抽 `error_branches`（§8.6 原话）：AST 抽得到**分支在哪**，
 抽不到**那条分支说了什么**。而错误文案是模型读的东西，判据必须落在文案上。
@@ -27,6 +28,8 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
@@ -34,7 +37,7 @@ os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-e
 #: 脚本白名单的文件名（与 `mast.skills.builtins.nanonis_script._CONFIG_NAME` 同名）。
 _CONFIG_NAME = "nanonis_scripts.json"
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "skill_traces.json"
 NANONIS = REPO / "spec" / "nanonis" / "nanonis_commands.json"

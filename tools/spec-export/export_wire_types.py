@@ -4,8 +4,9 @@
 产出——就是跟真机说话的那份代码。回复侧的字节由 STM-Bench 的服务端 codec 产出，
 期望值再用同一个真实客户端解回来。两侧都不是我手写的镜像。
 
-    python \\
-        tools/spec-export/export_wire_types.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package, and `STMSIM_ROOT` to the Python source directory containing the `stmsim` package.
+
+    python tools/spec-export/export_wire_types.py
 
 `Nanonis(connection)` 只存引用，传 None 就能离线驱动 handle*/decode*，不碰 socket。
 """
@@ -18,6 +19,8 @@ import struct
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root, require_stmsim_root
+
 import os
 import tempfile
 
@@ -26,8 +29,8 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
-STMBENCH_ROOT = Path(r"<STMSIM_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
+STMBENCH_ROOT = require_stmsim_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "wire_types.json"
 
 sys.path.insert(0, str(MAST_ROOT))

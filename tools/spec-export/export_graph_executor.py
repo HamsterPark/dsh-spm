@@ -17,8 +17,9 @@
 「重试」变「重放」。四条守卫全都长在恢复路径上，而恢复路径**只在出事那天才被走到**。
 一份把它们逐条钉住的网格，是这些守卫唯一不会被静默移植掉的办法。
 
-    python \
-        tools/spec-export/export_graph_executor.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_graph_executor.py
 """
 
 from __future__ import annotations
@@ -28,11 +29,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "graph_executor.json"
 

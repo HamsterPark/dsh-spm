@@ -1,19 +1,31 @@
 # `spec/golden/` —— 与 Python 侧对账的分母
 
-**不要手改这里的任何文件。** 每一份都由 `tools/spec-export/` 下的一个脚本从旧仓 MAST 导出，
-本机 PATH 里没有可用的 `python`（只有 Microsoft Store 的转发桩），一律用旧仓 venv 的绝对路径：
+金样的来源与导出器列在下表中，包括 MAST 声明和行为、模拟器协议及公共数值库输出。
+不要手填数值或轨迹来消除测试差异；经审查的公开文本脱敏例外见
+[开发指南](../../docs/DEVELOPMENT.md#金样生成物与参考仓)。
+
+从仓库根目录使用具有相应依赖的 Python 环境运行。需要外部源码的脚本通过环境变量配置：
+
+- `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录；它可能是参考项目的 `MASTv2/` 子目录。
+- `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，仅相关协议导出器需要。
+- `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
+
+缺少所需源码变量、变量为空或指向非目录时，入口会报错。`export_numerics.py` 不需要私有参考源码。
+命令中的脚本名是占位符，应按下表选择；先阅读脚本依赖与只读检查要求。
 
 ```powershell
-python tools\spec-export\<脚本>.py
+python tools/spec-export/<脚本>.py
 ```
 
 脚本**只读旧仓**：导出前把 `MAST2_PROJECT_ROOT` 指向临时目录，旧仓的 config / data_paths /
 override_store / models（API key 目录解析）都认这个变量。2026-09-08 实测：跑完后
 `find MAST -newermt '-10 minutes'` 返回空，旧仓一个字节没动。
 
-**重跑产出逐字节相同**（2026-09-16 又验了四份：`numerics` / `environment` /
+**历史重跑记录为逐字节相同**（2026-09-16 又验了四份：`numerics` / `environment` /
 `nanonis_files` / `skill_traces`）。所以「旧仓变了没有」这个问题可以用 `git diff` 回答 ——
-这也是 manifest 里不记随机沙箱路径的原因。
+这也是 manifest 里不记随机沙箱路径的原因。2026-09-20 的公开文本清理没有重导金样；
+当前说明与匿名标识不再保证与私有原始导出逐字一致。`manifest.json` 的源码位置固定记录为
+`<MAST_ROOT>`，不得把开发者的实际目录重新写入公开产物。
 
 > **2026-09-16 重写。** 上一版这张表只列了 7 份，而目录里已经有 30 多份；
 > 末尾的「还没导的」还把 `tool_schemas.json` / `preconditions.json` / `safety.json`

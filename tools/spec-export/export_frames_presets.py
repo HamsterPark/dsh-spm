@@ -13,8 +13,9 @@ r"""两件支撑件：`.npy` 的**字节**，与 Z 参数组存储的判据网�
 `CreateZCtrlPreset` 的全部判据都在 `sanitize_preset` 里，而它**从不夹紧**：
 超范围就拒，「被悄悄改小的值会让你以为自己设的是原来那个数」。
 
-    python \
-        tools/spec-export/export_frames_presets.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_frames_presets.py
 """
 
 from __future__ import annotations
@@ -24,11 +25,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "frames_presets.json"
 

@@ -22,7 +22,7 @@
 | `paper.imspec / region_analysis` 三个深模型技能 | 3 | `PredictSpectrumFromTopo` · `PredictStructure_ASD` · `IdentifyTopology_CARP`：`model_path` **`required=True`**、`execute` 直接取、纯 torch、**零回退**。给不出模型就没有这个技能 |
 
 ⇒ **5 个模块永远 complete 不了**（上面三个 + `paper.imspec` + `paper.region_analysis`）。
-报进度时用 **502 / 160** 做分母，不要用 515 / 165。
+报进度时同时保留原始范围 **515 / 165** 与当前迁移目标 **502 / 160**，避免把项目取舍改写成原始分母。
 
 ⚠️ `ComposePanelMontage` 是「半个」：**判据层是 A 档要移**，呈现层（matplotlib）是 D 档不移。
 全族 matplotlib **只压在这一个技能身上**，切法本仓做过一次（`scan-prep-skills.ts:26-33`）。

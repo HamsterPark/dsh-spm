@@ -14,8 +14,9 @@ r"""批 6c 的金样 —— **旧仓 `tip_metrics` / `spectroscopy` / `force_inv
    `artifacts/force_inversion/*.json` 不会写进任何一个仓；录进金样的路径前缀
    统一替换成 `<artifacts>`（本仓那一侧是 `process.cwd()`，见 deviation）。
 
-    python \
-        tools/spec-export/export_batch6c.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch6c.py
 """
 
 from __future__ import annotations
@@ -28,6 +29,8 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 _ROOT = tempfile.mkdtemp(prefix="mast-6c-root-")
@@ -35,7 +38,7 @@ os.environ.setdefault("MAST2_PROJECT_ROOT", _ROOT)
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch6c.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

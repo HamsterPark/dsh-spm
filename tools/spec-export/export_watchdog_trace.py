@@ -8,8 +8,9 @@
 这样窗口、贴轨计时、冷却、闩、抑制清窗、人工判定过期，全部由真代码算出来，
 我们只负责喂读数和记结果。TS 侧 `packages/host/kernel/src/watchdog.ts` 跑同一批脚本比对。
 
-    python \\
-        tools/spec-export/export_watchdog_trace.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_watchdog_trace.py
 
 为什么非要真跑不可：这条网的规则有六个互相纠缠的状态（窗口、贴轨起点、抑制、
 人工判定、冷却、闩），而 2026-08-10 那次事故的本体正是「它武装着但打不着火」——
@@ -23,6 +24,8 @@ import logging
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root
+
 import os
 import tempfile
 
@@ -31,7 +34,7 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "watchdog.json"
 
 sys.path.insert(0, str(MAST_ROOT))

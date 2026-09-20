@@ -11,8 +11,9 @@ r"""`QuitNanonis` 与 `WaitForScanEndBlocking` —— 通用驱动器到不了�
 这一份把它们逐格摆出来。与 `export_lockin_presets.py` 同一套办法：
 假 context 按动词脚本化，值全由这里写定。
 
-    python \
-        tools/spec-export/export_advanced_ops.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_advanced_ops.py
 """
 
 from __future__ import annotations
@@ -22,6 +23,8 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
@@ -44,7 +47,7 @@ def _fake_monotonic() -> float:
 _time.sleep = _fake_sleep          # type: ignore[assignment]
 _time.monotonic = _fake_monotonic  # type: ignore[assignment]
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "advanced_ops.json"
 

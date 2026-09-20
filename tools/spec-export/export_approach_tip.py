@@ -7,8 +7,9 @@ r"""把 `ApproachTip` **真的分派一遍** —— 两相、三个记拒绝的�
 最后那一处曾经也是单次瞬时读数（2026-08-05），它就长在 `AutoApproach` 里那处的
 下游，于是真机上一次成功的进针可能被同一个瞬态判死两遍。
 
-    python \
-        tools/spec-export/export_approach_tip.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_approach_tip.py
 """
 
 from __future__ import annotations
@@ -18,11 +19,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "approach_tip.json"
 

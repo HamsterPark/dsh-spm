@@ -12,8 +12,9 @@ HTTP 调用——**没有技能跑过、没有 action 行、没有标记、它�
 操作的人读了消息、相信测量发生过，然后就「IC 和 DP 的分工」提了反馈（#36）。
 **界面上「IC 做了」和「IC 说它做了」长得一模一样。**
 
-    python \\
-        tools/spec-export/export_claim_audit.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_claim_audit.py
 
 ⚠️ `_same_path` 用的是 `os.path.normcase` / `normpath`，**它随平台变**：
 Windows 上小写化并把 `/` 换成 `\\`，POSIX 上是恒等。这份金样在 Windows 上导出，
@@ -29,9 +30,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+from _paths import require_mast_root
+
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "claim_audit.json"
 
 sys.path.insert(0, str(MAST_ROOT))

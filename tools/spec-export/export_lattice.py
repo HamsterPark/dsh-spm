@@ -14,8 +14,9 @@ r"""晶格判据底座的金样 —— **旧仓 `mast/vision/lattice_*` 与 `fra
    这一批把它实现了（`numerics/src/pcg64.ts`），**逐位相同**。所以这一节照录，
    不绕开。绕开的代价是那 8 个空白对照落在别处，而判决就是「候选 ÷ 对照最大值」。
 
-    python \
-        tools/spec-export/export_lattice.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_lattice.py
 """
 
 from __future__ import annotations
@@ -28,13 +29,15 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-lattice-export-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "lattice.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

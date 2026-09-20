@@ -6,8 +6,9 @@ Phase 2 是整个项目的承重墙——后面 400 多个技能全部穿过同�
 驱动的是**旧仓真实实现** `mast/core/safety.py` 与 `mast/core/execution_context.py`：
 表直接读出来，判定逐条真跑。TS 侧 `packages/host/kernel/src/safety*.ts` 对着比。
 
-    python \\
-        tools/spec-export/export_safety_spec.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_safety_spec.py
 
 **报错原文也是契约**：物理荒谬那句教学文案是模型读的东西，逐字录。
 """
@@ -18,6 +19,8 @@ import json
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root
+
 import os
 import tempfile
 
@@ -26,7 +29,7 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 SPEC = Path(__file__).resolve().parents[2] / "spec"
 OUT = SPEC / "golden" / "safety.json"
 

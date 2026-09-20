@@ -1,7 +1,7 @@
 {
   "generated_from": {
-    "upstream": "<MAST_ROOT>\\working-memory\\NanonisClass_upstream.py",
-    "patch": "<MAST_ROOT>\\mast\\core\\nanonis_patch.py",
+    "upstream": "nanonis_spm 1.0.9 / NanonisClass.py",
+    "patch": "<MAST_ROOT>/mast/core/nanonis_patch.py",
     "patch_applied_names": [
       "Osci1T_TimebaseGet",
       "Osci2T_ChGet",

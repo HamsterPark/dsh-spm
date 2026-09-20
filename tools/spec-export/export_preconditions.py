@@ -6,8 +6,9 @@
 **把六种情况说成了一种**，三个人先后推断出三个不同的凶手——而机器当时就知道
 它到底是 Hold 还是 SafeTip 还是真的 Off。所以伴随字段的措辞逐字录。
 
-    python \\
-        tools/spec-export/export_preconditions.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_preconditions.py
 
 **夹具网格**：每个前置名 × 每种相关状态 = 一格，逐格录。判定表是子串匹配，
 而子串在**否定形式**上尤其危险（`"on"` 是 `"z_controller_off"` 的子串），
@@ -20,6 +21,8 @@ import json
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root
+
 import os
 import tempfile
 
@@ -28,7 +31,7 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "preconditions.json"
 
 sys.path.insert(0, str(MAST_ROOT))

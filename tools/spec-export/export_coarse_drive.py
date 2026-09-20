@@ -2,8 +2,9 @@
 
 驱动的是**旧仓真实实现** `mast/core/coarse_drive.py`。
 
-    python \\
-        tools/spec-export/export_coarse_drive.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_coarse_drive.py
 
 ## 为什么单开一台驱动器
 
@@ -26,11 +27,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "coarse_drive.json"
 
 sys.path.insert(0, str(MAST_ROOT))

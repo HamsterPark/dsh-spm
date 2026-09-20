@@ -20,8 +20,9 @@ r"""z(t) 跳变判定 —— **逐格驱动旧仓 `mast/io/z_trace.py` 的真实
 文档里写下来的真机观测（第二段电流饱和约 ×50–100、第四段 Δz ≈ +269 pm、
 第四段中位时长 0.012 s），但每一个点都是这个脚本算出来的。
 
-    python \
-        tools/spec-export/export_z_trace.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_z_trace.py
 """
 
 from __future__ import annotations
@@ -31,6 +32,8 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 # 旧仓是**只读规格书**。`project_root()` 读不到 MAST2_PROJECT_ROOT 就退回仓根 ——
@@ -41,7 +44,7 @@ from typing import Any
 # **而它存在的理由正是「今天没挡住」不等于「明天不会」。**
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-z-trace-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "z_trace.json"
 

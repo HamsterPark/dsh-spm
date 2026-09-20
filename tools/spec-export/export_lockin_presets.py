@@ -12,8 +12,9 @@ r"""Lock-in 参数组的**应用**与**相位自动对齐** —— 逐格驱动�
 两份金样的价值在于它们**不一样**：通用那份录的是「没配置的机器上会怎样」，
 这一份录的是「配好之后每一条判据分别说什么」。
 
-    python \
-        tools/spec-export/export_lockin_presets.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_lockin_presets.py
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
@@ -46,7 +49,7 @@ def _fake_monotonic() -> float:
 _time.sleep = _fake_sleep          # type: ignore[assignment]
 _time.monotonic = _fake_monotonic  # type: ignore[assignment]
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "lockin_presets.json"
 

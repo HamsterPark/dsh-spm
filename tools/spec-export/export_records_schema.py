@@ -7,8 +7,9 @@
 一张查询用的表跟丢了一个列，症状是「审计查不到」，不是「程序崩了」。
 所以我们**执行这份 SQL 原文**，不重写它。
 
-    python \\
-        tools/spec-export/export_records_schema.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_records_schema.py
 
 同时录一份 `sqlite_master` 的规范化快照：SQLite 自己解析完这段 SQL 之后**认为**
 建出了什么。判据落在这一份上——「SQL 文本一样」和「建出来的库一样」不是一回事
@@ -24,10 +25,12 @@ import sys
 import tempfile
 from pathlib import Path
 
+from _paths import require_mast_root
+
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT_SQL = Path(__file__).resolve().parents[2] / "spec" / "golden" / "records_schema.sql"
 OUT_JSON = Path(__file__).resolve().parents[2] / "spec" / "golden" / "records_schema.json"
 

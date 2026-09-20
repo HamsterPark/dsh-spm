@@ -7,8 +7,9 @@ description 不是文档，是**模型唯一读得到范围与写法的地方**�
 有量纲参数被声明成字符串（因为这家 provider 的数字通道 12/12 全损坏），
 于是 `ge/le` 到不了 schema，范围只能写进描述。抄错一个词，模型就会用错写法。
 
-    python \\
-        tools/spec-export/export_tool_schemas.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_tool_schemas.py
 
 用**合成的技能声明**而不是真的 515 个：这一段要钉的是**生成规则**，
 每条规则一个最小用例比 515 个真技能更能说明问题，而且不受旧仓改动影响。
@@ -23,6 +24,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from _paths import require_mast_root
+
 # ⚠️ **必须在 import mast 之前**把项目根指到临时目录（PLAN §8.6 的「隔离」就是这个意思）。
 # 2026-09-10 踩到：直接 import skill_adapter 会拉起管理员覆写机制，它把
 # config/overrides 从旧位置**迁移**到 MAST2_PROJECT_ROOT/config/overrides ——
@@ -30,7 +33,7 @@ from pathlib import Path
 # 「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas.json"
 REAL_OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas_real.json"
 

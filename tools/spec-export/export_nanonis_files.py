@@ -22,8 +22,9 @@ r"""Nanonis 文件格式（`.sxm` / `.dat` / `.3ds`）的金样 —— **合成�
 所以「覆盖了哪些形状、没覆盖哪些」写在 `docs/handoff/nanonis-files.md` 里，
 是一份可以被反驳的清单，不是一句「测过了」。
 
-    python \
-        tools/spec-export/export_nanonis_files.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_nanonis_files.py
 """
 
 from __future__ import annotations
@@ -35,11 +36,13 @@ import struct
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-nf-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "nanonis_files.json"
 

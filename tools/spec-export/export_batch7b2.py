@@ -1,7 +1,8 @@
 """批 7b-2 的**判据**金样 —— 势垒链与线缆，每条判据各走一格。
 
-    python \\
-        tools/spec-export/export_batch7b2.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch7b2.py
 
 ## 为什么还要一台导出器（`skill_traces.json` 已经有这八个了）
 
@@ -70,11 +71,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-b7b2-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch7b2.json"
 

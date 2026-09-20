@@ -37,8 +37,9 @@ r"""批 4c 的金样 —— **旧仓真实的 12 个技能真跑一遍**。
 一张有裙边的图（高斯包）做不到：裙边上有一圈像素的高度**正好在阈值附近**，
 于是「先抽到谁」会改掉内点集，那时答案就是掷骰子的。
 
-    python \
-        tools/spec-export/export_paper_data.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_paper_data.py
 """
 
 from __future__ import annotations
@@ -50,6 +51,8 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-paper-export-"))
@@ -69,7 +72,7 @@ _time.time = lambda: 1_700_000_000.0  # type: ignore[assignment]
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "paper_data.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

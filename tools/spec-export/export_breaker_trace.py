@@ -3,8 +3,9 @@
 驱动的是**旧仓真实实现** `mast/core/comms_health.py`（注入假时钟，纯确定性）。
 TS 侧 `packages/host/kernel/src/comms-breaker.ts` 跑同一条脚本比对。
 
-    python \\
-        tools/spec-export/export_breaker_trace.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_breaker_trace.py
 
 为什么已经有 7 条移植过来的 pytest 断言还要这个：那 7 条是**手抄**的，抄错了没人知道；
 而且它们覆盖不到冷却/窗口的精确边界（`>=` 还是 `>`）和长序列里的交错。
@@ -16,6 +17,8 @@ import json
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root
+
 import os
 import tempfile
 
@@ -24,7 +27,7 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "breaker_trace.json"
 
 sys.path.insert(0, str(MAST_ROOT))

@@ -1,7 +1,8 @@
 r"""批 7b-1 的金样 —— 旧仓 `AssessAtomicPhase` 对着**合成的 `.sxm` 字节**真跑一遍。
 
-    python \
-        tools/spec-export/export_batch7b1.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch7b1.py
 
 ## 为什么要单开一台
 
@@ -52,6 +53,8 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 #: 红线：旧仓只读。真有哪一行要写盘，也只会写进这个空临时目录。
@@ -59,7 +62,7 @@ os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="dsh-spm-7b1
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch7b1.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

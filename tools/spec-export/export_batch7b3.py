@@ -20,8 +20,9 @@ r"""批 7b-3 · 五个 `composite.*` 技能**真的分派一遍** —— 子技�
    那正是旧仓 #95「第 5 个点扫描不到」的形状，在导出器里复现出来只会毁掉金样。
 4. **录的是计划**（`runs`：子技能名 + 参数）**与报文**，不是我对它的阅读。
 
-    python \
-        tools/spec-export/export_batch7b3.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch7b3.py
 """
 
 from __future__ import annotations
@@ -34,13 +35,15 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-7b3-export-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch7b3.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 
 # ── 两个钟都钉死 ──────────────────────────────────────────────────────────
 #

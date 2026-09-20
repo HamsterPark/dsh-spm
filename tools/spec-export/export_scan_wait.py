@@ -14,8 +14,9 @@ r"""把 `WaitScanComplete` **真的等一遍**，连同它依赖的两个回包�
 * 每个结局的**动词序列**——尤其那条硬约束：中止与超时都必须先发
   `Scan_Action(1, 0)` 停扫，**再**返回。
 
-    python \
-        tools/spec-export/export_scan_wait.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_scan_wait.py
 """
 
 from __future__ import annotations
@@ -25,11 +26,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "scan_wait.json"
 

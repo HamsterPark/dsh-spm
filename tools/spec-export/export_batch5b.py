@@ -1,7 +1,8 @@
 """批 5b 的**判据**金样 —— 让旧仓那九个技能真的跑一遍，每条判据各走一格。
 
-    python \\
-        tools/spec-export/export_batch5b.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch5b.py
 
 ## 为什么还要一台导出器（`skill_traces.json` 已经有这九个了）
 
@@ -44,11 +45,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-b5b-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch5b.json"
 

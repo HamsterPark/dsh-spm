@@ -3,10 +3,11 @@
 字节由 STM-Bench 的真实实现产出（`stmsim/wire/codec.py`），不是手造的——手造的
 金样只能证明「我以为帧长这样」。TS 侧 `nanonis-wire` 逐例比对。
 
-    python \\
-        tools/spec-export/export_wire_fixtures.py
+Run after setting `STMSIM_ROOT` to the Python source directory containing the `stmsim` package.
 
-STM-Bench 是纯 Python（这一层不用 numpy），借旧仓 venv 跑即可；只读它，不写。
+    python tools/spec-export/export_wire_fixtures.py
+
+STM-Bench 是纯 Python（这一层不用 numpy）；只读它，不写。
 """
 
 from __future__ import annotations
@@ -16,7 +17,9 @@ import json
 import sys
 from pathlib import Path
 
-STMBENCH_ROOT = Path(r"<STMSIM_ROOT>")  # Historical revision: configure this local source path before use.
+from _paths import require_stmsim_root
+
+STMBENCH_ROOT = require_stmsim_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "wire_frames.json"
 
 sys.path.insert(0, str(STMBENCH_ROOT))

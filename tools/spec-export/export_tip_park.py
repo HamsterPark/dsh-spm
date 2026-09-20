@@ -6,8 +6,9 @@
 unreadable），而 `unreadable` 里还要再分两种成因（读失败 vs 本机没声明过），
 它们的处置完全相反——前者再等一下有意义，后者等多久都是白等。
 
-    python \\
-        tools/spec-export/export_tip_park.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_tip_park.py
 
 ⚠️ 猜错方向的代价**不对称**：`z_extend_sign` 猜反了，会把「针顶在伸长端
 （朝样品那一侧）」判成已退针。所以「没声明过」必须是一个**独立的结论**，
@@ -22,9 +23,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+from _paths import require_mast_root
+
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tip_park.json"
 
 sys.path.insert(0, str(MAST_ROOT))

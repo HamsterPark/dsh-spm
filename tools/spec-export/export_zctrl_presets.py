@@ -15,8 +15,9 @@ r"""Z 参数组的**解析**与**应用** —— 四路真源，逐格驱动旧�
 所以 `resolve(档名)` 在出厂配置下**恒拒**。那不是「还没接线」，是「没配就该拒」——
 一台仪器的 Z 增益不可能有出厂默认值。
 
-    python \
-        tools/spec-export/export_zctrl_presets.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_zctrl_presets.py
 """
 
 from __future__ import annotations
@@ -26,11 +27,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "zctrl_presets.json"
 

@@ -1,8 +1,9 @@
 r"""批 7a-3 的金样 —— `kde_layers` / `_hist_modes` / `_local_plane_rms` /
 CPython 的 `random`，外加 `FindFlatRegion` 与 `BiasWiggle` **旧仓真跑一遍**。
 
-    python \
-        tools/spec-export/export_batch7a3.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_batch7a3.py
 
 ## 为什么要单开一台
 
@@ -51,6 +52,8 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 _ROOT = tempfile.mkdtemp(prefix="mast-7a3-root-")
@@ -58,7 +61,7 @@ os.environ.setdefault("MAST2_PROJECT_ROOT", _ROOT)
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch7a3.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 

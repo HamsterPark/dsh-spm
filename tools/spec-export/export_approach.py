@@ -16,8 +16,9 @@ r"""把 `AutoApproach` **真的进一遍针**——带一份会收敛的物理�
 * `WaitProgress`     —— 模块跑了多久 + 台子动没动（2026-08-08 整晚查「秒停」）
 * `_parse_running`   —— 读不懂 ≠ 没在跑（2026-08-15 普查 A4）
 
-    python \
-        tools/spec-export/export_approach.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_approach.py
 """
 
 from __future__ import annotations
@@ -27,11 +28,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "approach.json"
 

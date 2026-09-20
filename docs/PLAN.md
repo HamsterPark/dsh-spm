@@ -4,7 +4,7 @@
 > 文档分工：**本文** = 决策、纪律、架构、接缝、流水线、阶段、验证、风险（正文不写任何随 dsh 版本漂移的事实）；
 > **`docs/dsh/facts.md`** = 对照当前锁定版本核实的 dsh 事实、dsh 侧陷阱、spike 清单、本次升级影响（每次升级重核）；
 > **`docs/dsh/upgrades.md`** = 升级策略与逐次升级日志；**`docs/EXECUTION.md`** = 分段执行计划（下一步做什么、每段停在哪）。
-> **2026-09-07 起，2026-09-01 的研究快照不在本仓**，移到 `<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`（八份，只读；MAST 旧仓的行号级事实仍有效）——本仓将公开，那八份是私有旧仓的行号级内部细节，一旦进 git 历史就撤不回来。需要时按绝对路径读。
+> Private reference material remains outside this repository and is not part of the public source tree.
 > 本文引用的「§4」「§15」「§3.1」指 `docs/dsh/facts.md` 里对应的章节，见各处指引。
 
 ## 0. 一句话
@@ -109,7 +109,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 
 已移至 **`docs/dsh/facts.md`**（对照当前锁定版本核实；每次升级重核并改首行版本号）。本文其它章节引用的「§4」一律指该文件 §5（能力对照表）。
 
-## 5. MAST 事实速查（要复刻的契约；路径在 `<MAST_ROOT>\mast\`）
+## 5. MAST 事实速查（要复刻的契约；路径在 `<MAST_ROOT>\MASTv2\mast\`）
 
 - **规模：不在本文记数字，以 `spec/golden/skills.json` 为准**（`tools/spec-export/export_mast_spec.py` 从 registry 导出，重跑逐字节相同）。理由是这里记过的数字已经漂了：09-01 普查写的是「registry 去重后 **498**（builtins 432 + composite 34 + paper 32；AUTO 269 / CONFIRM 219 / DANGEROUS 10；WRITE 243 / READ 164 / ANALYSIS 56 / COMPOSITE 43）」，而 **09-08 导出得到 515**（builtins 444 + composite 37 + paper 34；AUTO 283 / CONFIRM 222 / **DANGEROUS 10**；WRITE 243 / READ 165 / ANALYSIS 64 / COMPOSITE 43）——七天多了 17 个。旧仓还在给真机发版，**它会一直长**。这正是 §8.4-14「判据一律从真源派生、不手抄」的现场：手抄的分母会让「已完成比例」凭空变好看。**⚠️ `composition_level` 不能当分批依据**：只有 124/498 显式声明（L0×116、L1×5、L2×1、L3×1、L5×1），其余 374 个吃默认值 0（docstring 自承 "unmigrated skills… show up as atomic"）——批次成员一律从 `category` + 目录（builtins/composite/paper）+ `safety_level` 三者派生（golden），不读该字段。声明 preconditions 的只有 45 个（词表实际只用 `z_controller_on` 38 / `scan_not_running` 6 / `z_controller_off` 3 / `bias_nonzero` 2 / `vacuum_ok_for_coarse` 1）；capabilities `tip_shaping` 8 / `bias_pulse` 6 / 兼有 3；参数 float 622 / int 411 / str 305 / bool 193，`allowed_values` 60 处；单位 `m` 153、`s` 127、`V` 73、`Hz` 27、`nm` 25、`A` 18…；技能树经 `safe_call` 调用 **529** 个 Nanonis 动词，stmsim 实现 **203**（PLL/Script/HSSwp/KelvinCtrl/OsciHR/SpectrumAnlzr 等在模拟器上没有）；数值依赖 numpy 85 模块、torch 14、matplotlib 7、sklearn、scipy（correlate2d/gaussian_filter/fftconvolve/curve_fit/zoom/label…）、skimage（phase_cross_correlation/ssim）。
 - **技能契约** `core/types.py`：`SafetyLevel{AUTO,CONFIRM,DANGEROUS}`（**DANGEROUS 全名单 10 个**：CreateZCtrlPreset / LoadMultiPassConfig / LoadNanonisScript / LockNanonisUI / MoveProbeXY / QuitNanonis / RunRfFrequencySweep / SetLaserOnOff / SetPiControllerOnOff / StartRfGenerator——**全部与针尖损伤无关**，语义是「绕过保护/接管仪器/加载外部脚本」；`core/types.py:22` 的枚举注释「Only 2 skills」及其 08-25 更正块**都已过期**，TS 端别抄注释、枚举 metadata）、`SkillCategory`、`ParameterSpec`、`SkillMetadata{…composition_level, capabilities}`、`HardwareState`（含 `stale`、`z_controller_status` 六态、活动 Z 控制器身份、`lockin_mod_on`、扫描框几何）、`SkillResult{…summary?, images[路径]}`、`OperatingMode{SAFE,SEMI,AUTO}`。`skills/base.py` `BaseSkill`：`metadata/validate_params/check_preconditions/execute/rollback/abortable_sleep`。
@@ -425,7 +425,7 @@ conduct：`ctx.conduct`；Director = 宿主 job `stm-conduct` 确定性 tick；�
 ## 17. 参考
 
 - **本仓文档**：`docs/EXECUTION.md`（分段执行计划）· `docs/dsh/facts.md`（版本事实）· `docs/dsh/upgrades.md`（升级策略与日志）。
-- **仓外只读研究快照**（2026-09-01，八份，`<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`）：`plan-architecture.md` 仓库形态/接缝/测试 · `plan-skill-pipeline.md` 内核 K0–K18/批次/DoD/数值库/导出脚本/差分 · `plan-frontend-agents.md` 逐页落点/实时/审批 UI/8 preset/编排 · `runtime_survey.md` 21 中间件逐条/记忆/goals/唤醒/conduct · `explore-harness-layer.md` harness 层地图/四库/双引擎/HITL/provider 栈 · `explore-shell-and-docs.md` 入口/API/事件/前端/打包/测试 · `explore-domain-layer.md` 技能树/安全件/仪器层/数值依赖 · `PLAN-2026-09-01-alpha3.md` 本文重构前的原稿。**它们是私有旧仓的行号级内部细节，不进本仓 git 历史**；写代码时按绝对路径读。
+- **Private reference material:** kept outside this repository; it may guide implementation but must not be copied into Git history.
 - dsh：https://github.com/deepseek-ai/deepseek-harness（`docs/architecture.md`、`docs/cordis-tutorial/01–07`、`docs/subsystems/{tools,core,jobs,skills,session-projection,client-modules}.md`、`docs/cookbook/{extension-cookbook,adding-a-tool,adding-an-llm-adapter,adding-a-settings-card}.md`、`docs/user/develop/basic/publish.md`、`AGENTS.md`、`packages/client/AGENTS.md`、`docs/development.md`）；发布页 https://github.com/deepseek-ai/deepseek-harness/releases ；npm `@deepseek-ai/dsh`（追踪对象 = 所有 dist-tag 里 semver 最大值，见 D11）。
   **反馈渠道是 GitHub Discussions，不是 Issues**——该仓 Issues 已关闭，npm 包 `bugs.url` 指向的 `/issues` 是死链；分类为 `Announcements / General / Ideas / Polls / Q&A / Show Your Plugins!`。报 bug 前先搜（`gh api graphql` + `type:DISCUSSION`），那里 bug 报告密度很高、且常有社区成员贴出 master 上的源码锚点。
 - 先例：https://github.com/omicverse/dsh-omicos · https://github.com/hashgraph-online/hol-guard-plugin · https://github.com/poplarity/dsh-science-workbench · https://github.com/omdsh-dev/dsh-genui · https://github.com/libukai/awesome-deepseek-harness

@@ -1,134 +1,90 @@
-# 离「发布」还差什么
+# Public release checklist
 
-> 写于 2026-09-20。目标：**尽快把这个仓库公开**，作为求职材料可被审阅。
-> **发布不等技能移完，也不等它能跑起来。**
-> 能不能跑是 `MINIMUM-RUN-TODO.md`；技能还差多少是 `MIGRATION-TODO.md`。
->
-> 接手的人/智能体：这份文件按**优先级**排，每一条都给了「做什么 / 怎么算完 / 风险」。
-> 打勾请改这份文件，不要只在别处记。
+> Updated 2026-09-20 at commit `22f655b`. Public release does not require completing every skill or proving packaged installation, but it does require a reviewed publication boundary, adequate source rights, and an honest account of validation.
 
----
+## Scope inspected
 
-## 0. 「发布」在这里指什么
+- Local and remote `master` both resolve to `22f655b6ca27e54d2fac3fb337044f9636725406`.
+- The remote exposes one branch (`master`) and no tags. The repository is private.
+- The review covered 626 tracked files, 207 reachable commits, deleted historical paths, commit subjects and author identities, current GitHub Actions runs, and current repository metadata.
+- GitHub shows no description or topics. Issues are enabled and Discussions are disabled.
+- The remote README, Actions logs, and repository metadata were accessible. Release assets and package registries were not part of the current repository publication boundary.
 
-**最小集：把 `HamsterPark/dsh-spm` 从 private 改成 public，并且不外泄任何私密内容。**
+## Content review
 
-不包括（**明确排除，别顺手做**）：
+The following checks were performed locally without uploading repository contents to a scanning service:
 
-- ✗ 发到 npm —— 那要求它装得上，是下一步
-- ✗ 技能移完 —— 442/515，可达上限 502，见 `MIGRATION-TODO.md`
-- ✗ CI 能跑集成测试 —— B11，需要给 STM-Bench 建远端
-- ✗ 真机 —— Phase 8，与发布无关
+- strong credential shapes: private-key headers, GitHub tokens, AWS access keys, OpenAI key shapes, and quoted secret assignments;
+- private network addresses, local developer paths, private planning references, and commit author email categories;
+- tracked and historical large/binary filenames, model-weight extensions, instrument data extensions, and the largest current blobs;
+- source/provenance records for golden fixtures, the Nanonis command table, MAST-derived patch entries, paper-derived algorithms, and root/package license metadata.
 
-**理由**：审阅者看的是**工程判断**，不是完成度。一个诚实标注了「这里还没通」的仓库，
-比一个把没通的地方藏起来的仓库更可信 —— 而且 AI 扫描会读出后者。
+No private network address, private-key material, quoted credential assignment, model weight, or tracked instrument-data file was found in the reviewed reachable history. Four OpenAI-key-shaped strings are the same 24-character literal reproduced in a handoff record, mutation fixture, and mutation log. The value is too short for the key shape being tested and does not appear in a credential assignment, so it is classified as a test literal. Findings are reported by location and category without reproducing their values.
 
----
+Current Markdown no longer contains the local developer username. Reference and simulator paths now use `MAST_ROOT`, `STMSIM_ROOT`, or `REPOSITORY_ROOT`. Public entry documents no longer enumerate private planning directories.
 
-## 1. 🔴 发布前必须做（阻塞）
+The original private history contains previous Markdown, source comments, local paths, informal internal wording and an ordinary Gmail commit-author address. The owner has authorized cleaning historical versions while retaining development history and accepting changed commit hashes. This work is performed in a separate local copy with a verified private backup; the original repository and its linked worktrees remain intact. Remote history replacement and a visibility change are separate publication actions.
 
-### 1.1 私密内容不外泄 —— **这一条做完之前不要点 public**
+The later full reading by twenty Luna reviewers covered a 628-file working-tree snapshot, including all 463 source/test/generated-source files. It found a specific sample identity, copied laboratory narratives and an operator-specific instrument configuration that the targeted scan had missed. Those findings supersede the earlier negative result for sample identities. Coverage, cleanup status and limits are recorded in [PUBLIC-CODE-REVIEW.md](PUBLIC-CODE-REVIEW.md).
 
-| 查什么 | 怎么查 | 期望 |
-|---|---|---|
-| 本地private review archive没进 git | `git log --all --diff-filter=A --name-only \| grep -i 'private review archive\|02-求职\|研究快照'` | 零命中 |
-| 旧仓内容没进历史 | `git log --all -S'MASTv2' --oneline -- . \| head` 逐条看，只应出现在**路径字符串**里（导出器指向旧仓），不应有旧仓的**代码** | 只有路径 |
-| 个人信息 | `git log --format='%ae' \| sort -u` | 只有 GitHub noreply 或你愿意公开的邮箱 |
-| 绝对路径 | `grep -rn 'D:\\\\<user>' --include=*.ts --include=*.py --include=*.md . \| grep -v node_modules \| wc -l` | 有，且**可以留** —— 它们是导出器指向只读旧仓的路径，是事实。但要在 README 说明一句 |
-| 大文件 / 权重 | `git ls-files \| xargs -I{} du -k {} 2>/dev/null \| sort -rn \| head -20` | 没有 ONNX/权重（B9：权重不入仓） |
+The final current-tree pass replaced confirmed developer-machine paths in all exporter entry points and the remaining frozen provenance fields. External source roots are explicitly configured through `MAST_ROOT` and `STMSIM_ROOT`; generated provenance uses stable placeholders. Generic path-parser fixtures remain intact. Reference-system observations retain their true source category when deidentified.
 
-**完成判据**：上面五行逐条跑过并把结果贴在本节下面。
+## Source and license review
 
-> ⚠️ 历史里一旦有过私密内容，改 public **等于公开它**。
-> 如果第 1/2 行有命中，**先别公开**，用 `git filter-repo` 或干脆新建一个干净仓库重推。
+- The root license is MIT with `Copyright (c) 2026 HamsterPark`; all package manifests declare MIT. Child manifests inherit the repository authorship and do not repeat an `author` field.
+- `spec/nanonis/nanonis_commands.json` records that it was generated from `nanonis_spm` 1.0.9 plus twelve MAST patch entries.
+- The official `nanonis-spm` 1.0.9 package includes an MIT license notice for Samuel O'Neill. PyPI's JSON metadata leaves the license fields empty, so the bundled wheel notice is preserved in [SOURCES.md](SOURCES.md).
+- Paper-derived code uses algorithm names and normal scientific references. No article text, figure, or dataset was identified in the Markdown/source review.
 
-### 1.2 README 重写（对外第一眼）
+The user has authorized migration and public preparation of the MAST-derived material. No concrete third-party conflict was found in the bounded provenance review; its limits are recorded in [SOURCES.md](SOURCES.md).
 
-现有 `README.md` 81 行，是开工期写的，**没有今天的状态**。要有：
+## Validation
 
-1. 一句话：这是什么（把「6 台真机 / 数十小时无人值守 / 从自建 Harness 迁到 dsh 插件」说清）
-2. **诚实的状态表**：技能 442/515（可达 502）、测试 7445、变异 879、偏差 228；
-   **并明写「作为插件尚未在真 dsh 里装起来过」**
-3. 为什么这些数可信 —— 三句话版的方法论，指向 `AGENTS.md`
-4. 目录导览
-5. 怎么跑测试（`pnpm install --frozen-lockfile && pnpm build && npx vitest run --project unit --project contract`）
-6. 一句「`docs/` 里三份 TODO 写着还差什么」
+The latest GitHub Actions run for `22f655b` failed in all four Node/OS jobs: [run 35502853052](https://github.com/HamsterPark/dsh-spm/actions/runs/35502853052).
 
-**完成判据**：一个没见过这个项目的人读完 README，能答出「它是什么」「哪些数可信」「哪里还没通」。
-
-### 1.3 LICENSE 与署名核一遍
-
-- `LICENSE` 已在（21 行），署名应为 `Copyright (c) 2026 HamsterPark`
-- 各 `package.json` 的 `author` 与它一致
-- **完成判据**：`grep -rn 'author' packages/*/*/package.json | sort -u` 只出现一个署名
-
-### 1.4 仓库门面
-
-- 顶部简介一行、topics（`stm`、`scanning-tunneling-microscopy`、`llm-agent`、
-  `scientific-instruments`、`typescript`）
-- ⚠️ **不要开 Issues/Discussions 模板**之类的——那是维护中项目的信号，这里不需要
-
----
-
-## 2. 🟡 发布后一周内（不阻塞公开，但很影响第一印象）
-
-### 2.1 一张「它在做什么」的图或一段 30 秒的说明
-
-审阅者对 STM 没有直觉。用两三句把这件事讲清：
-
-> STM 是部分可观测、强非线性、非平稳、且**状态会被自己的操作改变**的系统。
-> 操作经验以隐性知识存在。所以这套东西做的不是「给仪器加一个 API」，
-> 是**把仪器操作知识变成可检索、可调用、可验证的技能**，
-> 并给每一条技能配一道能自己变红的闸。
-
-### 2.2 `docs/EXECUTION.md` §1 太长了（900+ 行）
-
-它是实施日志，价值很高但对新读者是墙。
-**加一个 20 行的「如果你只读一节」**放在最前面，指向那几条最硬的教训。
-（不要删，那些教训是这个仓库最值钱的部分。）
-
-### 2.3 CI 徽章 + 一句限定
-
-CI 现在只跑 `unit` + `contract`。README 要写明：
-**「CI 绿 ≠ 对着真模拟器绿」** —— 集成测试要 STM-Bench 的 stmsim，那个仓库没有远端（B11）。
-
----
-
-## 3. 🟢 明确不做（写下来，免得有人顺手做）
-
-| 不做 | 为什么 |
+| Runner | Result |
 |---|---|
-| 发 npm | 要求装得上（B10 从没验过）。见 `MINIMUM-RUN-TODO.md` |
-| 补齐技能 | 发布与完成度无关；而且 13 个 D 档**永远不做** |
-| 给 STM-Bench 建远端 | B11，属于「让 CI 有意义」，不属于发布 |
-| 清理 `.claude/worktrees/` | 已 gitignore，不进公开历史。（但**本地**可以 `git worktree remove` 回收几百 MB） |
-| 改 `docs/handoff/` 的历史交接 | 它们是**那一天的快照**。要订正就加注，不要改原数 |
+| Windows, Node 22.19 | 2 failed, 7,443 passed |
+| Windows, Node 24 | 2 failed, 7,443 passed |
+| Ubuntu, Node 22.19 | 27 failed, 7,418 passed |
+| Ubuntu, Node 24 | 27 failed, 7,418 passed |
 
----
+Both Windows failures are in the calibration/trace goldens and depend on local-time rendering. Ubuntu additionally exposes absolute-path normalization and platform-shaped trace differences. These results supersede any unqualified statement that current CI is green. Because the same code commit already ran the full matrix, the initial documentation pass did not repeat the suite locally.
 
-## 4. 发布当天的顺序
+The separate comment-cleanup pass was checked without rerunning the full suite: 16 TypeScript files produced the same compiler output and directives as `HEAD`; three YAML/gitignore files retained identical non-comment lines; four Python exporters had identical ASTs after docstrings were removed; and the mutation catalogue retained all 879 entries and all fields except one diagnostic `why` string. The catalogue self-test passed (`1 passed`, `879 skipped`). No exporter or mutation drill was run, and this does not establish that 879 mutations are red.
 
-```
-1. 跑 §1.1 那五行检查，贴结果          ← 不过就停
-2. 重写 README（§1.2）
-3. 核 LICENSE 与 author（§1.3）
-4. npx vitest run --project unit --project contract   ← 最后绿一次
-5. git push
-6. Settings → Change visibility → Public
-7. 加简介与 topics（§1.4）
-```
+An additional read-only check found that 878 of 879 mutation replacement patterns match exactly once. `forge-required-covers-the-terrace-leveling` has zero matches in `packages/host/stm-skills/src/l0/tip-selfcheck.ts`, both in `22f655b` and in the cleaned working tree. All 45 mutations targeting edited files retain their original match counts. The unmatched pattern is a pre-existing maintenance issue; this preparation did not change mutation rules or run the drill.
 
-**第 1 步不过就不要往下走。** 公开是不可逆的。
+After the twenty-reviewer full reading and coordinated content cleanup, the build passed and **698 focused unit/contract tests passed in nine files**. Static comparison preserved numerical payloads and mutation rules while allowing the explicitly reviewed descriptive text and anonymous identifiers. These results validate the cleanup's affected contracts; they do not replace the full CI result above. The public profile identifier is now `reference-surface-v1`, requiring existing external configurations that used the old identifier to update it. Details and export caveats are in [PUBLIC-CODE-REVIEW.md](PUBLIC-CODE-REVIEW.md).
 
----
+The final path pass added **117 passing z-trace tests and 25 passing claim-audit tests**, checked the external-root helper without importing either private source tree, and verified synchronization of all 671 generated Nanonis methods. These are focused cleanup checks, not a new full CI matrix.
 
-## 5. 状态
+## Release blockers
 
-- [ ] 1.1 私密内容检查（五行）
-- [ ] 1.2 README 重写
-- [ ] 1.3 LICENSE / author
-- [ ] 1.4 简介与 topics
-- [ ] **公开**
-- [ ] 2.1 「它在做什么」
-- [ ] 2.2 EXECUTION 导读
-- [ ] 2.3 CI 限定说明
+- [x] Finish and verify the coordinated content cleanup described in [PUBLIC-CODE-REVIEW.md](PUBLIC-CODE-REVIEW.md), including copied descriptions and golden metadata.
+- [x] Remove confirmed developer-machine paths from exporter entry points and frozen provenance.
+- [x] Choose history-preserving cleanup with a complete local private backup.
+- [x] Verify the isolated rewritten history and assemble the reviewed publication copy; results are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
+- [ ] Replace the remote history from the reviewed publication copy and resolve any retained remote copies before changing visibility. Local cleanup alone does not clean GitHub.
+- [x] Record the cross-platform CI failures as an accepted runtime limitation. The public README does not claim that current CI is green.
+- [x] Review the final combined diff, including the separate source/configuration comment cleanup authorized for this release-preparation pass.
+- [ ] Add the repository description and topics after the reviewed commit is pushed.
+- [ ] Switch visibility only after an explicit instruction to publish.
+
+## Repository presentation
+
+Proposed description:
+
+> DeepSeek Harness plugin for STM/SPM instrument control, with golden fixtures, contract tests, and mutation drills for verifiable domain-skill migration.
+
+Proposed topics: `stm`, `scanning-tunneling-microscopy`, `llm-agent`, `scientific-instruments`, `typescript`.
+
+Issues are currently enabled. The earlier checklist proposed leaving them off; changing this setting is a repository-maintenance choice and is not part of content cleanup.
+
+## Out of scope for publication preparation
+
+- npm publication;
+- completing the remaining 60 in-scope skills;
+- packaged plugin installation and model invocation;
+- simulator CI setup or hardware use;
+- Remote pushes, visibility changes or messages to third parties without the corresponding instruction. The authorized local history cleanup and publication-copy commit are part of this preparation.

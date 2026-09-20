@@ -3,8 +3,9 @@
 驱动的是**旧仓真实实现** `mast/core/state.py` 的 `InstrumentState`，喂它一个假 pool
 （只按脚本回话，不碰网络）。TS 侧 `packages/instrument/instrument-state` 跑同一批脚本比对。
 
-    python \\
-        tools/spec-export/export_state_spec.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_state_spec.py
 
 三节，各自回答一个不同的问题：
 
@@ -29,6 +30,8 @@ import math
 import sys
 from pathlib import Path
 
+from _paths import require_mast_root
+
 import os
 import tempfile
 
@@ -37,7 +40,7 @@ import tempfile
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
 os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "state.json"
 
 sys.path.insert(0, str(MAST_ROOT))

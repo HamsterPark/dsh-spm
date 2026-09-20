@@ -1,7 +1,8 @@
 """`_tip_phases` 六个流程的**子技能依赖**——批 6a 的专用驱动器（静态）。
 
-    python \\
-        tools/spec-export/export_tip_phase_deps.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_tip_phase_deps.py
 
 ## 为什么要单开一台，而且是**静态**的
 
@@ -73,6 +74,8 @@ import json
 import os
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 #: 红线：旧仓只读。真要有哪一行 import 到旧仓运行时，它写文件也只会写进这个空临时目录。
@@ -80,7 +83,7 @@ from typing import Any
 os.environ.setdefault(
     "MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="dsh-spm-tip-phase-deps-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "tip_phase_deps.json"
 

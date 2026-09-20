@@ -1,9 +1,10 @@
 """把旧仓 MAST 的技能契约导成 golden，作为 TS 侧 parity 的**分母**。
 
-只读旧仓，不写旧仓一个字节。用旧仓自己的 venv 跑（本机 PATH 里没有可用的 python）：
+只读旧仓，不写旧仓一个字节：
 
-    python \\
-        tools/spec-export/export_mast_spec.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_mast_spec.py
 
 为什么分母必须从真源导出而不是手抄：PLAN §8.5 的 DoD ① 要求 `skill.spec` 与本文件
 产出的条目 deep-equal，②要求工具 schema 的 description **逐字相等**。手抄的分母会
@@ -23,7 +24,9 @@ import tempfile
 import traceback
 from pathlib import Path
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+from _paths import require_mast_root
+
+MAST_ROOT = require_mast_root()
 OUT_DIR = Path(__file__).resolve().parents[2] / "spec" / "golden"
 
 
@@ -178,7 +181,7 @@ def main() -> int:
     # 于是「已完成比例」凭空变好看（PLAN §8.6）。
     # 不记沙箱路径：它每次跑都不同，会让 golden 的 diff 全是噪声。金样最重要的性质是
     # **重跑产出逐字节相同**，否则「有没有变」这个问题就没法用 diff 回答。
-    manifest: dict = {"mast_root": str(MAST_ROOT), "spec_source": _spec_source(), "collectors": {}}
+    manifest: dict = {"mast_root": "<MAST_ROOT>", "spec_source": _spec_source(), "collectors": {}}
     # 每个 collector 自报怎么数——skills.json 数技能，si_cases.json 数用例（它是分组
     # 结构，数顶层键会报「5」）。用一个启发式去猜两种形状，只会两边都数错。
     for filename, collector, count in [

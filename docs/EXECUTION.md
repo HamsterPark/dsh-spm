@@ -20,7 +20,7 @@
 **回滚单位 = 一段**。每段一个提交（中文首行 `feat(pkg): …` / `chore(dsh): …` / `docs: …`）；升级 dsh 永远是**独立提交**，不与领域代码混。
 段内红了就在段内修；段的设计被推翻就整段 revert，不做「留一半」。
 
-**红线**（任何一段都不许破）：真机 0 次直到 Phase 8；`profiles/mast-rig` 不入仓；除 `packages/host/compat/src/` 外任何文件不许出现 `from '@deepseek-ai/`；研究快照与旧仓内容不进本仓 git 历史。
+**红线**（任何一段都不许破）：真机 0 次直到 Phase 8；`profiles/mast-rig` 不入仓；除 `packages/host/compat/src/` 外任何文件不许出现 `from '@deepseek-ai/`；私有研究资料与旧仓内容不进本仓 git 历史。
 
 ---
 
@@ -1263,8 +1263,8 @@ Nanonis 协议表已拷入 `spec/nanonis/`，671 个方法的门面由 `pnpm gen
 **覆盖率门禁**现在才算有对象（kernel 要求逐文件 100%，PLAN §6.3），但等 1.2–1.5 把 kernel 填到有分支
 可覆盖时一起落——此刻 kernel 只有 `si.ts`，而它已被 146 条金样打满。spike 剩下五条各有触发点（见 `dsh/spike.md`）。
 
-2026-09-07 的一次性整理：确立 git 路径；研究快照八份移出到
-`<PRIVATE_REVIEW_ARCHIVE>\01-dsh-spm\研究快照-2026-09-01\`；补 `.gitignore` / `.gitattributes`；本文件新建。
+2026-09-07 的一次性整理：确立 git 路径；私有研究资料八份移出到
+`<PRIVATE_REFERENCE_ROOT>`；补 `.gitignore` / `.gitattributes`；本文件新建。
 
 ### ~~阻塞：dsh 0.1.3-alpha.2 装不上本机~~ ✅ 2026-09-09 解除（留档）
 

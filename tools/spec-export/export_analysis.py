@@ -10,8 +10,9 @@ TypeScript 使用相同输入比较；容差及依据见 `packages/host/vision/s
 3. 输出不依赖墙钟或随机数。`MAST2_PROJECT_ROOT` 指向临时目录，隔离本机
    profile 配置对 `AssessFrameCorrugation` 阈值来源的影响。
 
-    python \
-        tools/spec-export/export_analysis.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_analysis.py
 """
 
 from __future__ import annotations
@@ -23,13 +24,15 @@ import re
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-analysis-export-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "analysis.json"
-MAST = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST = require_mast_root()
 if str(MAST) not in sys.path:
     sys.path.insert(0, str(MAST))
 
@@ -793,7 +796,7 @@ for key, verdict, kw in [
      dict(threshold_pm=40.0, ref_scan_nm=100.0, this_scan_nm=100.0, rel_tol=0.0)),
     ("profile_named", _V(True, "", 30e-12),
      dict(threshold_pm=40.0, ref_scan_nm=100.0, this_scan_nm=100.0,
-          profile_name="reference-surface-v1", provenance="来历一行")),
+           profile_name="reference-surface-v1", provenance="来历一行")),
 ]:
     CORRUGATION.append({"key": key,
                         "verdict_in": {"usable": verdict.usable, "reason": verdict.reason,
@@ -1061,6 +1064,15 @@ def main() -> int:
     # 两句都对，都不是判据。判据是它前面那半句（谁在报、报的是哪条路径）。
     # TS 那侧的比对做同一次归一化。
     text = json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False)
+    # 公开金样的有意隐私例外：旧仓只读，导出后只替换现场身份叙事；数值与结构不动。
+    text = text.replace(
+        "目前实测的箱子(RAW 口径,n=4 真值 / 405 候选,单次会话,2026-08-10 真机):",
+        "参考系统观测到的箱子(RAW 口径,n=4 真值 / 405 候选；尚未在本仓独立验证):",
+    )
+    text = text.replace(
+        "2026-08-10 真机 n=4 真值 / 405 候选,单次会话、同一根针、同一片区域,RAW 口径",
+        "参考系统观测：n=4 真值 / 405 候选，RAW 口径；尚未在本仓独立验证",
+    )
     text = text.replace(json.dumps(TMP)[1:-1], "<tmp>")
     text = text.replace(TMP.replace("\\", "/"), "<tmp>")
     text = re.sub(r"\[WinError [^\"]*", "<oserror>", text)

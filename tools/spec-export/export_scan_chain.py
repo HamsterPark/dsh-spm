@@ -10,8 +10,9 @@ r"""扫描主链 —— `ConfigureScan` 与 `StartScan` 的判定件与端到端
 | `_scan_props_modules` | 找错了层 ⇒ 兜底一直在生效 ⇒ 写死的 5 个名字**每一次扫描**都覆盖掉用户在 GUI 里配的清单 |
 | `_continuous_state` | 2026-08-19：解析崩掉 ⇒ `None == 1` 为假 ⇒ 报「continuous 已关」，而那一帧的 wait 恰恰是 `restarted` |
 
-    python \
-        tools/spec-export/export_scan_chain.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_scan_chain.py
 """
 
 from __future__ import annotations
@@ -21,11 +22,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "scan_chain.json"
 

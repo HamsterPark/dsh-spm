@@ -10,8 +10,9 @@ r"""进针升级的逃逸闸。
 * 清除**按链计**：一条链上的成功 engage 不能清除另一条链刚记录的拒绝，否则会
   **把那道侧门重新打开**。
 
-    python \
-        tools/spec-export/export_approach_gate.py
+Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
+
+    python tools/spec-export/export_approach_gate.py
 """
 
 from __future__ import annotations
@@ -21,11 +22,13 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+
+from _paths import require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
 
-MAST_ROOT = Path(r"<MAST_ROOT>")  # Historical revision: configure this local source path before use.
+MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "approach_gate.json"
 

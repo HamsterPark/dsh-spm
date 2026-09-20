@@ -1,5 +1,7 @@
 # `spec/nanonis/` —— Nanonis 协议表（拷贝，带来源）
 
+第三方来源与 `nanonis_spm` 1.0.9 的 MIT 通知见 [`docs/SOURCES.md`](../../docs/SOURCES.md)。
+
 `nanonis_commands.json`：**671 个方法**的机器可读协议表。
 `scripts/gen-nanonis.ts` 从这里生成 `packages/instrument/nanonis-wire/src/generated/methods.ts`。
 
@@ -8,14 +10,15 @@
 原件在 `<STMSIM_ROOT>\stmsim\spec\nanonis_commands.json`，由 STM-Bench 的
 `spec/extract.py` 从两处抽取（见 JSON 里的 `generated_from`）：
 
-- `MAST\working-memory\NanonisClass_upstream.py` —— `nanonis_spm` v1.0.9 的上游类
-- `MAST\MASTv2\mast\core\nanonis_patch.py` —— MAST 打的补丁（12 个方法，`source: "patch"`）
+- `nanonis_spm` v1.0.9 的 `NanonisClass.py` 上游类
+- `<MAST_ROOT>/mast/core/nanonis_patch.py` —— MAST 打的补丁（12 个方法，`source: "patch"`）
 
 **拷进来而不是引仓外路径**：生成器要在 CI 上跑（校验重生成无 diff），而 CI 上没有 STM-Bench。
 拷贝也让「协议表变了」这件事变成本仓的一次 diff，而不是别人机器上的一次静默变化。
 
 **同步方式**：STM-Bench 的表更新时手动重拷 + 重跑生成器，两个改动进同一个提交。
-本文件只做格式规整（`JSON.stringify(…, 2)` + LF），内容与原件等价。
+协议字段与原件等价；公开副本另外将 `generated_from` 中的开发者绝对路径改为包名／源码占位符。
+重拷时保留该脱敏处理并检查其他公开文本，再检查生成器同步状态。
 
 ## 读这张表时必须知道的四件事
 
