@@ -112,6 +112,12 @@ import { COARSE_STEP_CALIB } from '../composite/coarse-step-calib.js'
 import { PATTERN_GRID } from '../composite/pattern-grid.js'
 
 // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 import ──
+
+// ── 批 8a-1（写侧 record_damage_marker + 贵金属链三条流程 + AssessShockleyOnset）在这一行下面加 import ──
+
+// ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）在这一行下面加 import ──
+
+// ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）在这一行下面加 import ──
 import { PAPER_REGION } from './paper-region.js'
 import { GridSTS } from '../composite/grid-sts.js'
 import { DemoScanAndSTS } from '../composite/demo-scan-and-sts.js'
@@ -248,6 +254,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...OPTICS_ACQUIRE,
 
   // ── 批 7b-3 在这一行下面展开 ──
+
+  // ── 批 8a-1 在这一行下面展开 ──
+
+  // ── 批 8a-2 在这一行下面展开 ──
+
+  // ── 批 8a-3 在这一行下面展开 ──
   ...PAPER_REGION,
   GridSTS,
   DemoScanAndSTS,

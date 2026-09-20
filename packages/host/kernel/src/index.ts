@@ -89,3 +89,9 @@ export * from './map-scope.js'
 // ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 export ──
 
 // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 export ──
+
+// ── 批 8a-1（写侧 record_damage_marker + 贵金属链三条流程 + AssessShockleyOnset）在这一行下面加 export ──
+
+// ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）在这一行下面加 export ──
+
+// ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）在这一行下面加 export ──

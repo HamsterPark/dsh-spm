@@ -160,6 +160,12 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 <!-- ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的驱动器写在这一行下面 ── -->
 
+<!-- ── 批 8a-1（写侧 record_damage_marker + 贵金属链三条流程 + AssessShockleyOnset）的驱动器写在这一行下面 ── -->
+
+<!-- ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）的驱动器写在这一行下面 ── -->
+
+<!-- ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）的驱动器写在这一行下面 ── -->
+
 | 文件 | 导出器 | 为什么要单开一台 |
 |---|---|---|
 | `batch7b3.json` | `export_batch7b3.py` | 五个组合技能**一次裸动词都不发**（除了 `TrackDrift_ReferenceScan` 的一次 `Scan_FrameDataGrab`）—— 它们的全部内容是**排了谁、按什么次序、带什么参数**。通用驱动器给每个子技能一个 `success=True, data={}`，于是那一份里：`AcquireBiasImagingSeries` 读不到扫描框、当场拒；`MoveAtomTo` 的读回全空、verify 没有 verdict；`GridSTS` 一格 `suspect` 都造不出来。这一份**自己摆子技能的返回**（按技能名脚本化，同一个名字可以给一串答案），51 格：`GridSTS` 7 · `DemoScanAndSTS` 11 · `TrackDrift_ReferenceScan` 9 · `AcquireBiasImagingSeries` 10 · `MoveAtomTo` 14。<br>⚠️ **每一格一个新 `run_id`**：sidecar 按 `(技能名, run_id)` 落盘，同 run 的下一格会**续跑**，把已完成的步骤整段跳掉 —— 那正是旧仓 #95「第 5 个点扫描不到」的形状，在导出器里复现出来只会毁掉金样。<br>⚠️ 两个钟都钉死：墙钟（参考图文件名里的毫秒）与单调钟（`abortable_sleep` 每 0.1 s 轮询一次）。<br>⚠️ `MoveAtomTo` 的十三格 `dy` 都是 0（`hypot(x, 0) == \|x\|`，两侧逐位相同），所以 `diagonal_drag_exercises_hypot` 是整份金样里**唯一**照得到 D-HYPOT-1 的一格；它的距离取成 `hypot(7e-10, 5e-10) = 8.602e-10` ⇒ `ceil(8.602) = 9`，**离整数远** —— 1 ULP 改不了航点个数（改得了的话两侧连步数都对不上）。 |

@@ -506,6 +506,18 @@ const BATCH_7B_2: string[] = [
 
 
 // ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
+
+// ↑ 上一条 ／ ↓ 8A-1 —— 这一行谁都不要动
+const BATCH_8A_1: string[] = []
+
+
+// ↑ 上一条 ／ ↓ 8A-2 —— 这一行谁都不要动
+const BATCH_8A_2: string[] = []
+
+
+// ↑ 上一条 ／ ↓ 8A-3 —— 这一行谁都不要动
+const BATCH_8A_3: string[] = []
+
 const BATCH_7B_3: string[] = [
   // 甲 · `composite` 零新原语的五个。判据依赖为零、子技能全落、互不依赖。
   // 唯一的共用前置是给 `SaveScan` 注入 `findLatestSxm`（`l0/scan.ts`）。

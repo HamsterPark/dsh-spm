@@ -5569,6 +5569,12 @@ function physicallyAbsurdViolations_unused(`,
 
   // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的演练写在这一行下面 ──
 
+  // ── 批 8a-1（写侧 record_damage_marker + 贵金属链三条流程 + AssessShockleyOnset）的演练写在这一行下面 ──
+
+  // ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）的演练写在这一行下面 ──
+
+  // ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）的演练写在这一行下面 ──
+
   // ── 批 7b-3 ①：`paper-region.ts` 四个纯函数 ─────────────────────────
   {
     id: 'diff-scans-rejects-a-one-dimensional-image',

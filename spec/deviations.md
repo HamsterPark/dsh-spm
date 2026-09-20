@@ -2956,6 +2956,18 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 在 `vision/scan-prep.ts` 与 `l0/scan-prep-skills.ts` 各自的 `fx()` 里挡了一层，
 并把它写成一条**给主线的欠账**（见 `docs/handoff/batch-6b.md` §7）。
 
+<!-- ── 批 8a-1（写侧 record_damage_marker + 贵金属链三条流程 + AssessShockleyOnset）的登记写在这一行下面 ── -->
+
+<!-- 批 8a-1：编号**留空**（`?`），由主线统一编。 -->
+
+<!-- ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）的登记写在这一行下面 ── -->
+
+<!-- 批 8a-2：编号**留空**（`?`），由主线统一编。 -->
+
+<!-- ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）的登记写在这一行下面 ── -->
+
+<!-- 批 8a-3：编号**留空**（`?`），由主线统一编。 -->
+
 <!-- ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）的登记写在这一行下面 ── -->
 
 <!-- 批 7b-1：编号**留空**（`?`），由主线统一编。 -->
