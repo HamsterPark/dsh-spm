@@ -43,6 +43,7 @@
 import {
   GraphExecutor,
   progressToDict,
+  pyFixed,
   type CompositeStep,
   type Skill,
   type SkillContext,
@@ -394,14 +395,14 @@ class Manip {
         data,
         error:
           `原子没到位(${String(data['verify_verdict'])}` +
-          (rn === null ? '' : `,残差 ${rn.toFixed(2)} nm`) +
+          (rn === null ? '' : `,残差 ${pyFixed(rn, 2)} nm`) +
           `,试了 ${String(data['attempts'])} 次)`,
         summary: '搬运未成功,仪器已还原',
       }
     }
     let summary = data['moved'] ? '原子已到位' : '已搬运,未复扫确认'
     const rn = data['residual_nm'] as number | null
-    if (rn !== null) summary += `,残差 ${pyF0(rn * 1000)} pm`
+    if (rn !== null) summary += `,残差 ${pyFixed(rn * 1000, 0)} pm`
     return { success: true, data, summary }
   }
 }
@@ -418,14 +419,6 @@ function resistance(pd: Record<string, unknown>): number | null {
 function pyRepr(v: unknown): string {
   if (v === null || v === undefined) return 'None'
   return String(v)
-}
-
-/** Python 的 `"%.0f"` —— banker's rounding。 */
-function pyF0(x: number): string {
-  const f = Math.floor(x)
-  const d = x - f
-  const n = d > 0.5 ? f + 1 : d < 0.5 ? f : f % 2 === 0 ? f : f + 1
-  return Object.is(n, -0) ? '-0' : String(n)
 }
 
 export const MoveAtomTo: Skill = {

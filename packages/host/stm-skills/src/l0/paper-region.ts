@@ -62,6 +62,8 @@
 import { writeFileSync } from 'node:fs'
 import {
   encodeNpyFrame,
+  formatG,
+  pyFixed,
   type Skill,
   type SkillContext,
   type SkillResultLike,
@@ -189,6 +191,11 @@ export function diffScans(a0: Mat, b0: Mat, register: boolean): DiffScansResult 
   }
   const ny = Math.min(a0.rows, b0.rows)
   const nx = Math.min(a0.cols, b0.cols)
+  // ⚠️ 这一条**够不着**，两侧都一样：`loadImage2d` 对空数组当场抛
+  // （`parsed to an empty array`），于是走到这里的 `Mat` 恒有 `rows ≥ 1`、
+  // `cols ≥ 1`，而上一道闸又把 `rows === 1` 挡掉了。留着是因为旧仓有它
+  // （哪天 `Mat` 的来源变了就是它上场的时候），但**不为它编金样** ——
+  // 一格造不出来的输入不是判据（green-8 §2.8）。
   if (ny < 1 || nx < 1) throw new RangeError('scans have no common region to difference')
   const a = crop(a0, 0, ny, 0, nx)
   const b = crop(b0, 0, ny, 0, nx)
@@ -310,7 +317,8 @@ export const DiffScans_ChangeDetect: Skill = {
         output_path: saved,
       },
       `shift=(${signed(dy)},${signed(dx)}) px, overlap ${r.overlapShape[0]}x${r.overlapShape[1]}, ` +
-        `RMS ${pyG4(r.rmsBefore)}->${pyG4(r.rmsAfter)} (${signedF1(r.rmsImprovement)}% better)`,
+        `RMS ${formatG(r.rmsBefore, 4)}->${formatG(r.rmsAfter, 4)} ` +
+        `(${signedF1(r.rmsImprovement)}% better)`,
     )
   },
 }
@@ -320,32 +328,17 @@ function signed(n: number): string {
   return n >= 0 ? `+${n}` : String(n)
 }
 
-/** Python 的 `f"{x:+.1f}"` —— **含负零**（`-0.0` 印成 `-0.0`）。 */
-function signedF1(x: number): string {
-  const s = Math.abs(x).toFixed(1)
-  return Object.is(x, -0) || x < 0 ? `-${s}` : `+${s}`
-}
-
 /**
- * Python 的 `f"{x:.4g}"`。
+ * Python 的 `f"{x:+.1f}"`。
  *
- * JS 的 `toPrecision(4)` 与它差两处：指数写成 `e-13` 而不是 `e-13`（位数）、
- * 以及**不去尾零**。两处都在这里补。
+ * ⚠️ 小数那一半走 kernel 的 {@link pyFixed}，**不自己写一份**：
+ * `toFixed` 与 Python 的 `%.1f` 在半分点上不同（round-half-even），
+ * 而 `pyFixed` 是批 6b 拿 75 901 格对着 CPython 校过的那一份
+ * （连 `-0` 的符号从输入读这一条一起）。这里只补 `+` 号。
  */
-export function pyG4(x: number): string {
-  if (!Number.isFinite(x)) return x !== x ? 'nan' : x > 0 ? 'inf' : '-inf'
-  if (x === 0) return '0'
-  const exp = Math.floor(Math.log10(Math.abs(x)))
-  if (exp < -4 || exp >= 4) {
-    let [m, e] = x.toExponential(3).split('e') as [string, string]
-    if (m.includes('.')) m = m.replace(/0+$/, '').replace(/\.$/, '')
-    const sign = e.startsWith('-') ? '-' : '+'
-    const digits = e.replace(/^[+-]/, '').padStart(2, '0')
-    return `${m}e${sign}${digits}`
-  }
-  let s = x.toPrecision(4)
-  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '')
-  return s
+function signedF1(x: number): string {
+  const s = pyFixed(x, 1)
+  return s.startsWith('-') ? s : `+${s}`
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -447,6 +440,11 @@ export function richardsonLucy(image: Mat, psf: Mat, iterations: number, damping
       Float64Array.from(im.data, (v, k) => v / (convolved.data[k] as number)),
     )
     let correction = convolveSame(ratio, psfMirror)
+    // ⚠️ 这个 `if` **不是一道闸**，是一次微优化：IEEE-754 与 ECMA-262
+    // （`Number::exponentiate` 第一条「指数是 +1 就回 base」）都规定
+    // `x ** 1.0` **精确等于** `x`，numpy 同。照移（旧仓就这么写），
+    // 但别把它当成判据 —— 变异演练在这里跑出过一次绿色，而那次绿色是对的。
+    // 真正做决定的是下一行**施不施加阻尼**，变异打在那里。
     if (damping < 1.0) {
       correction = matOf(
         correction.rows, correction.cols,
@@ -529,11 +527,21 @@ export const DeconvolveTip_RL: Skill = {
  * 然后 **`seg[image > th] = i+1` 逐条覆盖**（不是区间判定）——
  * 所以最后一条阈值赢，等价于「严格大于第 k 个阈值的都归第 k+1 档」。
  *
- * ⚠️ `np.quantile` 吃的是 0–1，本仓 `percentile` 吃 0–100：中间那一次
- * `q·100` 在浮点上可能与 numpy 的 `q·(n−1)` 差一个 ULP。阈值落在两个样本
- * **之间**时那一个 ULP 改不了任何一格的归属；落在样本**上**时会。
- * 金样那张图刻意让 `(n−1)·q` 不是整数（576 个像素 ⇒ 575/3 与 1150/3 都不是），
- * 于是两个阈值都严格落在两个样本之间。
+ * ⚠️ `np.quantile` 吃 0–1，本仓 `percentile` 吃 0–100 —— 中间多一次 `×100 ÷100`
+ * 的往返，而它**不是恒等变换**：`(1/10)·100 = 10` 精确，而
+ * `10/100 = 0.10000000000000000555 ≠ 1/10`。于是虚拟下标 `q·(n−1)`
+ * 会与 numpy 差一个 ULP。
+ *
+ * **它改不动答案的条件是：阈值严格落在两个样本之间。** 那时一个 ULP 只挪动
+ * 插值出来的 `th` 的最后一位，而 `image > th` 的归属不变；只有当某个像素
+ * **恰好等于** `th` 时才会翻面。
+ *
+ * 金样按这条造：`frame_curved` 是 576 个**两两不同**的光滑二次值，
+ * `n_classes` 取 2 / 3 / 5 / 10 四档，四档的 `class_areas` 容差 **0**。
+ * 其中 `n_classes=10` 那一格是证据 —— `i/10·100` 在 float64 上确实不精确
+ * （上面那串数），而它照样逐位对得上。
+ *
+ * **不为它另写一个 `quantile`**：那是第二份实现，而本批的前提是零新原语。
  */
 export function heuristicSegment(image: Mat, nClasses: number): Int32Array {
   const seg = new Int32Array(image.data.length)

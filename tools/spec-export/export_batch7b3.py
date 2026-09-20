@@ -134,10 +134,28 @@ REF_FRAME = frame_peak()
 #: 峰往下 2 行、往右 3 列 —— 于是 `correlate2d` 的峰偏移是可以手算的。
 CUR_FRAME = frame_peak(cy=9.0, cx=9.0)
 SMALL_FRAME = frame_peak(ny=8, nx=8)
+#: 同一张当前图 **+ 一个很大的直流偏置**（20 倍背景）。
+#:
+#: ⚠️ 这一张是为「两张图**各自**减自己的均值」那道闸造的。不造它的话，
+#: `ref` 与 `cur` 的均值几乎相等（同一族合成图，只是峰挪了两格），
+#: 于是「减自己的」与「都减 ref 的」给出同一个峰 —— 那道闸一格输入都没有
+#: （变异 `drift-each-image-subtracts-its-own-mean` 第一版当场跑出绿色）。
+#: 偏置取 2e-8 而不是 1e-9：虚假项的量级是 `Δmean × Σ窗口(ref−mRef)`，
+#: 要压过真峰 `Σ(bump)²`（~5e-18）才看得出来。
+CUR_FRAME_DC = CUR_FRAME + 2.0e-8
+#: **不是方的**一对（16 行 × 24 列）。像素尺寸是 `scan_width_m / 列数` ——
+#: 方图上「除以行数」与「除以列数」给出同一个数，于是那道闸在方图上**没有输入**
+#: （变异 `drift-pixel-size-is-width-over-columns` 第一版当场跑出绿色）。
+#: 而方图正是这个技能平时吃的东西 —— 所以这一格得专门造。
+REF_RECT = frame_peak(ny=16, nx=24, cy=6.0, cx=8.0)
+CUR_RECT = frame_peak(ny=16, nx=24, cy=9.0, cx=13.0)
 
 npy_file("ref_frame", REF_FRAME)
 npy_file("cur_frame", CUR_FRAME)
 npy_file("small_frame", SMALL_FRAME)
+npy_file("cur_frame_dc", CUR_FRAME_DC)
+npy_file("ref_rect", REF_RECT)
+npy_file("cur_rect", CUR_RECT)
 
 
 def missing_path(name: str) -> str:
@@ -336,6 +354,8 @@ T = {"ref_x_m": 1e-8, "ref_y_m": -5e-9, "ref_width_m": 16e-9}
 GRAB_CUR = {"Scan_FrameDataGrab": _grab_body(CUR_FRAME)}
 GRAB_REF = {"Scan_FrameDataGrab": _grab_body(REF_FRAME)}
 GRAB_SMALL = {"Scan_FrameDataGrab": _grab_body(SMALL_FRAME)}
+GRAB_CUR_DC = {"Scan_FrameDataGrab": _grab_body(CUR_FRAME_DC)}
+GRAB_CUR_RECT = {"Scan_FrameDataGrab": _grab_body(CUR_RECT)}
 GRAB_ERR = {"Scan_FrameDataGrab": {"error": "NanonisError: no frame in buffer"}}
 
 # 第一趟：没有参考图 ⇒ 抓一张存下来，**并把路径交出去**。
@@ -347,6 +367,15 @@ case(TrackDrift_ReferenceScan, "grab_fails_aborts", T, calls=GRAB_ERR)
 # 有参考图：峰从 (7,6) 挪到 (9,9) ⇒ 漂移 (dx, dy) = (+3, +2) 像素 × 像素尺寸。
 case(TrackDrift_ReferenceScan, "tracks_and_compensates",
      {**T, "ref_image_path": PATHS["ref_frame"]}, calls=GRAB_CUR)
+# ⚠️ 当前图带一个很大的直流偏置 —— 答案**必须与上一格一样**，
+# 因为两张图各自减自己的均值。都减 `ref` 的均值 ⇒ 虚假项压过真峰、峰跑到边上。
+# 这是整份金样里唯一分得开「各自减」与「都减一个」的一格。
+case(TrackDrift_ReferenceScan, "dc_offset_does_not_move_the_peak",
+     {**T, "ref_image_path": PATHS["ref_frame"]}, calls=GRAB_CUR_DC)
+# ⚠️ **不是方的**一对（16×24）：像素尺寸是 `宽 / 列数`。除以行数在方图上
+# 一模一样 —— 这是整份金样里唯一分得开的一格。
+case(TrackDrift_ReferenceScan, "non_square_frame_scales_by_columns",
+     {**T, "ref_image_path": PATHS["ref_rect"]}, calls=GRAB_CUR_RECT)
 # 同一张图 ⇒ 峰在中心 ⇒ 漂移 0 ⇒ **不排**补偿那一步（显著性闸 1 pm）。
 case(TrackDrift_ReferenceScan, "no_drift_no_compensation_step",
      {**T, "ref_image_path": PATHS["ref_frame"]}, calls=GRAB_REF)
@@ -469,6 +498,13 @@ case(MoveAtomTo, "displaced_then_at_target", M,
      runs={**READ_OK, "ScanAt": SCAN_OK, "VerifyAdatomAt": [DISPLACED, AT_TARGET]})
 case(MoveAtomTo, "displaced_exhausts_attempts", {**M, "max_attempts": 1},
      runs={**READ_OK, "ScanAt": SCAN_OK, "VerifyAdatomAt": DISPLACED})
+# ⚠️ 重试时 `setpoint × 1.5` **封顶在 100 nA**。起手 80 nA ⇒ 120 nA ⇒ 封到 100 nA，
+# 而 `a2:manip_setpoint` 的参数里看得见。起手取缺省 57 nA 的话 ×1.5 = 85.5 nA
+# 还够不着顶，那道封顶**一格输入都没有**
+# （变异 `move-atom-retry-lowers-the-resistance-and-caps-it` 第一版跑出绿色）。
+case(MoveAtomTo, "retry_setpoint_is_capped",
+     {**M, "manip_setpoint_a": 80e-9, "manip_bias_v": 0.02},
+     runs={**READ_OK, "ScanAt": SCAN_OK, "VerifyAdatomAt": [DISPLACED, AT_TARGET]})
 # `not_found` / `ambiguous`：不知道原子在哪 ⇒ **不重试**（降电阻再拖一次
 # 等于拖一个没认出来的东西）。`runs` 里只有一轮。
 case(MoveAtomTo, "not_found_does_not_retry", M,

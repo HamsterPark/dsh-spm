@@ -334,16 +334,36 @@ def frame_atoms(ny: int = 32, nx: int = 32) -> np.ndarray:
     | `(5,5)` `(5,20)` `(20,5)` 三个孤立尖峰 | 基本路径 |
     | `(12,12)` `(12,13)` 一对**横向相邻** | 质心落在 **半整数** 上（`12.5`） |
     | `(25,25)` `(26,26)` 一对**对角相邻** | **四邻接 vs 八邻接** —— 四邻接给两个原子，八邻接给一个落在两者中间的假原子 |
-    | `(8,8)` 高 1.0 + `(8,11)` 高 0.8 | `min_distance_px` 换答案：窗口 3 时 0.8 那个是局部极大，窗口 11 时被压掉 |
+    | `(28,4)` 高 1.0 + `(28,9)` 高 0.8，**相距正好 5 列** | `min_distance_px` 的**窗口半径**：`2d+1` 时（半径 5）0.8 那个被压掉，`2d−1` 时（半径 4）压不掉 |
 
-    最后一格是这张图唯一有鉴别力的地方：不摆它，`min_distance_px` 这个参数
-    在整份金样里**一次决定都没做过**。
+    ⚠️ 最后一格的距离**正好等于半径**，而且那一对周围 ±5 内**没有别的峰** ——
+    第一版把它摆在 `(8,8)`/`(8,11)`（相距 3），两种半径都压得掉，
+    于是 `min_distance_px` 这个参数在整份金样里**一次决定都没做过**
+    （变异 `detect-atoms-window-is-two-d-plus-one` 当场跑出绿色）。
+    第二版还得躲开 `(12,12)` 那一对：摆在 `(8,13)` 时 Δrow=4 仍在半径 4 之内，
+    **两种半径又都压得掉**。挪到第 28 行才真的隔开。
     """
     z = np.zeros((ny, nx), dtype=np.float64)
-    for (i, j) in ((5, 5), (5, 20), (20, 5), (12, 12), (12, 13), (25, 25), (26, 26), (8, 8)):
+    for (i, j) in ((5, 5), (5, 20), (20, 5), (12, 12), (12, 13), (25, 25), (26, 26), (28, 4)):
         z[i, j] = 1.0
-    z[8, 11] = 0.8
+    z[28, 9] = 0.8
     return z
+
+
+def frame_flat_one(ny: int = 32, nx: int = 32) -> np.ndarray:
+    """**恰好**全 1.0 —— `leveled > std` 那道闸唯一分得开 `>` 与 `>=` 的一格。
+
+    全常数图上 `leveled = x − mean(x)` 恒为 0、`std` 恒为 0，于是那道闸问的是
+    `0 > 0` 还是 `0 >= 0`：前者给**零个原子**，后者把整幅图判成一个连通域、
+    报出一个位于图心 `(15.5, 15.5)` 的原子。
+
+    ⚠️ **常数取 1.0、边长取 2 的幂**，这两条都是必需的：`mean` 要在
+    numpy（成对求和）与本仓（Neumaier）上**逐位相同**，否则 `leveled` 会是
+    ±1 ulp 而不是 0，那时「零个还是一个」由最后一位浮点决定 —— 那是掷骰子。
+    1024 个 1.0 相加，任何求和顺序都精确（整数 ≤ 2⁵³），再除以 1024（2 的幂）
+    也精确。换成 `1.0e-9` 就不成立：`3 × 1e-9` 已经要舍入。
+    """
+    return np.full((ny, nx), 1.0)
 
 
 def frame_blurred_disks(ny: int = 16, nx: int = 16) -> np.ndarray:
@@ -451,6 +471,7 @@ CONSTANT = frame_constant()
 # ── 批 7b-3 ──
 ATOMS = frame_atoms()
 BLURRED = frame_blurred_disks()
+FLAT_ONE = frame_flat_one()
 
 npy_file("plane_disks", PLANE_DISKS)
 npy_file("bowl_disks", BOWL_DISKS)
@@ -490,6 +511,7 @@ _register("broken", ".npy", b"not a numpy file at all\n")
 # ── 批 7b-3 的文件 ────────────────────────────────────────────────────────
 npy_file("atoms", ATOMS)
 npy_file("blurred", BLURRED)
+npy_file("flat_one", FLAT_ONE)
 # 自定义 PSF 两张：**奇数**一张、**偶数**一张。
 #
 # ⚠️ 偶数那一张是这一族唯一有鉴别力的一格：`fftconvolve(·, psf, 'same')` 取的是
@@ -1001,9 +1023,13 @@ run_skill("DetectAtoms_FCN", DetectAtoms_FCN(), [
     # ⚠️ 这一格同时验三道闸：半整数质心（横向相邻的一对）、
     # **四邻接**（对角相邻的一对必须给两个原子）、以及 `> std` 那道。
     ("atoms_default_min_dist", {"image_path": PATHS["atoms"]}),
-    # 窗口从 11 收到 3 ⇒ `(8,11)` 那个 0.8 的次峰不再被 `(8,8)` 压住 ⇒ 多一个原子。
+    # 窗口从 11 收到 3 ⇒ `(28,9)` 那个 0.8 的次峰不再被 `(28,4)` 压住 ⇒ 多一个原子。
     ("atoms_min_dist_1", {"image_path": PATHS["atoms"], "min_distance_px": 1}),
     ("atoms_min_dist_10", {"image_path": PATHS["atoms"], "min_distance_px": 10}),
+    # ⚠️ 全常数图：`leveled` 恒为 0、`std` 恒为 0 ⇒ 那道闸问的是 `0 > 0` 还是
+    # `0 >= 0`。前者零个原子，后者把整幅图判成一个连通域、报一个位于图心的原子。
+    # 这是整份金样里唯一分得开 `>` 与 `>=` 的一格（见 `frame_flat_one`）。
+    ("flat_everything_ties", {"image_path": PATHS["flat_one"]}),
     # 平顶盘：窗口盖住整个盘 ⇒ 每个盘只有**背景斜坡最高**的那一个像素是局部极大。
     ("plane_disks", {"image_path": PATHS["plane_disks"]}),
     ("model_path_falls_back", {"image_path": PATHS["atoms"],

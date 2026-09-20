@@ -257,6 +257,8 @@ function grabBody(key: string, rows: number, cols: number): unknown[] {
 const GRAB_CUR = { Scan_FrameDataGrab: grabBody('cur_frame', 16, 16) }
 const GRAB_REF = { Scan_FrameDataGrab: grabBody('ref_frame', 16, 16) }
 const GRAB_SMALL = { Scan_FrameDataGrab: grabBody('small_frame', 8, 8) }
+const GRAB_CUR_DC = { Scan_FrameDataGrab: grabBody('cur_frame_dc', 16, 16) }
+const GRAB_CUR_RECT = { Scan_FrameDataGrab: grabBody('cur_rect', 16, 24) }
 const GRAB_ERR = { Scan_FrameDataGrab: { error: 'NanonisError: no frame in buffer' } }
 
 interface Script {
@@ -294,6 +296,8 @@ const SCRIPTS: Record<string, Script> = {
   'TrackDrift_ReferenceScan/first_call_captures_reference': { calls: GRAB_REF },
   'TrackDrift_ReferenceScan/grab_fails_aborts': { calls: GRAB_ERR },
   'TrackDrift_ReferenceScan/tracks_and_compensates': { calls: GRAB_CUR },
+  'TrackDrift_ReferenceScan/dc_offset_does_not_move_the_peak': { calls: GRAB_CUR_DC },
+  'TrackDrift_ReferenceScan/non_square_frame_scales_by_columns': { calls: GRAB_CUR_RECT },
   'TrackDrift_ReferenceScan/no_drift_no_compensation_step': { calls: GRAB_REF },
   'TrackDrift_ReferenceScan/compensation_step_fails_drift_still_reported': {
     calls: GRAB_CUR, runs: { ConfigureScan: FAIL },
@@ -365,6 +369,9 @@ const SCRIPTS: Record<string, Script> = {
   },
   'MoveAtomTo/displaced_exhausts_attempts': {
     runs: { ...READ_OK, ScanAt: SCAN_OK, VerifyAdatomAt: DISPLACED },
+  },
+  'MoveAtomTo/retry_setpoint_is_capped': {
+    runs: { ...READ_OK, ScanAt: SCAN_OK, VerifyAdatomAt: [DISPLACED, AT_TARGET] },
   },
   'MoveAtomTo/not_found_does_not_retry': {
     runs: { ...READ_OK, ScanAt: SCAN_OK, VerifyAdatomAt: NOT_FOUND },
@@ -516,7 +523,7 @@ function frameOf(key: string): number[][] {
   if (hit !== undefined) return hit
   // 与导出器**同一批字节**（金样里录的就是那份 `.npy`），不是照公式重建一份。
   const bytes = Buffer.from(GOLDEN.files[key] as string, 'base64')
-  const { shape, values } = decode(new Uint8Array(bytes))
+  const { shape, values } = decodeNpy(new Uint8Array(bytes))
   const rows = shape[0] as number
   const cols = values.length / rows
   const out: number[][] = []
@@ -528,6 +535,27 @@ function frameOf(key: string): number[][] {
 // ──────────────────────────────────────────────────────────────────────────
 // 几条金样验不到的：闸的边界、以及「那道闸够不着」
 // ──────────────────────────────────────────────────────────────────────────
+
+describe('AcquireBiasImagingSeries 的**中止**那一支', () => {
+  it('signal 已经喊停 ⇒ 失败，而且顶层带着中止事实（它走的是基类驱动器）', async () => {
+    // 这个技能的每一步都 `optional: true` ⇒ **没有任何一步失败能让它中止**。
+    // 唯一的中止来源是外部 signal，而那正是这一格。
+    const ctl = new AbortController()
+    ctl.abort()
+    const ctx = {
+      ...tinyCtx(() => Promise.resolve({ success: true, data: { center_x_m: 0, center_y_m: 0, width_m: 2e-8 } })),
+      signal: ctl.signal,
+    } as unknown as SkillContext
+    const res = await AcquireBiasImagingSeries.execute(ctx, { biases_v: '0.1,-0.1', settle_s: 0 })
+    expect(res.success).toBe(false)
+    const d = res.data as Record<string, unknown>
+    // ⚠️ 这三个键**只有它有** —— 另外四个技能自己重写了驱动器，走不到
+    // `_base._graph_execute` 的 `data.update(abort_facts(...))` 那一行。
+    expect([d['aborted'], d['aborted_by_operator']]).toEqual([true, true])
+    expect(String(d['abort_reason'])).not.toBe('')
+    expect(res.error ?? '').not.toBe('')
+  })
+})
 
 describe('GridSTS 的逐点记账上限**在声明范围内够不着**', () => {
   it('`nx`/`ny` 各封顶 20 ⇒ 最多 400 点 ⇒ 那条 `> 400 就不记` 永远不成立', () => {
@@ -606,7 +634,103 @@ describe('MoveAtomTo 的两条纯算术', () => {
   })
 })
 
-/** 本文件自己解一次 `.npy`（只为把合成帧喂给假 context），走 numerics 的那一份。 */
-function decode(bytes: Uint8Array): { shape: readonly number[]; values: Float64Array } {
-  return decodeNpy(bytes)
+// ──────────────────────────────────────────────────────────────────────────
+// 金样造不出来的那几条错误分支（DoD ③）
+// ──────────────────────────────────────────────────────────────────────────
+
+/** 一个最小的假 `SkillContext`：`runSkill` 由调用方给。 */
+function tinyCtx(
+  runSkill: (name: string, params: Readonly<Record<string, unknown>>) => Promise<SkillResultLike>,
+): SkillContext {
+  return {
+    signal: new AbortController().signal,
+    safeCall: () => Promise.resolve({ method: '', args: [], error: 'no stub' }),
+    emergencyCall: () => Promise.resolve({ method: '', args: [], error: 'no stub' }),
+    slowCall: () => Promise.resolve({ record: { method: '', args: [], error: 'no stub' }, recvTimeoutS: null }),
+    runSkill,
+    now: () => 1_700_000_000_000,
+    sleep: () => Promise.resolve(),
+    state: () => ({}) as never,
+    refreshState: () => Promise.resolve({} as never),
+    markers: { emit: () => {} },
+    depth: 0,
+    owner: 't',
+    rootCallId: 't',
+    approvalSource: 'auto',
+  } as unknown as SkillContext
 }
+
+describe('TrackDrift_ReferenceScan：参考图**存不下去**是另一句话', () => {
+  it('抓到了但写不进目录 ⇒ abort，而理由点名是「存不下去」而不是「抓不到」', async () => {
+    // 目录指向一个**已经存在的文件** ⇒ `mkdirSync` 抛 ENOTDIR/EEXIST。
+    const blocker = `${TMP}/not-a-dir`
+    writeFileSync(blocker, 'x')
+    const skill = makeTrackDriftReferenceScan({ framesDir: () => `${blocker}/frames`, stamp: () => 1 })
+    const frame = frameOf('ref_frame')
+    const ctx = {
+      ...tinyCtx(() => Promise.resolve({ success: true, data: {} })),
+      safeCall: (m: string, ...a: unknown[]) =>
+        Promise.resolve({ method: m, args: a, values: [4, 'Z (m)', 16, 16, frame, 1] }),
+    } as unknown as SkillContext
+    const res = await skill.execute(ctx, { ref_x_m: 0, ref_y_m: 0 })
+    expect(res.success).toBe(false)
+    expect(res.error).toMatch(/^failed to save reference image: /)
+    const d = res.data as Record<string, unknown>
+    expect(d['ref_image_path']).toBeNull()
+    // **两句话不一样**：抓不到是「Scan_FrameDataGrab returned no usable 2-D data」，
+    // 这一条是「Reference grabbed but could not be saved」。合成一句会把人
+    // 送去查仪器，而问题在磁盘上。
+    expect(String(d['message'])).toMatch(/^Reference grabbed but could not be saved: /)
+  })
+})
+
+describe('AcquireBiasImagingSeries：两处 `try` 抓的是**子技能自己炸了**', () => {
+  it('`GetScanFrame` 抛出去 ⇒ 当成「读不到框」，拒得干净', async () => {
+    const res = await AcquireBiasImagingSeries.execute(
+      tinyCtx((name) =>
+        name === 'GetScanFrame' ? Promise.reject(new Error('boom')) : Promise.resolve({ success: true, data: {} }),
+      ),
+      { biases_v: '0.1,-0.1' },
+    )
+    expect((res.data as Record<string, unknown>)['refused']).toBe('no_scan_frame')
+    expect((res.data as Record<string, unknown>)['advice']).toBe('被拒：no_scan_frame —— 一帧都没扫。')
+  })
+
+  it('回读那一段抛出去 ⇒ 这一帧记「读回失败」，整条流程照走', async () => {
+    const res = await AcquireBiasImagingSeries.execute(
+      tinyCtx((name) => {
+        if (name === 'GetBias') return Promise.reject(new Error('link down'))
+        if (name === 'GetScanFrame') {
+          return Promise.resolve({ success: true, data: { center_x_m: 0, center_y_m: 0, width_m: 2e-8 } })
+        }
+        return Promise.resolve({ success: true, data: {} })
+      }),
+      { biases_v: '0.1,-0.1', settle_s: 0 },
+    )
+    const frames = (res.data as Record<string, unknown>)['frames'] as { ok: boolean; error?: string }[]
+    expect(frames.length).toBe(3) // 两个偏压 + 末尾重复第一个
+    expect(frames.every((f) => f.ok === false)).toBe(true)
+    expect(frames[0]?.error).toBe('读回失败: link down')
+    expect((res.data as Record<string, unknown>)['advice']).toBe('成功的帧不足两张，比不了。')
+  })
+})
+
+describe('GridSTS 的 `total_points` 回落**够不着**', () => {
+  it('`nx`/`ny` 在执行器起跑之前就落账 ⇒ `has_dims` 恒真 ⇒ 那条 `(步数−1)/2` 死着', async () => {
+    // 与 green-8 §2.8 同一条：先证明够不着。这里的证明是一条**行为**断言 ——
+    // 连「第一步就中止」都仍然带着 `nx` / `ny`。
+    const res = await GridSTS.execute(
+      tinyCtx(() => Promise.resolve({ success: false, error: '拒了' })),
+      { center_x_m: 0, center_y_m: 0, spacing_m: 1e-9, nx: 4, ny: 5 },
+    )
+    const d = res.data as Record<string, unknown>
+    const pd = (d['_progress'] as { partial_data: Record<string, unknown> }).partial_data
+    expect([pd['nx'], pd['ny']]).toEqual([4, 5])
+    // 20 个点，而执行器只跑到第一步就中止 —— `total_points` 仍然是 20，
+    // 不是 `(total_steps − 1) / 2`（那会是 0）。
+    expect(d['total_points']).toBe(20)
+    expect(d['succeeded']).toBe(0)
+    expect(res.success).toBe(false)
+    expect(res.error).toBe('ConfigureSTS failed: 拒了')
+  })
+})

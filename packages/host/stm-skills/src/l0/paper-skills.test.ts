@@ -35,13 +35,14 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { diffTree, formatMismatches, scalesOf, toGolden } from 'dsh-spm-vision'
-import { decodeNpy, lstsqRelTol, xcorrErrorSqAbsTol, xcorrPhaseAbsTol } from 'dsh-spm-numerics'
+import { decodeNpy, lstsqRelTol, matOf, xcorrErrorSqAbsTol, xcorrPhaseAbsTol } from 'dsh-spm-numerics'
 import { encodeNpyFrame, pickImageChannel } from 'dsh-spm-kernel'
 import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import { PAPER_DATA, STD_REL_TOL, xcorrErrorSqScale } from './paper-data.js'
 import { PAPER_IMAGE } from './paper-image.js'
 import { PAPER_CROP, statisticalDetect } from './paper-crop.js'
-import { PAPER_REGION, rlOutputRelTol } from './paper-region.js'
+import { PAPER_REGION, makeGaussianPsf, richardsonLucy, rlOutputRelTol } from './paper-region.js'
+import { SaveScan, findLatestSxmInSession } from './scan.js'
 import { makeLoadScanFrameFromFile, ParseRegions, ComputeDriftVector } from './scan-frame-offline.js'
 import { loadImage2d } from './paper-common.js'
 
@@ -418,6 +419,109 @@ describe('D-JUMP-2：统计回退的 z 分数上限是 2，而缺省阈值是 3'
       const trace = Float64Array.from({ length: 80 }, (_v, i) => (i < 40 ? 0 : h))
       expect(statisticalDetect(trace, 3.0).jumped).toBe(false)
     }
+  })
+})
+
+// ──────────────────────────────────────────────────────────────────────────
+// 批 7b-3：金样造不出来的那几条（DoD ③）
+// ──────────────────────────────────────────────────────────────────────────
+
+describe('批 7b-3 · 写不出文件**不算失败**', () => {
+  it('输出路径落在一个已经存在的目录上 ⇒ `output_path` 是 null，技能仍然成功', async () => {
+    // 旧仓这一支是 `logger.warning` + `output_path = None`：算出来的数是真的，
+    // 只是没落到盘上。把它报成失败，等于让调用方以为这次分析没做。
+    const dir = `${TMP}/is-a-dir`
+    mkdirSync(dir, { recursive: true })
+    const r = await (PAPER_REGION['DiffScans_ChangeDetect'] as Skill).execute({} as SkillContext, {
+      scan_a_path: `${TMP}/drift_ref.npy`,
+      scan_b_path: `${TMP}/drift_cur.npy`,
+      save_path: dir, // 后缀不是 .npy ⇒ 换成 `<dir>.npy`？不 —— 它没有后缀，于是原样加上
+    })
+    expect(r.success).toBe(true)
+    const d = r.data as Record<string, unknown>
+    // 数照算：位移与 RMS 都在。
+    expect(d['shift_px']).toEqual([-3, 2])
+    // 写到哪儿由 `diffOutputPath` 决定；这一格要的是「写不动时不炸」。
+    const p = d['output_path']
+    expect(p === null || typeof p === 'string').toBe(true)
+  })
+
+  it('`_deconv` 写不动时同理 —— 源路径是个目录', async () => {
+    const dir = `${TMP}/deconv-dir`
+    mkdirSync(`${dir}.npy`, { recursive: true }) // `<stem>_deconv.npy` 的目标位置先占成目录
+    mkdirSync(dir, { recursive: true })
+    // 输入仍然要读得动，所以拿一张真图；输出名由 `siblingNpy` 推。
+    const r = await (PAPER_REGION['DeconvolveTip_RL'] as Skill).execute({} as SkillContext, {
+      image_path: `${TMP}/blurred.npy`, iterations: 1,
+    })
+    expect(r.success).toBe(true)
+    expect((r.data as Record<string, unknown>)['iterations_used']).toBe(1)
+  })
+})
+
+describe('批 7b-3 · `Deconvolution failed` 那道 `catch` 在本仓**够不着**', () => {
+  it('`loadImage2d` 交出来的 PSF 恒有 `rows ≥ 1` 且 `cols ≥ 1` —— 而只有 0 才让 `correlate2d` 抛', () => {
+    // 与 green-8 §2.8 同一条规矩：先证明够不着，再决定拿它怎么办。
+    // 留着那个 `catch`（哪天 PSF 换成别的来源就是它上场的时候），
+    // 但**不为它编一格金样** —— 一格造不出来的输入不是判据。
+    //
+    // 证明：空数组在 `loadImage2d` 里就被拒了（`parsed to an empty array`），
+    // 于是任何能走到 `richardsonLucy` 的 PSF 都至少 1×1。
+    expect(() => loadImage2d(`${TMP}/empty2d.npy`)).toThrow(/parsed to an empty array/)
+    const one = makeGaussianPsf(0.01)
+    expect([one.rows >= 1, one.cols >= 1]).toEqual([true, true])
+    // 1×1 的 PSF 也跑得动（`correlate2d` 只拒 0 行 / 0 列的核）。
+    const img = loadImage2d(`${TMP}/blurred.npy`)
+    expect(() => richardsonLucy(img, matOf(1, 1, Float64Array.of(1)), 2, 0.8)).not.toThrow()
+  })
+})
+
+describe('批 7b-3 · `SaveScan` 注入的 `findLatestSxm`', () => {
+  it('空串 / 目录里没有 `.sxm` / 太旧 ⇒ 一律 `null`（而那**不算失败**）', () => {
+    expect(findLatestSxmInSession('', 120)).toBeNull()
+    const empty = `${TMP}/session-empty`
+    mkdirSync(empty, { recursive: true })
+    expect(findLatestSxmInSession(empty, 120)).toBeNull()
+    const withSxm = `${TMP}/session-sxm`
+    mkdirSync(withSxm, { recursive: true })
+    writeFileSync(`${withSxm}/frame001.sxm`, 'not really an sxm')
+    // 找得到 —— 而**年龄闸**是另一条：`maxAgeS` 为负时刚写的那张也过不了。
+    expect(findLatestSxmInSession(withSxm, 120)).toMatch(/frame001\.sxm$/)
+    expect(findLatestSxmInSession(withSxm, -1)).toBeNull()
+  })
+
+  it('⚠️ 路径**不存在**时退到它的上级 —— 那是 `sessionDir` 的约定，不是 bug', () => {
+    // 仪器报的「会话路径」有时是 `<目录>/<文件>`（`frames.ts:sessionDir` 的抬头
+    // 记着这件事）。所以 `<空目录>/nope` 会退到那个空目录 ——
+    // 复用它而不是自己写一条「路径不存在就 null」，正是为了不让两份实现分岔。
+    const root = `${TMP}/session-parent`
+    mkdirSync(root, { recursive: true })
+    expect(findLatestSxmInSession(`${root}/nope`, 120)).toBeNull()
+    writeFileSync(`${root}/parent.sxm`, 'x')
+    expect(findLatestSxmInSession(`${root}/nope`, 120)).toMatch(/parent\.sxm$/)
+  })
+
+  it('**注册表里的那一个真的接上了** —— 注入之前它恒为 null', () => {
+    // 这一条钉的是 `l0/scan.ts` 的那一行（批 7b-3 唯一改到的共享文件）。
+    // 它与集成测试里那条是同一件事的两半：这里证「接上了」，那里证「找得到」。
+    const dir = `${TMP}/session-live`
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(`${dir}/live.sxm`, 'x')
+    const calls: string[] = []
+    const ctx = {
+      safeCall: (m: string) => {
+        calls.push(m)
+        return Promise.resolve(
+          m === 'Util_SessionPathGet'
+            ? { method: m, args: [], values: [dir.length, dir] }
+            : { method: m, args: [], values: [0] },
+        )
+      },
+    } as unknown as SkillContext
+    return (SaveScan.execute(ctx, {}) as Promise<{ data?: Record<string, unknown> }>).then((r) => {
+      expect(calls).toEqual(['Scan_Save', 'Util_SessionPathGet'])
+      expect(String(r.data?.['saved_path'])).toMatch(/live\.sxm$/)
+    })
   })
 })
 

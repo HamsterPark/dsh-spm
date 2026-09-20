@@ -47,6 +47,8 @@
 import {
   GraphExecutor,
   abortFacts,
+  formatG,
+  pyFixed,
   progressToDict,
   resolveLineTime,
   type CompositeStep,
@@ -55,7 +57,6 @@ import {
   type SkillResultLike,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { pyG4 } from '../l0/paper-region.js'
 import { runSubSkill } from './run-sub.js'
 
 /** 缺省偏压表 —— 与声明里的 `default` 逐字同。 */
@@ -117,26 +118,16 @@ function numOrNull(p: Readonly<Record<string, unknown>>, k: string): number | nu
   return Number.isFinite(n) ? n : null
 }
 
-/** Python 的 `"%+.4g" % x`。 */
+/**
+ * Python 的 `"%+.4g" % x`。
+ *
+ * 小数那一半走 kernel 的 {@link formatG} / {@link pyFixed}，**不自己写第二份**：
+ * 两个都是对着 CPython 校过的（`pyFixed` 是批 6b 那 75 901 格探针的产物），
+ * 而 `toFixed` 在半分点上与 `%.Nf` 不同（Python 是 round-half-even）。
+ */
 function pySignedG4(x: number): string {
-  const s = pyG4(Math.abs(x))
-  return x < 0 || Object.is(x, -0) ? `-${s}` : `+${s}`
-}
-
-/** Python 的 `"%.0f" % x` —— **banker's rounding**（`.5` 进到偶数）。 */
-function pyF0(x: number): string {
-  const f = Math.floor(x)
-  const d = x - f
-  let n: number
-  if (d > 0.5) n = f + 1
-  else if (d < 0.5) n = f
-  else n = f % 2 === 0 ? f : f + 1
-  return Object.is(n, -0) ? '-0' : String(n)
-}
-
-/** Python 的 `"%.2f" % x`。 */
-function pyF2(x: number): string {
-  return Number.isFinite(x) ? x.toFixed(2) : x !== x ? 'nan' : x > 0 ? 'inf' : '-inf'
+  const s = formatG(x, 4)
+  return s.startsWith('-') ? s : `+${s}`
 }
 
 class Series {
@@ -222,11 +213,11 @@ class Series {
         const got = (await this.#runData('GetBias'))['bias_v']
         const tol = Math.max(1e-3, Math.abs(bv) * 0.05)
         if (got === null || got === undefined || Math.abs(Number(got) - bv) > tol) {
-          bad = `偏压没跟上：要 ${pyG4(bv)}，读回 ${got === null || got === undefined ? 'None' : String(got)}`
+          bad = `偏压没跟上：要 ${formatG(bv, 4)}，读回 ${got === null || got === undefined ? 'None' : String(got)}`
         } else if (sp) {
           const now = (await this.#runData('GetSetpoint'))['setpoint_a']
           if (now && Math.abs(Math.abs(Number(now)) - Math.abs(sp)) / Math.abs(sp) > 0.05) {
-            bad = `setpoint 被带偏了：${pyG4(sp)} -> ${pyG4(Number(now))}`
+            bad = `setpoint 被带偏了：${formatG(sp, 4)} -> ${formatG(Number(now), 4)}`
           }
         }
       } catch (e) {
@@ -324,7 +315,7 @@ class Series {
         out['time_drift_ratio'] = ratio
         driftNote =
           `同一偏压 ${pySignedG4(order[0] as number)} V 在开头与结尾的角向集中度：` +
-          `${pyF0(a)} → ${pyF0(b)}（比值 ${pyF2(ratio)}）。` +
+          `${pyFixed(a, 0)} → ${pyFixed(b, 0)}（比值 ${pyFixed(ratio, 2)}）。` +
           '**跨偏压的差异要大于这个比值才算数** —— 否则那只是针尖在这段时间里自己变了。'
         out['time_drift_note'] = driftNote
       }
@@ -340,7 +331,7 @@ class Series {
       out['best_concentration'] = best.concentration ?? null
       out['advice'] =
         `成像最好的偏压是 ${pySignedG4(best.bias_v)} V（角向集中度 ` +
-        `${pyF0(Number(best.concentration ?? 0))}）。` +
+        `${pyFixed(Number(best.concentration ?? 0), 0)}）。` +
         (driftNote ?? '没有时间对照帧 —— 跨偏压的比较缺一把刻度，下次把 repeat_first_at_end 打开。')
     } else {
       out['advice'] = '成功的帧不足两张，比不了。'
