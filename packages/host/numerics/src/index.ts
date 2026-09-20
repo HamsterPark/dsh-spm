@@ -52,5 +52,8 @@ export * from './mt19937.js'
 // ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）在这一行下面加 export ──
 
 // ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 export ──
+// `phase_shift`：整像素相位相关 + **峰锐度**。`phaseCrossCorrelation` 不给锐度，
+// 而 `CalibrateCoarseStep` 唯一的自证判据就是它（见 `phase-shift.ts` 抬头）。
+export * from './phase-shift.js'
 
 // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 export ──

@@ -2964,6 +2964,128 @@ Python 的 `f"{-0.0:.1f}"` 是 `'-0.0'`，而 `kernel/z-trace.ts` 的 `pyFixed` 
 
 <!-- 批 7b-2：编号**留空**（`?`），由主线统一编。 -->
 
+## D-SCANPATH-? · `ScanAt` 从不返回路径 —— **两段死代码，新旧两仓都是**
+
+| | |
+|---|---|
+| **谁在读** | `bias_series.py:154` 取 `data.get("scan_path") or data.get("path") or data.get("file")`；`coarse_step_calib.py:150` 取 `d.get("scan_path") or d.get("path")` |
+| **谁在写** | **没有人。** 旧仓 `composite/scan_at.py:368-389` 的 `set_partial` 写的是 `wait_timed_out` / `wait_stopped_early` / `scan_lines_done` / `scan_lines_total` / `budget_s` / `elapsed_s` / `extensions` / `lines_done` / `lines_total` / `pixels` / `lines` / `resolution_verified` / `angle_deg` / `linear_speed_m_s`；`aggregate`(`:392-396`) 再并进 `_resolved_snapshot`（解析出来的**扫描参数**，不含路径）。本仓 `scan-at.ts:183-198` 与 `:211-228` **逐键一样** |
+| **后果** | `AcquireBiasSeries` 的 `AssessFrameTrust`（`:157`）**从来不会被调**，`drift_check` 恒 `null`，每一行的 `row_jump_mad_pm` / `tip_verdict` / `rms_pm` 三个键根本不出现；`CalibrateCoarseStep` 恒在 `:203-204` 返回「基准帧扫描失败」，`_load` / `phase_shift` / 清障 / 马达 / 线性自证**一行都到不了** |
+| **旁证** | `coarse_step_calib.py:98-99` 的 docstring 自己写着「三次尝试都被别的问题打断，**尚未在真机上跑完一次完整标定**」 |
+
+**本仓照移这条路，不补那个键。** 给 `ScanAt` 加 `scan_path` 是一个**独立决定**：
+`GetLatestScanFile` / `findLatestSaved` 本来就在手边，但「扫完之后最新的那个 `.sxm`
+是不是这一帧」需要一道水位线（与 `AcquireDeltaFCurve` 的 `.dat` 归属是同一类问题，
+见 D-STS-4），而那件事不该塞进一次技能移植里。
+
+**这条登记有一条量着它的测试**：`l0/batch7b2-skills.test.ts` 的
+「`ScanAt` 的回包里没有任何一个路径键」直接跑真的 `ScanAt` 并断言三个键都不在。
+`ScanAt` 哪天补上了，它当场变红 —— 而不是这两段代码安静地开始工作。
+
+金样里 `series/dead_path` 与 `coarse/dead_path` 录的就是今天的行为；
+名字带 `hypothetical` 的那几格**明写是假设**（喂一个脚本化的路径），
+它们验的是「那条路真被补上之后，循环里的判据是对的」。
+
+## D-COARSE-? · `phase_shift` 回 `None` 时旧仓抛 `TypeError`，本仓给一句拒绝
+
+`coarse_step_calib.py:228-238`：
+
+```python
+dx, dy, snr = phase_shift(prev, img)
+row = {"steps": n, "dx_nm": None if dx is None else dx * nm_px, …, "corr_snr": snr}
+if snr is not None and snr < _MIN_CORR_SNR:
+    row["refused"] = …
+else:
+    row["nm_per_step_x"] = row["dx_nm"] / n      # ← dx_nm 是 None
+```
+
+`phase_shift` 在「两帧形状对不上」或「边长 < 16」时回 `(None, None, None)` ⇒
+`snr is None` ⇒ 走 `else` ⇒ `None / n` ⇒ **`TypeError` 穿出 `execute`**。
+
+那正是 `barrier_map.py` 的 `execute` 抬头自己警告过的形状：「抛异常的技能到不了
+agent 的错误处理路径 —— 没有 SkillResult、没有诊断记录、没有 HITL、没有恢复，
+只剩一个死掉的回合。」同族的还有 `_load`（文件读不动 / 没有 Z 通道）也是直接抛。
+
+本仓走 **D-SKILL-3** 那一条：两处都给一句说得清的拒绝，写进那一行的
+`refused` / `abort`。「扫出来了但读不动」与「扫描失败」**分成两句**，
+因为它们该做的事不同。
+
+## D-POINT-? · `no numeric value in Nanonis reply:` 后面印的是 body，不是信封
+
+**D-SKILL-2 的又一处。** 旧仓 `optics_acquire.nanonis_scalar` 抛的是
+`no numeric value in Nanonis reply: ('', b'', [])` —— 那是 Python 的三段信封 repr；
+本仓 `SkillCallRecord.values` **就是** body（信封在 `nanonis-wire` 那层拆掉了），
+印的是 `[]`。
+
+顺带：`InstrumentError` 这个类**不搬**。它在旧仓的全部作用是让
+`optics_scan.py:117` 的 `except (InstrumentError, ValueError)` 接得住 `acquire`
+抛的那几句话，而本仓 `safeCall` 永不抛 —— 那一圈「抛一个名字来自驱动层的异常
+再自己接住」没有消费方（消融精神）。措辞逐字照抄。
+
+## D-POINT-2? · `mean_std` 走的是 **CPython 的 `sum()`**（Neumaier 补偿），不是顺序累加
+
+`optics_acquire.mean_std` 用的是**内建 `sum()`**，而 CPython **3.12 起**它对浮点
+走 Neumaier 补偿求和。第一版顺序累加，`[0.2, 0.4, 0.6]` 的均值就差一位
+（`0.4000000000000001` vs `0.39999999999999997`），而那一位一路进 `sig14_mean`、
+再进摘要里的 `%.4g`。
+
+本仓走 `kernel/si.ts` 的 `pySum`。同一条纪律的另一面在 `phase_shift`：那里旧仓走的是
+`np.nanmean`（**成对求和**），所以它用 `numerics/pairwise.ts` 的 `npSum` ——
+**两族求和不能混**，而「一个仓里只能有一个 `sum`」说的是「一个调用点只能对一个 `sum`」。
+（`numerics/stats.ts` 与 `pairwise.ts` 两处抬头写的是同一件事。）
+
+## D-GRID-? · 超时判据在**通用轨迹金样里是死代码**，它的输入在 `batch7b2.json`
+
+`pattern.py:330-333` 的 `elapsed = time.time() - start_time` 读的是**墙钟**，
+而 `export_skill_traces.py` 把墙钟钉死成常数（`_fake_time` 恒回 `1_700_000_000.0`，
+理由是「重跑逐字节相同」）⇒ `elapsed ≡ 0` ⇒ 那条判据在那份金样里永远走不到。
+本仓 `SkillContext` 只有单调钟（而它正是真机上这条判据成立的钟）。
+
+**这一批没有给 `traces.test.ts` 的 `success` 开逃逸口**（批 5b 考虑过），
+而是让两个钟给出同一个答案：
+
+* `skill_traces.json` 那一格 `PARAM_OVERRIDES['RunGridExperiment'].wait_timeout_s = 11.0`
+  ⇒ `max_ticks = ⌊11/2⌋ = 5`，五拍睡满 **10 s < 11 s** ⇒ 计划的拍数上限
+  **在两个钟上同时先到**。`⌊T/2⌋·2 < T` 这条算术就是那一格的判据；
+* 超时那一支由 `export_batch7b2.py` 的 `grid/timeout` 录（那台把 `time.time`
+  也接到会前进的假钟上）。两侧符号一定一致：`elapsed` 的主项是**睡掉的那些秒**
+  （逐位相同），读钟带来的零头两侧都是正的。
+
+另：`_progress.partial_data.start_time` 是一个**时刻**，两侧的钟连原点都不同 ⇒
+进了 `traces.test.ts` 的 `VOLATILE`（值不比，形状由 `batch7b2-skills.test.ts` 单独钉）。
+
+## D-OPTICS-? · `AcquireSignalPoint` 不是 D 档 —— 它一次都不碰 registry
+
+分派单把 `builtins.optics_scan` 的两个技能都记成 D 档（压着 `mast/instruments/`
+那 2113 行驱动）。**这一个不是**，逐行核过：`execute`（`optics_scan.py:100-132`）
+全文没有一次 `get_instrument_registry`（对照同文件 `OpticalStageScan.execute:303`
+在 `:314` 就取）；可达调用面三个函数全在 `optics_acquire.py`，而那个模块的抬头
+（`:10-11`）逐字写着「**Nothing here touches the instruments registry**」；
+唯一指向驱动层的是异常类 `InstrumentError`（`instruments/base.py:44-45`，两行、无行为）。
+
+⚠️ 但 `builtins.optics_scan` 这个模块**永远到不了 complete**：另一半
+`OpticalStageScan` 是真 D 档。落这一个的收益是**技能数，不是模块数**
+（先例：`paper.region_analysis`）。
+
+## D-PHASESHIFT-? · `phase_shift` 的归一化分母是 `1e-30`，**不是** `100·eps`
+
+`numerics/phase-shift.ts` 与已有的 `phaseCrossCorrelation`（`fft.ts:492`）
+**不合并**，两条理由：
+
+1. 那一个给亚像素位移 + `error` + `phase`，**不给锐度**；而
+   `CalibrateCoarseStep` 唯一的自证判据就是峰／中位比（`_MIN_CORR_SNR = 12.0`）；
+2. 归一化的分母不同：`phaseCrossCorrelation` 照 skimage 走 `max(|·|, 100·eps)`
+   ≈ `2.2e-14`，这一条照旧仓走 `max(|·|, 1e-30)`。两者差 **16 个数量级** ——
+   一格谱幅落在中间时，一个是「单位相位」另一个是「几乎为零」。
+
+⚠️ **合成帧里那层 2% 宽带噪声是 `snr` 这一档能不能比的前提**，理由写在
+`export_batch7b2.py` 的 `pit_frame` 抬头：三个解析高斯求和的谱里有数值为零的格，
+而归一化把那几格的**相位**整个放出来 —— 那不是舍入误差，是一个**没有定义的量**
+（两个 FFT 实现给出完全不同的角度，实测 `snr` 差 2e−10 相对，而那个差
+**推不出界**：它取决于输入谱的动态范围，不取决于 N）。加噪声之后
+`max|R|/min|R|` 从 `6.4e15` 降到 `2.2e7`，两侧的差回到 `phaseShiftSnrRelTol`
+那条推得出来的界之内（实测占比 0.30）。
+
 <!-- ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的登记写在这一行下面 ── -->
 
 <!-- 批 7b-3：编号**留空**（`?`），由主线统一编。 -->

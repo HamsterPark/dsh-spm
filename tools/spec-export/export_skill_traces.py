@@ -485,7 +485,30 @@ BATCH_7B_1: list[str] = []
 
 
 #: ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
-BATCH_7B_2: list[str] = []
+BATCH_7B_2: list[str] = [
+    # 势垒链三件。通用驱动器给每个子技能 `success=True, data={}`，于是
+    # `MeasureBarrierHeight` 走到的是「方向确认那一读没有电流」那一支
+    # （`AcquireSTS` 的 `data` 是空的 ⇒ `spectrum_parsed` 假 ⇒ `_read_at` 回 None），
+    # 另外两个各自走到它们**第一条**判据。主判据在 `spec/golden/batch7b2.json`：
+    # 那台驱动器给每个子技能**脚本化**的回包，每一道闸各有一格自己的输入。
+    "MeasureBarrierHeight",
+    "MapBarrierHeight",
+    "CleanTipUntilBarrier",
+    # ⚠️ 这两个在这里录到的正是**死代码那一支**：`ScanAt` 从不返回 `scan_path`
+    # （旧仓 `scan_at.py:368-389` 与本仓 `scan-at.ts:183-198` 逐键比过），
+    # 于是 `AcquireBiasSeries` 的 `AssessFrameTrust` 一次都不调、`drift_check` 恒 None，
+    # 而 `CalibrateCoarseStep` 恒在「基准帧扫描失败」返回。
+    # **那不是导出器的缺陷，那就是今天的行为** —— 录下来，并在
+    # `batch7b2-skills.test.ts` 里用一条量着 `ScanAt` 回包键的测试钉住它。
+    "AcquireBiasSeries",
+    "CalibrateCoarseStep",
+    # 十个 Nanonis 动词全在 `methods.ts`，零 `context.run`。
+    "AcquireDeltaFCurve",
+    # ⚠️ 墙钟那条判据：`wait_timeout_s` 取 **11.0** 而不是缺省 3600 —— 见 PARAM_OVERRIDES。
+    "RunGridExperiment",
+    # `builtins.optics_scan` 的 A 档那一半（**不碰 registry**，见 optics-acquire.ts 抬头）。
+    "AcquireSignalPoint",
+]   # 势垒链与线缆（8 个技能 / 7 个模块收口）
 
 
 #: ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
@@ -712,6 +735,40 @@ PARAM_OVERRIDES: dict[str, dict] = {
         "tip_lift_m": -2e-9,
     },
     "CaptureSignalBuffer": {"duration_s": 0.05},
+    # ── 批 7b-2 ────────────────────────────────────────────────────────────
+    #
+    # `bias_v` 显式给：不给的话第一句就是 `run("GetBias")`，而通用驱动器给每个
+    # 子技能 `data={}` ⇒ 读不到偏压 ⇒ **`ok` 那一趟录到的是「不猜一个值去量」**，
+    # 后面配 STS、试方向那一整串一条金样都没有。
+    "MeasureBarrierHeight": {"bias_v": 0.5},
+    # 位置串是 `x,y` 分号分隔，通用规则给的 "spec-export" 解析不了 ⇒ 录到的是拒绝。
+    # `repeats` 取下限 4（缺省 6）：重复那一段每次 2 个子技能调用，
+    # 录的是**形状**（噪声标尺先跑、各位置后跑），不是次数。
+    "MapBarrierHeight": {"sites_nm": "0,0; 100,0; 0,100; 100,100", "repeats": 4},
+    # 偏压串同理。`pixels`/`line_time_s` 取下限 —— 这一趟一帧都扫不出来
+    # （子技能是假的），两个数只进 `ScanAt` 的入参回显。
+    "AcquireBiasSeries": {"biases_v": "1,-1", "pixels": 32, "line_time_s": 0.005},
+    # 留空则按名字在信号表里找频移／电流／振幅，而合成的信号名是 `Sig2A/Sig2B`
+    # ⇒ 找不到频移 ⇒ `ok` 那一趟录到的是「信号表里没有频移通道」，
+    # 下发那一串（`ZSpectr_Open/ChsSet/RangeSet/PropsSet/Start`）一条金样都没有。
+    "AcquireDeltaFCurve": {"channel_indexes": "0,14,2", "num_points": 16},
+    # ⚠️ **这三个数是一条判据，不是图省事**（见 `pattern-grid.ts` 抬头那张表）：
+    #
+    #   `max_ticks = ⌊11.0 / 2.0⌋ = 5`，五拍睡满 `5 × 2 = 10 s`，而 `10 < 11`
+    #   ⇒ **「计划的拍数上限先到」在两个钟上同时成立**：
+    #     · 这台导出器把墙钟钉死（`_fake_time` 恒回常数）⇒ `elapsed ≡ 0`；
+    #     · 本仓只有单调钟，假钟被 `sleep` 往前拨 ⇒ `elapsed` 真的涨到 10 s。
+    #   两侧都在第 5 拍之后走 cleanup、报 `success=True`。
+    #
+    # 取缺省 3600 的话 `max_ticks = 1800`、睡满 3600 s ⇒ 本仓这一侧**真的超时**，
+    # 而金样那一侧永远不会 ⇒ `success` 相反，而 `traces.test.ts` 的 `success`
+    # 没有 deviation 逃逸口（批 5b 因此整个搁置了这个技能）。
+    # 顺带：3600 那一档一个技能就让 `skill_traces.json` 涨 1.10 MB。
+    # **超时那一支由 `export_batch7b2.py` 单独录**（那台的假钟会走）。
+    "RunGridExperiment": {"nx": 2, "ny": 2, "wait_timeout_s": 11.0},
+    # 缺省 10 次 × 1 路 = 10 条一模一样的 `Current_Get`。3 次 × 3 路录得完，
+    # 而且**多路**那一支（`sig{i}_mean/std` 两列）只有给了 `signal_indices` 才存在。
+    "AcquireSignalPoint": {"samples": 3, "signal_indices": "0,14"},
 }
 
 #: 额外的入参组合，各录成一条独立轨迹。
@@ -1446,7 +1503,13 @@ def main() -> int:
                  # ↑ ／ ↓ 7A-2
                  + BATCH_7A_2
                  # ↑ ／ ↓ 7A-3
-                 + BATCH_7A_3):
+                 + BATCH_7A_3
+                 # ↑ ／ ↓ 7B-1
+                 + BATCH_7B_1
+                 # ↑ ／ ↓ 7B-2
+                 + BATCH_7B_2
+                 # ↑ ／ ↓ 7B-3
+                 + BATCH_7B_3):
         if name in TRACE_SKIP:
             continue
         cls = by_name.get(name)

@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 424,
+    "done": 432,
     "partial": 0,
-    "todo": 91
+    "todo": 83
   },
-  "modules_complete": 98,
+  "modules_complete": 105,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -56,13 +56,13 @@
     },
     "builtins.barrier_height": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.barrier_map": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.best_frame": {
       "total": 1,
@@ -86,8 +86,8 @@
     },
     "builtins.bias_series": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.bias_sweep": {
       "total": 4,
@@ -126,8 +126,8 @@
     },
     "builtins.clean_tip": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.cluster_extract": {
       "total": 1,
@@ -156,8 +156,8 @@
     },
     "builtins.coarse_step_calib": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.current": {
       "total": 4,
@@ -181,8 +181,8 @@
     },
     "builtins.deltaf_curve": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "builtins.dispersion_fit": {
       "total": 1,
@@ -326,7 +326,7 @@
     },
     "builtins.optics_scan": {
       "total": 2,
-      "done": 0,
+      "done": 1,
       "complete": false
     },
     "builtins.optics_stage": {
@@ -361,8 +361,8 @@
     },
     "builtins.pattern": {
       "total": 7,
-      "done": 6,
-      "complete": false
+      "done": 7,
+      "complete": true
     },
     "builtins.piezo": {
       "total": 13,
@@ -870,11 +870,11 @@
       "module": "builtins.bias_series",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "AcquireBiasSweep": {
       "module": "builtins.sweep",
@@ -890,11 +890,11 @@
       "module": "builtins.deltaf_curve",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 14,
+      "impl": true,
+      "status": "done"
     },
     "AcquireLockInSweep": {
       "module": "builtins.sweep",
@@ -950,11 +950,11 @@
       "module": "builtins.optics_scan",
       "category": "read",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "AcquireZSpectr": {
       "module": "builtins.spectroscopy",
@@ -1410,11 +1410,11 @@
       "module": "builtins.coarse_step_calib",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 8,
+      "impl": true,
+      "status": "done"
     },
     "CalibratePiezoFromLattice": {
       "module": "builtins.atomic_lattice",
@@ -1520,11 +1520,11 @@
       "module": "builtins.clean_tip",
       "category": "write",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 2,
+      "impl": true,
+      "status": "done"
     },
     "ClusterDefects_rVAE": {
       "module": "paper.defect_cluster",
@@ -3810,21 +3810,21 @@
       "module": "builtins.barrier_map",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 17,
+      "impl": true,
+      "status": "done"
     },
     "MeasureBarrierHeight": {
       "module": "builtins.barrier_height",
       "category": "write",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 6,
+      "impl": true,
+      "status": "done"
     },
     "MeasureFrameDrift": {
       "module": "builtins.frame_drift_skill",
@@ -4270,11 +4270,11 @@
       "module": "builtins.pattern",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 7,
+      "impl": true,
+      "status": "done"
     },
     "RunHighResScope": {
       "module": "builtins.optional_scopes",

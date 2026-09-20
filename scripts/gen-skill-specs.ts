@@ -480,7 +480,20 @@ const BATCH_7B_1: string[] = []
 
 
 // ↑ 上一条 ／ ↓ 7B-2 —— 这一行谁都不要动
-const BATCH_7B_2: string[] = []
+const BATCH_7B_2: string[] = [
+  // 势垒链三件 —— B1/B2 差的那一件就是 A1，**必须同批**。
+  'MeasureBarrierHeight',
+  'MapBarrierHeight',
+  'CleanTipUntilBarrier',
+  // 线缆四件（`ScanAt` / STS 四件套 / Nanonis 动词，判据都很薄）。
+  'AcquireBiasSeries',
+  'CalibrateCoarseStep',
+  'AcquireDeltaFCurve',
+  'RunGridExperiment',
+  // `builtins.optics_scan` 的 **A 档那一半**（另一半 `OpticalStageScan` 是 D 档，
+  // 所以这个模块永远到不了 complete —— 这里收的是技能数，不是模块数）。
+  'AcquireSignalPoint',
+]   // 势垒链与线缆（8 个技能 / 7 个模块收口）
 
 
 // ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
@@ -611,6 +624,12 @@ function main(): number {
     ...BATCH_7A_2,
     // ↑ ／ ↓ 7A-3
     ...BATCH_7A_3,
+    // ↑ ／ ↓ 7B-1
+    ...BATCH_7B_1,
+    // ↑ ／ ↓ 7B-2
+    ...BATCH_7B_2,
+    // ↑ ／ ↓ 7B-3
+    ...BATCH_7B_3,
   ]
   const missing = names.filter((n) => !byName.has(n))
   const found = names.filter((n) => byName.has(n))
@@ -663,7 +682,13 @@ function main(): number {
     // ↑ ／ ↓ 7A-2
     `批 7a-2 ${BATCH_7A_2.filter((n) => byName.has(n)).length} 个 · ` +
     // ↑ ／ ↓ 7A-3
-    `批 7a-3 ${BATCH_7A_3.filter((n) => byName.has(n)).length} 个\n` +
+    `批 7a-3 ${BATCH_7A_3.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7B-1
+    `批 7b-1 ${BATCH_7B_1.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7B-2
+    `批 7b-2 ${BATCH_7B_2.filter((n) => byName.has(n)).length} 个 · ` +
+    // ↑ ／ ↓ 7B-3
+    `批 7b-3 ${BATCH_7B_3.filter((n) => byName.has(n)).length} 个\n` +
     (missing.length > 0
       ? `// 计划稿点名但当前旧仓**没有**的：${missing.join('、')}\n`
       : '') +
