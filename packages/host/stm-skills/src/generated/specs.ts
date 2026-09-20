@@ -1,7 +1,7 @@
 // 由 `node scripts/gen-skill-specs.ts` 生成，**不要手改**。
 // 源：spec/golden/skills.json（旧仓 SkillRegistry.discover() + _get_metadata_raw）
 //
-// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 4 个 · 批 4c 12 个 · 批 4d 2 个 · 批 5a 4 个 · 批 5b 9 个 · 批 5c 4 个 · 批 6a 0 个 · 批 6b 2 个 · 批 6c 4 个 · 批 7a-1 4 个 · 批 7a-2 1 个 · 批 7a-3 2 个 · 批 7b-1 1 个
+// 批 1 只读 L0 36 个 · 批 2 写/硬闸/DANGEROUS/L1 37 个 · 批 2b 参数组 2 个 · 批 3a 扫描主链 6 个 · 批 3b 组合 1 个 · 批 3c 长尾 28 个 · 批 3d 锁相族 26 个 · 批 3e 收口 15 个 · 批 3f 脚本/PLL/限值 56 个 · 批 3g 58 个 · 批 3h 48 个 · 批 3i 11 个 · 批 3j 3 个 · 批 3k 2 个 · 批 3l 38 个 · 批 4a 9 个 · 批 4b 4 个 · 批 4c 12 个 · 批 4d 2 个 · 批 5a 4 个 · 批 5b 9 个 · 批 5c 4 个 · 批 6a 0 个 · 批 6b 2 个 · 批 6c 4 个 · 批 7a-1 4 个 · 批 7a-2 1 个 · 批 7a-3 2 个 · 批 7b-1 1 个 · 批 7b-2 8 个 · 批 7b-3 0 个
 import type { SkillSpec } from 'dsh-spm-kernel'
 
 export const GetBiasSpec: SkillSpec = {
@@ -5165,6 +5165,131 @@ export const AssessAtomicPhaseSpec: SkillSpec = {
   safetyLevel: "AUTO",
 }
 
+export const MeasureBarrierHeightSpec: SkillSpec = {
+  name: "MeasureBarrierHeight",
+  description: "在**当前针尖位置**量有效隧穿势垒 φ：把针尖逐档退开，每档读一次电流，对 ln|I| 拟合斜率得 κ，再换算成 φ。\n\n进针后可先用这一测量检查隧穿结。较低势垒可能表示针尖与表面之间存在污染层；该解释来自参考系统观测，尚未在本仓独立验证。I–Z 直接量隧穿结本身，可补充形貌图与 RMS 等地形相关指标。\n\n可用点不足 3 个时返回 `undetermined`，不输出势垒数值；这与势垒很低是不同结论。单点不能区分针尖侧与表面侧污染，要回答该问题需在多个位置测量，并在同一位置重复测量作为噪声标尺。",
+  parameters: [
+    { name: "bias_v", type: "float", description: "测量偏压。留空 = 用当前偏压（本技能**不替调用方决定探测什么电子态**）。取一个电流稳定、绝对值够大的工作点即可，量的是距离依赖不是能谱。", unit: "V", required: false, minValue: -10, maxValue: 10 },
+    { name: "offsets_nm", type: "str", description: "退开距离序列，逗号分隔（nm，正数=远离样品）。留空用默认 '0,0.1,0.2,0.3,0.4,0.55' —— 前密后疏，因为电流按指数掉，等间距会把大半点数浪费在噪声底上。", required: false },
+    { name: "noise_floor_pa", type: "float", description: "噪声底（pA）。低于它的读数算「读不到」，**不参与拟合**。留空 = 自动量（在最远那一档上读）。手动给值只在自动量到的底明显不对时才需要。", required: false, minValue: 0 },
+    { name: "points_per_step", type: "int", description: "每一档里的偏压采样点数（取平均用）。默认 9。", required: false, minValue: 3, maxValue: 101, default: 9 },
+  ],
+  tags: ["spectroscopy","barrier","work-function","diagnostic","势垒","iz","tip-health"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const MapBarrierHeightSpec: SkillSpec = {
+  name: "MapBarrierHeight",
+  description: "在若干个位置各测一条 I–Z 势垒，**并在其中一个位置重复测几次作为噪声标尺**，据此回答压低势垒的结构更符合**针尖侧**还是**表面侧**。\n\n**重复对照是这个技能的核心，不是可选项。** 位置间散布只有明显超过同点重复散布时，空间结构结论才有依据。该判读原则来自参考系统观测，尚未在本仓独立验证。\n\n**结论直接决定下一步：** `surface_side` ⇒ 换样品能解决、修针不能；`tip_side` ⇒ 该处理针尖。两者驱动的动作相反，所以中间地带返回 `inconclusive`。\n\n每个位置调用一次 `MeasureBarrierHeight`；它会确认退开方向、只用未触底的点拟合、可用点不足时拒答。本技能如实计入这些拒答，不拿「判不了」凑数。",
+  parameters: [
+    { name: "sites_nm", type: "str", description: "位置列表，形如 'x1,y1; x2,y2; …'（nm）。至少 4 个。建议横跨几百 nm —— 挨得太近量到的是同一块。", required: true },
+    { name: "repeats", type: "int", description: "在**第一个位置**重复测的次数，用作噪声标尺。至少 4 次。**这是判读的分母，省掉它整个结论就没有意义。**", required: false, minValue: 4, maxValue: 20, default: 6 },
+    { name: "bias_v", type: "float", description: "测量偏压。留空 = 用当前偏压。", unit: "V", required: false, minValue: -10, maxValue: 10 },
+    { name: "hop_size_m", type: "float", description: "位置之间用来挪针尖的小扫描视野。", unit: "m", required: false, minValue: 1e-9, maxValue: 1e-7, default: 3e-9 },
+  ],
+  tags: ["spectroscopy","barrier","map","diagnostic","势垒","针尖还是表面"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const CleanTipUntilBarrierSpec: SkillSpec = {
+  name: "CleanTipUntilBarrier",
+  description: "在贵金属基底上修针，**每一步都用 I–Z 势垒验证有没有变好**，而不是靠感觉或看图。\n\n**第一件事是测基线；已经达标就一步都不做**，返回 `already_clean`。2026-08-27 实测正是这个情形：被要求「把针尖搞干净」，而基线 φ=3.02 eV 已经 clean —— 正确的动作是**不动**。\n\n**它治的是一个真实的事故**：08-26 我为了改善一条平掉的 I–V，做了 2 次浅扎 + 4 次脉冲，**一次都没事先想好「怎么算变好」**；I–V 一点没变，而逐行跳动 σ 从 20 pm 涨到 3419 pm —— 针尖被毁了。同一天早些时候在 Au 上还犯过同一个错。\n\n阶梯**先扎后脉冲**（2 nm 以内的扎针比脉冲温和得多），深度只在 0.5–0.8 nm（1.2/1.6 nm 实测反而更差），**每一发脉冲之后必须补一次扎针稳定**。\n\n三条护栏：连续 3 步没改善就停；**变差立刻停**；结束时交出**过程中最好的那个状态**而不是最后那个。势垒读不出来时说「判不了」，不当成「没变好」—— 两者的下一步不同。",
+  parameters: [
+    { name: "target_phi_ev", type: "float", description: "目标势垒。默认 3.0 eV（= MeasureBarrierHeight 判 clean 的线）。真空隧穿约 4–5 eV。", unit: "eV", required: false, minValue: 0.5, maxValue: 6, default: 3 },
+    { name: "max_steps", type: "int", description: "最多做几步修针动作。到点仍未达标就如实返回未达标。", required: false, minValue: 1, maxValue: 20, default: 7 },
+    { name: "bias_v", type: "float", description: "测势垒用的偏压。留空 = 用当前偏压。", unit: "V", required: false, minValue: -10, maxValue: 10 },
+  ],
+  capabilities: ["bias_pulse","tip_shaping"],
+  tags: ["tip","conditioning","barrier","修针","有判据"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AcquireBiasSeriesSpec: SkillSpec = {
+  name: "AcquireBiasSeries",
+  description: "在**同一个位置**按一串偏压各扫一帧，用来看偏压依赖（占据态／空态）。\n\n**关键：按恒定结阻 R=V/I 配 setpoint，不是固定 setpoint。** 隧道结的距离由结阻决定；偏压降下去而 setpoint 不动会使针尖靠近。参考系统观测表明，较低结阻条件可能推动松散表面结构；该观测尚未在本仓独立验证。\n\n**序列首尾各加一帧相同条件做漂移对照。** 没有首尾对照，针尖在序列期间的稳定性变化可能被误读成偏压效应。\n\n当前 `ScanAt` 回包不含扫描文件路径，因此 `drift_check` 尚未连通，当前回包不会包含 `AssessFrameTrust` 的逐行 MAD、`tip_verdict` 或 `rms_pm`；这是已登记的实现缺口。",
+  parameters: [
+    { name: "center_x_m", type: "float", description: "扫描中心 x。", unit: "m", required: true },
+    { name: "center_y_m", type: "float", description: "扫描中心 y。", unit: "m", required: true },
+    { name: "size_m", type: "float", description: "视野边长。", unit: "m", required: true, minValue: 1e-9, maxValue: 0.000002 },
+    { name: "biases_v", type: "str", description: "偏压序列，逗号分隔（V）。**正负都给**才看得出占据态与空态的差别，例如 '2,1.5,1,0.5,-0.5,-1,-1.5,-2'。", required: true },
+    { name: "junction_r_ohm", type: "float", description: "目标结阻。整条序列共用它来算每一档的 setpoint。越大针尖越远越安全；脏表面上宜取 100 GΩ 以上（08-26 实测 20 GΩ 会推动松散团簇）。", unit: "ohm", required: false, minValue: 100000000, maxValue: 10000000000000, default: 100000000000 },
+    { name: "pixels", type: "int", description: "每帧像素数。", required: false, minValue: 32, maxValue: 1024, default: 192 },
+    { name: "line_time_s", type: "float", description: "每行时间。", unit: "s", required: false, minValue: 0.005, maxValue: 5, default: 0.05 },
+  ],
+  tags: ["imaging","bias","series","偏压依赖","spectroscopy"],
+  category: "write",
+  safetyLevel: "AUTO",
+}
+
+export const CalibrateCoarseStepSpec: SkillSpec = {
+  name: "CalibrateCoarseStep",
+  description: "量**粗动一步走多远**（x/y 分别量，两者可以不一样）。本机粗动没有位置反馈（PMD 不支持 `Motor_GetPos`/`StepCounterGet`），所以拿**有标定的压电当尺子**：扎个坑做基准 → 粗动 N 步 → 回扫同一个压电中心 → 整幅图相位相关求位移 → 位移÷N。\n\n**不要拿 `RelocateCoarseXY` 做这件事**：它要求落点离已访问站点 ≥200 步，而标定要的正是小步长。那是「别重复访问」的效率约束；安全那部分（降压、退针、**验电流真的归零**）本技能自己做并逐条报出来。\n\n**步数要小。** 2026-08-28 反推：若样品倾斜约 1°，每步可能是 100 nm 量级 —— 20 步就是 2 µm，早跑出视野，怎么扫都看不到位移。默认 2–4 步 / 1500 nm 视野。\n\n**位移自证**：相位相关峰的锐度低于 12 就**拒答**，而不是报一个凑出来的数 —— 那说明两帧之间没有可对齐的共同特征（坑跑出视野，或表面太平）。\n\n⚠️ 本技能的方法在 2026-08-28 夜三次尝试都被别的问题打断（站点检查、视野太小、仪器锁），**尚未在真机上跑完一次完整标定**。",
+  parameters: [
+    { name: "axis", type: "str", description: "'x' 或 'y' —— 两个方向要分别量。", required: true, allowedValues: ["x","y"] },
+    { name: "steps", type: "str", description: "要测的步数，逗号分隔。默认 '2,4' —— 两个不同步数才能自证线性（位移应当与步数成比例）。", required: false, default: "2,4" },
+    { name: "size_m", type: "float", description: "扫描视野。要能容下预期位移的 2–3 倍。", unit: "m", required: false, minValue: 1e-7, maxValue: 0.0000025, default: 0.0000015 },
+    { name: "make_pit", type: "bool", description: "先扎一个坑做基准特征。表面本来就有足够特征时可以关掉 —— 但**平坦表面上相位相关立不住**，那正是坑的用处。", required: false, default: true },
+  ],
+  tags: ["coarse","calibration","motor","粗动","标定"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const AcquireDeltaFCurveSpec: SkillSpec = {
+  name: "AcquireDeltaFCurve",
+  description: "在针尖当前位置采一条频移随高度变化的曲线 Δf(z),同时记电流与振幅,并存成 .dat 供反演使用。扫描方向朝表面,正的 z_sweep_distance_m 表示往里走多远。采之前会读回 PLL 状态:输出没打开就直接失败,不采一条噪声。力谱必须配一条干净表面上的同扫程曲线做背景,分两次调用本技能取。",
+  parameters: [
+    { name: "save_basename", type: "str", description: "存盘名前缀,例如 'Fe_atom'。强烈建议给:后面的反演按文件路径工作,不给就只能靠时间猜是哪一条。", required: false, default: "" },
+    { name: "z_sweep_distance_m", type: "float", description: "往表面走多远,例如 '500p'(SI 前缀必须写)。", unit: "m", required: true, minValue: 1e-11, maxValue: 1e-8 },
+    { name: "z_offset_m", type: "float", description: "起点相对反馈高度的偏移,正值是先抬高,例如 '300p'。Δf 的极小值常常在反馈高度之上,所以通常要先抬。留空表示从反馈高度直接起扫。", unit: "m", required: false, minValue: -5e-9, maxValue: 5e-9 },
+    { name: "num_points", type: "int", description: "曲线点数。", required: false, minValue: 8, maxValue: 4096, default: 200 },
+    { name: "backward_sweep", type: "bool", description: "是否也采回程(用来看迟滞)。", required: false, default: true },
+    { name: "channel_indexes", type: "str", description: "要记的信号索引,逗号分隔。留空则按名字自动找频移、电流、振幅三路。", required: false, default: "" },
+    { name: "modulator_index", type: "int", description: "PLL 调制器序号(单传感器机器就是 1)。", required: false, minValue: 1, maxValue: 8, default: 1 },
+    { name: "require_pll_on", type: "bool", description: "PLL 输出没开时直接失败(默认如此)。", required: false, default: true },
+  ],
+  preconditions: ["z_controller_on"],
+  tags: ["spectroscopy","z","pll","frequency","qplus","afm","force","write"],
+  category: "write",
+  safetyLevel: "CONFIRM",
+}
+
+export const RunGridExperimentSpec: SkillSpec = {
+  name: "RunGridExperiment",
+  description: "用 Nanonis Pattern 模块跑网格谱学。它会处理漂移补偿与自动存盘。",
+  parameters: [
+    { name: "nx", type: "int", description: "X 方向的网格点数", required: true, minValue: 1, maxValue: 100 },
+    { name: "ny", type: "int", description: "Y 方向的网格点数", required: true, minValue: 1, maxValue: 100 },
+    { name: "center_x_m", type: "float", description: "网格中心 X（m）", unit: "m", required: false, default: 0 },
+    { name: "center_y_m", type: "float", description: "网格中心 Y（m）", unit: "m", required: false, default: 0 },
+    { name: "width_m", type: "float", description: "网格宽度，单位**米**（SI），**不是**纳米。换算：100 nm → 100n。默认 100n（=100 nm）。", unit: "m", required: false, minValue: 0, maxValue: 0.00001, default: 1e-7 },
+    { name: "height_m", type: "float", description: "网格高度，单位**米**（SI），**不是**纳米。换算：100 nm → 100n。默认 100n（=100 nm）。", unit: "m", required: false, minValue: 0, maxValue: 0.00001, default: 1e-7 },
+    { name: "angle_deg", type: "float", description: "网格转角（度）", unit: "deg", required: false, default: 0 },
+    { name: "wait_timeout_s", type: "float", description: "最长等待时间", unit: "s", required: false, minValue: 10, maxValue: 36000, default: 3600 },
+  ],
+  preconditions: ["z_controller_on"],
+  tags: ["pattern","grid","spectroscopy","composite"],
+  category: "composite",
+  safetyLevel: "CONFIRM",
+}
+
+export const AcquireSignalPointSpec: SkillSpec = {
+  name: "AcquireSignalPoint",
+  description: "在**当前**光学位置上读取 Nanonis 信号并做软件平均：隧道电流和／或任意信号槽位（0-127），每一路各采 `samples` 次。这是最小粒度的「就在这儿测一下」—— 把它和 OpticalStageMove / DelayLineMoveTo 以及 PulseDigitalLine 搭起来可以手工拼出一次扫描，或者直接用 OpticalStageScan 跑整幅光栅。纯读；不移动、也不触发。",
+  parameters: [
+    { name: "read_current", type: "bool", description: "采集隧道电流（Current_Get）", required: false, default: true },
+    { name: "signal_indices", type: "str", description: "要读取并平均的 Nanonis 信号槽位，逗号分隔（例如 '0,14'）；范围 0-127。每加一路就多出 sig<idx>_mean/std。", required: false, default: "" },
+    { name: "samples", type: "int", description: "每一路信号平均多少次读数", required: false, minValue: 1, maxValue: 10000, default: 10 },
+    { name: "sample_interval_s", type: "float", description: "两次读数之间的间隔", unit: "s", required: false, minValue: 0, maxValue: 1, default: 0.01 },
+  ],
+  tags: ["optics","acquire","signal","read"],
+  category: "read",
+  safetyLevel: "AUTO",
+}
+
 /** 批 1/2 的全部声明，按名字索引。 */
 export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   GetBias: GetBiasSpec,
@@ -5592,7 +5717,15 @@ export const BATCH_SPECS: Readonly<Record<string, SkillSpec>> = {
   FindFlatRegion: FindFlatRegionSpec,
   BiasWiggle: BiasWiggleSpec,
   AssessAtomicPhase: AssessAtomicPhaseSpec,
+  MeasureBarrierHeight: MeasureBarrierHeightSpec,
+  MapBarrierHeight: MapBarrierHeightSpec,
+  CleanTipUntilBarrier: CleanTipUntilBarrierSpec,
+  AcquireBiasSeries: AcquireBiasSeriesSpec,
+  CalibrateCoarseStep: CalibrateCoarseStepSpec,
+  AcquireDeltaFCurve: AcquireDeltaFCurveSpec,
+  RunGridExperiment: RunGridExperimentSpec,
+  AcquireSignalPoint: AcquireSignalPointSpec,
 }
 
 /** 有行为轨迹金样的那些（两个进针技能不在内，见导出脚本的 TRACE_SKIP）。 */
-export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","ConfigurePiController","SetPiControllerOnOff","GetPiController","SetGenericPiOutput","GetGenericPiController","ConfigurePreamp","GetPreamp","RunPllZoomFft","GetPllZoomFftData","RunPllPhaseSweep","StopPllPhaseSweep","ConfigurePllSignalAnalyzer","GetPllSignalAnalyzerData","ConfigureOcSync","GetOcSync","ConfigureTipRecorder","GetTipRecorderData","ConfigureKelvinController","SetKelvinControllerOnOff","GetKelvinController","RunCpdCompensation","GetCpdCompensation","ConfigureInterferometer","SetInterferometerOnOff","GetInterferometer","ConfigureBeamDeflection","GetBeamDeflection","AutoZeroBeamDeflection","SetLaserOnOff","SetLaserPower","GetLaser","SetProbeZController","GetProbeZController","WithdrawProbe","ConfigureProbeScanner","MoveProbeXY","StopProbeScanner","SetProbeBias","PulseProbeBias","GetProbeBias","GetProbeCurrent","ConfigureProbeCurrentGain","ConfigureHighSpeedSweep","RunHighSpeedSweep","StopHighSpeedSweep","GetHighSpeedSweepStatus","ConfigureRfGenerator","StartRfGenerator","StopRfGenerator","RunRfFrequencySweep","GetRfGeneratorStatus","ConfigureHighResScope","RunHighResScope","GetHighResScopeData","GetHighResScopeStatus","ConfigureDualScope","GetDualScopeData","ConfigureSignalChart","GetUserOutputLimits","GetUserOutputMode","GetUserOutputMonitorChannel","GetDigitalLineTTL","GetCalculatedOutputConfig","SetUserOutput","SetUserOutputMode","SetUserOutputMonitorChannel","SetUserOutputLimits","SetUserOutputCalibration","ConfigureCalculatedOutput","PulseDigitalLine","SetDigitalLineStatus","ConfigureDigitalLine","ConfigureBiasSweep","AcquireBiasSweep","ConfigureLockInSweep","AcquireLockInSweep","GetLockInSweepLimits","GetLockInSweepProps","GetLockInSweepSignal","GenSwpAcqChsGet","GenSwpPropsGet","GenSwpStop","GenSwpSwpSignalGet","OpenPatternExperiment","PausePatternExperiment","SetPatternLine","SetPatternCloud","GetPatternCloud","GetPatternProps","ConfigureWaveform","StartWaveform","StopWaveform","GetWaveformStatus","SetWaveformIdleValue","SetWaveformChannelOnOff","SetSpectroscopyTtlSync","SetSpectroscopyPulseSync","SetSpectroscopyZControl","SetZSpectroscopySecondRetract","SetMlsLockinPerSegment","GetSpectroscopyStatus","QuitNanonis","SetMultiPass","LoadMultiPassConfig","SaveMultiPassConfig","WaitForScanEndBlocking","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange","BiasPulseWithReadback","TipShapeWithReadback","CaptureSignalBuffer","GetChamberPressure","GetTemperature","AcquireSTS","ConfigureSTS","ConfigureZSpectr","AcquireZSpectr","ConfigureSTSTiming","StopSTS","StopZSpectr","ConfigureSTSChannels","ConfigureZSpectrTiming","GetSTSChannels","SetSTSChannels","GetSTSLimits","SetSTSAdvancedProps","GetSTSTiming","GetSTSAltZCtrl","GetZSpectrChannels","SetZSpectrChannels","GetZSpectrRange","SetZSpectrRange","GetZSpectrRetract","SetZSpectrRetract","GetSTSDigSync","GetSTSTTLSync","GetSTSPulseSeqSync","GetSTSZOffRevert","GetSTSMLSLockinPerSeg","SetSTSMLSMode","SetSTSMLSVals","SetSTSSafeCond1","GetSTSSafeCond1","SetSTSSafeCond2","SetZSpectrAdvProps","GetZSpectrDigSync","GetZSpectrPulseSeqSync","GetZSpectrRetract2nd","SetZSpectrRetractDelay","GetZSpectrTTLSync","GetZSpectrTiming","ExtractClusters","AssessClusterRoundness","SelectPokedCluster","VerifyAdatomAt","MeasureStepHeight","AssessFrameTrust","LocateStepEdge","AssessAtomicLines","AssessFrameCorrugation","AssessScanTexture","MeasureLatticeCell","AssessAtomicResolution","AnalyseAtomicLattice","LoadScanFrameFromFile","ParseRegions","ComputeDriftVector","SubtractPlane_RANSAC","LevelLines_Median","FindEmptySpot","CorrectDrift_XCorr","SubtractPoly2D","Destripe_MorphOpen","AutoCrop_UnscannedRegion","Denoise_AE","DetectAtomJump","ScanAt","FullScan","TipShape","TipPulse","TipConditioningSelfCheck","TipForgeSelfCheck","MonitorCurrent","MonitorCurrentFFT","ClassifyUnexplainedCurrent","RecoverTipFromSaturation","WaitForThermalSettle","WatchScanLines","BiasSettleChange","AcquirePSD","BatchRegionsScan","ReadCalibrations","RetractForSampleChange","RelocateCoarseXY","StepCoarseXY","AnalyzeScanImage","AutoProcessScanBatch","AssessTipSharpness","AssessTipFromSpectrum","InvertForceSaderJarvis","AssessAtomicConsistency","AnalyzeFrameTilt","TiltProbeCircle","TiltCalibrate","AutoTilt","FindCleanSpot","FindFlatRegion","BiasWiggle","AssessAtomicPhase"] as const
+export const TRACED = ["GetBias","GetCurrent","GetBiasCalibration","GetSetpoint","GetZPosition","GetZControllerState","GetZCtrlGain","GetZCtrlList","GetTipLift","GetZLimitsEnabled","GetHomeProps","GetWithdrawRate","GetScanFrame","GetScanSpeed","GetScanBuffer","GetScanXYPosition","GetTipSpeed","GetPointShootOnOff","GetPiezoTilt","GetDriftCompensation","GetPiezoSensitivity","GetPiezoXYZLimits","GetMotorFreqAmp","MotorGetPos","GetMotorStepCounter","GetAutoApproachStatus","GetSafeTipStatus","GetSafeTipProps","GetSafeTipSignal","GetSignalValues","ListSignalChannels","GetSignalRange","GetSessionPath","GetAcqPeriod","GetRTFreq","GetLatestScanFile","SetBias","SetSetpoint","ZControllerOnOff","TryEngageController","WithdrawTip","SafeRetract","EmergencyRetract","StopScan","StopAutoApproach","StopMotor","StopFolMe","SetZCtrlGain","SetTipLift","SetZPosition","SetBiasRange","SetSessionPath","SetScanBuffer","SetTipSpeed","SetFolMeOversampling","MoveToXY","SetPiezoTilt","SetDriftCompensation","SetPiezoRange","SetHomeProps","SetSwitchOffDelay","SetCurrentGain","MotorMove","MotorMoveClosedLoop","EnableSafeTip","SetZLimitsEnabled","SetBiasCalibration","SetCurrentCalibration","SetMotorFreqAmp","LockNanonisUI","CreateZCtrlPreset","AutoApproach","ApproachTip","ApplyZCtrlPreset","ListZCtrlPresets","ConfigureScan","SetScanSpeed","StartScan","WaitScanComplete","SaveScan","GrabScanFrameData","SetBiasRamp","GetSignalsAddRT","GetCurrentBEEM","GetCurrentGains","ScanBackgroundDelete","ScanBackgroundPaste","GetPointShootProps","SetPointShootExperiment","SetPointShootOnOff","GetRTOversample","SetRTFreq","SetRTOversample","LoadLayout","SaveLayout","SaveSettings","UnlockNanonisUI","GetPiezoHVAInfo","GetPiezoHVAStatusLED","LoadPiezoHysteresisFile","SetPiezoHysteresisOnOff","SetPiezoHysteresisValues","SetPiezoSensitivity","GetMiscInstrumentConfig","GetPiezoConfig","GetPllConfig","GetScanPatternConfig","GetSpectroscopyConfig","GetTipShaperConfig","CheckScanForCrash","GetLockInConfig","ConfigureLockIn","ConfigureLockInDemod","GetDemodSignal","GetDemodPhase","GetDemodPhasReg","GetDemodHarmonic","GetDemodLPFilter","GetDemodHPFilter","SetModSignal","SetModPhasReg","SetModHarmonic","SetDemodSyncFilter","SetDemodRTSignals","ListLockInPresets","ApplyLockInPreset","AutoPhase","GetDataLogStatus","StartDataLog","StopDataLog","GetTcpLogStatus","StartTcpLog","StopTcpLog","ListScanMarkers","DrawScanMarker","EraseScanMarkers","ConfigureAtomTrack","AtomTrackDriftComp","AtomTrackQuickCompStart","AtomTrackStatusGet","AcquireOsciTrace","GetOsciTimebases","SetOsciTimebase","ConfigureSpectrumAnalyzer","SetSpectrumAnalyzerBand","GetSpectrumAnalyzerData","RunBiasSweep","GetSignalCalibration","SetAdditionalRealtimeSignals","SetAcquisitionPeriod","BiasPulse","ListNanonisScripts","GetScriptData","GetScriptChannels","RunNanonisScript","StopNanonisScript","DeployNanonisScript","UndeployNanonisScript","LoadScriptLUT","DeployScriptLUT","SetScriptChannels","SetScriptAutosave","LoadNanonisScript","SaveNanonisScript","SaveNanonisScriptLut","SetZLimits","SetWithdrawRate","HomeZController","SetPiezoLimits","SetSafeTipProps","SetActiveZController","ConfigurePLL","GetPLLStatus","PLLOnOff","ConfigurePLLExcitation","AcquirePLLFreqSweep","PLLSignalAnalyzer","GetPLLAddOnOff","SetPLLAmpCtrlBandwidth","GetPLLAmpCtrlOnOff","SetPLLAmpCtrlSetpnt","GetPLLDemodFilter","SetPLLDemodFilter","GetPLLDemodHarmonic","GetPLLDemodInput","SetPLLDemodInput","SetPLLDemodPhasRef","GetPLLExcRange","SetPLLFreqExcOverwrite","GetPLLFreqRange","SetPLLFreqRange","PLLFreqShiftAutoCenter","GetPLLInpCalibr","SetPLLInpCalibr","GetPLLInpProps","SetPLLInpProps","SetPLLInpRange","PLLPerfectPLLUpdtZTC","SetPLLPhasCtrlBandwidth","GetPLLPhasCtrlOnOff","GetPLLSignalAnlzrCh","GetPLLSignalAnlzrFFTProps","GetPLLSignalAnlzrTimebase","PLLSignalAnlzrTrigAuto","SetPLLSignalAnlzrTrig","GetPLLFreqSwpParams","StopPLLFreqSwp","ConfigurePiController","SetPiControllerOnOff","GetPiController","SetGenericPiOutput","GetGenericPiController","ConfigurePreamp","GetPreamp","RunPllZoomFft","GetPllZoomFftData","RunPllPhaseSweep","StopPllPhaseSweep","ConfigurePllSignalAnalyzer","GetPllSignalAnalyzerData","ConfigureOcSync","GetOcSync","ConfigureTipRecorder","GetTipRecorderData","ConfigureKelvinController","SetKelvinControllerOnOff","GetKelvinController","RunCpdCompensation","GetCpdCompensation","ConfigureInterferometer","SetInterferometerOnOff","GetInterferometer","ConfigureBeamDeflection","GetBeamDeflection","AutoZeroBeamDeflection","SetLaserOnOff","SetLaserPower","GetLaser","SetProbeZController","GetProbeZController","WithdrawProbe","ConfigureProbeScanner","MoveProbeXY","StopProbeScanner","SetProbeBias","PulseProbeBias","GetProbeBias","GetProbeCurrent","ConfigureProbeCurrentGain","ConfigureHighSpeedSweep","RunHighSpeedSweep","StopHighSpeedSweep","GetHighSpeedSweepStatus","ConfigureRfGenerator","StartRfGenerator","StopRfGenerator","RunRfFrequencySweep","GetRfGeneratorStatus","ConfigureHighResScope","RunHighResScope","GetHighResScopeData","GetHighResScopeStatus","ConfigureDualScope","GetDualScopeData","ConfigureSignalChart","GetUserOutputLimits","GetUserOutputMode","GetUserOutputMonitorChannel","GetDigitalLineTTL","GetCalculatedOutputConfig","SetUserOutput","SetUserOutputMode","SetUserOutputMonitorChannel","SetUserOutputLimits","SetUserOutputCalibration","ConfigureCalculatedOutput","PulseDigitalLine","SetDigitalLineStatus","ConfigureDigitalLine","ConfigureBiasSweep","AcquireBiasSweep","ConfigureLockInSweep","AcquireLockInSweep","GetLockInSweepLimits","GetLockInSweepProps","GetLockInSweepSignal","GenSwpAcqChsGet","GenSwpPropsGet","GenSwpStop","GenSwpSwpSignalGet","OpenPatternExperiment","PausePatternExperiment","SetPatternLine","SetPatternCloud","GetPatternCloud","GetPatternProps","ConfigureWaveform","StartWaveform","StopWaveform","GetWaveformStatus","SetWaveformIdleValue","SetWaveformChannelOnOff","SetSpectroscopyTtlSync","SetSpectroscopyPulseSync","SetSpectroscopyZControl","SetZSpectroscopySecondRetract","SetMlsLockinPerSegment","GetSpectroscopyStatus","QuitNanonis","SetMultiPass","LoadMultiPassConfig","SaveMultiPassConfig","WaitForScanEndBlocking","SetWaveformSignal","SetLockInDemodPhaseRegister","SetLockInFrequencySweepSignal","SetPllExcitationAdd","SetPllDemodHarmonic","ConfigureScopeTrigger","SetPatternExperiment","SetPointShootProps","ReadTipOscillationAmplitude","CheckTipCrashByAmplitude","CheckPiezoRange","BiasPulseWithReadback","TipShapeWithReadback","CaptureSignalBuffer","GetChamberPressure","GetTemperature","AcquireSTS","ConfigureSTS","ConfigureZSpectr","AcquireZSpectr","ConfigureSTSTiming","StopSTS","StopZSpectr","ConfigureSTSChannels","ConfigureZSpectrTiming","GetSTSChannels","SetSTSChannels","GetSTSLimits","SetSTSAdvancedProps","GetSTSTiming","GetSTSAltZCtrl","GetZSpectrChannels","SetZSpectrChannels","GetZSpectrRange","SetZSpectrRange","GetZSpectrRetract","SetZSpectrRetract","GetSTSDigSync","GetSTSTTLSync","GetSTSPulseSeqSync","GetSTSZOffRevert","GetSTSMLSLockinPerSeg","SetSTSMLSMode","SetSTSMLSVals","SetSTSSafeCond1","GetSTSSafeCond1","SetSTSSafeCond2","SetZSpectrAdvProps","GetZSpectrDigSync","GetZSpectrPulseSeqSync","GetZSpectrRetract2nd","SetZSpectrRetractDelay","GetZSpectrTTLSync","GetZSpectrTiming","ExtractClusters","AssessClusterRoundness","SelectPokedCluster","VerifyAdatomAt","MeasureStepHeight","AssessFrameTrust","LocateStepEdge","AssessAtomicLines","AssessFrameCorrugation","AssessScanTexture","MeasureLatticeCell","AssessAtomicResolution","AnalyseAtomicLattice","LoadScanFrameFromFile","ParseRegions","ComputeDriftVector","SubtractPlane_RANSAC","LevelLines_Median","FindEmptySpot","CorrectDrift_XCorr","SubtractPoly2D","Destripe_MorphOpen","AutoCrop_UnscannedRegion","Denoise_AE","DetectAtomJump","ScanAt","FullScan","TipShape","TipPulse","TipConditioningSelfCheck","TipForgeSelfCheck","MonitorCurrent","MonitorCurrentFFT","ClassifyUnexplainedCurrent","RecoverTipFromSaturation","WaitForThermalSettle","WatchScanLines","BiasSettleChange","AcquirePSD","BatchRegionsScan","ReadCalibrations","RetractForSampleChange","RelocateCoarseXY","StepCoarseXY","AnalyzeScanImage","AutoProcessScanBatch","AssessTipSharpness","AssessTipFromSpectrum","InvertForceSaderJarvis","AssessAtomicConsistency","AnalyzeFrameTilt","TiltProbeCircle","TiltCalibrate","AutoTilt","FindCleanSpot","FindFlatRegion","BiasWiggle","AssessAtomicPhase","MeasureBarrierHeight","MapBarrierHeight","CleanTipUntilBarrier","AcquireBiasSeries","CalibrateCoarseStep","AcquireDeltaFCurve","RunGridExperiment","AcquireSignalPoint"] as const

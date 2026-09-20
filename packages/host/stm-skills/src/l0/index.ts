@@ -104,6 +104,12 @@ import { CLEAN_SPOT } from './clean-spot.js'
 import { TIP_SPECTRO_ASSESS } from './tip-spectro-assess.js'
 
 // ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））在这一行下面加 import ──
+import { OPTICS_ACQUIRE } from './optics-acquire.js'
+import { DELTAF_CURVE } from './deltaf-curve.js'
+import { BARRIER_CHAIN } from '../composite/barrier.js'
+import { BIAS_SERIES } from '../composite/bias-series.js'
+import { COARSE_STEP_CALIB } from '../composite/coarse-step-calib.js'
+import { PATTERN_GRID } from '../composite/pattern-grid.js'
 
 // ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）在这一行下面加 import ──
 import { ANALYSIS_FLAT_REGION } from './analysis-flat-region.js'
@@ -227,6 +233,12 @@ export const IMPLEMENTED: Readonly<Record<string, Skill>> = {
   ...TIP_SPECTRO_ASSESS,
 
   // ── 批 7b-2 在这一行下面展开 ──
+  ...BARRIER_CHAIN,
+  ...BIAS_SERIES,
+  ...COARSE_STEP_CALIB,
+  ...DELTAF_CURVE,
+  ...PATTERN_GRID,
+  ...OPTICS_ACQUIRE,
 
   // ── 批 7b-3 在这一行下面展开 ──
   ...ANALYSIS_FLAT_REGION,
@@ -350,6 +362,18 @@ export * from './scan-prep-skills.js'
 // ── 批 7a-1 在这一行下面 re-export ──
 
 // ── 批 7a-2 在这一行下面 re-export ──
+
+// ── 批 7b-1 在这一行下面 re-export ──
+
+// ── 批 7b-2 在这一行下面 re-export ──
+export * from './optics-acquire.js'
+export * from './deltaf-curve.js'
+export * from '../composite/barrier.js'
+export * from '../composite/bias-series.js'
+export * from '../composite/coarse-step-calib.js'
+export * from '../composite/pattern-grid.js'
+
+// ── 批 7b-3 在这一行下面 re-export ──
 
 // ── 批 7a-3 在这一行下面 re-export ──
 export * from './analysis-flat-region.js'

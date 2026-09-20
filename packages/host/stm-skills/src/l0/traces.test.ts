@@ -570,7 +570,7 @@ const CROSSTALK_KEYS = ['crosstalk_modulation_off', 'crosstalk_skipped'] as cons
  */
 const EARLY_VOLATILE = [
   'read_at', 'confirm_waited_s', 'elapsed_s', 'started_at', 'last_update_at',
-  'module_ran_s', 'waited_s',
+  'module_ran_s', 'waited_s', 'start_time',
 ]
 
 function stripClockEarly(v: unknown): unknown {
@@ -709,9 +709,14 @@ function reshapeReason(name: string, trace: string): Deviation {
   NUMPY_RESHAPE.lastIndex = 0
   const data = want?.data
   if (data !== undefined) {
-    const reason = data['spectrum_unparsed_reason']
-    if (typeof reason === 'string' && reason.includes('cannot reshape')) {
-      out.data = { ...data, spectrum_unparsed_reason: ourReshapeWording(reason) }
+    // 两个键名：`AcquireSTS` / `AcquireZSpectr` 叫 `spectrum_unparsed_reason`，
+    // `AcquireDeltaFCurve` 叫 `parse_error`（旧仓 `_parse` 自己起的名字，
+    // 两边都照移）。同一句话、同一条登记。
+    for (const key of ['spectrum_unparsed_reason', 'parse_error']) {
+      const reason = data[key]
+      if (typeof reason === 'string' && reason.includes('cannot reshape')) {
+        out.data = { ...(out.data ?? data), [key]: ourReshapeWording(reason) }
+      }
     }
   }
   return out
@@ -1029,11 +1034,25 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   //
   // 合成回包给 `2f` 的是一块 2×2，而表头（`i` 的第 3/4 位）说 6×7 ——
   // 于是这一族**每一条**轨迹走的都是「装不下」那一支。
+  // 批 7b-2 把 `AcquireDeltaFCurve` 加进来：同一族同一条 —— 它的 `_parse` 也走
+  // `_reshape_spectrum`，只是把那句话落在 `parse_error` 这个键上。
   ...Object.fromEntries(
-    ['AcquireSTS', 'AcquireZSpectr'].flatMap((n) =>
+    ['AcquireSTS', 'AcquireZSpectr', 'AcquireDeltaFCurve'].flatMap((n) =>
       Object.keys(golden[n]?.traces ?? {}).map((t) => [`${n}/${t}`, reshapeReason(n, t)]),
     ),
   ),
+  // ── 批 7b-2 · D-SKILL-2 的又一处：那句「回包里一个数都没有」印的是信封 ──
+  //
+  // 旧仓 `nanonis_scalar` 抛的是 `no numeric value in Nanonis reply:
+  // ('', b'', [])` —— 三段信封的 Python repr。本仓 `SkillCallRecord.values`
+  // **就是** body（信封在 `nanonis-wire` 那层拆掉了），印的是我们真有的东西。
+  // 期望值**从金样算出来**：旧仓哪天改了那句话，这条登记会跟着变，不会悄悄过期。
+  'AcquireSignalPoint/empty@0': {
+    error: (golden['AcquireSignalPoint']?.traces['empty@0']?.error ?? '').replace(
+      "('', b'', [])",
+      '[]',
+    ),
+  },
   'TipShapeWithReadback/empty@0': {
     clockApprox: true,
     error: (golden['TipShapeWithReadback']?.traces['empty@0']?.error ?? '').replace(
@@ -1233,9 +1252,16 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
  */
 // 时钟读数不是判据。`elapsed_s` / `started_at` / `last_update_at` 的具体值取决于
 // 实现读了几次钟——把它钉住只会让每一次无关重构都变红，而它一次真 bug 也抓不到。
+// 批 7b-2 补 `start_time`（**全份金样里只有 `RunGridExperiment` 有这个键**）：
+// 它是 `_phase_start_experiment` 记下的一个**时刻**，而两侧的钟连原点都不同 ——
+// 导出那一侧是被钉死的墙钟（`_fake_time` 恒回 `1_700_000_000.0`），本仓是单调钟
+// （`ctx.now()/1000`，夹具从 1e6 ms 起）。不是「差一点」，是两把不同的尺。
+// **它的值没有判据可言，而它的用法有**：`elapsed = now − start_time` 是超时那道闸，
+// 那一条由 `spec/golden/batch7b2.json` 的 `grid/timeout` 一格（假钟会走）钉住，
+// 「它确实被记下来了、是个有限的数」由 `batch7b2-skills.test.ts` 单独钉。
 const VOLATILE = new Set([
   'read_at', 'confirm_waited_s', 'elapsed_s', 'started_at', 'last_update_at',
-  'module_ran_s', 'waited_s',
+  'module_ran_s', 'waited_s', 'start_time',
 ])
 
 /** 递归剥掉时钟字段。 */
