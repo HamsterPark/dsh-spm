@@ -70,7 +70,7 @@ No new credential or private network address was identified by the full reading.
 - Re-exporting from the private reference system can restore the original identifying prose. Public exports need an explicit content review after regeneration; sanitized observations must retain their true source category.
 - Full reading is not a guarantee that every sensitive detail has been recognized. It also does not validate runtime correctness, distribution installation or hardware safety. Existing CI and runtime limitations remain in [RELEASE-TODO.md](RELEASE-TODO.md) and [MINIMUM-RUN-TODO.md](MINIMUM-RUN-TODO.md).
 
-The original twenty-reviewer pass did not rewrite history. The owner subsequently authorized history-preserving cleanup in an isolated local copy; the original private repository and remote remain separate from that publication candidate. History verification and the remaining publication boundary are recorded in `HISTORY-CLEANUP.md`. No remote push or visibility change is part of content review.
+The original twenty-reviewer pass did not rewrite history. The owner subsequently authorized history-preserving cleanup in an isolated local copy, then remote history replacement and a retained-content audit. The remote branch now contains the cleaned history; the original local repository and its worktrees remain private backups. GitHub visibility remains private because old commits are still accessible by identifier through its authenticated API. History verification and the remaining publication boundary are recorded in `HISTORY-CLEANUP.md`.
 
 ## Final path cleanup
 

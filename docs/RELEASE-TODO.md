@@ -1,10 +1,10 @@
 # Public release checklist
 
-> Updated 2026-09-20 at commit `22f655b`. Public release does not require completing every skill or proving packaged installation, but it does require a reviewed publication boundary, adequate source rights, and an honest account of validation.
+> Updated 2026-09-20. The initial review used `22f655b`; the authorized remote replacement uses cleanup commit `8d4a8a6`. Public release does not require completing every skill or proving packaged installation, but it does require a reviewed publication boundary, adequate source rights, and an honest account of validation.
 
-## Scope inspected
+## Initial inspection
 
-- Local and remote `master` both resolve to `22f655b6ca27e54d2fac3fb337044f9636725406`.
+- The initial local and remote `master` resolved to `22f655b6ca27e54d2fac3fb337044f9636725406`. The remote was subsequently replaced from the reviewed publication checkout; see [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
 - The remote exposes one branch (`master`) and no tags. The repository is private.
 - The review covered 626 tracked files, 207 reachable commits, deleted historical paths, commit subjects and author identities, current GitHub Actions runs, and current repository metadata.
 - GitHub shows no description or topics. Issues are enabled and Discussions are disabled.
@@ -40,7 +40,7 @@ The user has authorized migration and public preparation of the MAST-derived mat
 
 ## Validation
 
-The latest GitHub Actions run for `22f655b` failed in all four Node/OS jobs: [run 35502853052](https://github.com/HamsterPark/dsh-spm/actions/runs/35502853052).
+The reviewed historical GitHub Actions run for `22f655b` failed in all four Node/OS jobs: [run 35502853052](https://github.com/HamsterPark/dsh-spm/actions/runs/35502853052). This records the original validation result, not a claim about the latest run after history replacement.
 
 | Runner | Result |
 |---|---|
@@ -65,7 +65,9 @@ The final path pass added **117 passing z-trace tests and 25 passing claim-audit
 - [x] Remove confirmed developer-machine paths from exporter entry points and frozen provenance.
 - [x] Choose history-preserving cleanup with a complete local private backup.
 - [x] Verify the isolated rewritten history and assemble the reviewed publication copy; results are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
-- [ ] Replace the remote history from the reviewed publication copy and resolve any retained remote copies before changing visibility. Local cleanup alone does not clean GitHub.
+- [x] Replace the sole remote branch from the reviewed publication copy using an explicit expected-old-commit lease, keep the repository private, and verify a fresh clone against the reviewed history and files.
+- [x] Inventory the additional remote surfaces, scan all 62 available workflow logs for confirmed identifying strings, and remove the three uninspectable old dependency caches. Scope and results are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md).
+- [ ] Resolve retained server-side old commits before changing visibility. The audit confirmed that original commit IDs remain readable through GitHub's authenticated API; a clean fresh clone does not establish that these retained objects are gone.
 - [x] Record the cross-platform CI failures as an accepted runtime limitation. The public README does not claim that current CI is green.
 - [x] Review the final combined diff, including the separate source/configuration comment cleanup authorized for this release-preparation pass.
 - [ ] Add the repository description and topics after the reviewed commit is pushed.
