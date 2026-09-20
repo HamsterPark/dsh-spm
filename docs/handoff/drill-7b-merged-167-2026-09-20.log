@@ -1,0 +1,337 @@
+… 基线（3 个 scope）
+… closure-stops-at-one-layer
+✓ closure-stops-at-one-layer       red           7 条变红
+… closure-never-says-where-it-stopped
+✓ closure-never-says-where-it-stopped red           1 条变红
+… closure-drops-the-autotilt-edge
+✓ closure-drops-the-autotilt-edge  red           4 条变红
+… closure-scanat-loses-the-zctrl-gain
+✓ closure-scanat-loses-the-zctrl-gain red           3 条变红
+… closure-forge-chain-forgets-a-flow
+✓ closure-forge-chain-forgets-a-flow red           2 条变红
+… atomicphase-coverage-gate-is-inclusive
+✓ atomicphase-coverage-gate-is-inclusive red           2 条变红
+… atomicphase-coverage-gate-moves
+✓ atomicphase-coverage-gate-moves  red           7 条变红
+… atomicphase-coverage-gate-does-not-gate
+✓ atomicphase-coverage-gate-does-not-gate red           2 条变红
+… atomicphase-incomplete-reason-is-dropped
+✓ atomicphase-incomplete-reason-is-dropped red           1 条变红
+… atomicphase-incomplete-warning-is-dropped
+✓ atomicphase-incomplete-warning-is-dropped red           1 条变红
+… atomicphase-summary-contradicts-the-verdict
+✓ atomicphase-summary-contradicts-the-verdict red           1 条变红
+… atomicphase-channel-does-not-fall-back
+✓ atomicphase-channel-does-not-fall-back red           2 条变红
+… atomicphase-empty-path-is-a-missing-file
+✓ atomicphase-empty-path-is-a-missing-file red           2 条变红
+… atomicphase-read-error-loses-the-path
+✓ atomicphase-read-error-loses-the-path red           1 条变红
+… atomicphase-expected-zero-falls-back-to-the-substrate
+✓ atomicphase-expected-zero-falls-back-to-the-substrate red           2 条变红
+… atomicphase-substrate-table-is-the-vision-one
+✓ atomicphase-substrate-table-is-the-vision-one red           2 条变红
+… atomicphase-row-spacing-is-the-nearest-neighbour
+✓ atomicphase-row-spacing-is-the-nearest-neighbour red           2 条变红
+… atomicphase-row-spacing-reassociates
+✓ atomicphase-row-spacing-reassociates red           1 条变红
+… atomicphase-substrate-injection-is-on-by-default
+✓ atomicphase-substrate-injection-is-on-by-default red           1 条变红
+… atomicphase-injection-failure-is-not-soft
+✓ atomicphase-injection-failure-is-not-soft red           1 条变红
+… phaseshift-needs-sixteen-px-a-side
+✓ phaseshift-needs-sixteen-px-a-side red           1 条变红
+… phaseshift-normalises-to-unit-phase
+✓ phaseshift-normalises-to-unit-phase red           10 条变红
+… phaseshift-snr-floor-is-1e-12
+✓ phaseshift-snr-floor-is-1e-12    red           1 条变红
+… phaseshift-windows-both-frames
+✓ phaseshift-windows-both-frames   red           9 条变红
+… phaseshift-subtracts-the-mean
+✓ phaseshift-subtracts-the-mean    red           9 条变红
+… phaseshift-nan-becomes-zero
+✓ phaseshift-nan-becomes-zero      red           1 条变红
+… phaseshift-mean-is-numpy-pairwise
+✓ phaseshift-mean-is-numpy-pairwise red           1 条变红
+… phaseshift-origin-is-the-frame-centre
+✓ phaseshift-origin-is-the-frame-centre red           10 条变红
+… phaseshift-fftshift-rolls-forward
+✓ phaseshift-fftshift-rolls-forward red           1 条变红
+… point-refuses-when-nothing-is-selected
+✓ point-refuses-when-nothing-is-selected red           1 条变红
+… point-indices-are-deduped-and-range-checked
+✓ point-indices-are-deduped-and-range-checked red           3 条变红
+… point-scalar-is-a-preorder-walk
+✓ point-scalar-is-a-preorder-walk  red           1 条变红
+… point-single-sample-std-is-zero
+✓ point-single-sample-std-is-zero  red           5 条变红
+… point-std-is-the-sample-std
+✓ point-std-is-the-sample-std      red           4 条变红
+… point-sum-is-cpython-compensated
+✓ point-sum-is-cpython-compensated red           2 条变红
+… point-summary-prints-four-significant-figures
+✓ point-summary-prints-four-significant-figures red           1 条变红
+… deltaf-refuses-when-the-pll-is-off
+✓ deltaf-refuses-when-the-pll-is-off red           2 条变红
+… deltaf-channels-go-as-one-list-argument
+✓ deltaf-channels-go-as-one-list-argument red           22 条变红
+… deltaf-backward-sweep-flag-is-one-or-two
+✓ deltaf-backward-sweep-flag-is-one-or-two red           22 条变红
+… deltaf-skips-the-backward-column
+✓ deltaf-skips-the-backward-column red           1 条变红
+… deltaf-z-at-min-uses-the-argmin
+✓ deltaf-z-at-min-uses-the-argmin  red           8 条变红
+… deltaf-amplitude-needs-an-oscillator-hint
+✓ deltaf-amplitude-needs-an-oscillator-hint red           2 条变红
+… deltaf-needs-a-freq-shift-channel
+✓ deltaf-needs-a-freq-shift-channel red           1 条变红
+… deltaf-channel-list-is-strict-integers
+✓ deltaf-channel-list-is-strict-integers red           1 条变红
+… deltaf-semicolon-is-also-a-separator
+✓ deltaf-semicolon-is-also-a-separator red           1 条变红
+… deltaf-dat-must-be-newer-than-the-watermark
+✓ deltaf-dat-must-be-newer-than-the-watermark red           1 条变红
+… deltaf-dat-must-carry-the-basename
+✓ deltaf-dat-must-carry-the-basename red           1 条变红
+… deltaf-fails-when-neither-parsed-nor-saved
+✓ deltaf-fails-when-neither-parsed-nor-saved red           12 条变红
+… barrier-fit-needs-three-usable-points
+✓ barrier-fit-needs-three-usable-points red           3 条变红
+… barrier-fit-refuses-a-nonnegative-slope
+✓ barrier-fit-refuses-a-nonnegative-slope red           1 条变红
+… barrier-floor-excludes-equal-readings
+✓ barrier-floor-excludes-equal-readings red           1 条变红
+… barrier-auto-floor-is-twice-the-far-pair
+✓ barrier-auto-floor-is-twice-the-far-pair red           12 条变红
+… barrier-clean-line-is-three-ev
+✓ barrier-clean-line-is-three-ev   red           1 条变红
+… barrier-contaminated-line-is-one-ev
+✓ barrier-contaminated-line-is-one-ev red           1 条变红
+… barrier-direction-must-be-measured
+✓ barrier-direction-must-be-measured red           3 条变红
+… barrier-direction-flip-needs-a-real-rise
+✓ barrier-direction-flip-needs-a-real-rise red           1 条变红
+… barrier-sign-has-a-single-source
+✓ barrier-sign-has-a-single-source red           1 条变红
+… barrier-needs-four-offsets
+✓ barrier-needs-four-offsets       red           1 条变红
+… barrier-offsets-are-deduped-and-sorted
+✓ barrier-offsets-are-deduped-and-sorted red           1 条变红
+… barrier-offsets-are-absolute
+✓ barrier-offsets-are-absolute     red           1 条变红
+… barrier-does-not-guess-a-bias
+✓ barrier-does-not-guess-a-bias    red           1 条变红
+… barrier-sets-the-bias-when-it-is-given
+✓ barrier-sets-the-bias-when-it-is-given red           24 条变红
+… barrier-integration-time-has-a-floor
+✓ barrier-integration-time-has-a-floor red           1 条变红
+… barrier-integration-time-has-a-ceiling
+✓ barrier-integration-time-has-a-ceiling red           27 条变红
+… barrier-settling-is-half-the-integration
+✓ barrier-settling-is-half-the-integration red           28 条变红
+… barrier-current-mean-skips-nonfinite
+✓ barrier-current-mean-skips-nonfinite red           2 条变红
+… barrier-zero-base-current-is-not-a-reading
+✓ barrier-zero-base-current-is-not-a-reading red           1 条变红
+… barriermap-needs-four-sites
+✓ barriermap-needs-four-sites      red           1 条变红
+… barriermap-needs-four-repeats
+✓ barriermap-needs-four-repeats    red           1 条变红
+… barriermap-zero-repeat-spread-is-undetermined
+✓ barriermap-zero-repeat-spread-is-undetermined red           2 条变红
+… barriermap-tip-side-line-is-two
+✓ barriermap-tip-side-line-is-two  red           1 条变红
+… barriermap-surface-side-line-is-three
+✓ barriermap-surface-side-line-is-three red           1 条变红
+… barrier-spread-needs-two-values
+✓ barrier-spread-needs-two-values  red           2 条变红
+… barrier-spread-is-the-population-std
+✓ barrier-spread-is-the-population-std red           10 条变红
+… barriermap-repeats-at-the-first-site
+✓ barriermap-repeats-at-the-first-site red           25 条变红
+… cleantip-does-nothing-when-already-clean
+✓ cleantip-does-nothing-when-already-clean red           1 条变红
+… cleantip-refuses-without-a-baseline
+✓ cleantip-refuses-without-a-baseline red           3 条变红
+… cleantip-improvement-must-beat-the-noise
+✓ cleantip-improvement-must-beat-the-noise red           1 条变红
+… cleantip-stops-when-it-gets-worse
+✓ cleantip-stops-when-it-gets-worse red           1 条变红
+… cleantip-worse-check-skips-the-baseline
+✓ cleantip-worse-check-skips-the-baseline red           1 条变红
+… cleantip-stops-after-three-stale-steps
+✓ cleantip-stops-after-three-stale-steps red           4 条变红
+… cleantip-unmeasured-is-not-unimproved
+✓ cleantip-unmeasured-is-not-unimproved red           1 条变红
+… cleantip-reports-the-best-not-the-last
+✓ cleantip-reports-the-best-not-the-last red           3 条变红
+… cleantip-pulse-is-followed-by-a-poke
+✓ cleantip-pulse-is-followed-by-a-poke red           3 条变红
+… cleantip-stops-on-a-failed-action
+✓ cleantip-stops-on-a-failed-action red           1 条变红
+… cleantip-ladder-pokes-before-it-pulses
+✓ cleantip-ladder-pokes-before-it-pulses red           10 条变红
+… series-setpoint-follows-the-junction-resistance
+✓ series-setpoint-follows-the-junction-resistance red           21 条变红
+… series-setpoint-has-a-floor
+✓ series-setpoint-has-a-floor      red           2 条变红
+… series-setpoint-has-a-ceiling
+✓ series-setpoint-has-a-ceiling    red           2 条变红
+… series-clamping-is-reported
+✓ series-clamping-is-reported      red           2 条变红
+… series-drops-zero-volts
+✓ series-drops-zero-volts          red           2 条变红
+… series-needs-two-nonzero-biases
+✓ series-needs-two-nonzero-biases  red           1 条变红
+… series-reference-is-the-largest-magnitude
+✓ series-reference-is-the-largest-magnitude red           4 条变红
+… series-reference-tie-takes-the-first
+✓ series-reference-tie-takes-the-first red           13 条变红
+… series-drift-needs-a-real-change
+✓ series-drift-needs-a-real-change red           1 条变红
+… series-succeeds-only-if-a-frame-scanned
+✓ series-succeeds-only-if-a-frame-scanned red           1 条变红
+… series-error-is-truncated
+✓ series-error-is-truncated        red           1 条变红
+… coarse-axis-must-be-x-or-y
+✓ coarse-axis-must-be-x-or-y       red           1 条变红
+… coarse-needs-two-step-counts
+✓ coarse-needs-two-step-counts     red           2 条变红
+… coarse-drops-nonpositive-steps
+✓ coarse-drops-nonpositive-steps   red           1 条变红
+… coarse-lock-check-reads-chinese
+✓ coarse-lock-check-reads-chinese  red           1 条变红
+… coarse-lock-check-is-case-insensitive
+✓ coarse-lock-check-is-case-insensitive red           1 条变红
+… coarse-clear-must-prove-zero-current
+✓ coarse-clear-must-prove-zero-current red           1 条变红
+… coarse-refuses-a-blunt-correlation-peak
+✓ coarse-refuses-a-blunt-correlation-peak red           1 条变红
+… coarse-nm-per-step-divides-by-the-step-count
+✓ coarse-nm-per-step-divides-by-the-step-count red           1 条变红
+… coarse-needs-two-good-runs
+✓ coarse-needs-two-good-runs       red           1 条变红
+… coarse-linearity-line-is-35-percent
+✓ coarse-linearity-line-is-35-percent red           1 条变红
+… coarse-frame-centre-defaults-to-zero
+✓ coarse-frame-centre-defaults-to-zero red           2 条变红
+… coarse-make-pit-pokes-four-times
+✓ coarse-make-pit-pokes-four-times red           2 条变红
+… coarse-make-pit-defaults-on
+✓ coarse-make-pit-defaults-on      red           2 条变红
+… coarse-unreadable-frame-is-not-a-scan-failure
+✓ coarse-unreadable-frame-is-not-a-scan-failure red           1 条变红
+… grid-scan-frame-flag-must-be-zero
+✓ grid-scan-frame-flag-must-be-zero red           15 条变红
+… grid-tick-cap-comes-from-the-timeout
+✓ grid-tick-cap-comes-from-the-timeout red           15 条变红
+… grid-plan-exits-early-when-done
+✓ grid-plan-exits-early-when-done  red           12 条变红
+… grid-finishes-when-status-is-zero
+✓ grid-finishes-when-status-is-zero red           7 条变红
+… grid-timeout-really-fires
+✓ grid-timeout-really-fires        red           3 条变红
+… grid-stops-the-hardware-on-timeout
+✓ grid-stops-the-hardware-on-timeout red           2 条变红
+… grid-stops-the-hardware-on-abort
+✓ grid-stops-the-hardware-on-abort red           1 条变红
+… grid-stop-falls-back-to-pause
+✓ grid-stop-falls-back-to-pause    red           1 条变红
+… grid-cleanup-carries-the-real-grid-size
+✓ grid-cleanup-carries-the-real-grid-size red           4 条变红
+… grid-timeout-is-not-an-abort
+✓ grid-timeout-is-not-an-abort     red           3 条变红
+… diff-scans-rejects-a-one-dimensional-image
+✓ diff-scans-rejects-a-one-dimensional-image red           1 条变红
+… diff-scans-registration-rounds-to-an-integer-shift
+✓ diff-scans-registration-rounds-to-an-integer-shift red           4 条变红
+… diff-scans-before-window-is-unregistered
+✓ diff-scans-before-window-is-unregistered red           4 条变红
+… diff-scans-zero-before-means-zero-improvement
+✓ diff-scans-zero-before-means-zero-improvement red           1 条变红
+… diff-scans-never-overwrites-an-input
+✓ diff-scans-never-overwrites-an-input red           5 条变红
+… diff-scans-save-path-suffix-is-replaced-not-appended
+✓ diff-scans-save-path-suffix-is-replaced-not-appended red           1 条变红
+… gaussian-psf-size-is-odd
+✓ gaussian-psf-size-is-odd         red           5 条变红
+… convolve-same-pads-an-even-kernel
+✓ convolve-same-pads-an-even-kernel red           1 条变红
+… convolve-same-flips-the-kernel
+✓ convolve-same-flips-the-kernel   red           2 条变红
+… rl-convergence-compares-against-the-previous-round
+✓ rl-convergence-compares-against-the-previous-round red           1 条变红
+… rl-correction-uses-the-mirrored-psf
+✓ rl-correction-uses-the-mirrored-psf red           2 条变红
+… rl-damping-is-actually-applied
+✓ rl-damping-is-actually-applied   red           7 条变红
+… rl-early-return-reports-the-round-it-stopped-on
+✓ rl-early-return-reports-the-round-it-stopped-on red           1 条变红
+… segment-thresholds-are-quantiles-of-the-image
+✓ segment-thresholds-are-quantiles-of-the-image red           5 条变红
+… segment-dominant-class-breaks-ties-to-the-first
+✓ segment-dominant-class-breaks-ties-to-the-first red           2 条变红
+… detect-atoms-uses-four-connectivity
+✓ detect-atoms-uses-four-connectivity red           4 条变红
+… detect-atoms-window-is-two-d-plus-one
+✓ detect-atoms-window-is-two-d-plus-one red           2 条变红
+… detect-atoms-threshold-is-strict
+✓ detect-atoms-threshold-is-strict red           1 条变红
+… grid-sts-spectrum-after-a-failed-move-is-suspect
+✓ grid-sts-spectrum-after-a-failed-move-is-suspect red           10 条变红
+… grid-sts-num-points-fallback-matches-the-declared-default
+✓ grid-sts-num-points-fallback-matches-the-declared-default red           7 条变红
+… grid-sts-total-points-is-nx-times-ny
+✓ grid-sts-total-points-is-nx-times-ny red           3 条变红
+… grid-sts-one-spectrum-is-enough-to-succeed
+✓ grid-sts-one-spectrum-is-enough-to-succeed red           19 条变红
+… grid-sts-points-use-the-same-formula-as-the-plan
+✓ grid-sts-points-use-the-same-formula-as-the-plan red           25 条变红
+… demo-skips-the-spectrum-of-a-failed-move
+✓ demo-skips-the-spectrum-of-a-failed-move red           6 条变红
+… demo-scan-completed-is-not-scan-saved
+✓ demo-scan-completed-is-not-scan-saved red           3 条变红
+… demo-more-than-five-points-is-a-real-grid
+✓ demo-more-than-five-points-is-a-real-grid red           2 条变红
+… demo-sts-failed-is-an-accumulator
+✓ demo-sts-failed-is-an-accumulator red           7 条变红
+… drift-significance-gate-is-one-picometre
+✓ drift-significance-gate-is-one-picometre red           1 条变红
+… drift-size-mismatch-reports-zero
+✓ drift-size-mismatch-reports-zero red           1 条变红
+… drift-each-image-subtracts-its-own-mean
+✓ drift-each-image-subtracts-its-own-mean red           1 条变红
+… drift-pixel-size-is-width-over-columns
+✓ drift-pixel-size-is-width-over-columns red           1 条变红
+… drift-first-call-hands-back-the-reference-path
+✓ drift-first-call-hands-back-the-reference-path red           4 条变红
+… bias-series-orders-by-absolute-value
+✓ bias-series-orders-by-absolute-value red           13 条变红
+… bias-series-repeats-the-first-condition-at-the-end
+✓ bias-series-repeats-the-first-condition-at-the-end red           11 条变红
+… bias-series-says-why-it-refused
+✓ bias-series-says-why-it-refused  red           5 条变红
+… bias-series-reads-the-bias-back
+✓ bias-series-reads-the-bias-back  red           1 条变红
+… bias-series-setpoint-must-not-drift
+✓ bias-series-setpoint-must-not-drift red           1 条变红
+… bias-series-a-frame-without-a-path-is-a-failed-frame
+✓ bias-series-a-frame-without-a-path-is-a-failed-frame red           2 条变红
+… move-atom-restores-the-setpoint-before-anything-moves
+✓ move-atom-restores-the-setpoint-before-anything-moves red           23 条变红
+… move-atom-gain-needs-headroom
+✓ move-atom-gain-needs-headroom    red           2 条变红
+… move-atom-retries-only-on-displaced
+✓ move-atom-retries-only-on-displaced red           1 条变红
+… move-atom-none-valued-readback-is-not-a-value
+✓ move-atom-none-valued-readback-is-not-a-value red           1 条变红
+… move-atom-unrestored-instrument-is-a-hard-failure
+✓ move-atom-unrestored-instrument-is-a-hard-failure red           3 条变红
+… move-atom-waypoint-step-is-capped
+✓ move-atom-waypoint-step-is-capped red           16 条变红
+… move-atom-manip-bias-follows-the-imaging-sign
+✓ move-atom-manip-bias-follows-the-imaging-sign red           1 条变红
+… move-atom-retry-lowers-the-resistance-and-caps-it
+✓ move-atom-retry-lowers-the-resistance-and-caps-it red           1 条变红
+
+167/167 变红
