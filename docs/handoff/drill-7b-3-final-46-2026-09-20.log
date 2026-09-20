@@ -1,0 +1,95 @@
+… 基线（1 个 scope）
+… diff-scans-rejects-a-one-dimensional-image
+✓ diff-scans-rejects-a-one-dimensional-image red           1 条变红
+… diff-scans-registration-rounds-to-an-integer-shift
+✓ diff-scans-registration-rounds-to-an-integer-shift red           4 条变红
+… diff-scans-before-window-is-unregistered
+✓ diff-scans-before-window-is-unregistered red           4 条变红
+… diff-scans-zero-before-means-zero-improvement
+… diff-scans-never-overwrites-an-input
+✓ diff-scans-zero-before-means-zero-improvement red           1 条变红
+… diff-scans-save-path-suffix-is-replaced-not-appended
+✓ diff-scans-never-overwrites-an-input red           5 条变红
+✓ diff-scans-save-path-suffix-is-replaced-not-appended red           1 条变红
+… gaussian-psf-size-is-odd
+✓ gaussian-psf-size-is-odd         red           5 条变红
+… convolve-same-pads-an-even-kernel
+… convolve-same-flips-the-kernel
+✓ convolve-same-pads-an-even-kernel red           1 条变红
+✓ convolve-same-flips-the-kernel   red           2 条变红
+… rl-convergence-compares-against-the-previous-round
+✓ rl-convergence-compares-against-the-previous-round red           1 条变红
+… rl-correction-uses-the-mirrored-psf
+… rl-damping-is-actually-applied
+✓ rl-correction-uses-the-mirrored-psf red           2 条变红
+✓ rl-damping-is-actually-applied   red           7 条变红
+… rl-early-return-reports-the-round-it-stopped-on
+✓ rl-early-return-reports-the-round-it-stopped-on red           1 条变红
+… segment-thresholds-are-quantiles-of-the-image
+… segment-dominant-class-breaks-ties-to-the-first
+✓ segment-thresholds-are-quantiles-of-the-image red           5 条变红
+… detect-atoms-uses-four-connectivity
+✓ segment-dominant-class-breaks-ties-to-the-first red           2 条变红
+… detect-atoms-window-is-two-d-plus-one
+✓ detect-atoms-uses-four-connectivity red           4 条变红
+✓ detect-atoms-window-is-two-d-plus-one red           2 条变红
+… detect-atoms-threshold-is-strict
+✓ detect-atoms-threshold-is-strict red           1 条变红
+… grid-sts-spectrum-after-a-failed-move-is-suspect
+… grid-sts-num-points-fallback-matches-the-declared-default
+✓ grid-sts-spectrum-after-a-failed-move-is-suspect red           10 条变红
+✓ grid-sts-num-points-fallback-matches-the-declared-default red           7 条变红
+… grid-sts-total-points-is-nx-times-ny
+✓ grid-sts-total-points-is-nx-times-ny red           3 条变红
+… grid-sts-one-spectrum-is-enough-to-succeed
+✓ grid-sts-one-spectrum-is-enough-to-succeed red           19 条变红
+… grid-sts-points-use-the-same-formula-as-the-plan
+✓ grid-sts-points-use-the-same-formula-as-the-plan red           25 条变红
+… demo-skips-the-spectrum-of-a-failed-move
+✓ demo-skips-the-spectrum-of-a-failed-move red           6 条变红
+… demo-scan-completed-is-not-scan-saved
+✓ demo-scan-completed-is-not-scan-saved red           3 条变红
+… demo-more-than-five-points-is-a-real-grid
+✓ demo-more-than-five-points-is-a-real-grid red           2 条变红
+… demo-sts-failed-is-an-accumulator
+✓ demo-sts-failed-is-an-accumulator red           7 条变红
+… drift-significance-gate-is-one-picometre
+✓ drift-significance-gate-is-one-picometre red           1 条变红
+… drift-size-mismatch-reports-zero
+✓ drift-size-mismatch-reports-zero red           1 条变红
+… drift-each-image-subtracts-its-own-mean
+… drift-pixel-size-is-width-over-columns
+✓ drift-each-image-subtracts-its-own-mean red           1 条变红
+… drift-first-call-hands-back-the-reference-path
+✓ drift-pixel-size-is-width-over-columns red           1 条变红
+✓ drift-first-call-hands-back-the-reference-path red           4 条变红
+… bias-series-orders-by-absolute-value
+✓ bias-series-orders-by-absolute-value red           13 条变红
+… bias-series-repeats-the-first-condition-at-the-end
+✓ bias-series-repeats-the-first-condition-at-the-end red           11 条变红
+… bias-series-says-why-it-refused
+… bias-series-reads-the-bias-back
+✓ bias-series-says-why-it-refused  red           5 条变红
+✓ bias-series-reads-the-bias-back  red           1 条变红
+… bias-series-setpoint-must-not-drift
+… bias-series-a-frame-without-a-path-is-a-failed-frame
+✓ bias-series-setpoint-must-not-drift red           1 条变红
+✓ bias-series-a-frame-without-a-path-is-a-failed-frame red           2 条变红
+… move-atom-restores-the-setpoint-before-anything-moves
+… move-atom-gain-needs-headroom
+✓ move-atom-restores-the-setpoint-before-anything-moves red           23 条变红
+✓ move-atom-gain-needs-headroom    red           2 条变红
+… move-atom-retries-only-on-displaced
+✓ move-atom-retries-only-on-displaced red           1 条变红
+… move-atom-none-valued-readback-is-not-a-value
+✓ move-atom-none-valued-readback-is-not-a-value red           1 条变红
+… move-atom-unrestored-instrument-is-a-hard-failure
+✓ move-atom-unrestored-instrument-is-a-hard-failure red           3 条变红
+… move-atom-waypoint-step-is-capped
+✓ move-atom-waypoint-step-is-capped red           16 条变红
+… move-atom-manip-bias-follows-the-imaging-sign
+✓ move-atom-manip-bias-follows-the-imaging-sign red           1 条变红
+… move-atom-retry-lowers-the-resistance-and-caps-it
+✓ move-atom-retry-lowers-the-resistance-and-caps-it red           1 条变红
+
+46/46 变红

@@ -1,0 +1,108 @@
+… 基线（1 个 scope）
+… diff-scans-rejects-a-one-dimensional-image
+✓ diff-scans-rejects-a-one-dimensional-image red           1 条变红
+… diff-scans-registration-rounds-to-an-integer-shift
+✓ diff-scans-registration-rounds-to-an-integer-shift red           4 条变红
+… diff-scans-before-window-is-unregistered
+… diff-scans-zero-before-means-zero-improvement
+? diff-scans-before-window-is-unregistered inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/l0/paper-region.ts(213,9): error TS6133: 'bSame' is declared but its value is never read.
+✓ diff-scans-zero-before-means-zero-improvement red           1 条变红
+… diff-scans-never-overwrites-an-input
+✓ diff-scans-never-overwrites-an-input red           5 条变红
+… diff-scans-save-path-suffix-is-replaced-not-appended
+? diff-scans-save-path-suffix-is-replaced-not-appended inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/l0/paper-region.ts(262,10): error TS6133: 'withSuffixNpy' is declared but its value is never read.
+… gaussian-psf-size-is-odd
+✓ gaussian-psf-size-is-odd         red           5 条变红
+… convolve-same-pads-an-even-kernel
+✓ convolve-same-pads-an-even-kernel red           1 条变红
+… convolve-same-flips-the-kernel
+✓ convolve-same-flips-the-kernel   red           2 条变红
+… rl-convergence-compares-against-the-previous-round
+✓ rl-convergence-compares-against-the-previous-round red           1 条变红
+… rl-correction-uses-the-mirrored-psf
+? rl-correction-uses-the-mirrored-psf inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/l0/paper-region.ts(432,9): error TS6133: 'psfMirror' is declared but its value is never read.
+… rl-damping-is-skipped-at-one
+✗ rl-damping-is-skipped-at-one     green         拆掉也没人喊
+… rl-early-return-reports-the-round-it-stopped-on
+✓ rl-early-return-reports-the-round-it-stopped-on red           1 条变红
+… segment-thresholds-are-quantiles-of-the-image
+✓ segment-thresholds-are-quantiles-of-the-image red           5 条变红
+… segment-dominant-class-breaks-ties-to-the-first
+… detect-atoms-uses-four-connectivity
+✓ segment-dominant-class-breaks-ties-to-the-first red           2 条变红
+✓ detect-atoms-uses-four-connectivity red           4 条变红
+… detect-atoms-window-is-two-d-plus-one
+✗ detect-atoms-window-is-two-d-plus-one green         拆掉也没人喊
+… detect-atoms-threshold-is-strict
+✗ detect-atoms-threshold-is-strict green         拆掉也没人喊
+… grid-sts-spectrum-after-a-failed-move-is-suspect
+✓ grid-sts-spectrum-after-a-failed-move-is-suspect red           10 条变红
+… grid-sts-num-points-fallback-matches-the-declared-default
+✓ grid-sts-num-points-fallback-matches-the-declared-default red           7 条变红
+… grid-sts-total-points-is-nx-times-ny
+? grid-sts-total-points-is-nx-times-ny inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/composite/grid-sts.ts(210,11): error TS6133: 'hasDims' is declared but its value is never read.
+… grid-sts-one-spectrum-is-enough-to-succeed
+… grid-sts-points-use-the-same-formula-as-the-plan
+✓ grid-sts-one-spectrum-is-enough-to-succeed red           19 条变红
+? grid-sts-points-use-the-same-formula-as-the-plan inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/composite/grid-sts.ts(71,47): error TS6133: 'n' is declared but its value is never read.
+… demo-skips-the-spectrum-of-a-failed-move
+✓ demo-skips-the-spectrum-of-a-failed-move red           6 条变红
+… demo-scan-completed-is-not-scan-saved
+✓ demo-scan-completed-is-not-scan-saved red           3 条变红
+… demo-more-than-five-points-is-a-real-grid
+✓ demo-more-than-five-points-is-a-real-grid red           2 条变红
+… demo-sts-failed-is-an-accumulator
+… drift-significance-gate-is-one-picometre
+✓ demo-sts-failed-is-an-accumulator red           7 条变红
+… drift-size-mismatch-reports-zero
+✓ drift-significance-gate-is-one-picometre red           1 条变红
+✓ drift-size-mismatch-reports-zero red           1 条变红
+… drift-each-image-subtracts-its-own-mean
+… drift-pixel-size-is-width-over-columns
+✗ drift-each-image-subtracts-its-own-mean green         拆掉也没人喊
+✗ drift-pixel-size-is-width-over-columns green         拆掉也没人喊
+… drift-first-call-hands-back-the-reference-path
+… bias-series-orders-by-absolute-value
+✓ drift-first-call-hands-back-the-reference-path red           4 条变红
+✓ bias-series-orders-by-absolute-value red           13 条变红
+… bias-series-repeats-the-first-condition-at-the-end
+✓ bias-series-repeats-the-first-condition-at-the-end red           11 条变红
+… bias-series-says-why-it-refused
+✓ bias-series-says-why-it-refused  red           5 条变红
+… bias-series-reads-the-bias-back
+✓ bias-series-reads-the-bias-back  red           1 条变红
+… bias-series-setpoint-must-not-drift
+? bias-series-setpoint-must-not-drift inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/composite/bias-imaging-series.ts(229,41): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'number'.
+… bias-series-a-frame-without-a-path-is-a-failed-frame
+✓ bias-series-a-frame-without-a-path-is-a-failed-frame red           2 条变红
+… move-atom-restores-the-setpoint-before-anything-moves
+✓ move-atom-restores-the-setpoint-before-anything-moves red           22 条变红
+… move-atom-gain-needs-headroom
+✓ move-atom-gain-needs-headroom    red           2 条变红
+… move-atom-retries-only-on-displaced
+✓ move-atom-retries-only-on-displaced red           1 条变红
+… move-atom-none-valued-readback-is-not-a-value
+… move-atom-unrestored-instrument-is-a-hard-failure
+✓ move-atom-none-valued-readback-is-not-a-value red           1 条变红
+✓ move-atom-unrestored-instrument-is-a-hard-failure red           3 条变红
+… move-atom-waypoint-step-is-capped
+… move-atom-manip-bias-follows-the-imaging-sign
+✓ move-atom-waypoint-step-is-capped red           15 条变红
+? move-atom-manip-bias-follows-the-imaging-sign inconclusive  构建失败（红不算数）：packages/host/stm-skills/src/composite/move-atom-to.ts(230,13): error TS6133: 'signSrc' is declared but its value is never read.
+… move-atom-retry-lowers-the-resistance-and-caps-it
+✗ move-atom-retry-lowers-the-resistance-and-caps-it green         拆掉也没人喊
+
+33/46 变红
+  ? 没验成：diff-scans-before-window-is-unregistered —— `rms_before` 量的是**没对齐**那一块（`bSame`），`rms_after` 量对齐之后那一块。两者都用对齐后的 ⇒ 改善恒为 0，而「配准去掉了多少」这句话整个消失
+  ? 没验成：diff-scans-save-path-suffix-is-replaced-not-appended —— `Path.with_suffix('.npy')` **换掉**最后一个扩展名。写成追加 ⇒ `out.txt` 落成 `out.txt.npy`，而调用方按自己给的名字去找那个文件
+  ? 没验成：rl-correction-uses-the-mirrored-psf —— RL 的修正项用的是**翻过来的** PSF（伴随算子）。用原核 ⇒ 迭代不再收敛到最大似然解，而它照样给得出一张图
+  ⚠ 没人喊：rl-damping-is-skipped-at-one —— `damping === 1.0` 时**整个不做**那次幂运算。照做 ⇒ `x ** 1.0` 在浮点上不恒等于 `x`，于是「不阻尼」这一档悄悄换了一组数
+  ⚠ 没人喊：detect-atoms-window-is-two-d-plus-one —— `maximum_filter` 的窗口是 `2·min_distance + 1`。少一格 ⇒ 靠得近的次峰不再被压掉，多出来的「原子」与真原子长得一模一样
+  ⚠ 没人喊：detect-atoms-threshold-is-strict —— `leveled > std` 是**严格**大于。放成 `>=` ⇒ 一张死平的图上每个像素都「过闸」，整幅连成一个连通域，报出一个位于图心的原子
+  ? 没验成：grid-sts-total-points-is-nx-times-ny —— 一个点两步 ⇒ `total_steps − 1` 是点数的**两倍**。3×3 的栅格会自称 18 个点，全灭时说「All 18 spectra failed」而实际只有 9 条谱（反馈 #95）
+  ? 没验成：grid-sts-points-use-the-same-formula-as-the-plan —— `points` 的坐标按**与计划同一条公式**重建，于是地图不可能与针尖去过的地方分岔。少减那个居中偏移 ⇒ 整张栅格在地图上平移半个视场
+  ⚠ 没人喊：drift-each-image-subtracts-its-own-mean —— 两张图**各自**减自己的均值。减同一个数 ⇒ 互相关被两张图的直流差主导，峰跑到边上去，而它仍然是一个「峰」
+  ⚠ 没人喊：drift-pixel-size-is-width-over-columns —— 像素尺寸是 `scan_width_m / 列数`。用行数 ⇒ 非方图上两个轴的尺度互换，而方图上一模一样 —— 这正是它平时吃的东西
+  ? 没验成：bias-series-setpoint-must-not-drift —— setpoint 全程不变，否则「只变偏压」这句话不成立。拆掉 ⇒ 一组同时变了两个量的图被当成一次单变量实验
+  ? 没验成：move-atom-manip-bias-follows-the-imaging-sign —— 操纵偏压的**大小**由参数给、**符号跟随当前成像偏压** —— 不穿零。穿零 ⇒ 在一个负偏压成像的样品上突然正偏，那是另一套物理
+  ⚠ 没人喊：move-atom-retry-lowers-the-resistance-and-caps-it —— 重试时设定点 ×1.5 并**封顶在 100 nA**。不封顶 ⇒ 三次重试之后设定点冲到几百 nA，那是把针尖按进表面

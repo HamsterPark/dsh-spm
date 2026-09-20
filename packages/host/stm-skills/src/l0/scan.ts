@@ -7,6 +7,7 @@
 import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { bool, fail, ok } from './common.js'
+import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
 import { lastString } from './reads-hw.js'
 
 const n = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number => {
@@ -89,8 +90,31 @@ export function makeSaveScan(opts: SaveScanOptions = {}): Skill {
   }
 }
 
-/** 默认实例：**不接文件系统**，`saved_path` 恒为 null。 */
-export const SaveScan = makeSaveScan()
+/**
+ * 会话目录里最近 `maxAgeS` 秒内的那张 `.sxm`。找不到给 `null`。
+ *
+ * **批 7b-3 注入的那一件**（共享文件上唯一的一处改动）。在这之前
+ * `export const SaveScan = makeSaveScan()` 是不带参数的默认实例 ⇒ `saved_path`
+ * **恒为 null**，而 `AcquireBiasImagingSeries` 没有 `GetLatestScanFile` 兜底
+ * （`bias_imaging_series.py:249-254`）⇒ 每一帧都落进「没拿到文件路径」，
+ * 整条流程只会说「成功的帧不足两张」。
+ *
+ * 复用 `frames.ts` 里 `GetLatestScanFile` 用的**同三件**
+ * （`sessionDir` / `existingDirs` / `findLatestSaved`），不写第二份：
+ * 「会话目录里最新的一张图」在本仓只该有一种答案。
+ *
+ * 目录不存在、读不到、或者里面最新的 `.sxm` 比 `maxAgeS` 还旧 ⇒ `null`。
+ * 那仍然**不算失败** —— `Scan_Save` 已经成功了（见上面 `makeSaveScan` 的抬头）。
+ */
+export function findLatestSxmInSession(dir: string, maxAgeS: number): string | null {
+  const root = sessionDir(dir)
+  if (root === null) return null
+  const found = findLatestSaved(existingDirs([root]), '.sxm', Date.now() / 1000, maxAgeS)
+  return found === null ? null : found.path
+}
+
+/** 默认实例。文件系统那一路由 {@link findLatestSxmInSession} 接上（批 7b-3）。 */
+export const SaveScan = makeSaveScan({ findLatestSxm: findLatestSxmInSession })
 
 export const SCAN_CHAIN: Readonly<Record<string, Skill>> = {
   SetScanSpeed,

@@ -2,11 +2,11 @@
   "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
   "totals": {
     "skills": 515,
-    "done": 433,
+    "done": 442,
     "partial": 0,
-    "todo": 82
+    "todo": 73
   },
-  "modules_complete": 105,
+  "modules_complete": 112,
   "modules_total": 165,
   "modules": {
     "builtins.acquire_osci_trace": {
@@ -606,8 +606,8 @@
     },
     "composite.bias_imaging_series": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.bias_settle": {
       "total": 1,
@@ -626,13 +626,13 @@
     },
     "composite.demo_scan_and_sts": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.drift_track": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.execute_scan_plan": {
       "total": 1,
@@ -651,8 +651,8 @@
     },
     "composite.grid_sts": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.line_sts_across_wall": {
       "total": 1,
@@ -666,8 +666,8 @@
     },
     "composite.move_atom_to": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "composite.prepare_noble_tip": {
       "total": 3,
@@ -761,8 +761,8 @@
     },
     "paper.deconvolution": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.defect_cluster": {
       "total": 1,
@@ -806,7 +806,7 @@
     },
     "paper.region_analysis": {
       "total": 4,
-      "done": 0,
+      "done": 2,
       "complete": false
     },
     "paper.scan_crop": {
@@ -816,8 +816,8 @@
     },
     "paper.scan_diff": {
       "total": 1,
-      "done": 0,
-      "complete": false
+      "done": 1,
+      "complete": true
     },
     "paper.spectral_analysis": {
       "total": 2,
@@ -860,11 +860,11 @@
       "module": "composite.bias_imaging_series",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 3,
+      "impl": true,
+      "status": "done"
     },
     "AcquireBiasSeries": {
       "module": "builtins.bias_series",
@@ -1970,11 +1970,11 @@
       "module": "paper.deconvolution",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DelayLineGetDelay": {
       "module": "builtins.optics_stage",
@@ -2000,11 +2000,11 @@
       "module": "composite.demo_scan_and_sts",
       "category": "composite",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 17,
+      "impl": true,
+      "status": "done"
     },
     "Denoise_AE": {
       "module": "paper.denoise",
@@ -2060,21 +2060,21 @@
       "module": "paper.region_analysis",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DiffScans_ChangeDetect": {
       "module": "paper.scan_diff",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "DrawScanMarker": {
       "module": "builtins.marks",
@@ -3580,11 +3580,11 @@
       "module": "composite.grid_sts",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 20,
+      "impl": true,
+      "status": "done"
     },
     "HomeOpticalStage": {
       "module": "builtins.optics_stage",
@@ -3910,11 +3910,11 @@
       "module": "composite.move_atom_to",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 14,
+      "impl": true,
+      "status": "done"
     },
     "MoveProbeXY": {
       "module": "builtins.optional_multiprobe",
@@ -4490,11 +4490,11 @@
       "module": "paper.region_analysis",
       "category": "analysis",
       "safety": "auto",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 1,
+      "impl": true,
+      "status": "done"
     },
     "SelectPokedCluster": {
       "module": "builtins.cluster_select",
@@ -5850,11 +5850,11 @@
       "module": "composite.drift_track",
       "category": "composite",
       "safety": "confirm",
-      "spec": false,
+      "spec": true,
       "model": true,
-      "traces": 0,
-      "impl": false,
-      "status": "todo"
+      "traces": 5,
+      "impl": true,
+      "status": "done"
     },
     "TryEngageController": {
       "module": "builtins.zcontrol",

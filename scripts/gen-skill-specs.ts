@@ -506,7 +506,21 @@ const BATCH_7B_2: string[] = [
 
 
 // ↑ 上一条 ／ ↓ 7B-3 —— 这一行谁都不要动
-const BATCH_7B_3: string[] = []
+const BATCH_7B_3: string[] = [
+  // 甲 · `composite` 零新原语的五个。判据依赖为零、子技能全落、互不依赖。
+  // 唯一的共用前置是给 `SaveScan` 注入 `findLatestSxm`（`l0/scan.ts`）。
+  'GridSTS',
+  'DemoScanAndSTS',
+  'TrackDrift_ReferenceScan',
+  'AcquireBiasImagingSeries',
+  'MoveAtomTo',
+  // 乙 · `paper` 四个纯函数。形状与批 4c 同，一件新原语都不拉。
+  // 一次清零两个整模块（`paper.scan_diff` / `paper.deconvolution`）。
+  'DiffScans_ChangeDetect',
+  'DeconvolveTip_RL',
+  'SegmentRegion_UNet',
+  'DetectAtoms_FCN',
+]   // composite 零新原语五个 + paper 四个纯函数
 
 const BATCH_7A_3: string[] = [
   // `kde_layers`(15) + `_hist_modes`(30) 落了之后，这个 827 行的技能就没有缺件了。

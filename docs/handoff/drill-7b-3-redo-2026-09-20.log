@@ -1,0 +1,29 @@
+… 基线（1 个 scope）
+… diff-scans-before-window-is-unregistered
+✓ diff-scans-before-window-is-unregistered red           4 条变红
+… diff-scans-save-path-suffix-is-replaced-not-appended
+✓ diff-scans-save-path-suffix-is-replaced-not-appended red           1 条变红
+… rl-correction-uses-the-mirrored-psf
+… rl-damping-is-actually-applied
+✓ rl-correction-uses-the-mirrored-psf red           2 条变红
+✓ rl-damping-is-actually-applied   red           7 条变红
+… detect-atoms-window-is-two-d-plus-one
+… detect-atoms-threshold-is-strict
+✓ detect-atoms-window-is-two-d-plus-one red           2 条变红
+… grid-sts-total-points-is-nx-times-ny
+✓ detect-atoms-threshold-is-strict red           1 条变红
+✓ grid-sts-total-points-is-nx-times-ny red           3 条变红
+… grid-sts-points-use-the-same-formula-as-the-plan
+✓ grid-sts-points-use-the-same-formula-as-the-plan red           25 条变红
+… drift-each-image-subtracts-its-own-mean
+✓ drift-each-image-subtracts-its-own-mean red           1 条变红
+… drift-pixel-size-is-width-over-columns
+✓ drift-pixel-size-is-width-over-columns red           1 条变红
+… bias-series-setpoint-must-not-drift
+✓ bias-series-setpoint-must-not-drift red           1 条变红
+… move-atom-manip-bias-follows-the-imaging-sign
+… move-atom-retry-lowers-the-resistance-and-caps-it
+✓ move-atom-manip-bias-follows-the-imaging-sign red           1 条变红
+✓ move-atom-retry-lowers-the-resistance-and-caps-it red           1 条变红
+
+13/13 变红

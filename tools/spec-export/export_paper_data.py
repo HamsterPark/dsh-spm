@@ -93,6 +93,13 @@ from mast.skills.paper.data_processing import (  # noqa: E402
 from mast.skills.paper.denoise import Denoise_AE  # noqa: E402
 from mast.skills.paper.image_filters import Destripe_MorphOpen  # noqa: E402
 from mast.skills.paper.scan_crop import AutoCrop_UnscannedRegion  # noqa: E402
+# ── 批 7b-3（paper 四个纯函数）在这一行下面加 import ──
+from mast.skills.paper.deconvolution import DeconvolveTip_RL  # noqa: E402
+from mast.skills.paper.region_analysis import (  # noqa: E402
+    DetectAtoms_FCN,
+    SegmentRegion_UNet,
+)
+from mast.skills.paper.scan_diff import DiffScans_ChangeDetect  # noqa: E402
 
 TMP = tempfile.mkdtemp(prefix="mast-paper-files-")
 
@@ -311,6 +318,73 @@ def frame_constant(ny: int = 16, nx: int = 16) -> np.ndarray:
     return np.full((ny, nx), 1.0e-9)
 
 
+# ── 批 7b-3（paper 四个纯函数）的合成图在这一行下面 ────────────────────────
+
+
+def frame_atoms(ny: int = 32, nx: int = 32) -> np.ndarray:
+    """给 `DetectAtoms_FCN` 的一张**故意摆出四道闸**的图。
+
+    背景**精确为 0**，尖峰是孤立的单像素（或小平台），于是
+    `leveled == local_max` 这个**浮点等号**只在设计好的地方成立 ——
+    背景像素两两逐位相等，它们与自己窗口的最大值也逐位相等，
+    全靠 `leveled > std` 那一道把它们挡在外面。
+
+    | 摆的东西 | 验的是哪道闸 |
+    |---|---|
+    | `(5,5)` `(5,20)` `(20,5)` 三个孤立尖峰 | 基本路径 |
+    | `(12,12)` `(12,13)` 一对**横向相邻** | 质心落在 **半整数** 上（`12.5`） |
+    | `(25,25)` `(26,26)` 一对**对角相邻** | **四邻接 vs 八邻接** —— 四邻接给两个原子，八邻接给一个落在两者中间的假原子 |
+    | `(28,4)` 高 1.0 + `(28,9)` 高 0.8，**相距正好 5 列** | `min_distance_px` 的**窗口半径**：`2d+1` 时（半径 5）0.8 那个被压掉，`2d−1` 时（半径 4）压不掉 |
+
+    ⚠️ 最后一格的距离**正好等于半径**，而且那一对周围 ±5 内**没有别的峰** ——
+    第一版把它摆在 `(8,8)`/`(8,11)`（相距 3），两种半径都压得掉，
+    于是 `min_distance_px` 这个参数在整份金样里**一次决定都没做过**
+    （变异 `detect-atoms-window-is-two-d-plus-one` 当场跑出绿色）。
+    第二版还得躲开 `(12,12)` 那一对：摆在 `(8,13)` 时 Δrow=4 仍在半径 4 之内，
+    **两种半径又都压得掉**。挪到第 28 行才真的隔开。
+    """
+    z = np.zeros((ny, nx), dtype=np.float64)
+    for (i, j) in ((5, 5), (5, 20), (20, 5), (12, 12), (12, 13), (25, 25), (26, 26), (28, 4)):
+        z[i, j] = 1.0
+    z[28, 9] = 0.8
+    return z
+
+
+def frame_flat_one(ny: int = 32, nx: int = 32) -> np.ndarray:
+    """**恰好**全 1.0 —— `leveled > std` 那道闸唯一分得开 `>` 与 `>=` 的一格。
+
+    全常数图上 `leveled = x − mean(x)` 恒为 0、`std` 恒为 0，于是那道闸问的是
+    `0 > 0` 还是 `0 >= 0`：前者给**零个原子**，后者把整幅图判成一个连通域、
+    报出一个位于图心 `(15.5, 15.5)` 的原子。
+
+    ⚠️ **常数取 1.0、边长取 2 的幂**，这两条都是必需的：`mean` 要在
+    numpy（成对求和）与本仓（Neumaier）上**逐位相同**，否则 `leveled` 会是
+    ±1 ulp 而不是 0，那时「零个还是一个」由最后一位浮点决定 —— 那是掷骰子。
+    1024 个 1.0 相加，任何求和顺序都精确（整数 ≤ 2⁵³），再除以 1024（2 的幂）
+    也精确。换成 `1.0e-9` 就不成立：`3 × 1e-9` 已经要舍入。
+    """
+    return np.full((ny, nx), 1.0)
+
+
+def frame_blurred_disks(ny: int = 16, nx: int = 16) -> np.ndarray:
+    """给 `DeconvolveTip_RL` 的一张**已经被高斯抹开**的图（闭式，零随机数）。
+
+    两个正的高斯包，σ=1.6 —— 这正是「针尖把特征抹宽了」的样子，
+    而 RL 的工作就是把它收回去。**全正**（基线 1.0，包高 3.0）是有意的：
+    RL 的 `im = image − min + 1e-12` 之后要做除法，
+    一张接近零的图会让 `ratio` 冲到 1e12 量级，那时两条卷积路线的
+    浮点差被放大到没法给容差。
+
+    16×16 也是有意的：缺省 PSF 是 13×13，直接算的 `correlate2d` 是
+    `16·16·169 ≈ 4.3 万`次乘加一趟、30 轮两次卷积 ⇒ 260 万次。再大就只是更慢。
+    """
+    i, j = _ij(ny, nx)
+    z = np.full((ny, nx), 1.0)
+    for cy, cx, h in ((5.0, 5.0, 3.0), (10.0, 11.0, 2.0)):
+        z = z + h * np.exp(-(((i - cy) ** 2 + (j - cx) ** 2) / (2.0 * 1.6 ** 2)))
+    return z
+
+
 # ──────────────────────────────────────────────────────────────────────────
 # 文件合成：`.npy` / `.sxm` / `.dat`
 # ──────────────────────────────────────────────────────────────────────────
@@ -394,6 +468,10 @@ BORDERED = frame_bordered()
 DRIFT_REF = frame_drift_ref()
 DRIFT_CUR = frame_shifted(DRIFT_REF, 3, -2)
 CONSTANT = frame_constant()
+# ── 批 7b-3 ──
+ATOMS = frame_atoms()
+BLURRED = frame_blurred_disks()
+FLAT_ONE = frame_flat_one()
 
 npy_file("plane_disks", PLANE_DISKS)
 npy_file("bowl_disks", BOWL_DISKS)
@@ -429,6 +507,37 @@ dat_file("trace", {"Bias calc (V)": _t * 0.01,
 
 # 一个**不是** .npy 的字节串，扩展名却是 .npy —— 读不动那一支。
 _register("broken", ".npy", b"not a numpy file at all\n")
+
+# ── 批 7b-3 的文件 ────────────────────────────────────────────────────────
+npy_file("atoms", ATOMS)
+npy_file("blurred", BLURRED)
+npy_file("flat_one", FLAT_ONE)
+# 自定义 PSF 两张：**奇数**一张、**偶数**一张。
+#
+# ⚠️ 偶数那一张是这一族唯一有鉴别力的一格：`fftconvolve(·, psf, 'same')` 取的是
+# full 的 `[(M−1)//2 …]`，而「翻核 + 相关」的原点是 `M//2` —— 奇数时两者相等，
+# 偶数时差 1 格。差这一格不会报错，只会把整幅反卷积结果**平移一个像素**。
+# 同 `morphology.ts` 抬头②：奇数尺寸看不出来的那一类错，只有偶数那一格分得开。
+# ⚠️ **刻意不对称**。对称核翻不翻都一样 —— 而 RL 每一轮先按 `psf` 卷一次、
+# 再按 `psf[::-1,::-1]` 卷一次，两次用的是**不同**的核。一个对称的自定义 PSF
+# （以及缺省那个高斯）把「有没有翻」整个藏起来。
+_psf3 = np.array([[0.02, 0.06, 0.12],
+                  [0.08, 0.35, 0.14],
+                  [0.04, 0.09, 0.10]], dtype=np.float64)
+_psf4 = np.array([[0.02, 0.08, 0.08, 0.02],
+                  [0.08, 0.22, 0.22, 0.08],
+                  [0.03, 0.09, 0.05, 0.01],
+                  [0.01, 0.01, 0.00, 0.00]], dtype=np.float64)
+npy_file("psf3", _psf3)
+npy_file("psf4", _psf4)
+# 一维 `.npy` —— `diff_scans` 那道 `ndim != 2` 的闸。
+# 旧仓 `load_image_2d` 在 `np.squeeze` 之后交出一维数组，技能当场拒。
+npy_file("one_d", np.linspace(1.0, 2.0, 32))
+# 空数组 —— `load_image_2d` 的 `parsed to an empty array`（**两侧逐字相同**）。
+npy_file("empty2d", np.zeros((0, 3)))
+# 与 `drift_cur` 同源、**尺寸更小且不是方的** —— `ny = min(行)`、`nx = min(列)`
+# 是两条独立的取小，用一张方图分不开它们。
+npy_file("drift_cur_small", DRIFT_CUR[:20, :24])
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -775,6 +884,160 @@ run_skill("ComputeDriftVector", ComputeDriftVector(), [
 DRIFT_STUB_TABLE = {k: _plain(v) for k, v in DRIFT_STUBS.items()}
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 批 7b-3 · paper 四个纯函数
+# ══════════════════════════════════════════════════════════════════════════
+
+# ── 13. DiffScans_ChangeDetect ─────────────────────────────────────────────
+
+run_skill("DiffScans_ChangeDetect", DiffScans_ChangeDetect(), [
+    # 已知的整数位移：`drift_cur` 就是 `drift_ref` 平移 (3, −2) 得来的。
+    # 配准之后 `rms_after` 应当塌到接近 0（那一片重叠区里两张图逐点相同），
+    # 而 `rms_before` 是没对齐时的残差 —— 两者之比就是 `rms_improvement`。
+    ("registered", {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["drift_cur"]}),
+    # ⚠️ 关掉配准 ⇒ 位移 (0,0) ⇒ `rms_before == rms_after` ⇒ 改善**恰好 0**。
+    # 这一格钉的是 `register` 这个开关真的在做决定。
+    ("no_register", {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["drift_cur"],
+                     "register": False}),
+    # 同一张图：`rms_before` 是 0 ⇒ 走 `if rms_before > 0 else 0.0` 的**另一支**。
+    # 没有这一格，那条三目里的 `else` 分支一次都不执行。
+    ("same_frame", {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["drift_ref"]}),
+    # 尺寸不同 ⇒ 落到左上角的公共区。**刻意不是方的**（32×32 与 20×24 ⇒ 20×24）：
+    # `ny`/`nx` 是两条独立的取小，方图分不开它们。
+    ("shape_mismatch", {"scan_a_path": PATHS["drift_ref"],
+                        "scan_b_path": PATHS["drift_cur_small"]}),
+    # `save_path` 的后缀不是 `.npy` ⇒ **换掉**最后一个扩展名（不是追加）。
+    ("save_path_forced_npy", {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["drift_cur"],
+                              "save_path": f"{TMP}/diff_out.txt".replace("\\", "/")}),
+    # ⚠️ 输出名**正好等于输入之一** ⇒ 再加一层 `_diff`，绝不覆盖输入。
+    ("save_path_would_overwrite_input",
+     {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["drift_cur"],
+      "save_path": PATHS["drift_ref"]}),
+    # 从 `.sxm` 读（挑 Z 通道，不是第一路 Current）。
+    ("from_sxm_picks_z", {"scan_a_path": PATHS["topo"], "scan_b_path": PATHS["plane_disks"]}),
+    # 一维输入 ⇒ `both scans must be 2-D`。
+    ("err_one_d", {"scan_a_path": PATHS["one_d"], "scan_b_path": PATHS["drift_cur"]}),
+    # 两张图**各有一条**读不动的路：第一张（`scan_a_path`）与第二张。
+    # 两句话逐字不同，而它们是模型读的那一句。
+    ("err_missing_a", {"scan_a_path": missing_path("nope.npy"), "scan_b_path": PATHS["drift_cur"]}),
+    ("err_empty_b", {"scan_a_path": PATHS["drift_ref"], "scan_b_path": PATHS["empty2d"]}),
+], outputs={"registered", "no_register", "same_frame", "shape_mismatch",
+            "save_path_forced_npy", "save_path_would_overwrite_input"})
+
+# ── 14. DeconvolveTip_RL ───────────────────────────────────────────────────
+
+run_skill("DeconvolveTip_RL", DeconvolveTip_RL(), [
+    ("gaussian_default", {"image_path": PATHS["blurred"]}),
+    # σ=1.0 ⇒ 核 7×7（`int(6·1)|1 = 7`）。σ=0.4 ⇒ `int(2.4)|1 = 3`，
+    # 也就是 `max(size, 3)` 那条下限**旁边**的一格。
+    ("sigma_1", {"image_path": PATHS["blurred"], "psf_sigma": 1.0}),
+    ("sigma_small_hits_min_size", {"image_path": PATHS["blurred"], "psf_sigma": 0.4}),
+    ("iterations_1", {"image_path": PATHS["blurred"], "iterations": 1}),
+    # `damping = 1.0` ⇒ `correction ** damping` 那一步**整个不做**（`if damping < 1.0`）。
+    ("damping_1_skips_the_power", {"image_path": PATHS["blurred"], "damping": 1.0}),
+    ("damping_0_5", {"image_path": PATHS["blurred"], "damping": 0.5}),
+    # ⚠️ 自定义 PSF 两格：奇数一格、**偶数一格**。偶数那一格是整份金样里唯一
+    # 分得开「same-卷积的原点」的地方，见 `_psf4` 上面那段。
+    ("custom_psf_odd", {"image_path": PATHS["blurred"], "psf_mode": "custom",
+                        "psf_path": PATHS["psf3"], "iterations": 5}),
+    ("custom_psf_even", {"image_path": PATHS["blurred"], "psf_mode": "custom",
+                         "psf_path": PATHS["psf4"], "iterations": 5}),
+    ("err_custom_without_path", {"image_path": PATHS["blurred"], "psf_mode": "custom"}),
+    ("err_custom_psf_missing", {"image_path": PATHS["blurred"], "psf_mode": "custom",
+                                "psf_path": missing_path("nope.npy")}),
+    ("err_missing_file", {"image_path": missing_path("nope.npy")}),
+], outputs={"gaussian_default", "sigma_1", "sigma_small_hits_min_size", "iterations_1",
+            "damping_1_skips_the_power", "damping_0_5",
+            "custom_psf_odd", "custom_psf_even"})
+
+# 每一轮的 `change` —— **收敛判据的余量要看得见**。
+#
+# `richardson_lucy` 在 `change < 1e-6` 时提前返回，而 `iterations_used`
+# 是一个**整数**：两侧的卷积一个走 FFT、一个直接算，`change` 只在最后几位不同，
+# 但那是一次**比较**，落在 1e-6 边上就换答案。这张表让「离边界多远」可查；
+# 测试拿它算 `iterations_used` 那一格到底有没有分辨力。
+def _rl_changes(image: np.ndarray, psf: np.ndarray, iterations: int, damping: float) -> list:
+    from scipy.signal import fftconvolve
+    img_min = image.min()
+    im = image - img_min + 1e-12
+    psf_mirror = psf[::-1, ::-1]
+    est = im.copy()
+    out = []
+    for _ in range(iterations):
+        prev = est
+        conv = np.maximum(fftconvolve(est, psf, mode="same"), 1e-30)
+        corr = fftconvolve(im / conv, psf_mirror, mode="same")
+        if damping < 1.0:
+            corr = corr ** damping
+        new = est * corr
+        ch = float(np.mean(np.abs(new - prev)) / (np.mean(np.abs(new)) + 1e-30))
+        out.append(ch)
+        if ch < 1e-6:
+            break
+        est = new
+    return out
+
+
+from mast.skills.paper.deconvolution import make_gaussian_psf as _mk_psf  # noqa: E402
+
+RL_FACTS = {
+    "gaussian_default": {"psf_shape": list(_mk_psf(2.0).shape),
+                         "changes": _rl_changes(BLURRED, _mk_psf(2.0), 30, 0.8)},
+    "sigma_1": {"psf_shape": list(_mk_psf(1.0).shape),
+                "changes": _rl_changes(BLURRED, _mk_psf(1.0), 30, 0.8)},
+    "sigma_small_hits_min_size": {"psf_shape": list(_mk_psf(0.4).shape),
+                                  "changes": _rl_changes(BLURRED, _mk_psf(0.4), 30, 0.8)},
+    "iterations_1": {"psf_shape": list(_mk_psf(2.0).shape),
+                     "changes": _rl_changes(BLURRED, _mk_psf(2.0), 1, 0.8)},
+    "damping_1_skips_the_power": {"psf_shape": list(_mk_psf(2.0).shape),
+                                  "changes": _rl_changes(BLURRED, _mk_psf(2.0), 30, 1.0)},
+    "damping_0_5": {"psf_shape": list(_mk_psf(2.0).shape),
+                    "changes": _rl_changes(BLURRED, _mk_psf(2.0), 30, 0.5)},
+    "custom_psf_odd": {"psf_shape": [3, 3], "changes": _rl_changes(BLURRED, _psf3, 5, 0.8)},
+    "custom_psf_even": {"psf_shape": [4, 4], "changes": _rl_changes(BLURRED, _psf4, 5, 0.8)},
+}
+
+# ── 15. SegmentRegion_UNet ─────────────────────────────────────────────────
+
+run_skill("SegmentRegion_UNet", SegmentRegion_UNet(), [
+    ("n3_default", {"image_path": PATHS["curved"]}),
+    # ⚠️ `n_classes=2` ⇒ 阈值是中位数 ⇒ 576 个像素**正好一半一半**
+    # ⇒ `np.argmax(counts)` 遇到并列 —— 它取**第一个**，也就是标签 0。
+    # 写成「取最大的那个标签」会在这一格当场变红。
+    ("n2_tie_goes_to_the_first", {"image_path": PATHS["curved"], "n_classes": 2}),
+    ("n5", {"image_path": PATHS["curved"], "n_classes": 5}),
+    # 这张图只有两个平顶盘 + 一个二次背景，`n_classes=10` 仍然给得出 10 档 ——
+    # 分位数落在连续的背景上。
+    ("n10", {"image_path": PATHS["curved"], "n_classes": 10}),
+    # ML 那一支：给了 `model_path` 但模型不存在 ⇒ 旧仓 `except` ⇒ 回退，
+    # **而 `method` 报的是真的跑了哪一条**（`heuristic`）。本仓永远走这一支。
+    ("model_path_falls_back", {"image_path": PATHS["curved"],
+                               "model_path": missing_path("no-such-model.pt")}),
+    ("from_sxm_picks_z", {"image_path": PATHS["topo"]}),
+    ("err_missing_file", {"image_path": missing_path("nope.npy")}),
+])
+
+# ── 16. DetectAtoms_FCN ────────────────────────────────────────────────────
+
+run_skill("DetectAtoms_FCN", DetectAtoms_FCN(), [
+    # ⚠️ 这一格同时验三道闸：半整数质心（横向相邻的一对）、
+    # **四邻接**（对角相邻的一对必须给两个原子）、以及 `> std` 那道。
+    ("atoms_default_min_dist", {"image_path": PATHS["atoms"]}),
+    # 窗口从 11 收到 3 ⇒ `(28,9)` 那个 0.8 的次峰不再被 `(28,4)` 压住 ⇒ 多一个原子。
+    ("atoms_min_dist_1", {"image_path": PATHS["atoms"], "min_distance_px": 1}),
+    ("atoms_min_dist_10", {"image_path": PATHS["atoms"], "min_distance_px": 10}),
+    # ⚠️ 全常数图：`leveled` 恒为 0、`std` 恒为 0 ⇒ 那道闸问的是 `0 > 0` 还是
+    # `0 >= 0`。前者零个原子，后者把整幅图判成一个连通域、报一个位于图心的原子。
+    # 这是整份金样里唯一分得开 `>` 与 `>=` 的一格（见 `frame_flat_one`）。
+    ("flat_everything_ties", {"image_path": PATHS["flat_one"]}),
+    # 平顶盘：窗口盖住整个盘 ⇒ 每个盘只有**背景斜坡最高**的那一个像素是局部极大。
+    ("plane_disks", {"image_path": PATHS["plane_disks"]}),
+    ("model_path_falls_back", {"image_path": PATHS["atoms"],
+                               "model_path": missing_path("no-such-model.pt")}),
+    ("err_missing_file", {"image_path": missing_path("nope.npy")}),
+])
+
+
 # ──────────────────────────────────────────────────────────────────────────
 # 条件数 —— 容差写在它上面，所以它必须**随金样一起录**
 # ──────────────────────────────────────────────────────────────────────────
@@ -863,6 +1126,8 @@ def main() -> int:
         "condition_numbers": _plain(CONDITION),
         "ransac_facts": _plain(RANSAC_FACTS),
         "atom_jump_facts": _plain(ATOM_JUMP_FACTS),
+        # 批 7b-3：RL 每一轮的 `change`（收敛判据的余量）。
+        "rl_facts": _plain(RL_FACTS),
         "files": {k: base64.b64encode(v).decode("ascii") for k, v in FILES.items()},
         "drift_stubs": DRIFT_STUB_TABLE,
         "skills": SKILLS,

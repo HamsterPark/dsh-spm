@@ -3207,6 +3207,133 @@ agent 的错误处理路径 —— 没有 SkillResult、没有诊断记录、没
 
 <!-- 批 7b-3：编号**留空**（`?`），由主线统一编。 -->
 
+## D-PAPER-6 · `SegmentRegion_UNet` / `DetectAtoms_FCN` 的 ML 支不移，而 `method` **说的是真的跑了哪一条**
+
+两个技能都有 `model_path` 分支（torch）。本仓照 `Denoise_AE` 的先例
+（`l0/paper-image.ts` 的 `Denoise_AE` 抬头）：**不移 ML，只留启发式**。
+
+巧的是**这一条在旧仓里本来就成立** —— 两个技能的 `except` 分支里
+`method = "heuristic"`（`region_analysis.py:139` 与 `:290`），而 torch 装不上时
+走的正是那一支。所以这里不是「本仓与旧仓不一样」，是**本仓永远走旧仓的那一支**，
+与 `l0/scan-prep-skills.ts` 抬头那条（`png_path` 恒为空串）同形。
+
+⚠️ **与 `DetectAtomJump` 刻意不同**：那一个在同一个位置报的是**请求**的那一条
+（`method: "cnn"`），本仓为它专门登记过一条偏差。两个技能一个说实话一个说请求，
+而这是旧仓同一天写的同一个模式 —— 本批**跟说实话的那一个**。
+
+**测试**：`l0/paper-skills.test.ts` 的 `model_path_falls_back` 两格（`method` 逐字比），
+以及 `integration/batch7b3.test.ts` 的「给了 `model_path` 也一样报 `heuristic`」。
+
+## D-PAPER-7 · `diff_scans` 的 `ndim != 2` 闸：本仓的等价条件是 `rows === 1`，`(1,1)` 那一格对不上
+
+旧仓在 `np.squeeze` 之后判 `arr.ndim != 2`；本仓 `loadImage2d` 恒返回一张 `Mat`。
+两者**逐格等价**，除了一处：
+
+| npy 形状 | `np.squeeze` 之后 | 本仓 `Mat` | 报文里的形状 |
+|---|---|---|---|
+| `(N, M)`，N,M > 1 | `(N, M)` ✓ | `N×M` ✓ | — |
+| `(M,)` / `(1, M)` / `(N, 1)` | 一维 ⇒ 拒 | `rows === 1` ⇒ 拒 | 两侧都印 `(M,)` |
+| `(k, N, M)` | `(k, N·M)` ✓ | `k×(N·M)` ✓ | — |
+| **`(1, 1)`** | 0 维 ⇒ 拒，印 `()` | `1×1` ⇒ 拒，印 **`(1,)`** | **对不上** |
+
+拒不拒是一样的，**只有报文里那个形状差一处**。没有为 `(1,1)` 录金样 ——
+一张 1×1 的「扫描图」不是这个技能会碰到的东西，而为它编一格等于把一条
+两侧都没有消费方的分支写进验收链。
+
+**测试**：`l0/paper-skills.test.ts` 的 `err_one_d`（`(32,)` 那一格逐字）。
+
+## D-PAPER-8 · `_resolve_output_path` 的「同一个文件」判据：本仓**不碰文件系统**
+
+旧仓 `_same(p, q)` 是 `Path.resolve() == Path.resolve()`（会解 symlink、会按平台
+折大小写、会展开 `..`）。本仓只做**分隔符归一 + 逐字比**。
+
+理由：这道闸防的是「算出来的输出名**正好等于**输入名」——那是一次字符串巧合
+（`save_path` 传了输入路径本身），不是一次链接解析。而 `realpath` 在文件不存在时
+两个平台的行为还不一样，于是一条本该确定的判据会随文件系统变。
+
+**代价说清楚**：一条经 symlink 指回输入的 `save_path` 在本仓挡不住。
+`spec/golden/paper_data.json` 的 `save_path_would_overwrite_input` 一格钉的是
+直接命中那一支。
+
+## D-PAPER-9 · `fftconvolve(·, psf, 'same')` 用 `correlate2d` 拼出来 —— **偶数核要补一行零**
+
+本仓没有 FFT 卷积，`numerics/correlate.ts` 的 `correlate2d` 是直接算的相关。
+恒等式 `conv(a, b) = correlate(a, flip(b))` 只在**核的两个尺寸都是奇数**时
+连原点一起对得上：
+
+```
+scipy 的 same-卷积取 full 的 [ (M−1)//2 … ]，
+翻核之后 correlate2d 的偏移是 M − 1 − (M−1)>>1 = M//2。
+M 奇数：(M−1)//2 == M//2  ✓      M 偶数：差 1  ✗
+```
+
+`make_gaussian_psf` 的核恒为奇数（`int(6σ) | 1`），但 `psf_mode='custom'`
+读的是磁盘上任意一张图。`convolveSame` 在偶数那一维**给翻转后的核前面补一行零**，
+把原点挪回去。金样里有一格 4×4 的自定义 PSF 专门验它
+（`custom_psf_even`，同 `numerics/morphology.ts` 抬头②：奇数尺寸看不出来的那一类错，
+只有偶数那一格分得开）。
+
+⚠️ 两条路（FFT vs 直接算）的浮点不同，所以输出 `.npy` 的容差是
+`rlOutputRelTol(抽头数, 轮数) = 4·轮数·convRelTol(抽头)`；实测用掉 0.01%–1.7%。
+而 **`iterations_used` 的容差是 0** —— 它是一次比较（`change < 1e-6`）的结果。
+金样把每一轮的 `change` 录在 `rl_facts` 里，余量看得见：最紧的一格
+（`sigma_small_hits_min_size`）离阈值 4.2%，而两条路的差在 1e-7 相对量级。
+
+## D-MANIP-1 · `MoveAtomTo` 「仪器没还原」那句话里印的是 `None`，**照移，理由在这里**
+
+`run_composite` 的错误正文读的是 `params.get('manip_setpoint_a')` / `params.get('manip_bias_v')`
+——**调用方省略这两个参数时它们是 `None`**，于是最要紧的那句话变成
+「仪器仍停在操纵条件上(设定点 None A、偏压 None V)」。同一处影响 `data`：
+`manip_setpoint_used_a` / `manip_bias_used_v` 也存的是 `params.get(...)`，
+于是 `junction_resistance_ohm` 在省略时恒为 `null`。
+
+**照移，两条理由：**
+
+1. 缺省值（57 nA / 0.01 V）在模型读到的工具 schema 里写着，这句话不是**假**的，
+   是**空**的；而那一句真正 actionable 的半句（「立刻 SetSetpoint / SetBias 还原成像值，
+   否则下一次扫描会把表面拖乱」）原样在。
+2. 改成「实际用的值」会在这条**最安全相关**的路上放进一句旧仓造不出来的话 ——
+   而本批的纪律（同任务书对 STS 那三个的判断）是「别造旧仓造不出来的那一格」。
+
+**它仍然是一条该修的缺陷**，留给主线：修法是把 `manip_*_used_*` 落成
+**计划真的程序下去的那两个值**，于是错误正文与 `junction_resistance_ohm` 同时变真。
+金样里为它留了对照的一格（`explicit_manip_conditions_give_a_resistance`：
+两个都显式给 ⇒ 电阻算得出来 = 5e5 Ω），差异消失时那一格会当场变红。
+
+## D-GRID-2 · `GridSTS` 的三条分支在声明范围内**够不着**
+
+`_MAX_TRACKED_POINTS = 400`，而 `nx` / `ny` 各封顶 20 ⇒ 最多正好 400 点。于是：
+
+* `_note_point` 的 `len(seen) >= 400 且 suffix 不在表里` —— 至多 400 个不同的
+  `ix_iy`，永远不成立；
+* `_grid_points` 的 `nx*ny > 400 就返回空表` —— 同样永远不成立。
+
+两条都**留着**（哪天上限放宽就是它们上场的时候），但**不为它们编金样**：
+一格造不出来的输入不是判据（green-8 §2.8 的规矩：先证明够不着，再决定拿它怎么办）。
+钉住「够不着」这件事的是 `composite/batch7b3.test.ts` 的
+`nx`/`ny` 各封顶 20 ⇒ 最多 400 点 ⇒ 那条 `> 400 就不记` 永远不成立。
+
+同一形状的第三条：`aggregate` 里 `has_dims` 为假时的 `(total_steps − 1) / 2` 回落 ——
+`nx` / `ny` 在执行器起跑**之前**就落进 `partial_data`，于是它恒为真。
+那一条有一条**行为**断言钉着（连「第一步就中止」都仍然带着 `nx`/`ny`）。
+
+## D-SAVE-1 · `SaveScan` 的 `findLatestSxm` 接上了文件系统
+
+`l0/scan.ts` 的 `export const SaveScan = makeSaveScan()` 从前是**不带参数**的默认实例
+⇒ `saved_path` 恒为 `null`。本批注入 `findLatestSxmInSession`
+（复用 `l0/frames.ts` 的 `sessionDir` / `existingDirs` / `findLatestSaved` 三件，
+不写第二份）。
+
+**为什么是这一批接**：`AcquireBiasImagingSeries` 拿不到 `saved_path` 就把那一帧
+记成失败，而它**没有** `GetLatestScanFile` 兜底（`bias_imaging_series.py:249-254`，
+与 `angle_series_calibration.py:261-267` 的有兜底版刻意不同）。不接的话整条流程
+只会说「成功的帧不足两张」。
+
+⚠️ **行为变了，而金样没变**：旧仓轨迹金样里 `SaveScan` 的 `saved_path` 本来就是
+`null`（合成的会话目录不存在 ⇒ `existingDirs` 给空表），于是 `skill_traces.json`
+一个字节都没动。真的找得到文件这件事只有真 stmsim 验得到 ——
+`integration/batch7b3.test.ts` 有一格专门为它。
+
 <!-- ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）的登记写在这一行下面 ── -->
 
 <!-- 批 7a-1：编号**留空**（`?`），由主线统一编。 -->
