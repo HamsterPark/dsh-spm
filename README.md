@@ -1,5 +1,7 @@
 # dsh-spm
 
+English | [简体中文](README.zh-CN.md)
+
 **Scanning tunneling and scanning probe microscopy (STM/SPM) control as a TypeScript plugin for DeepSeek Harness.**
 
 > **Status: active development · experimental.** The plugin is being developed and iterated. Current validation covers the specific simulator workflows documented below; APIs, configuration and supported tools may change. Real-instrument operation has not yet been validated. See the [remaining work](docs/MIGRATION-TODO.md) and [validation evidence](docs/REVIEW-GUIDE.md).
@@ -10,7 +12,18 @@ The engineering work spans binary protocols, stateful execution, numerical compa
 
 [Documentation](docs/README.md) · [Code and evidence](docs/REVIEW-GUIDE.md) · [STM-Bench runtime](docs/MINIMUM-USABLE.md) · [Nanonis simulator runtime](docs/NANONIS-SIMULATOR.md) · [Agent instructions](AGENTS.md)
 
-## Why this needs more than a tool wrapper
+## Why STM is difficult to automate
+
+STM probes surfaces through the tunneling current between a sharp tip and a nearby sample. That current is approximately exponential in tip–sample distance: the sensitivity that enables atomic resolution also makes tiny disturbances consequential. Images reflect electronic structure as well as geometry; interpreting them requires a model of the measurement. See [Tersoff–Hamann theory](https://doi.org/10.1103/PhysRevB.31.805).
+
+- **The tip state is only partly observable.** Images and spectra combine tip and sample responses, so they generally cannot uniquely identify the atomic configuration or electronic state of the tip apex.
+- **The measurement conditions keep changing.** Thermal drift, piezoelectric creep and hysteresis complicate the relationship between commanded and actual position. Long measurements need repeated checks of spatial registration. See [research on scanner distortion](https://arxiv.org/abs/1611.00243).
+- **Actions have a physical history.** Tip conditioning and manipulation can alter the tip or sample; restoring settings does not necessarily restore the previous physical state. Parameters that worked before a tip change may no longer work afterward, as demonstrated in [atom-manipulation experiments](https://doi.org/10.1038/s41467-022-35149-w).
+- **Scientific judgment requires diagnosis.** A clear image alone does not establish trustworthy spectroscopy. Anomalies call for competing explanations, control measurements and a decision about whether to continue, recover or involve the operator.
+
+These challenges motivate MAST and its successor: connect observations, constrained actions and evidence so that experimental decisions can be checked. `dsh-spm` contributes the instrument and domain layer to that goal; the simulator workflows below establish its current validation scope. For the broader scientific motivation, see [MAST-public's introduction](https://github.com/HamsterPark/MAST-public).
+
+## From experimental constraints to execution checks
 
 STM operations change instrument state. A successful command must be distinguished from a confirmed setting or scan state, and later actions depend on the state left behind. The plugin therefore combines model-facing contracts with execution checks, instrument readback and durable call records.
 
