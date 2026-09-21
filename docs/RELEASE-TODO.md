@@ -4,28 +4,30 @@ This checklist records the publication review begun on **2026-09-20**, based on 
 
 For later installation and model results, see the [STM-Bench runtime](MINIMUM-USABLE.md), [Nanonis simulator runtime](NANONIS-SIMULATOR.md) and [review guide](REVIEW-GUIDE.md). Those runtime checks and the content review cover different snapshots.
 
-## Outstanding publication steps
+## Publication checklist
 
 The selected route is to **rename the existing repository and keep it private, then create a new independent `HamsterPark/dsh-spm`**. Preserve the cleaned development history. Removal of retained objects from the private archive is a separate maintenance option; publication requires verifying their isolation from the new repository.
 
-- [ ] Reconcile subsequent runtime and documentation changes with the separately prepared publication candidate; retain its later remote-audit records and selected release route. Review the added content and record the exact release commit and tree. Exclude local caches and private audit material.
-- [ ] Validate that final candidate with a build and unit/contract tests. Bind results to its commit and environment; document any remaining failures and distinguish them from historical CI. Installation/model evidence remains tied to the recorded artifact hashes.
-- [ ] Recheck the existing repository's identity and the availability of `dsh-spm-private-archive`; rename the existing repository while keeping it private. Before reusing its old name, point original-history clones and their shared worktree remote configuration to the private archive, or remove their push target.
-- [ ] Create a new private, non-fork `HamsterPark/dsh-spm` with a different immutable repository ID. Use an empty repository, without importing the archive. Bind the publication copy to this new identity and push only reviewed `master`; do not mirror refs or push original history.
-- [ ] Fresh-clone the new repository and compare its HEAD, tree, reachable commit set and object store with the reviewed candidate. Verify that all 207 original commit IDs and the confirmed old file are inaccessible through the new repository's routes. Permission/rate-limit errors and network failures are inconclusive.
-- [ ] Add the new repository's description and topics. Update historical CI links to the renamed private archive and label their access/snapshot limits; record new-repository CI separately.
+- [x] Reconcile subsequent runtime and documentation changes with the separately prepared publication candidate; retain its later remote-audit records and selected release route. Review the added content and record the exact release commit and tree. Exclude local caches and private audit material.
+- [x] Validate that final candidate with a build and unit/contract tests. Bind results to its commit and environment; document any remaining failures and distinguish them from historical CI. Installation/model evidence remains tied to the recorded artifact hashes.
+- [x] Recheck the existing repository's identity and the availability of `dsh-spm-private-archive`; rename the existing repository while keeping it private. Before reusing its old name, point original-history clones and their shared worktree remote configuration to the private archive, or remove their push target.
+- [x] Create a new private, non-fork `HamsterPark/dsh-spm` with a different immutable repository ID. Use an empty repository, without importing the archive. Bind the publication copy to this new identity and push only reviewed `master`; do not mirror refs or push original history.
+- [x] Fresh-clone the new repository and compare its HEAD, tree, reachable commit set and object store with the reviewed candidate. Verify that all 207 original commit IDs and the confirmed old file are inaccessible through the new repository's routes. Permission/rate-limit errors and network failures are inconclusive.
+- [x] Add the new repository's description and topics. Update historical CI links to the renamed private archive and label their access/snapshot limits; record new-repository CI separately.
 - [ ] Under the owner's publication instruction, make only the verified new repository public. Recheck its identity, anonymous entry points and old-content isolation; confirm that the archive remains private.
 
 The recorded local candidate and its verification are described in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md). A prepared copy does not automatically include development performed afterward.
 
-## Readiness check on 2026-09-21
+Final preparation is now complete for code candidate `60313d1`: local checks and all four new-repository CI jobs passed; fresh-clone and all 207 original-commit route checks passed. See the [final preparation record](handoff/publication-ready-20260921.md). Both repositories remain private; only public visibility and its follow-up anonymous verification remain.
+
+## Earlier readiness check on 2026-09-21
 
 - The publication checkout is clean at `9aa08bd`, with 210 reachable commits: 207 cleaned development commits and three later preparation/documentation commits. It does not yet include the subsequent simulator runtimes, acceptance records or reader-documentation revision.
 - A read-only GitHub check found the existing `HamsterPark/dsh-spm` still private, with `master` at `5afb99c`. It has not yet been renamed or replaced by the planned new repository. The proposed archive name returned 404 to the authenticated lookup; this does not reserve that name.
-- The latest run returned by GitHub was [run 35520355401](https://github.com/HamsterPark/dsh-spm/actions/runs/35520355401), for `5afb99c`. All four Windows/Ubuntu × Node 22.19/24 jobs failed at the unit/contract test step. This is a later snapshot than the initial matrix detailed below, and does not test the new local runtime work.
+- The latest run returned by GitHub was [run 35520355401 in the private archive](https://github.com/HamsterPark/dsh-spm-private-archive/actions/runs/35520355401), for `5afb99c`. All four Windows/Ubuntu × Node 22.19/24 jobs failed at the unit/contract test step. This historical link requires archive access and does not test the new local runtime work.
 - The README now identifies the plugin as **experimental and under active development**. APIs, configuration and supported tools may change; real-instrument operation remains unvalidated. Publication of the development repository does not assert a stable release or hardware readiness.
 
-The current work is ready for final candidate assembly and review. The outstanding steps above are still needed before public visibility; the remaining skill migration and hardware work are separate development milestones.
+This earlier check led to the final preparation recorded in [publication-ready-20260921.md](handoff/publication-ready-20260921.md). Remaining skill migration and hardware work are separate development milestones.
 
 ## Scope inspected on 2026-09-20
 
@@ -65,7 +67,7 @@ The user has authorized migration and public preparation of the MAST-derived mat
 
 ## Validation
 
-The GitHub Actions run inspected for `22f655b` failed in all four Node/OS jobs: [run 35502853052](https://github.com/HamsterPark/dsh-spm/actions/runs/35502853052).
+The GitHub Actions run inspected for `22f655b` failed in all four Node/OS jobs: [run 35502853052 in the private archive](https://github.com/HamsterPark/dsh-spm-private-archive/actions/runs/35502853052). This historical link requires archive access.
 
 | Runner | Result |
 |---|---|

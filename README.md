@@ -66,7 +66,7 @@ These checks need no private MAST installation, model key or external simulator.
 
 For installation and model operation, choose the appropriate runtime guide above. STM-Bench is started and stopped by the plugin. The Nanonis path verifies an already-running Windows simulator and disconnects without closing it; its commands can change bias and scan state.
 
-Dated validation results are linked in the [review guide](docs/REVIEW-GUIDE.md). Local Windows runs, final focused checks and the earlier cross-platform CI run refer to different snapshots. The [recorded CI failures](docs/RELEASE-TODO.md) remain available alongside the later runtime evidence.
+The [final candidate validation and publication boundary](docs/handoff/publication-ready-20260921.md) records the publication candidate and its checks. The [review guide](docs/REVIEW-GUIDE.md) also retains the earlier simulator acceptance and [historical CI failures](docs/RELEASE-TODO.md); these results refer to their own snapshots and artifact hashes.
 
 ## Repository map
 

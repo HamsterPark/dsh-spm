@@ -67,6 +67,7 @@ Validation records describe different stages:
 
 | Record | Result and scope |
 |---|---|
+| [2026-09-21 final candidate validation and publication boundary](handoff/publication-ready-20260921.md) | Code candidate `60313d1`: local Windows / Node 24.14.0 build and unit/contract checks passed, with 7,518 tests in 128 files. The record tracks final candidate checks and publication boundaries separately from the earlier artifact-specific simulator acceptance. |
 | [2026-09-20 CI, commit `22f655b`](RELEASE-TODO.md) | Windows recorded 2 failures; Ubuntu 27, including time/path-dependent golden output. This is the earlier committed snapshot. |
 | [2026-09-21 managed-runtime handoff](handoff/minimum-usable-20260921.md) | Windows unit/contract: 7,454 tests in 122 files; selected STM-Bench integration: 11 tests in 2 files. A later session-decoder regression is recorded separately. |
 | [2026-09-21 native-runtime handoff](handoff/native-nanonis-20260921.md) | Windows unit/contract: 7,512 tests in 127 files before the final cancellation patch. The final bundle check passed 66 tests in 9 files; a separate TCP-probe check passed 3 tests in 1 file. |
