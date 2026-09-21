@@ -13,7 +13,7 @@ The tested code candidate is commit `60313d111bbeb28f12e26b7167c51f01b5706ddb`, 
 | `pnpm test --project unit --project contract` | 7,518 passed in 128 files; zero failed or skipped; parent environment explicitly used `TZ=UTC` |
 | Generated skill/progress synchronization | Both `--check` commands passed; 442/515 skills, 112/165 modules |
 | [New-repository CI run 35574839292](https://github.com/HamsterPark/dsh-spm/actions/runs/35574839292) | Windows and Ubuntu × Node `22.19.0` and `24.20.0`: all four build/test jobs passed for `60313d1`; each passed 7,518 tests in 128 files |
-| Reader documentation | 175 local links/anchors checked across ten entry/operation/provenance documents before the final report links were added |
+| Reader documentation | 175 local links/anchors checked across ten entry/operation/provenance documents; the final six-document update separately passed 117 link/anchor checks |
 
 The previous CI failures were test-environment differences: reference-local time was exported in UTC+8; Windows/POSIX paths and Node ENOENT wording differed. The test workers now replay the reference timezone, and the trace comparator normalizes separators only inside recognized project paths. The missing-file expectations remain exact for each platform. Three regression checks retain distinctions in directories, channel/direction, sequence and extension, and preserve unrelated backslashes. Production behavior and golden data were not changed for this fix; no failing cases were skipped.
 
@@ -24,7 +24,7 @@ The managed STM-Bench and native Nanonis runtime code, reports and reader guides
 | Repository | Immutable ID | State at this check |
 |---|---|---|
 | `HamsterPark/dsh-spm-private-archive` | `1372557135` | Existing repository renamed; private |
-| `HamsterPark/dsh-spm` | `1379303402` | New empty independent repository, `fork: false`; private |
+| `HamsterPark/dsh-spm` | `1379303402` | New independent repository (created empty), `fork: false`; private |
 
 Before the name was reused, the original development checkout's shared remote configuration, including its nine linked worktrees, was repointed to the private archive. The additional local audit clone that still targeted the old URL was also repointed. The publication checkout alone was used to push reviewed `master`; no mirror push, original-history merge, tool ref or tag was published. The new repository has its experimental-development description and five project topics.
 
