@@ -18,7 +18,7 @@ The selected route is to **rename the existing repository and keep it private, t
 
 The recorded local candidate and its verification are described in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md). A prepared copy does not automatically include development performed afterward.
 
-Final preparation is now complete for code candidate `60313d1`: local checks and all four new-repository CI jobs passed; fresh-clone and all 207 original-commit route checks passed. See the [final preparation record](handoff/publication-ready-20260921.md). Both repositories remain private; only public visibility and its follow-up anonymous verification remain.
+Code candidate `60313d1` passed local checks and all four new-repository CI jobs; fresh-clone and all 207 original-commit route checks also passed. The [final preparation record](handoff/publication-ready-20260921.md) additionally records a later lifecycle-test timeout and its fixture correction. Publication requires a successful CI run matching the actual final HEAD. Both repositories remain private; public visibility and its follow-up anonymous verification remain separate actions.
 
 ## Earlier readiness check on 2026-09-21
 

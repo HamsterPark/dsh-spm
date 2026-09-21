@@ -4,7 +4,7 @@ The updated source is ready to be published as an **experimental plugin under ac
 
 ## Candidate and validation
 
-The tested code candidate is commit `60313d111bbeb28f12e26b7167c51f01b5706ddb`, tree `9a1a14f1cffcbcbcaa40787aabbaa6b6de01a004`. It contains 667 tracked files and 211 reachable commits: 207 cleaned development commits and four preparation/runtime commits. Later documentation-only commits record these results; the final publication HEAD must be checked against the reviewed branch before changing visibility.
+The initial tested code candidate is commit `60313d111bbeb28f12e26b7167c51f01b5706ddb`, tree `9a1a14f1cffcbcbcaa40787aabbaa6b6de01a004`. It contains 667 tracked files and 211 reachable commits: 207 cleaned development commits and four preparation/runtime commits. Later documentation and the lifecycle-test follow-up below retain the same production code. The actual publication HEAD must match the reviewed branch and a successful [master CI run](https://github.com/HamsterPark/dsh-spm/actions/workflows/ci.yml?query=branch%3Amaster) before changing visibility.
 
 | Check | Result |
 |---|---|
@@ -16,6 +16,12 @@ The tested code candidate is commit `60313d111bbeb28f12e26b7167c51f01b5706ddb`, 
 | Reader documentation | 175 local links/anchors checked across ten entry/operation/provenance documents; the final six-document update separately passed 117 link/anchor checks |
 
 The previous CI failures were test-environment differences: reference-local time was exported in UTC+8; Windows/POSIX paths and Node ENOENT wording differed. The test workers now replay the reference timezone, and the trace comparator normalizes separators only inside recognized project paths. The missing-file expectations remain exact for each platform. Three regression checks retain distinctions in directories, channel/direction, sequence and extension, and preserve unrelated backslashes. Production behavior and golden data were not changed for this fix; no failing cases were skipped.
+
+### Lifecycle-test follow-up
+
+The documentation-only commit `bb7d1db` triggered [run 35575429305](https://github.com/HamsterPark/dsh-spm/actions/runs/35575429305). Three jobs passed; Windows / Node 22.19 recorded 7,517 passes and one 20-second timeout in `minimal-lifecycle.test.ts` (26.3 seconds including synchronous work). This failed run is retained as evidence, separately from the earlier all-green run. Adjacent file-backed persistence tests also took 8.0 and 3.6 seconds, compared with 0.2 seconds for the in-memory store suite. Synchronous schema creation under slow runner I/O is the supported explanation, but the failed run did not record per-phase timing.
+
+The follow-up prepares the lifecycle test's empty database from the unchanged canonical schema in one transaction, then uses the real runtime, on-disk writes and a read-only reopen after disposal. It replaces a fixed sleep with an explicit disposal-start signal and checks that the store remains open while the tool is blocked. Production storage behavior, the 20-second test limit and all persistence assertions remain intact. The publication checkout passed a fresh build and all three lifecycle/persistence tests across two files on Windows / Node 24.14.0. Final acceptance is tied to the successful CI run for the actual published HEAD, not inferred from the earlier passing run.
 
 The managed STM-Bench and native Nanonis runtime code, reports and reader guides are included. Their installation/model evidence remains tied to the separate package hashes in [the managed report](minimum-usable-20260921.md) and [the native report](native-nanonis-20260921.md). This final preparation did not rebuild those packages or rerun their simulator/model sessions. It did not run reference exporters, mutation drills or real-instrument operations.
 

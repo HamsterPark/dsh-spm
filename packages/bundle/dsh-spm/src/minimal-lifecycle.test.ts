@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { Context, Service, SystemPrompt, ToolRuntime } from 'dsh-spm-compat'
 import { StmsimProcess } from 'dsh-spm-instrument-stmsim'
+import { RecordStore } from 'dsh-spm-stm-records'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as minimal from './minimal.js'
 
@@ -18,6 +19,15 @@ describe('minimum runtime shutdown', () => {
   it('keeps SQLite open until an in-flight tool writes its record during Cordis parallel disposal', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'minimal-drain-'))
     const dbPath = join(dir, 'records.sqlite')
+    // This test checks shutdown ordering against a real on-disk database. Build
+    // its canonical empty schema in one transaction so slow runner disks do not
+    // spend the shutdown test's budget on 99 independent DDL commits.
+    const schemaDb = new DatabaseSync(dbPath)
+    try {
+      schemaDb.exec('BEGIN')
+      schemaDb.exec(readFileSync(new URL('../../../../spec/golden/records_schema.sql', import.meta.url), 'utf8'))
+      schemaDb.exec('COMMIT')
+    } finally { schemaDb.close() }
     vi.spyOn(StmsimProcess.prototype, 'start').mockResolvedValue()
     vi.spyOn(StmsimProcess.prototype, 'assertOwned').mockResolvedValue()
     vi.spyOn(StmsimProcess.prototype, 'stop').mockResolvedValue()
@@ -40,15 +50,21 @@ describe('minimum runtime shutdown', () => {
     const runtime = ctx.plugin(minimal, { recordsPath: dbPath, resultsPath: join(dir, 'results.jsonl'), stateIntervalMs: 0, watchdogIntervalMs: 0 })
     try {
       await runtime.await()
+      const close = vi.spyOn(RecordStore.prototype, 'close')
+      let disposalEntered!: () => void
+      const disposalStarted = new Promise<void>((r) => { disposalEntered = r })
+      runtime.ctx.effect(() => () => { disposalEntered() })
       const callId = 'during-unload' as Parameters<typeof ctx.tools.execute>[0]['callId']
       const call = ctx.tools.execute({ callId, name: 'GetBias', arguments: {}, signal: new AbortController().signal })
       await callEntered
       const disposing = runtime.dispose()
-      await new Promise((r) => setTimeout(r, 20))
+      await disposalStarted
+      expect(close).not.toHaveBeenCalled()
       release()
       const result = await call
       expect(result.isError).toBe(false)
       await disposing
+      expect(close).toHaveBeenCalledTimes(1)
       const record = JSON.parse(readFileSync(join(dir, 'results.jsonl'), 'utf8').trim())
       expect(record.toolCallId).toBe('during-unload')
       expect(record.instrumentCalls).toHaveLength(1)
