@@ -1,213 +1,172 @@
-# 技能迁移还差什么
+# 技能迁移范围与剩余工作
 
-> 写于 2026-09-20。**发布不等这份文件**（见 `RELEASE-TODO.md`）。
-> 这份写给之后接着移的人/智能体：还剩多少、分几档、从哪批开始、每批怎么验收。
+本清单供继续迁移技能或评审迁移范围时使用。**2026-09-21 按当前 [progress.json](../spec/progress.json) 复核数量与技能名单**；依赖分析来自 2026-09-20 的三份分族盘点，未在本次重新执行私有参考实现。
 
----
+迁移完成定义见 [开发指南](DEVELOPMENT.md#技能迁移的完成定义)。公开发布与技能迁移分别验收，发布事项见 [发布清单](RELEASE-TODO.md)；已安装运行入口实际开放的工具见 [README](../README.md)。
 
-## 0. 分母：515 到不了
+## 0. 原始范围与迁移目标
 
-| | 今天 | **可达上限** | 还差 |
+| 范围 | 当前统计 | 当前目标 | 目标内剩余 |
 |---|---|---|---|
-| 技能 | 442 / 515 | **502** | **60** |
-| 模块整模块收口 | 112 / 165 | **160** | **48** |
+| 技能 | 442 / 515 | 502 | 60 |
+| 全部技能均为 `done` 的模块 | 112 / 165 | 160 | 48 |
 
-**13 个技能永远不移**（三份盘点点名的 D 档，架构上就不要）：
+`progress.json` 的 `done` 表示实现已注册、规格与模型 schema 存在且至少有一条参考轨迹；它不读取完整验收结果。原始清单尚有 **73 个技能**未标为 `done`，其中 **60 个在当前迁移范围内，13 个明确排除**：
 
-| 谁 | 几个 | 为什么 |
+| 排除范围 | 技能数 | 原因 |
 |---|---|---|
-| `builtins.optics_stage` | 8 | 光学台一族，压着本仓不要的驱动层 |
-| `builtins.optics_scan` | 1 | 同上（同模块另一个 `AcquireSignalPoint` **已落**，所以这个模块**永远到不了 complete**） |
-| `builtins.optics_pump_probe` | 1 | 同上 |
-| `paper.imspec / region_analysis` 三个深模型技能 | 3 | `PredictSpectrumFromTopo` · `PredictStructure_ASD` · `IdentifyTopology_CARP`：`model_path` **`required=True`**、`execute` 直接取、纯 torch、**零回退**。给不出模型就没有这个技能 |
+| `builtins.optics_stage` | 8 | 依赖不属于本项目范围的光学台驱动层 |
+| `builtins.optics_scan` | 1 | 排除光学台扫描；同模块的 `AcquireSignalPoint` 已迁移 |
+| `builtins.optics_pump_probe` | 1 | 依赖同一光学台驱动层 |
+| `paper.imspec` / `paper.region_analysis` | 3 | `PredictSpectrumFromTopo`、`PredictStructure_ASD`、`IdentifyTopology_CARP` 的 `model_path` 必填，参考实现直接加载深模型且无回退路径；当前不迁移这些模型依赖 |
 
-⇒ **5 个模块永远 complete 不了**（上面三个 + `paper.imspec` + `paper.region_analysis`）。
-报进度时同时保留原始范围 **515 / 165** 与当前迁移目标 **502 / 160**，避免把项目取舍改写成原始分母。
+因此，在当前范围下，上述五个模块不能达到“原始模块全部技能完成”。报告进度时同时保留原始范围 **515 / 165** 与迁移目标 **502 / 160**，不要改写生成文件的分母。
 
-⚠️ `ComposePanelMontage` 是「半个」：**判据层是 A 档要移**，呈现层（matplotlib）是 D 档不移。
-全族 matplotlib **只压在这一个技能身上**，切法本仓做过一次（`scan-prep-skills.ts:26-33`）。
+`ComposePanelMontage` 仍在迁移范围内：迁移判据与数据处理层，排除 matplotlib 呈现层。分层方式可参考 [scan-prep-skills.ts](../packages/host/stm-skills/src/l0/scan-prep-skills.ts)。
 
----
+## 1. 当前范围内的 60 个技能
 
-## 1. 剩下的 60 个，按族
+下列名单与当前 `progress.json` 对齐；每项旁边的依赖说明来自历史盘点，开工前应复核对应代码与偏差登记。盘点中的 A / B / C / D 分别指依赖已具备、缺少具体组件、依赖较大子系统和明确排除，不是运行验收等级。
 
-盘点报告在 `docs/handoff/survey7-{builtins,composite,paper}.md`（三份，共约 1600 行，
-含逐条依赖、行数、与现状不符的 40 余条）。**⚠️ 那三份是 2026-09-20 的快照** ——
-开工前先用 `spec/progress.json` 重算一遍分母，不要在那三份上打勾。
+完整依据：[builtins 盘点](handoff/survey7-builtins.md)、[composite 盘点](handoff/survey7-composite.md)、[paper 盘点](handoff/survey7-paper.md)。这些报告保留原快照，后续完成情况以生成进度为准。
 
-### builtins —— 19 个 / 19 个模块（**一个模块一个技能，落一个清一个**）
+### builtins：19 个技能 / 19 个模块
 
-```
-atomic_lattice            CalibratePiezoFromLattice      ← 要 3×3 非线性求根器（顶 fsolve）
-atomic_multiframe         CalibratePiezoMultiAngle       ← 同上，两个共用 solve_affine 96 行
-best_frame                TrackBestFrame                 ← 只差 DEFAULT_MIN_CONCENTRATION=300.0 的单一真源
-characterise_noise        CharacteriseCurrentNoise       ← 含循环变量的动态 context.run，闭包追不动
-coarse_selfcheck          CoarseMotionSelfCheck          ← C→A：缺的 693 行贡献 0 条判据
-dispersion_fit            FitDispersion                  ← 要 curveFit 的 box bounds + scipy.special.j0
-domain_assess             AssessDomainPhase              ← 参照系目录旧仓里根本不存在，207 行可整块推迟
-envelope_reconcile_skill  ReconcileSafetyEnvelope        ← ⚠️ :194-198 fail-open，必须改
+```text
+atomic_lattice            CalibratePiezoFromLattice      — 3×3 非线性求根器，替代 fsolve
+atomic_multiframe         CalibratePiezoMultiAngle       — 与上一项共用 solve_affine
+best_frame                TrackBestFrame                — DEFAULT_MIN_CONCENTRATION=300.0 的统一来源
+characterise_noise        CharacteriseCurrentNoise      — 循环变量形式的动态 context.run，需声明闭包限制
+coarse_selfcheck          CoarseMotionSelfCheck         — 盘点将其从子系统依赖项调整为可直接迁移
+dispersion_fit            FitDispersion                 — curveFit 的 box bounds 与 scipy.special.j0
+domain_assess             AssessDomainPhase             — 参考快照缺少参照系目录，相关分支需明确处理
+envelope_reconcile_skill  ReconcileSafetyEnvelope       — 参考 fail-open 分支需修正并登记
 feedback_tracking         AssessFeedbackTracking
-frame_drift_skill         MeasureFrameDrift              ← 要 FFT 线性（零填充）二维互相关 mode='full'
-hardware_events           ReadHardwareEvents             ← ⚠️ :67-72 把「读不到闸门」显示成「无拦截」
+frame_drift_skill         MeasureFrameDrift             — FFT 零填充二维线性互相关，mode='full'
+hardware_events           ReadHardwareEvents            — 区分“读不到安全闸”与“无拦截”
 herringbone_assess        AssessHerringbone
-history_query             QueryMonitorHistory            ← ⚠️ :226 调不存在的 store.sensors()
+history_query             QueryMonitorHistory           — 参考实现调用了不存在的 store.sensors()
 quiet_drift               CharacteriseQuietDrift
-scan_intel_selfcheck      ScanIntelSelfCheck             ← 差 scan_resolver.preview 27 行；⚠️ 三处会说假话
+scan_intel_selfcheck      ScanIntelSelfCheck            — scan_resolver.preview；核对盘点记录的三处状态误报
 slow_drift_skill          AnalyseSlowDrift
-spectral_peaks            FindSpectralPeaks              ← 要 curveFit 的 pcov
+spectral_peaks            FindSpectralPeaks              — curveFit 的 pcov
 spectrum_assess           AssessSpectrum
-tip_spectro_assess        AssessShockleyOnset            ← ⚠️ 见 §3
+tip_spectro_assess        AssessShockleyOnset            — 成功路径的参考缺陷，见 §3
 ```
 
-### composite —— 23 个 / 20 个模块（**C 档大头在这里**）
+### composite：23 个技能 / 20 个模块
 
-```
+```text
 achieve_atomic            AchieveAtomicResolution
 angle_series_calibration  AcquireAngleSeriesForCalibration
-assess_quality            AssessImageQuality             ← 去重后解 6 个下游，回报最高
+assess_quality            AssessImageQuality             — 六个下游 autonomous 技能的共享依赖
 atomic_bias_series        AtomicBiasSeries
-condition_tip             ConditionTip                   ← 与 AssessImageQuality 一起卡着 6 个 autonomous
+condition_tip             ConditionTip                   — 与 AssessImageQuality 共同阻塞下游流程
 cross_point_tip_check     CrossPointTipCheck
 execute_scan_plan         ExecuteScanPlan
-forge_au_tip              ForgeAuTip                     ← 差 PreScanCheck
-line_sts_across_wall      LineSTSAcrossWall              ← ⚠️ 采集路径旧仓出厂就不可达，见 §4
-make_special_tip          MakeAtomicResolutionTip  MakeSpectroscopyTip   ← 后者差 AssessShockleyOnset
-prepare_noble_tip         PokeConditionTip  PrepareNobleTip  PulseConditionTip   ← 见 §2
-prescan_check             PreScanCheck                   ← 解 2 条流程；差 safe_mode_active 等四件
-publication_frame         ScanPublicationFrame           ← ⚠️ 默认参数下**永远拒跑**，见 §5
+forge_au_tip              ForgeAuTip                     — PreScanCheck
+line_sts_across_wall      LineSTSAcrossWall              — 参考默认配置的采集路径不可达，见 §4
+make_special_tip          MakeAtomicResolutionTip  MakeSpectroscopyTip
+                         MakeSpectroscopyTip 依赖 AssessShockleyOnset
+prepare_noble_tip         PokeConditionTip  PrepareNobleTip  PulseConditionTip  — 见 §2
+prescan_check             PreScanCheck                   — safe_mode_active 等依赖见盘点
+publication_frame         ScanPublicationFrame           — 参考默认参数下的字段不匹配，见 §5
 scan_until_atomic         ScanUntilAtomicResolution
-search_domain_boundary    SearchDomainBoundary           ← 有三块可整段不移（聚类 150 · marker 重放 145 · cross_site_downgrade 25 本文件内零调用）
+search_domain_boundary    SearchDomainBoundary           — 聚类、marker 重放及未调用的 cross_site_downgrade 需按实际调用评估
 shape_tip_on_surface      ShapeTipOnSurface
-spectroscopy_at_positions SpectroscopyAtPositions        ← ⚠️ 同 §4
-sts_condition_series      STSConditionSeries             ← ⚠️ 同 §4
+spectroscopy_at_positions SpectroscopyAtPositions        — 同 §4
+sts_condition_series      STSConditionSeries             — 同 §4
 survey_surface            SurveySurface_TileScan
 verify_atomic_resolution  VerifyAtomicResolution
 ```
 
-### paper —— 18 个 / 9 个模块
+### paper：18 个技能 / 9 个模块
 
-```
+```text
 autonomous        AtomManip_SAC  AutoOSS_Dehalogenation  AutonomousSurvey_Scanbot
                   ConditionTip_DQN  ContinuousImaging_Auto
                   FindGoodRegion_Heuristic  FindGoodRegion_UNet
-                  ↑ 其中 6 个卡在 composite 的 AssessImageQuality / ConditionTip 上
-defect_cluster    ClusterDefects_rVAE            ← C 档
+                  其中六个依赖 composite 的 AssessImageQuality / ConditionTip
+defect_cluster    ClusterDefects_rVAE            — 分解／聚类子系统
 drift_bragg       CorrectDrift_BraggPeak
-line_check        CheckLineQuality               ← 只差一维支 ~30 行，见 §6
-montage           ComposePanelMontage            ← 判据层 A，呈现层 D
-optimization      AdaptiveSTS_GP  OptimizeResolution_BO   ← C 档
-spectral_analysis FitFano_Kondo（砍 hurwitz，A） FitGap_BCS（要 bounds）
-spectral_unmix    UnmixSpectra                   ← C 档
-tip_assessment    AssessTip_ResNet  AssessTip_VGG
-                  ↑ ⚠️ 两者 execute **归一化名字后逐字节相同**（旧仓自己写着
-                    「名字里的 VGG / ResNet 在代码里没有对应物」）。算两个，成本是一个
+line_check        CheckLineQuality               — 一维相关判据，见 §6
+montage           ComposePanelMontage            — 迁移判据层，排除呈现层
+optimization      AdaptiveSTS_GP  OptimizeResolution_BO  — GP 子系统
+spectral_analysis FitFano_Kondo  FitGap_BCS       — 前者排除 hurwitz 分支；后者需要 bounds
+spectral_unmix    UnmixSpectra                   — 分解子系统
+tip_assessment    AssessTip_ResNet  AssessTip_VGG — 参考 execute 在归一化名称后相同，可复用实现
 ```
 
----
+`AssessTip_ResNet` 和 `AssessTip_VGG` 按两个接口计数。盘点记录的实现并无对应的 VGG / ResNet 网络，不应由技能名称推断已具备深模型能力。
 
-## 2. 下一批就做这个：贵金属链（已经准备好了）
+## 2. 贵金属针尖流程：先补非技能依赖
 
-`composite.prepare_noble_tip` 三个技能的**技能**封锁件按闭包算**已经空了**（7b-1 查实）。
-两条流程仍移不了，**缺的不是技能，是两笔非技能的债**：
+按 [依赖闭包金样](../spec/golden/tip_phase_deps.json) 与 [7b-1 交接](handoff/batch-7b-1.md)，`composite.prepare_noble_tip` 的三个技能已没有未迁移的子技能依赖，但仍有非技能组件需要实现：
 
-| 欠的 | 出处 |
+| 组件 | 用途与依据 |
 |---|---|
-| `core.map_scope.record_damage_marker`（**写侧**） | 批 7a-2 自己点名的欠账，`map-scope.ts:27` 原话「第一个要写标记的技能落地时，它必须和那个技能同批」—— 而 `pulse_phase` **正是那第一个**（每一发脉冲**打之前**就标记落点） |
-| `core.noble_tip_workflow.{resolve, reconcile_with_tip_envelope}` | 1273 行流程表 |
+| `core.map_scope.record_damage_marker`（写侧） | `pulse_phase` 在每次脉冲前记录落点，后续 `nearest_clean_from` 据此避让；[map-scope.ts](../packages/host/kernel/src/map-scope.ts) 与偏差 `D-MAP-2` 保留该缺项 |
+| `core.noble_tip_workflow.resolve` / `reconcile_with_tip_envelope` | 流程配置与针尖安全包络协调；历史盘点记录了对应流程表 |
 
-⚠️ **写侧是安全侧的东西**：`record_damage_marker` 记「这里被打过 / 撞过」，
-下游 `nearest_clean_from` 靠它避让。**写错一个坐标 = 让下一次脉冲打在旧坑上。**
-fail-open 还是 fail-closed 必须与旧仓一字不差；读侧的对照物是 `crashMemoryMarkers`（D-MAP-5，fail-open）。
+写侧的坐标、记录时序和失败处理会影响后续避让，需与参考行为逐项对照。读侧 `crashMemoryMarkers` 的 fail-open 行为记录在 [偏差登记](../spec/deviations.md) 的 `D-MAP-5`；不要据此推断写侧应采用相同策略。有意修正参考缺陷仍按完成定义登记。
 
-⚠️ **六条流程一格轨迹金样都录不到**（`batch-7b-1.md` §6.4）。但 `plan_dynamic` 是生成器，
-**可以**用假 executor 把 `CompositeStep` 序列录成金样 —— 那是一台新驱动器、六条共用，
-**该在落第一条之前定下来**。
+六条 `_tip_phases` 流程尚无可用的完整参考执行轨迹。可先为 `plan_dynamic` 编写受控 executor，导出 `CompositeStep` 序列；这份计划层证据不能替代仪器执行验收。共同驱动方案应在迁移第一条流程前确定。
 
----
+## 3. `AssessShockleyOnset`：成功路径需要单独定义证据
 
-## 3. 一个还没答的问题：`AssessShockleyOnset`
+历史参考快照的 `tip_spectro_assess.py:236–237` 在成功返回时使用 `extra_reasons` / `extra_warnings`，但赋值只出现在另一类 `AssessAtomicPhase.execute` 中。因此，盘点中该成功路径抛出 `NameError`。依据见 [blockers-7a](handoff/blockers-7a.md) §4.2 和 [偏差登记](../spec/deviations.md) 的 `D-EXTRA-SPLIT-1`。
 
-它在旧仓**每条成功路径都炸 `NameError`**：`tip_spectro_assess.py:236-237` 用的
-`extra_reasons` / `extra_warnings`，**全文件只在 `:405` 赋值，而那在 `AssessAtomicPhase.execute` 里**
-（另一个类）。见 `blockers-7a.md` §4.2。
+现有偏差已处理 `AssessAtomicPhase` 的不完整帧原因、警告与 summary，不能直接当作 `AssessShockleyOnset` 成功路径已完成验收。迁移前需核对该登记，明确预期成功行为的独立依据以及它对 `MakeSpectroscopyTip` 的影响。
 
-7b-1 已为此登记 **`D-EXTRA-SPLIT-1`**（「一个用而未赋值，一个赋值而未用」，本仓接回来）。
-**开工前先读那条登记** —— 如果它已经把语义定下来了，就落；没定就先答这个：
+保留参考可达的失败证据。若新增修复后的成功用例，应标明修复依据与偏差；不能用迁移端自行生成的期望值充当参考实现成功运行的结果。
 
-> 它挡着 `MakeSpectroscopyTip`。**它在旧仓从来没有成功过**，所以那条流程的「成功端」
-> 在规格书里是空的。那条流程的验收，验的是它**拒绝得对**，还是它**采到了什么**？
+## 4. 三个 STS 技能：参考默认配置的采集路径不可达
 
-**不要自己发明一个成功路径。** 造不出「成功」那一格金样时，
-拿自己写的驱动器声称成功，**等于拿自己写的脚本给自己发证**。
+历史盘点记录 `sts_workflow.py:251` 的 `CONDITIONS` 只有一个组，四项样品事实均为 `None`，使 `usable` 为 `False`。涉及 `LineSTSAcrossWall`、`SpectroscopyAtPositions`、`STSConditionSeries`。
 
----
+在这一参考配置下，应验证拒绝条件与输出，不能把构造的成功采集路径称为参考运行结果。若后续支持新的配置，需要另外提供来源与验收依据。
 
-## 4. 三个 STS 技能：采集路径旧仓出厂就不可达
+## 5. `ScanPublicationFrame`：生产与消费字段不匹配
 
-`sts_workflow.py:251` 的 `CONDITIONS` 只有一个组、四个样品事实全 `None` ⇒ `usable` 恒 `False`。
-涉及 `LineSTSAcrossWall` / `SpectroscopyAtPositions` / `STSConditionSeries`（**只有这三个**）。
+参考快照中的生产方与消费方使用了不同字段：
 
-⇒ **验收标准是「拒绝得对不对」，不是「采到了几条谱」。**
-造金样时别去造一格「采成功」的 —— 那一格在旧仓里造不出来。
-
----
-
-## 5. `ScanPublicationFrame` 默认参数下**永远拒跑**
-
-```
-生产方 atomic_lattice.py:203-206  →  { "passed_forward": …, "passed_backward": … }
-消费方 publication_frame.py:211   →  v.get("passed")        ← 这个键从来不存在
+```text
+atomic_lattice.py:203–206  → { "passed_forward": …, "passed_backward": … }
+publication_frame.py:211 → v.get("passed")
 ```
 
-裸 `"passed"` 在生产方全文件**零命中** ⇒ `bool(None)` 恒 `False` ⇒ **恒拒**。
-本仓 `analysis-lattice.ts:558-575` 已经把生产方那侧移**对**了 ——
-所以**照抄消费方会把 bug 搬过来**。按 DoD ⑤ 不照抄，并写清「改它需要什么证据」。
+生产方没有 `passed` 字段，消费方默认得到 `None` 并拒绝。[analysis-lattice.ts](../packages/host/stm-skills/src/l0/analysis-lattice.ts) 已迁移生产方接口；迁移消费方时应明确修复语义，并在偏差登记中写出判断依据及重新考虑所需的证据。
 
----
+## 6. `CheckLineQuality`：一维相关判据与直流偏置
 
-## 6. `CheckLineQuality`：别被 75 行吓住
+盘点中的 `trace_retrace_correlation`（`mast/vision/tip_metrics.py:241`）二维分支转发给已迁移的 `fwdBwdInstability`；剩余工作主要是一维分支。函数名未出现在本仓不代表其全部数值基础都缺失。
 
-`trace_retrace_correlation`（`mast/vision/tip_metrics.py:241`，75 行）**本仓源码零命中**，
-但它的**二维支只有一句转发**，转给已经落了的 `fwdBwdInstability`。
-**真要写的是一维支，约 30 行。** 零命中说的是名字，不是工作量。
+盘点引用的参考记录说明了一个必须保留的判据：直接对绝对高度计算余弦相似度时，约 1 nm 的正常 Z 工作点偏置可能主导结果。在阈值 0.80 下，原记录为：
 
-⚠️ 而它的 docstring 里有一段**必须钉进金样**的物理：在这个函数存在之前，
-`PreScanCheck` 与 `CheckLineQuality` 都在**绝对高度**上算余弦相似度，
-带一个正常的 Z 工作点偏置（~1 nm）时那个数被**直流项统治**。阈值 0.80 下实测：
+| 输入情形 | 未去均值的相关值 | 结果 |
+|---|---|---|
+| 两条独立噪声线 | 0.9999 | 通过 |
+| 完全反相 | 0.9609 | 通过 |
+| 无有效起伏的平坦帧 | 1.0000 | 通过 |
 
-```
-两条完全独立的噪声线   → 0.9999  通过
-完全反相（最坏的针尖） → 0.9609  通过
-死平废帧               → 1.0000  通过（六帧真数据里的最高分）
-```
+原记录中，前两种情形去均值后的结果分别为 0.013 与 −1.0。以上数字是历史参考记录，本次未重跑，也不将其中的真实观测改称合成数据。迁移时需用明确来源的样例覆盖独立噪声、反相和平坦输入，确认直流偏置不会掩盖失效情形。
 
-**那道阈值是装饰性的：验证相在它最该失败的方向上不可能失败。**
-减掉均值后同一批是 0.013 / −1.0。**这三格不进金样，本仓就会把同一道装饰性的闸原样搬过来。**
+## 7. 迁移工作流程
 
----
+完整约定见 [AGENTS](../AGENTS.md) 和 [开发指南](DEVELOPMENT.md)。每项迁移应包括：
 
-## 7. 每一批怎么做
+1. 分别记录子技能依赖和非技能组件；同时追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)`，求传递闭包并声明无法静态解析的范围。
+2. 并行开发前划分文件职责，在共享文件中约定锚点与落点，按开发指南保留隔离行。
+3. 编写参考导出器，隔离运行目录、确认参考仓只读；同条件导出两次并比较完整字节。随后实现、测试并运行对应变异演练。
+4. 依次执行 `pnpm gen:skills` → `pnpm build` → `pnpm gen:progress`。
+5. 交接记录写明范围、与原计划的差异、证据来源、验收结果和未完成事项。
+6. 整合后重跑受影响的本批变异。需保存的日志先检查公开内容，再确认被 Git 跟踪；忽略规则不能代替这一检查。
+7. 并行支线偏差编号留 `?`，整合时统一编号并逐条按上下文更新引用。
 
-完整规矩在 `AGENTS.md`。一批的骨架：
+## 8. 参考资料
 
-1. **盘依赖，分两栏**：上游有什么（追 `context.run` **与** `CompositeStep(skill_name=…)`
-   两条边到不动点）/ **本仓要先长出什么**（读旧仓注释里那些「必须」「也不例外」）。
-   清单要附一句**追到哪儿为止**，写不出这句话的清单按未完成算。
-2. **先落锚点再分叉**（九个共享文件，见 `AGENTS.md` §5）。
-3. 写导出器 → 导金样 → **跑两遍 `cmp`** → 写实现 → 写测试 → 写变异 → 跑演练。
-4. `gen:skills` → `tsc -b` → `gen:progress`（**顺序不能反**）。
-5. 交接写 `docs/handoff/batch-<批号>.md`，**「与任务书不一样的地方」单列一节**
-   —— 前面每一批都有，如实写；那一节往往比主体值钱。
-6. 合并后**重跑本批变异**（合并正是闸会静默坏掉的那一刻），日志 `git add -f` 并用
-   `git ls-files` 验过入仓。
-7. 偏差编号支线留 `?`，主线统一编；一族多号时引用**逐条按上下文映射**。
-
----
-
-## 8. 参考
-
-- `docs/handoff/survey7-builtins.md` · `survey7-composite.md` · `survey7-paper.md` —— 三份分族盘点
-- `docs/handoff/blockers-7a.md` —— 针尖链的函数级闭包与「一层不是闭包」四例
-- `docs/handoff/green-8.md` —— 变异跑成绿的三种形状与各自的修法
-- `spec/deviations.md` —— 228 条偏差登记
-- `docs/EXECUTION.md` §1 —— 实施日志（最近几轮的教训都在这儿）
+- [builtins 盘点](handoff/survey7-builtins.md)、[composite 盘点](handoff/survey7-composite.md)、[paper 盘点](handoff/survey7-paper.md)：历史依赖分析与工作量估计。
+- [针尖链阻塞分析](handoff/blockers-7a.md)：函数级依赖闭包及分析边界。
+- [未检出变异分析](handoff/green-8.md)：幸存变异的输入、断言和测试范围问题。
+- [偏差登记](../spec/deviations.md)：参考差异、理由与重新考虑条件。
+- [实施日志](EXECUTION.md)：按时间记录的工作与验证结果。

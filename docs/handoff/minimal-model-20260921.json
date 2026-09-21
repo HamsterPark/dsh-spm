@@ -1,0 +1,190 @@
+{
+  "date": "2026-09-21",
+  "artifactSha256": "8c510e26598495385a20f8f0983310570a03328c5baa0c8c7a45e7db68b0735b",
+  "runs": [
+    {
+      "version": 1,
+      "runId": "m4-b6ee53dc-103b-47bc-9c4c-3f44a98ecb4f",
+      "sessionId": "session-6e1e03e2-8ea3-4021-944d-0745011e35e0",
+      "sessionLog": "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\sessions\\--D-dsh-spm-m1-final-c-20260921-0140-dsh-home-profiles-minimal--\\session-6e1e03e2-8ea3-4021-944d-0745011e35e0\\session.v3.jsonl.zstd",
+      "reopenedAfterExit": true,
+      "model": {
+        "provider": "deepseek-official",
+        "model": "deepseek-flash"
+      },
+      "requestCount": 2,
+      "totalObservedModelRequests": 3,
+      "usage": {
+        "requests": [
+          {
+            "inputTokens": 546,
+            "outputTokens": 44,
+            "totalTokens": 590,
+            "cacheReadTokens": 0,
+            "reasoningTokens": 0
+          },
+          {
+            "inputTokens": 137,
+            "outputTokens": 151,
+            "totalTokens": 800,
+            "cacheReadTokens": 512,
+            "reasoningTokens": 47
+          }
+        ],
+        "knownAgentTotals": {
+          "inputTokens": 683,
+          "outputTokens": 195,
+          "totalTokens": 1390,
+          "cacheReadTokens": 512,
+          "reasoningTokens": 47
+        },
+        "auxiliaryTitleRequests": 1,
+        "auxiliaryUsage": null
+      },
+      "toolCalls": [
+        {
+          "seq": 16,
+          "callId": "call_00_ET_iTLmYehx1T2lUgYGogIL5472",
+          "name": "stm_hello",
+          "arguments": "{}"
+        },
+        {
+          "seq": 18,
+          "callId": "call_01_ET_Hgt9p6eoC61v8dMCg5KU2021",
+          "name": "GetBias",
+          "arguments": "{}"
+        }
+      ],
+      "toolResult": {
+        "seq": 19,
+        "callId": "call_01_ET_Hgt9p6eoC61v8dMCg5KU2021",
+        "text": "{\"source\":{\"kind\":\"tool\",\"callId\":\"call_01_ET_Hgt9p6eoC61v8dMCg5KU2021\"},\"content\":[{\"type\":\"tool-result\",\"toolCallId\":\"call_01_ET_Hgt9p6eoC61v8dMCg5KU2021\",\"content\":[{\"type\":\"text\",\"text\":\"GetBias: 0.10000000149011612 V\"}],\"isError\":false}],\"role\":\"user\",\"id\":\"191a4390-bf4a-4b80-9adf-f37885cfd702\"}"
+      },
+      "toolCatalog": [
+        "GetBias",
+        "stm_hello"
+      ],
+      "independentBiasV": 0.10000000149011612,
+      "localEvidence": {
+        "recordsPath": "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\m4-b6ee53dc-103b-47bc-9c4c-3f44a98ecb4f.sqlite",
+        "resultsPath": "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\m4-b6ee53dc-103b-47bc-9c4c-3f44a98ecb4f.results.jsonl",
+        "sqliteAction": {
+          "action_type": "GetBias",
+          "status": "succeeded",
+          "tool_call_id": "call_01_ET_Hgt9p6eoC61v8dMCg5KU2021"
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789921295390,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0.10000000149011612
+            ]
+          }
+        ]
+      },
+      "finalText": "Done — each tool was called exactly once.\n\n- **stm_hello:** dsh-spm 0.0.1 (built against dsh 0.1.5-rc.2)\n- **GetBias:** **0.10000000149011612 V** (≈ 0.1 V)\n\nMeasured bias: **0.1 V** (reported value 0.10000000149011612 V). No write, shell, or other action was performed.",
+      "processOutput": null,
+      "replayed": true
+    },
+    {
+      "version": 1,
+      "runId": "m4-748bd00b-0b93-4267-b5fa-aa6293578ecc",
+      "sessionId": "session-ef1aadf8-53de-4c95-b39a-99d37e6ff14a",
+      "sessionLog": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\sessions\\--D-dsh-spm-m1-final-d-20260921-0145-dsh-home-profiles-minimal--\\session-ef1aadf8-53de-4c95-b39a-99d37e6ff14a\\session.v3.jsonl.zstd",
+      "reopenedAfterExit": true,
+      "model": {
+        "provider": "deepseek-official",
+        "model": "deepseek-flash"
+      },
+      "requestCount": 2,
+      "totalObservedModelRequests": 2,
+      "usage": {
+        "requests": [
+          {
+            "inputTokens": 546,
+            "outputTokens": 44,
+            "totalTokens": 590,
+            "cacheReadTokens": 0,
+            "reasoningTokens": 0
+          },
+          {
+            "inputTokens": 137,
+            "outputTokens": 155,
+            "totalTokens": 804,
+            "cacheReadTokens": 512,
+            "reasoningTokens": 63
+          }
+        ],
+        "knownAgentTotals": {
+          "inputTokens": 683,
+          "outputTokens": 199,
+          "totalTokens": 1394,
+          "cacheReadTokens": 512,
+          "reasoningTokens": 63
+        },
+        "auxiliaryTitleRequests": 0,
+        "auxiliaryUsage": "not applicable"
+      },
+      "toolCalls": [
+        {
+          "seq": 14,
+          "callId": "call_00_ET_kDd8IZczWFdXlbYGBqJn5995",
+          "name": "stm_hello",
+          "arguments": "{}"
+        },
+        {
+          "seq": 16,
+          "callId": "call_01_ET_RmslTcsHvM8jtIAOkC8u1851",
+          "name": "GetBias",
+          "arguments": "{}"
+        }
+      ],
+      "toolResult": {
+        "seq": 17,
+        "callId": "call_01_ET_RmslTcsHvM8jtIAOkC8u1851",
+        "text": "{\"source\":{\"kind\":\"tool\",\"callId\":\"call_01_ET_RmslTcsHvM8jtIAOkC8u1851\"},\"content\":[{\"type\":\"tool-result\",\"toolCallId\":\"call_01_ET_RmslTcsHvM8jtIAOkC8u1851\",\"content\":[{\"type\":\"text\",\"text\":\"GetBias: 0.10000000149011612 V\"}],\"isError\":false}],\"role\":\"user\",\"id\":\"759b17cc-a003-4f84-ad9f-788ee26a74e9\"}"
+      },
+      "toolCatalog": [
+        "GetBias",
+        "stm_hello"
+      ],
+      "independentBiasV": 0.10000000149011612,
+      "localEvidence": {
+        "recordsPath": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\m4-748bd00b-0b93-4267-b5fa-aa6293578ecc.sqlite",
+        "resultsPath": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\m4-748bd00b-0b93-4267-b5fa-aa6293578ecc.results.jsonl",
+        "sqliteAction": {
+          "action_type": "GetBias",
+          "status": "succeeded",
+          "tool_call_id": "call_01_ET_RmslTcsHvM8jtIAOkC8u1851"
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789921582180,
+            "simulated": true,
+            "elapsedMs": 2,
+            "values": [
+              0.10000000149011612
+            ]
+          }
+        ]
+      },
+      "finalText": "Both calls completed successfully.\n\n- **stm_hello:** `dsh-spm 0.0.1（对应 dsh 0.1.5-rc.2）`\n- **GetBias (measured bias):** **0.10000000149011612 V** (approximately 0.1 V)\n\nThe measured bias is **0.10000000149011612 V**. No write or shell action was performed.",
+      "processOutput": null,
+      "replayed": true
+    }
+  ],
+  "actualTotalModelRequests": 5,
+  "knownAgentTokenTotal": 2784,
+  "titleTokenUsage": null,
+  "note": "Native session/event and instrument evidence retained; credentials are absent. The first run was replayed offline."
+}

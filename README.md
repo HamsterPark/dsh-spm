@@ -1,72 +1,92 @@
 # dsh-spm
 
-`dsh-spm` is a TypeScript plugin project for exposing scanning tunneling microscopy (STM/SPM) instrument operations as inspectable, callable, and testable DeepSeek Harness skills.
+**Scanning tunneling and scanning probe microscopy (STM/SPM) control as a TypeScript plugin for DeepSeek Harness.**
 
-The work migrates the domain layer of an existing Python/LangGraph system while leaving session management, model orchestration, approvals, background work, and the application shell to dsh. The original system has operated real STM instruments; that experience is background for the migration, not evidence that this plugin has completed hardware or distribution validation.
+> **Status: active development · experimental.** The plugin is being developed and iterated. Current validation covers the specific simulator workflows documented below; APIs, configuration and supported tools may change. Real-instrument operation has not yet been validated. See the [remaining work](docs/MIGRATION-TODO.md) and [validation evidence](docs/REVIEW-GUIDE.md).
 
-For a code review, start with the [review guide](docs/REVIEW-GUIDE.md): it follows five engineering decisions through their implementations, tests and limits. [AGENTS.md](AGENTS.md) provides repository instructions for coding agents.
+`dsh-spm` connects model tool calls to instrument operations with parameter checks, readback and persistent records. It migrates the scientific and instrument-control layer of MAST, a Python/LangGraph system, while dsh provides model orchestration, sessions, approvals and the application shell.
 
-## Current status
+The engineering work spans binary protocols, stateful execution, numerical compatibility and test design. A running simulator path now connects an independently installed package to a native dsh model session and records what each tool actually did.
 
-| Area | Current evidence | Boundary |
+[Documentation](docs/README.md) · [Code and evidence](docs/REVIEW-GUIDE.md) · [STM-Bench runtime](docs/MINIMUM-USABLE.md) · [Nanonis simulator runtime](docs/NANONIS-SIMULATOR.md) · [Agent instructions](AGENTS.md)
+
+## Why this needs more than a tool wrapper
+
+STM operations change instrument state. A successful command must be distinguished from a confirmed setting or scan state, and later actions depend on the state left behind. The plugin therefore combines model-facing contracts with execution checks, instrument readback and durable call records.
+
+In the validated Nanonis workflow, the model reads state, sets a target bias, starts and stops scanning, and restores the bias. The acceptance check compares bias and scan state through an independent TCP connection and associates the model's tool events with local records. Instrument tools follow this execution path:
+
+```mermaid
+flowchart LR
+    A["dsh model session"] --> B["STM tool"]
+    B --> C["Skill kernel and checks"]
+    C --> D["Instrument connection"]
+    D --> E["Verified simulator"]
+    C --> F["Call records: SQLite + JSONL"]
+```
+
+## What runs today
+
+The following Windows acceptance records were produced on **2026-09-21**. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify.
+
+| Runtime | Model-visible tools | Recorded result |
 |---|---|---|
-| Skill migration | 442 of the original 515 skill contracts are marked done in `spec/progress.json` | 60 remain in scope; 13 are explicitly excluded, so the current target is 502 |
-| Module migration | 112 of 165 modules are complete | The current reachable target is 160 because five modules contain excluded skills |
-| Unit and contract suite | 7,445 tests across 118 files in the recorded run | Local handoff records report a clean run; the recorded CI run for `22f655b` failed on environment-dependent golden output |
-| Mutation catalogue | 879 registered mutations | Recent handoff batches report 119/119 and 167/167 red; this is not a current full-catalogue run |
-| Behavioral deviations | 228 entries in `spec/deviations.md` | Each entry records the observed difference and the evidence required to change it |
-| dsh integration | Development-mode loading, `apply`, dependency injection, and host tool registration have been observed | Tarball/npm installation, a real model call, and end-to-end execution remain unverified; the client layer has a recorded integration blocker |
-| Hardware | No real-instrument run is part of this repository's validation | Hardware validation is intentionally deferred to Phase 8 |
+| Managed STM-Bench | `stm_hello`, `GetBias` | Package `8c510e…` installed in two independent homes. Real model calls returned bias matching an independent TCP read, with persisted results. A separate dispatcher check recorded failure after simulator disconnection. [Evidence](docs/handoff/minimum-usable-20260921.md) |
+| Already-running Nanonis Mimea + STM Simulator | Hello, bias/current/Z/scan-status reads, `SetBias`, `StartScan`, `StopScan` | Package `b5a7ab…` completed installation and a real model workflow: 7 requests, 9 tool calls, verified bias changes and scan start/stop, with session/SQLite/JSONL records linked by call ID. [Evidence](docs/handoff/native-nanonis-20260921.md) |
 
-The generated progress file is the source for migration counts. Its `done` status requires a registered implementation, generated specification, reference model schema and at least one reference trace; it does not certify the complete migration acceptance criteria. Test counts and mutation results are dated measurements rather than permanent project properties; see the [review guide](docs/REVIEW-GUIDE.md) and linked records for their exact scope.
+These are bounded simulator runtimes. The recorded Nanonis run covers Generic 5e / RT Release 15016; scan-state checks do not establish complete image acquisition. Full client integration, hardware validation, other platforms and public npm distribution remain outside this acceptance scope. MAST's earlier use on real instruments is project background; hardware validation of this plugin is deferred to Phase 8.
 
-## Why STM skills need explicit evidence
+## Engineering decisions to inspect
 
-STM control is partially observable and stateful: an operation can change the surface, the probe, or the next operation's safety envelope. This repository therefore treats model-visible responses, refusal paths, numerical behavior, and workflow dependencies as contracts.
+- **Keep execution accountable.** A tool passes through the skill kernel to the instrument connection; measured results and instrument calls are associated with its call ID. Runtime shutdown waits for in-flight calls before closing records. Start with [runtime wiring](packages/bundle/dsh-spm/src/minimal.ts) and the [shutdown regression test](packages/bundle/dsh-spm/src/minimal-lifecycle.test.ts).
+- **Migrate behavior against a reference.** Exported schemas, traces and numerical fixtures make cross-language differences testable. Numerical tolerances belong to the operation; intentional differences have reasons and reconsideration criteria in the [deviation register](spec/deviations.md).
+- **Test the assertions themselves.** The [mutation runner](tools/mutate/run.ts) establishes a passing baseline, applies a compilable defect and checks that the declared test scope detects it. Surviving and inconclusive mutations remain visible.
+- **State the limits of dependency analysis.** Composite workflows follow both direct calls and declared steps to compute transitive dependencies; unresolved dispatch is recorded explicitly. See the [dependency tests](packages/host/stm-skills/src/l0/tip-phase-deps.test.ts).
+- **Isolate the upstream API.** Production code uses [compat](packages/host/compat/src/index.ts), backed by real-package contract tests and pinned dependencies. The minimum distribution packages internal workspace code and checks dependency identity after installation.
 
-The main verification methods are:
+The [review guide](docs/REVIEW-GUIDE.md) connects these choices to specific implementations, tests and acceptance reports.
 
-- **Golden fixtures:** exporters capture reference declarations, source-analysis results and executed behavior under controlled inputs in `spec/golden/`; descriptive provenance can also include deidentified reference-system observations. Public-text normalization is documented in [the content review](docs/PUBLIC-CODE-REVIEW.md).
-- **Contract tests:** parameter schemas, returned fields, and model-visible messages are checked alongside numerical behavior.
-- **Mutation drills:** a guard is deliberately removed to confirm that its declared test scope fails.
-- **Deviation records:** intentional differences from the reference are documented in `spec/deviations.md`.
-- **Dependency closure:** composite skill dependencies include both direct calls and nested workflow steps, with limits of static analysis stated explicitly.
+## Migration scope
 
-## Repository map
+A skill here is an executable operation with a parameter schema, preconditions and a result contract. The generated inventory currently marks **442 / 515 skills** and **112 / 165 modules** complete. Thirteen skills are intentionally excluded, leaving 60 in scope and reachable targets of 502 skills / 160 modules. See [progress.json](spec/progress.json) and the [remaining migration work](docs/MIGRATION-TODO.md).
 
-| Path | Purpose |
-|---|---|
-| `packages/host/` | Safety logic, numerical routines, image analysis, records, and skills |
-| `packages/instrument/` | Protocol, connection, state cache, watchdog, and simulator provider |
-| `packages/client/` | Client integration under development |
-| `packages/bundle/` | dsh plugin bundle entry point |
-| `spec/golden/` | Reference declarations, execution traces, numerical and source-analysis results, and provenance |
-| `spec/nanonis/` | Machine-readable Nanonis command metadata and provenance |
-| `tools/spec-export/` | Read-only reference exporters |
-| `tools/mutate/` | Mutation catalogue and runner |
+`done` means a registered implementation, a generated specification, a reference model schema and at least one reference trace exist. It is a migration classification; the running profiles expose the explicit tool sets listed above. Full migration acceptance is defined in the [development guide](docs/DEVELOPMENT.md).
 
 ## Build and test
 
-Use Node.js 22.19 or 24 and the repository's pinned pnpm version:
+Use Node and pnpm as declared in [package.json](package.json). From the repository root:
 
-```powershell
+```text
 pnpm install --frozen-lockfile
 pnpm build
 pnpm test --project unit --project contract
 ```
 
-The integration project additionally requires an external STM simulator through `STMSIM_PYTHON` and `STMSIM_ROOT`. It is not part of the command above. A green unit/contract run does not establish simulator, packaged-installation, model, or hardware behavior.
+These checks need no private MAST installation, model key or external simulator. The `integration` project additionally requires `STMSIM_PYTHON` / `STMSIM_ROOT`; it starts STM-Bench and is included when `pnpm test` is run without project selection.
 
-The GitHub Actions run recorded on 2026-09-20 for commit `22f655b` failed: Windows reported 2 failures and Ubuntu reported 27, primarily because golden responses contain local-time and path-dependent text. See [the recorded CI run](https://github.com/HamsterPark/dsh-spm/actions/runs/35502853052) and [the release checklist](docs/RELEASE-TODO.md). This is a historical result, not a live CI-status indicator.
+For installation and model operation, choose the appropriate runtime guide above. STM-Bench is started and stopped by the plugin. The Nanonis path verifies an already-running Windows simulator and disconnects without closing it; its commands can change bias and scan state.
 
-## Project documents
+Dated validation results are linked in the [review guide](docs/REVIEW-GUIDE.md). Local Windows runs, final focused checks and the earlier cross-platform CI run refer to different snapshots. The [recorded CI failures](docs/RELEASE-TODO.md) remain available alongside the later runtime evidence.
 
-- [Review guide](docs/REVIEW-GUIDE.md) connects representative implementations to their tests and evidence boundaries.
-- [AGENTS.md](AGENTS.md) explains repository rules, reading paths and evidence standards.
-- [Development guide](docs/DEVELOPMENT.md) covers migration acceptance, generation, mutation drills and collaboration.
-- [Release checklist](docs/RELEASE-TODO.md) records public-release checks and unresolved blockers.
-- [Minimum-run checklist](docs/MINIMUM-RUN-TODO.md) separates development loading from packaged installation and end-to-end use.
-- [Migration checklist](docs/MIGRATION-TODO.md) lists the remaining 60 in-scope skills and 13 exclusions.
-- [Sources and third-party notices](docs/SOURCES.md) records provenance and licensing for imported reference material.
+## Repository map
 
-The repository is licensed under the [MIT License](LICENSE). Third-party material retains its own notices as described in [docs/SOURCES.md](docs/SOURCES.md).
+| Path | Responsibility |
+|---|---|
+| `packages/host/kernel/` | Skill execution, units, parameter and safety checks |
+| `packages/host/numerics/`, `vision/` | Numerical methods and image-analysis criteria |
+| `packages/host/stm-skills/` | Tool adaptation, individual skills and composite workflows |
+| `packages/host/stm-records/`, `stm-safety/`, `nanonis-files/`, `compat/` | Persistent records, safety service, file formats and dsh adaptation |
+| `packages/instrument/` | TCP protocol, connections, state, watchdog and simulator process management |
+| `packages/bundle/`, `scripts/` | Runtime composition, packaging, installation and acceptance tools |
+| `packages/client/` | Dedicated client integration under development |
+| `spec/`, `tools/spec-export/`, `tools/mutate/` | Reference evidence, deviations, progress, exporters and mutation drills |
+
+## Working on the project
+
+- [Documentation map](docs/README.md): choose a reading path for review, operation, development or project history.
+- [AGENTS.md](AGENTS.md): task routing, boundaries and validation defaults for coding agents.
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md): migration acceptance, generation, tests and collaboration.
+- [RELEASE-TODO.md](docs/RELEASE-TODO.md): publication preparation and recorded checks.
+- [SOURCES.md](docs/SOURCES.md): provenance and third-party notices, including reference-derived fixtures and public-text normalization.
+
+Licensed under [MIT](LICENSE). Third-party material retains the notices described in the source register.

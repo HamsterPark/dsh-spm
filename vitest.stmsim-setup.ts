@@ -26,7 +26,8 @@ export async function setup(): Promise<void> {
   sim = new StmsimProcess({
     // 端口与 profiles/mast-sim 一致，别和真机的 6501–6504 撞
     ports: [16501, 16502, 16503, 16504],
-    profile: 'polar-spm',
+    // 当前 STM-Bench 公开配置；旧版或自定义配置须显式指定名称。
+    profile: process.env['STMSIM_PROFILE'] ?? 'reference-stm',
     seed: 0,
     material: 'Au(111)',
     approached: true, // 起手就在隧道状态，否则读不到有意义的电流

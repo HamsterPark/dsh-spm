@@ -1,0 +1,169 @@
+{
+  "date": "2026-09-21",
+  "artifact": {
+    "path": "<repo>\\artifacts\\dsh-spm-0.0.1.tgz",
+    "sha256": "8c510e26598495385a20f8f0983310570a03328c5baa0c8c7a45e7db68b0735b"
+  },
+  "supersededArtifact": {
+    "sha256": "9bed41a997b2f453a5476b0a18cf04a6fe705c7701594960939779138d4289ee",
+    "note": "Initial M3 only; superseded by the lifecycle and instrumentCalls build."
+  },
+  "environment": {
+    "node": "v24.14.0",
+    "platform": "win32/x64",
+    "dsh": "0.1.5-rc.2",
+    "python": "<STMSIM_PYTHON>",
+    "simulatorRoot": "<STMSIM_ROOT>"
+  },
+  "finalC": {
+    "status": "passed",
+    "dshHome": "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home",
+    "installDir": "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal",
+    "ports": [
+      16631,
+      16632,
+      16633,
+      16634
+    ],
+    "commands": {
+      "values": "node scripts/verify-minimal.ts values --install-dir D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal --python <STMSIM_PYTHON> --simulator-root <STMSIM_ROOT> --ports 16631,16632,16633,16634 --records D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-records.sqlite --results D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-results.jsonl --evidence D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-values.json --dsh-home D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home --run-id final-c-values-20260921",
+      "failure": "node scripts/verify-minimal.ts failure --install-dir D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal --python <STMSIM_PYTHON> --simulator-root <STMSIM_ROOT> --ports 16631,16632,16633,16634 --records D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-records.sqlite --results D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-results.jsonl --evidence D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-failure.json --dsh-home D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home --run-id final-c-failure-20260921",
+      "inspect": "node scripts/verify-minimal.ts inspect --install-dir D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal --records D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-records.sqlite --results D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-results.jsonl --evidence D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-restart.json --dsh-home D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home --run-id final-c-inspect-20260921"
+    },
+    "comparisons": [
+      {
+        "callId": "minimal-final-c-values-20260921-1",
+        "requested": 0.125,
+        "direct": 0.125,
+        "tool": 0.125,
+        "unit": "V",
+        "absoluteError": 0
+      },
+      {
+        "callId": "minimal-final-c-values-20260921-2",
+        "requested": -0.375,
+        "direct": -0.375,
+        "tool": -0.375,
+        "unit": "V",
+        "absoluteError": 0
+      }
+    ],
+    "instrumentCalls": "Each success has exactly one successful main Bias_Get whose sole value matches the independent read.",
+    "disconnect": "One failed main Bias_Get contains managed_simulator_stopped and no finite success values; SQLite and JSONL retain the same call id.",
+    "restartRead": true,
+    "portsReleased": true,
+    "evidence": [
+      "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-values.json",
+      "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-failure.json",
+      "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\profiles\\minimal\\acceptance-restart.json"
+    ]
+  },
+  "finalD": {
+    "status": "passed",
+    "dshHome": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home",
+    "installDir": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal",
+    "ports": [
+      16641,
+      16642,
+      16643,
+      16644
+    ],
+    "command": "node scripts/verify-minimal.ts values --install-dir D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal --python <STMSIM_PYTHON> --simulator-root <STMSIM_ROOT> --ports 16641,16642,16643,16644 --records D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal\\acceptance-records.sqlite --results D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal\\acceptance-results.jsonl --evidence D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal\\acceptance-values.json --dsh-home D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home --run-id final-d-values-20260921",
+    "comparisons": [
+      {
+        "callId": "minimal-final-d-values-20260921-1",
+        "requested": 0.125,
+        "direct": 0.125,
+        "tool": 0.125,
+        "unit": "V",
+        "absoluteError": 0
+      },
+      {
+        "callId": "minimal-final-d-values-20260921-2",
+        "requested": -0.375,
+        "direct": -0.375,
+        "tool": -0.375,
+        "unit": "V",
+        "absoluteError": 0
+      }
+    ],
+    "instrumentCalls": "Each success has exactly one successful main Bias_Get whose sole value matches the independent read.",
+    "portsReleased": true,
+    "evidence": "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\profiles\\minimal\\acceptance-values.json"
+  },
+  "m0": {
+    "status": "passed",
+    "head": "22f655b6ca27e54d2fac3fb337044f9636725406",
+    "worktree": "existing uncommitted edits retained; actual distribution bound by SHA256 and provenance",
+    "node": "24.14.0",
+    "pnpm": "11.7.0",
+    "unitContractBaseline": {
+      "files": 118,
+      "tests": 7445
+    },
+    "unitContractFinal": {
+      "files": 122,
+      "tests": 7454
+    },
+    "sourceIntegration": {
+      "files": 2,
+      "tests": 11
+    },
+    "additionalSessionDecoderRegression": {
+      "files": 1,
+      "tests": 1
+    },
+    "realHardwareConnections": 0
+  },
+  "m1": {
+    "status": "passed",
+    "installations": [
+      "D:/dsh-spm-m1-final-c-20260921-0140",
+      "D:/dsh-spm-m1-final-d-20260921-0145"
+    ],
+    "explicitlyPinnedDshPackages": 231,
+    "actualDshPackages": 231,
+    "dshVersion": "0.1.5-rc.2",
+    "externalModuleIdentityChecks": [
+      "@deepseek-ai/cordis",
+      "@deepseek-ai/dsh-tools",
+      "@deepseek-ai/dsh-system-prompt",
+      "@deepseek-ai/dsh-host-webserver"
+    ],
+    "copiedTarballOutsideRepository": true
+  },
+  "m4": {
+    "status": "passed",
+    "nativeEntrypoint": "installed dsh 0.1.5-rc.2 CLI with dsh-base+dsh-headless+dsh-spm",
+    "model": "deepseek-official/deepseek-flash",
+    "toolCatalog": [
+      "GetBias",
+      "stm_hello"
+    ],
+    "independentBiasV": [
+      0.10000000149011612,
+      0.10000000149011612
+    ],
+    "sessions": [
+      "session-6e1e03e2-8ea3-4021-944d-0745011e35e0",
+      "session-ef1aadf8-53de-4c95-b39a-99d37e6ff14a"
+    ],
+    "agentRequests": 4,
+    "auxiliaryTitleRequests": 1,
+    "totalObservedRequests": 5,
+    "knownAgentTokens": 2784,
+    "auxiliaryTitleTokens": null,
+    "notes": [
+      "First run made one native automatic title request; subsequent driver disables session-title-llm.",
+      "Compressed-log parser was repaired and the first paid run replayed offline without another model call.",
+      "Token fields retain native dsh accounting; title request usage was not persisted."
+    ],
+    "evidence": [
+      "D:\\dsh-spm-m1-final-c-20260921-0140\\dsh-home\\model-evidence-c-final.json",
+      "D:\\dsh-spm-m1-final-d-20260921-0145\\dsh-home\\model-evidence-d-final.json"
+    ],
+    "details": "minimal-model-20260921.json",
+    "restartRead": true,
+    "portsReleased": true
+  }
+}

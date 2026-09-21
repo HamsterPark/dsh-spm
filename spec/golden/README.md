@@ -1,174 +1,131 @@
-# `spec/golden/` —— 与 Python 侧对账的分母
+# 参考金样与导出器索引
 
-金样的来源与导出器列在下表中，包括 MAST 声明和行为、模拟器协议及公共数值库输出。
-不要手填数值或轨迹来消除测试差异；经审查的公开文本脱敏例外见
-[开发指南](../../docs/DEVELOPMENT.md#金样生成物与参考仓)。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。
 
-从仓库根目录使用具有相应依赖的 Python 环境运行。需要外部源码的脚本通过环境变量配置：
+## 来源与复现方式
 
-- `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录；它可能是参考项目的 `MASTv2/` 子目录。
+| 来源类别 | 典型文件 | 证据范围 |
+|---|---|---|
+| 参考声明 | `skills.json`、`records_schema.json`、`manifest.json` | 作者声明、数据库结构及 collector 状态 |
+| 参考代码执行 | `skill_traces.json`、SI／安全／前置条件、各专用驱动器 | 在指定输入、时钟和上下文下执行 MAST 实现；部分文件同时包含常量或声明 |
+| 公共数值库执行 | `numerics.json` | NumPy、SciPy、scikit-image 对保存输入的计算结果；无需私有 MAST |
+| 静态源码分析 | `tip_phase_deps.json` | 可能的子技能与函数依赖、非技能依赖和无法解析的边界；不执行仪器流程 |
+| 协议编解码 | `wire_frames.json`、`wire_types.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节 |
+
+不要手填数值或轨迹来消除测试差异。说明字段、匿名测试标签和已登记标识符的公开清理例外见 [开发指南](../../docs/DEVELOPMENT.md#金样生成物与参考仓) 与 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md)。部分说明来自参考系统观测；去标识化不改变来源类别。
+
+从仓库根目录使用具有相应依赖的 Python 环境运行。需要外部源码的脚本通过以下环境变量配置：
+
+- `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录，可能是参考项目的 `MASTv2/` 子目录。
 - `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，仅相关协议导出器需要。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
-缺少所需源码变量、变量为空或指向非目录时，入口会报错。`export_numerics.py` 不需要私有参考源码。
-命令中的脚本名是占位符，应按下表选择；先阅读脚本依赖与只读检查要求。
+缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
 
-```powershell
+```text
 python tools/spec-export/<脚本>.py
 ```
 
-脚本**只读旧仓**：导出前把 `MAST2_PROJECT_ROOT` 指向临时目录，旧仓的 config / data_paths /
-override_store / models（API key 目录解析）都认这个变量。2026-09-08 实测：跑完后
-`find MAST -newermt '-10 minutes'` 返回空，旧仓一个字节没动。
+导出会更新本目录的对应产物，并可能在隔离目录写入运行文件。导出前隔离配置与数据目录、禁用参考目录中的字节码写入；导出后检查参考目录未被修改。同条件导出两次并比较完整字节，记录参考版本与环境。历史逐字节复现结果不代替新一轮检查。
 
-**历史重跑记录为逐字节相同**（2026-09-16 又验了四份：`numerics` / `environment` /
-`nanonis_files` / `skill_traces`）。所以「旧仓变了没有」这个问题可以用 `git diff` 回答 ——
-这也是 manifest 里不记随机沙箱路径的原因。2026-09-20 的公开文本清理没有重导金样；
-当前说明与匿名标识不再保证与私有原始导出逐字一致。`manifest.json` 的源码位置固定记录为
-`<MAST_ROOT>`，不得把开发者的实际目录重新写入公开产物。
+2026-09-20 的公开文本清理没有重导金样；当前说明与匿名标识不保证与私有原始导出逐字一致。重导后应再次检查公开内容。`manifest.json` 的源码位置记录为 `<MAST_ROOT>`，不得恢复开发者的实际目录。
 
-> **2026-09-16 重写。** 上一版这张表只列了 7 份，而目录里已经有 30 多份；
-> 末尾的「还没导的」还把 `tool_schemas.json` / `preconditions.json` / `safety.json`
-> 列成待办，而它们早就在了。**一份列了三分之一内容、并且把已有的说成没有的清单，
-> 比没有清单更糟** —— 读的人会照着它去判断「这块有没有覆盖」。
+## 一、文件与导出器
 
----
+各导出器文件头说明参考入口、输入构造和比较条件。以下保留专用驱动器的注册落点；文件名中的批次号用于定位历史来源。
 
-## 一、导出器与它驱动的东西
+### ① 基础规格与契约
 
-每个脚本的抬头都写着它驱动的是旧仓的哪一段真代码。分三类：
-
-### ① 规格类 —— 读旧仓的**声明**
-
-| 文件 | 导出器 | 钉的是什么 |
+| 文件 | 导出器 | 内容 |
 |---|---|---|
-| `skills.json` | `export_mast_spec.py` | 515 条技能的**作者声明**契约：category / safety_level / description / 逐参数 ParameterSpec（含 unit、min/max、allowed_values）/ preconditions / capabilities / composition_level / 所在模块与 origin |
-| `si_cases.json` | 同上 | SI 行为：`parse_si` / `parse_quantity`（strict 与 loose 各一遍）/ `needs_strict_prefix` / `format_si`，**含报错类型与原文** |
-| `safety.json` | `export_safety_spec.py` | 可调包络 14 字段 + 全局检查 19 行 + 物理荒谬 11 行 + 中止安全写 24 条 + `_is_read` 对**全部 671 个动词**的判定 + 硬闸 / 能力 / 模式拒绝（**原文逐字**） |
-| `preconditions.json` | `export_preconditions.py` | 前置条件词表 + **10 个前置 × 14 个夹具 = 140 格网格**，逐格录违反消息。整片网格而不是挑点 —— 判定里有子串匹配，而子串在否定形式上尤其危险 |
-| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 模型**唯一读得到范围的地方**：工具 schema 的逐字文本 |
-| `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明；建表由金样原样执行，逐表逐对象比 |
-| `manifest.json` | `export_mast_spec.py` | 每个 collector 的成败与条数 —— **一个 collector 坏了不能静默缺一块**，缺一块会让分母悄悄变小 |
+| `skills.json` | `export_mast_spec.py` | 515 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
+| `si_cases.json` | 同上 | 执行 `parse_si`、strict／loose `parse_quantity`、`needs_strict_prefix`、`format_si`，包含异常类型与完整消息 |
+| `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本 |
+| `preconditions.json` | `export_preconditions.py` | 词表与 10 个前置条件 × 14 个夹具的 140 格网格，逐格记录违反消息，覆盖子串匹配及否定形式 |
+| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 515 个技能的模型 schema；保存模型可见范围及文字 |
+| `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明，用于执行建表后逐表、逐对象比较 |
+| `manifest.json` | `export_mast_spec.py` | 该导出器各 collector 的成功状态与条数；不是本目录全部专用导出器的运行记录 |
 
-### ② 轨迹类 —— 驱动旧仓**真实的那段代码**跑一遍
+### ② 通用轨迹与状态机
 
-这一类的共同点：录的不是「我读旧仓读出来的结论」，是**旧仓自己跑出来的东西**。
+这一组执行参考代码并保存返回值、调用序列或状态变化。固定回包的通用驱动器不能覆盖所有分支，专用驱动器在下一节补充输入。
 
-| 文件 | 导出器 | 驱动的是 |
+| 文件 | 导出器 | 执行范围 |
 |---|---|---|
-| `skill_traces.json` | `export_skill_traces.py` | **329 个技能 / 1392 条调用轨迹**（含 13 条「抛异常也是判据」）。总驱动器 |
-| `watchdog.json` | `export_watchdog_trace.py` | 真 `SafetyWatchdog.run()`（把它的 `time` 换成假时钟，让真循环自己跑）。含 2026-08-10 那次「武装着却打不着火」的复现 |
-| `state.json` | `export_state_spec.py` | 真 `InstrumentState`：1 Hz 读哪 11 个动词（**观测得到，不是手抄**）、21 条「什么算一个读数」、14 条脚本 29 步、7 条实时提示块**整段文本** |
-| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机 50 步 |
-| `graph_executor.json` | `export_graph_executor.py` | 真 `GraphExecutor`（四条恢复守卫的现场） |
-| `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | 真 `AutoApproach` / `safety_escalation` / `ApproachTip._approach` |
-| `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | 真 `scan_policy` / `imaging` 判定件；真 `WaitScanComplete` 与回包解析器 |
-| `bias_ramp.json` | `export_bias_ramp.py` | 真 `SetBiasRamp` |
-| `tip_park.json` | `export_tip_park.py` | 真 `tip_park` 判定机 |
-| `claim_audit.json` | `export_claim_audit.py` | 声明交叉核对 |
-| `advanced_ops.json` | `export_advanced_ops.py` | 真 `QuitNanonis` / `WaitForScanEndBlocking` |
-| `frames_presets.json` · `zctrl_presets.json` · `lockin_presets.json` | `export_frames_presets.py` · `export_zctrl_presets.py` · `export_lockin_presets.py` | `.npy` 字节取自真实 numpy；三套参数组的 resolve 与三件套技能 |
+| `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,798 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
+| `watchdog.json` | `export_watchdog_trace.py` | 用可控时钟驱动 `SafetyWatchdog.run()`，覆盖武装状态与动作触发条件 |
+| `state.json` | `export_state_spec.py` | `InstrumentState` 的调用、读数转换与状态：21 个转换用例、14 条脚本共 29 步、7 个实时提示块 |
+| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步 |
+| `graph_executor.json` | `export_graph_executor.py` | `GraphExecutor` 的执行与恢复守卫 |
+| `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | `AutoApproach`、`safety_escalation`、`ApproachTip._approach` |
+| `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | `scan_policy`、`imaging` 判据，以及 `WaitScanComplete` 和回复解析 |
+| `bias_ramp.json` | `export_bias_ramp.py` | `SetBiasRamp` |
+| `tip_park.json` | `export_tip_park.py` | `tip_park` 判定机 |
+| `claim_audit.json` | `export_claim_audit.py` | 声明、技能运行与文件证据的交叉核对 |
+| `advanced_ops.json` | `export_advanced_ops.py` | `QuitNanonis`、`WaitForScanEndBlocking` |
+| `frames_presets.json` · `zctrl_presets.json` · `lockin_presets.json` | `export_frames_presets.py` · `export_zctrl_presets.py` · `export_lockin_presets.py` | NumPy 生成的 `.npy` 字节，以及三套参数组的解析与技能行为 |
 
-### ③ 专用驱动器 —— **通用驱动器走不到的那些路**
+### ③ 专用驱动器与静态依赖
 
-> **并行支线的落点**（2026-09-19 加）：下面那张表这一轮**两条支线同时往末尾加行**，
-> 成了冲突点。此后每条支线只往自己那一行下面加，中间那行谁都不要动。
-> —— 同 `spec/deviations.md` 的锚点，理由一样：
-> **冲突不是随机事件，它有确定的形状**（见 EXECUTION 课时 3.17）。
+并行支线只在分配给自己的锚点下添加条目，保留相邻落点之间的隔离行。锚点与现有表格的相对位置属于协作约定，详见 [开发指南](../../docs/DEVELOPMENT.md#并行协作与合并)。
 
 <!-- ── 批 6a（特异化流程 _tip_phases 六个组合技能）的驱动器写在这一行下面 ── -->
 
-| 金样 | 驱动器 | 它能走到而通用驱动器走不到的 |
+| 金样 | 驱动器 | 专门覆盖的内容 |
 |---|---|---|
-| `tip_phase_deps.json` | `export_tip_phase_deps.py` | `_tip_phases` 六条流程的**子技能闭包**（从六个 `plan_dynamic` 出发求 `CompositeStep(skill_name=…)` 的传递闭包）。这六条要一台真仪器跑几十分钟到几小时，**通用驱动器与任何一台重放驱动器都录不到一格**；而「要移它得先有哪些」恰恰只能从源码读。唯一一台**静态**驱动器（纯 `ast`，连 `sys.path` 都不动） |
+| `tip_phase_deps.json` | `export_tip_phase_deps.py` | 对六条 `_tip_phases` 流程的 `plan_dynamic` 做 AST 分析，记录函数调用与可能发出的 `CompositeStep`，再结合技能调用表计算依赖闭包。此导出器不执行参考运行时；结果是依赖范围，不是流程运行轨迹 |
 
 <!-- ── 批 6b（vision 的 scan_prep 链）的驱动器写在这一行下面 ── -->
 
-| `export_scan_prep.py` → `scan_prep.json` | `scan_prep` / `scan_artifacts` / `tip_change` 三份判据 + 两个技能。**33 张合成 `.sxm`**（闭式 + `default_rng`，一律从字节读回来），15 节 |
+| `export_scan_prep.py` → `scan_prep.json` | `scan_prep`、`scan_artifacts`、`tip_change` 判据与两个技能；37 张合成 `.sxm`，15 个数据节。闭式或固定种子生成的帧均从保存字节读回 |
 
-这一台的特点是**每一张帧后面都写着「它一个人撑着哪道闸」**，而那不是文风 ——
-第一轮 43 条演练里有 **10 条绿**，全部是「那道闸没有输入」。补输入时发现了四条
-只有造帧才看得见的事实，其中两条值得在这里留字：
+该驱动器为分支提供专门输入。以下两个条件会影响造帧与断言：
 
-* **伪影那三件（`_oscillation` / `_drift_px` / `_spike_frac`）在 pm 级的帧上一次也跑不到** ——
-  `detect_scan_artifacts` 开头 `std < 1e-9` 的早退在真机上**几乎总是成立**（Z 以米计）。
-  它们的输入必须是 **nm 级起伏**的帧；没有那几张，这三件移过来就是三段没有闸的代码。
-* **`measure_frame` 转发给 `detect_tip_change` 的是 `line_subtract` 之后那一段**，
-  而逐行平场把行偏置整个擦掉 ⇒ `dc` 通道对**纯 DC 跳变**在这条路上是瞎的
-  （实测 600 pm 的跳变在那里 `dc = −6.285`，判不出来）。
-  要让「针尖变了」那句话出现，帧上得有一次**纹理**变化。
+- `detect_scan_artifacts` 的 `std < 1e-9` 早退使 pm 级起伏无法进入 `_oscillation`、`_drift_px`、`_spike_frac`。覆盖这些分支需要 nm 级起伏的帧。
+- `measure_frame` 在调用 `detect_tip_change` 前执行 `line_subtract`，会移除逐行偏置。历史用例中 600 pm 的纯 DC 跳变得到 `dc = −6.285`，未触发该路判据；需要另有纹理变化的用例检验相应分支。
 
 <!-- ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）的驱动器写在这一行下面 ── -->
 
 <!-- ── 批 7a-1（vision/tilt 一族 + AnalyzeFrameTilt + AutoTilt）的驱动器写在这一行下面 ── -->
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `tilt.json` | `export_tilt.py` | 三个技能里两个要一个**会回话的子技能**（`AutoTilt` / `TiltCalibrate` 的 `context.run("TiltProbeCircle")`），通用驱动器连那个名字都没有；第三个（`AnalyzeFrameTilt`）只读磁盘上的 `.sxm`，于是在 `skill_traces.json` 里只录得到「文件不存在」那一支。这一份自己合成 `.sxm` **字节**（读法归旧仓）、自己搭一台**闭式**假仪器（`ZSim`：横移记位置、读 Z 按斜面给数）、把子技能写成脚本，并把 `time.monotonic` / `time.time` 一起钉死 |
+| `tilt.json` | `export_tilt.py` | 合成 `.sxm` 字节、闭式 `ZSim` 斜面读数和脚本化子技能回复，覆盖 `AnalyzeFrameTilt`、`AutoTilt`、`TiltCalibrate`；固定墙钟与单调钟 |
 
-这一份有三条**别处没有**的纪律，值得单写：
+该组比较还保留以下条件：
 
-* **RANSAC 的谱宽随每一格录**（`ransac_spread`）。两边的抽样序列不同（D-VISION-1），
-  于是「倾斜是多少」在一张高斯噪声的图上是一次抽签 —— 实测 12 个种子之间 `b` 差
-  `3.3e-3`。金样把那个谱宽**量下来**，TS 那侧拿它当容差；
-  而主路那几格的谱宽是 **0**（棋盘噪声让内点恒为全部）。
-  **容差是量出来的，不是调出来的。**
-* **分割器两侧都录**（`*_seg` / `*_noseg`）。本仓没有 `segment_scale_adaptive`，
-  落在旧仓自己的 fail-open 上；把 `sys.modules[...]` 设成 `None` 逼出真的
-  `ImportError`，走的是旧仓那条 `except`，不是我替它编的返回值。
-* **三处不可达各留一节**（`estimate_tilt_unreachable` / `no_action_reason_unreachable`
-  / `fit_circle_tilt.all_same_angle`）。不可达要**量出来**，不是写在注释里。
+- `ransac_spread` 保存不同抽样序列的结果变化，作为 D-VISION-1 容差依据。历史 12 个种子间的 `b` 差为 `3.3e-3`；主路径的棋盘噪声样例内点相同，谱宽为 0。
+- `*_seg` / `*_noseg` 同时记录有／无分割器的路径。无分割器场景通过使真实导入抛出 `ImportError` 进入参考 fail-open 分支。
+- `estimate_tilt_unreachable`、`no_action_reason_unreachable`、`fit_circle_tilt.all_same_angle` 保留不可达或退化情形的证据。
 
 <!-- ── 批 7a-2（实验地图层 + FindCleanSpot）的驱动器写在这一行下面 ── -->
 
-| `map_scope.json` | `export_map_scope.py` | `FindCleanSpot` 的判据住在**它没发出去的那些调用**里：除一次 `Piezo_RangeGet` 之外，它读的是**实验记录**与**进程内的撞针记忆**，然后在一张锚在可用区中心的格子上做纯几何选点。通用驱动器的假 context 两样都给不出来 ⇒ 那条路上 `map_known` 恒为 False、避让圆一个都没有，**250 行的 `nearest_clean_from` 只走得到「空地图」那一条**。这一份自己摆世界（档案 / 实验记录 / 撞针追踪器 / 仪器回包四样都由它给），10 节：环带生成序 · 25 格配置装配 · 22 行 marker 还原 · 9 组代次 · 7 格三态读地图 · 5 格撞针记忆 · 8 格避让圆 · **26 格选点几何** · 10 格坐标串解析 · **39 格技能端到端** |
+| `map_scope.json` | `export_map_scope.py` | 用档案、实验记录、撞针记忆和仪器回复构造 `FindCleanSpot` 上下文。10 个数据节：环带顺序、25 个配置用例、22 个 marker、9 组代次、7 个三态读地图用例、5 个撞针记忆用例、8 组避让圆、26 个选点几何用例、10 个坐标串解析用例、39 个技能用例 |
 
-那 26 格选点几何是这一批最大的一块判据，而**每一格都是照着一条会被拆掉的闸造的**：
-造完之后拿 15 种「另一种合理写法」在旧仓侧逐一重跑，
-要求**至少一格的结果变了**才算这道闸有输入。15 种里 13 种当场被分开，
-剩下两种（去掉提前退出 / 去掉 `max_ring` 的 `+2`）**一格都分不出来** ——
-那不是金样不够，是它们**本来就不是闸**（前者由三角不等式保证不改答案，
-后者是取整余量）。这两条因此没有进变异清单，理由写在 `spec/deviations.md`。
+26 个选点用例对应具体的几何判断。历史导出验证过 15 种候选改写，其中 13 种会改变至少一个输出；去掉提前退出、去掉 `max_ring` 的 `+2` 未改变该算法结果，未作为有效变异登记，原因见 [偏差登记](../deviations.md)。
 
-⚠️ 三处边界判据（相切 / 正好一个直径 / 正好等于 `max_distance_m`）**刻意造在轴上**：
-`hypot(a, 0)` 在两种语言里都精确，而 `hypot(a, a)` 差 1 ULP（D-HYPOT-1）。
-**一条会被最后一位掀翻的边界判据，不是判据。**
+相切、正好一个直径、正好等于 `max_distance_m` 的边界用例放在坐标轴上，使 `hypot(a, 0)` 精确；斜向 `hypot(a, a)` 的 1 ULP 差异单独按 D-HYPOT-1 处理。
 
 <!-- ── 批 7a-3（kde_layers + FindFlatRegion + BiasWiggle）的驱动器写在这一行下面 ── -->
 
 <!-- ── 批 7b-1（封锁账闭包化 + AssessAtomicPhase + 两条已解封锁的流程）的驱动器写在这一行下面 ── -->
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `batch7b1.json` | `export_batch7b1.py` | `AssessAtomicPhase` 读磁盘上的 `.sxm`，一次 TCP 都不发 ⇒ 通用驱动器（`_params_for` 给不出真实路径）只录得到「文件不存在」那一支，而**技能壳自己那三道门一格都验不到**：覆盖率门 `_MIN_COVERAGE=0.5`（`tip_spectro_assess.py:385-410`）· `expected_a_nm` 的三态（给正数 / 给 0 / 不给）· 通道回落（要 `Z` 拿不到时**取第一个通道**，与孪生技能 `AssessAtomicResolution` 刻意不同）。这一份自己合成 12 个 `.sxm`（闭式 sin-hash，零随机数，**只存正扫** —— 这个技能只读 `forward`，存反扫会让金样大一倍），26 格技能 + 10 格 `resolve_substrate`。<br>⚠️ **覆盖率门录三格，而线上那一格是判据**：0.25（门下）· **0.4375（门下、而判据本身 `passed=True`）** · 0.5（**正好在门上，不算残帧**）。`incomplete = coverage < 0.5` 是严格小于 —— 少了 0.5 那一格，`<` 与 `<=` 给出同一个答案；少了 0.4375 那一格，「门压住的是 `passed` 而不是判据本身」这件事一格输入都没有（那正是真机 0084/0085 的形状：2% 的像素、报 `passed=True`、角向集中度 94）。<br>⚠️ **`expected_a_nm: 0` 与「不给」的分界只有 `expected_zero_with_substrate` 那一格分得开**：参数说明是两句话（「留空则从衬底取；填 0 则关掉这项比较」），而**没有衬底时它们给出同一个答案**。第一版漏了这一格，`atomicphase-expected-zero-*` 那条变异当场跑成绿的（green-8 §2.1 那个形状：闸只有一侧有输入）。<br>⚠️ `resolve_substrate` 把 `SURFACE_LATTICE_NM` 的**全部七个面**都问了一遍，不是只问对得上的那三个 —— 正是这四格多出来的问答量出了两件事：旧仓只认**四个**洁净金属面（`HOPG` / `NaCl(100)` / `Si(111)-1x1` 一律 `available=false`），以及 Pt(111) 上 `2.775/10 ≠ 0.2775`（差 1 ulp，见 D-ROWSPACING-1）。 |
-| `tip_phase_deps.json`（扩） | `export_tip_phase_deps.py` | 原来只有「六条流程 → 它 `yield` 的 `CompositeStep`」**一层**。批 7b-1 加两节：**`skill_runs`**（扫整棵 `mast/skills/**`，515 个技能各一行「它自己还会发出去谁」，TS 侧据此自己求闭包）与 **`closure_limits`**（这套追法**追到哪儿为止**）。<br>⚠️ 边有**两条**不是一条：旧仓 `CompositeStep(` **299 处** · `context.run(` **63 处** —— 只追后者只覆盖五分之一，而漏掉的正是 `ScanAt` / `PreScanCheck` 压着的 `SetScanBuffer` / `WaitScanComplete` / `SetZCtrlGain` / `SetScanSpeed`。<br>⚠️ `closure_limits` 是判据的一部分，不是说明：`unknown_skills`（被叫到而找不到定义的名字，今天**空表**）· `dynamic_run_sites`（追不动的 7 处，带 `shape` 与 `in_engine`）· `internal_phase_targets`（31 个 `_phase*` —— **解得开但不是技能**，进 `runs` 会让封锁账永远红）· `cycles`（今天空表）。<br>⚠️ 还加了 `non_skill_deps`：闭包里每个函数要的、**不是技能**的东西。`PulseConditionTip` 的封锁件按闭包算是空的，而它今天仍然移不了 —— 缺的是 `core.map_scope.record_damage_marker`（批 7a-2 点名的欠账）与 `core.noble_tip_workflow.{resolve, reconcile_with_tip_envelope}`。**一个只数技能的账，数不出非技能的债。** |
+| `batch7b1.json` | `export_batch7b1.py` | 12 个闭式合成、仅含正扫的 `.sxm`；26 个 `AssessAtomicPhase` 用例与 10 个 `resolve_substrate` 用例。覆盖 `_MIN_COVERAGE=0.5`、`expected_a_nm` 的正值／0／未提供三态，以及请求 Z 通道不可用时回落到首个通道。覆盖率 0.25、0.4375（内部判据通过）与 0.5 分别区分拒绝、最终通过值受覆盖率限制及严格小于边界。<br>`expected_zero_with_substrate` 区分“0 禁用比较”和“未提供则查衬底”。`SURFACE_LATTICE_NM` 七个面全部进入用例；参考只认四个洁净金属面，`HOPG` / `NaCl(100)` / `Si(111)-1x1` 为 `available=false`。Pt(111) 的 `2.775/10` 与 `0.2775` 差 1 ULP，见 D-ROWSPACING-1 |
+| `tip_phase_deps.json`（扩展） | `export_tip_phase_deps.py` | `skill_runs` 覆盖 515 个技能，追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)` 两种边。当前 `closure_limits` 保存 7 处动态调用、31 个非技能的内部阶段目标，`unknown_skills` 与 `cycles` 均为空；具体追踪深度以 `follow_rule` 为准。函数级 `non_skill_deps` 另列地图写侧与 `noble_tip_workflow` 等组件；没有未迁移子技能不等于其他依赖已具备 |
 
 <!-- ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的驱动器写在这一行下面 ── -->
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `batch7b2.json` | `export_batch7b2.py` | 通用驱动器给每个动词一个**常数**回包、给每个子技能一个**空 `data`**，于是这八个技能各自卡在**第一道闸**上：`MeasureBarrierHeight` 的每次 `AcquireSTS` 都没有 `spectrum_parsed` ⇒ 方向确认的第一读就 `None`，κ 拟合／噪声底／三条判读**一条都没走到**；`MapBarrierHeight` 的 φ 全是 `None` ⇒「针尖侧／表面侧／灰带」三条一条都没走到；`CleanTipUntilBarrier` 在**第一句**就返回（基线判不了）；`AcquireDeltaFCurve` 每一格都走「装不下」；`RunGridExperiment` 的超时判据读**墙钟**，而那台把墙钟钉死。<br>这一份走**脚本化上下文**（每个动词、每个子技能的回答由用例自己给，同 `export_batch5b.py`），104 格技能 + 60 格纯函数 + 11 格 `validate_params`。合成用闭式：`I(d) = I₀·exp(−2κd)`，κ = 5.123·√φ —— **那是被测代码的逆运算**，于是「拟合对不对」在金样里可以独立验算（期望的 φ 就是输入的 φ）。 |
+| `batch7b2.json` | `export_batch7b2.py` | 脚本化动词与子技能回复，补充通用常数回复无法覆盖的势垒拟合、噪声底、针尖／表面判读、Δf 曲线与网格超时分支。104 个技能用例、63 个纯函数用例、11 个 `validate_params` 用例。势垒输入采用 `I(d) = I₀·exp(−2κd)`、κ = 5.123·√φ，输入 φ 可独立核对拟合结果 |
 
-⚠️ **这一台的墙钟会走**，而别的都不会。`export_skill_traces.py` 把 `time.time`
-钉死成常数（理由是「重跑逐字节相同」），代价是 `RunGridExperiment` 的超时判据在
-那份金样里是死代码。这一台把 `time.time` 也接到 `_CLOCK` 上（只由 `sleep` 与
-每次读的 1e-3 往前拨）—— 仍然逐字节可复现，而 `elapsed` 真的会涨。
-两侧这条判据的符号一定一致：主项是**睡掉的那些秒**（每拍 2 s，逐位相同），
-读钟带来的零头两侧都是正的。
+该驱动器让 `time.time` 随受控 `_CLOCK` 前进：sleep 与每次读钟的 1e-3 增量决定时间，不使用真实墙钟。这样可复现 `RunGridExperiment` 的超时分支；通用驱动器中的常量时钟无法覆盖它。测试需保留每拍 2 s 的主项及正的读钟增量。
 
-⚠️ **`CalibrateCoarseStep` 的标定循环没有金样，而那不是遗漏**：`ScanAt` 从不返回
-`scan_path`（D-SCANPATH-1），于是 `execute` 恒在「基准帧扫描失败」返回。
-这里录的是**今天真的走得到**的那几格；`phase_shift` 那 15 行**单独成节**
-（纯数值、零 I/O、零 RANSAC）；循环内部由 TS 侧一份**明写是假设**的脚本驱动
-（名字带 `hypothetical`）。
+`CalibrateCoarseStep` 的参考标定循环受 `ScanAt` 不返回 `scan_path` 的限制，见 D-SCANPATH-1。金样记录可达的拒绝路径；`phase_shift` 单独比较。TypeScript 对循环内部的脚本化验证标有 `hypothetical`，不能与参考可达路径混称。
 
-⚠️ **`phase_shift` 的合成帧带一层 2% 的非周期宽带噪声**，理由写在导出器
-`pit_frame` 的抬头：三个解析高斯求和的谱里有数值为零的格，而
-`R /= max(|R|, 1e-30)` 会把那几格的**相位**整个放出来 —— 那不是舍入误差，
-是一个**没有定义的量**。加噪声之后 `max|R|/min|R|` 从 `6.4e15` 降到 `2.2e7`，
-`snr` 两侧的差从 `2e−10` 回到 `4e−14`（推得出来的界之内）。
-第一版用的是周期噪声（`(31r+17c) mod 13`），**相关峰整个挪了位** ——
-那不是精度问题，是答案变了。
+`phase_shift` 使用带 2% 非周期宽带噪声的合成帧，避免 `R /= max(|R|, 1e-30)` 对近零谱分量放大未定义相位。历史构造记录中，`max|R|/min|R|` 从 `6.4e15` 降至 `2.2e7`，两侧 `snr` 差从 `2e−10` 降至 `4e−14`。周期噪声 `(31r+17c) mod 13` 曾改变相关峰位置，因此不能替代当前噪声形状。
 
 <!-- ── 批 7b-3（composite 零新原语五个 + paper 四个纯函数）的驱动器写在这一行下面 ── -->
 
@@ -178,61 +135,47 @@ override_store / models（API key 目录解析）都认这个变量。2026-09-08
 
 <!-- ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）的驱动器写在这一行下面 ── -->
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `batch7b3.json` | `export_batch7b3.py` | 五个组合技能**一次裸动词都不发**（除了 `TrackDrift_ReferenceScan` 的一次 `Scan_FrameDataGrab`）—— 它们的全部内容是**排了谁、按什么次序、带什么参数**。通用驱动器给每个子技能一个 `success=True, data={}`，于是那一份里：`AcquireBiasImagingSeries` 读不到扫描框、当场拒；`MoveAtomTo` 的读回全空、verify 没有 verdict；`GridSTS` 一格 `suspect` 都造不出来。这一份**自己摆子技能的返回**（按技能名脚本化，同一个名字可以给一串答案），51 格：`GridSTS` 7 · `DemoScanAndSTS` 11 · `TrackDrift_ReferenceScan` 9 · `AcquireBiasImagingSeries` 10 · `MoveAtomTo` 14。<br>⚠️ **每一格一个新 `run_id`**：sidecar 按 `(技能名, run_id)` 落盘，同 run 的下一格会**续跑**，把已完成的步骤整段跳掉 —— 那正是旧仓 #95「第 5 个点扫描不到」的形状，在导出器里复现出来只会毁掉金样。<br>⚠️ 两个钟都钉死：墙钟（参考图文件名里的毫秒）与单调钟（`abortable_sleep` 每 0.1 s 轮询一次）。<br>⚠️ `MoveAtomTo` 的十三格 `dy` 都是 0（`hypot(x, 0) == \|x\|`，两侧逐位相同），所以 `diagonal_drag_exercises_hypot` 是整份金样里**唯一**照得到 D-HYPOT-1 的一格；它的距离取成 `hypot(7e-10, 5e-10) = 8.602e-10` ⇒ `ceil(8.602) = 9`，**离整数远** —— 1 ULP 改不了航点个数（改得了的话两侧连步数都对不上）。 |
-| `paper_data.json`（+4 个技能） | `export_paper_data.py` | 批 7b-3 的四个 paper 纯函数与批 4c 那九个**同一形状**，直接并进同一台导出器与同一份金样（+35 格）。新加三张合成图：`frame_atoms`（四道闸：半整数质心 · **四邻接 vs 八邻接** · `> std` · `min_distance_px` 换答案）· `frame_blurred_disks`（全正，免得 RL 的除法把两条卷积路线的差放大到没法给容差）· 两张自定义 PSF（**一奇一偶、都刻意不对称**）。<br>⚠️ 新增一节 **`rl_facts`**：每一格 RL 的 PSF 形状与**每一轮的 `change`**。`iterations_used` 是 `change < 1e-6` 这一次**比较**的结果，容差只能是 0 —— 于是「余量够不够」必须可查。最紧的一格离阈值 4.2%，而两条卷积路线的差在 1e-7 相对量级。容差 `rlOutputRelTol` 也从这一节算（抽头数 × 轮数）。<br>⚠️ 偶数 PSF 那一格（`custom_psf_even`）是整份金样里唯一分得开 same-卷积原点的地方 —— 奇数核上「翻核 + 相关」与 `fftconvolve` 恰好重合，偶数核差一格，而差一格只表现为**整幅图平移一个像素**。 |
+| `batch7b3.json` | `export_batch7b3.py` | 按技能名脚本化子技能回复，记录组合流程的调用次序与参数；54 个用例：`GridSTS` 7、`DemoScanAndSTS` 10、`TrackDrift_ReferenceScan` 11、`AcquireBiasImagingSeries` 10、`MoveAtomTo` 16。<br>每个用例使用独立 `run_id`，防止 sidecar 按已完成步骤续跑；墙钟与单调钟均受控。`diagonal_drag_exercises_hypot` 是斜向距离用例，其余 15 个 `MoveAtomTo` 用例的 dy 为 0。斜向距离 `hypot(7e-10, 5e-10) = 8.602e-10` 对应 `ceil(8.602) = 9`，远离整数边界，隔离 D-HYPOT-1 对航点数的影响 |
+| `paper_data.json` | `export_paper_data.py` | 16 个技能、130 个用例；覆盖合成文件上的处理、漂移、原子识别、分区与反卷积。保留 `frame_atoms` 的半整数质心、四／八邻接、`> std` 和 `min_distance_px` 判据；`frame_blurred_disks` 全正以限制 RL 除法对数值差异的放大；自定义 PSF 包含奇偶两种、且不对称。<br>`rl_facts` 记录 PSF 形状与每轮 `change`。`iterations_used` 由 `change < 1e-6` 决定，整数结果精确比较；输出容差 `rlOutputRelTol` 依据抽头数和轮数。历史最紧用例距阈值 4.2%，两条卷积路线差为 1e-7 相对量级。`custom_psf_even` 区分 same-卷积原点，奇数核不能暴露的一像素位移在偶数核上可见 |
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `batch7a3.json` | `export_batch7a3.py` | 通用驱动器对这两个技能各自照不到一整半。`FindFlatRegion` 的 `_params_for` 给不出一条真实的 `.sxm` 路径 ⇒ 那一份里只有「文件不存在」那一支，而十一个参数、两次不同步长的扫描、三条失败路径、`count > 1` 的多落点**一条都没被验到**；`BiasWiggle` 每个动词只拿得到一个**常数**回包，于是电流跳闸 / `Bias_Set` 失败 / 反馈关着 / 读不到起点四条全走不到，而随机数与墙钟这两样在那份驱动器里也不是用例能控的。这一份自己合成 `.sxm` 字节（闭式 sin-hash，零随机数）再喂进旧仓两个技能，外加五节判据本体：`np_grid`（`linspace` / `digitize` / **按边界数组**的 `histogram` / 二维 `gradient` / `argsort[::-1]`）· `hist_modes` · `kde_layers` · `local_plane_rms` · **`mt19937`**。<br>⚠️ `mt19937` 那一节对的是 **CPython 的 `random`**（不是 numpy）：`BiasWiggle` 的每一个扰动目标与每一段停留都是它的直接产物，而停留时长决定一次 burst 打得出几次跳变 —— 换一个 RNG，这个技能整条轨迹就没有判据了。<br>⚠️ `local_plane_rms` 每一格随金样录一个 **`z_span`**，`FindFlatRegion` 每一格随金样录一个 **`leveled_span_m`** —— 那是 `localRmsAbsTol` 的**入口**（同批 6c 的 `polyfit_cond`：容差里唯一的未知数，录下来就不再是未知数）。 |
+| `batch7a3.json` | `export_batch7a3.py` | 合成 `.sxm` 字节覆盖 `FindFlatRegion` 的真实文件、不同扫描步长、失败分支与多落点；受控时钟／随机序列覆盖 `BiasWiggle` 的电流、写入失败、反馈与起点读回分支。另含 `np_grid`（linspace、digitize、按边界数组的 histogram、二维 gradient、argsort 逆序）、`hist_modes`、`kde_layers`、`local_plane_rms`、`mt19937`。<br>`mt19937` 对应 CPython `random` 而非 NumPy；扰动目标与停留时长依赖该序列。`z_span` 和 `leveled_span_m` 随用例保存，供 `localRmsAbsTol` 计算 |
 
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `batch6c.json` | `export_batch6c.py` | 四个技能**一次 Nanonis 调用都不发**：两个读 `.sxm`、两个读 `.dat`。通用驱动器的 `_params_for` 给不出真实路径 ⇒ 它们在 `skill_traces.json` 里只录得到「文件不存在」那一支。这一份自己合成字节（闭式、零随机数）再喂进旧仓四个技能，外加九节判据本体（`_edge_resolution` / `_fwd_bwd_instability` / `assess_iz` / `assess_iv` / `sader_jarvis` / `invert_force_curve` / 多帧一致性）。**`polyfit` 的条件数与解向量分量比随每一格录** —— 容差要用它们 |
+| `batch6c.json` | `export_batch6c.py` | 四个离线技能分别读合成 `.sxm` / `.dat` 字节，补充通用驱动器仅有的文件缺失路径。包含 `_edge_resolution`、`_fwd_bwd_instability`、`assess_iz`、`assess_iv`、`sader_jarvis`、`invert_force_curve` 与多帧一致性等九组判据。每例保存 `polyfit` 条件数和解向量分量比，供容差计算 |
 
+其余专用文件如下。选用驱动器时先检查其输入是否能进入待测分支；增加同一路径的样例数量不会自动增加分支证据。
 
-通用轨迹金样喂的是**常数回包**，于是一整族判据可能一格都没被走到。
-**格数只决定走了几遍同一条路，驱动器才决定能走到哪条路。**
-
-| 文件 | 导出器 | 为什么要单开一台 |
+| 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
-| `z_trace.json` | `export_z_trace.py` | 通用回包里电流与 Z 恒为 0.25 ⇒ 扎针判定只走得到「Δz 恒为 0、`no_press`」一条路。这一份手搭曲线，**一条判据一格** |
-| `environment.json` | `export_environment.py` | 真空与温度的分支**全由参数决定**（技能一次 Nanonis 调用都不发），通用注错点一条都碰不到 |
-| `numerics.json` | `export_numerics.py` | numpy / scipy **真跑一遍**。**输入与答案一起录** —— TS 复现不了 PCG64，「同一批输入」只能靠录下来 |
-| `nanonis_files.json` | `export_nanonis_files.py` | 字节由脚本**合成**，读出来的东西由**旧仓真实读取器**给出。真机文件不进本仓（用户裁决：只用合成数据） |
-| `analysis.json` | `export_analysis.py` | 分析判定件（掩膜 / 团簇 / 平面 / 台阶 / 原子线 / 起伏闸）。**帧从 `.sxm` 字节读回来，不在两侧各自按闭式重建** —— 第一版那么做时 `noiseFloor` 差 4.4e-14，原因不是 `sin` 而是**加法结合律**（numpy 先把 tilt 算成整个数组）。**两边各自重建同一个输入，不是同一个输入。** |
-| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 字节层：请求侧 = 真实 `nanonis_spm` 客户端（MAST 打过补丁），回复侧 = STM-Bench 服务端 codec |
-| `scan_resolver.json` | `export_scan_resolver.py` | 真 `resolve_scan`（意图 → 参数）。它一次仪器调用都不发，产物是 `trace[*].source` —— **通用驱动器一格都碰不到**。77 格盯的是「哪一支赢了」：explicit > 档位表(用户) > 偏好 > 档位表(出厂) > keep-current |
-| `tip_crash.json` | `export_tip_crash.py` | 真 `TipCrashTracker`。它**全是状态**，判据是「第三次调用为什么被拒」⇒ 每条金样是一个**脚本**（record/count/blocked/points/recover/tick/snapshot 依次执行），不是一格输入 |
-| `tip_policy.json` | `export_tip_policy.py` | 真 `resolve_policy` + `resolve_conditioning`（针尖方案表与安全包络）。**通用驱动器直调 `execute`，`validate_params` 一次都没被调用** —— 而这一族的判据全在那里。12 支针尖 × 23 个请求 = **276 格**，其中 111 格**被拒**（超上限拒绝、不夹紧）。第 23 个请求 `shaper_depth_at_limit`（深度**正好等于上限**）2026-09-19 补，钉的是「上限是闭的」 |
-| `instrument_profile.json` | `export_instrument_profile.py` | 真 `instrument_profile`：键表的夹取与丢弃 18 格、`get_config` 的三级回落 9 格、`z_extend_sign` 三态 5 格、倾斜标定「四个元素缺一个就是没标定过」4 格。另记 `ablated_keys`（旧仓有、本仓按消融精神没登记的 39 个），**让「少了」与「漏了」分得开** |
-| `coarse_drive.json` | `export_coarse_drive.py` | 真 `coarse_drive` 的四道锁：`authorize` / `readback_matches` 各 3 种声明状态 × 15/12 格，**整段拒绝文本逐字**（那几句是直接给人和模型看的）。通用驱动器只走得到「没声明 ⇒ 拒绝一切」那一格 |
-| `z_settle.json` | `export_z_settle.py` | 真 `ZSettle` + **两台**方向判定机（`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede`，旧仓就是两个、措辞不同、刻意不合并）+ 「测出来是零」那道守卫 + 两条梯子。10 种读数形状 × `as_dict`、15 对 × 2 台、8 格没位移 |
+| `z_trace.json` | `export_z_trace.py` | 手工定义的曲线覆盖不同扎针判据，补充电流／Z 常数回复只有 Δz = 0、`no_press` 的情形 |
+| `environment.json` | `export_environment.py` | 真空与温度的参数判定；这些分支不经过仪器调用，需独立于通用注错点覆盖 |
+| `numerics.json` | `export_numerics.py` | 执行 NumPy、SciPy、scikit-image，并同时保存输入与结果。固定种子不代替相同输入；随机算法的比较方式以相应测试为准，本仓已有独立的 PCG64 实现 |
+| `nanonis_files.json` | `export_nanonis_files.py` | 脚本合成字节，由参考读取器给出解析结果；不收入真实仪器文件 |
+| `analysis.json` | `export_analysis.py` | 掩膜、团簇、平面、台阶、原子线与起伏判据。两侧从同一 `.sxm` 字节读帧，避免分别计算闭式输入时因加法结合顺序产生差异；历史 `noiseFloor` 差为 4.4e-14 |
+| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec |
+| `scan_resolver.json` | `export_scan_resolver.py` | `resolve_scan` 的 77 个用例，比较 `trace[*].source`；优先次序为 explicit > 用户档位表 > 偏好 > 出厂档位表 > keep-current |
+| `tip_crash.json` | `export_tip_crash.py` | `TipCrashTracker` 的状态脚本，依次执行 record / count / blocked / points / recover / tick / snapshot |
+| `tip_policy.json` | `export_tip_policy.py` | `resolve_policy` 与 `resolve_conditioning`：12 支针尖 × 23 个请求，共 276 例，111 例拒绝。超上限时拒绝而非夹紧；`shaper_depth_at_limit` 覆盖恰好等于上限 |
+| `instrument_profile.json` | `export_instrument_profile.py` | 22 个配置清理用例、16 个 `get_config` 用例、5 个 `z_extend_sign` 用例、4 个倾斜标定用例；`ablated_keys` 明列当前排除的 29 个参考键 |
+| `coarse_drive.json` | `export_coarse_drive.py` | `authorize` / `readback_matches` 各覆盖 4 种声明状态 × 15 / 12 个用例；完整拒绝文本逐字比较 |
+| `z_settle.json` | `export_z_settle.py` | `ZSettle`、`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 两套不同措辞的方向判定，以及位移与阶梯规则；10 个读数形状、两组各 15 个方向用例、8 个无位移用例 |
+| `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
+| `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
 
----
+## 二、维护约束
 
-## 二、四条别忘的
+1. **作者声明与运行覆盖分开。** 技能规格读取 `_get_metadata_raw`，不使用叠加管理员覆盖的 `_get_metadata`；否则当前设置会被误记为原始安全声明。
+2. **异常文本也是契约。** 例如 SI strict／loose 对非法输入有不同消息，应保留异常类型与原文；有意差异按 [偏差登记](../deviations.md) 处理。
+3. **去除无关的不确定性。** 临时目录、落盘路径、时间戳等非判据字段应由导出器规范化；保留真正参与判断的信息。不要用不稳定金样解释实现差异。
+4. **输入必须可重现。** 可使用闭式输入或固定种子，并保存必要的版本与实际输入。选择能区分候选实现的数值；例如 `base + iy*0.25 + ix*0.0625` 可暴露行列交换。随机种子、容差和输入形状的变化都应作为有意改动审查。
 
-**用的是 `_get_metadata_raw` 不是 `_get_metadata`。** 前者是技能作者的声明，后者叠加了 admin 覆盖。
-旧仓自己的注释讲得最清楚：拿叠加后的当基线，一个「调低某技能 safety_level」的管理员覆盖就会变成新标尺，
-把审批闸门洗白。**分母要的是声明，不是当前生效的包络。**
+数值阈值、容差依据与不可达路径的细节以导出器、对应测试及偏差登记为准。说明字段的公共清理不授权修改数值或二进制载荷，也不把历史参考观测改称合成输入。
 
-**报错原文也是契约。** `si_cases.json` 里录了异常类型与完整消息，因为模型读到的正是这些句子
-（PLAN §3.2-1、§3.2-16）。已经发现 strict 与 loose 对同一个非法输入给的是**两句不同的教学文案** ——
-这种东西照着行为写 TS 能过，照着措辞写才对得上。
+## 三、尚未导出的范围
 
-**金样里不许有每次都变的东西。** 2026-09-16 踩到两次：`.3ds` 那批的异常消息里带着一个随机临时目录
-（改成裸文件名 —— **路径本身不是判据，路径之前的那句话才是**）；轨迹里带着落盘路径与时间戳
-（`_TRACE_STAMP` 抹除）。一个每次都变的金样回答不了任何问题。
-
-**合成数据要可复现，所以不用随机数。** `z_trace.json` 的噪声用的是一个**不整除周期的锯齿**，
-`nanonis_files.json` 的像素值是 `base + iy*0.25 + ix*0.0625` 这样一个闭式 ——
-重跑不依赖任何种子状态，而且「行列搞反了」在数值上当场看得出来。
-
----
-
-## 三、还没导的
-
-按消融原则等各自的消费者出现再加：`tool_packs.json` / `prompts/` / `traces/`（PLAN §8.6 的完整清单）。
-`traces/` 在 §12 的差分测试。**脚本已经搭好，加一个 collector 就是加一个函数。**
+`tool_packs.json`、`prompts/`、独立 `traces/` 目录仍是 [PLAN](../../docs/PLAN.md) §8.6 / §12 中按消费者需求添加的计划项。这里的 `traces/` 不等于已存在的 `skill_traces.json`。新增导出时需明确消费者、来源与判据，并同步本索引。

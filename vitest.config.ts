@@ -1,6 +1,10 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
+// 参考轨迹的本地时间文本在 UTC+8 导出。测试进程在派生 worker 前固定同一时区，
+// 避免 CI 主机时区改变判据；生产代码仍按宿主本地时区渲染。
+process.env['TZ'] = 'Asia/Shanghai'
+
 // **工作区包别名到源码**，不走 `lib/`。
 //
 // 两个理由，第二个源于一次实际演练：

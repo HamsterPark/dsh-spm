@@ -1,5 +1,7 @@
 # Public content review — 2026-09-20
 
+The review identified private sample/configuration descriptions and inconsistent public text across source, generated specifications and fixtures. Those copies were cleaned together, with checks on numerical data, code behavior and the intentionally changed identifiers. This report describes the inspected snapshots and verification limits; later additions are not automatically covered by it.
+
 ## Scope and completion
 
 Twenty `gpt-5.6-luna` reviewers completed twenty disjoint reading assignments. Each file was assigned to one reviewer; this was not twenty independent reviews of every file.
@@ -68,9 +70,9 @@ No new credential or private network address was identified by the full reading.
 - Cleaning the working tree does not remove sample descriptions, personal paths, old conversations or author metadata from reachable history. A publication decision must cover that history too.
 - A subsequent authorized pass removed confirmed developer-machine paths from exporter entry points, provenance metadata and remaining comments/documentation. Required external roots now come from `MAST_ROOT` / `STMSIM_ROOT`; generic synthetic path fixtures remain. Its additional verification is recorded below.
 - Re-exporting from the private reference system can restore the original identifying prose. Public exports need an explicit content review after regeneration; sanitized observations must retain their true source category.
-- Full reading is not a guarantee that every sensitive detail has been recognized. It also does not validate runtime correctness, distribution installation or hardware safety. Existing CI and runtime limitations remain in [RELEASE-TODO.md](RELEASE-TODO.md) and [MINIMUM-RUN-TODO.md](MINIMUM-RUN-TODO.md).
+- Full reading is not a guarantee that every sensitive detail has been recognized. Runtime correctness and installation have separate evidence: see [STM-Bench](MINIMUM-USABLE.md), [Nanonis simulator](NANONIS-SIMULATOR.md) and the [release checklist](RELEASE-TODO.md) for their scopes and recorded results. Hardware safety is not established by this content review.
 
-The original twenty-reviewer pass did not rewrite history. The owner subsequently authorized history-preserving cleanup in an isolated local copy, then remote history replacement and a retained-content audit. That remote branch contains the cleaned history, but old commits remain accessible by identifier through its authenticated API. The latest publication decision is to rename that repository and retain it privately, then create a separate repository under the original `dsh-spm` name and push only reviewed cleaned history. The new repository has not been created; it must pass its own identity, clone and old-object-access checks before publication. The original local repository and its worktrees remain private backups. History verification and the current publication boundary are recorded in `HISTORY-CLEANUP.md`.
+The original twenty-reviewer pass did not rewrite history. The owner subsequently authorized history-preserving cleanup in an isolated local copy; the original private repository and remote remain separate from that publication candidate. History verification and the remaining publication boundary are recorded in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md). No remote push or visibility change is part of content review.
 
 ## Final path cleanup
 

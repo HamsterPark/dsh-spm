@@ -1,5 +1,7 @@
 # dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.1.5-rc.2**（2026-09-13 升级并核实）
 
+> **阅读方式**：本文按调查与升级日期累积，早期章节中的“当前”“本次”指该节记录时点。实际依赖以 [compat manifest](../../packages/host/compat/package.json) 和锁文件为准；版本决定按 [升级策略](upgrades.md) 的最新修订理解。项目当前可运行范围见 [文档导航](../README.md)，不从某次上游探针结果推断全部插件能力。
+
 > **2026-09-13 升级到 `0.1.5-rc.2`**（当时走 `next` 通道；`latest` 仍停在 rc.1）。
 > **2026-09-20 实测：`latest` 也追到 `0.1.5-rc.2` 了** —— 稳定通道两条都与本仓锁的版本一致，无动作。
 > **本仓接触面零变化**：compat 依赖的六个包（`dsh-tools` / `dsh-commands` / `dsh-host-webserver`

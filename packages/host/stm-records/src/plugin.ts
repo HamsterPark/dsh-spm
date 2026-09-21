@@ -27,11 +27,15 @@ export class RecordsService extends Service {
   readonly store: RecordStore
   private readonly runId: string
 
-  constructor(ctx: Context, config: Config = {}) {
+  constructor(ctx: Context, config: Config = {}, beforeClose?: () => Promise<void>) {
     super(ctx, 'stmRecords')
     this.runId = config.runId ?? 'default'
     this.store = new RecordStore(config)
     ctx.effect(() => () => {
+      // Cordis disposes independent effects concurrently. A runtime with in-flight
+      // calls supplies its drain barrier explicitly; effect registration order
+      // alone cannot keep this database open until the final record is written.
+      if (beforeClose !== undefined) return beforeClose().finally(() => this.store.close())
       this.store.close()
     })
   }

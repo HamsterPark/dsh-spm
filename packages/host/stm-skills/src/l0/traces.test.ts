@@ -72,6 +72,10 @@ const golden = JSON.parse(
 
 const S0 = emptyHardwareState('T0')
 
+// 对相对路径的 readFileSync 失败，Windows 的 Node 错误文本给出绝对路径，
+// POSIX 保留传入的相对路径。只适配这条 OS 文本，仍逐字断言错误类型与目标文件。
+const MISSING_FILE_PATH = process.platform === 'win32' ? join(process.cwd(), 'spec-export') : 'spec-export'
+
 /** 与导出脚本同一套合成规则。**逐位不同**，好让 body 的位置映射可判。 */
 function synthOne(t: string, i: number): unknown {
   if (t === 'f' || t === 'd') return Number((0.25 * (i + 1)).toFixed(6))
@@ -1069,7 +1073,7 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'AssessFrameTrust/ok': {
     error:
       '读不了 spec-export：ENOENT: no such file or directory, open ' +
-      `'${join(process.cwd(), 'spec-export')}'`,
+      `'${MISSING_FILE_PATH}'`,
   },
   // ② **信封在 wire 层已经拆掉**（D-SKILL-1 的又一次）。旧仓这句把整个
   //    `(error, raw_bytes, body)` 三元组 `str()` 出来当「原始回包」，
@@ -1089,12 +1093,12 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'ComputeDriftVector/ok': {
     error:
       'cannot load reference image: ENOENT: no such file or directory, open ' +
-      `'${join(process.cwd(), 'spec-export')}'`,
+      `'${MISSING_FILE_PATH}'`,
   },
   'LoadScanFrameFromFile/ok': {
     error:
       '读不了 spec-export: Error: ENOENT: no such file or directory, open ' +
-      `'${join(process.cwd(), 'spec-export')}'`,
+      `'${MISSING_FILE_PATH}'`,
   },
   // V8 的 `JSON.parse` 措辞。⚠️ 它比 Python 那句**更有用**（印出了看到的是哪个 token），
   // 而这正是「不复刻」的代价与收益同时出现的地方。
@@ -1319,7 +1323,37 @@ function scrubPaths(v: unknown): unknown {
     .replace(STAMP_RE, '$1<stamp>')
     .replace(TRACE_STAMP_RE, '$1_<stamp>')
     .replace(DRIFT_STAMP_RE, '$1<stamp>')
+    // 金样在 Windows 导出，Linux 产物使用 /。仅转换已识别项目路径的分隔符，
+    // 不改目录、文件模板、通道/方向、扩展名或同一段消息中的其它反斜杠。
+    .replace(/<project-root>(?:[\\/][A-Za-z0-9_.<>-]+)+/g, (path) => path.replaceAll('\\', '/'))
 }
+
+describe('轨迹路径的跨平台比较', () => {
+  it('只统一已识别路径的根、分隔符和时间戳', () => {
+    const windows = String.raw`原始曲线: <project-root>\experiments\traces\BiasPulseWithReadback_20260916T131900Z_a1b2c3d4_01.json`
+    const posix = '原始曲线: <project-root>/experiments/traces/BiasPulseWithReadback_20260917T141901Z_f0e1d2c3_01.json'
+    expect(scrubPaths(windows)).toBe(scrubPaths(posix))
+    expect(scrubPaths(windows)).toBe('原始曲线: <project-root>/experiments/traces/BiasPulseWithReadback_<stamp>_01.json')
+  })
+
+  it('保留目录、通道、方向、重名序号与扩展名的差异', () => {
+    const frame = '<project-root>/experiments/frames/frame_ch0_dir1_<stamp>_01.npy'
+    for (const changed of [
+      frame.replace('/frames/', '/traces/'),
+      frame.replace('ch0', 'ch1'),
+      frame.replace('dir1', 'dir0'),
+      frame.replace('_01', '_02'),
+      frame.replace('.npy', '.json'),
+    ]) {
+      expect(scrubPaths(changed)).not.toBe(scrubPaths(frame))
+    }
+  })
+
+  it('不归一化路径以外的反斜杠', () => {
+    expect(scrubPaths(String.raw`literal \n and C:\unrelated\file.npy`))
+      .toBe(String.raw`literal \n and C:\unrelated\file.npy`)
+  })
+})
 
 /**
  * 每条轨迹跑之前把**进程级存储**摆成金样那一格的前提。

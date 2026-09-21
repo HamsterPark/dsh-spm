@@ -1,0 +1,644 @@
+{
+  "date": "2026-09-21",
+  "platform": "win32",
+  "node": "v24.14.0",
+  "pnpm": "11.7.0",
+  "git": {
+    "head": "22f655b6ca27e54d2fac3fb337044f9636725406",
+    "dirty": true
+  },
+  "artifactSha256": "b5a7ab1a088ea91cc6b504a6f67763287898e46fb996790ef58f37f0bd2c081b",
+  "installRoot": "D:/dsh-spm-nanonis",
+  "dsh": "0.1.5-rc.2",
+  "simulator": {
+    "mimeaPid": 13676,
+    "enginePid": 49832,
+    "ports": [
+      6501,
+      6502,
+      6503,
+      6504
+    ],
+    "engine": "Generic 5e RT Release 15016"
+  },
+  "acceptance": {
+    "path": "D:/dsh-spm-nanonis/native-acceptance-final.json",
+    "ok": true,
+    "comparisons": [
+      {
+        "requestedBiasV": 1,
+        "toolBiasV": 1,
+        "directBiasV": 1,
+        "toleranceV": 0.000001
+      },
+      {
+        "requestedBiasV": 1.5,
+        "toolBiasV": 1.5,
+        "directBiasV": 1.5,
+        "toleranceV": 0.000001
+      }
+    ],
+    "scan": {
+      "running": {
+        "scan_running": true,
+        "scan_status": 1
+      },
+      "directRunning": 1,
+      "stopped": {
+        "scan_running": false,
+        "scan_status": 0
+      },
+      "directStopped": 0
+    },
+    "cleanup": {
+      "scanStopped": true,
+      "restoredBiasV": 2,
+      "errors": []
+    },
+    "reopenedAfterDispose": true,
+    "actionCount": 14
+  },
+  "model": {
+    "path": "D:/dsh-spm-nanonis/dsh-home/nanonis-runs/native-efceb3d1-49fd-432c-bf10-2700e2bb8279/session-evidence.json",
+    "name": "deepseek-official/deepseek-flash",
+    "requestCount": 7,
+    "process": {
+      "code": 0,
+      "timedOut": false,
+      "interrupted": false,
+      "needsManualCleanup": false
+    },
+    "requestHeadersVerified": true,
+    "toolCatalog": [
+      "GetBias",
+      "GetCurrent",
+      "GetScanStatus",
+      "GetZPosition",
+      "SetBias",
+      "StartScan",
+      "StopScan",
+      "stm_hello"
+    ],
+    "toolCalls": [
+      {
+        "callId": "call_00_IhE8Ye32vae0dzYNCK8B7825",
+        "name": "GetBias",
+        "args": "{}"
+      },
+      {
+        "callId": "call_01_ZYM08qFwBDYRHo8j1hsm3879",
+        "name": "GetCurrent",
+        "args": "{}"
+      },
+      {
+        "callId": "call_02_gV3flYNe2RcYZsMlyeCk2640",
+        "name": "GetZPosition",
+        "args": "{}"
+      },
+      {
+        "callId": "call_03_t4vf4G737P85mD8wEony4890",
+        "name": "GetScanStatus",
+        "args": "{}"
+      },
+      {
+        "callId": "call_00_XqyGPJCqK2QHkA8FThoy0894",
+        "name": "SetBias",
+        "args": "{\"bias_v\": \"1.25\"}"
+      },
+      {
+        "callId": "call_00_Mw54nqVmeGnmBIixNlWC3252",
+        "name": "StartScan",
+        "args": "{\"direction\": \"down\"}"
+      },
+      {
+        "callId": "call_00_0hAZ5Fl6iwipaPMWwEfa9713",
+        "name": "GetScanStatus",
+        "args": "{}"
+      },
+      {
+        "callId": "call_00_b5iAOSdILBu10tBCqngd9628",
+        "name": "StopScan",
+        "args": "{}"
+      },
+      {
+        "callId": "call_00_ygk4YpxC307tPqKvhhgV6293",
+        "name": "SetBias",
+        "args": "{\"bias_v\": \"2\"}"
+      }
+    ],
+    "results": [
+      {
+        "toolCallId": "call_00_IhE8Ye32vae0dzYNCK8B7825",
+        "skill": "GetBias",
+        "kind": "ok",
+        "data": {
+          "bias_v": 2
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789973650953,
+            "simulated": true,
+            "elapsedMs": 2881,
+            "values": [
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_01_ZYM08qFwBDYRHo8j1hsm3879",
+        "skill": "GetCurrent",
+        "kind": "ok",
+        "data": {
+          "current_a": 5.000370256746933e-11
+        },
+        "instrumentCalls": [
+          {
+            "method": "Current_Get",
+            "command": "Current.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789973656582,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              5.000370256746933e-11
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_02_gV3flYNe2RcYZsMlyeCk2640",
+        "skill": "GetZPosition",
+        "kind": "ok",
+        "data": {
+          "z_pos_m": 3.9335294133024945e-8
+        },
+        "instrumentCalls": [
+          {
+            "method": "ZCtrl_ZPosGet",
+            "command": "ZCtrl.ZPosGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973659288,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              3.9335294133024945e-8
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_03_t4vf4G737P85mD8wEony4890",
+        "skill": "GetScanStatus",
+        "kind": "ok",
+        "data": {
+          "scan_running": false,
+          "scan_status": 0
+        },
+        "instrumentCalls": [
+          {
+            "method": "Scan_StatusGet",
+            "command": "Scan.StatusGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973661961,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_00_XqyGPJCqK2QHkA8FThoy0894",
+        "skill": "SetBias",
+        "kind": "ok",
+        "data": {
+          "requested_bias_v": 1.25,
+          "bias_v": 1.25,
+          "readback_tolerance_v": 2.980232238769531e-7,
+          "verified": true,
+          "command_sent": true
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Set",
+            "command": "Bias.Set",
+            "role": "main",
+            "args": [
+              {
+                "value": 1.25,
+                "fmt": "f"
+              }
+            ],
+            "at": 1789973667605,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": []
+          },
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789973667606,
+            "simulated": true,
+            "elapsedMs": 0,
+            "values": [
+              1.25
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_00_Mw54nqVmeGnmBIixNlWC3252",
+        "skill": "StartScan",
+        "kind": "ok",
+        "data": {
+          "scan_running": true,
+          "scan_status": 1,
+          "verified": true,
+          "command_sent": true,
+          "scan_direction": "down",
+          "scan_props_written": false,
+          "continuous_scan_before": 0,
+          "continuous_scan_after": 0
+        },
+        "instrumentCalls": [
+          {
+            "method": "ZCtrl_OnOffGet",
+            "command": "ZCtrl.OnOffGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973672447,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              1
+            ]
+          },
+          {
+            "method": "Scan_StatusGet",
+            "command": "Scan.StatusGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973672448,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0
+            ]
+          },
+          {
+            "method": "Scan_PropsGet",
+            "command": "Scan.PropsGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973672449,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0,
+              1,
+              2,
+              7,
+              "unnamed",
+              0,
+              "",
+              0,
+              0,
+              [],
+              0,
+              [],
+              0,
+              0,
+              [],
+              2
+            ]
+          },
+          {
+            "method": "Scan_Action",
+            "command": "Scan.Action",
+            "role": "main",
+            "args": [
+              {
+                "value": 0,
+                "fmt": "H"
+              },
+              {
+                "value": 0,
+                "fmt": "I"
+              }
+            ],
+            "at": 1789973672450,
+            "simulated": true,
+            "elapsedMs": 21,
+            "values": []
+          },
+          {
+            "method": "Scan_StatusGet",
+            "command": "Scan.StatusGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973672471,
+            "simulated": true,
+            "elapsedMs": 3,
+            "values": [
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_00_0hAZ5Fl6iwipaPMWwEfa9713",
+        "skill": "GetScanStatus",
+        "kind": "ok",
+        "data": {
+          "scan_running": true,
+          "scan_status": 1
+        },
+        "instrumentCalls": [
+          {
+            "method": "Scan_StatusGet",
+            "command": "Scan.StatusGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973677722,
+            "simulated": true,
+            "elapsedMs": 0,
+            "values": [
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_00_b5iAOSdILBu10tBCqngd9628",
+        "skill": "StopScan",
+        "kind": "ok",
+        "data": {
+          "scan_running": false,
+          "scan_status": 0,
+          "verified": true,
+          "command_sent": true
+        },
+        "instrumentCalls": [
+          {
+            "method": "Scan_Action",
+            "command": "Scan.Action",
+            "role": "main",
+            "args": [
+              {
+                "value": 1,
+                "fmt": "H"
+              },
+              {
+                "value": 0,
+                "fmt": "I"
+              }
+            ],
+            "at": 1789973682882,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": []
+          },
+          {
+            "method": "Scan_StatusGet",
+            "command": "Scan.StatusGet",
+            "role": "main",
+            "args": [],
+            "at": 1789973682883,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "toolCallId": "call_00_ygk4YpxC307tPqKvhhgV6293",
+        "skill": "SetBias",
+        "kind": "ok",
+        "data": {
+          "requested_bias_v": 2,
+          "bias_v": 2,
+          "readback_tolerance_v": 4.76837158203125e-7,
+          "verified": true,
+          "command_sent": true
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Set",
+            "command": "Bias.Set",
+            "role": "main",
+            "args": [
+              {
+                "value": 2,
+                "fmt": "f"
+              }
+            ],
+            "at": 1789973687846,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": []
+          },
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1789973687847,
+            "simulated": true,
+            "elapsedMs": 4,
+            "values": [
+              2
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "action_type": "GetBias",
+        "status": "succeeded",
+        "tool_call_id": "call_00_IhE8Ye32vae0dzYNCK8B7825"
+      },
+      {
+        "action_type": "GetCurrent",
+        "status": "succeeded",
+        "tool_call_id": "call_01_ZYM08qFwBDYRHo8j1hsm3879"
+      },
+      {
+        "action_type": "GetZPosition",
+        "status": "succeeded",
+        "tool_call_id": "call_02_gV3flYNe2RcYZsMlyeCk2640"
+      },
+      {
+        "action_type": "GetScanStatus",
+        "status": "succeeded",
+        "tool_call_id": "call_03_t4vf4G737P85mD8wEony4890"
+      },
+      {
+        "action_type": "SetBias",
+        "status": "succeeded",
+        "tool_call_id": "call_00_XqyGPJCqK2QHkA8FThoy0894"
+      },
+      {
+        "action_type": "StartScan",
+        "status": "succeeded",
+        "tool_call_id": "call_00_Mw54nqVmeGnmBIixNlWC3252"
+      },
+      {
+        "action_type": "GetScanStatus",
+        "status": "succeeded",
+        "tool_call_id": "call_00_0hAZ5Fl6iwipaPMWwEfa9713"
+      },
+      {
+        "action_type": "StopScan",
+        "status": "succeeded",
+        "tool_call_id": "call_00_b5iAOSdILBu10tBCqngd9628"
+      },
+      {
+        "action_type": "SetBias",
+        "status": "succeeded",
+        "tool_call_id": "call_00_ygk4YpxC307tPqKvhhgV6293"
+      }
+    ],
+    "unrecordedCalls": []
+  },
+  "finalReadback": [
+    {
+      "method": "Bias_Get",
+      "values": [
+        2
+      ]
+    },
+    {
+      "method": "Current_Get",
+      "values": [
+        5.000336256166804e-11
+      ]
+    },
+    {
+      "method": "ZCtrl_ZPosGet",
+      "values": [
+        3.9423468933819095e-8
+      ]
+    },
+    {
+      "method": "ZCtrl_StatusGet",
+      "values": [
+        2
+      ]
+    },
+    {
+      "method": "ZCtrl_OnOffGet",
+      "values": [
+        1
+      ]
+    },
+    {
+      "method": "Scan_StatusGet",
+      "values": [
+        0
+      ]
+    },
+    {
+      "method": "Scan_PropsGet",
+      "values": [
+        0,
+        1,
+        2,
+        7,
+        "unnamed",
+        0,
+        "",
+        0,
+        0,
+        [],
+        0,
+        [],
+        0,
+        0,
+        [],
+        2
+      ]
+    },
+    {
+      "method": "Scan_BufferGet",
+      "values": [
+        2,
+        [
+          0,
+          0
+        ],
+        256,
+        256
+      ]
+    },
+    {
+      "method": "Scan_FrameGet",
+      "values": [
+        0,
+        0,
+        1.4999999464748726e-8,
+        1.4999999464748726e-8,
+        0
+      ]
+    },
+    {
+      "method": "Scan_SpeedGet",
+      "values": [
+        2.929687354935595e-7,
+        2.929687354935595e-7,
+        0.05119999870657921,
+        0.05119999870657921,
+        1,
+        1
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "pnpm build:minimal",
+      "result": "passed",
+      "artifact": "b5a7ab1a088ea91cc6b504a6f67763287898e46fb996790ef58f37f0bd2c081b"
+    },
+    {
+      "command": "pnpm test --project unit --project contract",
+      "files": 127,
+      "tests": 7512,
+      "result": "passed",
+      "scope": "before final cancellation guards; those final guards covered by focused run below"
+    },
+    {
+      "command": "pnpm test --project unit --project contract packages/bundle/dsh-spm",
+      "files": 9,
+      "tests": 66,
+      "result": "passed",
+      "scope": "final bundled runtime"
+    },
+    {
+      "command": "pnpm test --project contract packages/bundle/dsh-spm/contract/native-probe.test.ts",
+      "files": 1,
+      "tests": 3,
+      "result": "passed",
+      "scope": "persistent independent TCP probe"
+    }
+  ],
+  "limitations": [
+    "Windows and this running native simulator only",
+    "No real instrument connection",
+    "No full-frame image acquisition/export acceptance",
+    "No public npm release",
+    "No full STM-Bench integration/mutation/coverage run in this turn"
+  ]
+}

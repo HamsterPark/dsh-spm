@@ -12,8 +12,12 @@
  * **必须显式给**：构造参数 > `STMSIM_PYTHON` 环境变量 > 抛错。不做「猜一个」的兜底——
  * 猜错的表现是一个语焉不详的 spawn 失败，比直接说「你没告诉我 python 在哪」难查得多。
  */
-import { type ChildProcess, spawn } from 'node:child_process'
+import { type ChildProcess, execFile, spawn } from 'node:child_process'
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, statSync } from 'node:fs'
 import { Socket } from 'node:net'
+import { tmpdir } from 'node:os'
+import { delimiter, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { assertProcessOwnsPorts } from './ownership.js'
 
 export const DEFAULT_PORTS = [16501, 16502, 16503, 16504] as const
 
@@ -22,6 +26,8 @@ export interface StmsimOptions {
   readonly python?: string
   /** STM-Bench 仓库根（`python -m stmsim` 的 cwd）。缺省读 `STMSIM_ROOT`。 */
   readonly root?: string
+  /** 独立运行目录；缺省创建临时目录，绝不在模拟器源码下运行或存数据。 */
+  readonly runtimeDir?: string
   readonly ports?: readonly number[]
   readonly profile?: string
   readonly seed?: number
@@ -35,6 +41,14 @@ export interface StmsimOptions {
 
 export class StmsimError extends Error {
   override readonly name = 'StmsimError'
+}
+
+/** Resolve existing parent links before creating a path, so rejection itself is read-only. */
+function creationPath(path: string): string {
+  const full = resolve(path)
+  let ancestor = full
+  while (!existsSync(ancestor)) ancestor = dirname(ancestor)
+  return resolve(realpathSync(ancestor), relative(ancestor, full))
 }
 
 /** 能连上就算就绪。比数 netstat 可移植，也更接近调用方真正要做的事。 */
@@ -59,14 +73,32 @@ export class StmsimProcess {
   private child: ChildProcess | null = null
   private readonly opts: StmsimOptions
   private stderr = ''
+  private sourceRoot: string | undefined
+  private runDirectory: string | undefined
 
   constructor(opts: StmsimOptions = {}) {
     this.opts = opts
-    this.ports = opts.ports ?? DEFAULT_PORTS
+    this.ports = Object.freeze([...(opts.ports ?? DEFAULT_PORTS)])
+    if (this.ports.length !== 4 || new Set(this.ports).size !== 4 ||
+        this.ports.some((port) => !Number.isInteger(port) || port < 1024 || port > 65535)) {
+      throw new StmsimError('stmsim 需要四个不同的有效非特权端口')
+    }
   }
 
   get running(): boolean {
-    return this.child !== null && this.child.exitCode === null
+    return this.child !== null && this.child.pid !== undefined && this.child.exitCode === null && this.child.signalCode === null
+  }
+
+  get identity(): { pid: number | undefined; ports: readonly number[]; root: string | undefined; runtimeDir: string | undefined; running: boolean } {
+    return { pid: this.child?.pid, ports: this.ports, root: this.sourceRoot, runtimeDir: this.runDirectory, running: this.running }
+  }
+
+  /** The minimum runtime requires this OS check before enabling its tools. */
+  async assertOwned(): Promise<void> {
+    const child = this.child
+    if (!this.running || child?.pid === undefined) throw new StmsimError('stmsim 本轮启动的进程没有运行')
+    await assertProcessOwnsPorts(child.pid, this.ports)
+    if (child !== this.child || !this.running) throw new StmsimError('stmsim 身份检查期间进程已经退出')
   }
 
   async start(): Promise<void> {
@@ -79,6 +111,26 @@ export class StmsimProcess {
           '或设环境变量 STMSIM_PYTHON / STMSIM_ROOT。' +
           '（本机 PATH 里的 python 是 Microsoft Store 转发桩，不能用。）',
       )
+    }
+
+    // Resolve symlinks before comparing directories: a linked runtime directory
+    // inside the source checkout would defeat the isolation guarantee.
+    try {
+      this.sourceRoot = realpathSync(root)
+      if (!statSync(this.sourceRoot).isDirectory()) throw new Error('root 不是目录')
+      const runtime = this.opts.runtimeDir ?? mkdtempSync(join(tmpdir(), 'dsh-stmsim-'))
+      const withinSource = (path: string): boolean => {
+        const part = relative(this.sourceRoot!, path)
+        return part === '' || (part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part))
+      }
+      this.runDirectory = creationPath(runtime)
+      if (withinSource(this.runDirectory)) throw new Error('runtimeDir 不能位于模拟器源码目录内')
+      const sessionDir = creationPath(this.opts.sessionDir ?? join(this.runDirectory, 'sessions'))
+      if (withinSource(sessionDir)) throw new Error('sessionDir 不能位于模拟器源码目录内')
+      mkdirSync(this.runDirectory, { recursive: true })
+      mkdirSync(sessionDir, { recursive: true })
+    } catch (error) {
+      throw new StmsimError(`stmsim 运行目录配置错误：${String(error)}`)
     }
 
     // 端口已经有人监听就立刻说清楚。不查的话，下面的就绪探测会连上**别人的**服务器
@@ -98,12 +150,21 @@ export class StmsimProcess {
     if (this.opts.profile !== undefined) args.push('--profile', this.opts.profile)
     if (this.opts.seed !== undefined) args.push('--seed', String(this.opts.seed))
     if (this.opts.material !== undefined) args.push('--material', this.opts.material)
-    if (this.opts.sessionDir !== undefined) args.push('--session-dir', this.opts.sessionDir)
+    args.push('--session-dir', resolve(this.opts.sessionDir ?? join(this.runDirectory, 'sessions')))
     if (this.opts.timeScale !== undefined) args.push('--time-scale', String(this.opts.timeScale))
     if (this.opts.approached === true) args.push('--approached')
 
-    const child = spawn(python, args, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+    this.stderr = ''
+    const child = spawn(python, args, {
+      cwd: this.runDirectory,
+      windowsHide: true,
+      env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1',
+        PYTHONPATH: [this.sourceRoot, process.env['PYTHONPATH']].filter(Boolean).join(delimiter),
+        STM_BENCH_DATA: join(this.runDirectory, 'data') },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
     this.child = child
+    child.stdout?.resume() // Drain the pipe even when no caller needs simulator logs.
     child.stderr?.on('data', (d: Buffer) => {
       this.stderr = (this.stderr + d.toString()).slice(-4_000) // 只留尾巴，失败时够定位
     })
@@ -120,9 +181,12 @@ export class StmsimProcess {
 
     const deadline = Date.now() + (this.opts.readyTimeoutMs ?? 30_000)
     while (Date.now() < deadline) {
-      if (failed !== null) throw new StmsimError(`${failed}\n--- stderr ---\n${this.stderr}`)
+      if (failed !== null) {
+        await this.stop()
+        throw new StmsimError(`${failed}\n--- stderr ---\n${this.stderr}`)
+      }
       const ready = await Promise.all(this.ports.map((p) => canConnect(p)))
-      if (ready.every(Boolean)) return
+      if (ready.every(Boolean) && failed === null && this.running) return
       await new Promise((r) => setTimeout(r, 200))
     }
     await this.stop()
@@ -136,7 +200,7 @@ export class StmsimProcess {
   async stop(timeoutMs = 5_000): Promise<void> {
     const child = this.child
     this.child = null
-    if (child === null || child.exitCode !== null) return
+    if (child === null || child.pid === undefined || child.exitCode !== null || child.signalCode !== null) return
     await new Promise<void>((resolve) => {
       const timer = setTimeout(() => {
         child.kill('SIGKILL')
@@ -146,7 +210,13 @@ export class StmsimProcess {
         clearTimeout(timer)
         resolve()
       })
-      child.kill()
+      if (process.platform === 'win32') {
+        // A Windows venv launcher may own a separate interpreter process. Stop
+        // only this live child's tree; never kill listeners merely by port.
+        execFile('taskkill.exe', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true }, () => {
+          if (child.exitCode !== null || child.signalCode !== null) { clearTimeout(timer); resolve() }
+        })
+      } else child.kill()
     })
   }
 }

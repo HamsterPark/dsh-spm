@@ -58,9 +58,14 @@ describe('StmsimProcess 生命周期', () => {
     await sim.start()
     expect(sim.running).toBe(true)
     expect(await Promise.all(PORTS.map(reachable))).toEqual([true, true, true, true])
+    await expect(sim.assertOwned()).resolves.toBeUndefined()
+    expect(sim.identity.pid).toBeGreaterThan(0)
+    expect(sim.identity.root).toBeTruthy()
+    expect(sim.identity.runtimeDir).not.toBe(sim.identity.root)
 
     await sim.stop()
     expect(sim.running).toBe(false)
+    await expect(sim.assertOwned()).rejects.toThrow(/没有运行/)
     expect(await waitAllClosed(PORTS)).toBe(true)
   })
 
@@ -73,6 +78,7 @@ describe('StmsimProcess 生命周期', () => {
 
     const second = new StmsimProcess({ ...env, ports: PORTS })
     await expect(second.start()).rejects.toThrow(/已经有人在监听/)
+    await expect(second.assertOwned()).rejects.toThrow(/没有运行/)
   })
 
   it('两个路径都没给时明确报错，不是一个语焉不详的 spawn 失败', async () => {

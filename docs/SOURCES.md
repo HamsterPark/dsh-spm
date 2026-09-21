@@ -1,16 +1,28 @@
 # Sources and third-party notices
 
-This repository contains original TypeScript implementation work, deterministic fixtures derived from a separately maintained reference implementation, and one imported protocol metadata table. Source provenance does not by itself imply that private source code is included.
+This repository contains TypeScript implementation work, reference-derived fixtures and imported protocol metadata. This register identifies those sources and preserves third-party notices. For implementation and validation, see the [review guide](REVIEW-GUIDE.md).
 
 ## Reference implementation and golden fixtures
 
-The Python MAST repository is maintained separately and is treated as read-only by this project. Exporters under `tools/spec-export/` execute selected reference functions against synthetic inputs and save their deterministic outputs under `spec/golden/`. The repository does not include the MAST source tree, model weights, private research snapshots, or real instrument data.
+The Python MAST repository is maintained separately and is treated as read-only by this project. Files under [spec/golden/](../spec/golden/README.md) have several source categories:
 
-The project owner has directed the migration and public preparation of the MAST-derived material. This review found no specific third-party ownership conflict in the generated fixtures or the twelve MAST patch entries. The review was bounded: it checked repository provenance records and source metadata, not every line of the separately maintained private repository.
+| Material | How it is obtained |
+|---|---|
+| Skill and parameter declarations | Extracted from the reference implementation's declarations |
+| Behavioral traces | Selected reference functions executed with controlled inputs and recorded calls/results |
+| Dependency inventories | Static analysis of reference source, with unresolved cases recorded explicitly |
+| Numerical fixtures | Public numerical libraries executed on saved inputs; the numerical exporter uses NumPy, SciPy and scikit-image |
+| Protocol fixtures | Reference protocol implementations and simulator-related exporters, identified by the corresponding script |
+
+Each exporter documents its dependencies and source. Descriptive fields can also contain deidentified reference-system observations; those remain observations rather than synthetic tests. The [public-content review](PUBLIC-CODE-REVIEW.md) records normalization of descriptions and identifiers, including its compatibility and byte-comparison limits. Exported public text must be reviewed again after regeneration.
+
+The repository does not include the MAST source tree, model weights, private research snapshots or original instrument datasets. Testing the saved fixtures does not require the private source; regenerating MAST-specific fixtures does.
+
+The recorded provenance review found no specific third-party ownership conflict in the generated fixtures or the twelve MAST patch entries. Its scope was repository provenance records and source metadata, not every line of the separately maintained private repository. The project owner directed the migration and public preparation of the reference-derived material.
 
 ## Nanonis protocol metadata
 
-`spec/nanonis/nanonis_commands.json` was copied from the separately maintained STM-Bench protocol table. Its `generated_from` metadata records two inputs:
+[nanonis_commands.json](../spec/nanonis/nanonis_commands.json) was copied from the separately maintained STM-Bench protocol table. Its `generated_from` metadata records two inputs:
 
 1. command metadata extracted from `nanonis_spm` version 1.0.9; and
 2. twelve MAST-specific patch entries.
@@ -43,4 +55,4 @@ The Nanonis company and product names identify protocol compatibility and do not
 
 ## Paper-derived algorithms
 
-Several skills are named after published scientific methods. The repository contains implementations and synthetic test cases, not copies of article text, figures, or datasets. Normal bibliographic references, DOI links, and algorithm names should be preserved. If a future contribution imports article text, figures, supplementary data, or reference code, its license and attribution must be recorded here before publication.
+Several skills are named after published scientific methods. The recorded content review identified implementations and synthetic test cases; it did not identify copied article text, figures or datasets. Preserve bibliographic references, DOI links and algorithm names. If a contribution imports article text, figures, supplementary data or reference code, record its source, license and attribution here before publication.

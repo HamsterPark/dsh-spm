@@ -13,6 +13,24 @@
       "path": "../../host/compat"
     },
     {
+      "path": "../../host/kernel"
+    },
+    {
+      "path": "../../host/stm-records"
+    },
+    {
+      "path": "../../host/stm-safety"
+    },
+    {
+      "path": "../../host/stm-skills"
+    },
+    {
+      "path": "../../instrument/nanonis-wire"
+    },
+    {
+      "path": "../../instrument/instrument"
+    },
+    {
       "path": "../../instrument/instrument-state"
     },
     {

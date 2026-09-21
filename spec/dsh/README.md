@@ -1,40 +1,48 @@
-# `spec/dsh/` —— dsh 组合树存档
+# dsh 配置与依赖快照
 
-每次升级 dsh 都把 web profile 的组合树导出存档，用来逐行 diff（升级清单第 2 步，`docs/dsh/upgrades.md`）。
+本目录保存历次升级时导出的 dsh web profile 配置，以及当时的安装树清单。它们用于比较上游变化；当前锁版以 [compat/package.json](../../packages/host/compat/package.json) 和锁文件为准，版本决策见 [facts.md](../../docs/dsh/facts.md) 与 [upgrades.md](../../docs/dsh/upgrades.md)。
 
-```powershell
-npx -y @deepseek-ai/dsh@<版本> --profile web --dump-config > spec/dsh/dump-config.<版本>.yml
-```
+## 配置快照
 
-npx 在本机偶发 EPERM（清理缓存时撞上文件锁）。退路是装到临时目录再直接调 bin——**这条路还能在原生依赖没编译时照样导出规格**：
-
-```sh
-mkdir /tmp/pin && cd /tmp/pin && echo '{"name":"x","private":true,"version":"0.0.0"}' > package.json
-npm i @deepseek-ai/dsh@<版本> --ignore-scripts --no-audit --no-fund
-node node_modules/@deepseek-ai/dsh/lib/bin.js --profile web --dump-config > dump-config.<版本>.yml
-```
-
-| 文件 | 导出日期 | 说明 |
+| 文件 | 记录日期 | 比较结果 |
 |---|---|---|
-| `dump-config.0.1.2-alpha.3.yml` | 2026-09-02 | 145 行插件行，27 行 `disabled: true` |
-| `dump-config.0.1.2-alpha.4.yml` | 2026-09-02 | 与 alpha.3 逐字节相同 |
-| `dump-config.0.1.2-rc.1.yml` | 2026-09-04 | 与前两版逐字节相同；曾长期锁定，2026-09-09 起被 0.1.5-alpha.1 取代 |
-| `dump-config.0.1.3-alpha.2.yml` | 2026-09-07 | **147 行插件行，26 disabled**。相对 rc.1 只有四处变更，见下 |
-| `pkglist.0.1.2-alpha.4.txt` | 2026-09-02 | npx 安装树里 223 个 `@deepseek-ai/*` 包名清单 |
-| **`dump-config.0.1.5-alpha.1.yml`** | 2026-09-09 | **152 行插件行，26 disabled；当前锁定版本**。相对 rc.1 有 30 个 diff 行、八处增删（见 `docs/dsh/facts.md` §8.0） |
-| **`pkglist.0.1.5-alpha.1.txt`** | 2026-09-09 | 234 行；**229 个 `@deepseek-ai/dsh*` 全是 `0.1.5-alpha.1`**，其余 5 个是独立版本线的 Cordis 系 |
-| `pkglist.0.1.3-alpha.2.txt` | 2026-09-07 | 232 个包名＋版本。**223 个 `@deepseek-ai/dsh*` 全部恰好是 `0.1.3-alpha.2`，零例外**；其余 9 个是独立版本线的 Cordis 系与 `node-addon-landlock-run@0.1.1` |
+| [0.1.2-alpha.3](dump-config.0.1.2-alpha.3.yml) | 2026-09-02 | 早期 web profile 基线 |
+| [0.1.2-alpha.4](dump-config.0.1.2-alpha.4.yml) | 2026-09-02 | 与 alpha.3 逐字节相同 |
+| [0.1.2-rc.1](dump-config.0.1.2-rc.1.yml) | 2026-09-04 | 与上述两份快照逐字节相同 |
+| [0.1.3-alpha.2](dump-config.0.1.3-alpha.2.yml) | 2026-09-07 | 相对 0.1.2-rc.1 的四项变化见下文 |
+| [0.1.5-alpha.1](dump-config.0.1.5-alpha.1.yml) | 2026-09-09 | 当次升级基线；后续由 rc 版本替代 |
+| [0.1.5-rc.1](dump-config.0.1.5-rc.1.yml) | 2026-09-10 | 当次升级的两处配置变更见升级日志 |
+| [0.1.5-rc.2](dump-config.0.1.5-rc.2.yml) | 2026-09-13 | 与 0.1.5-rc.1 快照逐字节相同 |
 
-**0.1.2 的三版组合树逐字节相同**，说明 alpha.3 → rc.1 之间插件名单与默认配置没动过；变的是各包内部实现（见 `docs/dsh/facts.md` §8）。
-这也解释了为什么本地跑着没事：npx 缓存是冻结快照，版本漂移只在全新安装时发作（facts.md §1）。
+文件名标识被导出的版本，日期对应仓库内的升级记录。配置相同说明该快照中的插件名单和默认配置相同，不代表包内部实现没有变化。实际包接触面和测试结果在对应升级记录中核对。
 
-**rc.1 → 0.1.3-alpha.2 的全部四处变更**（2026-09-07 实测 diff，共 20 个 diff 行）：
+## 安装树记录
 
-1. **删除** `tool-str-replace-editor` 行（原本就 `disabled`）⇒ 对应发布说明「SDK/Headless/ACP 默认改用 read/write/edit」。disabled 计数 27 → 26。
-2. **`system-prompt` 的 `persona` 拆成 `personaPrefix` + `personaSuffix`** ⇒ 发布说明列为破坏性变更，实测确认。我们 8 个 preset 的 `persona` 子插件要跟着拆（PLAN §7.8）。
-3. **新增** `open-in-app`（`dsh-host-open-in-app`，含 `probeTimeoutMs/iconTimeoutMs/launchWatchMs`）+ 客户端 `ui-open-in-app` ⇒「在编辑器/IDE/终端/文件管理器中打开工作区」。
-4. **新增** 客户端 `file-upload`（`dsh-client-file-upload`）⇒ 任意文件上传。
+- [pkglist.0.1.2-alpha.4.txt](pkglist.0.1.2-alpha.4.txt)：早期 npx 缓存中的包清单。
+- [pkglist.0.1.3-alpha.2.txt](pkglist.0.1.3-alpha.2.txt)：该次安装的包名与版本。
+- [pkglist.0.1.5-alpha.1.txt](pkglist.0.1.5-alpha.1.txt)：该次安装的包名与版本，包含独立版本线的 Cordis 包。
 
-**新包 `dsh-http-proxy` 不在组合树里**——它是启动器在进程级装的 undici 全局 dispatcher（读 `HTTP_PROXY/HTTPS_PROXY/ALL_PROXY/NO_PROXY`），不是 profile 插件行。这对 `mast-rig` 是个比 `restrict({deny: web_fetch})` 更硬的出站闸（Phase 8 评估）。
+这些是历史环境记录。当前依赖约束由 manifest、`pnpm-workspace.yaml` 和 `pnpm-lock.yaml` 共同表达；[pin.test.ts](../../packages/host/compat/contract/pin.test.ts) 检查锁文件中的 dsh 版本及真实包契约。
 
-导出件带 `!!js` 表达式（如 `process.platform === 'win32'`），是 dsh 的 patch 层语法，不是我们要执行的东西。
+## 更新快照
+
+仅在核查或升级 dsh 时导出。先按升级指南准备独立的临时 `DSH_HOME`，确认目标版本和输出位置；不要使用读者正在工作的个人 profile。命令模板如下，`<版本>` 必须替换为明确版本：
+
+```text
+npx -y @deepseek-ai/dsh@<版本> --profile web --dump-config
+```
+
+确认命令成功后，将输出保存为 `dump-config.<版本>.yml`，与前一版比较，并在升级日志记录日期、配置差异、包差异和验证结果。导出配置不代表完成插件启动、安装态或模型验收。
+
+快照中的 `!!js` 表达式属于 dsh patch 配置语法。阅读时将其作为配置内容；不要为了查看快照而执行其中表达式。
+
+## 历史比较：0.1.2-rc.1 → 0.1.3-alpha.2
+
+2026-09-07 的配置比较记录了四项变化：
+
+1. 删除已禁用的 `tool-str-replace-editor` 行；SDK/Headless/ACP 默认改用 read/write/edit。
+2. `system-prompt` 的 `persona` 拆为 `personaPrefix` 和 `personaSuffix`，影响 persona 配置接缝。
+3. 新增宿主侧 `open-in-app` 和客户端 `ui-open-in-app`。
+4. 新增客户端 `file-upload`。
+
+同次核查中的 `dsh-http-proxy` 由启动器在进程级安装，不作为 profile 插件行出现。这说明配置树不是全部上游行为的清单；涉及连接、会话或代理的变化还需要阅读相应包与升级记录。

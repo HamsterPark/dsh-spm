@@ -3946,3 +3946,32 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 展开的 `'1000000000000000000000.000'`。`pyFixed` 今天的调用方全是百分比 / 皮米 / 倍数，
 到不了那个量级；`pyRound`（D-LANG-2）那边有同一条边界，处理是 `>= 1e21` 直接原样返回。
 真要修，两处一起修。
+
+## D-MINIMAL-1 · 最小运行入口把 `GetBias: ok` 补成带数值与单位的工具结果
+
+通用 `SkillKernel` 对成功结果只自动附加 `data.detail`。`GetBias` 返回
+`{ bias_v: number }` 且没有 `summary`，所以原工具适配层给模型的文本只有
+`GetBias: ok`；偏压数值虽然存在于内核结果中，却没有穿过模型工具边界。
+
+第一版最小闭环必须让真实模型读到模拟器偏压。因此 `dsh-spm/minimal` 在
+`defineSkillTool → SkillKernel` 完整执行并成功写入 SQLite 与结果 JSONL 后，从同一次
+`KernelRecord.outcome.data.bias_v` 渲染 `GetBias: <有限数值> V`。失败仍沿用内核原文；非有限值
+仍由技能拒绝。这个适配只作用于最小运行入口，不改变通用技能或生成规格。
+
+判据包括 `packages/bundle/dsh-spm/src/minimal-persistence.test.ts`、`minimal-lifecycle.test.ts`
+及安装态验收：同一个调用 ID 的 SQLite、JSONL 与模型文本须对应同次 `bias_v`，
+而持久化失败不得返回成功文本。M3/M4 安装态验收
+另外核对原生 dsh `tool/call` / `tool/result`、本地结果记录与独立模拟器读回。
+
+若通用适配器以后正式提供兼容的带读数结果，需以原生模型会话和既有契约回归验证，
+再移除这一仅限最小入口的适配；不能重新退回省略数值的成功文本。
+
+## D-NATIVE-1 · 已打开的 Nanonis 模拟器使用有回读的最小工具集
+
+`dsh-spm/minimal` 的显式 `nativeSimulator` 配置接入经过 Windows 进程、端口归属与实际回环后端连接核验的 Mimea/Sim-Engine。它不启动、接管或终止外部应用，也不自动启用看门狗退针或后台轮询。此模式只开放七个 STM 工具与 hello；受管 STM-Bench 模式继续只提供原有 GetBias。
+
+本机最小工具复用迁移读技能与安全内核，但局部适配三项写技能：SetBias 在写后回读核对 float32 容差，StartScan 和 StopScan 在最多一秒内核对实际运行状态。无法确认时返回失败及 `command_sent`/`verified`，不会把请求值当成测量结果。原生 StartScan 另读实时 Z 反馈，拒绝重启现有扫描；连续扫描已关闭时不写扫描属性，否则仅请求关闭连续扫描，并核对其他保存属性保持一致。返回给模型的文本包含测量值、单位或扫描状态。
+
+此入口不提供未实现的偏压 ramp 参数，也不提供 `allow_continuous_scan` 覆盖；这些差异通过本入口的工具声明和参数拒绝显式表达。新增 GetScanStatus 是本插件的本机工具，不冒充参考迁移技能，不计入生成的迁移进度。
+
+理由：原迁移 SetBias/StopScan 只确认发送，StartScan 还会请求改变 autosave；直接用于本机交互会扩大副作用或误报完成。判据在 `native-skills.test.ts`、`native-runtime.test.ts`、`native-simulator.test.ts`，实际安装态与模型证据见本次 Nanonis 交接。通用技能、金样及生成规格未因此改写。若以后统一到通用技能，应先验证回读失败、连续扫描、属性保留与既有参考契约后再移除局部适配。

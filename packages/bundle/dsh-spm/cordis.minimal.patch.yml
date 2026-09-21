@@ -1,0 +1,15 @@
+# 第一版最小可用 bundle：保留 hello 自检，只加载受控的本地 stmsim + GetBias 栈。
+# recordsPath / resultsPath 会由插件按 dsh 启动目录解析；验收时应从独立 DSH_HOME 启动。
+- insert:
+    - id: mast-minimal-hello
+      name: dsh-spm
+    - id: mast-minimal-runtime
+      name: dsh-spm/minimal
+      inject: ['tools', 'systemPrompt', 'commands']
+      config:
+        ports: [16501, 16502, 16503, 16504]
+        profile: reference-stm
+        material: Au(111)
+        approached: true
+        recordsPath: .dsh-spm/records.sqlite
+        resultsPath: .dsh-spm/tool-results.jsonl
