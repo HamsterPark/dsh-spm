@@ -1,6 +1,14 @@
-# Final publication preparation — 2026-09-21
+# Publication preparation and outcome — 2026-09-21
 
-The updated source is ready to be published as an **experimental plugin under active development**. The new independent repository remains **private**. Public visibility and the subsequent anonymous checks are the remaining publication action; this preparation did not publish an npm package or validate real instruments.
+The source was published on **2026-09-21** as an **experimental plugin under active development** at [HamsterPark/dsh-spm](https://github.com/HamsterPark/dsh-spm). The new independent repository is public; the original archive remains private. This publication did not publish an npm package or validate real instruments.
+
+## Publication outcome
+
+Visibility changed at commit `980e81acf29a2bf376ff864c695fe160f93c5195`, tree `454e82327e493a8a098dd4d3cbcb9f12bf1b9053`, containing 214 commits and 668 files. [CI 35576212937](https://github.com/HamsterPark/dsh-spm/actions/runs/35576212937) passed all four Windows/Ubuntu × Node 22.19/24 jobs, each with 7,518 tests in 128 files. The corrected lifecycle test took 312/330 ms on Windows and 45/49 ms on Ubuntu. The failed intermediate run and its correction are retained below.
+
+After publication, requests without credentials or cookies confirmed repository and published-commit access (HTTP 200), an identical README fetched through the GitHub contents API, and HTTP 404 for all 207 original commit pages and the known old file. Anonymous access to the old archive returned 404; an authenticated check confirmed that its original ID remains private. The public repository retained ID `1379303402` and `fork: false`.
+
+This publication-status update changes only documentation and reuses the build/test results for `980e81a`; source, tests, dependency pins and generated data remain unchanged.
 
 ## Candidate and validation
 
@@ -27,6 +35,8 @@ The managed STM-Bench and native Nanonis runtime code, reports and reader guides
 
 ## Repository identity and isolation
 
+The following table records the private preparation snapshot; the completed public-visibility checks are recorded above.
+
 | Repository | Immutable ID | State at this check |
 |---|---|---|
 | `HamsterPark/dsh-spm-private-archive` | `1372557135` | Existing repository renamed; private |
@@ -47,4 +57,4 @@ These are bounded content and route checks, not a guarantee against unrecognized
 
 The README, agent instructions and documentation map explicitly state active development, experimental maturity, changing interfaces/configuration/tool scope, and the absence of real-instrument validation. Source publication does not assert a stable release or hardware readiness.
 
-When publication is requested, use the reviewed `dsh-spm-public-ready` checkout and verify the actual `master` HEAD and repository ID `1379303402`. Make only this new repository public, then check anonymous README/current-source access and original-commit isolation. Confirm that archive ID `1372557135` remains private. Do not publish from the original-history checkout or change the archive's visibility.
+Publication used the reviewed `dsh-spm-public-ready` checkout and repository ID `1379303402`. Continue development from the cleaned history; the original-history checkout and archive ID `1372557135` remain private and are not sources for direct pushes into the public repository.

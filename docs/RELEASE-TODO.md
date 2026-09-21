@@ -14,11 +14,11 @@ The selected route is to **rename the existing repository and keep it private, t
 - [x] Create a new private, non-fork `HamsterPark/dsh-spm` with a different immutable repository ID. Use an empty repository, without importing the archive. Bind the publication copy to this new identity and push only reviewed `master`; do not mirror refs or push original history.
 - [x] Fresh-clone the new repository and compare its HEAD, tree, reachable commit set and object store with the reviewed candidate. Verify that all 207 original commit IDs and the confirmed old file are inaccessible through the new repository's routes. Permission/rate-limit errors and network failures are inconclusive.
 - [x] Add the new repository's description and topics. Update historical CI links to the renamed private archive and label their access/snapshot limits; record new-repository CI separately.
-- [ ] Under the owner's publication instruction, make only the verified new repository public. Recheck its identity, anonymous entry points and old-content isolation; confirm that the archive remains private.
+- [x] Under the owner's publication instruction, make only the verified new repository public. Recheck its identity, anonymous entry points and old-content isolation; confirm that the archive remains private.
 
 The recorded local candidate and its verification are described in [HISTORY-CLEANUP.md](HISTORY-CLEANUP.md). A prepared copy does not automatically include development performed afterward.
 
-Code candidate `60313d1` passed local checks and all four new-repository CI jobs; fresh-clone and all 207 original-commit route checks also passed. The [final preparation record](handoff/publication-ready-20260921.md) additionally records a later lifecycle-test timeout and its fixture correction. Publication requires a successful CI run matching the actual final HEAD. Both repositories remain private; public visibility and its follow-up anonymous verification remain separate actions.
+Publication completed on **2026-09-21** from `980e81acf29a2bf376ff864c695fe160f93c5195`, after all four jobs in [CI 35576212937](https://github.com/HamsterPark/dsh-spm/actions/runs/35576212937) passed. Repository ID `1379303402` is public; archive ID `1372557135` remains private. Anonymous access to the repository, published commit and matching README passed; all 207 original commit routes and the known old file returned 404. The [publication record](handoff/publication-ready-20260921.md) preserves the earlier lifecycle-test failure, its correction and the final verification scope.
 
 ## Earlier readiness check on 2026-09-21
 
