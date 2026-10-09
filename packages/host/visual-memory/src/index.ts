@@ -1,0 +1,173 @@
+/**
+ * dsh-spm-visual-memory — the session's lossless visual memory and the tools
+ * that let the model look again (VISUAL-HARNESS, decision D12).
+ *
+ * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
+ * flattening, rendering, PNG, the directory archive, the notes store and the
+ * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
+ */
+export {
+  FRAME_KINDS,
+  FrameIdError,
+  KIND_NAMES,
+  KIND_WORDS,
+  frameId,
+  isFrameId,
+  isFrameKind,
+  parseFrameId,
+  type FrameKind,
+  type ParsedFrameId,
+} from './frame-id.js'
+export { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+export { PngError, crc32, decodePng, encodePngRgb, pngSize, toRgb, type DecodedPng, type PngOptions } from './png.js'
+export {
+  DISPLAY_MAX_DEFAULT,
+  GeometryError,
+  checkGeometry,
+  displaySize,
+  displayToScanNm,
+  nativeToScanNm,
+  scaleFromValue,
+  scalePair,
+  scaleText,
+  scaleValue,
+  scanNmToDisplay,
+  scanNmToNative,
+  type ScalePair,
+  type ScanGeometry,
+} from './geometry.js'
+export {
+  MODEL_UNITS,
+  channelFormat,
+  columnUnit,
+  decimalsFor,
+  displayUnit,
+  formatKey,
+  formatValue,
+  formatValues,
+  npRound,
+  rangeAttr,
+  robustSpan,
+  roundTo,
+  stripUnit,
+  unitForChannel,
+  unitKey,
+  unitSuffix,
+  type ChannelFormat,
+  type DisplayUnit,
+} from './units.js'
+export { CONSTANT_HEIGHT_Z_RANGE_M, ChannelError, defaultChannel, findChannel, resolveChannel, span } from './channels.js'
+export {
+  FLATTEN_MODES,
+  FlattenError,
+  HIGHPASS_NM_DEFAULT,
+  blockMean,
+  fitSurface,
+  flatten,
+  isFlattenMode,
+  medianBackground,
+  nanMedian,
+  projectOnto,
+  rowOffsets,
+  type FlattenMode,
+  type FlattenOptions,
+  type Grid,
+} from './flatten.js'
+export {
+  CLIP_PCT_DEFAULT,
+  NAN_NAME,
+  NAN_RGB,
+  RegionError,
+  colourLimits,
+  crop,
+  fmtNum,
+  greyRgb,
+  percentileSorted,
+  planView,
+  regionToNative,
+  renderValues,
+  upscaleRgb,
+  viewCornersNm,
+  visualLabel,
+  type LabelAttr,
+  type Region,
+  type RenderedValues,
+  type View,
+} from './render.js'
+export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
+export {
+  DIRECTIONS,
+  IngestError,
+  arrayKey,
+  frameGeometry,
+  isDirection,
+  loadSxm,
+  scanFromArrays,
+  sxmChannelUnits,
+  type ArrayInput,
+  type Direction,
+  type PartialGeometry,
+  type PartialMeta,
+  type ScanData,
+} from './scan-data.js'
+export { encodeSyntheticSxm, type SyntheticChannel, type SyntheticSxm } from './synthetic-sxm.js'
+export {
+  ArchiveError,
+  FrameArchive,
+  INDEX_NAME,
+  channelDirections,
+  entryScale,
+  entryFromRecord,
+  entrySummary,
+  hasValues,
+  kindName,
+  kindWord,
+  mergeAttrs,
+  type ArchiveOptions,
+  type DerivedMeta,
+  type FrameArray,
+  type FrameEntry,
+  type FrameExtra,
+  type RenderMeta,
+  type RenderOptions,
+  type Rendered,
+} from './archive.js'
+export {
+  GUIDE_FILE,
+  GUIDE_INITIAL,
+  MAX_GUIDE_BYTES,
+  MAX_WORKING_BYTES,
+  NOTE_FILES,
+  NotesError,
+  NotesStore,
+  WORKING_FILE,
+  isNoteFile,
+  noteLimit,
+  type NoteFile,
+  type NoteWrite,
+} from './notes.js'
+export {
+  ArgError,
+  MAX_CLIP_PCT,
+  MAX_HIGHPASS_NM,
+  MAX_INSPECT_VIEWS,
+  MAX_LABEL_CHARS,
+  MAX_QUESTION_CHARS,
+  MAX_READ_SAMPLES,
+  MAX_READ_VIEWS,
+  inspect,
+  readValues,
+  sampleAxis,
+  type ViewImage,
+  type ViewToolResult,
+} from './views.js'
+export {
+  VISUAL_TOOL_NAMES,
+  defineVisualTools,
+  renderViewValue,
+  type ImageSaver,
+  type ViewToolValue,
+  type VisualToolDeps,
+} from './tools.js'
+export { FrameArchiveService, apply, inject, name, visualMemoryProvider, type Config } from './plugin.js'

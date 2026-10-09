@@ -31,6 +31,7 @@ const WORKSPACE_ALIAS = {
   'dsh-spm-stm-safety': fileURLToPath(new URL('./packages/host/stm-safety/src/index.ts', import.meta.url)),
   'dsh-spm-stm-skills': fileURLToPath(new URL('./packages/host/stm-skills/src/index.ts', import.meta.url)),
   'dsh-spm-stm-ui': fileURLToPath(new URL('./packages/client/stm-ui/src/index.ts', import.meta.url)),
+  'dsh-spm-visual-memory': fileURLToPath(new URL('./packages/host/visual-memory/src/index.ts', import.meta.url)),
 }
 
 
@@ -81,6 +82,11 @@ const COVERAGE_THRESHOLDS = {
   },
   'packages/host/stm-records/src/**': {
     statements: 90, branches: 80, functions: 90, lines: 90,
+  },
+  // Visual memory (VISUAL-HARNESS D12): PLAN §6.3 asks numerics/vision-grade
+  // coverage (≥ 90 %) for this pixel and coordinate code.
+  'packages/host/visual-memory/src/**': {
+    statements: 90, branches: 90, functions: 90, lines: 90,
   },
 }
 
