@@ -159,6 +159,7 @@
 8. `conversation.view` 无 session 时能否显示；`details` 是 single 还是 list；`tool.call.toolview` props 有无待批状态。
 9. `webServer` handler 是否支持流式 `res.write`（SSE）/ WS upgrade。
 10. 子会话能否读到父/根 session id；`agent/turn-stopping` 能否取消停止；`ctx.agents.resume` API 名；压缩事件有无钩子（`memory_sink`）。
+    **压缩钩子一项 2026-10-09 有了结论（读包）：没有压缩前钩子，退路见 §9.4。**其余三项未动。
 
 
 ## 8. 逐版本变更与对本计划的影响
@@ -469,3 +470,137 @@ stderr 空、端口正常释放。
 | UI 细节与长对话渲染性能 | 改进 | 无 |
 
 - **核实记录**：web profile `--dump-config` alpha.3 vs alpha.4 逐行相同（145 行 / 27 disabled）；npx 缓存两棵树的 `.md/.d.ts/.yml` 逐文件相同（原因见 §1：alpha.3 启动器已浮动到 alpha.4 子包）。因此 09-01 按 alpha.3 时代文档核实的 §5 能力表与 §6 陷阱在 alpha.4 上未发现失效项；逐条 API 级复核由 0.6 spike 的 contract 测试承担。
+
+## 9. 视觉线束：工具结果里的图像、各适配器的送达方式、压缩钩子与「一动一观」（2026-10-09，对照 0.1.5-rc.2）
+
+> 回答 [VISUAL-HARNESS](../VISUAL-HARNESS.md) §7 前三条开放问题。**来源分三种**：
+> **实测（契约）** = 本仓 `packages/host/compat/contract/image-results.test.ts` 对真包跑出来的，随每次升级重跑；
+> **实测（探针）** = 在仓外临时目录装同版本包、对本机 mock HTTP 服务抓请求体得到的，探针**未入仓**，升级时要重做；
+> **包** = 读 npm 包内 `lib/*.js` / `.d.ts`，行号是该包内文件的行号。
+> 适配器（`dsh-llm-pi-ai`、`dsh-llm-deepseek`）、`dsh-agent-loop`、`dsh-compaction*`、`dsh-attachment-local`
+> **不在本仓依赖树里**；它们的结论都属后两种。要在 CI 里钉住适配器行为，得把它们加成 compat 的
+> devDependencies —— 那是新依赖，留给维护者决定。
+
+### 9.1 工具结果里的图像块
+
+- **形状**：`ImageBlock = { type: 'image', attachment: ImageAttachmentRef }`，**只引用附件、不带像素**；
+  `ImageAttachmentRef = { attachmentId: 'sha256:<64 hex>', mediaType, bytes, width, height, name?, originalDimensions? }`
+  （`dsh-llm` `lib/types/types.d.ts`，`dsh-attachment` `lib/types/types.d.ts`）。[包]
+- **怎么产出**：`output.render` 是纯函数（§6-6），不能存文件；工具在 `execute` 里调
+  `ctx.attachments.saveImage({ data, mediaType: 'image/png', name })` 拿到引用、放进 value，
+  `render` 再把引用变成块。`ToolRuntime` 把 render 的块**原样**交出，value 只在执行期存在。[实测（契约）]
+- **dsh 不校验图像块**：render 返回 MCP 式 `{ type: 'image', data, mimeType }` 也原样通过调度器，
+  错误要到适配器读 `block.attachment` 时才出现 ⇒ 形状是我们自己的责任。render 抛异常则变成 `isError` 结果。[实测（契约）]
+- **附件服务**：Cordis 服务名 `attachments`（抽象类 `AttachmentStore`）；dsh-base 组合里有 `attachment-local`
+  且未禁用（`spec/dsh/dump-config.0.1.5-rc.2.yml`）。`saveImages` 校验整批（条数、总字节、类型，
+  失败码 `TOO_MANY_IMAGES` / `IMAGES_TOO_LARGE` / `UNSUPPORTED_IMAGE_TYPE`，整批不写）；
+  单次 `saveImage` 不受「每条消息张数」限制。[实测（契约）]
+- **其它策略对图像结果的作用**：spill（50 KB 内联上限）只处理**纯文本**结果，含非文本块的结果不剪
+  （`dsh-spill` `lib/index.js:24-50, 76-83, 155-171`）⇒ 纯文本的 `stm_read_values` 回复要控制在 50,000 字节以内；
+  `tool-result-pruner` 只数文本码点、保留图像块，但只在压缩时运行，且会改写近期的超长结果
+  （`lib/index.js:79-127, 137-196`）；`Session.append` 不检查附件是否存在（`dsh-session` `lib/index.js:1170-1205`）；
+  PTC（`run_code`）模式下含图的子结果在运行结束后改挂到一条 user 消息（`dsh-tools` `lib/index.js:1295-1301`）。[包]
+
+### 9.2 `attachment-local` 怎样保存我们的 PNG
+
+- **直通条件**（`lib/index.js:135, 205-207`）：非 GIF、非动画、无元数据（exif / xmp / iptc / icc / comments / orientation）、
+  8 位（`uchar`）、`space === 'srgb'`、且在归一化上限内（4,194,304 像素、长边 8192、4 MiB）⇒ **按原字节保存**，
+  `attachmentId` = `sha256:` + 我们字节的 sha256。[包]
+- **否则用 sharp 0.35 重编码**（`lib/index.js:60, 84-87, 215-225, 248-262`）：转 sRGB、按预算缩小（不放大）、
+  无 alpha 用 JPEG、有 alpha 用 WebP，质量依次 85 → 75 → 60。[包]
+- 真 `LocalAttachmentStore` 探针结果：[实测（探针）]
+
+  | 输入 PNG | 保存为 | 尺寸 | 字节相同 |
+  |---|---|---|---|
+  | 灰度（colour type 0）768×768 | `image/jpeg`（有损） | 768×768 | 否 |
+  | RGB 768×768，含 NaN 色行 | `image/png` | 768×768 | 是 |
+  | RGB 1536×768 | `image/png` | 1536×768 | 是 |
+  | RGB 2560×2048 | `image/jpeg`，带 `originalDimensions` | 2289×1831 | 否 |
+
+  ⇒ **观测图一律写 8 位 RGB（colour type 2）、不写任何辅助块**；灰度 PNG 会被悄悄存成 JPEG。
+  这一条已落在 `dsh-spm-visual-memory` 的 `png.ts`。
+- 默认上限（`lib/index.js:987-1004`）：单图 20 MiB、每条消息 20 张、每条消息合计 200 MiB、6400 万像素、单边 8192。
+  对象存在 `<DSH_HOME>/attachments/v1/objects/<sha 前两位>/<sha>`，**永不自动删除**；
+  `readImage` 先比 sha256，再比头里的类型、字节数与宽高（`lib/index.js:586-606`）。[包]
+
+### 9.3 各适配器怎样把工具结果里的图像送给模型
+
+**所有路由的前置一步在 `LlmRuntime`**：路由解析出的模型若**声明了** `inputModalities` 且其中没有 `image`，
+请求里的每张图（包括嵌在 tool-result 里的）都被换成固定文本
+`[image omitted because this model accepts text only; attachment sha256:<前 8 位>]`；
+声明含 `image` 或**根本没声明**时原样交给适配器（`dsh-llm` `lib/index.js:2251`）。[实测（契约）]
+
+| 路由 | 图像去向 | 每张图附带的文本 | 预算与缩放 | 来源 |
+|---|---|---|---|---|
+| `llm-pi-ai` → `anthropic-messages` | **内联**在 `tool_result` 内容里，顺序不变（我们的文本、标签、句柄文本、图像……） | 句柄文本 `Image "<name>" (<sha256 id>); request preview WxHpx. It may be resized or re-encoded; …` | `readImageRequest` 预算 4,194,304 像素 / 1 MiB；超 1 MiB 的 PNG 重编码为 JPEG | 实测（探针）；`dist/api/anthropic-messages.js:79-110, 899-925, 1046-1063` |
+| `llm-pi-ai` → `openai-completions`（OpenAI 兼容，含手写 Kimi 路由） | **移出**：tool 消息只含全部文本（`\n` 连接），随后追加一条 user 消息 `Attached image(s) from tool result:` + 这一串连续工具结果里的全部图像（data URL） | 同上，句柄文本留在 tool 消息里 | 同上 | 实测（探针）；`dist/api/openai-completions.js:1063-1124` |
+| `llm-pi-ai` → `openai-responses` | 内联但不交错：`function_call_output` 先一段 `input_text`（全部文本），后面才是全部 `input_image` | 同上 | 同上 | 实测（探针）；`dist/api/openai-responses-shared.js:35-56, 210-225` |
+| `llm-deepseek` | **移出**：tool 消息是文本，**以空串连接、没有分隔符**；随后 user 消息 `Attached image(s) from tool result:` + 图像。默认先上传 DeepSeek Files API（保存 7 天），失败回退内联 base64 | 无句柄文本 | 每张 640,000 像素（`low` 档 512²）、1 MiB；历史上限 128 MiB（files）/ 20 MiB（inline）/ 600 张 | 实测（探针）；`lib/index.js:24, 171-225, 445-465, 1396-1404, 1691, 1749` |
+
+- **转换细节**：`llm-pi-ai` 把每个图像块变成「句柄文本 + base64 图」两块（`lib/index.js:1140-1176, 1316-1333`），
+  字节来自 `attachments.readImageRequest(ref, { maxPixels: 4194304, maxBytes: 1048576 })`（`lib/index.js:887-891, 1182-1189, 1860-1865`）。
+  模型不支持图像或没有附件服务时抛 `UNSUPPORTED_CONTENT`（`lib/index.js:1137, 1844-1847`）。[包；实测（探针）]
+- **历史图像预算**：pi-ai 路由在全部历史图像的 base64 合计超过 20 MiB（`maxRequestImageBytes` 默认）时，
+  从最早的图开始换成 `offloadedImageText`，无张数上限（`lib/index.js:1286-1300`）。768² 的图约二十几张就到线；
+  被换掉的图的文案是「ask the user to attach it again」——**对工具图是错的提示**，应让模型用 `stm_inspect` 重看。[包]
+- **哪些路由接收图像**：模型的 input 依次取路由条目自己的 `input`、pi-ai 目录里同 id 的条目、路由的 `defaultInput`，
+  缺省 `["text"]`（`lib/index.js:682, 907, 993`）；只有路由 key 本身是 pi-ai 的 provider id 时才继承目录。
+  ⇒ 手写的 `kimi: { api: 'openai-completions', baseURL, models: [...] }` **默认是纯文本路由**，图像全被换成占位文本
+  （探针用 `kimi-default` 复现）。目录里接收图像的有：`anthropic` 全部 claude-*、`moonshotai` kimi-k2.5 / k2.6 / k2.7 / k3、
+  `kimi-coding`、openai gpt-4o / gpt-5（responses）、`deepseek` deepseek-v4-flash-vision-exp。[包；实测（探针）]
+- **DeepSeek 默认模型**：`dsh-llm-deepseek` 的目录把当前默认的 `deepseek-flash` 与 `deepseek-v4-flash-vision-exp`
+  声明为 text + image，`deepseek-v4-flash` / `deepseek-v4-pro` 与目录外的模型为纯文本（`lib/index.js:1586, 1841-1870`）。
+  **这与 VISUAL-HARNESS §4.8「DeepSeek 默认模型行不在此列」不一致**；真 API 是否接受图像未核。[包；实测（探针）]
+- **丢图无日志**：图像被换成占位文本时宿主侧没有日志、没有事件，模型看到的占位文本是唯一信号。
+  §4.8 要求的「本轮有 N 张图像未送达」只能由我们按模型声明的 `inputModalities` 自己算。[包；实测（探针）]
+- **尺寸**：按 `requestImageDimensions` 实算，768×768 在所有路由都不缩放；1536×768 在 DeepSeek 缩为 1130×565，
+  在 pi-ai 路由不变。坐标换算依赖图像不被缩放 ⇒ `D = 768` 对所有路由都安全。[实测（探针）]
+
+### 9.4 压缩：没有压缩前钩子
+
+- `dsh-compaction` / `dsh-compaction-basic` **不派发任何 Cordis 事件**（无 emit / waterfall / serial），
+  只往会话日志追加 `compaction/start`（`{compactionId, sourceCommandId?, turn}`）、`compaction/summary`、
+  `compaction/end`、`compaction/prune`，都是事后记录、不能否决（`dsh-compaction` `lib/types/types.d.ts`；
+  start 在摘要前追加，`dsh-compaction-basic` `lib/index.js:452`）。[包]
+- **触发**：compaction-basic 自己挂在 `agent/pre-step` 瀑布上，`compactIfNeeded(agent, 'pressure')` 后才 `next()`
+  （`lib/index.js:793-811`）；压力 = `ctx.tokenMeter.measure(agent.session).totalTokens`，阈值默认
+  0.8 × 路由模型的 `contextWindow`，保留尾部 0.16，`auto: true`（`lib/index.js:14-17, 58-76, 896-919`）。
+  适配器没声明上下文窗口时只警告一次、**从不按压力压缩**。另有 `agent/request-error` 收到
+  `CONTEXT_WINDOW_EXCEEDED` 时的溢出压缩（`lib/index.js:820-858`）。它挂在 preset 的隔离 `compaction` 组里，
+  web profile 宿主层是禁用的（§3）。[包]
+- **退路可行（VISUAL-HARNESS §4.7 的检查点）**：在 `agent/pre-step` 用 `ctx.on(…, { prepend: true })` 抢在
+  compaction 前面，按同一公式算压力；接近阈值时返回 `{ kind: 'enter', messages: [...payload.messages, 检查点请求] }`
+  且**不调用** `next()`——这一步跳过压缩，模型先写 `WORKING.md`；之后的步骤照常 `next()`。
+  局限：依赖监听顺序；不调 `next()` 也跳过了其后的所有 pre-step 监听者；溢出压缩（`agent/request-error`）抢不到。[包]
+- 被摘要的区间里的图像离开模型上下文（摘要只能是文本，`lib/index.js:355`），附件本身仍在。[包]
+
+### 9.5 「结果已进入上下文」与一动一观闸门
+
+- **一步之内的顺序**（`dsh-agent-loop` `lib/index.js:885-1110`，调度器 `512-710`）：`agent/pre-step`（压缩在这里）→
+  `step/start` → `agent/request` → `system/message`（变了才有）与本步 `user/message` → `request/header` / `request/context`
+  （变了才有）→ `deriveMessages()` → 适配器 → `assistant/message` → 每个工具调用依次：`tool/call` 事件 →
+  `tools/pre-execute` 与 guard → `tools/execute` 与工具体 → `tools/post-execute`、`finalizeContent` →
+  `tools/result` → `tool/result` 事件 → `step/end`。[包]
+- **第 S 步的全部 `tool/result` 都在第 S+1 步的 pre-step 之前提交**（按模型顺序逐个，`lib/index.js:526-536, 558-588`）
+  ⇒ 第 S+1 步的请求必然含第 S 步的全部结果；dsh 没有单独的「已送达模型」事件。[包]
+- **pre-execute 时已知调用所在的步**：`tool/call`（`{turn, step, callId}`）在 `prepare()` 之前追加
+  （`lib/index.js:587-588, 687-695`），而 `session/event` 观察者在 `append` 内同步触发
+  （`dsh-session` `lib/index.js:1190-1203`）。[包]
+- **推荐的闸门**：宿主层（不按 agent 作用域过滤）的 `tools/pre-execute` 监听者，只在这次改变仪器的调用所在
+  `(turn, step)` 字典序**晚于**上一次被放行的改变仪器调用的 `(turn, step)` 时放行，放行时记下；否则以固定短语拒绝。
+  同一步里的第二个动作因此被拒（它的前一个结果还没进上下文）。例外：两步之间的 pre-step 若发生溢出压缩，
+  上一个结果可能已被摘掉。更精确但更耦合的做法：在 `llm/stream` 瀑布里检查真正发出的请求是否含上一次的
+  tool-result 块。PTC 子调用（`exec.parent` 有值、callId 形如 `<parent>:ptc:n`）没有 `tool/call` 事件，继承父调用的步。[包]
+- `dsh-tool-present`（§8.-1 提过）只声明「把哪些文件交给用户」，不往模型上下文放任何东西，与观测图无关。[包]
+
+### 9.6 本仓的落点
+
+- compat 新增**仅类型**导出：`ContentBlock`、`ImageBlock`、`TextBlock`（dsh-llm）与 `AttachmentStore`、
+  `ImageAttachmentRef`、`ImageMediaType`、`SaveImageAttachment`（dsh-attachment）。compat 依赖表加了这两个包
+  （锁文件里本来就是同一版本，由 overrides 钉住；只改 importer 一段）；最小分发的外部依赖集不变。
+- 钉住上面「实测（契约）」各条的是 `packages/host/compat/contract/image-results.test.ts`，
+  类型层由 `packages/host/compat/src/image-types.test.ts` 在 `tsc -b` 时检查（含「不是 any」）。
+- 设计后果落在 `packages/host/visual-memory`：观测图写 RGB PNG；每个视图存一张附件并给可读的 `name`
+  （如 `t0007.s0.inspect-1.png`）；标签带 `index` / `count`（图像被移到后续 user 消息时只剩顺序可依）；
+  每个文本块以换行结尾（DeepSeek 无分隔符拼接）。K14 接线时还要补两条：按模型的 `inputModalities`
+  报「N 张图像未送达」，以及在 IC persona 里写明「旧图被卸载时用 `stm_inspect` 重看」。
