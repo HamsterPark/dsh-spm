@@ -32,7 +32,7 @@ import { blockMean, flatten, type FlattenMode } from './flatten.js'
 import { displaySize, displayToScanNm, scalePair, scaleText, scanNmToDisplay, type ScanGeometry } from './geometry.js'
 import { decodePng } from './png.js'
 import { colourLimits, fmtNum, greyRgb, planView, renderValues, viewCornersNm, visualLabel, type LabelAttr } from './render.js'
-import { FrameArchive } from './archive.js'
+import { entryFromRecord, entrySummary, FrameArchive } from './archive.js'
 import type { PartialMeta } from './scan-data.js'
 import { decimalsFor, displayUnit, npRound, rangeAttr, robustSpan, roundTo, unitKey } from './units.js'
 import { inspect, readValues, sampleAxis } from './views.js'
@@ -214,9 +214,22 @@ describe('parity with the Python reference: units and rounding', () => {
   })
 })
 
+/** Every key of a parsed reply, depth first in insertion order: the order the model reads. */
+function keyPaths(obj: unknown, path = '$'): string[] {
+  if (Array.isArray(obj)) return obj.flatMap((v, i) => keyPaths(v, `${path}[${i}]`))
+  if (obj === null || typeof obj !== 'object') return []
+  return Object.entries(obj).flatMap(([k, v]) => [`${path}.${k}`, ...keyPaths(v, `${path}.${k}`)])
+}
+
 describe('parity with the Python reference: archive summaries and tool replies', () => {
   const A = golden.archive
   const grid = (rows: Num[][]) => ({ rows: rows.length, cols: (rows[0] as Num[]).length, data: flat(rows) })
+  /** Heights stored as integers of 1 pm (null: not acquired yet), as the exporter makes them. */
+  const pmGrid = (rows: readonly (readonly (number | null)[])[]) => ({
+    rows: rows.length,
+    cols: (rows[0] ?? []).length,
+    data: Float64Array.from(rows.flat().map((k) => (k === null ? Number.NaN : Math.fround(k * 1e-12)))),
+  })
   const dir = mkdtempSync(join(tmpdir(), 'vm-parity-'))
   afterAll(() => rmSync(dir, { recursive: true, force: true }))
   const arc = new FrameArchive(join(dir, 'frames'), { displayMax: A.display_max })
@@ -237,33 +250,47 @@ describe('parity with the Python reference: archive summaries and tool replies',
       tool: 'stm_frame_diff', sources: ['t0002.p0', 't0002.p0'], geometry: inp.geometry_a, units: { diff: 'm' },
       arrays: { 'diff/forward': grid(inp.diff as Num[][]) },
     }),
+    arc.addPartial(4, { Z: pmGrid(inp.k_c) }, { ...(inp.meta_c as PartialMeta), geometry: inp.geometry_c, simS: inp.sim_s_c }),
   ]
 
-  it('allocates the same frame ids and writes the same summaries', () => {
+  it('allocates the same frame ids and writes the same summaries, keys in the same order', () => {
     expect(made.map((e) => e.fid)).toEqual(A.frames)
     expect(arc.index()).toEqual(A.index)
+    expect(keyPaths(arc.index())).toEqual(A.index_key_paths)
   })
 
   it('labels the stored observations the same way', () => {
     for (const [fid, label] of Object.entries(A.observations)) expect(arc.observation(fid).label).toBe(label)
   })
 
-  it('answers inspect with the same reply and labels', () => {
+  it('answers inspect with the same reply, key order and labels', () => {
     for (const c of A.inspect) {
       expect(c.is_error).toBe(false)
       const r = inspect(arc, c.args)
       if (!r.ok) throw new Error(r.error)
       expect(r.reply).toEqual(c.reply)
+      expect(keyPaths(r.reply)).toEqual(c.key_paths)
       expect(r.images.map((i) => i.label)).toEqual(c.labels)
     }
   })
 
-  it('answers read_values with the same reply', () => {
+  it('answers read_values with the same reply and key order', () => {
     for (const c of A.read_values) {
       expect(c.is_error).toBe(false)
       const r = readValues(arc, c.args)
       if (!r.ok) throw new Error(r.error)
       expect(r.reply).toEqual(c.reply)
+      expect(keyPaths(r.reply)).toEqual(c.key_paths)
+    }
+  })
+})
+
+describe('parity with the Python reference: index records read back', () => {
+  it('summarizes a saved scan and spectra the same way, keys in the same order', () => {
+    for (const c of golden.summaries) {
+      const s = entrySummary(entryFromRecord(c.record))
+      expect(s).toEqual(c.summary)
+      expect(keyPaths(s)).toEqual(c.key_paths)
     }
   })
 })

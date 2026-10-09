@@ -7,7 +7,8 @@ read_values sampling rule, model units, decimals, rounding and labels. This
 exporter runs the reference (``stmbench/vista/frames.py``, ``archive.py`` and
 ``viewtools.py``) on synthetic inputs and stores inputs and results together in
 ``spec/golden/visual_memory.json``, including the parsed ``inspect`` /
-``read_values`` replies and the frame summaries of a small synthetic archive, so a
+``read_values`` replies and the frame summaries of a small synthetic archive with
+the key order the model reads, and the summaries of index records read back, so a
 change of the model-facing vocabulary on either side fails a test.
 
 The reference lives in the STM-Bench source tree and is imported read-only from
@@ -49,7 +50,7 @@ ROOT = require_stmsim_root()
 sys.path.insert(0, str(ROOT))
 from stmbench.vista import frames as F  # noqa: E402
 from stmbench.vista import viewtools as V  # noqa: E402
-from stmbench.vista.archive import Archive, sample_axis  # noqa: E402
+from stmbench.vista.archive import Archive, FrameEntry, sample_axis  # noqa: E402
 
 
 def _plain(v: Any) -> Any:
@@ -218,7 +219,24 @@ UNITS = {
 # ── 8. the reference archive and its view tools, end to end ──────────────
 # Synthetic partial scans and derived images go through the reference Archive in a
 # temporary directory; the summaries, labels and parsed inspect / read_values replies are
-# the model-facing contract the TypeScript port must reproduce.
+# the model-facing contract the TypeScript port must reproduce. Reply text is compact JSON
+# in insertion order (protocol.compact_json) while this golden is written with sorted keys,
+# so the key order the model reads is recorded separately, as key paths.
+
+
+def _key_paths(obj: Any, path: str = "$") -> list[str]:
+    """Every key of a parsed reply, depth first in insertion order (``$.views[0].frame``)."""
+    out: list[str] = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out.append(f"{path}.{k}")
+            out += _key_paths(v, f"{path}.{k}")
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            out += _key_paths(v, f"{path}[{i}]")
+    return out
+
+
 z_fwd = frame
 z_bwd = (frame + np.float32(1.5e-12)).astype(np.float32)
 current = (1.2e-10 + 3e-12 * np.sin(xx / 2.5) + 1e-12 * yy).astype(np.float32)
@@ -231,6 +249,16 @@ GEOM_B = {"cx_nm": 0.0, "cy_nm": 0.0, "w_nm": 2.0, "h_nm": 1.5, "angle_deg": 0.0
 META_A = {"bias_v": -0.5, "setpoint_a": 1.23456e-10, "scan_dir": "down", "rec_time": "09.10.2026 12:00:00",
           "feedback": "ON", "source_name": "synthetic_a"}
 META_B = {"units": {"Frequency Shift": "Hz"}, "setpoint_a": -2.5, "setpoint_unit": "Hz", "feedback": "OFF"}
+# A frame wider than display_max (block mean by 3: display_scale_frac "1/3") with rows still
+# missing and a simulation time. Its heights are small integers times 1 pm, stored as those
+# integers (None for rows not acquired yet) to keep the golden small.
+NX_C, NY_C, ROWS_C = 130, 24, 20
+K_C = [[(7 * x + 3 * y) % 17 if y < ROWS_C else None for x in range(NX_C)] for y in range(NY_C)]
+z_c = (np.array(K_C, dtype=float) * 1e-12).astype(np.float32)
+GEOM_C = {"cx_nm": -40.0, "cy_nm": 15.5, "w_nm": 65.0, "h_nm": 12.0, "angle_deg": -12.5}
+META_C = {"bias_v": 1.25, "setpoint_a": 3.3e-11, "scan_dir": "up", "rec_time": "09.10.2026 12:10:00",
+          "source_name": "synthetic_c"}
+SIM_S_C = 12.34567
 png_plain = F.encode_png((np.arange(32, dtype=np.uint8).reshape(4, 8) * 8).astype(np.uint8))
 png_map = F.encode_png(np.zeros((48, 64), dtype=np.uint8))
 
@@ -245,6 +273,7 @@ try:
     eD = arc.add_derived(3, png_map, meta={"tool": "stm_frame_diff", "sources": [eA.fid, eA.fid],
                                            "geometry": GEOM_A, "units": {"diff": "m"}},
                          arrays={"diff/forward": diff})
+    eC = arc.add_partial(4, {"Z": z_c}, geometry=GEOM_C, meta=META_C, sim_s=SIM_S_C)
     INSPECT_ARGS = [
         {"question": "overview", "views": [
             {"label": "A", "frame": eA.fid},
@@ -259,6 +288,9 @@ try:
         {"question": "derived", "views": [
             {"label": "fft crop", "frame": eM.fid, "region": {"x": 2, "y": 1, "width": 4, "height": 2}},
             {"label": "map", "frame": eD.fid}]},
+        {"question": "wide frame", "views": [
+            {"label": "C", "frame": eC.fid},
+            {"label": "C crop", "frame": eC.fid, "region": {"x": 5, "y": 2, "width": 20, "height": 5}}]},
     ]
     READ_ARGS = [
         {"question": "grid", "views": [
@@ -269,29 +301,58 @@ try:
              "region": {"x": 0, "y": 30, "width": 64, "height": 18}, "rows": 3, "columns": 2}]},
         {"question": "df", "views": [{"label": "B df", "frame": eB.fid, "channel": "df", "rows": 2, "columns": 3}]},
         {"question": "map", "views": [{"label": "D", "frame": eD.fid, "rows": 1, "columns": 2}]},
+        {"question": "wide frame", "views": [
+            {"label": "C grid", "frame": eC.fid, "rows": 2, "columns": 3},
+            {"label": "C crop", "frame": eC.fid, "region": {"x": 5, "y": 2, "width": 20, "height": 5},
+             "rows": 2, "columns": 2}]},
     ]
     INSPECT = []
     for args in INSPECT_ARGS:
         reply = V.inspect(arc, args)
-        INSPECT.append({"args": args, "is_error": reply.is_error, "reply": json.loads(reply.text),
+        parsed = json.loads(reply.text)
+        INSPECT.append({"args": args, "is_error": reply.is_error, "reply": parsed, "key_paths": _key_paths(parsed),
                         "labels": [im.label for im in reply.images]})
     READ = []
     for args in READ_ARGS:
         reply = V.read_values(arc, args)
-        READ.append({"args": args, "is_error": reply.is_error, "reply": json.loads(reply.text)})
-    fids = [e.fid for e in (eA, eB, eM, eD)]
+        parsed = json.loads(reply.text)
+        READ.append({"args": args, "is_error": reply.is_error, "reply": parsed, "key_paths": _key_paths(parsed)})
+    fids = [e.fid for e in (eA, eB, eM, eD, eC)]
+    index = arc.index()
     ARCHIVE = {
         "display_max": 64,
         "inputs": {"z_forward": z_fwd, "z_backward": z_bwd, "current": current, "flat_z": flat_z, "df": df,
                    "diff": diff, "geometry_a": GEOM_A, "geometry_b": GEOM_B, "meta_a": META_A, "meta_b": META_B,
+                   "k_c": K_C, "geometry_c": GEOM_C, "meta_c": META_C, "sim_s_c": SIM_S_C,
                    "png_plain_b64": base64.b64encode(png_plain).decode("ascii"),
                    "png_map_b64": base64.b64encode(png_map).decode("ascii")},
         "frames": fids,
-        "index": arc.index(),
+        "index": index,
+        "index_key_paths": _key_paths(index),
         "observations": {fid: arc.observation(fid)[0].label for fid in fids},
         "inspect": INSPECT,
         "read_values": READ,
     }
+
+    # ── 9. summaries of index records read back ──────────────────────────
+    # Saved scans and spectra come from .sxm / .dat files that the reference reads with MAST,
+    # so their summaries are pinned through FrameEntry.from_record, the way a re-opened
+    # archive reads index.jsonl: the record of frame A as a complete saved scan, a spectrum
+    # with its position and experiment, and a bare spectrum that relies on the field defaults.
+    rec_a = arc.get(eA.fid).to_record()
+    rec_scan = dict(rec_a, fid="t0002.s0", kind="s", index=0, acquired_rows=rec_a["ny"], sim_s=3.21,
+                    extra=dict(rec_a["extra"], feedback="OFF"))
+    rec_sts = {"fid": "t0005.d0", "turn": 5, "kind": "d", "index": 0, "source_name": "synthetic_sts",
+               "channels": ["Bias (V)", "Current (A)"], "nx": 128, "ny": 1, "setpoint_a": 5e-11,
+               "rec_time": "09.10.2026 12:30:00", "units": {"Bias (V)": "V", "Current (A)": "A"},
+               "default_channel": "Current (A)",
+               "extra": {"position_nm": [1.234567, -2.5], "experiment": "bias spectroscopy"}}
+    rec_bare = {"fid": "t0005.d1", "turn": 5, "kind": "d", "index": 1, "rec_time": None,
+                "extra": {"position_nm": [], "experiment": ""}}
+    SUMMARIES = []
+    for rec in (rec_scan, rec_sts, rec_bare):
+        summ = FrameEntry.from_record(rec).summary()
+        SUMMARIES.append({"record": rec, "summary": summ, "key_paths": _key_paths(summ)})
 finally:
     shutil.rmtree(work, ignore_errors=True)
 
@@ -320,6 +381,7 @@ golden = {
     "labels": LABELS,
     "units": UNITS,
     "archive": ARCHIVE,
+    "summaries": SUMMARIES,
 }
 OUT.write_text(json.dumps(_plain(golden), ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n",
                encoding="utf-8", newline="\n")
