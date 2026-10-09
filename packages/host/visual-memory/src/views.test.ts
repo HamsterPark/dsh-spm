@@ -69,7 +69,7 @@ describe('inspect', () => {
         { label: 'bump', frame: ' t0000.s0 ', direction: 'backward', region: { x: 16, y: 8, width: 16, height: 8 }, flatten: 'line', clip_pct: 2 },
       ],
     }))
-    expect(r.reply).toMatchObject({ visual_kind: 'inspection', instrument_unchanged: true, view_count: 2 })
+    expect(r.reply).toEqual({ instrument_unchanged: true, view_count: 2, views: expect.any(Array) })
     expect(r.images.map((i) => i.name)).toEqual(['t0000.s0.inspect-1.png', 't0000.s0.inspect-2.png'])
     expect(r.images[0]?.label).toMatch(/^<visual kind="inspection" index="1" count="2" label="whole" frame="t0000\.s0" channel="Z" direction="forward" flatten="plane" scale="4" size="64x32" region="0,0,64,32"/)
     expect(r.images[1]?.label).toContain('index="2" count="2" label="bump"')
@@ -77,12 +77,12 @@ describe('inspect', () => {
     const views = r.reply['views'] as Record<string, unknown>[]
     expect(views[1]).toMatchObject({
       index: 2, label: 'bump', frame: 't0000.s0', kind: 'scan', channel: 'Z', direction: 'backward', flatten: 'line',
-      region_px: [16, 8, 16, 8], native_px: [4, 2, 8, 4], image_size: [64, 32], magnification: 4, image_px_per_scan_px: 16,
-      nm_per_image_px: 0.03125, colour_scale: { unit: 'pm' },
+      region_px: [16, 8, 16, 8], native_px: [4, 2, 8, 4], image_size_px: [64, 32], magnification: 4, image_px_per_scan_px: 16,
+      nm_per_image_px: 0.03125,
     })
     expect(Object.keys(views[0] as object)).toEqual([
-      'index', 'label', 'frame', 'kind', 'channel', 'direction', 'flatten', 'region_px', 'native_px', 'image_size',
-      'magnification', 'image_px_per_scan_px', 'nm_per_image_px', 'corners_nm', 'colour_scale', 'value_range',
+      'index', 'label', 'frame', 'kind', 'channel', 'direction', 'flatten', 'region_px', 'native_px', 'image_size_px',
+      'magnification', 'image_px_per_scan_px', 'nm_per_image_px', 'corners_nm', 'black_pm', 'white_pm', 'min_pm', 'max_pm',
     ])
     const img = decodePng(r.images[1]?.png as Uint8Array)
     expect([img.width, img.height]).toEqual([64, 32])
@@ -100,8 +100,8 @@ describe('inspect', () => {
       ],
     }))
     const views = r.reply['views'] as Record<string, unknown>[]
-    expect(views[0]).toEqual({ index: 1, label: 'fft', frame: 't0000.m0', kind: 'derived image', tool: 'stm_fft_peaks', region_px: [0, 0, 4, 2], image_size: [64, 32], magnification: 16 })
-    expect(views[1]).toMatchObject({ kind: 'partial scan', rows_acquired: '4/8' })
+    expect(views[0]).toEqual({ index: 1, label: 'fft', frame: 't0000.m0', kind: 'derived', tool: 'stm_fft_peaks', region_px: [0, 0, 4, 2], image_size_px: [64, 32], magnification: 16 })
+    expect(views[1]).toMatchObject({ kind: 'partial', rows_acquired: 4, rows_total: 8 })
     expect(r.images[0]?.label.startsWith('<visual kind="inspection" index="1" count="2" label="fft" frame="t0000.m0" derived="stm_fft_peaks"')).toBe(true)
   })
 
@@ -173,20 +173,20 @@ describe('inspect', () => {
 })
 
 describe('read_values', () => {
-  it('samples cell centres with the VISTA rule and reports physical values in pm', () => {
+  it('samples cell centers with the VISTA rule and reports physical values in pm', () => {
     const { a } = setup()
     const r = ok(readValues(a, { question: 'heights', views: [{ label: 'grid', frame: 't0000.s0', rows: 2, columns: 4 }] }))
     expect(r.images).toEqual([])
     expect(r.reply).toMatchObject({
-      visual_kind: 'value_readout', instrument_unchanged: true, sample_count: 8, view_count: 1,
-      sampling: 'cell centres: x + ((2c+1)*width)//(2*columns), y likewise',
+      instrument_unchanged: true, sample_count: 8, view_count: 1,
+      sampling: 'cell centers: x + ((2c+1)*width)//(2*columns), y likewise',
     })
     const v = (r.reply['views'] as Record<string, unknown>[])[0] as Record<string, unknown>
     // W = 64: x = 0 + floor((2c+1)·64/8) = 8, 24, 40, 56 → native 2, 6, 10, 14; rows 8, 24 → native 2, 6
     expect(v).toMatchObject({
-      index: 1, label: 'grid', frame: 't0000.s0', channel: 'Z', direction: 'forward', unit: 'pm', flatten: 'none',
+      index: 1, label: 'grid', frame: 't0000.s0', channel: 'Z', direction: 'forward', decimals: 1,
       region_px: [0, 0, 64, 32], rows: 2, columns: 4, sample_x_px: [8, 24, 40, 56], sample_y_px: [8, 24],
-      values: [[6, 14, 22, 30], [10, 18, 26, 34]],
+      values_pm: [[6, 14, 22, 30], [10, 18, 26, 34]],
     })
     // display (8.5, 8.5) → native (2.125, 2.125) → u = -2.9375, v = 0.9375 → (cx + u, cy + v)
     expect(v['first_sample_nm']).toEqual([-1.9375, 2.9375])
@@ -207,9 +207,9 @@ describe('read_values', () => {
       ],
     }))
     const views = r.reply['views'] as Record<string, unknown>[]
-    expect(views[0]).toMatchObject({ direction: 'backward', sample_x_px: [22], sample_y_px: [14], values: [[63]] }) // native (5, 3): 10 + 3 + 50
-    expect(views[1]).toMatchObject({ unit: 'pA', values: [[200]] })
-    expect(views[2]).toMatchObject({ sample_x_px: [32], sample_y_px: [8, 24], values: [[18], [null]], null_count: 1 }) // native (8, 2) and (8, 6)
+    expect(views[0]).toMatchObject({ direction: 'backward', sample_x_px: [22], sample_y_px: [14], values_pm: [[63]] }) // native (5, 3): 10 + 3 + 50
+    expect(views[1]).toMatchObject({ decimals: 1, values_pa: [[200]] })
+    expect(views[2]).toMatchObject({ sample_x_px: [32], sample_y_px: [8, 24], values_pm: [[18], [null]], null_count: 1 }) // native (8, 2) and (8, 6)
     expect(r.reply['sample_count']).toBe(4)
   })
 
@@ -221,8 +221,8 @@ describe('read_values', () => {
     expect(e.display_size).toEqual([50, 25])
     const r = ok(readValues(a, { question: 'q', views: [{ label: 'v', frame: e.fid, rows: 1, columns: 3 }] }))
     const v = (r.reply['views'] as Record<string, unknown>[])[0] as Record<string, unknown>
-    // centres 50/6, 150/6, 250/6 display px → native floor(2·centre) = 16, 50, 83
-    expect(v).toMatchObject({ sample_x_px: [8, 25, 41], values: [[16, 50, 83]] })
+    // centers 50/6, 150/6, 250/6 display px → native floor(2·center) = 16, 50, 83
+    expect(v).toMatchObject({ sample_x_px: [8, 25, 41], values_pm: [[16, 50, 83]] })
   })
 
   it('reads the values behind a derived map, and explains a derived image without values', () => {
@@ -233,7 +233,7 @@ describe('read_values', () => {
     a.addDerived(0, encodePngRgb(4, 4, new Uint8Array(48)), { tool: 'stm_detect_blobs', sources: ['t0000.s0'] })
     a.addDerived(0, encodePngRgb(4, 4, new Uint8Array(48)), { tool: 'stm_detect_blobs' })
     const r = ok(readValues(a, { question: 'q', views: [{ label: 'd', frame: 't0000.m0', rows: 1, columns: 1 }] }))
-    expect((r.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ channel: 'diff', unit: 'pm' })
+    expect((r.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ channel: 'diff', decimals: 1, values_pm: [[expect.any(Number)]] })
     expect(err(readValues(a, { question: 'q', views: [{ label: 'd', frame: 't0000.m1', rows: 1, columns: 1 }] }))).toBe(
       "read_values: views[1].frame: t0000.m1 is a derived image without values; use the frame it was derived from (t0000.s0)",
     )

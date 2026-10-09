@@ -144,7 +144,8 @@ describe('stm_inspect', () => {
     const types = res.content.map((b) => b.type)
     expect(types).toEqual(['text', 'text', 'image', 'text', 'image'])
     const [reply, label1, label2] = texts(res.content)
-    expect(JSON.parse(reply as string)).toMatchObject({ visual_kind: 'inspection', view_count: 2, instrument_unchanged: true })
+    expect(JSON.parse(reply as string)).toMatchObject({ view_count: 2, instrument_unchanged: true })
+    expect(JSON.parse(reply as string)).not.toHaveProperty('visual_kind')
     expect(reply?.endsWith('\n')).toBe(true)
     expect(label1).toMatch(/^<visual kind="inspection" index="1" count="2" label="whole" frame="t0000\.s0" .*\/>\n$/)
     expect(label2).toContain('index="2" count="2" label="zoom"')
@@ -196,8 +197,8 @@ describe('stm_read_values', () => {
     const res = await call(ctx, 'stm_read_values', { question: 'heights', views: [{ label: 'g', frame: 't0000.s0', rows: 1, columns: 2 }] })
     expect(res.content.map((b) => b.type)).toEqual(['text'])
     const reply = JSON.parse(texts(res.content)[0] as string)
-    expect(reply).toMatchObject({ visual_kind: 'value_readout', sample_count: 2 })
-    expect(reply.views[0]).toMatchObject({ unit: 'pm', sample_x_px: [16, 48], sample_y_px: [16], values: [[12, 28]] }) // native (4, 4) and (12, 4): 2c + r pm
+    expect(reply).toMatchObject({ sample_count: 2, sampling: 'cell centers: x + ((2c+1)*width)//(2*columns), y likewise' })
+    expect(reply.views[0]).toMatchObject({ decimals: 1, sample_x_px: [16, 48], sample_y_px: [16], values_pm: [[12, 28]] }) // native (4, 4) and (12, 4): 2c + r pm
   })
 
   it('refuses a reply larger than dsh shows in full, instead of letting it be cut', async () => {
@@ -271,9 +272,9 @@ describe('the service', () => {
     expect(svc.get('t0000.s0').fid).toBe('t0000.s0')
     expect(svc.frames({ kind: 's' })).toHaveLength(1)
     expect(svc.latest()?.fid).toBe('t0000.s0')
-    expect(svc.index()[0]).toMatchObject({ fid: 't0000.s0' })
+    expect(svc.index()[0]).toMatchObject({ frame: 't0000.s0', kind: 'scan' })
     expect(svc.array('t0000.s0').rows).toBe(8)
-    expect(svc.render('t0000.s0').meta.image_size).toEqual([64, 32])
+    expect(svc.render('t0000.s0').meta.image_size_px).toEqual([64, 32])
     expect(svc.observation('t0000.s0').label).toContain('kind="current"')
     const p = svc.addPartial(1, { Z: [[1e-10]] }, { geometry: { cx_nm: 0, cy_nm: 0, w_nm: 1, h_nm: 1 } })
     expect(p.fid).toBe('t0001.p0')

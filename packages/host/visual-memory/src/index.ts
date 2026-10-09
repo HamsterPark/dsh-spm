@@ -10,6 +10,7 @@
 export {
   FRAME_KINDS,
   FrameIdError,
+  KIND_NAMES,
   KIND_WORDS,
   frameId,
   isFrameId,
@@ -36,7 +37,26 @@ export {
   type ScalePair,
   type ScanGeometry,
 } from './geometry.js'
-export { UNIT_LADDER, columnUnit, displayUnit, maxAbs, roundValue, stripUnit, unitForChannel, type DisplayUnit } from './units.js'
+export {
+  MODEL_UNITS,
+  channelFormat,
+  columnUnit,
+  decimalsFor,
+  displayUnit,
+  formatKey,
+  formatValue,
+  formatValues,
+  npRound,
+  rangeAttr,
+  robustSpan,
+  roundTo,
+  stripUnit,
+  unitForChannel,
+  unitKey,
+  unitSuffix,
+  type ChannelFormat,
+  type DisplayUnit,
+} from './units.js'
 export { CONSTANT_HEIGHT_Z_RANGE_M, ChannelError, defaultChannel, findChannel, resolveChannel, span } from './channels.js'
 export {
   FLATTEN_MODES,
@@ -65,7 +85,6 @@ export {
   greyRgb,
   percentileSorted,
   planView,
-  rangeAttr,
   regionToNative,
   renderValues,
   upscaleRgb,
@@ -101,6 +120,7 @@ export {
   entryScale,
   entrySummary,
   hasValues,
+  kindName,
   kindWord,
   mergeAttrs,
   type ArchiveOptions,

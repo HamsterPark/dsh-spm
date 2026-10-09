@@ -5,7 +5,7 @@
  * | tool | does |
  * |---|---|
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening |
- * | `stm_read_values` | read exact archived values at cell centres |
+ * | `stm_read_values` | read exact archived values at cell centers |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
@@ -216,13 +216,14 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
       'direction (forward or backward), the flattening and the contrast. Omit region to see the whole frame, or ' +
       "select a rectangle in display pixels of that frame's full image (origin at the top-left corner, x to the " +
       'right, y down). The region is cropped exactly, widened to whole scan pixels, and enlarged by the largest ' +
-      `whole number of image pixels per scan pixel that fits ${dm}x${dm}, without smoothing. Images are grey ` +
+      `whole number of image pixels per scan pixel that fits ${dm}x${dm}, without smoothing. Images are gray ` +
       `(black = low, white = high, contrast from the selected region); pixels never acquired are flat ${NAN_NAME}; ` +
       'nothing is drawn on them. A derived image is cropped as stored. State the visual question these views ' +
       `should answer and give each view a short label. 1 to ${MAX_INSPECT_VIEWS} views per call; they are returned ` +
       'in request order, one image each, every image preceded by a label line with its index. The reply text ' +
-      "gives each view's region in display pixels and the scan-frame nm of its corners, the magnification, nm " +
-      'per image pixel and the colour scale.',
+      "gives each view's region in display pixels (region_px), the scan-frame nm of its corners (corners_nm), " +
+      'the magnification, nm per image pixel, and the values shown as black and white with the unit in the key ' +
+      '(black_pm / white_pm for Z, black_pa / white_pa for current).',
     parameters: {
       question: QUESTION,
       views: {
@@ -278,11 +279,12 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
     description:
       'Read exact archived values from one or more frames without changing the instrument. For each view, the ' +
       "region (display pixels of that frame's full image: origin at the top-left corner, x to the right, y down; " +
-      'omit it for the whole frame) is divided into equal rows and columns and the archived pixel at the centre ' +
+      'omit it for the whole frame) is divided into equal rows and columns and the archived pixel at the center ' +
       'of every cell is read: display pixel x + floor(((2c+1)*width)/(2*columns)), likewise for y. Values are ' +
-      'physical and unflattened: Z in pm, current in pA (fA for a frame below 10 pA), frequency shift in Hz ' +
-      '(mHz below 10 Hz), voltages in mV; the reply names the unit of every view. Values are rounded to 0.1 of ' +
-      'that unit, null where nothing was acquired. The reply gives the sampled display pixels and the ' +
+      'physical and unflattened, in one unit per quantity carried by the key: values_pm for Z, values_pa for ' +
+      "current, values_hz for frequency shift, values_v for voltages; rounded to the view's decimals (about " +
+      "1/100 of the channel's value range); null where nothing was acquired. The reply gives the sampled " +
+      'display pixels, the decimals and the ' +
       `scan-frame nm of the first and last sample. 1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} ` +
       'samples (rows x columns, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
       'large readouts over several calls. This tool only reads values; it does not flatten, ' +

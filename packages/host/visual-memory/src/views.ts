@@ -13,9 +13,14 @@
  *   image pixels per scan pixel that fits the display size (never smoothed),
  *   one image per view, in request order. Derived images are cropped as stored.
  * - `read_values(question, views[1..64])` samples archived physical values at
- *   cell centres — display pixel `x + floor(((2c+1)·w) / (2C))`, likewise for
- *   y — at most 4096 samples per call, rounded to 0.1 of the reported unit,
- *   `null` where nothing was acquired.
+ *   cell centers — display pixel `x + floor(((2c+1)·w) / (2C))`, likewise for
+ *   y — at most 4096 samples per call, in the model unit carried by the key
+ *   (`values_pm`, `values_pa`, …), rounded to the channel's decimals (about
+ *   1/100 of its value span), `null` where nothing was acquired.
+ *
+ * Replies follow the reference's model-facing vocabulary: a frame id is under
+ * `frame`, units are key suffixes (`black_pm`, `image_size_px`, `corners_nm`),
+ * there is no `unit` or `visual_kind` field, and spelling is American.
  *
  * Invalid arguments come back as `{ ok: false, error }` with a message that says
  * what to change; these functions never throw.
@@ -25,7 +30,7 @@ import {
   channelDirections,
   entryScale,
   hasValues,
-  kindWord,
+  kindName,
   type FrameArchive,
   type FrameEntry,
   type RenderMeta,
@@ -36,7 +41,7 @@ import { displayToScanNm, type ScalePair, type ScanGeometry } from './geometry.j
 import { pyRound } from './pyfmt.js'
 import type { Region } from './render.js'
 import { DIRECTIONS, type Direction } from './scan-data.js'
-import { roundValue } from './units.js'
+import { formatKey, formatValues, type ChannelFormat } from './units.js'
 
 export const MAX_INSPECT_VIEWS = 16
 export const MAX_READ_VIEWS = 64
@@ -217,25 +222,32 @@ interface InspectPlan {
 }
 
 function viewSummary(i: number, label: string, e: FrameEntry, meta: RenderMeta): Record<string, unknown> {
-  const out: Record<string, unknown> = { index: i, label, frame: e.fid, kind: kindWord(e) }
+  const out: Record<string, unknown> = { index: i, label, frame: e.fid, kind: kindName(e) }
   if (e.kind === 's' || e.kind === 'p') {
+    const fmt = meta.fmt as ChannelFormat
+    out['channel'] = meta.channel
+    out['direction'] = meta.direction
+    out['flatten'] = meta.flatten
+    if (meta.highpass_nm !== undefined && meta.highpass_nm !== null) out['highpass_nm'] = meta.highpass_nm
     Object.assign(out, {
-      channel: meta.channel,
-      direction: meta.direction,
-      flatten: meta.flatten,
       region_px: meta.region_px,
       native_px: meta.native_px,
-      image_size: meta.image_size,
+      image_size_px: meta.image_size_px,
       magnification: meta.magnification,
       image_px_per_scan_px: meta.image_px_per_scan_px,
       nm_per_image_px: meta.nm_per_image_px,
       corners_nm: meta.corners_nm,
-      colour_scale: { black: meta.colour_limits?.[0] ?? null, white: meta.colour_limits?.[1] ?? null, unit: meta.unit },
-      value_range: meta.value_range,
     })
-    if (e.acquired_rows !== null && e.acquired_rows < e.ny) out['rows_acquired'] = `${e.acquired_rows}/${e.ny}`
+    out[formatKey(fmt, 'black')] = meta.black ?? null
+    out[formatKey(fmt, 'white')] = meta.white ?? null
+    out[formatKey(fmt, 'min')] = meta.min ?? null
+    out[formatKey(fmt, 'max')] = meta.max ?? null
+    if (e.acquired_rows !== null && e.acquired_rows < e.ny) {
+      out['rows_acquired'] = e.acquired_rows
+      out['rows_total'] = e.ny
+    }
   } else {
-    Object.assign(out, { tool: meta.tool ?? null, region_px: meta.region_px, image_size: meta.image_size, magnification: meta.magnification })
+    Object.assign(out, { tool: meta.tool ?? null, region_px: meta.region_px, image_size_px: meta.image_size_px, magnification: meta.magnification })
   }
   return out
 }
@@ -285,7 +297,7 @@ export function inspect(archive: FrameArchive, args: unknown): ViewToolResult {
       images.push({ png: rendered.png, label: rendered.meta.label, name: `${p.e.fid}.inspect-${i}.png` })
       out.push(viewSummary(i, p.label, p.e, rendered.meta))
     })
-    return { ok: true, reply: { visual_kind: 'inspection', instrument_unchanged: true, view_count: n, views: out }, images }
+    return { ok: true, reply: { instrument_unchanged: true, view_count: n, views: out }, images }
   } catch (err) {
     return failure('inspect', err)
   }
@@ -330,15 +342,9 @@ function readScan(archive: FrameArchive, i: number, p: ReadPlan): Record<string,
   const xs = sampleAxis(x, w, p.cols, s, e.nx)
   const ys = sampleAxis(y, h, p.rows, s, e.ny)
   const z = archive.values(e, p.channel, p.direction)
-  const { factor, unit } = archive.unitOf(e, p.channel)
-  let nulls = 0
-  const values = ys.native.map((r) =>
-    xs.native.map((c) => {
-      const v = roundValue((z[r * e.nx + c] as number) * factor, unit)
-      if (v === null) nulls += 1
-      return v
-    }),
-  )
+  const fmt = archive.fmt(e, p.channel)
+  const values = ys.native.map((r) => formatValues(fmt, xs.native.map((c) => z[r * e.nx + c] as number)))
+  const nulls = values.reduce((n, row) => n + row.filter((v) => v === null).length, 0)
   const g = e.geometry as ScanGeometry
   const first = displayToScanNm(g, s, (xs.display[0] as number) + 0.5, (ys.display[0] as number) + 0.5)
   const last = displayToScanNm(g, s, (xs.display.at(-1) as number) + 0.5, (ys.display.at(-1) as number) + 0.5)
@@ -348,8 +354,6 @@ function readScan(archive: FrameArchive, i: number, p: ReadPlan): Record<string,
     frame: e.fid,
     channel: p.channel,
     direction: p.direction,
-    unit,
-    flatten: 'none',
     region_px: [x, y, w, h],
     rows: p.rows,
     columns: p.cols,
@@ -357,7 +361,8 @@ function readScan(archive: FrameArchive, i: number, p: ReadPlan): Record<string,
     sample_y_px: ys.display,
     first_sample_nm: [pyRound(first[0], 4), pyRound(first[1], 4)],
     last_sample_nm: [pyRound(last[0], 4), pyRound(last[1], 4)],
-    values,
+    decimals: fmt.decimals,
+    [formatKey(fmt, 'values')]: values,
   }
   if (nulls > 0) out['null_count'] = nulls
   return out
@@ -392,9 +397,8 @@ export function readValues(archive: FrameArchive, args: unknown): ViewToolResult
     return {
       ok: true,
       reply: {
-        visual_kind: 'value_readout',
         instrument_unchanged: true,
-        sampling: 'cell centres: x + ((2c+1)*width)//(2*columns), y likewise',
+        sampling: 'cell centers: x + ((2c+1)*width)//(2*columns), y likewise',
         sample_count: total,
         view_count: out.length,
         views: out,

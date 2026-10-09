@@ -47,6 +47,8 @@ export interface ScanData {
   readonly nm_per_px_y: number
   readonly bias_v: number | null
   readonly setpoint_a: number | null
+  /** SI unit of the setpoint: A for current feedback, Hz for frequency feedback. */
+  readonly setpoint_unit: string
   readonly scan_dir: string | null
   readonly acquired_rows: number
   readonly rec_time: string
@@ -114,6 +116,18 @@ export function sxmChannelUnits(bytes: Uint8Array): Record<string, string> {
   return units
 }
 
+/**
+ * The setpoint's SI unit: the header's unit field, else a unit written after the
+ * number (`"2.0E-10 A"`), else amperes (current feedback).
+ */
+function setpointUnit(unitField: unknown, valueField: unknown): string {
+  const u = String(unitField ?? '').trim()
+  if (u !== '') return u
+  const toks = String(valueField ?? '').split(/\s+/).filter((t) => t !== '')
+  const last = toks.at(-1)
+  return toks.length >= 2 && last !== undefined && /^\p{L}+$/u.test(last) ? last : 'A'
+}
+
 /** `"ON"` / `"OFF"` from the Z-controller status or the `on` column of its table. */
 function feedbackState(header: SxmHeader): string | null {
   const status = header['z-controller>controller_status']
@@ -144,6 +158,7 @@ function finish(
   meta: {
     bias_v: number | null
     setpoint_a: number | null
+    setpoint_unit: string
     scan_dir: string | null
     rec_time: string
     feedback: string | null
@@ -167,6 +182,7 @@ function finish(
     nm_per_px_y: geometry.h_nm / geometry.ny,
     bias_v: meta.bias_v,
     setpoint_a: meta.setpoint_a,
+    setpoint_unit: meta.setpoint_unit,
     scan_dir: meta.scan_dir,
     acquired_rows: meta.acquired_rows ?? acquiredRows(first, geometry.nx, geometry.ny),
     rec_time: meta.rec_time,
@@ -225,6 +241,7 @@ export function loadSxm(bytes: Uint8Array, sourceName: string): ScanData {
   return finish(arrays, channels, units, geometry, {
     bias_v: firstFloat(header['bias']),
     setpoint_a: firstFloat(header['z-controller>setpoint']),
+    setpoint_unit: setpointUnit(header['z-controller>setpoint_unit'], header['z-controller>setpoint']),
     scan_dir: String(header['scan_dir'] ?? '').trim().toLowerCase() || null,
     rec_time: `${recDate} ${recTime}`.trim(),
     feedback: feedbackState(header),
@@ -240,6 +257,8 @@ export type ArrayInput =
 export interface PartialMeta {
   readonly bias_v?: number | null
   readonly setpoint_a?: number | null
+  /** SI unit of the setpoint, default A. */
+  readonly setpoint_unit?: string
   readonly scan_dir?: string | null
   readonly rec_time?: string
   /** Channel → SI unit; guessed from the name when absent. */
@@ -325,6 +344,7 @@ export function scanFromArrays(
   return finish(out, channels, units, g, {
     bias_v: meta.bias_v ?? null,
     setpoint_a: meta.setpoint_a ?? null,
+    setpoint_unit: meta.setpoint_unit === undefined || meta.setpoint_unit === '' ? 'A' : meta.setpoint_unit,
     scan_dir: meta.scan_dir === undefined || meta.scan_dir === null ? null : meta.scan_dir.trim().toLowerCase() || null,
     rec_time: meta.rec_time ?? '',
     feedback: meta.feedback ?? null,

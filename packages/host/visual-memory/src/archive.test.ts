@@ -1,8 +1,8 @@
-import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
+import { appendFileSync, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { ArchiveError, entryScale, entrySummary, FrameArchive, hasValues, INDEX_NAME, mergeAttrs } from './archive.js'
+import { ArchiveError, channelDirections, entryScale, entrySummary, FrameArchive, hasValues, INDEX_NAME, mergeAttrs } from './archive.js'
 import { encodePngRgb, decodePng } from './png.js'
 import { encodeSyntheticSxm, type SyntheticSxm } from './synthetic-sxm.js'
 
@@ -188,12 +188,14 @@ describe('lookup', () => {
     a.addScan(0, writeSxm(root, 's.sxm'), { simS: 1.23456 })
     const [s] = a.index()
     expect(s).toMatchObject({
-      fid: 't0000.s0', turn: 0, kind: 's', type: 'scan', source: 's.sxm', channels: ['Z', 'Current'],
-      directions: ['forward', 'backward'], size_px: [16, 8], field_nm: [8, 4], centre_nm: [1, 2], angle_deg: 0,
-      nm_per_px: 0.5, display_scale: '4', display_size: [64, 32], default_channel: 'Z', bias_v: -0.5,
+      frame: 't0000.s0', turn: 0, kind: 'scan', source: 's.sxm', channels: ['Z', 'Current'],
+      directions: ['forward', 'backward'], size_px: [16, 8], field_nm: [8, 4], center_nm: [1, 2], angle_deg: 0,
+      nm_per_px: 0.5, display_scale: 4, display_size_px: [64, 32], default_channel: 'Z', bias_v: -0.5,
       scan_dir: 'down', rec_time: '09.10.2026 12:00:00', sim_s: 1.235,
     })
     expect(s).not.toHaveProperty('rows_acquired')
+    expect(s).not.toHaveProperty('display_scale_frac')
+    for (const k of ['fid', 'type', 'unit', 'centre_nm', 'display_size']) expect(s).not.toHaveProperty(k)
   })
 
   it('returns copies of archived values and resolves channels', () => {
@@ -208,7 +210,8 @@ describe('lookup', () => {
     expect(a.array('t0000.s0', 'height').channel).toBe('Z')
     expect(() => a.array('t0000.s0', 'Current', 'backward')).toThrow(/has no backward pass; it has \["forward"\]/)
     expect(() => a.array('t0000.s0', 'phase')).toThrow(/t0000\.s0: no channel "phase"/)
-    expect(a.unitOf(a.get('t0000.s0'), 'Current')).toEqual({ factor: 1e12, unit: 'pA' })
+    // Current 100..227 pA: robust span 125.7 pA → 1 decimal
+    expect(a.fmt(a.get('t0000.s0'), 'Current')).toEqual({ factor: 1e12, unit: 'pA', decimals: 1 })
   })
 
   it('evicts cached arrays beyond eight frames and reloads them from disk', () => {
@@ -231,7 +234,7 @@ describe('rendering', () => {
     })
     expect(r.meta).toMatchObject({
       frame: 't0000.s0', kind: 'scan', channel: 'Z', direction: 'forward', flatten: 'plane',
-      region_px: [16, 8, 16, 8], native_px: [4, 2, 8, 4], image_size: [64, 32], magnification: 4,
+      region_px: [16, 8, 16, 8], native_px: [4, 2, 8, 4], image_size_px: [64, 32], magnification: 4,
       image_px_per_scan_px: 16, nm_per_image_px: 0.03125, unit: 'pm',
       corners_nm: { top_left: [-1, 3], top_right: [1, 3], bottom_left: [-1, 2], bottom_right: [1, 2] },
     })
@@ -249,13 +252,15 @@ describe('rendering', () => {
       geometry: { cx_nm: 0, cy_nm: 0, w_nm: 8, h_nm: 4 },
     })
     const hp = a.render('t0005.p0', { flatten: 'highpass', highpassNm: 1 })
-    expect(hp.meta.flatten).toBe('highpass 1.00 nm')
+    expect(hp.meta.flatten).toBe('highpass')
+    expect(hp.meta.highpass_nm).toBe(1)
+    expect(hp.meta.label).toContain('flatten="highpass" highpass_nm="1" scale=')
     expect(hp.meta.label).toContain('rows_acquired="6/8"')
     const cur = a.render('t0005.p0', { channel: 'Current', flatten: 'none' })
-    expect(cur.meta.unit).toBe('fA')
-    expect(cur.meta.label).toContain('range_fA="3000.0..3000.0"')
-    expect(cur.meta.value_range).toEqual([3000, 3000])
-    expect(a.index()[0]).toMatchObject({ rows_acquired: '6/8', type: 'partial scan' })
+    expect(cur.meta.unit).toBe('pA')
+    expect(cur.meta.label).toContain('range_pa="3.0..3.0"')
+    expect([cur.meta.min, cur.meta.max, cur.meta.black, cur.meta.white]).toEqual([3, 3, 3, 3])
+    expect(a.index()[0]).toMatchObject({ rows_acquired: 6, rows_total: 8, kind: 'partial' })
   })
 
   it('reports an empty value range for a region that was never acquired', () => {
@@ -264,7 +269,7 @@ describe('rendering', () => {
     const z = zFrame().fill(Number.NaN, 64)
     a.addPartial(0, { Z: { rows: 8, cols: 16, data: z } }, { geometry: { cx_nm: 0, cy_nm: 0, w_nm: 8, h_nm: 4 } })
     const r = a.render('t0000.p0', { region: { x: 0, y: 20, width: 64, height: 12 } })
-    expect(r.meta.value_range).toEqual([null, null])
+    expect([r.meta.min, r.meta.max]).toEqual([null, null])
     const img = decodePng(r.png)
     expect([...img.data.subarray(0, 3)]).toEqual([24, 32, 104])
   })
@@ -278,8 +283,8 @@ describe('rendering', () => {
     expect(e.display_size).toEqual([50, 25])
     expect(entryScale(e)).toEqual({ num: 1, den: 2 })
     const r = a.render(e.fid, { flatten: 'none' })
-    expect(r.meta).toMatchObject({ image_size: [50, 25], image_px_per_scan_px: 0.5, nm_per_image_px: 0.2, magnification: 1 })
-    expect(entrySummary(e)['display_scale']).toBe('1/2')
+    expect(r.meta).toMatchObject({ image_size_px: [50, 25], image_px_per_scan_px: 0.5, nm_per_image_px: 0.2, magnification: 1 })
+    expect(entrySummary(e)).toMatchObject({ display_scale: 0.5, display_scale_frac: '1/2', display_size_px: [50, 25] })
   })
 
   it('refuses bad render requests with ArchiveErrors', () => {
@@ -312,12 +317,12 @@ describe('derived images', () => {
     const e = a.addDerived(4, testPng(10, 6), { tool: 'stm_fft_peaks', sources: ['t0003.s0'], description: 'log magnitude', labelAttrs: [['peaks', 3]] })
     expect(e).toMatchObject({ fid: 't0004.m0', kind: 'm', nx: 10, ny: 6, display_size: [10, 6], geometry: null, channels: [] })
     expect(hasValues(e)).toBe(false)
-    expect(a.observation(e.fid).label).toBe('<visual kind="derived" frame="t0004.m0" derived="stm_fft_peaks" source="t0003.s0" peaks="3" size="10x6"/>')
+    expect(a.observation(e.fid).label).toBe('<visual kind="derived" frame="t0004.m0" derived="stm_fft_peaks" frames="t0003.s0" peaks="3" size="10x6"/>')
     const whole = a.render(e.fid)
     expect(whole.meta.label.startsWith('<visual kind="derived"')).toBe(true)
     expect(whole.meta.magnification).toBe(1)
     const cut = a.render(e.fid, { region: { x: 2, y: 1, width: 4, height: 2 }, labelKind: 'inspection' })
-    expect(cut.meta).toMatchObject({ region_px: [2, 1, 4, 2], image_size: [64, 32], magnification: 16 })
+    expect(cut.meta).toMatchObject({ kind: 'derived', region_px: [2, 1, 4, 2], image_size_px: [64, 32], magnification: 16 })
     expect(cut.meta.label).toContain('kind="inspection"')
     expect(cut.meta.label).toContain('size="64x32"')
     const img = decodePng(cut.png)
@@ -325,7 +330,9 @@ describe('derived images', () => {
     expect([...img.data.subarray(0, 3)]).toEqual([...src.data.subarray((1 * 10 + 2) * 3, (1 * 10 + 2) * 3 + 3)])
     expect(() => a.render(e.fid, { region: { x: 8, y: 0, width: 4, height: 2 } })).toThrow(/leaves the 10x6 derived image/)
     expect(() => a.array(e.fid)).toThrow(/without archived values/)
-    expect(entrySummary(e)).toMatchObject({ tool: 'stm_fft_peaks', sources: ['t0003.s0'], description: 'log magnitude', image_size: [10, 6] })
+    expect(entrySummary(e)).toEqual({
+      frame: 't0004.m0', turn: 4, kind: 'derived', tool: 'stm_fft_peaks', frames: ['t0003.s0'], description: 'log magnitude', image_size_px: [10, 6],
+    })
   })
 
   it('keeps the values behind a derived map readable', () => {
@@ -359,7 +366,8 @@ describe('edges of the lookup and summary', () => {
     const root = tmp()
     const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
     const e = a.addScanBytes(0, sxm({ feedbackOn: true, setpointA: 1.23456e-10 }), { sourceName: 'fb.sxm' })
-    expect(entrySummary(e)).toMatchObject({ feedback: 'ON', setpoint_a: 1.235e-10 })
+    expect(entrySummary(e)).toMatchObject({ feedback: 'ON', setpoint_pa: 123.456 })
+    expect(entrySummary(e)).not.toHaveProperty('setpoint_a')
   })
 
   it('refuses to render a spectrum record and to resolve channels of a plain image', () => {
@@ -372,11 +380,45 @@ describe('edges of the lookup and summary', () => {
     )
     const b = new FrameArchive(a.root, { displayMax: 64 })
     expect(() => b.render('t0000.d0')).toThrow(/is a spectrum; spectra are not rendered/)
-    expect(entrySummary(b.get('t0000.d0'))).toMatchObject({ type: 'spectrum', tool: null, image_size: [0, 0] })
+    expect(entrySummary(b.get('t0000.d0'))).toEqual({ frame: 't0000.d0', turn: 0, kind: 'spectrum', source: '', columns: ['Bias (V)'], n_points: 1 })
     const m = b.addDerived(0, encodePngRgb(2, 2, new Uint8Array(12)), { tool: 'x' })
     expect(() => b.resolveChannel(m)).toThrow(/derived image without channels/)
     expect(b.has(undefined as never)).toBe(false)
     expect(() => b.get(null as never)).toThrow(/is not a frame id/)
+  })
+
+  it('falls back sensibly when an index line lacks the optional extras', () => {
+    const root = tmp()
+    const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
+    const e = a.addScanBytes(0, sxm({ setpointA: 2e-10 }), { sourceName: 's.sxm' })
+    const want = a.fmt(e, 'Current')
+    const wantLabel = a.render(e.fid).meta.label
+    a.addDerived(0, encodePngRgb(4, 2, new Uint8Array(24)), { tool: 'stm_fft_peaks', sources: [e.fid] })
+    // What an older or hand-written index line may lack.
+    type Rec = Record<string, unknown> & { extra: Record<string, unknown> }
+    const [scan, derived] = readFileSync(a.indexPath, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as Rec) as [Rec, Rec]
+    scan['nm_per_px'] = null
+    for (const k of ['span', 'nm_per_px_y', 'setpoint_unit', 'channel_directions']) delete scan.extra[k]
+    derived.extra = {}
+    const noGeometry = { ...scan, fid: 't0000.s1', index: 1, geometry: null }
+    writeFileSync(a.indexPath, `${[scan, derived, noGeometry].map((l) => JSON.stringify(l)).join('\n')}\n`)
+    for (const f of ['png', 'a0.npy', 'a1.npy', 'a2.npy']) copyFileSync(join(a.root, `t0000.s0.${f}`), join(a.root, `t0000.s1.${f}`))
+
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    expect(b.loadWarnings).toEqual([])
+    const s = b.get('t0000.s0')
+    expect(b.fmt(s, 'Current')).toEqual(want) // span recomputed from the archived arrays
+    expect(b.fmt(s, 'Mystery')).toEqual({ factor: 1, unit: '', decimals: 1 })
+    expect(b.render('t0000.s0').meta.label).toBe(wantLabel) // nm per pixel from the geometry
+    expect(entrySummary(s)).toMatchObject({ nm_per_px: null, setpoint_pa: 200 })
+    expect(channelDirections(s, 'Current')).toEqual(['forward', 'backward'])
+    expect(hasValues({ ...s, extra: {} })).toBe(false)
+    expect(() => b.values({ ...s, fid: 't0009.s0', extra: {} }, 'Z')).toThrow(/scan without archived values/)
+    expect(() => b.render('t0000.s1')).toThrow(/has no scan geometry/)
+    const m = b.get('t0000.m0')
+    expect(entrySummary(m)).toEqual({ frame: 't0000.m0', turn: 0, kind: 'derived', tool: null, image_size_px: [4, 2] })
+    expect(b.observation('t0000.m0').label).toBe('<visual kind="derived"/>')
+    expect(b.render('t0000.m0').meta).toMatchObject({ tool: null, label: '<visual kind="derived" frame="t0000.m0" size="4x2"/>' })
   })
 })
 

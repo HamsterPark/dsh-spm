@@ -8,7 +8,6 @@ import {
   NAN_RGB,
   percentileSorted,
   planView,
-  rangeAttr,
   regionToNative,
   RegionError,
   renderValues,
@@ -150,13 +149,7 @@ describe('corners and labels', () => {
     )
   })
 
-  it('names the colour-scale attribute and formats numbers like Python', () => {
-    expect(rangeAttr('Z', 'pm')).toBe('z_range_pm')
-    expect(rangeAttr('Current', 'pA')).toBe('range_pA')
-    expect(rangeAttr('Frequency Shift', 'mHz')).toBe('range_mHz')
-    expect(rangeAttr('X', 'µV')).toBe('range_µV')
-    expect(rangeAttr('X', '')).toBe('range_value')
-    expect(rangeAttr('Z', 'm/s')).toBe('range_ms')
+  it('formats numbers like Python', () => {
     expect(fmtNum(-23.15)).toBe('-23.1') // -23.15 is stored as -23.149999…
     expect(fmtNum(0.125, 2)).toBe('0.12')
     expect(fmtNum(-0.04)).toBe('0.0') // a rounded zero carries no sign

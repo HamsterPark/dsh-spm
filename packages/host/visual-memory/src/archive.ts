@@ -33,7 +33,7 @@ import { basename, join } from 'node:path'
 import { MAX_FILE_BYTES } from 'dsh-spm-nanonis-files'
 import { ChannelError, resolveChannel as resolveChannelName } from './channels.js'
 import { flatten, FlattenError, HIGHPASS_NM_DEFAULT, isFlattenMode, type FlattenMode } from './flatten.js'
-import { FrameIdError, frameId, KIND_WORDS, parseFrameId, type FrameKind } from './frame-id.js'
+import { FrameIdError, frameId, KIND_NAMES, KIND_WORDS, parseFrameId, type FrameKind } from './frame-id.js'
 import {
   checkGeometry,
   DISPLAY_MAX_DEFAULT,
@@ -53,7 +53,6 @@ import {
   crop,
   fmtNum,
   planView,
-  rangeAttr,
   renderValues,
   RegionError,
   upscaleRgb,
@@ -74,7 +73,7 @@ import {
   type PartialMeta,
   type ScanData,
 } from './scan-data.js'
-import { displayUnit, maxAbs, roundValue, type DisplayUnit } from './units.js'
+import { channelFormat, displayUnit, formatValue, rangeAttr, robustSpan, unitKey, type ChannelFormat } from './units.js'
 
 export const INDEX_NAME = 'index.jsonl'
 const CACHE_FRAMES = 8
@@ -89,17 +88,20 @@ export interface FrameExtra {
   /** `"<channel>/<direction>"` of each array file, in file order (`a0`, `a1`, …). */
   readonly array_keys?: readonly string[]
   readonly channel_directions?: Readonly<Record<string, readonly Direction[]>>
-  /** Largest finite |SI value| per channel, which fixes the reported unit. */
-  readonly max_abs?: Readonly<Record<string, number | null>>
+  /** Robust value span (SI) per channel over all its directions, which sets the decimals. */
+  readonly span?: Readonly<Record<string, number | null>>
   readonly nm_per_px_y?: number
   readonly feedback?: string | null
+  /** SI unit of the feedback setpoint (`A`, or `Hz` for frequency feedback). */
+  readonly setpoint_unit?: string
   readonly source_path?: string | null
-  /** Default rendering: its label attributes, colour limits, unit and size. */
+  /** Default rendering: its label attributes, size, and the values shown black and white. */
   readonly render?: {
     readonly label_attrs: readonly LabelAttr[]
-    readonly colour_limits?: readonly [number | null, number | null]
-    readonly unit?: string
     readonly image_size: readonly [number, number]
+    readonly unit?: string
+    readonly black?: number | null
+    readonly white?: number | null
   }
   /** Derived images: producing tool, source frame ids, description, label attributes. */
   readonly tool?: string | null
@@ -142,8 +144,14 @@ export function entryScale(e: FrameEntry): ScalePair {
   return scaleFromValue(e.display_scale)
 }
 
+/** `scan` / `partial scan` / `spectrum` / `derived image`, for error messages. */
 export function kindWord(e: FrameEntry): string {
   return KIND_WORDS[e.kind]
+}
+
+/** `scan` / `partial` / `spectrum` / `derived`: the kind the model reads in replies. */
+export function kindName(e: FrameEntry): string {
+  return KIND_NAMES[e.kind]
 }
 
 /** Has a 2-D grid of values (scan, partial scan, or a derived map with values). */
@@ -159,34 +167,60 @@ function r(v: number | null | undefined, digits: number): number | null {
   return v === null || v === undefined || !Number.isFinite(v) ? null : pyRound(v, digits)
 }
 
-/** Compact, JSON-safe description of a frame for replies, history and recovery. */
+/**
+ * Compact, JSON-safe description of a frame as the model reads it (history,
+ * recovery, tool replies) — the reference's `FrameEntry.summary()`.
+ *
+ * Keys: `frame`, `turn`, `kind` (scan, partial, spectrum, derived); scans add
+ * `source, channels, directions, size_px, field_nm, center_nm, angle_deg,
+ * nm_per_px, display_scale` (a number, plus `display_scale_frac` such as "1/2"
+ * when it is not an integer), `display_size_px, default_channel`,
+ * `rows_acquired` and `rows_total` (only when rows are missing) and `feedback`;
+ * derived images add `tool, frames, description, image_size_px` (and `channels`);
+ * any kind may add `bias_v`, `setpoint_pa` (`setpoint_hz` for frequency
+ * feedback), `scan_dir`, `rec_time`, `sim_s`. Units travel in the key suffix.
+ */
 export function entrySummary(e: FrameEntry): Record<string, unknown> {
-  const out: Record<string, unknown> = { fid: e.fid, turn: e.turn, kind: e.kind, type: kindWord(e) }
-  if (e.source_name !== '') out['source'] = e.source_name
+  const out: Record<string, unknown> = { frame: e.fid, turn: e.turn, kind: kindName(e) }
   if (e.kind === 's' || e.kind === 'p') {
     const g = e.geometry as ScanGeometry
+    const s = entryScale(e)
+    out['source'] = e.source_name
     out['channels'] = [...e.channels]
     out['directions'] = [...e.directions]
     out['size_px'] = [e.nx, e.ny]
-    out['field_nm'] = [r(g.w_nm, 3), r(g.h_nm, 3)]
-    out['centre_nm'] = [r(g.cx_nm, 3), r(g.cy_nm, 3)]
+    out['field_nm'] = [r(g.w_nm, 4), r(g.h_nm, 4)]
+    out['center_nm'] = [r(g.cx_nm, 4), r(g.cy_nm, 4)]
     out['angle_deg'] = r(g.angle_deg, 3)
     out['nm_per_px'] = r(e.nm_per_px, 5)
-    out['display_scale'] = scaleText(entryScale(e))
-    out['display_size'] = [...e.display_size]
+    out['display_scale'] = s.den === 1 ? s.num : r(s.num / s.den, 6)
+    if (s.den !== 1) out['display_scale_frac'] = scaleText(s)
+    out['display_size_px'] = [...e.display_size]
     out['default_channel'] = e.default_channel
-    if (e.acquired_rows !== null && e.acquired_rows < e.ny) out['rows_acquired'] = `${e.acquired_rows}/${e.ny}`
-    if (e.extra.feedback !== undefined && e.extra.feedback !== null) out['feedback'] = e.extra.feedback
+    if (e.acquired_rows !== null && e.acquired_rows < e.ny) {
+      out['rows_acquired'] = e.acquired_rows
+      out['rows_total'] = e.ny
+    }
+    if (e.extra.feedback !== undefined && e.extra.feedback !== null && e.extra.feedback !== '') out['feedback'] = e.extra.feedback
+  } else if (e.kind === 'd') {
+    out['source'] = e.source_name
+    out['columns'] = [...e.channels]
+    out['n_points'] = e.nx
   } else {
     out['tool'] = e.extra.tool ?? null
-    if (e.extra.sources !== undefined && e.extra.sources.length > 0) out['sources'] = [...e.extra.sources]
-    if (e.extra.description !== undefined && e.extra.description !== null) out['description'] = e.extra.description
-    out['image_size'] = [...e.display_size]
+    if (e.extra.sources !== undefined && e.extra.sources.length > 0) out['frames'] = [...e.extra.sources]
+    if (e.extra.description !== undefined && e.extra.description !== null && e.extra.description !== '') {
+      out['description'] = e.extra.description
+    }
+    out['image_size_px'] = [...(e.extra.render?.image_size ?? e.display_size)]
     if (e.channels.length > 0) out['channels'] = [...e.channels]
   }
   if (e.bias_v !== null) out['bias_v'] = r(e.bias_v, 6)
-  if (e.setpoint_a !== null) out['setpoint_a'] = Number(pyG(e.setpoint_a, 4))
-  if (e.scan_dir !== null) out['scan_dir'] = e.scan_dir
+  if (e.setpoint_a !== null) {
+    const { factor, unit } = displayUnit(e.extra.setpoint_unit ?? 'A')
+    out[unitKey('setpoint', unit)] = Number(pyG(e.setpoint_a * factor, 6))
+  }
+  if (e.scan_dir !== null && e.scan_dir !== '') out['scan_dir'] = e.scan_dir
   if (e.rec_time !== '') out['rec_time'] = e.rec_time
   if (e.sim_s !== null) out['sim_s'] = r(e.sim_s, 3)
   return out
@@ -212,20 +246,28 @@ export interface RenderOptions {
 /** What a rendering was (everything the reply text reports about one image). */
 export interface RenderMeta {
   readonly frame: string
+  /** Model-facing kind: scan, partial, derived. */
   readonly kind: string
   readonly channel?: string
   readonly direction?: Direction
-  readonly flatten?: string
+  readonly flatten?: FlattenMode
+  /** The background width, only for `flatten: 'highpass'`. */
+  readonly highpass_nm?: number | null
   readonly region_px: readonly [number, number, number, number]
   readonly native_px?: readonly [number, number, number, number]
-  readonly image_size: readonly [number, number]
+  readonly image_size_px: readonly [number, number]
   readonly magnification: number
   readonly image_px_per_scan_px?: number
   readonly nm_per_image_px?: number
   readonly corners_nm?: Record<string, [number, number]>
-  readonly colour_limits?: readonly [number | null, number | null]
-  readonly value_range?: readonly [number | null, number | null]
+  /** The channel's model unit, factor and decimals. */
+  readonly fmt?: ChannelFormat
   readonly unit?: string
+  /** Values (model unit, rounded) shown as black and white, and the region's extremes. */
+  readonly black?: number | null
+  readonly white?: number | null
+  readonly min?: number | null
+  readonly max?: number | null
   readonly tool?: string | null
   readonly label_attrs: readonly LabelAttr[]
   /** The text block that goes right before the image. */
@@ -286,6 +328,15 @@ function appendLineDurable(path: string, line: string): void {
   } finally {
     closeSync(fd)
   }
+}
+
+/** Robust value span (SI) of every channel over all its directions (sets its decimals). */
+function spansOf(data: ScanData): Record<string, number | null> {
+  const out: Record<string, number | null> = {}
+  for (const c of data.channels) {
+    out[c] = robustSpan(...(data.channelDirections[c] ?? []).map((d) => data.arrays.get(arrayKey(c, d))))
+  }
+  return out
 }
 
 /** Python `dict.update` on an ordered attribute list. */
@@ -484,12 +535,7 @@ export class FrameArchive {
     const g = data.geometry
     const scale = scalePair(g.nx, g.ny, this.displayMax)
     const directions = DIRECTIONS.filter((d) => data.channels.some((c) => data.channelDirections[c]?.includes(d)))
-    const max: Record<string, number | null> = {}
-    for (const c of data.channels) {
-      const vals = (data.channelDirections[c] ?? []).map((d) => maxAbs(data.arrays.get(arrayKey(c, d)) as Float32Array))
-      const fin = vals.filter((v): v is number => v !== null)
-      max[c] = fin.length > 0 ? Math.max(...fin) : null
-    }
+    const span = spansOf(data)
     const { fid, index } = this.allocate(turn, kind)
     const keys = this.saveArrays(fid, data.arrays, g.ny, g.nx)
     const base: FrameEntry = {
@@ -517,9 +563,10 @@ export class FrameArchive {
       extra: {
         array_keys: keys,
         channel_directions: data.channelDirections,
-        max_abs: max,
+        span,
         nm_per_px_y: data.nm_per_px_y,
         feedback: data.feedback,
+        setpoint_unit: data.setpoint_unit,
         source_path: sourcePath,
       },
     }
@@ -533,9 +580,10 @@ export class FrameArchive {
         ...base.extra,
         render: {
           label_attrs: meta.label_attrs,
-          ...(meta.colour_limits === undefined ? {} : { colour_limits: meta.colour_limits }),
+          image_size: meta.image_size_px,
           ...(meta.unit === undefined ? {} : { unit: meta.unit }),
-          image_size: meta.image_size,
+          black: meta.black ?? null,
+          white: meta.white ?? null,
         },
       },
     }
@@ -589,11 +637,6 @@ export class FrameArchive {
       },
     }
     if (data !== null) {
-      const max: Record<string, number | null> = {}
-      for (const c of data.channels) {
-        const first = (data.channelDirections[c] ?? [])[0] as Direction
-        max[c] = maxAbs(data.arrays.get(arrayKey(c, first)) as Float32Array)
-      }
       const keys = this.saveArrays(fid, data.arrays, data.geometry.ny, data.geometry.nx)
       entry = {
         ...entry,
@@ -601,7 +644,7 @@ export class FrameArchive {
           ...entry.extra,
           array_keys: keys,
           channel_directions: data.channelDirections,
-          max_abs: max,
+          span: spansOf(data),
           nm_per_px_y: data.nm_per_px_y,
         },
       }
@@ -695,9 +738,16 @@ export class FrameArchive {
     return { fid: e.fid, channel: ch, direction, unit: e.units[ch] ?? '', rows: e.ny, cols: e.nx, data }
   }
 
-  /** `(factor, unit)` in which a channel of this frame is reported. */
-  unitOf(e: FrameEntry, channel: string): DisplayUnit {
-    return displayUnit(e.units[channel] ?? '', e.extra.max_abs?.[channel] ?? null)
+  /**
+   * How a channel of this frame is reported: model unit, factor from SI and
+   * decimals from the channel's robust span (the reference's `Archive.fmt`).
+   */
+  fmt(e: FrameEntry, channel: string): ChannelFormat {
+    let span = e.extra.span?.[channel]
+    if ((span === undefined || span === null) && (e.extra.array_keys?.length ?? 0) > 0) {
+      span = robustSpan(...channelDirections(e, channel).map((d) => this.arrays(e).get(arrayKey(channel, d))))
+    }
+    return channelFormat(e.units[channel] ?? '', span ?? null)
   }
 
   // ── rendering ──────────────────────────────────────────────────────────
@@ -745,7 +795,7 @@ export class FrameArchive {
       throw err
     }
     const { png, lo, hi } = renderValues(zf, e.nx, view, clipPct)
-    const { factor, unit } = this.unitOf(e, ch)
+    const fmt = this.fmt(e, ch)
     const [i0, j0, i1, j1] = view.native
     const cropped = crop(zf, e.nx, view.native)
     let vmin = Infinity
@@ -756,40 +806,39 @@ export class FrameArchive {
         if (v > vmax) vmax = v
       }
     }
-    const valueRange: [number | null, number | null] =
-      vmax >= vmin ? [roundValue(vmin * factor, unit), roundValue(vmax * factor, unit)] : [null, null]
     const [x, y, w, h] = view.region_px
-    const fl = mode === 'highpass' ? `highpass ${fmtNum(highpassNm, 2)} nm` : mode
-    const updates: LabelAttr[] = [
-      ['frame', e.fid],
-      ['channel', ch],
-      ['direction', direction],
-      ['flatten', fl],
+    const updates: LabelAttr[] = [['frame', e.fid], ['channel', ch], ['direction', direction], ['flatten', mode]]
+    if (mode === 'highpass') updates.push(['highpass_nm', pyG(highpassNm, 6)])
+    updates.push(
       ['scale', scaleText(scale)],
       ['size', `${view.image_size[0]}x${view.image_size[1]}`],
       ['region', `${x},${y},${w},${h}`],
       ['field_nm', `${pyG((i1 - i0) * nmx, 4)}x${pyG((j1 - j0) * nmy, 4)}`],
-    ]
+    )
     if (o.region !== undefined && o.region !== null) updates.push(['magnification', pyG(view.magnification, 4)])
-    updates.push([rangeAttr(ch, unit), `${fmtNum(lo * factor)}..${fmtNum(hi * factor)}`])
+    updates.push([rangeAttr(ch, fmt.unit), `${fmtNum(lo * fmt.factor, fmt.decimals)}..${fmtNum(hi * fmt.factor, fmt.decimals)}`])
     if (e.acquired_rows !== null && e.acquired_rows < e.ny) updates.push(['rows_acquired', `${e.acquired_rows}/${e.ny}`])
     const attrs = mergeAttrs(o.labelAttrs ?? [], updates)
     const meta: RenderMeta = {
       frame: e.fid,
-      kind: kindWord(e),
+      kind: kindName(e),
       channel: ch,
       direction,
-      flatten: fl,
+      flatten: mode,
+      highpass_nm: mode === 'highpass' ? highpassNm : null,
       region_px: [x, y, w, h],
       native_px: [i0, j0, i1, j1],
-      image_size: view.image_size,
+      image_size_px: view.image_size,
       magnification: pyRound(view.magnification, 4),
       image_px_per_scan_px: view.down === 1 ? view.up : pyRound(1 / view.down, 6),
       nm_per_image_px: pyRound((nmx * view.down) / view.up, 6),
       corners_nm: viewCornersNm(g, view),
-      colour_limits: [roundValue(lo * factor, unit), roundValue(hi * factor, unit)],
-      value_range: valueRange,
-      unit,
+      fmt,
+      unit: fmt.unit,
+      black: formatValue(fmt, lo),
+      white: formatValue(fmt, hi),
+      min: vmax >= vmin ? formatValue(fmt, vmin) : null,
+      max: vmax >= vmin ? formatValue(fmt, vmax) : null,
       label_attrs: attrs,
       label: visualLabel(o.labelKind ?? 'current', attrs),
     }
@@ -798,7 +847,7 @@ export class FrameArchive {
 
   private derivedLabelAttrs(e: FrameEntry): LabelAttr[] {
     const attrs: LabelAttr[] = [['frame', e.fid], ['derived', e.extra.tool ?? null]]
-    if (e.extra.sources !== undefined && e.extra.sources.length > 0) attrs.push(['source', e.extra.sources.join(',')])
+    if (e.extra.sources !== undefined && e.extra.sources.length > 0) attrs.push(['frames', e.extra.sources.join(',')])
     return mergeAttrs(mergeAttrs(attrs, e.extra.label_attrs ?? []), [['size', `${e.display_size[0]}x${e.display_size[1]}`]])
   }
 
@@ -829,10 +878,10 @@ export class FrameArchive {
       png,
       meta: {
         frame: e.fid,
-        kind: kindWord(e),
+        kind: kindName(e),
         tool: e.extra.tool ?? null,
         region_px: regionPx,
-        image_size: size,
+        image_size_px: size,
         magnification,
         label_attrs: attrs,
         label: visualLabel(kind, attrs),

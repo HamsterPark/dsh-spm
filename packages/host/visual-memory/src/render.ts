@@ -286,9 +286,3 @@ export function fmtNum(v: number, digits = 1): string {
   const out = pyFixed(v, digits)
   return out.startsWith('-') && Number(out) === 0 ? out.slice(1) : out
 }
-
-/** Label attribute name for the colour scale: `z_range_pm` for Z, else `range_<unit>`. */
-export function rangeAttr(channel: string, unit: string): string {
-  if (channel.trim().toLowerCase() === 'z' && unit === 'pm') return 'z_range_pm'
-  return `range_${(unit === '' ? 'value' : unit).replace(/[^A-Za-z0-9µ]/g, '')}`
-}

@@ -19,12 +19,20 @@
 export const FRAME_KINDS = ['s', 'p', 'd', 'm'] as const
 export type FrameKind = (typeof FRAME_KINDS)[number]
 
-/** Human words for the kinds, as tool replies and error messages use them. */
+/** Human words for the kinds, as error messages use them. */
 export const KIND_WORDS: Readonly<Record<FrameKind, string>> = {
   s: 'scan',
   p: 'partial scan',
   d: 'spectrum',
   m: 'derived image',
+}
+
+/** `kind` as the model reads it in summaries and tool replies; the letter stays in the id. */
+export const KIND_NAMES: Readonly<Record<FrameKind, string>> = {
+  s: 'scan',
+  p: 'partial',
+  d: 'spectrum',
+  m: 'derived',
 }
 
 const FRAME_RE = /^t(\d{4,})\.([spdm])(\d+)$/

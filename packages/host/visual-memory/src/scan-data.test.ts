@@ -82,6 +82,18 @@ describe('.sxm ingestion through dsh-spm-nanonis-files', () => {
     expect(d.feedback).toBe('OFF')
   })
 
+  it('reads the setpoint unit from a unit field, else from a unit after the number, else amperes', () => {
+    const text = new TextDecoder('latin1').decode(encodeSyntheticSxm(spec({ setpointA: -2.5 })))
+    const bytes = (t: string) => Uint8Array.from(t, (c) => c.charCodeAt(0))
+    expect(loadSxm(bytes(text), 'a.sxm').setpoint_unit).toBe('A')
+    const trailing = text.replace(':Z-CONTROLLER>SETPOINT:\n-2.500000E+0', ':Z-CONTROLLER>SETPOINT:\n-2.500000E+0 Hz')
+    expect(loadSxm(bytes(trailing), 'b.sxm')).toMatchObject({ setpoint_a: -2.5, setpoint_unit: 'Hz' })
+    const field = text.replace(':DATA_INFO:', ':Z-CONTROLLER>SETPOINT UNIT:\nHz\n:DATA_INFO:')
+    expect(loadSxm(bytes(field), 'c.sxm').setpoint_unit).toBe('Hz')
+    expect(scanFromArrays({ Z: [[1]] }, { cx_nm: 0, cy_nm: 0, w_nm: 1, h_nm: 1 }, { setpoint_unit: 'Hz' }).setpoint_unit).toBe('Hz')
+    expect(scanFromArrays({ Z: [[1]] }, { cx_nm: 0, cy_nm: 0, w_nm: 1, h_nm: 1 }, { setpoint_unit: '' }).setpoint_unit).toBe('A')
+  })
+
   it('omits what the header does not say', () => {
     const { biasV: _b, setpointA: _s, feedbackOn: _f, ...rest } = spec()
     const d = loadSxm(encodeSyntheticSxm({ ...rest, angleDeg: 0 }), 'bare.sxm')
