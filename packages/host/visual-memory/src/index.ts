@@ -4,7 +4,8 @@
  *
  * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
  * flattening, rendering, PNG, the directory archive, the notes store and the
- * `inspect` / `read_values` logic.
+ * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
   FRAME_KINDS,
@@ -140,3 +141,12 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
+export {
+  VISUAL_TOOL_NAMES,
+  defineVisualTools,
+  renderViewValue,
+  type ImageSaver,
+  type ViewToolValue,
+  type VisualToolDeps,
+} from './tools.js'
+export { FrameArchiveService, apply, inject, name, visualMemoryProvider, type Config } from './plugin.js'
