@@ -75,3 +75,53 @@ export {
   type RenderedValues,
   type View,
 } from './render.js'
+export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
+export {
+  DIRECTIONS,
+  IngestError,
+  arrayKey,
+  frameGeometry,
+  isDirection,
+  loadSxm,
+  scanFromArrays,
+  sxmChannelUnits,
+  type ArrayInput,
+  type Direction,
+  type PartialGeometry,
+  type PartialMeta,
+  type ScanData,
+} from './scan-data.js'
+export { encodeSyntheticSxm, type SyntheticChannel, type SyntheticSxm } from './synthetic-sxm.js'
+export {
+  ArchiveError,
+  FrameArchive,
+  INDEX_NAME,
+  channelDirections,
+  entryScale,
+  entrySummary,
+  hasValues,
+  kindWord,
+  mergeAttrs,
+  type ArchiveOptions,
+  type DerivedMeta,
+  type FrameArray,
+  type FrameEntry,
+  type FrameExtra,
+  type RenderMeta,
+  type RenderOptions,
+  type Rendered,
+} from './archive.js'
+export {
+  GUIDE_FILE,
+  GUIDE_INITIAL,
+  MAX_GUIDE_BYTES,
+  MAX_WORKING_BYTES,
+  NOTE_FILES,
+  NotesError,
+  NotesStore,
+  WORKING_FILE,
+  isNoteFile,
+  noteLimit,
+  type NoteFile,
+  type NoteWrite,
+} from './notes.js'
