@@ -7,8 +7,9 @@
  * 10 Hz), voltages in mV. The finer unit is used when the largest magnitude
  * would be below 10 in the coarse one. Values in a known display unit are
  * rounded to 0.1 of that unit; anything else keeps 4 significant digits.
- * Same ladder and rounding as the Python reference (`frames.display_unit`,
- * `frames.round_value`).
+ * This follows VISUAL-HARNESS and the reference as specified for this work; the
+ * reference code moved to one unit per quantity and span-based decimals on
+ * 2026-10-09 (spec/deviations.md D-VMEM-2).
  */
 import { pyG, pyRound } from './pyfmt.js'
 

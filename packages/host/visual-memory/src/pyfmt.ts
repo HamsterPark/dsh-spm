@@ -11,7 +11,12 @@
  * through these helpers, which do the arithmetic exactly with `BigInt`.
  *
  * Tolerance: none — the results are exact (bit-identical to CPython) for
- * finite inputs whose scaled magnitude stays below 2^53.
+ * every finite double.
+ *
+ * `dsh-spm-kernel` has CPython-validated `pyRound` / `pyFixed` too
+ * (spec/deviations.md D-LANG-3), built on `toFixed` and limited to
+ * |v| < 1e21; it has no `%g`. A test pins that both agree on that range, so
+ * the two can later be merged into one without changing any output.
  */
 
 interface ExactDouble {

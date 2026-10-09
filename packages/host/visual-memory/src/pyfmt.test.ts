@@ -1,3 +1,4 @@
+import { pyFixed as kernelPyFixed, pyRound as kernelPyRound } from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
 import { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
 
@@ -77,6 +78,26 @@ describe('Python-compatible rounding', () => {
     expect(pyG(1.7976931348623157e308, 4)).toBe('1.798e+308')
     expect(pyG(9.9995, 4)).toBe('9.999') // 9.9995 is stored just below the tie
     expect(pyG(9.99951, 4)).toBe('10') // rounding carries into a new decade
+  })
+})
+
+describe('agreement with the kernel helpers', () => {
+  // dsh-spm-kernel already has CPython-validated pyRound / pyFixed (spec/deviations.md D-LANG-3,
+  // limited to |v| < 1e21). This module computes exactly with BigInt and adds `%g`; on the
+  // kernel's range the two must agree everywhere.
+  it('matches kernel pyRound and pyFixed on dyadic ties, near-ties and random doubles', () => {
+    const values: number[] = []
+    for (let k = 1; k <= 12; k += 1) for (let j = -40; j <= 40; j += 1) values.push(j / 2 ** k) // exact ties
+    let s = 11
+    const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648)
+    for (let i = 0; i < 2000; i += 1) values.push((rnd() - 0.5) * 10 ** Math.floor(rnd() * 12 - 4))
+    values.push(2.675, 1.005, 248.85000000000002, -0.0004, -0, 0)
+    for (const v of values) {
+      for (const d of [0, 1, 2, 3, 4, 6]) {
+        expect(pyFixed(v, d)).toBe(kernelPyFixed(v, d))
+        expect(Object.is(pyRound(v, d), kernelPyRound(v, d)) || pyRound(v, d) === kernelPyRound(v, d)).toBe(true)
+      }
+    }
   })
 })
 

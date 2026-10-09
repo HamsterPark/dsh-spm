@@ -10,7 +10,7 @@
  * (`docs/dsh/facts.md` §9). Lossless grey levels, the flat NaN colour and an
  * attachment id equal to the sha256 of our own bytes all depend on this choice.
  * The Python reference writes greyscale when nothing is missing; the decoded
- * pixels are identical, only the container differs.
+ * pixels are identical, only the container differs (spec/deviations.md D-VMEM-1).
  *
  * ## Determinism
  *

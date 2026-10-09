@@ -28,7 +28,8 @@
  *
  * Invalid arguments and archive misses come back as a successful call whose
  * text is `{"error": …, "instrument_unchanged": true}` (the repo's convention:
- * domain failures are values, only bugs throw). Images that could not be stored
+ * domain failures are values, only bugs throw; spec/deviations.md D-VMEM-5).
+ * Images that could not be stored
  * are reported in the text (`images_not_delivered`) instead of disappearing.
  */
 import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefinition } from 'dsh-spm-compat'
@@ -137,6 +138,15 @@ export function renderViewValue(value: { readonly text: string; readonly images:
   return blocks
 }
 
+/**
+ * Largest reply text a view tool returns. dsh's spill policy replaces a
+ * text-only tool result above 50,000 UTF-8 bytes with a head/tail preview
+ * (facts.md §9.1); a readout cut in the middle is worse than a refusal that
+ * says to ask for less. The margin leaves room for the trailing newline
+ * (spec/deviations.md D-VMEM-4).
+ */
+export const MAX_REPLY_BYTES = 48_000
+
 function errorMessage(err: unknown): string {
   const e = err as { code?: unknown; message?: unknown }
   const code = typeof e?.code === 'string' ? `${e.code}: ` : ''
@@ -144,8 +154,15 @@ function errorMessage(err: unknown): string {
 }
 
 /** Store the images of a result and build the tool value. */
-async function deliver(result: ViewToolResult, saver: ImageSaver | undefined): Promise<ViewToolValue> {
+async function deliver(tool: string, result: ViewToolResult, saver: ImageSaver | undefined): Promise<ViewToolValue> {
   if (!result.ok) return { text: JSON.stringify({ error: result.error, instrument_unchanged: true }), images: [] }
+  const size = Buffer.byteLength(JSON.stringify(result.reply), 'utf8')
+  if (size > MAX_REPLY_BYTES) {
+    const error =
+      `${tool}: the reply would have ${size} bytes of text; a tool result is shown in full only up to ` +
+      `${MAX_REPLY_BYTES} bytes. Ask for fewer views or fewer samples per call.`
+    return { text: JSON.stringify({ error, instrument_unchanged: true }), images: [] }
+  }
   const images: ViewToolValue['images'] = []
   for (const im of result.images) {
     if (saver === undefined) {
@@ -251,7 +268,7 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
     },
     output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
     isConcurrencySafe: () => true,
-    execute: async (args) => deliver(inspect(deps.archive, args), deps.attachments()),
+    execute: async (args) => deliver('inspect', inspect(deps.archive, args), deps.attachments()),
   })
 }
 
@@ -267,7 +284,8 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
       '(mHz below 10 Hz), voltages in mV; the reply names the unit of every view. Values are rounded to 0.1 of ' +
       'that unit, null where nothing was acquired. The reply gives the sampled display pixels and the ' +
       `scan-frame nm of the first and last sample. 1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} ` +
-      'samples (rows x columns, summed over views) per call. This tool only reads values; it does not flatten, ' +
+      'samples (rows x columns, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
+      'large readouts over several calls. This tool only reads values; it does not flatten, ' +
       'align, compare or interpret them. State the question and give each view a short label.',
     parameters: {
       question: QUESTION,
@@ -299,7 +317,7 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
     },
     output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
     isConcurrencySafe: () => true,
-    execute: async (args) => deliver(readValues(deps.archive, args), deps.attachments()),
+    execute: async (args) => deliver('read_values', readValues(deps.archive, args), deps.attachments()),
   })
 }
 

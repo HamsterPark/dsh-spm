@@ -12,7 +12,7 @@
  * text is the content with surrounding whitespace removed plus one newline, as
  * in the reference. Limits are UTF-8 bytes of the stored text (the files live
  * on disk as UTF-8); the Python reference counts characters, which is the same
- * for ASCII notes.
+ * for ASCII notes (spec/deviations.md D-VMEM-3).
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'

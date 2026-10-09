@@ -200,6 +200,22 @@ describe('stm_read_values', () => {
     expect(reply.views[0]).toMatchObject({ unit: 'pm', sample_x_px: [16, 48], sample_y_px: [16], values: [[12, 28]] }) // native (4, 4) and (12, 4): 2c + r pm
   })
 
+  it('refuses a reply larger than dsh shows in full, instead of letting it be cut', async () => {
+    const { ctx } = await host()
+    let s = 3
+    const noise = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648)
+    const big = Float32Array.from({ length: 64 * 64 }, () => -1.2345e-8 + 1e-10 * noise()) // about -12345.6 pm
+    const e = ctx.frameArchive.addPartial(3, { Z: { rows: 64, cols: 64, data: big } }, { geometry: { cx_nm: 0, cy_nm: 0, w_nm: 10, h_nm: 10 } })
+    const views = Array.from({ length: 64 }, (_, i) => ({ label: `view ${i} `.padEnd(100, '.'), frame: e.fid, rows: 8, columns: 8 }))
+    const res = await call(ctx, 'stm_read_values', { question: 'q', views })
+    expect(res.isError).toBe(false)
+    expect(JSON.parse(texts(res.content)[0] as string).error).toMatch(
+      /^read_values: the reply would have \d+ bytes of text; a tool result is shown in full only up to 48000 bytes\. Ask for fewer views/,
+    )
+    const half = await call(ctx, 'stm_read_values', { question: 'q', views: views.slice(0, 32) })
+    expect(JSON.parse(texts(half.content)[0] as string).sample_count).toBe(2048)
+  })
+
   it('answers an unknown frame with a value', async () => {
     const { ctx } = await host()
     const res = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'g', frame: 't0004.s0', rows: 1, columns: 1 }] })

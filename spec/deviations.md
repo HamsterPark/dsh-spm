@@ -3975,3 +3975,63 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 此入口不提供未实现的偏压 ramp 参数，也不提供 `allow_continuous_scan` 覆盖；这些差异通过本入口的工具声明和参数拒绝显式表达。新增 GetScanStatus 是本插件的本机工具，不冒充参考迁移技能，不计入生成的迁移进度。
 
 理由：原迁移 SetBias/StopScan 只确认发送，StartScan 还会请求改变 autosave；直接用于本机交互会扩大副作用或误报完成。判据在 `native-skills.test.ts`、`native-runtime.test.ts`、`native-simulator.test.ts`，实际安装态与模型证据见本次 Nanonis 交接。通用技能、金样及生成规格未因此改写。若以后统一到通用技能，应先验证回读失败、连续扫描、属性保留与既有参考契约后再移除局部适配。
+
+## D-VMEM-1 · 观测图一律写 8 位 RGB PNG（参考实现无缺测时写灰度）
+
+| | |
+|---|---|
+| **Python**（`stmbench/vista/frames.py`） | `compose_rgb`：没有缺测像素时写 8 位灰度（L），有缺测时写 RGB |
+| **TS**（`dsh-spm-visual-memory`） | 一律写 8 位 RGB（colour type 2，R = G = B），只有 IHDR / IDAT / IEND |
+| **测试** | `packages/host/visual-memory/src/png.test.ts`（块与 colour type）；`parity.test.ts`（解码后的像素与参考逐字节相同） |
+
+**为什么有意**：dsh 的 `attachment-local` 只把 8 位 sRGB、无元数据的 PNG 按原字节保存；灰度 PNG
+会被重编码成 JPEG（有损，[facts.md](../docs/dsh/facts.md) §9.2）。像素值不变，变的只是容器。
+**重新考虑的条件**：`attachment-local` 对灰度 PNG 也原样保存。
+
+## D-VMEM-2 · 读值的单位与取整按 VISUAL-HARNESS，未跟随参考实现 2026-10-09 的改动
+
+| | |
+|---|---|
+| **Python**（2026-10-09 约 18:10 起的 `frames.py` / `viewtools.py`） | 每种量一个模型单位（m→pm、A→pA、V→V、Hz→Hz），小数位由通道的稳健跨度定（`decimals_for`，1–6 位），键名带单位后缀（`values_pm`、`range_pa`、`black_pm`…），回复不再带 `visual_kind` 与 `unit`，高通写成 `flatten="highpass" highpass_nm="3"` |
+| **TS** | 单位阶梯：pm；pA，低于 10 pA 用 fA；Hz，低于 10 Hz 用 mHz；mV / µV。数值取到所报单位的 0.1；回复字段 `unit` + `values`、`visual_kind`；标签 `range_pA`、`flatten="highpass 3.00 nm"` |
+| **测试** | `units.test.ts`、`views.test.ts`、`tools.test.ts` |
+
+**为什么有意**：任务规格（[VISUAL-HARNESS](../docs/VISUAL-HARNESS.md) §4.4 与本次派工说明）写的是
+pm / pA / Hz、取到 0.1，与参考实现自己的 `DESIGN.md` §6.2（同日 17:41 版）一致；参考代码在同一天
+改了这一套，尚未定稿。金样 `visual_memory.json` 因此**有意不收**单位与取整。
+**改变决定所需的证据**：参考实现定稿，并由维护者决定两侧取哪一种；届时改 `units.ts`、`views.ts`、
+`render.ts` 的标签与 `tools.ts` 的描述，并把单位与取整加进导出器。
+
+## D-VMEM-3 · 笔记上限按 UTF-8 字节计
+
+| | |
+|---|---|
+| **Python** | `MAX_GUIDE_CHARS = 64 * 1024`、`MAX_WORKING_CHARS = 16 * 1024`，按输入内容的字符数 |
+| **TS** | 按存盘文本（去掉首尾空白再加一个换行）的 UTF-8 字节数：64 KiB / 16 KiB |
+| **测试** | `packages/host/visual-memory/src/notes.test.ts` |
+
+**为什么有意**：VISUAL-HARNESS §4.4 写的是 KiB，文件以 UTF-8 存盘。ASCII 笔记两者相同；
+中文笔记在 TS 侧约为参考的三分之一字数。
+
+## D-VMEM-4 · 读值回复超过 48 000 字节时拒绝
+
+| | |
+|---|---|
+| **Python** | 无上限（Claude Code 一侧由 `MAX_MCP_OUTPUT_TOKENS` 限制） |
+| **TS** | 回复文本超过 48 000 UTF-8 字节时返回错误值，请模型减少视图或样点、分几次读 |
+| **测试** | `tools.test.ts`「refuses a reply larger than dsh shows in full」 |
+
+**为什么有意**：dsh 默认组合的 spill 策略把超过 50 000 字节的纯文本工具结果换成首尾预览加定位符
+（facts.md §9.1），从中间截断的读值比一次拒绝更糟。实测 64 个视图 × 64 个样点的回复约 59–67 KB，
+单个视图 4096 个样点约 37 KB。
+
+## D-VMEM-5 · 领域失败是成功的工具结果
+
+| | |
+|---|---|
+| **Python** | `error_reply(...)`：MCP `isError: true` |
+| **TS** | `isError: false`，文本为 `{"error": …, "instrument_unchanged": true}`；dsh 自己的参数 schema 校验失败仍是 `isError: true`（`INVALID_ARGS`） |
+| **测试** | `tools.test.ts` |
+
+**为什么有意**：本仓约定（facts.md §5 工具一行）是「抛异常 = isError，领域失败放 value」，
+与技能工具（`defineSkillTool`）一致；模型看到的文字说明了要改什么。
