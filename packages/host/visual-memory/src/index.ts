@@ -125,3 +125,18 @@ export {
   type NoteFile,
   type NoteWrite,
 } from './notes.js'
+export {
+  ArgError,
+  MAX_CLIP_PCT,
+  MAX_HIGHPASS_NM,
+  MAX_INSPECT_VIEWS,
+  MAX_LABEL_CHARS,
+  MAX_QUESTION_CHARS,
+  MAX_READ_SAMPLES,
+  MAX_READ_VIEWS,
+  inspect,
+  readValues,
+  sampleAxis,
+  type ViewImage,
+  type ViewToolResult,
+} from './views.js'
