@@ -26,7 +26,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 
 | # | 决策 | 含义 |
 |---|---|---|
-| D1 | **全部 TypeScript** | Python 旧代码只是规格；不做子进程桥/HTTP 桥/MCP。**唯一例外**：深度视觉模型的训练与 ONNX 导出留 Python，TS 只做 `onnxruntime-node` 推理（§14）。 |
+| D1 | **全部 TypeScript** | Python 旧代码只是规格；不做子进程桥/HTTP 桥/MCP。**唯一例外**：深度视觉模型的训练与 ONNX 导出留 Python，TS 只做 `onnxruntime-node` 推理（§14）。2026-10-09 起该模型不再是计划必需项，见 D12。 |
 | D2 | **一个个 skill 来** | 单一内核 + 每技能 DoD（§8.5）；批次 0→8（§8.4）。 |
 | D3 | **前端 = STM 前端插件** | dsh 客户端 slot 模块 + 宿主侧 `/mast/*` 路由与投影；旧 20 页逐页迁入（§9）。 |
 | D4 | **旧仓库/旧产物暂不动** | 视觉权重、知识文本、文献语料、campaign 记录留旧仓；新仓从零、一点点重新开源。 |
@@ -38,6 +38,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 | D10 | **技能一个包 `dsh-spm-skills`，目录/文件名镜像旧仓模块名**（`builtins/bias.ts` ↔ `bias.py`） | parity 进度按模块对表；tool packs 是注册期分组，不是包边界。以后过大再拆。 |
 | D11 | **实时追踪 dsh 最新版；整套精确钉；随 dsh 一起做破坏性重构**（用户 2026-09-02 决定，替代「每 Phase 只升一次」；追踪对象 09-04 修订；**跟踪通道 09-09 修订为两段式，见 D11.1**） |
 | **D11.1** | **两段式跟踪：接触面小的时候跟 alpha，接触面变大就退回稳定通道**（用户 2026-09-09 决定） | **判据不是版本号，是「打到我们没有」**：`tsc -b` 过 + 全部测试绿（含打真包的 contract）+ 端到端探针（`dsh plugin add` 后 `apply()` 在真实运行时执行且服务是活的），**三样全过才升，任何一样不过就等下一版**。dsh 自己有多少 bug 不是判据——0.1.5-alpha.1 有六条已知问题而一条都碰不到我们时，它对我们等同于零条。<br>**第一段（现在起，Phase 1–2）**：追 semver 最大值（含 alpha）。理由是此刻几乎免费——2026-09-09 实测跨三个 minor、三条破坏性变更，领域代码改动为 **0**，因为 compat 只导出三个名字；而且每次升级都是对防腐层的一次真实考核，早知道墙裂了比事后才发现强。<br>**第二段（切换点：出现第一个 client 包（课时 1.10），或 compat 导出面超过 15 个符号，哪个先到算哪个）**：改跟 `latest` / `next` 稳定通道；alpha 只读发布说明、把影响记进 `docs/dsh/facts.md`，**不实际升级**。理由是那时接触面会从 3 涨到几十（Cordis Service 类身份、session projection、client bundle、LLM adapter、8 个 preset），同样一次升级不再免费。<br>**不改的**：整套精确钉、不留兼容层、随 dsh 破坏性重构一起重构。 | dsh 官方预告还有若干破坏性重构，小步跟比攒着一次爆便宜。每课时开始先查版本，有新版就按 `docs/dsh/upgrades.md` 的清单升一次、单独提交。**追踪对象 = 所有 dist-tag 里 semver 最大的那个，不是某个固定 tag**（09-04：`rc.1` 比 `alpha.5` 新，只盯 `alpha` 会停在旧通道）。**锁的对象是整套 `@deepseek-ai/*`**：启动器与各 bundle 对子包声明的都是 `^` 范围，而 prerelease 上的 caret **会跨 alpha→rc 通道**——实测钉 alpha.4 的全新安装装出 213 个 rc.1 子包，只钉 `@deepseek-ai/dsh` 一个包锁不住任何东西（facts.md §1）。**我们的插件不为旧 dsh 版本保留兼容**：每个插件版本只对应一个 dsh 版本（peer 精确钉）；dsh 破坏性重构时我们同步重构自己的接缝、配置键、投影格式，不留垫片、不做双轨；持久数据只保证 SQLite 真源可迁移，session log 与投影缓存可丢。 |
+| D12 | **视觉线束：图像是主感知通道**（用户 2026-10-09 决定） | 模型看渲染后的帧图像，而不是视觉模型输出的文本摘要；会话内每帧无损入档，可用工具回看、裁剪放大和读值；数值由测量工具计算，工具只测不判；改变仪器状态的动作一动一观；模型自写 `GUIDE.md` / `WORKING.md`。深度视觉模型（D1 例外、Phase 8 `vision-onnx`）降为可选顾问，由 STM-Bench 消融结果决定是否实施。依据、工具契约与实施顺序见 [VISUAL-HARNESS.md](VISUAL-HARNESS.md)。 |
 
 ### 2.1 工作方式：交互式开发、每段讲解（用户 2026-09-01 要求）
 
@@ -163,7 +164,8 @@ dsh-spm/
     ├── data/nanonis-files/     dsh-spm-nanonis-files .sxm/.dat/.3ds 读写 + 方向归位（GBK COMMENT）
     ├── data/sim-harness/       dsh-spm-sim-harness   spawn stmsim；SpecEchoServer（TS，按 spec 应答 671 动词）；truth 客户端；trace 记录/比对
     ├── vision/vision-classic/  dsh-spm-vision-classic 42 个 numpy 检测器里的经典部分
-    ├── vision/vision-onnx/     dsh-spm-vision-onnx   onnxruntime-node(DirectML/CPU) + manifest；权重不入仓
+    ├── vision/vision-onnx/     dsh-spm-vision-onnx   onnxruntime-node(DirectML/CPU) + manifest；权重不入仓（D12：可选）
+    ├── host/visual-memory/     dsh-spm-visual-memory D12：Service ctx.frameArchive（会话内无损帧档案）+ stm_inspect / stm_read_values / 测量工具 / 笔记工具
     ├── records/stm-records/    dsh-spm-stm-records   Service ctx.stmRecords：实验/样品/动作/针尖登记/仪器档案/环境历史/审批审计/journal/RunLedger（node:sqlite → better-sqlite3 退路）+ storageDomain 小域
     ├── knowledge/knowledge/    dsh-spm-knowledge     ctx.skills provider（SKILL.md ×15+）+ query_knowledge/get_skill_guidance/get_fault_diagnosis/nanonis_manual/stm_glossary 工具 + 三档提示段
     ├── knowledge/memory/       dsh-spm-memory        段 provider + memory_* 工具 + 向量表（DashScope embedding → FTS 回退）；MemoryBackend 可替换
@@ -272,10 +274,14 @@ DeepSeek 内置 `llm-deepseek`；Claude 与 MiniMax 走 `llm-pi-ai` anthropic �
 - 命令：`/mode safe|semi|auto`、`/estop`、`/withdraw`、`/selfcheck`、`/experiment new|use|end`、`/sample new|use|clear`、`/tip register|remove`、`/hold <agent>`、`/release <agent>`、`/goal done-when <json>`、`/park list|cancel`、`/stall release`。
 - 设置节 9 个：`mast.instrument`（host/四端口/hardware_modules/instrument_profile，`applies:'restart'`）、`mast.safety`（九对包络、SAFE/SEMI/AUTO、自主度上限、advanced_capabilities 解锁确认；覆盖走 `mast.overrides.*` 含溯源）、`mast.models`（每 preset 模型+thinking 档，key `role('secret')`）、`mast.scan`（scan_policy 档位/zctrl_presets/experiment_defaults/tip_conditioning_overrides）、`mast.monitoring`（live-read）、`mast.budget`（80/300/6，`0=零次` UI 不可达无限）、`mast.memory`、`mast.voice`(P3)、`mast.folders`。墓碑键不搬。
 
+### 7.10 `ctx.frameArchive`（`dsh-spm-visual-memory`，D12）
+会话内无损帧档案：技能产生的 .sxm/.dat 与扫描中途快照按 `t<turn>.<kind><i>` 编号入档，全部通道与正反扫保留原始物理量；`render()` 与前端帧接口（§9.4）共用同一份去衬底/LUT/最近邻放大实现；显示坐标与扫描坐标的换算和判分器视野规则精确一致。模型经 `stm_inspect`（回看、裁剪放大、换通道或去衬底）、`stm_read_values`（物理量采样）、测量工具（剖面、FFT 峰、斑点、帧间配准与差分、统计）和笔记工具使用它；只读工具不取仪器令牌。接口与工具契约见 [VISUAL-HARNESS.md](VISUAL-HARNESS.md) §4。
+
 ## 8. 逐 skill 迁移流水线
 
 ### 8.1 内核 `SkillKernel.run()`（唯一 choke point；与 `_run` 逐条对照）
 K0 管理员覆盖 `effectiveSpec`（建工具与执行各调一次同函数）→ K1 SI 解析（失败 `refused/si_parse`，文案 `[Name] precondition_failed:` 逐字保留，聚合靠 `signature`）→ K2 abort 闩（`abort_latched`，`concludeTurn`）→ K3 sample 闸（depth 0 判，子步继承 admission）→ K4 progress 桥（sidecar 文件真源）→ K5 快照+计时（**在闸门之前**）→ K6 `validateParams`（越界附 `explainValidation` 教学文案）→ K7 荒谬 → 包络 → `operating_mode` → `hard_gate`（五条，`approvalSource!=='human'` 拒）→ DANGEROUS = 执行 + `autoApproval.notify` → K8 前置条件（不满足先 `refreshState()` 再判——**两入口都做**，登记 deviations；抛 ⇒ `precondition_crashed` fail-closed）→ K9 `holdForSkill`（重入键 `rootCallId`；超时 `busy` 不回滚）→ K10 调制关闭 preflight（depth 0）→ K11 `skill.execute(ctx, params)`（`ctx.signal` = dsh `exec.signal` ∪ 急停 ∪ 环境告警 ∪ 会话停止）→ K12 `applyPatch(data)`（成功）/ `_verified_state`（总是）/ `ctx.markers.emit`（成败都记）→ K13 `composeText`（summary/None ⇒ str(data)、失败附全 data 去审计键、成功只附 detail、>2000 落盘 `textRef`）→ K14 图像 `attachments.save` → `imageRefs`（depth 0）→ K15 `stateDelta` 写 RunLedger → K16 records（被拒也记；`approval_source`；`auto_approved`）→ K17 post_hook（成功才跑，永不抛）→ K18 异常（`AbortRequested`/`InstrumentBusy` 不回滚；其它 `rollback()` → `rolled_back`）。
+**D12 修订（2026-10-09）**：K14 在 depth 0 先把技能产生的 .sxm/.dat 经 `ctx.frameArchive` 入档，再以当前观测图作附件交给 `renderOutcome`，文本列出新帧编号与帧摘要；改变仪器状态的工具在上一次结果进入模型上下文前被 `tools/pre-execute` 拒绝（一动一观）。见 [VISUAL-HARNESS.md](VISUAL-HARNESS.md) §4.5–4.6。
 类型：`SkillSpec`（复刻 SkillMetadata，`capabilities` 含 `produces_file`）、`Skill{spec, execute, rollback?, validateParams?}`、`SkillContext{signal, abortReason(), checkAbort(), call/callUrgent(typed), run(sub), state()/refreshState(), sleep(ms)→'elapsed'|'aborted', narrate, markers(必填), progress, ask?, depth, owner, rootCallId, approvalSource, scopeAdmitted}`、`SkillOutcome extends SkillResult {kind: ok|failed|refused|aborted|busy|rolled_back; code?: RefusalCode; signature; text; textRef?; imageRefs?; stateDelta; concludeTurn?}`。`ctx.markers` 缺席构造期就拒绝（换区不翻代那次事故）。
 
 ### 8.2 schema 生成 → dsh `parameters`（复刻 `_schema_from_metadata`）
@@ -363,7 +369,9 @@ conduct：`ctx.conduct`；Director = 宿主 job `stm-conduct` 确定性 tick；�
 | **5 硬件闭环** | 批 5 L3 + jobs + human 节点 + GraphExecutor；tip registry/hardware profile/env history；知识 SKILL.md ×15 + 工具；记忆；U3 | `test_e2e_composites` 复现；断点续跑；换针后 SAFE 包络按登记 capability 生效；知识三档 contract；后台 job cancel 1 s 内停扫 |
 | **6 L4 闭环 + 七 agent** | 批 6；批 8（其余 agent 工具族）；8 个 preset + subagent 编排 + 账本 + 护栏；literature 包；U5 部分 | ForgeAuTip sharp/blunt；supervisor 委托 IC 扫图交 DP 分析的端到端 replay 可重建；两个 IC 分支并发被结构拒绝；STM-Bench B0/B1 场景在 dsh 栈跑完 |
 | **7 conduct + 声明式** | 批 7；conduct/goals/唤醒/自主度/撤销窗/journal；U4 | 中途 kill 重启后 campaign 从最后确认步续跑；`autonomous` 编译期无 ask；attended 无人应答时 deny 不挂起；SpecComposite 全模板跑通 |
-| **8 视觉深模型 + 基准 + 真机准备** | vision-onnx（v2.5 DINOv3 导出）；TS 版 stmbench harness；`mast-rig` profile 首次入仓；真机接触清单 | ONNX 与 torch 逐样本 ≤1e-4；Track B 九族全跑；真机首次接触条件：差分套件对将用技能全绿 + rig selfcheck 全绿 + 操作员在场 + SAFE + 先只跑 READ 技能一整个 session；旧系统并行运行，切换由操作员决定 |
+| **8 视觉深模型 + 基准 + 真机准备** | vision-onnx（v2.5 DINOv3 导出；D12 后为可选，视消融结果）；TS 版 stmbench harness；`mast-rig` profile 首次入仓；真机接触清单 | ONNX 与 torch 逐样本 ≤1e-4；Track B 九族全跑；真机首次接触条件：差分套件对将用技能全绿 + rig selfcheck 全绿 + 操作员在场 + SAFE + 先只跑 READ 技能一整个 session；旧系统并行运行，切换由操作员决定 |
+
+**D12 对阶段的修订（2026-10-09）**：Phase 3 增加帧档案与 `stm_inspect` / `stm_read_values`，IC 改用支持图像的模型，验收补充「扫帧 → 回看放大 → 读值 → 移针 → 再扫 → 两帧比较」且 session log 可重建每张图；Phase 4 的测量工具以已迁移的 `vision` / `numerics` 实现为基础；Phase 5 增加笔记工具与压缩前检查点；Phase 8 的 `vision-onnx` 视 STM-Bench 消融结果决定是否实施。详见 [VISUAL-HARNESS.md](VISUAL-HARNESS.md) §3、§6。
 
 ## 12. 验证
 
@@ -375,6 +383,7 @@ conduct：`ctx.conduct`；Director = 宿主 job `stm-conduct` 确定性 tick；�
 - **变异**：内核 `gates: GateSet` 可注入；`MAST_MUTATE=<gate>` 逐个换 no-op 重跑该闸测试集，meta 断言每闸至少一条变红（三判据：已应用、落在被测对象、变红）；拔掉 pre-execute 的 abort deny ⇒ 内核 K2 仍拒（证明冗余非唯一）；注册表完整性（每技能有 safety_level、DANGEROUS 在允许清单、`bias_pulse/tip_shaping` 在 SAFE 下被拒——去标签必红）。
 - **差分（Python vs TS，同技能同参数）**：可行且值得做，限 L0/L1/L3 确定性技能。A（推荐）录制回放：`tools/record-traces.py` 用 `ExecutionContext.run` + `fault_hook(command, args)` 录 `spec/golden/traces/<Skill>/<case>.json`（`{seed, time_scale, approached, params, calls:[[verb,args]], events:[kind], truth_after, result 标量子集}`），TS 同 seed 跑内核比对；B 退路在线双跑（STM-Bench 加 `test_ts_differential.py` 用 `dsh-spm skill run` 子进程）。规范化 `traceNormalize()`：连续只读轮询折叠 `×k`；差分跑时关 1 Hz 刷新；浮点 1e-9 相对容差；路径只比 basename；**不比 return_value 形状**，比状态缓存 patch 后的非时变字段。含视觉/LLM 决策的 composite 改用 stmbench Track B 真值做结果级对比（Phase 8）。
 - **前端**：纯函数测试原样搬 vitest；组件 jsdom；奇偶表；playwright 后置。
+- **视觉线束（D12）**：渲染、显示坐标、读值与测量工具对 Python 参考实现逐项金样比对（容差写明）；contract 钉住工具结果中的图像经各模型适配器送达且可从 session log 重建；设计取舍以 STM-Bench 消融结果为准（[VISUAL-HARNESS.md](VISUAL-HARNESS.md) §5）。
 - **真机阶梯**（Phase 8）：只读全扫 → 值守窗口清单（带工具多轮/ask_user/Stop/重启续聊/语音各一次）→ bake ≥1 周。
 
 ## 13. 风险
@@ -397,6 +406,9 @@ conduct：`ctx.conduct`；Director = 宿主 job `stm-conduct` 确定性 tick；�
 | 语言迁移让守卫半盲 | 结构化 code/signature；钉住短语集中在 `messages.ts` 并测试；子串前置规则否定形在前（`z_controller_off` 不被 `on` 命中钉成测试） |
 | 唤醒 per-run 护栏归零 | ② ④ per-system；`0` 语义先定死；默认关 |
 | 许可证 | MIT；核对 dsh 与 `nanonis_spm`（协议表派生自它）与 MIT 兼容，`spec/` 带 NOTICE；DINOv3 权重不分发；文献语料不入仓 |
+| 视觉线束依赖能读图像的模型（D12）；dsh 默认的 DeepSeek 模型行不读图 | IC 使用 `llm-pi-ai` 或自写适配器中支持视觉的模型；不支持时工具结果明示「N 张图像未送达」，可退回数值网格观测；contract 按适配器钉住 |
+| 前沿模型在计数、测距、细微变化上不可靠 | 数值一律由测量工具计算，工具只测不判；图像负责判断与发现异常 |
+| 图像累积撑大上下文与成本 | 只有当前观测自动进上下文，其余经帧档案按需取回；压缩前先保存 `WORKING.md` |
 | dsh-base 行 id/config 随版本变 | 只覆盖 §6.3 表里的行；每次升级跑 `--dump-config` 比对 |
 
 ## 14. 非目标
@@ -422,6 +434,7 @@ conduct：`ctx.conduct`；Director = 宿主 job `stm-conduct` 确定性 tick；�
 - `dsh plugin add` 装进 profile 时子包由 profile 自己的 pnpm 解析：宿主子包漂到新版而我们的 bundle peer 精确钉旧版时，dsh 是报错、警告还是静默混装（0.4 实测；期望是硬失败）。
 - 插件版本号怎么表达「对应哪个 dsh」（候选：`package.json` 里 `dshVersion` 字段 + peer 精确钉；或版本号后缀）。0.2 定。
 - 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点）——要不要动 STM-Bench，还是走退路 B。
+- D12 视觉线束：dsh 工具结果中图像块的形状与各适配器的发送方式；是否有压缩前钩子；「结果已进入上下文」对应的可观察事件；受管模拟器的时钟暂停控制面（[VISUAL-HARNESS.md](VISUAL-HARNESS.md) §7）。
 - 深度视觉模型的 ONNX 导出在旧仓 venv 做，产物放哪（不入仓；建议 `E:\dsh-spm-models\` + manifest）。
 
 ## 17. 参考

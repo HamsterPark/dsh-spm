@@ -100,6 +100,7 @@ pnpm test --project unit --project contract
 - [AGENTS.md](AGENTS.md)：面向编码智能体的任务入口、边界和默认验证要求。
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md)：迁移验收、生成、测试和协作流程。
 - [RELEASE-TODO.md](docs/RELEASE-TODO.md)：公开发布准备与已记录检查。
+- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md)：规划中的以图像为主的感知设计（决策 D12，尚未实现）。
 - [SOURCES.md](docs/SOURCES.md)：来源和第三方声明，包括参考派生夹具与公开文本规范化。
 
 本项目采用 [MIT 许可证](LICENSE)。第三方材料保留来源登记中说明的声明。
