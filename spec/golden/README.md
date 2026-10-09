@@ -166,7 +166,7 @@ python tools/spec-export/<脚本>.py
 | `z_settle.json` | `export_z_settle.py` | `ZSettle`、`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 两套不同措辞的方向判定，以及位移与阶梯规则；10 个读数形状、两组各 15 个方向用例、8 个无位移用例 |
 | `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
-| `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本。运行 STM-Bench 的 `stmbench/vista` 参考实现，输入为合成帧，记录参考文件的 sha256。单位与取整未收入：参考实现 2026-10-09 改过，本仓按 VISUAL-HARNESS |
+| `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复。运行 STM-Bench 的 `stmbench/vista` 参考实现（需 NumPy、SciPy、Pillow），输入为合成帧，档案建在临时目录、用后删除，记录参考文件的 sha256 |
 
 ## 二、维护约束
 

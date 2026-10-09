@@ -3,12 +3,16 @@
  *
  * `spec/golden/visual_memory.json` is produced by
  * `tools/spec-export/export_visual_memory.py`, which runs STM-Bench's
- * `stmbench/vista/frames.py` (+ `sample_axis` from `archive.py`) on synthetic
- * inputs; the reference file hashes are recorded in the golden. Units and value
- * rounding are not part of it (see the exporter: the reference changed them on
- * 2026-10-09; this package follows VISUAL-HARNESS).
+ * `stmbench/vista/frames.py`, `archive.py` and `viewtools.py` on synthetic
+ * inputs; the reference file hashes are recorded in the golden. Since the TS
+ * port follows the reference's current model-facing vocabulary (2026-10-09), the
+ * golden also pins model units, decimals, rounding, and the summaries, labels and
+ * parsed `inspect` / `read_values` replies of a small synthetic archive.
  *
  * Tolerances, and why:
+ * - archive summaries, labels and parsed replies: exact (values are rounded to
+ *   the channel's decimals, so the fitting differences below could only show
+ *   at a rounding boundary);
  * - integer and string results (scales, sizes, views, sampling, labels,
  *   grey levels, pixels): exact;
  * - colour limits computed from the SAME flattened values: exact (same
@@ -19,13 +23,19 @@
  *   projection here are different backward-stable algorithms;
  * - block means: 1e-12 relative — numpy sums pairwise, this package in row order.
  */
-import { describe, expect, it } from 'vitest'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterAll, describe, expect, it } from 'vitest'
 import golden from '../../../../spec/golden/visual_memory.json' with { type: 'json' }
 import { blockMean, flatten, type FlattenMode } from './flatten.js'
 import { displaySize, displayToScanNm, scalePair, scaleText, scanNmToDisplay, type ScanGeometry } from './geometry.js'
 import { decodePng } from './png.js'
 import { colourLimits, fmtNum, greyRgb, planView, renderValues, viewCornersNm, visualLabel, type LabelAttr } from './render.js'
-import { sampleAxis } from './views.js'
+import { FrameArchive } from './archive.js'
+import type { PartialMeta } from './scan-data.js'
+import { decimalsFor, displayUnit, npRound, rangeAttr, robustSpan, roundTo, unitKey } from './units.js'
+import { inspect, readValues, sampleAxis } from './views.js'
 
 type Num = number | string | null
 
@@ -172,5 +182,88 @@ describe('parity with the Python reference: text', () => {
 
   it('labels', () => {
     for (const c of golden.labels) expect(visualLabel(c.kind, c.attrs as unknown as LabelAttr[])).toBe(c.label)
+  })
+})
+
+describe('parity with the Python reference: units and rounding', () => {
+  const u = golden.units
+
+  it('model units, unit keys and range attributes', () => {
+    for (const c of u.display_unit) expect(displayUnit(c.si)).toEqual({ factor: c.factor, unit: c.unit })
+    for (const c of u.unit_key) expect(unitKey(c.name, c.unit)).toBe(c.key)
+    for (const c of u.range_attr) expect(rangeAttr(c.channel, c.unit)).toBe(c.attr)
+  })
+
+  it('decimals from the value span', () => {
+    for (const c of u.decimals_for) expect(decimalsFor(c.span === null ? null : num(c.span as Num))).toBe(c.decimals)
+  })
+
+  it('single values round like Python, arrays like numpy', () => {
+    for (const c of u.rounding) {
+      expect(roundTo(c.value, c.decimals)).toBe(c.round_to)
+      expect(npRound(c.value, c.decimals)).toBe(c.np_round)
+    }
+  })
+
+  it('robust spans', () => {
+    for (const c of u.robust_span) {
+      const got = robustSpan(...(c.arrays as Num[][]).map((a) => a.map(num)))
+      if (c.span === null) expect(got).toBeNull()
+      else expect(got).toBeCloseTo(c.span, 12)
+    }
+  })
+})
+
+describe('parity with the Python reference: archive summaries and tool replies', () => {
+  const A = golden.archive
+  const grid = (rows: Num[][]) => ({ rows: rows.length, cols: (rows[0] as Num[]).length, data: flat(rows) })
+  const dir = mkdtempSync(join(tmpdir(), 'vm-parity-'))
+  afterAll(() => rmSync(dir, { recursive: true, force: true }))
+  const arc = new FrameArchive(join(dir, 'frames'), { displayMax: A.display_max })
+  const inp = A.inputs
+  const made = [
+    arc.addPartial(2, { 'Z/forward': grid(inp.z_forward as Num[][]), 'Z/backward': grid(inp.z_backward as Num[][]), 'Current/forward': grid(inp.current as Num[][]) }, {
+      ...(inp.meta_a as PartialMeta),
+      geometry: inp.geometry_a,
+    }),
+    arc.addPartial(3, { Z: grid(inp.flat_z as Num[][]), 'Frequency Shift': grid(inp.df as Num[][]) }, {
+      ...(inp.meta_b as PartialMeta),
+      geometry: inp.geometry_b,
+    }),
+    arc.addDerived(3, new Uint8Array(Buffer.from(inp.png_plain_b64, 'base64')), {
+      tool: 'stm_fft_peaks', sources: ['t0002.p0'], description: 'log magnitude', labelAttrs: [['peaks', 3]],
+    }),
+    arc.addDerived(3, new Uint8Array(Buffer.from(inp.png_map_b64, 'base64')), {
+      tool: 'stm_frame_diff', sources: ['t0002.p0', 't0002.p0'], geometry: inp.geometry_a, units: { diff: 'm' },
+      arrays: { 'diff/forward': grid(inp.diff as Num[][]) },
+    }),
+  ]
+
+  it('allocates the same frame ids and writes the same summaries', () => {
+    expect(made.map((e) => e.fid)).toEqual(A.frames)
+    expect(arc.index()).toEqual(A.index)
+  })
+
+  it('labels the stored observations the same way', () => {
+    for (const [fid, label] of Object.entries(A.observations)) expect(arc.observation(fid).label).toBe(label)
+  })
+
+  it('answers inspect with the same reply and labels', () => {
+    for (const c of A.inspect) {
+      expect(c.is_error).toBe(false)
+      const r = inspect(arc, c.args)
+      if (!r.ok) throw new Error(r.error)
+      expect(r.reply).toEqual(c.reply)
+      expect(r.images.map((i) => i.label)).toEqual(c.labels)
+    }
+  })
+
+  it('answers read_values with the same reply', () => {
+    for (const c of A.read_values) {
+      expect(c.is_error).toBe(false)
+      const r = readValues(arc, c.args)
+      if (!r.ok) throw new Error(r.error)
+      expect(r.reply).toEqual(c.reply)
+    }
   })
 })
