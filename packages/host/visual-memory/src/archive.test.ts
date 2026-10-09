@@ -2,7 +2,7 @@ import { appendFileSync, copyFileSync, existsSync, mkdtempSync, readFileSync, rm
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { ArchiveError, channelDirections, entryScale, entrySummary, FrameArchive, hasValues, INDEX_NAME, mergeAttrs } from './archive.js'
+import { ArchiveError, channelDirections, entryFromRecord, entryScale, entrySummary, FrameArchive, hasValues, INDEX_NAME, mergeAttrs } from './archive.js'
 import { encodePngRgb, decodePng } from './png.js'
 import { encodeSyntheticSxm, type SyntheticSxm } from './synthetic-sxm.js'
 
@@ -149,7 +149,7 @@ describe('re-opening a root', () => {
       expect.stringMatching(/^index line 3 skipped: /),
       expect.stringMatching(/^index line 5 skipped: record lacks index$/),
       expect.stringMatching(/^index line 6 skipped: record t0000\.s9 disagrees/),
-      expect.stringMatching(/^index line 7 skipped: record t0000\.s9 lacks channels/),
+      't0000.s9: missing t0000.s9.png; skipped', // an index line needs only fid, turn, kind and index
       expect.stringMatching(/^index line 8 skipped: record is not an object$/),
       'index line 9: duplicate t0000.s0; later record kept',
     ])
@@ -419,6 +419,30 @@ describe('edges of the lookup and summary', () => {
     expect(entrySummary(m)).toEqual({ frame: 't0000.m0', turn: 0, kind: 'derived', tool: null, image_size_px: [4, 2] })
     expect(b.observation('t0000.m0').label).toBe('<visual kind="derived"/>')
     expect(b.render('t0000.m0').meta).toMatchObject({ tool: null, label: '<visual kind="derived" frame="t0000.m0" size="4x2"/>' })
+  })
+
+  it('reads index records like the reference: defaults for what is missing, refusal of malformed fields', () => {
+    const sts = entryFromRecord({
+      fid: 't0005.d0', turn: 5, kind: 'd', index: 0, channels: ['Bias (V)'], nx: 64, geometry: {},
+      extra: { position_nm: [1.234567, -2.5], experiment: 'bias spectroscopy' },
+    })
+    expect(sts).toMatchObject({ source_name: '', directions: [], geometry: null, display_scale: 1, rec_time: '', units: {} })
+    expect(entrySummary(sts)).toEqual({
+      frame: 't0005.d0', turn: 5, kind: 'spectrum', source: '', columns: ['Bias (V)'], n_points: 64,
+      position_nm: [1.2346, -2.5], experiment: 'bias spectroscopy',
+    })
+    // Empty text and empty lists count as absent, as in Python.
+    const bare = entryFromRecord({ fid: 't0005.d1', turn: 5, kind: 'd', index: 1, rec_time: null, extra: { position_nm: [], experiment: '' } })
+    expect(entrySummary(bare)).toEqual({ frame: 't0005.d1', turn: 5, kind: 'spectrum', source: '', columns: [], n_points: 0 })
+    // A scan record without geometry still summarizes, with nulls where the geometry would be.
+    const scan = entryFromRecord({ fid: 't0006.s0', turn: 6, kind: 's', index: 0, scan_dir: '', feedback: 'ON' })
+    expect(entrySummary(scan)).toEqual({
+      frame: 't0006.s0', turn: 6, kind: 'scan', source: '', channels: [], directions: [], size_px: [0, 0],
+      field_nm: [null, null], center_nm: [null, null], angle_deg: null, nm_per_px: null, display_scale: 1,
+      display_size_px: [0, 0], default_channel: null,
+    })
+    expect(() => entryFromRecord({ fid: 't0005.d2', turn: 5, kind: 'd', index: 2, channels: 'Bias' })).toThrow(/malformed channels$/)
+    expect(() => entryFromRecord({ fid: 't0005.d2', turn: 5, kind: 'd', index: 2, units: 3, extra: [] })).toThrow(/malformed units, extra$/)
   })
 })
 

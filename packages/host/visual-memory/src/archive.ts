@@ -108,6 +108,9 @@ export interface FrameExtra {
   readonly sources?: readonly string[]
   readonly description?: string | null
   readonly label_attrs?: readonly LabelAttr[]
+  /** Spectra: tip position in scan-frame nm and the experiment named in the file. */
+  readonly position_nm?: readonly number[] | null
+  readonly experiment?: string | null
 }
 
 /** One archived frame (the record stored in `index.jsonl`). */
@@ -167,23 +170,30 @@ function r(v: number | null | undefined, digits: number): number | null {
   return v === null || v === undefined || !Number.isFinite(v) ? null : pyRound(v, digits)
 }
 
+/** Python truthiness of an optional text or list field: null, '' and [] count as absent. */
+function present(v: unknown): boolean {
+  if (v === null || v === undefined || v === '') return false
+  return !(Array.isArray(v) && v.length === 0)
+}
+
 /**
  * Compact, JSON-safe description of a frame as the model reads it (history,
- * recovery, tool replies) — the reference's `FrameEntry.summary()`.
+ * recovery, tool replies) — the reference's `FrameEntry.summary()`, keys in its order.
  *
  * Keys: `frame`, `turn`, `kind` (scan, partial, spectrum, derived); scans add
  * `source, channels, directions, size_px, field_nm, center_nm, angle_deg,
  * nm_per_px, display_scale` (a number, plus `display_scale_frac` such as "1/2"
  * when it is not an integer), `display_size_px, default_channel`,
  * `rows_acquired` and `rows_total` (only when rows are missing) and `feedback`;
- * derived images add `tool, frames, description, image_size_px` (and `channels`);
- * any kind may add `bias_v`, `setpoint_pa` (`setpoint_hz` for frequency
- * feedback), `scan_dir`, `rec_time`, `sim_s`. Units travel in the key suffix.
+ * spectra add `source, columns, n_points, position_nm, experiment`; derived
+ * images add `tool, frames, description, image_size_px` (and `channels`); any
+ * kind may add `bias_v`, `setpoint_pa` (`setpoint_hz` for frequency feedback),
+ * `scan_dir`, `rec_time`, `sim_s`. Units travel in the key suffix.
  */
 export function entrySummary(e: FrameEntry): Record<string, unknown> {
   const out: Record<string, unknown> = { frame: e.fid, turn: e.turn, kind: kindName(e) }
   if (e.kind === 's' || e.kind === 'p') {
-    const g = e.geometry as ScanGeometry
+    const g: Partial<ScanGeometry> = e.geometry ?? {}
     const s = entryScale(e)
     out['source'] = e.source_name
     out['channels'] = [...e.channels]
@@ -201,27 +211,29 @@ export function entrySummary(e: FrameEntry): Record<string, unknown> {
       out['rows_acquired'] = e.acquired_rows
       out['rows_total'] = e.ny
     }
-    if (e.extra.feedback !== undefined && e.extra.feedback !== null && e.extra.feedback !== '') out['feedback'] = e.extra.feedback
+    if (present(e.extra.feedback)) out['feedback'] = e.extra.feedback
   } else if (e.kind === 'd') {
     out['source'] = e.source_name
     out['columns'] = [...e.channels]
     out['n_points'] = e.nx
+    const pos = e.extra.position_nm
+    if (present(pos)) out['position_nm'] = [r(pos?.[0], 4), r(pos?.[1], 4)]
+    if (present(e.extra.experiment)) out['experiment'] = e.extra.experiment
   } else {
     out['tool'] = e.extra.tool ?? null
-    if (e.extra.sources !== undefined && e.extra.sources.length > 0) out['frames'] = [...e.extra.sources]
-    if (e.extra.description !== undefined && e.extra.description !== null && e.extra.description !== '') {
-      out['description'] = e.extra.description
-    }
-    out['image_size_px'] = [...(e.extra.render?.image_size ?? e.display_size)]
+    if (present(e.extra.sources)) out['frames'] = [...(e.extra.sources ?? [])]
+    if (present(e.extra.description)) out['description'] = e.extra.description
+    const size = e.extra.render?.image_size
+    out['image_size_px'] = [...(present(size) ? (size ?? []) : e.display_size)]
     if (e.channels.length > 0) out['channels'] = [...e.channels]
   }
   if (e.bias_v !== null) out['bias_v'] = r(e.bias_v, 6)
   if (e.setpoint_a !== null) {
-    const { factor, unit } = displayUnit(e.extra.setpoint_unit ?? 'A')
+    const { factor, unit } = displayUnit(present(e.extra.setpoint_unit) ? String(e.extra.setpoint_unit) : 'A')
     out[unitKey('setpoint', unit)] = Number(pyG(e.setpoint_a * factor, 6))
   }
-  if (e.scan_dir !== null && e.scan_dir !== '') out['scan_dir'] = e.scan_dir
-  if (e.rec_time !== '') out['rec_time'] = e.rec_time
+  if (present(e.scan_dir)) out['scan_dir'] = e.scan_dir
+  if (present(e.rec_time)) out['rec_time'] = e.rec_time
   if (e.sim_s !== null) out['sim_s'] = r(e.sim_s, 3)
   return out
 }
@@ -355,7 +367,46 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 /** Validate one parsed index line into an entry. Throws with the reason. */
-function entryFromRecord(rec: unknown): FrameEntry {
+/**
+ * Field defaults of the reference's `FrameEntry`: an index line needs only
+ * `fid, turn, kind, index`, as with `FrameEntry.from_record`.
+ */
+const RECORD_DEFAULTS = {
+  source_name: '',
+  channels: [],
+  directions: [],
+  nx: 0,
+  ny: 0,
+  geometry: null,
+  nm_per_px: null,
+  display_scale: 1,
+  display_size: [0, 0],
+  bias_v: null,
+  setpoint_a: null,
+  scan_dir: null,
+  acquired_rows: null,
+  rec_time: '',
+  sim_s: null,
+  units: {},
+  default_channel: null,
+  extra: {},
+} as const
+
+const RECORD_SHAPES: readonly (readonly [string, (v: unknown) => boolean])[] = [
+  ['channels', Array.isArray],
+  ['directions', Array.isArray],
+  ['display_size', Array.isArray],
+  ['units', isRecord],
+  ['extra', isRecord],
+]
+
+/**
+ * An index record as the archive reads it back (the reference's
+ * `FrameEntry.from_record`): missing fields take their defaults, an empty
+ * geometry means none. Throws on a record without `fid, turn, kind, index`,
+ * one whose id disagrees with them, or a field of the wrong shape.
+ */
+export function entryFromRecord(rec: unknown): FrameEntry {
   if (!isRecord(rec)) throw new ArchiveError('record is not an object')
   const missing = ['fid', 'turn', 'kind', 'index'].filter((k) => !(k in rec))
   if (missing.length > 0) throw new ArchiveError(`record lacks ${missing.join(', ')}`)
@@ -363,10 +414,11 @@ function entryFromRecord(rec: unknown): FrameEntry {
   if (parsed.turn !== rec['turn'] || parsed.kind !== rec['kind'] || parsed.index !== rec['index']) {
     throw new ArchiveError(`record ${String(rec['fid'])} disagrees with its turn/kind/index`)
   }
-  if (!Array.isArray(rec['channels']) || !Array.isArray(rec['display_size']) || !isRecord(rec['extra'])) {
-    throw new ArchiveError(`record ${String(rec['fid'])} lacks channels, display_size or extra`)
-  }
-  return rec as unknown as FrameEntry
+  const bad = RECORD_SHAPES.filter(([k, ok]) => rec[k] !== undefined && !ok(rec[k])).map(([k]) => k)
+  if (bad.length > 0) throw new ArchiveError(`record ${String(rec['fid'])} has a malformed ${bad.join(', ')}`)
+  const g = rec['geometry']
+  const geometry = isRecord(g) && Object.keys(g).length > 0 ? g : null
+  return { ...RECORD_DEFAULTS, ...rec, geometry } as unknown as FrameEntry
 }
 
 /** Per-session lossless frame store (see the module comment). */

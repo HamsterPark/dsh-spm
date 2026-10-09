@@ -118,6 +118,7 @@ export {
   INDEX_NAME,
   channelDirections,
   entryScale,
+  entryFromRecord,
   entrySummary,
   hasValues,
   kindName,
