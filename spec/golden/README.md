@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON。
 
 ## 来源与复现方式
 
@@ -17,7 +17,7 @@
 从仓库根目录使用具有相应依赖的 Python 环境运行。需要外部源码的脚本通过以下环境变量配置：
 
 - `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录，可能是参考项目的 `MASTv2/` 子目录。
-- `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，仅相关协议导出器需要。
+- `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，相关协议导出器与 `export_visual_memory.py`（读取其中的 `stmbench/vista`）需要。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
 缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
@@ -166,6 +166,7 @@ python tools/spec-export/<脚本>.py
 | `z_settle.json` | `export_z_settle.py` | `ZSettle`、`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 两套不同措辞的方向判定，以及位移与阶梯规则；10 个读数形状、两组各 15 个方向用例、8 个无位移用例 |
 | `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
+| `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本。运行 STM-Bench 的 `stmbench/vista` 参考实现，输入为合成帧，记录参考文件的 sha256。单位与取整未收入：参考实现 2026-10-09 改过，本仓按 VISUAL-HARNESS |
 
 ## 二、维护约束
 
