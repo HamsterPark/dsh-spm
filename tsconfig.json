@@ -13,6 +13,7 @@
     { "path": "./packages/host/stm-safety" },
     { "path": "./packages/host/stm-records" },
     { "path": "./packages/host/stm-skills" },
+    { "path": "./packages/host/visual-memory" },
     { "path": "./packages/instrument/nanonis-wire" },
     { "path": "./packages/instrument/instrument" },
     { "path": "./packages/instrument/instrument-stmsim" },
