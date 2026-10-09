@@ -3988,19 +3988,23 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 会被重编码成 JPEG（有损，[facts.md](../docs/dsh/facts.md) §9.2）。像素值不变，变的只是容器。
 **重新考虑的条件**：`attachment-local` 对灰度 PNG 也原样保存。
 
-## D-VMEM-2 · 读值的单位与取整按 VISUAL-HARNESS，未跟随参考实现 2026-10-09 的改动
+## ~~D-VMEM-2 · 读值的单位与取整按 VISUAL-HARNESS，未跟随参考实现 2026-10-09 的改动~~ → **已销账**（2026-10-09）
 
-| | |
-|---|---|
-| **Python**（2026-10-09 约 18:10 起的 `frames.py` / `viewtools.py`） | 每种量一个模型单位（m→pm、A→pA、V→V、Hz→Hz），小数位由通道的稳健跨度定（`decimals_for`，1–6 位），键名带单位后缀（`values_pm`、`range_pa`、`black_pm`…），回复不再带 `visual_kind` 与 `unit`，高通写成 `flatten="highpass" highpass_nm="3"` |
-| **TS** | 单位阶梯：pm；pA，低于 10 pA 用 fA；Hz，低于 10 Hz 用 mHz；mV / µV。数值取到所报单位的 0.1；回复字段 `unit` + `values`、`visual_kind`；标签 `range_pA`、`flatten="highpass 3.00 nm"` |
-| **测试** | `units.test.ts`、`views.test.ts`、`tools.test.ts` |
+维护者当天拍板：参考实现是实验实际测量的那一侧，TS 跟它走。现在两侧是同一套模型面词汇：
+每种量一个模型单位（m→pm、A→pA、V→V、Hz→Hz、N→pN），小数位由通道的稳健跨度定
+（`decimalsFor` 即 `decimals_for`：1–6 位，约分辨跨度的 1/100；跨度在入档时按全部方向算好存下），
+键名带单位后缀（`values_pm`、`black_pa`、`range_hz`、`setpoint_pa`…），读值回复带 `decimals`，
+两种回复都不再带 `visual_kind` 与 `unit`，高通写成 `flatten="highpass" highpass_nm="1.5"`，
+派生图标签用 `frames=`，拼写用 cell centers / gray / color。单位阶梯（fA、mHz、mV / µV）与
+「取到 0.1」已删掉。
 
-**为什么有意**：任务规格（[VISUAL-HARNESS](../docs/VISUAL-HARNESS.md) §4.4 与本次派工说明）写的是
-pm / pA / Hz、取到 0.1，与参考实现自己的 `DESIGN.md` §6.2（同日 17:41 版）一致；参考代码在同一天
-改了这一套，尚未定稿。金样 `visual_memory.json` 因此**有意不收**单位与取整。
-**改变决定所需的证据**：参考实现定稿，并由维护者决定两侧取哪一种；届时改 `units.ts`、`views.ts`、
-`render.ts` 的标签与 `tools.ts` 的描述，并把单位与取整加进导出器。
+取整分两路，照参考实现：单个数（色标端点、最值、设定点）走 Python `round`（按精确二进制值），
+数组（`values_*`）走 `np.round`（先乘 10^d，再四舍六入五成双）。`2.675`、`248.85000000000002`
+这类数两路结果不同，`units.test.ts` 与金样两路都钉了。
+
+金样 `visual_memory.json` 现在**收入**单位、小数位、取整与稳健跨度，并跑一个合成档案
+（两帧部分扫描、两帧派生图），记下帧摘要、观测标签和 `inspect` / `read_values` 解析后的回复；
+`parity.test.ts` 逐项相等比对，任一侧再改模型面词汇都会变红。
 
 ## D-VMEM-3 · 笔记上限按 UTF-8 字节计
 
