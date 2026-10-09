@@ -100,6 +100,7 @@ The [final candidate validation and publication boundary](docs/handoff/publicati
 - [AGENTS.md](AGENTS.md): task routing, boundaries and validation defaults for coding agents.
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md): migration acceptance, generation, tests and collaboration.
 - [RELEASE-TODO.md](docs/RELEASE-TODO.md): publication preparation and recorded checks.
+- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md): planned image-first perception design (decision D12; not yet implemented).
 - [SOURCES.md](docs/SOURCES.md): provenance and third-party notices, including reference-derived fixtures and public-text normalization.
 
 Licensed under [MIT](LICENSE). Third-party material retains the notices described in the source register.
