@@ -159,6 +159,8 @@ describe('corners and labels', () => {
     expect(rangeAttr('Z', 'm/s')).toBe('range_ms')
     expect(fmtNum(-23.15)).toBe('-23.1') // -23.15 is stored as -23.149999…
     expect(fmtNum(0.125, 2)).toBe('0.12')
+    expect(fmtNum(-0.04)).toBe('0.0') // a rounded zero carries no sign
+    expect(fmtNum(-0.06)).toBe('-0.1')
     expect(fmtNum(Number.NaN)).toBe('nan')
   })
 })

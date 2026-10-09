@@ -99,9 +99,19 @@ describe('highpass', () => {
 
   it('uses the median filter directly for narrow windows (block size 1)', () => {
     const z = grid(9, 9, (c, r) => (c === 4 && r === 4 ? 9 : 1))
-    const bg = medianBackground(z, 9, 9, 3) // round(3/7) = 0 → d = 1, size 3
+    const bg = medianBackground(z, 9, 9, 3) // ceil(3/15) = 1 → d = 1, size 3
     expect(bg[4 * 9 + 4]).toBe(1)
     expect(bg.length).toBe(81)
+  })
+
+  it('works on a block-averaged copy for wide windows and interpolates back', () => {
+    // width 40 px → blocks of ceil(40/15) = 3, window round(40/3) | 1 = 13 on the 7 × 5 copy
+    const z = grid(20, 14, (c) => (c < 10 ? 1 : 3))
+    const bg = medianBackground(z, 20, 14, 40)
+    expect(bg.length).toBe(280)
+    expect(bg[0]).toBe(1) // left edge clamps to the first block
+    expect(bg[19]).toBe(3) // right edge clamps to the last block
+    for (let c = 1; c < 20; c += 1) expect(bg[c] as number).toBeGreaterThanOrEqual(bg[c - 1] as number) // monotone ramp
   })
 
   it('fills never-acquired pixels with the median before filtering', () => {

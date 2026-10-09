@@ -185,9 +185,10 @@ export function blockMean(z: ArrayLike<number>, nx: number, ny: number, f: numbe
 
 /**
  * A median-filtered background `widthPx` pixels wide (at least 3). Wide windows
- * are computed on a block-averaged copy (~7 pixels per window) and interpolated
- * back bilinearly — the reference's `median_background`, including its use of
- * Python rounding (ties to even) for the block size and the odd window.
+ * are computed on a block-averaged copy (blocks of `ceil(width / 15)`, so the
+ * median window stays within about 15 pixels) and interpolated back bilinearly —
+ * the reference's `median_background`, including its Python rounding (ties to
+ * even) for the odd window size.
  */
 export function medianBackground(z: ArrayLike<number>, nx: number, ny: number, widthPx: number): Float64Array {
   checkShape(z, nx, ny)
@@ -198,7 +199,7 @@ export function medianBackground(z: ArrayLike<number>, nx: number, ny: number, w
     zf[i] = Number.isFinite(v) ? v : Number.isFinite(fill) ? fill : 0
   }
   const width = Math.max(3, widthPx)
-  const d = Math.max(1, pyRoundInt(width / 7))
+  const d = Math.max(1, Math.ceil(width / 15))
   const small = d > 1 ? blockMean(zf, nx, ny, d) : { nx, ny, data: zf }
   const size = Math.max(3, pyRoundInt(width / d) | 1)
   const bg = medianFilter2d(matOf(small.ny, small.nx, small.data), size, 'nearest')

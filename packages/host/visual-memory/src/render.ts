@@ -280,9 +280,11 @@ export function visualLabel(kind: string, attrs: readonly LabelAttr[]): string {
   return `<visual ${parts.join(' ')}/>`
 }
 
-/** Python `fmt_num`: fixed decimals, `nan` for non-finite values. */
+/** Python `fmt_num`: fixed decimals, `nan` for non-finite values, no sign on a rounded zero. */
 export function fmtNum(v: number, digits = 1): string {
-  return Number.isFinite(v) ? pyFixed(v, digits) : 'nan'
+  if (!Number.isFinite(v)) return 'nan'
+  const out = pyFixed(v, digits)
+  return out.startsWith('-') && Number(out) === 0 ? out.slice(1) : out
 }
 
 /** Label attribute name for the colour scale: `z_range_pm` for Z, else `range_<unit>`. */
