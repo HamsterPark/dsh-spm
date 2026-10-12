@@ -240,7 +240,7 @@ describe('frameObserver: spectra', () => {
   it('a .dat that cannot be read is reported as not archived, never dropped', async () => {
     const h = await host()
     const o = await runAs(h, kernel(h), saving('AcquireSTS', 'write', () => writeFileSync(join(h.saveDir, 'sts001.dat'), 'x')))
-    expect(o.observation?.notArchived).toEqual([{ file: 'sts001.dat', error: expect.stringContaining('sts001.dat') }])
+    expect(o.observation?.notArchived).toEqual([{ file: 'sts001.dat', error: 'sts001.dat: no data columns' }])
     expect(o.observation?.latestFrame).toBeNull()
   })
 })
