@@ -41,21 +41,10 @@
  *   `math.hypot` (a peak's |k|) is correctly rounded instead: `pyHypot`.
  */
 import { mapCoordinates, matOf, npSum } from 'dsh-spm-numerics'
-import {
-  ArgError,
-  argsObject,
-  channelDirectionArgs,
-  checkKeys,
-  failure,
-  flattenArgs,
-  frameArg,
-  numArg,
-  regionArg,
-  type Obj,
-  type ViewToolResult,
-} from './args.js'
-import { entryScale, hasValues, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
-import { fitSurface, flatten } from './flatten.js'
+import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, flattenArgs, numArg, regionArg, type ViewToolResult } from './args.js'
+import { entryScale, type FrameArchive } from './archive.js'
+import { fitSurface } from './flatten.js'
+import { flatFrame, imageEntry, pixelNm } from './line-profile.js'
 import { Canvas, drawMarks } from './draw.js'
 import { pyG, pyRound } from './pyfmt.js'
 import { pyHypot, pyMod } from './pymath.js'
@@ -71,7 +60,7 @@ export class SpectrumSizeError extends RangeError {
   override readonly name = 'SpectrumSizeError'
 }
 
-// ── shared small pieces (also used by detect-blobs.ts) ─────────────────────
+// ── small pieces (also used by detect-blobs.ts) ────────────────────────────
 
 /** NumPy's `hypot` (and complex `abs`) on the exporter's platform: `sqrt(x*x + y*y)` (see the module comment). */
 export function npHypot(x: number, y: number): number {
@@ -81,20 +70,6 @@ export function npHypot(x: number, y: number): number {
 /** `math.degrees`: CPython multiplies by the constant 180/pi. */
 export function degrees(rad: number): number {
   return rad * (180.0 / Math.PI)
-}
-
-/** `_image_entry`: a frame with a scan grid (scan, partial scan, or a derived map with values). */
-export function imageEntry(archive: FrameArchive, args: Obj): FrameEntry {
-  const e = frameArg(archive, args['frame'], 'frame', true)
-  if (!(hasValues(e) && e.kind !== 'd')) throw new ArgError(`frame: ${e.fid} is a ${kindWord(e)}; this tool needs a scan frame`)
-  return e
-}
-
-/** `_pixel_nm`: nm per scan pixel along x and y. */
-export function pixelNm(e: FrameEntry): [number, number] {
-  const dx = e.nm_per_px as number
-  const dy = e.extra.nm_per_px_y || dx
-  return [dx, dy]
 }
 
 // ── next_fast_len and the transform ────────────────────────────────────────
@@ -640,7 +615,7 @@ export function fftPeaks(archive: FrameArchive, args: unknown, paint: MarkPainte
     const region = regionArg(e, a, 'arguments')
     const box = regionToNative(region, e.nx, e.ny, entryScale(e))
     const [dx, dy] = pixelNm(e)
-    const flat = flatten(archive.values(e, ch, direction), e.nx, e.ny, mode, { nmPerPx: Math.sqrt(dx * dy), highpassNm: hp })
+    const flat = flatFrame(archive, e, ch, direction, mode, hp)
     const [i0, j0, i1, j1] = box
     const angle = e.geometry?.angle_deg || 0.0
     let res: Spectrum
