@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs'
+import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -367,6 +367,23 @@ describe('spectrum views', () => {
       'read_values: at most 4096 samples per call; views 1..1 already ask for 6000',
     )
     expect(ok(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0', n: 2048, y_cols: ['Current'] }] })).reply['sample_count']).toBe(4096)
+  })
+  it('explains spectrum records that lack columns or values', () => {
+    const { a } = setup()
+    const record = (index: number, channels: string[]) => ({
+      fid: `t0000.d${index}`, turn: 0, kind: 'd', index, source_name: 'hand.dat', channels, directions: [], nx: 10, ny: 1, geometry: null,
+      nm_per_px: null, display_scale: 1, display_size: [0, 0], bias_v: null, setpoint_a: null, scan_dir: null, acquired_rows: null,
+      rec_time: '', sim_s: null, units: {}, default_channel: channels[0] ?? null, extra: {},
+    })
+    writeFileSync(join(a.root, 't0000.d0.png'), encodePngRgb(1, 1, new Uint8Array(3)))
+    writeFileSync(join(a.root, 't0000.d1.png'), encodePngRgb(1, 1, new Uint8Array(3)))
+    appendFileSync(join(a.root, 'index.jsonl'), `${JSON.stringify(record(0, ['Bias (V)', 'Current (A)']))}\n${JSON.stringify(record(1, []))}\n`)
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    const view = (frame: string) => ({ question: 'q', views: [{ label: 'v', frame }] })
+    expect(err(inspect(b, view('t0000.d0')))).toBe('inspect: views[1]: t0000.d0 is a spectrum without archived values')
+    expect(err(readValues(b, view('t0000.d0')))).toBe('read_values: t0000.d0 is a spectrum without archived values')
+    expect(err(inspect(b, view('t0000.d1')))).toBe('inspect: views[1]: t0000.d1 is a spectrum without columns')
+    expect(err(readValues(b, view('t0000.d1')))).toBe('read_values: views[1]: t0000.d1 is a spectrum without columns')
   })
 })
 

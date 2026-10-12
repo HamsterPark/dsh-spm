@@ -17,9 +17,10 @@ function sts(n = 21): Uint8Array {
 
 describe('the synthetic .dat writer', () => {
   it('writes numbers like %.6E and the controller layout', () => {
-    expect([1.23456e-1, -2e-11, 0, 5e100, Number.NaN, -Infinity].map(formatE6)).toEqual([
-      '1.234560E-01', '-2.000000E-11', '0.000000E+00', '5.000000E+100', 'NAN', '-INF',
+    expect([1.23456e-1, -2e-11, 0, 5e100, Number.NaN, -Infinity, Infinity].map(formatE6)).toEqual([
+      '1.234560E-01', '-2.000000E-11', '0.000000E+00', '5.000000E+100', 'NAN', '-INF', 'INF',
     ])
+    expect(syntheticDatText({ header: { Hold: false, Gain: 2.5 }, columns: [] })).toBe('Hold\tFALSE\t\nGain\t2.500000E+00\t\n\n[DATA]\n\n')
     expect(syntheticDatText({ header: { Experiment: 'x', 'Num Pixel': 2, Hold: true, 'Z (m)': 1e-9 }, columns: [['A (V)', [1, 2]], ['B', [3, 4]]] })).toBe(
       'Experiment\tx\t\nNum Pixel\t2\t\nHold\tTRUE\t\nZ (m)\t1.000000E-09\t\n\n[DATA]\nA (V)\tB\n1.000000E+00\t3.000000E+00\n2.000000E+00\t4.000000E+00\n',
     )

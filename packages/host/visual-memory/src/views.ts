@@ -123,13 +123,13 @@ function viewSummary(i: number, label: string, e: FrameEntry, meta: RenderMeta):
       out['rows_total'] = e.ny
     }
   } else if (e.kind === 'd') {
-    const xUnit = meta.x_unit ?? ''
+    const xUnit = meta.x_unit as string
     Object.assign(out, {
       x_col: meta.x_col,
       x_unit: xUnit,
       y: meta.y,
       n_points: meta.n_points,
-      [unitKey('x_shown', xUnit)]: (meta.x_shown ?? []).map(g6),
+      [unitKey('x_shown', xUnit)]: (meta.x_shown as readonly [number, number]).map(g6),
       image_size_px: meta.image_size_px,
     })
   } else {
