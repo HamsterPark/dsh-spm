@@ -10,16 +10,33 @@ exporter runs the reference (``vista_spm/frames.py``, ``archive.py`` and
 ``spec/golden/visual_memory.json``, including the parsed ``inspect`` /
 ``read_values`` replies and the frame summaries of a small synthetic archive with
 the key order the model reads, and the summaries of index records read back, so a
-change of the model-facing vocabulary on either side fails a test.
+change of the model-facing vocabulary on either side fails a test. Since
+2026-10-12 it also covers spectra: synthetic ``.dat`` files go through the
+reference ``Archive.add_spectrum``, and the summaries, observation labels, the
+spectrum views of ``inspect`` / ``read_values``, their refusals and the plot sizes
+are recorded.
 
 The reference is the VISTA-SPM harness (its own repository, not public yet) and is
 imported read-only from ``VISTA_SPM_ROOT`` (no bytecode is written there). It needs
-NumPy, SciPy and Pillow, not MAST, STM-Bench or matplotlib; the synthetic archive
-lives in a temporary directory that is removed afterwards.
-Inputs are synthetic (seeded); no instrument data. The JSON records the sha256 of
-the reference files it ran, because the reference is still under development.
+NumPy, SciPy, Pillow and matplotlib (the reference draws spectrum plots with it,
+and the plot size is in every spectrum label). The reference reads ``.dat`` files
+through MAST's ``mast.io.nanonis_files.read_dat``, so ``MAST_ROOT`` must name the
+read-only directory that contains the ``mast`` package (MAST's ``MASTv2/``). Only
+``mast/__init__.py``, ``mast/io/__init__.py`` and ``mast/io/nanonis_files.py`` are
+imported, which need nothing beyond NumPy; ``MAST2_PROJECT_ROOT`` defaults to a
+temporary directory as for every MAST exporter. STM-Bench is not needed: the
+``.dat`` files are written here in the controller's text layout (the layout of
+``stmsim.io.dat_writer``). The synthetic archives live in a temporary directory
+that is removed afterwards. Inputs are synthetic (seeded); no instrument data. The
+JSON records the sha256 of the reference files it ran, because the reference is
+still under development.
 
-    VISTA_SPM_ROOT=<VISTA-SPM source root> python tools/spec-export/export_visual_memory.py
+The current golden was exported with Python 3.14.3, NumPy 2.4.3, SciPy 1.17.1
+and matplotlib 3.10.8 (recorded under ``reference``). Another interpreter or NumPy
+may change values of the older sections; re-export with one that keeps them.
+
+    VISTA_SPM_ROOT=<VISTA-SPM source root> MAST_ROOT=<directory with mast/> \
+        python tools/spec-export/export_visual_memory.py
 """
 
 from __future__ import annotations
@@ -31,6 +48,7 @@ sys.dont_write_bytecode = True  # the reference tree is read-only
 import base64  # noqa: E402
 import hashlib  # noqa: E402
 import json  # noqa: E402
+import os  # noqa: E402
 import platform  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
@@ -41,7 +59,7 @@ from typing import Any  # noqa: E402
 import numpy as np  # noqa: E402
 import scipy  # noqa: E402
 
-from _paths import require_vista_spm_root  # noqa: E402
+from _paths import require_mast_root, require_vista_spm_root  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "visual_memory.json"
@@ -49,6 +67,13 @@ SEED = 20261009
 
 ROOT = require_vista_spm_root()
 sys.path.insert(0, str(ROOT))
+MAST_ROOT = require_mast_root()
+if not (MAST_ROOT / "mast" / "io" / "nanonis_files.py").is_file():
+    raise RuntimeError(f"MAST_ROOT must contain mast/io/nanonis_files.py (MAST's MASTv2/ directory): {MAST_ROOT}")
+os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="vm-golden-mast-"))
+sys.path.insert(1, str(MAST_ROOT))
+import matplotlib  # noqa: E402
+import mast.io.nanonis_files  # noqa: E402,F401  (what frames.load_dat imports; fail here, not mid-export)
 from vista_spm import frames as F  # noqa: E402
 from vista_spm import viewtools as V  # noqa: E402
 from vista_spm.archive import Archive, FrameEntry, sample_axis  # noqa: E402
@@ -426,19 +451,174 @@ try:
                     "rgb": [_rgb(im.png).reshape(-1) for im in g_reply.images]},
         "description": V.make_inspect_tool(64, grid=True).description,
     }
+    # ── 11. spectra ──────────────────────────────────────────────────────
+    # Synthetic .dat files in the controller's text layout (stmsim.io.dat_writer: "key\tvalue\t"
+    # lines, a blank line, [DATA], the column names, rows of "%.6E") go through the reference
+    # Archive.add_spectrum, which reads them with MAST's read_dat. The TypeScript port writes the
+    # same bytes and must give the same summaries, observation labels, spectrum views of inspect
+    # and read_values (key order included) and refusals. The plot pixels come from matplotlib and
+    # are not compared; their size is in every label, so plot sizes for a range of widths are
+    # recorded too (matplotlib truncates each side to int(px / 100 * 100)).
+    srng = np.random.default_rng(SEED + 11)  # its own stream: the sections above stay as they were
+
+    def _dat_value(v: Any) -> str:
+        if isinstance(v, bool):
+            return "TRUE" if v else "FALSE"
+        if isinstance(v, int):
+            return str(v)
+        if isinstance(v, float):
+            return f"{v:.6E}"
+        return str(v)
+
+    def _dat_text(header: dict, names: list[str], columns: list[np.ndarray]) -> str:
+        lines = [f"{k}\t{_dat_value(v)}\t" for k, v in header.items()]
+        lines += ["", "[DATA]", "\t".join(names)]
+        for row in np.column_stack([np.asarray(c, dtype=float) for c in columns]):
+            lines.append("\t".join("%.6E" % v for v in row))
+        return "\n".join(lines) + "\n"
+
+    bias = np.linspace(-0.5, 0.5, 41)
+    i_fwd = 2e-10 * bias + 3e-11 * bias ** 3 + srng.normal(0.0, 2e-13, bias.size)
+    sts_text = _dat_text(
+        {"Experiment": "bias spectroscopy", "Date": "12.10.2026 09:00:00", "Saved Date": "12.10.2026 09:00:05",
+         "User": "stmsim", "X (m)": 1.234567e-9, "Y (m)": -2.5e-9, "Z (m)": 3.1e-9, "Bias>Bias (V)": 0.5,
+         "Z-Controller>Setpoint": 1e-10, "Z-Controller>Controller status": "ON", "Bias Spectroscopy>Num Pixel": 41,
+         "Bias Spectroscopy>Z-controller hold": True, "Comment01": ""},
+        ["Bias calc (V)", "Current (A)", "Current [bwd] (A)", "LI Demod 1 X (A)"],
+        [bias, i_fwd, i_fwd + 5e-13, 1e-12 + 1e-13 * bias + srng.normal(0.0, 1e-15, bias.size)])
+    z_rel = np.linspace(-2e-10, 3e-10, 30)
+    amplitude = np.full(z_rel.size, 5e-11)
+    amplitude[-4:] = np.nan  # the oscillation was lost: the controller writes NaN
+    z_text = _dat_text(
+        {"Experiment": "Z spectroscopy", "Saved Date": "12.10.2026 09:10:00", "X (m)": -4.0e-9, "Y (m)": 7.5e-10,
+         "Bias>Bias (V)": 0.05, "Z-Controller>Setpoint": -2.5, "Z-Controller>Setpoint unit": "Hz",
+         "Z-Controller>Controller status": "OFF", "Oscillation Control>Center Frequency (Hz)": 30300.0},
+        ["Z rel (m)", "Current (A)", "OC M1 Freq. Shift (Hz)", "OC D1 Amplitude (m)", "Z (m)", "Index"],
+        [z_rel, 1e-10 * np.exp(-z_rel / 5e-11), -3.0 - 2.0 * np.exp(-(z_rel + 2e-10) / 1e-10) + srng.normal(0.0, 0.01, z_rel.size),
+         amplitude, 3.1e-9 + z_rel, np.arange(z_rel.size, dtype=float)])
+    bare_text = _dat_text({"X (m)": 2.0e-9}, ["Current (A)"], [np.array([1e-10, 1.5e-10, 1.25e-10, 2e-10, 1.75e-10])])
+    K_P = [[(3 * x + 5 * y) % 11 for x in range(8)] for y in range(8)]  # heights in pm, stored as integers
+    GEOM_P = {"cx_nm": 1.0, "cy_nm": -1.0, "w_nm": 2.0, "h_nm": 2.0, "angle_deg": 0.0}
+    META_P = {"source_name": "synthetic_p", "bias_v": 0.1, "setpoint_a": 5e-11}
+    SPECTRA_DISPLAY_MAX = 768
+
+    sdir = work / "spectra-in"
+    sdir.mkdir()
+    (sdir / "sts_a.dat").write_text(sts_text, encoding="ascii", newline="\n")
+    (sdir / "z_b.dat").write_text(z_text, encoding="ascii", newline="\n")
+    (sdir / "bare.dat").write_text(bare_text, encoding="ascii", newline="\n")
+    sarc = Archive(work / "spectra", display_max=SPECTRA_DISPLAY_MAX)
+    sP = sarc.add_partial(4, {"Z": (np.array(K_P, dtype=float) * 1e-12).astype(np.float32)}, geometry=GEOM_P, meta=META_P)
+    sA = sarc.add_spectrum(5, sdir / "sts_a.dat", sim_s=12.5)
+    sB = sarc.add_spectrum(5, sdir / "z_b.dat")
+    sC = sarc.add_spectrum(6, sdir / "bare.dat")
+    S_INSPECT_ARGS = [
+        {"question": "bias spectrum", "views": [
+            {"label": "default", "frame": sA.fid},
+            {"label": "current near zero", "frame": sA.fid, "y_col": "Current", "x_range": [-0.2, 0.25]},
+            {"label": "swapped", "frame": sA.fid, "x_col": "current", "y_col": "bias calc", "x_range": [50, -30]}]},
+        {"question": "z spectrum", "views": [
+            {"label": "z default", "frame": sB.fid},
+            {"label": "df", "frame": sB.fid, "y_col": "df", "x_range": [-200, -100]},
+            {"label": "by index", "frame": sB.fid, "x_col": "Index", "y_col": "OC D1 Amplitude", "x_range": [20, 29]}]},
+        {"question": "bare", "views": [{"label": "bare", "frame": sC.fid}]},
+        {"question": "mixed", "views": [{"label": "scan", "frame": sP.fid}, {"label": "plot", "frame": sA.fid, "y_col": "LI Demod 1 X"}]},
+    ]
+    S_READ_ARGS = [
+        {"question": "bias spectrum", "views": [
+            {"label": "around zero", "frame": sA.fid, "x_range": [-0.1, 0.1], "n": 3, "y_cols": ["Current"]},
+            {"label": "all", "frame": sA.fid},
+            {"label": "by current", "frame": sA.fid, "x_col": "Current", "x_range": [-6, 6], "n": 50,
+             "y_cols": ["bias calc", "Current"]}]},
+        {"question": "z spectrum", "views": [
+            {"label": "z df", "frame": sB.fid, "y_cols": ["df", "OC D1 Amplitude"], "n": 7},
+            {"label": "index range", "frame": sB.fid, "x_col": "Index", "x_range": [5.5, 12], "y_cols": ["Z"]},
+            {"label": "z ends", "frame": sB.fid, "x_range": [-200, -100], "y_cols": ["Current"]}]},
+        {"question": "bare", "views": [{"label": "bare", "frame": sC.fid, "n": 2}]},
+        {"question": "mixed", "views": [{"label": "scan", "frame": sP.fid, "rows": 2, "columns": 2},
+                                        {"label": "sts", "frame": sA.fid, "n": 4, "y_cols": ["LI Demod 1 X"]}]},
+    ]
+    S_ERROR_ARGS = [
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "region": {"x": 0, "y": 0, "width": 5, "height": 5}}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_range": [900, 1000]}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sB.fid, "x_range": [1e-7, 2e-7]}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_range": [1]}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_range": [0.5, 0.5]}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "y_col": 3}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sP.fid, "x_col": "Z"}]}),
+        ("inspect", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "rows": 2}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "rows": 2, "columns": 2}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_range": [900, 1000]}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sB.fid, "x_range": [1e-7, 2e-7]}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_range": [True, 1]}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "y_cols": "Current"}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "y_cols": []}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "n": 0}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "n": 4097}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "n": 2.5}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sA.fid, "x_col": "x" * 65}]}),
+        ("read_values", {"question": "q", "views": [{"label": "r", "frame": sP.fid, "n": 3, "rows": 1, "columns": 1}]}),
+        ("read_values", {"question": "q", "views": [{"label": "a", "frame": sA.fid},
+                                                    {"label": "b", "frame": sP.fid, "rows": 64, "columns": 64}]}),
+    ]
+    S_INSPECT = []
+    for args in S_INSPECT_ARGS:
+        reply = V.inspect(sarc, args)
+        parsed = json.loads(reply.text)
+        S_INSPECT.append({"args": args, "is_error": reply.is_error, "reply": parsed, "key_paths": _key_paths(parsed),
+                          "labels": [im.label for im in reply.images],
+                          "image_sizes": [list(F.png_size(im.png)) for im in reply.images]})
+    S_READ = []
+    for args in S_READ_ARGS:
+        reply = V.read_values(sarc, args)
+        parsed = json.loads(reply.text)
+        S_READ.append({"args": args, "is_error": reply.is_error, "reply": parsed, "key_paths": _key_paths(parsed)})
+    S_ERRORS = []
+    for tool, args in S_ERROR_ARGS:
+        reply = (V.inspect if tool == "inspect" else V.read_values)(sarc, args)
+        S_ERRORS.append({"tool": tool, "args": args, "is_error": reply.is_error, "error": json.loads(reply.text)["error"]})
+    s_fids = [e.fid for e in (sP, sA, sB, sC)]
+    s_index = sarc.index()
+    tiny = {"x (V)": np.array([-1.0, 0.0, 1.0]), "y (A)": np.array([0.0, 1e-12, 2e-12])}
+    tiny_units = {c: F.column_unit(c) for c in tiny}
+    PLOT_SIZE = []
+    for width in (64, 600, 601, 768, 802, 803, 829, 1000, 1024, 1536, 2048):
+        for panels in (1, 2, 3, 4):
+            png, _ = F.render_spectrum(tiny, tiny_units, x_col="x (V)", y_cols=["y (A)"] * panels, width_px=width)
+            PLOT_SIZE.append({"width_px": width, "panels": panels, "size": list(F.png_size(png))})
+    SPECTRA = {
+        "display_max": SPECTRA_DISPLAY_MAX,
+        "inputs": {"dat": {"sts_a.dat": sts_text, "z_b.dat": z_text, "bare.dat": bare_text}, "k_p": K_P,
+                   "geometry_p": GEOM_P, "meta_p": META_P, "sim_s_a": 12.5},
+        "frames": s_fids,
+        "index": s_index,
+        "index_key_paths": _key_paths(s_index),
+        "observations": {fid: sarc.observation(fid)[0].label for fid in s_fids},
+        "inspect": S_INSPECT,
+        "read_values": S_READ,
+        "errors": S_ERRORS,
+        "plot_size": PLOT_SIZE,
+        "descriptions": {"inspect": V.make_inspect_tool(SPECTRA_DISPLAY_MAX).description,
+                         "read_values": V.make_read_values_tool(SPECTRA_DISPLAY_MAX).description},
+    }
 finally:
     shutil.rmtree(work, ignore_errors=True)
 
 frames_py = ROOT / "vista_spm" / "frames.py"
 archive_py = ROOT / "vista_spm" / "archive.py"
+viewtools_py = ROOT / "vista_spm" / "viewtools.py"
+nanonis_files_py = MAST_ROOT / "mast" / "io" / "nanonis_files.py"
 golden = {
     "reference": {
         "frames_py_sha256": _sha(frames_py),
         "archive_py_sha256": _sha(archive_py),
+        "viewtools_py_sha256": _sha(viewtools_py),
+        "mast_nanonis_files_py_sha256": _sha(nanonis_files_py),
         "vista_spm_head": _head(ROOT),
         "python": platform.python_version(),
         "numpy": np.__version__,
         "scipy": scipy.__version__,
+        "matplotlib": matplotlib.__version__,
         "seed": SEED,
     },
     "scale": SCALE,
@@ -456,6 +636,7 @@ golden = {
     "archive": ARCHIVE,
     "summaries": SUMMARIES,
     "grid": GRID,
+    "spectra": SPECTRA,
 }
 OUT.write_text(json.dumps(_plain(golden), ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n",
                encoding="utf-8", newline="\n")
