@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份。
 
 ## 来源与复现方式
 
@@ -18,7 +18,7 @@
 
 - `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录，可能是参考项目的 `MASTv2/` 子目录。
 - `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，相关协议导出器需要。
-- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库，暂未公开），`export_visual_memory.py` 与 `export_measure_profile.py` 需要；`export_visual_memory.py` 自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
+- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库，暂未公开），`export_visual_memory.py`、`export_measure_profile.py` 与 `export_measure_fft_blobs.py` 需要；`export_visual_memory.py` 自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
 缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
@@ -170,6 +170,7 @@ python tools/spec-export/<脚本>.py
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
 | `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复（连同模型读到的键顺序），和读回的索引记录（存扫描帧、谱帧）的摘要；以及方格纸：格距选择、格线所在像素、带格线视图的像素，和开启方格纸的档案的观测标签、`inspect` 回复与图像像素；以及谱（2026-10-12）：按控制器文本格式合成的 `.dat` 经参考 `Archive.add_spectrum` 入档后的帧摘要、观测标签、`inspect` 谱视图（折线图的标签与图像尺寸，不比像素）与 `read_values` 谱视图的解析后回复（连同键顺序）、谱视图的拒绝文案，以及各宽度与面板数下的图像尺寸。运行 VISTA-SPM 的 `vista_spm` 参考实现（需 NumPy、SciPy、Pillow 与 matplotlib；`.dat` 经 MAST 的 `mast.io.nanonis_files.read_dat` 读取，故另需 `MAST_ROOT`，只导入该模块及两级 `__init__`，仅依赖 NumPy），输入为合成帧与合成谱，档案建在临时目录、用后删除，记录参考文件（含 `viewtools.py` 与 MAST 的 `nanonis_files.py`）的 sha256 与 matplotlib 版本。当前金样以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1、matplotlib 3.10.8 导出；换解释器或 NumPy 后须核对旧节逐值不变 |
 | `measure_profile.json` | `export_measure_profile.py` | 测量工具 `stm_line_profile` / `stm_frame_stats` 对应的参考 `line_profile` / `stats`：三个合成档案（`display_max` 768、64 与 803）中按顺序的每次调用（参数、解析后的回复与键顺序、图像标签与尺寸、拒绝文案），每条剖面内部 `change_points` 的精确输入输出（包装模块属性记录，不改调用），`change_points` 单独的参考单测输入与边界情形，以及 CPython `math.hypot`（剖面样点数为 `ceil(L) + 1`）。输入帧为合成、带种子，以 float32 base64 存；需 NumPy、SciPy、Pillow 与 matplotlib（只为参考画图，金样只记图的尺寸）；记录参考文件的 sha256 与库版本 |
+| `measure_fft_blobs.json` | `export_measure_fft_blobs.py` | 视觉线束测量工具 `stm_fft_peaks` / `stm_detect_blobs` 的参考结果。运行 VISTA-SPM 的 `vista_spm/measure.py`（`spectrum_peaks`、`find_blobs` 与两个工具）以及 SciPy 的 `next_fast_len`（1..2200）和 `least_squares`（含边界生效、`max_nfev` 截止）。输入为固定种子的合成帧，以 float32 字节（base64）存放：已知周期与角度的光栅（含旋转帧）、各向异性像素上的六角晶格、含未采集行的条纹、噪声、8×8 下限、宽于 1024 像素（不补零）的帧、贴近 Nyquist 的峰；圆斑、旋转长斑、暗斑、近邻斑对、未采集行、异形（平台、环、角落、单像素尖峰、宽斑）、截断、电流通道，以及候选多于 16 个的两例。两个工具在参考档案上的解析后回复与键顺序、派生图的标签、摘要与尺寸、编号标记（位置、半径、编号）、错误回复、TS 有意拒绝的 `max_n` 51 / 200 回复（D-VMEM-9）与一个 200 斑点回复的字节数；候选多于 16 个时 `cKDTree` 与「等距取先出现候选」两种归属规则的结果（D-VMEM-10）。另记录参考实现自身随 `exp` 末位变化的离散度：`_fit_blob` 从圆形起点拟合，首个雅可比的 θ 列是 `exp` 的舍入噪声；把 `exp` 对随机 10 % 输入的末位上下翻转后重跑每个斑点用例（`find_blobs` 40 次、工具 24 次），保存不同结局与每个斑点的最大变化，作为拟合量容差的依据。档案建在临时目录、用后删除；帧带构建顺序（`seq`）与数组插入顺序，因为金样按排序键写出。记录参考文件 sha256 与 head |
 
 ## 二、维护约束
 

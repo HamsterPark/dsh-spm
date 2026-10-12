@@ -217,6 +217,40 @@ export {
   type ProfileStep,
 } from './line-profile.js'
 export { frameStats } from './frame-stats.js'
+export { LeastSquaresError, leastSquares, type TrfOptions, type TrfResult } from './least-squares.js'
+export {
+  FFT_PEAKS_DEFAULT,
+  MAX_FFT_PEAKS,
+  MIN_PEAK_STRENGTH,
+  SpectrumSizeError,
+  fftPeaks,
+  nextFastLen,
+  paintMarks,
+  spectrumImage,
+  spectrumMarks,
+  spectrumPeaks,
+  type Mark,
+  type MarkPainter,
+  type Spectrum,
+  type SpectrumImage,
+  type SpectrumPeak,
+} from './fft-peaks.js'
+export {
+  BACKGROUND_NM_DEFAULT,
+  BLOBS_DEFAULT,
+  BlobError,
+  FWHM_PER_SIGMA,
+  MAX_BLOBS,
+  MIN_SEP_NM_DEFAULT,
+  blobGeometry,
+  blobMarks,
+  detectBlobs,
+  findBlobs,
+  type Blob,
+  type BlobGeometry,
+  type BlobResult,
+  type FindBlobsOptions,
+} from './detect-blobs.js'
 export {
   VISUAL_TOOL_NAMES,
   defineVisualTools,
