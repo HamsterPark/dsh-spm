@@ -161,6 +161,15 @@ describe('谁不受闸', () => {
     expect(refused(await call('SetBias', b))).toBe(true) // ……也得先看过退针的结果
   })
 
+  it('读类技能登记了也不进表（注销是空操作）；拒绝时参数不是对象也照样记', async () => {
+    const offRead = gate.registerSkill(skill('GetCurrent', 'read').spec)
+    offRead()
+    const a = agent('session-a')
+    await call('SetBias', a)
+    const r = await ctx.tools.execute({ name: 'StartScan', callId: 'odd' as never, arguments: ['not', 'an', 'object'], signal: new AbortController().signal, agent: a })
+    expect(refused(r)).toBe(true)
+  })
+
   it('注销之后不再受闸', async () => {
     const a = agent('session-a')
     const off = install(skill('MoveToXY', 'write'))
