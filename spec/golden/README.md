@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份。
 
 ## 来源与复现方式
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | 参考声明 | `skills.json`、`records_schema.json`、`manifest.json` | 作者声明、数据库结构及 collector 状态 |
 | 参考代码执行 | `skill_traces.json`、SI／安全／前置条件、各专用驱动器 | 在指定输入、时钟和上下文下执行 MAST 实现；部分文件同时包含常量或声明 |
-| 公共数值库执行 | `numerics.json` | NumPy、SciPy、scikit-image 对保存输入的计算结果；无需私有 MAST |
+| 公共数值库执行 | `numerics.json`、`interp_edges.json` | NumPy、SciPy、scikit-image 对保存输入的计算结果；无需私有 MAST |
 | 静态源码分析 | `tip_phase_deps.json` | 可能的子技能与函数依赖、非技能依赖和无法解析的边界；不执行仪器流程 |
 | 协议编解码 | `wire_frames.json`、`wire_types.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节 |
 
@@ -156,6 +156,7 @@ python tools/spec-export/<脚本>.py
 | `z_trace.json` | `export_z_trace.py` | 手工定义的曲线覆盖不同扎针判据，补充电流／Z 常数回复只有 Δz = 0、`no_press` 的情形 |
 | `environment.json` | `export_environment.py` | 真空与温度的参数判定；这些分支不经过仪器调用，需独立于通用注错点覆盖 |
 | `numerics.json` | `export_numerics.py` | 执行 NumPy、SciPy、scikit-image，并同时保存输入与结果。固定种子不代替相同输入；随机算法的比较方式以相应测试为准，本仓已有独立的 PCG64 实现 |
+| `interp_edges.json` | `export_interp_edges.py` | 插值族（`map_coordinates` / `shift`，order 0、1）在帧边、界外坐标与缺测行列上的判别性探针：6×5 帧及其缺测行、缺测列与部分采集变体，另有 1×4、4×1 帧；坐标含界外、整点、半整点、贴边与 NaN，五种边界模式，TS 侧逐位比较。导出时断言这组输入分辨得出四条规则：`nearest` 不折坐标；越界邻点按 scipy 的 `_get_spline_boundary_mode` 延拓（`constant`、`wrap` 用 mirror）；权重为 0 的邻点照样乘进结果；NaN 坐标取 cval。仅需 NumPy 与 SciPy；当前以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1 导出 |
 | `nanonis_files.json` | `export_nanonis_files.py` | 脚本合成字节，由参考读取器给出解析结果；不收入真实仪器文件 |
 | `analysis.json` | `export_analysis.py` | 掩膜、团簇、平面、台阶、原子线与起伏判据。两侧从同一 `.sxm` 字节读帧，避免分别计算闭式输入时因加法结合顺序产生差异；历史 `noiseFloor` 差为 4.4e-14 |
 | `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec |

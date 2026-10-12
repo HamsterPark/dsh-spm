@@ -758,6 +758,43 @@ describe('重采样：`order=0` 没有容差，`order=1` 只有 8 eps', () => {
   })
 })
 
+// ── 重采样：帧边、界外坐标与缺测行列（interp_edges.json）────────────────────────
+
+describe('重采样在帧边、界外坐标与缺测行列上**逐位**等于 scipy（interp_edges.json）', () => {
+  // 上面那组金样是一张有限帧、按容差比，分辨不出 interpolate.ts 抬头 ⑤–⑧：nearest 不折坐标、
+  // 越界邻点按 mirror 延拓、权重为 0 的 NaN 邻点照样乘进来、NaN 坐标取 cval。
+  // 这一份的帧带缺测行列，导出器断言过每一条都有反例，所以这里只管逐位比。
+  const e = JSON.parse(
+    readFileSync(fileURLToPath(new URL('../../../../spec/golden/interp_edges.json', import.meta.url)), 'utf8'),
+  ) as Record<string, any>
+  const frames = new Map<string, Mat>(
+    Object.entries(e.frames as Record<string, unknown[][]>).map(([k, rows]) => [k, matFromRows(rows.map((r) => r.map(num)))]),
+  )
+  const frameOf = (name: string): Mat => frames.get(name) as Mat
+
+  for (const [name, m] of frames) {
+    it(`map_coordinates：${name}（${m.rows}×${m.cols}）`, () => {
+      const [rows, cols] = (e.coords[`${m.rows}x${m.cols}`] as unknown[][]).map((a) => a.map(num))
+      const cases = (e.map_coordinates as any[]).filter((c) => c.frame === name)
+      expect(cases.length).toBe(10)
+      for (const c of cases) {
+        const got = mapCoordinates(m, rows as number[], cols as number[], c.order as 0 | 1, c.mode as InterpMode, c.cval as number)
+        expect([...got], `order=${c.order} mode=${c.mode}`).toEqual((c.output as unknown[]).map(num))
+      }
+    })
+  }
+
+  for (const name of new Set((e.shift as any[]).map((c) => c.frame as string))) {
+    it(`shift：${name}`, () => {
+      for (const c of (e.shift as any[]).filter((x) => x.frame === name)) {
+        const [sr, sc] = c.shift as [number, number]
+        const got = shiftImage(frameOf(name), sr, sc, c.order as 0 | 1, c.mode as InterpMode, c.cval as number)
+        expect([...got.data], `s=(${sr}, ${sc}) order=${c.order} mode=${c.mode}`).toEqual((c.output as unknown[][]).flat().map(num))
+      }
+    })
+  }
+})
+
 // ── 亚像素相位互相关 ───────────────────────────────────────────────────────
 
 describe('亚像素相位互相关：**答案是 k/uf，所以容差是 0**', () => {
