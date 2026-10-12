@@ -22,14 +22,12 @@ function rgbAt(img: Img, x: number, y: number): number[] {
   return [img.rgb[o] as number, img.rgb[o + 1] as number, img.rgb[o + 2] as number]
 }
 
-/** `[x, y]` of every pixel of `img` that is `colour`. */
+/** `[x, y]` of every pixel of `img` that is `colour`, in row order. */
 function where(img: Img, colour: Rgb): [number, number][] {
   const out: [number, number][] = []
-  for (let y = 0; y < img.height; y += 1) {
-    for (let x = 0; x < img.width; x += 1) {
-      const [r, g, b] = rgbAt(img, x, y)
-      if (r === colour[0] && g === colour[1] && b === colour[2]) out.push([x, y])
-    }
+  const { rgb, width } = img
+  for (let i = 0; i < rgb.length; i += 3) {
+    if (rgb[i] === colour[0] && rgb[i + 1] === colour[1] && rgb[i + 2] === colour[2]) out.push([(i / 3) % width, Math.floor(i / 3 / width)])
   }
   return out
 }

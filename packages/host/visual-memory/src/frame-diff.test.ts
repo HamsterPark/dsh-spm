@@ -66,7 +66,15 @@ function texture(seed: number): Surface {
     const theta = 2 * Math.PI * r()
     return { kx: (2 * Math.PI * Math.cos(theta)) / lambda, ky: (2 * Math.PI * Math.sin(theta)) / lambda, phi: 2 * Math.PI * r(), amp: 1e-12 * (0.5 + r()) }
   })
-  return (X, Y) => waves.reduce((s, w) => s + w.amp * Math.cos(w.kx * X + w.ky * Y + w.phi), 0)
+  // a plain loop, not reduce: the same sums in the same order, without a call per wave under coverage
+  return (X, Y) => {
+    let s = 0
+    for (let i = 0; i < waves.length; i += 1) {
+      const w = waves[i] as (typeof waves)[number]
+      s += w.amp * Math.cos(w.kx * X + w.ky * Y + w.phi)
+    }
+    return s
+  }
 }
 
 function geom(nx = 96, ny = 96, w = 9.6, h = 9.6, cx = 0, cy = 0, angle = 0): ScanGeometry {

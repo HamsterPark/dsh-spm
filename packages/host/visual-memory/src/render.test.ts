@@ -198,15 +198,17 @@ describe('graph paper', () => {
     expect([lined.lo, lined.hi]).toEqual([plain.lo, plain.hi])
     const a = decodePng(plain.png).data
     const b = decodePng(lined.png).data
+    const wrong: string[] = []
     for (let y = 0; y < 768; y += 7) {
       for (let x = 0; x < 768; x += 5) {
         const i = (y * 768 + x) * 3
         for (let c = 0; c < 3; c += 1) {
           const want = x % 48 === 0 || y % 48 === 0 ? Math.floor((3 * (a[i + c] as number) + (GRID_RGB[c] as number)) / 4) : a[i + c]
-          expect(b[i + c]).toBe(want)
+          if (b[i + c] !== want) wrong.push(`(${x}, ${y}) channel ${c}: ${b[i + c]}, expected ${want}`)
         }
       }
     }
+    expect(wrong).toEqual([])
     expect([b[0], b[1], b[2]]).toEqual([255, 235, 191]) // white under a line
     expect(renderValues(z, 32, view, 0, undefined, null).png).toEqual(plain.png)
   })
