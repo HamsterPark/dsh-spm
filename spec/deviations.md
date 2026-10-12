@@ -4076,14 +4076,16 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 才会出现，这本身是坏文件。已作为参考实现的缺陷报告。
 **重新考虑的条件**：参考实现改为 `null`（或拒绝这样的谱）时，本条销账。
 
-## D-VMEM-14 · 显式的 `null` 参数按「没给」处理
+## D-VMEM-14 · 视图里可选参数为 `null` 时按未给处理
 
 | | |
 |---|---|
-| **Python**（`vista_spm/viewtools.py` `num_arg` / `str_arg`） | `obj.get(key, default)`：键在、值为 `None` 时得到 `None`，不取默认值。于是 `read_values` 谱视图的 `n: null` 在 `int(n)` 处抛 `TypeError`，回复为 `read_values: internal error TypeError: …`；`inspect` 的 `clip_pct: null`、`direction: null` 同理，分别是内部错误与一条答非所问的方向提示 |
-| **TS**（`args.ts` `numArg` / `strArg`） | `obj[key] ?? 默认值`：`null` 与缺省相同，取默认值（`n: null` 取全部点，`clip_pct: null` 取 0.5） |
-| **测试** | `views.test.ts`「treats an explicit null argument as absent (D-VMEM-14)」 |
+| **Python**（`vista_spm/viewtools.py` `num_arg` / `str_arg`） | 用 `obj.get(key, default)` 取值：键在、值为 `None` 时不取默认值。`read_values` 谱视图的 `n: null` 随后在 `int(None)` 处、`inspect` 的 `clip_pct: null` 与 `flatten: 'highpass'` 下的 `highpass_nm: null` 在 `float(None)` 处抛 TypeError，回复 `internal error TypeError: …`；`flatten: null` 被拒为 `flatten must be one of (…), not None`，`direction: null` 被拒为 `channel 'Z' has only ['forward', 'backward']`。`x_col`、`y_col`、`y_cols`、`x_range`、`channel`、`region` 为 null 时按未给处理，`rows` / `columns` 为 null 时报缺 |
+| **TS**（`args.ts` `numArg` / `strArg`） | `null` 与未给相同（`obj[key] ?? 默认`）：`n` 取 x 范围内全部点，`clip_pct` 0.5，`highpass_nm` 3，`flatten` plane，`direction` forward；`rows` / `columns` 为 null 时同样报缺。经 dsh 调用时这些参数的 schema 不收 `null`，dsh 在工具运行前以 `INVALID_ARGS`（`isError: true`）拒绝，模型走不到这里 |
+| **测试** | `views.test.ts`「treats null optional arguments as absent」；`tools.test.ts`「never hands the tools null for a typed optional argument」 |
 
-**为什么有意**：JSON 的 `null` 就是「没有值」，按没给处理是唯一不落进内部错误的读法；只在调用方显式传 `null` 时
-与参考实现不同。已作为参考实现的缺陷报告。
-**重新考虑的条件**：参考实现改为同样处理（或明确拒绝 `null` 并说清该怎么改）时，本条销账或改为照它。
+**为什么有意**：`null` 是 JSON 里「没有值」的写法。参考实现在三处崩成内部错误、两处给出与原因无关的文案，都是
+`.get(key, default)` 碰上 `None` 的副作用，不是设计；它对 `x_col`、`channel`、`region` 等参数的 `null` 本来就按未给处理。
+TS 统一按未给处理。
+**判据**：上面两条测试——视图函数对 `null` 的回复与省略该参数时逐项相同；经 dsh 的调用在 schema 校验处被拒。
+**重新考虑的条件**：dsh 的参数校验开始放行 `null`（模型就能走到这里），或参考实现给 `null` 定下别的明确语义（例如统一拒绝并说明原因）。

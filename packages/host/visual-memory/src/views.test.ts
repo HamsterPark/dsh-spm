@@ -344,17 +344,6 @@ describe('spectrum views', () => {
     expect(mixed.reply['sample_count']).toBe(5)
   })
 
-  it('treats an explicit null argument as absent (D-VMEM-14)', () => {
-    const { a } = setup()
-    const d = addSts(a)
-    const withNull = ok(readValues(a, { question: 'q', views: [{ label: 's', frame: d, n: null }] }))
-    const without = ok(readValues(a, { question: 'q', views: [{ label: 's', frame: d }] }))
-    expect(withNull.reply).toEqual(without.reply)
-    const shown = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: 't0000.s0', clip_pct: null, direction: null }] }))
-    const plain = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] }))
-    expect(shown.reply).toEqual(plain.reply)
-  })
-
   it('read_values: says what to change for a spectrum view', () => {
     const { a } = setup()
     const d = addSts(a)
@@ -393,6 +382,21 @@ describe('spectrum views', () => {
     )
     const read = ok(readValues(a, { question: 'q', views: [{ label: 'v', frame: fid }] }))
     expect((read.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ values: [[null, null, null], [1, 2, 3]] })
+  })
+
+  it('treats null optional arguments as absent (spec/deviations.md D-VMEM-14)', () => {
+    const { a } = setup()
+    const d = addSts(a)
+    const read = (view: Record<string, unknown>) => ok(readValues(a, { question: 'q', views: [{ label: 'v', ...view }] })).reply
+    const look = (view: Record<string, unknown>) => ok(inspect(a, { question: 'q', views: [{ label: 'v', ...view }] })).reply
+    // The reference: n and clip_pct crash on int(None) / float(None), flatten and direction are refused.
+    expect(read({ frame: d, n: null })).toEqual(read({ frame: d }))
+    expect(look({ frame: 't0000.s0', clip_pct: null, flatten: null, direction: null })).toEqual(look({ frame: 't0000.s0' }))
+    expect(look({ frame: 't0000.s0', flatten: 'highpass', highpass_nm: null })).toEqual(look({ frame: 't0000.s0', flatten: 'highpass', highpass_nm: 3 }))
+    // Like the reference: an absent value that is required stays missing.
+    expect(err(readValues(a, { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: null, columns: 1 }] }))).toBe(
+      'read_values: views[1]: a scan view needs rows and columns',
+    )
   })
 
   it('explains spectrum records that lack columns or values', () => {

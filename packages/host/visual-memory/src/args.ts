@@ -55,6 +55,7 @@ export function checkKeys(obj: unknown, allowed: ReadonlySet<string>, required: 
   if (missing.length > 0) throw new ArgError(`${where}: missing required field(s) ${sortedList(missing)}`)
 }
 
+/** An optional string argument; `null` counts as absent and takes the default (spec/deviations.md D-VMEM-14). */
 export function strArg(
   obj: Obj,
   key: string,
@@ -72,6 +73,7 @@ export function strArg(
   return v
 }
 
+/** An optional number argument; `null` counts as absent and takes the default (spec/deviations.md D-VMEM-14). */
 export function numArg(
   obj: Obj,
   key: string,
