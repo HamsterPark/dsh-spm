@@ -339,6 +339,22 @@ describe('frameDiff: refusals', () => {
     }
   })
 
+  it('reads null optional arguments as absent (spec/deviations.md D-VMEM-11)', () => {
+    const archive = new FrameArchive(tmp())
+    const tex = texture(14)
+    const fa = add(archive, 0, geom(), tex)
+    const fb = add(archive, 1, geom(), (X, Y) => tex(X - 0.2, Y))
+    const without = (r: Record<string, any>) => ({ ...r, difference: { ...r['difference'], frame: null } })
+    const plain = without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb })))
+    for (const k of ['align', 'flatten', 'highpass_nm', 'channel', 'direction', 'region']) {
+      expect([k, without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb, [k]: null })))]).toEqual([k, plain])
+    }
+    // As in the reference, highpass_nm (even null) does not go with another flattening.
+    expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, flatten: 'plane', highpass_nm: null }))).toBe(
+      "diff: arguments.highpass_nm only applies with flatten='highpass'",
+    )
+  })
+
   it('names the channel and passes frame_b lacks', () => {
     const archive = new FrameArchive(tmp())
     const tex = texture(9)
@@ -483,6 +499,12 @@ describe('stm_frame_diff through a real dsh dispatcher', () => {
     expect(image.type).toBe('image')
     expect(att.saved[0]?.name).toBe('t0001.m0.png')
     expect(decodePng(att.saved[0]?.data as Uint8Array).width).toBe(192)
+    // dsh's own validation refuses a null for a typed optional argument before the tool runs.
+    for (const over of [{ align: null }, { flatten: null }, { highpass_nm: null }, { direction: null }]) {
+      const res = await call({ frame_a: fa, frame_b: fb, ...over })
+      expect(res.isError).toBe(true)
+      if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
+    }
     const refused = await call({ frame_a: fa, frame_b: 't0009.s0' })
     expect(refused.isError).toBe(false)
     expect(JSON.parse((refused.content[0] as unknown as { text: string }).text)).toEqual({

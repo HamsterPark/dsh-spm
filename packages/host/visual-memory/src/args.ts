@@ -92,6 +92,7 @@ export function numArg(
   return v
 }
 
+/** An optional boolean argument; `null` counts as absent and takes the default (spec/deviations.md D-VMEM-11). */
 export function boolArg(obj: Obj, key: string, where: string, def: boolean): boolean {
   const v = obj[key] ?? def
   if (typeof v !== 'boolean') throw new ArgError(`${where}.${key} must be true or false`)

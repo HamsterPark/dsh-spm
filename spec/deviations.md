@@ -4064,6 +4064,19 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 **重新考虑的条件**：需要与参考实现逐像素比对派生图（例如金样改为录制派生图像素），或 dsh 侧提供可用的
 字体与矢量渲染。
 
+## D-VMEM-11 · `stm_frame_diff` 的可选参数为 `null` 时按未给处理
+
+| | |
+|---|---|
+| **Python**（`vista_spm/measure.py` `diff`，经 `viewtools` 的 `bool_arg` / `str_arg` / `num_arg`） | `obj.get(key, default)` 碰上 `None`：`align: null` 被拒为 `arguments.align must be true or false`，`flatten: null` 在 `frames.flatten` 处被拒为 `flatten must be one of ('none', …), not None`，`highpass_nm: null` 在 `float(None)` 处抛 TypeError（回复 `internal error TypeError: …`），`direction: null` 被拒为 `arguments.direction: <帧> channel 'Z' has only [...]`；`channel`、`region` 为 null 时按未给处理 |
+| **TS**（`frame-diff.ts`，`args.ts` 的 `boolArg` / `strArg` / `numArg`） | `null` 与未给相同：`align` true，`flatten` highpass，`highpass_nm` 3，`direction` forward；与参考相同的是 `flatten` 不为 highpass 时给了 `highpass_nm`（哪怕是 null）仍被拒。经 dsh 调用时这些参数的 schema 不收 `null`，dsh 在工具运行前以 `INVALID_ARGS`（`isError: true`）拒绝 |
+| **测试** | `frame-diff.test.ts`「reads null optional arguments as absent」（回复与省略该参数时逐项相同）与「through a real dsh dispatcher」（`null` 在 schema 校验处被拒） |
+
+**为什么有意**：与 D-VMEM-14 同一条规则用到差分工具的参数上：`null` 是 JSON 里「没有值」的写法，参考实现的
+拒绝与内部错误是 `.get(key, default)` 碰上 `None` 的副作用，不是设计；它对 `channel`、`region` 的 `null` 本来就按
+未给处理。布尔参数 `align` 另需 `boolArg`，按同一规则写。
+**重新考虑的条件**：同 D-VMEM-14——dsh 的参数校验开始放行 `null`，或参考实现给 `null` 定下明确语义。
+
 ## D-VMEM-13 · 谱视图里非有限的 x 范围写成 `null`
 
 | | |
