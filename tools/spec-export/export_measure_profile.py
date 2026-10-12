@@ -7,7 +7,7 @@ archive, frames and argument helpers it uses) on synthetic frames and stores, in
 ``spec/golden/measure_profile.json``:
 
 * the input frames (float32, base64 little-endian), their geometry and the order and
-  turns in which they enter two synthetic archives (``display_max`` 768 and 64);
+  turns in which they enter three synthetic archives (``display_max`` 768, 64 and 803);
 * every tool call in order, with its arguments, whether it failed, the parsed reply,
   the reply's keys in the order the model reads them and the labels of the images;
 * for each ``line_profile`` call, the exact distances and values the reference passed
@@ -245,6 +245,18 @@ zF = 2e-10 + 50e-12 * (xxF >= 70) - 30e-12 * (xxF >= 100) + 0.5e-12 * yyF + rng.
 zF[20:] = np.nan
 gF = {"cx_nm": -40.0, "cy_nm": 15.5, "w_nm": 65.0, "h_nm": 12.0, "angle_deg": -12.5}
 
+# H: a scan that has just started: only its first row acquired.
+yyH, xxH = np.mgrid[0:30, 0:60]
+zH = 1e-9 + 40e-12 * (xxH >= 35) + rng.normal(0, 1e-12, (30, 60))
+zH[1:] = np.nan
+gH = {"cx_nm": 2.0, "cy_nm": 1.0, "w_nm": 6.0, "h_nm": 3.0, "angle_deg": 0.0}
+
+# W: in an archive with display_max 803, whose profile plot matplotlib makes 802 px wide
+# (the figure is 8.03 in at 100 dpi and its canvas is int(8.03 * 100) = 802 px).
+yyW, xxW = np.mgrid[0:50, 0:100]
+zW = 70e-12 * (xxW >= 60) + rng.normal(0, 1e-12, (50, 100))
+gW = {"cx_nm": 0.0, "cy_nm": 0.0, "w_nm": 10.0, "h_nm": 5.0, "angle_deg": 0.0}
+
 _frame("A", "main", 0, {"Z": zA}, gA, {})
 _frame("B", "main", 1, {"Z/forward": zB, "Z/backward": zBb, "Current/forward": iB}, gB, metaB)
 _frame("E", "main", 2, {"Z": zE}, gE, {})
@@ -252,6 +264,8 @@ _frame("G", "main", 3, {"Z": zG}, gG, {})
 _frame("D", "main", 3, {"Z": zD, "Z/backward": zD.copy()}, gD, {})
 _frame("D2", "main", 4, {"Z": zD2}, gD, {})
 _frame("F", "small", 0, {"Z": zF}, gF, {})
+_frame("H", "main", 4, {"Z": zH}, gH, {})
+_frame("W", "wide", 0, {"Z": zW}, gW, {})
 DERIVED_MAP = {"name": "M", "archive": "main", "turn": 4, "tool": "stm_frame_diff", "sources": ["t0001.p0"],
                "geometry": gM, "units": {"diff": "m"}, "shape": [32, 32], "array": _f32_b64(dM),
                "png_b64": base64.b64encode(pngM).decode("ascii")}
@@ -259,7 +273,8 @@ DERIVED_MAP = {"name": "M", "archive": "main", "turn": 4, "tool": "stm_frame_dif
 # ── 4. the tools, end to end ─────────────────────────────────────────────
 work = Path(tempfile.mkdtemp(prefix="measure-profile-golden-"))
 try:
-    archives = {"main": Archive(work / "main", display_max=768), "small": Archive(work / "small", display_max=64)}
+    archives = {"main": Archive(work / "main", display_max=768), "small": Archive(work / "small", display_max=64),
+                "wide": Archive(work / "wide", display_max=803)}
     fid: dict[str, str] = {}
     for name, fr in FRAMES.items():
         arrays = {k: np.frombuffer(base64.b64decode(v), dtype="<f4").reshape(fr["shape"]) for k, v in fr["arrays"].items()}
@@ -293,7 +308,7 @@ try:
                                       "sigma": cp["sigma"], "segments": cp["segments"]}
         CALLS.append(entry)
 
-    A, B, E, G, D, D2, MM, FF = (fid[k] for k in ("A", "B", "E", "G", "D", "D2", "M", "F"))
+    A, B, E, G, D, D2, MM, FF, H, W = (fid[k] for k in ("A", "B", "E", "G", "D", "D2", "M", "F", "H", "W"))
     # line_profile: the reference test's step, in display px and in scan nm (same samples)
     call("main", "line_profile", "step_display_px", {"frame": A, "p1": {"x": 60, "y": 150}, "p2": {"x": 540, "y": 150},
                                                      "width_px": 9, "flatten": "none"})
@@ -325,6 +340,19 @@ try:
                                                             "p2": {"x": 43.3, "y": 6.5}, "width_px": 2, "flatten": "none"})
     # the display image is ceil(130/3) = 44 px wide, but x = 44 is native column 132 > 130
     call("small", "line_profile", "downsampled_past_last_column", {"frame": FF, "p1": {"x": 1, "y": 4}, "p2": {"x": 44, "y": 4}})
+    # sampling at the frame's edge: a band whose second line runs at a column in (0, 0.5) with
+    # bits below 2^-53 (scipy weighs 1 - t and 1 - (1 - t), which then differs from t), and
+    # coordinates outside the frame, which scipy's nearest mode keeps (it clamps the
+    # neighbours, not the coordinate)
+    call("main", "line_profile", "fine_fraction_near_edge", {"frame": A, "p1": {"x": 1.5, "y": 10}, "p2": {"x": 1.5, "y": 290},
+                                                             "width_px": 5, "flatten": "none"})
+    call("main", "line_profile", "outside_fraction_kept", {"frame": A, "p1": {"x": 1, "y": 10}, "p2": {"x": 1, "y": 290},
+                                                           "flatten": "none"})
+    call("main", "line_profile", "first_row_only_kept", {"frame": H, "p1": {"x": 0, "y": 4}, "p2": {"x": 720, "y": 4},
+                                                         "flatten": "none"})
+    call("main", "line_profile", "first_row_centre_touches_row_1", {"frame": H, "p1": {"x": 0, "y": 6}, "p2": {"x": 720, "y": 6},
+                                                                    "flatten": "none"})
+    call("wide", "line_profile", "plot_width_truncated", {"frame": W, "p1": {"x": 8, "y": 200}, "p2": {"x": 792, "y": 200}})
     # line_profile: refusals (none of them archives a plot)
     plot = CALLS[0]["reply"]["plot"]["frame"]
     for name, args in [
@@ -364,6 +392,7 @@ try:
     call("main", "stats", "derived_map_with_values", {"frame": MM})
     call("main", "stats", "region_forward_only", {"frame": A, "region": {"x": 333, "y": 31, "width": 101, "height": 77}})
     call("small", "stats", "downsampled_region", {"frame": FF, "region": {"x": 5, "y": 2, "width": 20, "height": 5}})
+    call("main", "stats", "first_row_only", {"frame": H})
     for name, args in [
         ("region_not_acquired", {"frame": D, "region": {"x": 0, "y": 600, "width": 100, "height": 100}}),
         ("three_acquired_pixels", {"frame": D, "region": {"x": 0, "y": 564, "width": 36, "height": 12}}),
@@ -394,7 +423,7 @@ golden = {
         "matplotlib": matplotlib.__version__,
         "seed": SEED,
     },
-    "constants": {"max_profile_samples": M.MAX_PROFILE_SAMPLES, "display_max": {"main": 768, "small": 64}},
+    "constants": {"max_profile_samples": M.MAX_PROFILE_SAMPLES, "display_max": {"main": 768, "small": 64, "wide": 803}},
     "descriptions": {"line_profile": M.make_line_profile_tool(768).description,
                      "stats": M.make_stats_tool(768).description},
     "change_points": CHANGE_POINTS,

@@ -5,7 +5,7 @@
  * `spec/golden/measure_profile.json` is produced by
  * `tools/spec-export/export_measure_profile.py`, which runs VISTA-SPM's
  * `vista_spm/measure.py` (`line_profile`, `stats`, `change_points`) on synthetic frames
- * in two archives (display_max 768 and 64) and records every call in order, the exact
+ * in three archives (display_max 768, 64 and 803) and records every call in order, the exact
  * inputs and outputs of `change_points` inside each profile, and CPython's
  * `math.hypot`. The reference file hashes are in the golden.
  *
@@ -71,6 +71,7 @@ afterAll(() => rmSync(dir, { recursive: true, force: true }))
 const archives: Record<string, FrameArchive> = {
   main: new FrameArchive(join(dir, 'main'), { displayMax: golden.constants.display_max.main }),
   small: new FrameArchive(join(dir, 'small'), { displayMax: golden.constants.display_max.small }),
+  wide: new FrameArchive(join(dir, 'wide'), { displayMax: golden.constants.display_max.wide }),
 }
 type GoldenFrame = { archive: string; turn: number; geometry: PartialGeometry; meta: PartialMeta; shape: number[]; arrays: Record<string, string> }
 const frames = golden.frames as unknown as Record<string, GoldenFrame>
