@@ -138,3 +138,35 @@ export function pyG(x: number, precision: number): string {
   const abs = Math.abs(e)
   return `${sign}${mantissa}e${e < 0 ? '-' : '+'}${abs < 10 ? `0${abs}` : abs}`
 }
+
+/**
+ * Python `repr()` of a str — single quotes unless the text holds a single quote and
+ * no double quote; backslash, the quote, `\t` `\n` `\r` and other control
+ * characters escaped; printable non-ASCII kept as is — or of a list of str
+ * (`['a', 'b']`). The reference's error messages quote names this way.
+ */
+export function pyRepr(v: string | readonly string[]): string {
+  if (typeof v !== 'string') return `[${v.map((s) => pyRepr(s)).join(', ')}]`
+  const quote = v.includes("'") && !v.includes('"') ? '"' : "'"
+  let out = quote
+  for (const ch of v) {
+    const cp = ch.codePointAt(0) as number
+    if (ch === quote || ch === '\\') out += `\\${ch}`
+    else if (ch === '\t') out += '\\t'
+    else if (ch === '\n') out += '\\n'
+    else if (ch === '\r') out += '\\r'
+    else if (cp < 0x20 || cp === 0x7f) out += `\\x${cp.toString(16).padStart(2, '0')}`
+    else out += ch
+  }
+  return out + quote
+}
+
+/** Python `type(x).__name__` of a decoded JSON value: NoneType, bool, int, float, str, list or dict. */
+export function pyTypeName(v: unknown): string {
+  if (v === null || v === undefined) return 'NoneType'
+  if (typeof v === 'boolean') return 'bool'
+  if (typeof v === 'number') return Number.isInteger(v) ? 'int' : 'float'
+  if (typeof v === 'string') return 'str'
+  if (Array.isArray(v)) return 'list'
+  return 'dict'
+}

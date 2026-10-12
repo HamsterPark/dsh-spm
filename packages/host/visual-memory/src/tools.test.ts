@@ -239,7 +239,7 @@ describe('stm_read_values', () => {
     const { ctx } = await host()
     const res = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'g', frame: 't0004.s0', rows: 1, columns: 1 }] })
     expect(res.isError).toBe(false)
-    expect(JSON.parse(texts(res.content)[0] as string).error).toMatch(/^read_values: views\[1\]\.frame: no frame "t0004\.s0"/)
+    expect(JSON.parse(texts(res.content)[0] as string).error).toMatch(/^read_values: views\[1\]\.frame: no frame 't0004\.s0'/)
   })
 })
 

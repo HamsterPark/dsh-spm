@@ -19,7 +19,7 @@ export {
   type FrameKind,
   type ParsedFrameId,
 } from './frame-id.js'
-export { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+export { pyFixed, pyG, pyRepr, pyRound, pyRoundInt, pyTypeName, rint } from './pyfmt.js'
 export { PngError, crc32, decodePng, encodePngRgb, pngSize, toRgb, type DecodedPng, type PngOptions } from './png.js'
 export {
   DISPLAY_MAX_DEFAULT,

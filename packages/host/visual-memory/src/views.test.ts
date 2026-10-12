@@ -112,7 +112,7 @@ describe('inspect', () => {
     const b = new FrameArchive(a.root, { displayMax: 64 })
     const v = (over: Record<string, unknown>) => ({ question: 'q', views: [{ label: 'v', frame: 't0000.s0', ...over }] })
     const cases: [unknown, RegExp][] = [
-      [[1], /^inspect: arguments must be an object$/],
+      [[1], /^inspect: arguments must be a JSON object, got list$/],
       [{ question: 'q', views: [], extra: 1 }, /unknown field\(s\) \['extra'\]; allowed: \['question', 'views'\]/],
       [{ views: [{}] }, /missing required field\(s\) \['question'\]/],
       [{ question: ' ', views: [{}] }, /question must be a non-empty string/],
@@ -125,12 +125,12 @@ describe('inspect', () => {
       [v({ label: '' }), /views\[1\]\.label must be a non-empty string/],
       [v({ label: 'x'.repeat(129) }), /label is longer than 128 characters/],
       [v({ frame: 7 }), /views\[1\]\.frame must be a frame id like 't0007\.s0'/],
-      [v({ frame: 't0009.s0' }), /views\[1\]\.frame: no frame "t0009\.s0"/],
-      [v({ channel: 'phase' }), /views\[1\]\.channel: t0000\.s0: no channel "phase"/],
+      [v({ frame: 't0009.s0' }), /views\[1\]\.frame: no frame 't0009\.s0'/],
+      [v({ channel: 'phase' }), /views\[1\]\.channel: t0000\.s0: no channel 'phase'/],
       [v({ channel: 3 }), /views\[1\]\.channel must be a string/],
       [v({ channel: 'x'.repeat(65) }), /views\[1\]\.channel must have 1\.\.64 characters/],
-      [v({ direction: 'up' }), /views\[1\]\.direction must be one of \["forward","backward"\], not "up"/],
-      [v({ channel: 'Current', direction: 'backward' }), /views\[1\]\.direction: t0000\.s0 channel "Current" has only \["forward"\]/],
+      [v({ direction: 'up' }), /views\[1\]\.direction must be one of \['forward', 'backward'\], not 'up'/],
+      [v({ channel: 'Current', direction: 'backward' }), /views\[1\]\.direction: t0000\.s0 channel 'Current' has only \['forward'\]/],
       [v({ region: { x: 0, y: 0, width: 4 } }), /views\[1\]\.region: missing required field\(s\) \['height'\]/],
       [v({ region: { x: 0, y: 0, width: 4, height: 4, z: 1 } }), /region: unknown field\(s\) \['z'\]/],
       [v({ region: { x: 60, y: 0, width: 8, height: 4 } }), /leaves t0000\.s0's 64x32 display image \(need x \+ width <= 64 and y \+ height <= 32\)/],
