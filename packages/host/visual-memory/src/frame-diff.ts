@@ -47,13 +47,13 @@ import {
 } from './args.js'
 import { ChannelError, resolveChannel } from './channels.js'
 import { Canvas, drawMarks, type Mark } from './draw.js'
-import { flatFrame, imageEntry, pixelNm } from './line-profile.js'
-import { blockMean, fitSurface, FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
+import { blockMean, fitSurface, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nanMedian } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { shiftConstant } from './ndinterp.js'
 import { pyG, pyRepr, pyRound, rint } from './pyfmt.js'
+import { flatFrame, imageEntry, madSigma, pixelNm } from './line-profile.js'
 import { register, type Registration } from './register.js'
-import { fmtNum, percentileSorted, planView, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
+import { crop, fmtNum, percentileSorted, planView, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
 import { DIRECTIONS } from './scan-data.js'
 import { formatKey, formatValue } from './units.js'
 
@@ -355,30 +355,8 @@ function diffPng(rgb: Uint8Array, width: number, height: number, marks: readonly
 
 // ── the tool ────────────────────────────────────────────────────────────────
 
-/** numpy `nanmedian` of a non-empty set of values (the mean of the two middle ones when even). */
-function median(v: Float64Array): number {
-  const s = v.filter((x) => Number.isFinite(x)).sort()
-  const h = s.length >> 1
-  return s.length % 2 === 1 ? (s[h] as number) : ((s[h - 1] as number) + (s[h] as number)) / 2
-}
-
-/** 1.4826 × the median absolute deviation of the finite values (`_mad_sigma`; here never empty). */
-function madSigma(v: Float64Array): number {
-  const fin = v.filter((x) => Number.isFinite(x))
-  const med = median(fin)
-  return 1.4826 * median(fin.map((x) => Math.abs(x - med)))
-}
-
 function percentile(values: Float64Array, q: number): number {
   return percentileSorted(Float64Array.from(values).sort(), q)
-}
-
-function crop(z: Float64Array, cols: number, box: readonly [number, number, number, number]): Float64Array {
-  const [i0, j0, i1, j1] = box
-  const w = i1 - i0
-  const out = new Float64Array(w * (j1 - j0))
-  for (let r = j0; r < j1; r += 1) out.set(z.subarray(r * cols + i0, r * cols + i1), (r - j0) * w)
-  return out
 }
 
 /**
@@ -472,7 +450,7 @@ export function frameDiff(archive: FrameArchive, args: unknown, trace?: DiffTrac
     const aShifted = align ? shiftImage(A, ny, nx, dyPx, dxPx) : A
     let D = B.map((v, i) => v - (aShifted[i] as number))
     if (D.filter((v) => Number.isFinite(v)).length < 64) throw new ArgError('too few pixels overlap after alignment to form a difference')
-    const offset = median(D)
+    const offset = nanMedian(D)
     D = D.map((v) => v - offset)
     const plane = fitSurface(D, nx, ny, 1)
     D = D.map((v, i) => v - (plane[i] as number))

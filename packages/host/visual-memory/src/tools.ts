@@ -7,10 +7,10 @@
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
  * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
  * | `stm_line_profile` | values and steps along a line, with an archived plot |
- * | `stm_frame_diff` | register two frames and archive their aligned difference with its values |
- * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_fft_peaks` | peaks of a frame's Fourier spectrum, with a numbered spectrum image |
  * | `stm_detect_blobs` | compact bright or dark features, numbered on an image |
+ * | `stm_frame_diff` | register two frames and archive their aligned difference with its values |
+ * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
@@ -431,17 +431,6 @@ function lineProfileTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
-function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
-  return defineTool({
-    name: 'stm_frame_diff',
-    description: FRAME_DIFF_DESCRIPTION,
-    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
-    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
-    isConcurrencySafe: () => true,
-    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
-  })
-}
-
 function frameStatsTool(deps: VisualToolDeps): ToolDefinition {
   return defineTool({
     name: 'stm_frame_stats',
@@ -565,6 +554,17 @@ function detectBlobsTool(deps: VisualToolDeps): ToolDefinition {
     output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
     isConcurrencySafe: () => true,
     execute: async (args) => deliver('detect_blobs', detectBlobs(deps.archive, args), deps.attachments()),
+  })
+}
+
+function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_diff',
+    description: FRAME_DIFF_DESCRIPTION,
+    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
   })
 }
 
