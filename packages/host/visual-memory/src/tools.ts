@@ -36,7 +36,7 @@ import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefini
 import type { FrameArchive } from './archive.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
 import { GUIDE_FILE, MAX_GUIDE_BYTES, MAX_WORKING_BYTES, NOTE_FILES, NotesError, WORKING_FILE, type NotesStore } from './notes.js'
-import { CLIP_PCT_DEFAULT, NAN_NAME } from './render.js'
+import { CLIP_PCT_DEFAULT, GRID_COLOUR_NAME, NAN_NAME } from './render.js'
 import { DIRECTIONS } from './scan-data.js'
 import {
   inspect,
@@ -208,6 +208,12 @@ const QUESTION = {
 
 function inspectTool(deps: VisualToolDeps): ToolDefinition {
   const dm = deps.displayMax ?? deps.archive.displayMax
+  const drawn = deps.archive.grid
+    ? `pixels never acquired are flat ${NAN_NAME}. Faint ${GRID_COLOUR_NAME} lines draw a square grid every grid_nm nm, ` +
+      "counted from the top-left corner of the frame's full image along its own x and y, finer when you zoom in; " +
+      'nothing else is drawn on them.'
+    : `pixels never acquired are flat ${NAN_NAME}; nothing is drawn on them.`
+  const spacing = deps.archive.grid ? ' the grid spacing (grid_nm),' : ''
   return defineTool({
     name: 'stm_inspect',
     description:
@@ -217,12 +223,12 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
       "select a rectangle in display pixels of that frame's full image (origin at the top-left corner, x to the " +
       'right, y down). The region is cropped exactly, widened to whole scan pixels, and enlarged by the largest ' +
       `whole number of image pixels per scan pixel that fits ${dm}x${dm}, without smoothing. Images are gray ` +
-      `(black = low, white = high, contrast from the selected region); pixels never acquired are flat ${NAN_NAME}; ` +
-      'nothing is drawn on them. A derived image is cropped as stored. State the visual question these views ' +
+      `(black = low, white = high, contrast from the selected region); ${drawn} ` +
+      'A derived image is cropped as stored. State the visual question these views ' +
       `should answer and give each view a short label. 1 to ${MAX_INSPECT_VIEWS} views per call; they are returned ` +
       'in request order, one image each, every image preceded by a label line with its index. The reply text ' +
       "gives each view's region in display pixels (region_px), the scan-frame nm of its corners (corners_nm), " +
-      'the magnification, nm per image pixel, and the values shown as black and white with the unit in the key ' +
+      `the magnification, nm per image pixel,${spacing} and the values shown as black and white with the unit in the key ` +
       '(black_pm / white_pm for Z, black_pa / white_pa for current).',
     parameters: {
       question: QUESTION,

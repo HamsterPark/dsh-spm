@@ -54,7 +54,10 @@ function zFrame(): Float32Array {
   return Float32Array.from({ length: 128 }, (_, i) => 2e-12 * (i % 16) + 1e-12 * Math.floor(i / 16))
 }
 
-async function host(withAttachments = true): Promise<{ ctx: Context; root: string; att: FakeAttachments | undefined }> {
+async function host(
+  withAttachments = true,
+  config: { readonly grid?: boolean } = {},
+): Promise<{ ctx: Context; root: string; att: FakeAttachments | undefined }> {
   const root = mkdtempSync(join(tmpdir(), 'vm-tools-'))
   dirs.push(root)
   const ctx = new Context()
@@ -64,7 +67,7 @@ async function host(withAttachments = true): Promise<{ ctx: Context; root: strin
   const tools = ctx.plugin(ToolRuntime)
   await tools.await()
   const att = withAttachments ? new FakeAttachments(ctx) : undefined
-  const fiber = ctx.plugin(plugin, { root, displayMax: 64 })
+  const fiber = ctx.plugin(plugin, { root, displayMax: 64, ...config })
   await fiber.await()
   ctx.frameArchive.archive.addScanBytes(
     0,
@@ -123,6 +126,21 @@ describe('registration', () => {
     expect(inspect?.description).toContain('fits 64x64')
     const read = ctx.tools.schemas().find((s) => s.name === 'stm_read_values')
     expect(read?.description).toContain('at most 4096')
+  })
+
+  it('draws the graph paper by default and says so; grid: false draws and says nothing', async () => {
+    const on = await host()
+    expect(on.ctx.frameArchive.archive.grid).toBe(true)
+    const dOn = on.ctx.tools.schemas().find((s) => s.name === 'stm_inspect')?.description ?? ''
+    expect(dOn).toContain('amber lines draw a square grid every grid_nm nm')
+    expect(dOn).toContain('the grid spacing (grid_nm),')
+    expect(on.ctx.frameArchive.observation('t0000.s0').label).toMatch(/ grid_nm="[0-9.]+" /)
+    const off = await host(true, { grid: false })
+    expect(off.ctx.frameArchive.archive.grid).toBe(false)
+    const dOff = off.ctx.tools.schemas().find((s) => s.name === 'stm_inspect')?.description ?? ''
+    expect(dOff).toContain('nothing is drawn on them.')
+    expect(dOff).not.toContain('grid')
+    expect(off.ctx.frameArchive.observation('t0000.s0').label).not.toContain('grid_nm')
   })
 
   it('needs a root directory, and registers nothing without one', () => {

@@ -76,24 +76,33 @@ export {
 } from './flatten.js'
 export {
   CLIP_PCT_DEFAULT,
+  GRID_COLOUR_NAME,
+  GRID_MAX_CELLS,
+  GRID_MIN_CELL_PX,
+  GRID_RGB,
   NAN_NAME,
   NAN_RGB,
   RegionError,
   colourLimits,
   crop,
+  drawGrid,
   fmtNum,
   greyRgb,
+  gridLines,
+  niceStep,
   percentileSorted,
   planView,
   regionToNative,
   renderValues,
   upscaleRgb,
   viewCornersNm,
+  viewGrid,
   visualLabel,
   type LabelAttr,
   type Region,
   type RenderedValues,
   type View,
+  type ViewGrid,
 } from './render.js'
 export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
 export {

@@ -238,6 +238,7 @@ function viewSummary(i: number, label: string, e: FrameEntry, meta: RenderMeta):
       nm_per_image_px: meta.nm_per_image_px,
       corners_nm: meta.corners_nm,
     })
+    if (meta.grid_nm !== undefined && meta.grid_nm !== null) out['grid_nm'] = meta.grid_nm
     out[formatKey(fmt, 'black')] = meta.black ?? null
     out[formatKey(fmt, 'white')] = meta.white ?? null
     out[formatKey(fmt, 'min')] = meta.min ?? null

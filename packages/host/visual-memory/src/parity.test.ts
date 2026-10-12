@@ -7,7 +7,9 @@
  * inputs; the reference file hashes are recorded in the golden. Since the TS
  * port follows the reference's current model-facing vocabulary (2026-10-09), the
  * golden also pins model units, decimals, rounding, and the summaries, labels and
- * parsed `inspect` / `read_values` replies of a small synthetic archive.
+ * parsed `inspect` / `read_values` replies of a small synthetic archive, and the
+ * metric graph paper on scan images (spacing, line pixels, rendered pixels, and an
+ * archive that draws it), exactly.
  *
  * Tolerances, and why:
  * - archive summaries, labels and parsed replies: exact (values are rounded to
@@ -31,7 +33,23 @@ import golden from '../../../../spec/golden/visual_memory.json' with { type: 'js
 import { blockMean, flatten, type FlattenMode } from './flatten.js'
 import { displaySize, displayToScanNm, scalePair, scaleText, scanNmToDisplay, type ScanGeometry } from './geometry.js'
 import { decodePng } from './png.js'
-import { colourLimits, fmtNum, greyRgb, planView, renderValues, viewCornersNm, visualLabel, type LabelAttr } from './render.js'
+import {
+  colourLimits,
+  fmtNum,
+  greyRgb,
+  GRID_COLOUR_NAME,
+  GRID_MAX_CELLS,
+  GRID_MIN_CELL_PX,
+  GRID_RGB,
+  gridLines,
+  niceStep,
+  planView,
+  renderValues,
+  viewCornersNm,
+  viewGrid,
+  visualLabel,
+  type LabelAttr,
+} from './render.js'
 import { entryFromRecord, entrySummary, FrameArchive } from './archive.js'
 import type { PartialMeta } from './scan-data.js'
 import { decimalsFor, displayUnit, npRound, rangeAttr, robustSpan, roundTo, unitKey } from './units.js'
@@ -221,15 +239,16 @@ function keyPaths(obj: unknown, path = '$'): string[] {
   return Object.entries(obj).flatMap(([k, v]) => [`${path}.${k}`, ...keyPaths(v, `${path}.${k}`)])
 }
 
+const grid = (rows: Num[][]) => ({ rows: rows.length, cols: (rows[0] as Num[]).length, data: flat(rows) })
+/** Heights stored as integers of 1 pm (null: not acquired yet), as the exporter makes them. */
+const pmGrid = (rows: readonly (readonly (number | null)[])[]) => ({
+  rows: rows.length,
+  cols: (rows[0] ?? []).length,
+  data: Float64Array.from(rows.flat().map((k) => (k === null ? Number.NaN : Math.fround(k * 1e-12)))),
+})
+
 describe('parity with the Python reference: archive summaries and tool replies', () => {
   const A = golden.archive
-  const grid = (rows: Num[][]) => ({ rows: rows.length, cols: (rows[0] as Num[]).length, data: flat(rows) })
-  /** Heights stored as integers of 1 pm (null: not acquired yet), as the exporter makes them. */
-  const pmGrid = (rows: readonly (readonly (number | null)[])[]) => ({
-    rows: rows.length,
-    cols: (rows[0] ?? []).length,
-    data: Float64Array.from(rows.flat().map((k) => (k === null ? Number.NaN : Math.fround(k * 1e-12)))),
-  })
   const dir = mkdtempSync(join(tmpdir(), 'vm-parity-'))
   afterAll(() => rmSync(dir, { recursive: true, force: true }))
   const arc = new FrameArchive(join(dir, 'frames'), { displayMax: A.display_max })
@@ -292,5 +311,84 @@ describe('parity with the Python reference: index records read back', () => {
       expect(s).toEqual(c.summary)
       expect(keyPaths(s)).toEqual(c.key_paths)
     }
+  })
+})
+
+function regionOf(r: readonly number[] | null) {
+  return r === null ? null : { x: r[0] as number, y: r[1] as number, width: r[2] as number, height: r[3] as number }
+}
+
+describe('parity with the Python reference: graph paper', () => {
+  const G = golden.grid
+
+  it('uses the same colour, cell limits and nice steps', () => {
+    expect([...GRID_RGB]).toEqual(G.constants.rgb)
+    expect(GRID_COLOUR_NAME).toBe(G.constants.colour_name)
+    expect([GRID_MAX_CELLS, GRID_MIN_CELL_PX]).toEqual([G.constants.max_cells, G.constants.min_cell_px])
+    for (const c of G.nice_step) expect(niceStep(c.x)).toBe(c.step)
+  })
+
+  it('gives every view the same spacing and line pixels, downsampled and anisotropic views included', () => {
+    for (const c of G.views) {
+      const v = planView(c.nx, c.ny, { num: c.num, den: c.den }, regionOf(c.region), c.display_max)
+      const g = viewGrid(v, c.nm_per_px_x, c.nm_per_px_y)
+      expect(g.spacing_nm).toBe(c.spacing_nm)
+      const [i0, j0, i1, j1] = v.native
+      expect(gridLines(i0, i1, g.spacing_nm / c.nm_per_px_x, v.up, v.down, v.image_size[0])).toEqual(c.xs)
+      expect(gridLines(j0, j1, g.spacing_nm / c.nm_per_px_y, v.up, v.down, v.image_size[1])).toEqual(c.ys)
+    }
+  })
+
+  it('renders views with the grid pixel-identically', () => {
+    const plane = flat((golden.flatten.find((f) => f.input === 'frame' && f.mode === 'plane') as { values: Num[][] }).values)
+    for (const c of G.render) {
+      const view = planView(NX, NY, scalePair(NX, NY, 48), regionOf(c.region), c.display_max)
+      const g = viewGrid(view, c.nm_per_px_x, c.nm_per_px_y)
+      expect(g.spacing_nm).toBe(c.spacing_nm)
+      const r = renderValues(plane, NX, view, c.clip_pct, undefined, g)
+      expect([r.lo, r.hi]).toEqual(c.limits.map(num))
+      const img = decodePng(r.png)
+      expect([img.width, img.height]).toEqual([c.width, c.height])
+      expect(Buffer.from(img.data).equals(Buffer.from(Uint8Array.from(c.rgb as number[])))).toBe(true)
+    }
+  })
+
+  describe('an archive that draws it', () => {
+    const GA = G.archive
+    const inp = golden.archive.inputs
+    const dir = mkdtempSync(join(tmpdir(), 'vm-parity-grid-'))
+    afterAll(() => rmSync(dir, { recursive: true, force: true }))
+    const arc = new FrameArchive(join(dir, 'frames'), { displayMax: GA.display_max, grid: true })
+    const made = [
+      arc.addPartial(2, { 'Z/forward': grid(inp.z_forward as Num[][]), 'Z/backward': grid(inp.z_backward as Num[][]), 'Current/forward': grid(inp.current as Num[][]) }, {
+        ...(inp.meta_a as PartialMeta),
+        geometry: inp.geometry_a,
+      }),
+      arc.addPartial(4, { Z: pmGrid(inp.k_c) }, { ...(inp.meta_c as PartialMeta), geometry: inp.geometry_c, simS: inp.sim_s_c }),
+    ]
+    const rgbOf = (png: Uint8Array) => Buffer.from(decodePng(png).data)
+
+    it('labels and draws the stored observations the same way', () => {
+      expect(made.map((e) => e.fid)).toEqual(GA.frames)
+      const want = GA.observation_rgb as Record<string, number[]>
+      for (const [fid, label] of Object.entries(GA.observations)) {
+        const obs = arc.observation(fid)
+        expect(obs.label).toBe(label)
+        expect(rgbOf(obs.png).equals(Buffer.from(Uint8Array.from(want[fid] as number[])))).toBe(true)
+      }
+    })
+
+    it('answers inspect with grid_nm per view, the same key order, labels and pixels', () => {
+      const c = GA.inspect
+      expect(c.is_error).toBe(false)
+      const r = inspect(arc, c.args)
+      if (!r.ok) throw new Error(r.error)
+      expect(r.reply).toEqual(c.reply)
+      expect(keyPaths(r.reply)).toEqual(c.key_paths)
+      expect(r.images.map((i) => i.label)).toEqual(c.labels)
+      r.images.forEach((im, i) => {
+        expect(rgbOf(im.png).equals(Buffer.from(Uint8Array.from(c.rgb[i] as number[])))).toBe(true)
+      })
+    })
   })
 })

@@ -12,8 +12,9 @@
  *   never read as "lowest";
  * - scaling is integer only: whole-pixel nearest-neighbour enlargement, or a
  *   NaN-aware block mean for frames larger than the display;
- * - nothing is ever drawn inside an image; frame ids, scales, coordinates and
- *   values travel in the label text block placed before the image.
+ * - the only thing ever drawn inside an image is the optional graph paper
+ *   ({@link drawGrid}); frame ids, scales, coordinates and values travel in the
+ *   label text block placed before the image.
  */
 import { checkGeometry, nativeToScanNm, type ScalePair, type ScanGeometry } from './geometry.js'
 import { blockMean } from './flatten.js'
@@ -222,8 +223,9 @@ export interface RenderedValues {
 }
 
 /**
- * PNG of the view of `zf` (already flattened, row-major, `nx` wide). Colour
- * limits are the percentiles of the native crop, unless given.
+ * PNG of the view of `zf` (already flattened, row-major, `nx` wide), with `grid`
+ * drawn when given. Colour limits are the percentiles of the native crop, unless
+ * given; the grid never changes them.
  */
 export function renderValues(
   zf: ArrayLike<number>,
@@ -231,6 +233,7 @@ export function renderValues(
   view: View,
   clipPct = CLIP_PCT_DEFAULT,
   limits?: readonly [number, number],
+  grid?: ViewGrid | null,
 ): RenderedValues {
   const [i0, j0, i1, j1] = view.native
   let w = i1 - i0
@@ -243,8 +246,100 @@ export function renderValues(
     w = g.nx
     h = g.ny
   }
-  const rgb = upscaleRgb(greyRgb(values, lo, hi), w, h, view.up)
-  return { png: encodePngRgb(w * view.up, h * view.up, rgb), lo, hi }
+  const W = w * view.up
+  const H = h * view.up
+  let rgb = upscaleRgb(greyRgb(values, lo, hi), w, h, view.up)
+  if (grid) rgb = drawGrid(rgb, W, H, view, grid)
+  return { png: encodePngRgb(W, H, rgb), lo, hi }
+}
+
+// ── graph paper ─────────────────────────────────────────────────────────────
+// VISTA darkens every cell boundary of an ARC frame: graph paper to count cells on. An STM
+// frame has no cells, so this grid is metric (Python `frames.view_grid` / `grid_lines` /
+// `draw_grid`): square cells of 1, 2 or 5 × 10^n nm counted from the top-left corner of the
+// frame's full image, finer as a view zooms in, one image pixel wide on the pixel holding the
+// line's exact position, a quarter of the way toward an amber no grey level has.
+
+/** Line colour: a line pixel becomes `floor((3 · pixel + GRID_RGB) / 4)` per channel. */
+export const GRID_RGB: readonly [number, number, number] = [255, 176, 0]
+export const GRID_COLOUR_NAME = 'amber'
+/** At most this many cells across the longer side of a view … */
+export const GRID_MAX_CELLS = 16
+/** … and at least this many scan pixels per cell. */
+export const GRID_MIN_CELL_PX = 2
+
+/**
+ * The smallest 1, 2 or 5 × 10^n that is >= `x` (`x` > 0), to 12 significant
+ * digits (Python `nice_step`; the search starts a decade low because `log10`
+ * may be an ulp off).
+ */
+export function niceStep(x: number): number {
+  if (!(x > 0 && Number.isFinite(x))) throw new RangeError(`niceStep needs a positive finite number, got ${x}`)
+  let n = Math.floor(Math.log10(x)) - 1
+  for (;;) {
+    for (const m of [1, 2, 5]) {
+      const v = Number((m * 10 ** n).toPrecision(12))
+      if (v >= x * (1 - 1e-9)) return v
+    }
+    n += 1
+  }
+}
+
+/**
+ * The grid of one view: lines every `spacing_nm` from the frame's top-left corner,
+ * at scan-pixel coordinates `k · spacing_nm / nm_per_px_x` (k = 0, 1, …) along x and
+ * likewise along y.
+ */
+export interface ViewGrid {
+  readonly spacing_nm: number
+  readonly nm_per_px_x: number
+  readonly nm_per_px_y: number
+}
+
+/**
+ * The smallest nice spacing with at most {@link GRID_MAX_CELLS} cells across the
+ * view's longer side and at least {@link GRID_MIN_CELL_PX} scan pixels per cell.
+ */
+export function viewGrid(view: View, nmPerPxX: number, nmPerPxY: number): ViewGrid {
+  const [i0, j0, i1, j1] = view.native
+  const extent = Math.max((i1 - i0) * nmPerPxX, (j1 - j0) * nmPerPxY)
+  const least = GRID_MIN_CELL_PX * Math.max(nmPerPxX, nmPerPxY)
+  return { spacing_nm: niceStep(Math.max(extent / GRID_MAX_CELLS, least)), nm_per_px_x: nmPerPxX, nm_per_px_y: nmPerPxY }
+}
+
+/**
+ * Image pixels of the grid lines of a view spanning scan pixels `[lo, hi)`: line `k`
+ * at scan-pixel coordinate `k · stepPx` lies on pixel `floor((k · stepPx - lo) · up /
+ * down + 1e-9)`; lines at or past `hi` and pixels outside `[0, size)` are dropped.
+ */
+export function gridLines(lo: number, hi: number, stepPx: number, up: number, down: number, size: number): number[] {
+  const out: number[] = []
+  let k = Math.max(0, Math.ceil(lo / stepPx - 1e-9))
+  for (;;) {
+    const pos = k * stepPx
+    if (pos >= hi - 1e-9) return out
+    const p = Math.floor(((pos - lo) * up) / down + 1e-9)
+    if (p >= 0 && p < size && (out.length === 0 || p !== out[out.length - 1])) out.push(p)
+    k += 1
+  }
+}
+
+/** A copy of the RGB view image (`width × height`) with the grid drawn. */
+export function drawGrid(rgb: Uint8Array, width: number, height: number, view: View, grid: ViewGrid): Uint8Array {
+  const [i0, j0, i1, j1] = view.native
+  const on = new Uint8Array(width * height)
+  for (const x of gridLines(i0, i1, grid.spacing_nm / grid.nm_per_px_x, view.up, view.down, width)) {
+    for (let y = 0; y < height; y += 1) on[y * width + x] = 1
+  }
+  for (const y of gridLines(j0, j1, grid.spacing_nm / grid.nm_per_px_y, view.up, view.down, height)) {
+    on.fill(1, y * width, (y + 1) * width)
+  }
+  const out = Uint8Array.from(rgb)
+  for (let i = 0; i < on.length; i += 1) {
+    if (on[i] === 0) continue
+    for (let c = 0; c < 3; c += 1) out[i * 3 + c] = Math.floor((3 * (out[i * 3 + c] as number) + (GRID_RGB[c] as number)) / 4)
+  }
+  return out
 }
 
 /** Scan-frame nm of the four corners of a view's region, rounded to 1e-4 nm. */

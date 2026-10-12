@@ -22,6 +22,8 @@ export const inject = ['tools']
 export interface Config extends ArchiveOptions {
   /** Directory of this session's visual memory: frames under `frames/`, notes under `notes/`. */
   readonly root: string
+  /** Graph paper on scan images; default true (VISTA's whole tool set, VISUAL-HARNESS §4.3). */
+  readonly grid?: boolean
 }
 
 /** `ctx.frameArchive`: the archive interface of VISUAL-HARNESS §4.1 plus the notes store. */
@@ -35,7 +37,10 @@ export class FrameArchiveService extends Service {
       throw new TypeError('mast-visual-memory needs config.root: the directory of the session\'s visual memory')
     }
     super(ctx, 'frameArchive')
-    this.archive = new FrameArchive(join(config.root, 'frames'), config.displayMax === undefined ? {} : { displayMax: config.displayMax })
+    this.archive = new FrameArchive(join(config.root, 'frames'), {
+      ...(config.displayMax === undefined ? {} : { displayMax: config.displayMax }),
+      grid: config.grid ?? true,
+    })
     this.notes = new NotesStore(join(config.root, 'notes'))
   }
 

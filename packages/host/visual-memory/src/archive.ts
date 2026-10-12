@@ -57,6 +57,7 @@ import {
   RegionError,
   upscaleRgb,
   viewCornersNm,
+  viewGrid,
   visualLabel,
   type LabelAttr,
   type Region,
@@ -272,6 +273,8 @@ export interface RenderMeta {
   readonly image_px_per_scan_px?: number
   readonly nm_per_image_px?: number
   readonly corners_nm?: Record<string, [number, number]>
+  /** The graph paper's spacing, when the archive draws it (`grid: true`). */
+  readonly grid_nm?: number | null
   /** The channel's model unit, factor and decimals. */
   readonly fmt?: ChannelFormat
   readonly unit?: string
@@ -307,6 +310,11 @@ export interface FrameArray {
 export interface ArchiveOptions {
   /** Longest side of a rendered observation (`D`), default 768, at least 64. */
   readonly displayMax?: number
+  /**
+   * Draw the metric graph paper on scan images ({@link viewGrid}); labels and
+   * `inspect` views then carry `grid_nm`. Default false (the plugin turns it on).
+   */
+  readonly grid?: boolean
 }
 
 export interface DerivedMeta {
@@ -425,6 +433,8 @@ export function entryFromRecord(rec: unknown): FrameEntry {
 export class FrameArchive {
   readonly root: string
   readonly displayMax: number
+  /** Whether scan images carry the graph paper. */
+  readonly grid: boolean
   /** Index lines skipped on re-open, with the reason. */
   readonly loadWarnings: string[] = []
   private readonly entries = new Map<string, FrameEntry>()
@@ -437,6 +447,7 @@ export class FrameArchive {
     if (!Number.isInteger(dm) || dm < 64) throw new ArchiveError(`display_max must be an integer of at least 64, got ${dm}`)
     this.root = root
     this.displayMax = dm
+    this.grid = options.grid ?? false
     mkdirSync(root, { recursive: true })
     this.restore()
   }
@@ -846,7 +857,8 @@ export class FrameArchive {
       if (err instanceof RegionError) throw new ArchiveError(err.message)
       throw err
     }
-    const { png, lo, hi } = renderValues(zf, e.nx, view, clipPct)
+    const grid = this.grid && nmx > 0 ? viewGrid(view, nmx, nmy) : null
+    const { png, lo, hi } = renderValues(zf, e.nx, view, clipPct, undefined, grid)
     const fmt = this.fmt(e, ch)
     const [i0, j0, i1, j1] = view.native
     const cropped = crop(zf, e.nx, view.native)
@@ -868,6 +880,7 @@ export class FrameArchive {
       ['field_nm', `${pyG((i1 - i0) * nmx, 4)}x${pyG((j1 - j0) * nmy, 4)}`],
     )
     if (o.region !== undefined && o.region !== null) updates.push(['magnification', pyG(view.magnification, 4)])
+    if (grid !== null) updates.push(['grid_nm', pyG(grid.spacing_nm, 6)])
     updates.push([rangeAttr(ch, fmt.unit), `${fmtNum(lo * fmt.factor, fmt.decimals)}..${fmtNum(hi * fmt.factor, fmt.decimals)}`])
     if (e.acquired_rows !== null && e.acquired_rows < e.ny) updates.push(['rows_acquired', `${e.acquired_rows}/${e.ny}`])
     const attrs = mergeAttrs(o.labelAttrs ?? [], updates)
@@ -885,6 +898,7 @@ export class FrameArchive {
       image_px_per_scan_px: view.down === 1 ? view.up : pyRound(1 / view.down, 6),
       nm_per_image_px: pyRound((nmx * view.down) / view.up, 6),
       corners_nm: viewCornersNm(g, view),
+      grid_nm: grid === null ? null : grid.spacing_nm,
       fmt,
       unit: fmt.unit,
       black: formatValue(fmt, lo),

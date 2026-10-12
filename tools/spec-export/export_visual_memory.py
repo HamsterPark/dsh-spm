@@ -1,9 +1,10 @@
-r"""Reference results of the VISTA-STM display conventions for dsh-spm-visual-memory.
+r"""Reference results of the VISTA-SPM display conventions for dsh-spm-visual-memory.
 
 VISUAL-HARNESS §5 asks the TypeScript visual memory to match the Python
 reference implementation of the same design: display scale, display <-> scan-nm
 transforms, flattening, contrast, grey levels, views of exact regions, the
-read_values sampling rule, model units, decimals, rounding and labels. This
+read_values sampling rule, model units, decimals, rounding, labels, and the
+metric grid (graph paper) drawn on scan images since 2026-10-12. This
 exporter runs the reference (``vista_spm/frames.py``, ``archive.py`` and
 ``viewtools.py``) on synthetic inputs and stores inputs and results together in
 ``spec/golden/visual_memory.json``, including the parsed ``inspect`` /
@@ -216,6 +217,53 @@ UNITS = {
                                  [[float("nan")]]]],
 }
 
+# ── 7b. graph paper: spacing, line positions and pixels ──────────────────
+# The metric grid the reference draws on scan images (frames.view_grid / grid_lines /
+# draw_grid): the spacing a view gets, the image rows and columns its lines fall on, and the
+# pixels of the 16x12 frame rendered with it, including anisotropic and downsampled views.
+def _rgb(png: bytes) -> np.ndarray:
+    from PIL import Image
+    import io
+
+    with Image.open(io.BytesIO(png)) as im:
+        return np.asarray(im.convert("RGB"))
+
+
+GRID = {
+    "constants": {"rgb": list(F.GRID_RGB), "colour_name": F.GRID_COLOUR_NAME, "max_cells": F.GRID_MAX_CELLS,
+                  "min_cell_px": F.GRID_MIN_CELL_PX},
+    "nice_step": [{"x": x, "step": F.nice_step(x)}
+                  for x in (0.3, 0.5, 0.51, 1.0, 1.2, 2.0, 2.01, 4.375, 7.0, 0.0137, 1e-3, 1000.0, 6.25, 0.546875,
+                            3.2, 0.2, 1e-5, 123456.0, 0.05000000001, 0.04999999999)],
+    "views": [],
+    "render": [],
+}
+for nx, ny, num, den, region, dm, px, py in [
+    (256, 256, 3, 1, None, 768, 70 / 256, 70 / 256), (256, 256, 3, 1, (300, 300, 96, 96), 768, 70 / 256, 70 / 256),
+    (256, 256, 3, 1, (300, 300, 9, 9), 768, 70 / 256, 70 / 256), (1024, 1024, 1, 2, None, 768, 100 / 1024, 100 / 1024),
+    (1024, 1024, 1, 2, (100, 40, 64, 200), 768, 100 / 1024, 100 / 1024), (64, 512, 1, 1, None, 768, 0.1, 0.1),
+    (16, 12, 3, 1, (6, 3, 18, 12), 48, 0.5, 0.5), (384, 128, 2, 1, (10, 7, 333, 101), 768, 0.03125, 0.0625),
+]:
+    v = F.plan_view(nx, ny, num, den, region, dm)
+    gr = F.view_grid(v, px, py)
+    i0, j0, i1, j1 = v.native
+    W, H = v.image_size
+    GRID["views"].append({"nx": nx, "ny": ny, "num": num, "den": den, "region": None if region is None else list(region),
+                          "display_max": dm, "nm_per_px_x": px, "nm_per_px_y": py, "spacing_nm": gr.spacing_nm,
+                          "xs": F.grid_lines(i0, i1, gr.spacing_nm / px, v.up, v.down, W),
+                          "ys": F.grid_lines(j0, j1, gr.spacing_nm / py, v.up, v.down, H)})
+for region, dm, clip, px, py in [(None, 48, 0.5, 0.5, 0.5), ((6, 3, 18, 12), 48, 0.5, 0.5, 0.5),
+                                 ((0, 0, 48, 36), 24, 2.0, 0.5, 0.5), (None, 48, 0.5, 0.3, 0.45)]:
+    num, den = F.scale_pair(NX, NY, 48)
+    v = F.plan_view(NX, NY, num, den, region, dm)
+    gr = F.view_grid(v, px, py)
+    png, lo, hi = F.render_values(plane, v, clip_pct=clip, grid=gr)
+    img = _rgb(png)
+    GRID["render"].append({"input": "frame/plane", "region": None if region is None else list(region),
+                           "display_max": dm, "clip_pct": clip, "nm_per_px_x": px, "nm_per_px_y": py,
+                           "spacing_nm": gr.spacing_nm, "limits": [lo, hi], "width": int(img.shape[1]),
+                           "height": int(img.shape[0]), "rgb": img.reshape(-1)})
+
 # ── 8. the reference archive and its view tools, end to end ──────────────
 # Synthetic partial scans and derived images go through the reference Archive in a
 # temporary directory; the summaries, labels and parsed inspect / read_values replies are
@@ -353,6 +401,31 @@ try:
     for rec in (rec_scan, rec_sts, rec_bare):
         summ = FrameEntry.from_record(rec).summary()
         SUMMARIES.append({"record": rec, "summary": summ, "key_paths": _key_paths(summ)})
+
+    # ── 10. an archive that draws the graph paper ────────────────────────
+    # Archive(grid=True): the observation labels carry grid_nm, every scan view of inspect
+    # reports its own grid_nm, and the stored observation pixels carry the lines.
+    garc = Archive(work / "grid", display_max=64, grid=True)
+    gA = garc.add_partial(2, {"Z/forward": z_fwd, "Z/backward": z_bwd, "Current/forward": current},
+                          geometry=GEOM_A, meta=META_A)
+    gC = garc.add_partial(4, {"Z": z_c}, geometry=GEOM_C, meta=META_C, sim_s=SIM_S_C)
+    G_ARGS = {"question": "graph paper", "views": [
+        {"label": "A", "frame": gA.fid},
+        {"label": "A zoom", "frame": gA.fid, "region": {"x": 8, "y": 4, "width": 24, "height": 20}},
+        {"label": "C", "frame": gC.fid},
+        {"label": "C crop", "frame": gC.fid, "region": {"x": 5, "y": 2, "width": 20, "height": 5}}]}
+    g_reply = V.inspect(garc, G_ARGS)
+    g_parsed = json.loads(g_reply.text)
+    GRID["archive"] = {
+        "display_max": 64,
+        "frames": [gA.fid, gC.fid],
+        "observations": {e.fid: garc.observation(e.fid)[0].label for e in (gA, gC)},
+        "observation_rgb": {e.fid: _rgb(garc.observation(e.fid)[0].png).reshape(-1) for e in (gA, gC)},
+        "inspect": {"args": G_ARGS, "is_error": g_reply.is_error, "reply": g_parsed,
+                    "key_paths": _key_paths(g_parsed), "labels": [im.label for im in g_reply.images],
+                    "rgb": [_rgb(im.png).reshape(-1) for im in g_reply.images]},
+        "description": V.make_inspect_tool(64, grid=True).description,
+    }
 finally:
     shutil.rmtree(work, ignore_errors=True)
 
@@ -382,6 +455,7 @@ golden = {
     "units": UNITS,
     "archive": ARCHIVE,
     "summaries": SUMMARIES,
+    "grid": GRID,
 }
 OUT.write_text(json.dumps(_plain(golden), ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n",
                encoding="utf-8", newline="\n")

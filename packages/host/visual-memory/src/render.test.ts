@@ -5,7 +5,10 @@ import {
   crop,
   fmtNum,
   greyRgb,
+  GRID_RGB,
+  gridLines,
   NAN_RGB,
+  niceStep,
   percentileSorted,
   planView,
   regionToNative,
@@ -13,6 +16,7 @@ import {
   renderValues,
   upscaleRgb,
   viewCornersNm,
+  viewGrid,
   visualLabel,
 } from './render.js'
 
@@ -155,5 +159,55 @@ describe('corners and labels', () => {
     expect(fmtNum(-0.04)).toBe('0.0') // a rounded zero carries no sign
     expect(fmtNum(-0.06)).toBe('-0.1')
     expect(fmtNum(Number.NaN)).toBe('nan')
+  })
+})
+
+describe('graph paper', () => {
+  it('picks the smallest 1, 2 or 5 × 10^n that is at least x, and refuses non-positive input', () => {
+    expect([0.3, 0.5, 0.51, 1.2, 4.375, 7, 0.0137, 1000].map(niceStep)).toEqual([0.5, 0.5, 1, 2, 5, 10, 0.02, 1000])
+    for (const bad of [0, -1, Number.NaN, Infinity]) expect(() => niceStep(bad)).toThrow(RangeError)
+  })
+
+  it('sizes the grid to the view: at most 16 cells, at least 2 scan pixels per cell', () => {
+    const px = 70 / 256
+    const s = { num: 3, den: 1 }
+    expect(viewGrid(planView(256, 256, s, null, 768), px, px).spacing_nm).toBe(5)
+    expect(viewGrid(planView(256, 256, s, { x: 300, y: 300, width: 96, height: 96 }, 768), px, px).spacing_nm).toBe(1)
+    expect(viewGrid(planView(256, 256, s, { x: 300, y: 300, width: 9, height: 9 }, 768), px, px).spacing_nm).toBe(1)
+  })
+
+  it('places lines evenly from the frame corner, and continues the frame grid into a zoomed region', () => {
+    const px = 70 / 256
+    const xs = gridLines(0, 256, 5 / px, 3, 1, 768)
+    expect(xs.slice(0, 3)).toEqual([0, 54, 109])
+    expect(xs).toHaveLength(14)
+    // region from scan px 100 (27.34 nm): the first line is 28 nm = scan px 102.4 → image px 57
+    const zoom = gridLines(100, 132, 1 / px, 24, 1, 768)
+    expect(zoom[0]).toBe(57)
+    expect(new Set(zoom.slice(1).map((x, i) => x - (zoom[i] as number)))).toEqual(new Set([87, 88]))
+    // downsampled by 2: 10 nm lines of a 100 nm, 1024 px frame every 51.2 image px
+    expect(gridLines(0, 1024, 102.4, 1, 2, 512).slice(0, 3)).toEqual([0, 51, 102])
+  })
+
+  it('blends only the line pixels a quarter of the way toward amber; the contrast is the data\'s', () => {
+    const z = Float64Array.from({ length: 32 * 32 }, (_, i) => (i % 32 < 16 ? 1 : 0))
+    const view = planView(32, 32, { num: 24, den: 1 }, null, 768)
+    const g = { spacing_nm: 1, nm_per_px_x: 0.5, nm_per_px_y: 0.5 } // a line every 2 scan px = 48 image px
+    const plain = renderValues(z, 32, view, 0)
+    const lined = renderValues(z, 32, view, 0, undefined, g)
+    expect([lined.lo, lined.hi]).toEqual([plain.lo, plain.hi])
+    const a = decodePng(plain.png).data
+    const b = decodePng(lined.png).data
+    for (let y = 0; y < 768; y += 7) {
+      for (let x = 0; x < 768; x += 5) {
+        const i = (y * 768 + x) * 3
+        for (let c = 0; c < 3; c += 1) {
+          const want = x % 48 === 0 || y % 48 === 0 ? Math.floor((3 * (a[i + c] as number) + (GRID_RGB[c] as number)) / 4) : a[i + c]
+          expect(b[i + c]).toBe(want)
+        }
+      }
+    }
+    expect([b[0], b[1], b[2]]).toEqual([255, 235, 191]) // white under a line
+    expect(renderValues(z, 32, view, 0, undefined, null).png).toEqual(plain.png)
   })
 })
