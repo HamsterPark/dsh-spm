@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { FrameArchive, INDEX_NAME } from './archive.js'
 import { frameStats } from './frame-stats.js'
 import { bandProfile, bilinearNearest, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine } from './line-profile.js'
-import { encodePngRgb, pngSize } from './png.js'
+import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
 import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
 import type { ViewToolResult } from './args.js'
@@ -180,6 +180,15 @@ describe('line_profile', () => {
     expect(plot).toBe('t0000.m0')
     expect(a.get(plot).extra).toMatchObject({ tool: 'line_profile', sources: [fid], description: 'profile of Z forward from p1 to p2' })
     expect(r.ok && r.images.map((i) => [i.name, pngSize(i.png).width, pngSize(i.png).height])).toEqual([['t0000.m0.png', 600, 400]])
+    // the plot shows the profile in the reference's blue and the step as a red marker line
+    const rgb = r.ok ? toRgb(decodePng(r.images[0]?.png as Uint8Array)) : new Uint8Array(0)
+    const count = (c: readonly number[]): number => {
+      let k = 0
+      for (let i = 0; i < rgb.length; i += 3) if (rgb[i] === c[0] && rgb[i + 1] === c[1] && rgb[i + 2] === c[2]) k += 1
+      return k
+    }
+    expect(count([31, 78, 156])).toBeGreaterThan(500)
+    expect(count([214, 39, 40])).toBeGreaterThan(100)
     expect(r.ok && r.images[0]?.label).toBe(
       `<visual kind="derived" frame="t0000.m0" derived="line_profile" frames="${fid}" channel="Z" direction="forward" flatten="none" ` +
         'plot="line profile" x="distance from p1 [nm]" y="Z [pm]" size="600x400"/>',
