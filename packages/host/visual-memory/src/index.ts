@@ -5,7 +5,7 @@
  * Pure core (no dsh imports): frame ids, `.sxm` and `.dat` ingestion, display
  * geometry, flattening, rendering, drawing (marks and line plots on derived
  * images and spectra), PNG, the directory archive, the notes store and the
- * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * `inspect` / `read_values` / `diff` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
@@ -111,6 +111,7 @@ export {
   drawMarks,
   linePlot,
   type LinePlotOptions,
+  type Mark,
   type PlotPanel,
   type PlotSeries,
   type Rgb,
@@ -229,7 +230,6 @@ export {
   spectrumImage,
   spectrumMarks,
   spectrumPeaks,
-  type Mark,
   type MarkPainter,
   type Spectrum,
   type SpectrumImage,
@@ -251,6 +251,23 @@ export {
   type BlobResult,
   type FindBlobsOptions,
 } from './detect-blobs.js'
+export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
+export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
+export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
+export {
+  FRAME_DIFF_DESCRIPTION,
+  MAX_REGIONS,
+  bandpass,
+  clipPolygon,
+  commonGrid,
+  divergingRgb,
+  frameDiff,
+  frameDiffParameters,
+  lowpass,
+  sameGeometry,
+  type CommonGrid,
+  type DiffTrace,
+} from './frame-diff.js'
 export {
   VISUAL_TOOL_NAMES,
   defineVisualTools,
