@@ -225,6 +225,9 @@ importers:
       dsh-spm-instrument-stmsim:
         specifier: workspace:*
         version: link:../../instrument/instrument-stmsim
+      dsh-spm-visual-memory:
+        specifier: workspace:*
+        version: link:../visual-memory
 
   packages/host/vision:
     dependencies:

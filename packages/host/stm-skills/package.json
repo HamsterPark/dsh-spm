@@ -18,7 +18,8 @@
   "devDependencies": {
     "@deepseek-ai/cordis": "4.0.2",
     "@deepseek-ai/dsh-agent": "0.1.5-rc.2",
-    "dsh-spm-instrument-stmsim": "workspace:*"
+    "dsh-spm-instrument-stmsim": "workspace:*",
+    "dsh-spm-visual-memory": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "4.0.2"

@@ -4,7 +4,7 @@
  * tool result. The kernel is the real `SkillKernel`; skills are fakes that
  * save small `.sxm` files into a save directory, as the controller's autosave
  * does. The dsh tool seam (`defineSkillTool`) is exercised end to end in
- * `packages/bundle/dsh-spm/contract/visual-harness.test.ts`.
+ * `packages/host/stm-skills/contract/k14-wiring.test.ts`.
  */
 import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs'
