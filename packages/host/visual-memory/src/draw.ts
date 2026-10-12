@@ -821,10 +821,10 @@ function drawPanel(
 /**
  * The reference's matplotlib line plots, a profile (one panel) and a spectrum
  * (one panel per column), drawn here as an image of exactly `width × height`
- * px. Panels stack top to bottom with equal heights, each with its y label
- * above its plot area; they share the x axis, whose tick labels and label
- * take the 42 px under the last one. The pixels an uneven split leaves over
- * (fewer than there are panels) stay blank at the bottom.
+ * px. Panels stack top to bottom, each with its y label above its plot area,
+ * and share the height above the x axis band (the bottom 42 px, its tick
+ * labels and label): each gets the same whole number of pixels, and the first
+ * ones a pixel more when the height does not divide evenly.
  *
  * - limits: x spans `xRange`, or exactly the finite samples of all series
  *   (marker lines and points outside it are left out); each panel's y spans
@@ -851,18 +851,22 @@ export function linePlot(opts: LinePlotOptions): { png: Uint8Array; width: numbe
   const W = positiveInt('plot width', opts.width)
   const H = positiveInt('plot height', opts.height)
   const { panels } = opts
-  if (panels.length === 0) throw new RangeError('linePlot needs at least one panel')
-  const P = Math.floor((H - X_BAND) / panels.length) // each panel's share
-  const ph = P - PLOT_TOP - PANEL_GAP
-  if (ph < MIN_PLOT_PX) {
-    const least = X_BAND + panels.length * (PLOT_TOP + PANEL_GAP + MIN_PLOT_PX)
-    throw new RangeError(`plot height ${H} is too small for ${panels.length} panel(s): it needs at least ${least} px`)
+  const n = panels.length
+  if (n === 0) throw new RangeError('linePlot needs at least one panel')
+  // the height above the x axis band, shared: `base` px each, one more for the first `extra` panels
+  const base = Math.floor((H - X_BAND) / n)
+  const extra = H - X_BAND - base * n
+  if (base - PLOT_TOP - PANEL_GAP < MIN_PLOT_PX) {
+    const least = X_BAND + n * (PLOT_TOP + PANEL_GAP + MIN_PLOT_PX)
+    throw new RangeError(`plot height ${H} is too small for ${n} panel(s): it needs at least ${least} px`)
   }
+  const panelTop = (k: number): number => k * base + Math.min(k, extra)
+  const plotHeight = (k: number): number => base + (k < extra ? 1 : 0) - PLOT_TOP - PANEL_GAP
   const labelWidth = (s: string): number => measure(s, PLOT_SCALE).width
 
   const [x0, x1] = xLimits(opts)
   const yLims = panels.map((p) => yLimits(p, x0, x1))
-  const yTicks = yLims.map(({ lo, hi }) => axisTicks(lo, hi, ph, Y_TICK_PX, () => LINE_H))
+  const yTicks = yLims.map(({ lo, hi }, k) => axisTicks(lo, hi, plotHeight(k), Y_TICK_PX, () => LINE_H))
   const left = LEFT_PAD + Math.max(...yTicks.flatMap((t) => t.labels.map(labelWidth))) + TICK_LEN + 3
   let pw = W - left - RIGHT_PAD
   if (pw < MIN_PLOT_PX) throw new RangeError(`plot width ${W} leaves less than ${MIN_PLOT_PX} px for the plot area`)
@@ -877,7 +881,8 @@ export function linePlot(opts: LinePlotOptions): { png: Uint8Array; width: numbe
 
   const canvas = new Canvas(W, H)
   panels.forEach((panel, k) => {
-    const top = k * P + PLOT_TOP
+    const top = panelTop(k) + PLOT_TOP
+    const ph = plotHeight(k)
     const { lo, hi, empty } = yLims[k] as { lo: number; hi: number; empty: boolean }
     const yt = yTicks[k] as Ticks
     const sy = (y: number): number => ((hi - y) / (hi - lo)) * (ph - 1)
@@ -899,10 +904,10 @@ export function linePlot(opts: LinePlotOptions): { png: Uint8Array; width: numbe
       })
     })
     const title = fitText(panel.yLabel, W - LEFT_PAD - 2)
-    canvas.text(LEFT_PAD, k * P + TITLE_TOP, title.text, AXIS_RGB, { scale: title.scale })
+    canvas.text(LEFT_PAD, panelTop(k) + TITLE_TOP, title.text, AXIS_RGB, { scale: title.scale })
   })
 
-  const below = panels.length * P - PANEL_GAP + 1 + TICK_LEN + 2
+  const below = H - X_BAND - PANEL_GAP + 1 + TICK_LEN + 2
   xTicks.values.forEach((v, i) => {
     const s = xTicks.labels[i] as string
     const w = labelWidth(s)
