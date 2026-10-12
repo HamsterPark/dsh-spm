@@ -4075,15 +4075,3 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 **为什么有意**：工具回复是 JSON，`NaN` 不是合法 JSON，严格的解析器会拒绝整条回复。只有 x 列全是 NaN 或含无穷时
 才会出现，这本身是坏文件。已作为参考实现的缺陷报告。
 **重新考虑的条件**：参考实现改为 `null`（或拒绝这样的谱）时，本条销账。
-
-## D-VMEM-14 · 显式的 `null` 参数按「没给」处理
-
-| | |
-|---|---|
-| **Python**（`vista_spm/viewtools.py` `num_arg` / `str_arg`） | `obj.get(key, default)`：键在、值为 `None` 时得到 `None`，不取默认值。于是 `read_values` 谱视图的 `n: null` 在 `int(n)` 处抛 `TypeError`，回复为 `read_values: internal error TypeError: …`；`inspect` 的 `clip_pct: null`、`direction: null` 同理，分别是内部错误与一条答非所问的方向提示 |
-| **TS**（`args.ts` `numArg` / `strArg`） | `obj[key] ?? 默认值`：`null` 与缺省相同，取默认值（`n: null` 取全部点，`clip_pct: null` 取 0.5） |
-| **测试** | `views.test.ts`「treats an explicit null argument as absent (D-VMEM-14)」 |
-
-**为什么有意**：JSON 的 `null` 就是「没有值」，按没给处理是唯一不落进内部错误的读法；只在调用方显式传 `null` 时
-与参考实现不同。已作为参考实现的缺陷报告。
-**重新考虑的条件**：参考实现改为同样处理（或明确拒绝 `null` 并说清该怎么改）时，本条销账或改为照它。
