@@ -9,6 +9,8 @@
  *   每个输出点是 4 项 `w·v` 的和，权重来自 `x − floor(x)`：
  *   1 次减法定 frac、4 次乘、3 次加，外加权重本身 1 次舍入 —— 量级 `8 eps ≈ 1.8e−15`。
  *   而**实测是 0**：折叠照抄了 scipy 的运算顺序，连累加顺序都一样，于是逐位相同。
+ *   这句话直到 2026-10-13 才对帧边成立：之前它只在帧内的坐标上为真，抬头 ⑤–⑧ 是那一次补上的，
+ *   判据是 `spec/golden/interp_edges.json`（带缺测行列的帧、界外与贴边坐标，逐位比）。
  *
  * 那 `8 eps` 的余量是留给「将来换一种累加顺序」的，不是留给现在这一版的，
  * 所以**两条都有测试**：一条按容差比，一条 `Object.is` 逐位比。
@@ -73,6 +75,27 @@
  *
  * 而 `order = 1` 上两种做法**完全同解**（两个邻居折过去正好是对称的那一对），
  * 只有 `order = 0` 的取整分得开。所以这一条也只有零容差的那一档抓得住。
+ *
+ * ## 又四条，由缺测帧问出来（2026-10-13，`interp_edges.json`）
+ *
+ * 上面四条的金样是一张有限帧、按容差比，下面四条在那上面要么只差末位、要么根本不出现。
+ * 而帧一旦有没扫到的行（部分采集），它们就是「有限值」对「NaN」的差别。
+ *
+ * **⑤ `nearest` 不折坐标。** scipy 只对其余模式调 `map_coordinate`，`nearest` 的界外坐标原样留着
+ * （连 `n = 1` 也不折）：`x = −0.3` 取 `floor = −1`、`t = 0.7`，两个邻点下标都夹回第 0 行。
+ * 先把坐标夹到 0 的话，第二个邻点是第 1 行、权重 0 —— 第 1 行缺测时结果就成了 NaN。
+ *
+ * **⑥ 越界邻点按 `_get_spline_boundary_mode` 延拓**：`constant` 与 `wrap` 改用 `mirror`
+ * （周期 2n − 2），`reflect`、`mirror`、`nearest` 照原模式。`wrap` 的**坐标**仍按周期 n − 1 折，
+ * 只是 `x = n − 1` 上那个权重为 0 的邻点（下标 n）落到第 n − 2 行，而不是第 1 行。
+ *
+ * **⑦ 四个邻点都乘进来，权重为 0 的不跳过。** 权重是 `1 − t` 与 `1 − (1 − t)`（scipy 让末位权重
+ * 等于 1 减其余），每项是 `(值 · 行权重) · 列权重`，按 C 序从 `0.0` 加起；`order = 0` 也是 `0.0 + 值`。
+ *
+ * **⑧ NaN 坐标整点取 `cval`**（`nearest` 除外）：`map_coordinate` 里两个比较都不成立、原样返回，
+ * 随后 `cc > −1` 也不成立。`nearest` 的 NaN 坐标在 `order = 0` 取第 0 格（scipy 把 `floor(NaN)` 转成
+ * 整数再夹边），在 `order = 1` 得 NaN（权重是 NaN）。`reflect` 另有一条 `−1e−15` 判据：
+ * (−1e−15, 0) 上的坐标折成 `1e−15 − 1`。
  */
 import { matOf, type Mat } from './mat.js'
 import { EPS } from './stats.js'
@@ -100,20 +123,20 @@ const mod = (a: number, p: number): number => ((a % p) + p) % p
 
 /**
  * 把坐标 `x` 折回来，**折的是连续坐标不是下标**（见抬头 ①）。
- * `constant` 折不回来就给 `null`（抬头 ③）。
+ * 折不回来就给 `null`，整个点取 `cval`（抬头 ③、⑧）。
  *
- * ⚠️ **折完不一定落在 `[0, n−1]` 里** —— `mirror` 有意留了一段，见抬头 ④。
+ * ⚠️ **折完不一定落在 `[0, n−1]` 里** —— `mirror` 有意留了一段（抬头 ④），`nearest` 根本不折（抬头 ⑤）。
  * 每一支都照抄 scipy `ni_interpolation.c` 的 `map_coordinate`，包括它的内层判据。
  */
 function foldCoord(x: number, n: number, mode: InterpMode): number | null {
   if (n <= 0) return null
+  if (mode === 'nearest') return x // 抬头 ⑤：邻点下标由 foldIndex 夹回帧内
   if (x >= 0 && x <= n - 1) return x // 界内原样 —— 下面每一支都只管界外
+  if (Number.isNaN(x)) return null // 抬头 ⑧
   if (n === 1) return mode === 'constant' ? null : 0
   switch (mode) {
     case 'constant':
       return null
-    case 'nearest':
-      return x < 0 ? 0 : n - 1
     case 'wrap': {
       // 周期 n−1：首尾两点重合。**不是** filters.ts 的周期 n。
       const sz = n - 1
@@ -124,7 +147,8 @@ function foldCoord(x: number, n: number, mode: InterpMode): number | null {
       const p = 2 * n
       if (x < 0) {
         const y = x < -p ? p * Math.trunc(-x / p) + x : x
-        return y < -n ? y + p : -y - 1
+        // scipy 的 −1e−15 判据（抬头 ⑧）：免得贴着 0 的坐标折成恰好 −1
+        return y < -n ? y + p : (y > -1e-15 ? 1e-15 : -y) - 1
       }
       const y = x >= p ? x - p * Math.trunc(x / p) : x
       return y < n ? y : p - y - 1
@@ -143,12 +167,12 @@ function foldCoord(x: number, n: number, mode: InterpMode): number | null {
 }
 
 /**
- * 折完坐标、取完整之后，**下标还可能越界**，这里按同一个模式再折一次。
+ * 折完坐标、取完整之后，**邻点下标还可能越界**，这里按 scipy `_get_spline_boundary_mode`
+ * 选的模式再折（抬头 ⑥）：`constant` 与 `wrap` 用 `mirror`，其余照原模式。
  *
- * 只有 `mirror` 会真的走到这里（抬头 ④ 那一段），其余模式要么折完就在界内，
- * 要么越界的那一格权重恰为 0。权重为 0 也要折对：NaN · 0 = NaN，这一格决定 NaN
- * 怎么传。按 scipy 1.17 实测：`nearest` 夹边界，`reflect` 按 2n 周期折，
- * `mirror` 与 `constant` 按 2n − 2 周期折，`wrap`（scipy 旧的 wrap）周期 n − 1。
+ * `mirror` 的 (n−1, n) 那一段（抬头 ④）与 `nearest` 的界外坐标（抬头 ⑤）会真的用到这里，
+ * 其余情形越界的那一格权重恰为 0 —— 但它照样乘进结果（抬头 ⑦），NaN · 0 = NaN，
+ * 所以这一格落在哪一行决定缺测怎么传。
  */
 function foldIndex(i: number, n: number, mode: InterpMode): number {
   if (i >= 0 && i < n) return i
@@ -159,18 +183,16 @@ function foldIndex(i: number, n: number, mode: InterpMode): number {
       const m = mod(i, p)
       return m >= n ? p - 1 - m : m
     }
-    // scipy 的 constant 在界内插值时按 mirror 延拓邻点，越界的坐标才取 cval
-    case 'constant':
-    case 'mirror': {
+    case 'nearest':
+      // 夹边界。NaN 下标（来自 NaN 坐标）落到第 0 格：scipy 把 floor(NaN) 转成整数时
+      // 得到最小的负整数（x86）或 0（ARM），夹完都是 0
+      return i >= n ? n - 1 : 0
+    default: {
+      // constant、wrap、mirror：周期 2n − 2
       const p = 2 * n - 2
       const m = mod(i, p)
       return m >= n ? p - m : m
     }
-    // scipy 旧的 wrap：周期 n − 1
-    case 'wrap':
-      return mod(i, n - 1)
-    default:
-      return i < 0 ? 0 : n - 1
   }
 }
 
@@ -180,19 +202,15 @@ function sampleFolded(m: Mat, ry: number, cx: number, order: InterpOrder, mode: 
     // floor(x + 0.5) —— 四舍五入，不是就近偶数（抬头 ②）
     const r = foldIndex(Math.floor(ry + 0.5), m.rows, mode)
     const c = foldIndex(Math.floor(cx + 0.5), m.cols, mode)
-    return m.data[r * m.cols + c] as number
+    return 0 + (m.data[r * m.cols + c] as number) // scipy 从 0.0 加起：−0 出来是 +0（抬头 ⑦）
   }
   const r0 = Math.floor(ry)
   const c0 = Math.floor(cx)
   const fr = ry - r0
   const fc = cx - c0
-  // 与 scipy 1.17 逐位一致（ni_splines.c / ni_interpolation.c，20000 个随机点实测全等）：
-  // ① 权重是 `1 − t` 与 `1 − (1 − t)`——scipy 让末位权重等于 1 减其余，而不是 t；
-  // ② 四个邻点按 C 序累加，每个是 `(值 · 行权重) · 列权重`；
-  // ③ 权重为 0 的邻点也算（越界的那格按 foldIndex 折回），所以权重为 0 的 NaN 邻点
-  //    让结果是 NaN，和 scipy 一样。
-  // 2026-10-12 之前这里先乘权重、跳过零权重、末位权重取 t：约三成的点末位不同，
-  // 部分采集帧上 NaN 的语义也不同（visual-memory 剖线移植时发现）。
+  // 抬头 ⑦：权重 `1 − t` 与 `1 − (1 − t)`，每项 `(值 · 行权重) · 列权重`，按 C 序累加，
+  // 权重为 0 的邻点也算。2026-10-12 之前这里先乘权重、跳过零权重、末位权重取 t：
+  // 约三成的点末位不同，部分采集帧上 NaN 的语义也不同（visual-memory 剖线移植时发现）。
   const wr0 = 1 - fr
   const wc0 = 1 - fc
   const wr = [wr0, 1 - wr0]

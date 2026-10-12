@@ -112,6 +112,8 @@ describe('registration', () => {
     const validArgs: Record<string, unknown> = {
       stm_inspect: { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] },
       stm_read_values: { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: 1, columns: 1 }] },
+      stm_line_profile: { frame: 't0000.s0', p1: { x: 0, y: 16 }, p2: { x: 64, y: 16 } },
+      stm_frame_stats: { frame: 't0000.s0' },
       stm_notes_read: { file: 'GUIDE.md' },
       stm_notes_write: { file: 'WORKING.md', content: 'x' },
       stm_frame_diff: { frame_a: 't0000.s0', frame_b: 't0000.s0' },

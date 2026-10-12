@@ -1213,6 +1213,11 @@ TS 没有运行期类名。判据（**「源给的不是一份读数 ⇒ 当作�
 注明为「没有定义」）。**于是 `interpolate.ts` 不复用 `filters.ts` 的 `boundaryIndex` ——
 复用才是 bug。** 两处各有一条测试互相指认。
 
+这一条说的是**坐标**。越界的**邻点下标**另按 scipy 的 `_get_spline_boundary_mode` 延拓，
+`wrap` 在那里用 mirror（周期 2n − 2）：`x = n − 1` 上权重为 0 的邻点落到第 n − 2 行，不是第 1 行。
+权重为 0 也要折对，因为它照样乘进结果，缺测行的 NaN 由它传出来（2026-10-13，`interpolate.ts` 抬头 ⑤–⑧，
+判据 `interp_edges.json`）。
+
 **变异**：`numerics-interp-wrap-period-is-n-minus-1`。
 
 ## D-NUM-10 · `mirror` 在 `(n−1, n)` 这一段上**根本不折坐标**
