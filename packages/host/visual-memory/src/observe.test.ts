@@ -24,6 +24,7 @@ import {
   TEXT_ONLY_ROUTE,
 } from './observe.js'
 import { pngSize } from './png.js'
+import { pyRepr } from './pyfmt.js'
 import * as plugin from './plugin.js'
 import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm } from './synthetic-sxm.js'
@@ -275,7 +276,7 @@ describe('frameObserver: sessions and errors', () => {
     const file = join(h.saveDir, 'not-a-dir')
     writeFileSync(file, '')
     const o = await runAs(h, kernel(h, () => file), saving('SetBias', 'write'))
-    expect(o.observation?.error).toMatch(/^.*not-a-dir could not be listed: ENOTDIR/)
+    expect(o.observation?.error?.startsWith(`${pyRepr(file)} could not be listed: ENOTDIR`)).toBe(true) // quoted like the reference quotes names
     const gone = join(h.saveDir, 'gone')
     mkdirSync(gone)
     const k = kernel(h, () => gone)
@@ -283,7 +284,7 @@ describe('frameObserver: sessions and errors', () => {
       rmSync(gone, { recursive: true })
       writeFileSync(gone, '')
     }))
-    expect(after.observation?.error).toMatch(/gone could not be listed: ENOTDIR/)
+    expect(after.observation?.error?.startsWith(`${pyRepr(gone)} could not be listed: ENOTDIR`)).toBe(true)
   })
 
   it('without ctx.frameArchive the observer does nothing and the outcome is unchanged', async () => {

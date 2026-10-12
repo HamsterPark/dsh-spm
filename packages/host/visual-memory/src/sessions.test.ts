@@ -81,6 +81,20 @@ describe('the tools read and write the calling session', () => {
     expect(ctx.frameArchive.current().dir).toBe(root)
     expect(ctx.frameArchive.runInSession('s', () => ctx.frameArchive.current().session)).toBe('s')
   })
+
+  it("the service's own methods act on the calling session (what K14's addScan / addSpectrum rely on)", async () => {
+    const { ctx } = await host()
+    const svc = ctx.frameArchive
+    const geometry = { cx_nm: 0, cy_nm: 0, w_nm: 1, h_nm: 1 }
+    const entry = svc.runInSession('session-a', () => svc.addPartial(2, { Z: [[1e-10]] }, { geometry }))
+    expect(entry.fid).toBe('t0002.p0')
+    expect(svc.runInSession('session-a', () => svc.archive)).toBe(svc.session('session-a').archive)
+    expect(svc.runInSession('session-a', () => svc.frames().map((e) => e.fid))).toEqual(['t0002.p0'])
+    expect(svc.runInSession('session-b', () => svc.frames())).toEqual([])
+    expect(svc.frames()).toEqual([]) // outside a call: the memory of calls without an agent
+    expect(svc.archive).toBe(svc.session(null).archive)
+    expect(svc.notes).toBe(svc.session(undefined).notes)
+  })
 })
 
 describe('session directories', () => {

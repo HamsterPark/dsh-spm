@@ -237,7 +237,6 @@ export {
 } from './plugin.js'
 export {
   IMAGES_NOT_DELIVERED,
-  NO_SPECTRA,
   TEXT_ONLY_ROUTE,
   frameObserver,
   observationPresenter,

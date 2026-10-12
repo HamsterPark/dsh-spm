@@ -8,9 +8,10 @@
  * - {@link frameObserver} is the kernel's `SkillObserver`. Before a depth-0
  *   skill runs it makes sure it knows which `.sxm` / `.dat` files the save
  *   directory already holds; afterwards it archives every file that is new or
- *   has changed, oldest first, into the calling session's archive, and picks
- *   the frames to show: the newest new scan, then the last two new spectra
- *   (the reference's `_observation_for`).
+ *   has changed, oldest first, through `ctx.frameArchive.addScan` /
+ *   `addSpectrum` (which act on the calling session), and picks the frames to
+ *   show: the newest new scan, then the last two new spectra (the reference's
+ *   `_observation_for`).
  * - {@link observationPresenter} is the skill tool's `OutcomePresenter`. It
  *   stores the shown frames' observation images as attachments and renders
  *   them after the result text, each after its label (as `stm_inspect` does).
@@ -42,7 +43,9 @@ import { readdirSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import type { ContentBlock, Context, ToolRunContext } from 'dsh-spm-compat'
 import type { ObservedCall, SkillObservation, SkillObserver, SkillOutcome } from 'dsh-spm-kernel'
-import { entrySummary, type FrameArchive, type FrameEntry } from './archive.js'
+import { entrySummary, type FrameEntry } from './archive.js'
+import type { FrameArchiveService } from './plugin.js'
+import { pyRepr } from './pyfmt.js'
 import {
   errorMessage,
   NO_ATTACHMENT_SERVICE,
@@ -51,9 +54,6 @@ import {
   VIEW_OUTPUT,
   type ViewToolValue,
 } from './tools.js'
-
-/** Why a `.dat` file was not archived by an archive that cannot read spectra. */
-export const NO_SPECTRA = 'this archive cannot archive spectra (.dat) yet'
 
 /** Text key of the count of images the model will not see (as in the view tools' replies). */
 export const IMAGES_NOT_DELIVERED = 'images_not_delivered'
@@ -122,7 +122,7 @@ export function frameObserver(ctx: Context, options: FrameObserverOptions): Skil
       if (dir === null) return { error: 'the controller reported no save directory' }
       if (!known.has(dir)) {
         const listing = listDataFiles(dir)
-        if ('error' in listing) return { error: `${dir} could not be listed: ${listing.error}` }
+        if ('error' in listing) return { error: `${pyRepr(dir)} could not be listed: ${listing.error}` }
         known.set(dir, new Map(listing.files.map((f) => [f.name, f.sig])))
       }
       return { dir }
@@ -131,7 +131,7 @@ export function frameObserver(ctx: Context, options: FrameObserverOptions): Skil
     async end(token, call): Promise<SkillObservation | null> {
       const svc = ctx.get('frameArchive')
       if (svc === undefined) return null
-      const { archive } = svc.current()
+      const archive = svc.archive // the calling session's
       let turn = archive.currentTurn
       if (call.stateChanging) {
         turn += 1
@@ -146,14 +146,14 @@ export function frameObserver(ctx: Context, options: FrameObserverOptions): Skil
         const seen = known.get(t.dir) as Map<string, string>
         const listing = listDataFiles(t.dir)
         if ('error' in listing) {
-          error = `${t.dir} could not be listed: ${listing.error}`
+          error = `${pyRepr(t.dir)} could not be listed: ${listing.error}`
         } else {
           const fresh = listing.files
             .filter((f) => seen.get(f.name) !== f.sig)
             .sort((a, b) => a.mtimeMs - b.mtimeMs || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
           for (const f of fresh) {
             seen.set(f.name, f.sig)
-            const added = ingest(archive, turn, f)
+            const added = ingest(svc, turn, f)
             if ('error' in added) notArchived.push({ file: f.name, error: added.error })
             else frames.push(added.entry)
           }
@@ -178,13 +178,10 @@ export function frameObserver(ctx: Context, options: FrameObserverOptions): Skil
   }
 }
 
-/** Archive one data file; `addSpectrum` is used where the archive has it. */
-function ingest(archive: FrameArchive, turn: number, f: DataFile): { readonly entry: FrameEntry } | { readonly error: string } {
+/** Archive one data file into the calling session (the service methods act on it). */
+function ingest(svc: FrameArchiveService, turn: number, f: DataFile): { readonly entry: FrameEntry } | { readonly error: string } {
   try {
-    if (f.ext === '.sxm') return { entry: archive.addScan(turn, f.path) }
-    const addSpectrum = (archive as unknown as { addSpectrum?: (turn: number, path: string) => FrameEntry }).addSpectrum
-    if (typeof addSpectrum !== 'function') return { error: NO_SPECTRA }
-    return { entry: addSpectrum.call(archive, turn, f.path) }
+    return { entry: f.ext === '.sxm' ? svc.addScan(turn, f.path) : svc.addSpectrum(turn, f.path) }
   } catch (err) {
     return { error: errorMessage(err) }
   }
@@ -222,13 +219,12 @@ export async function presentObservation(ctx: Context, outcome: SkillOutcome, ex
   const show = outcome.observation?.show ?? []
   const svc = ctx.get('frameArchive')
   if (show.length === 0 || svc === undefined) return { text: outcome.text, images: [] }
-  const { archive } = svc.current()
   const saver = ctx.get('attachments')
   const images: ViewToolValue['images'] = []
   for (const fid of show) {
     let shot: { readonly label: string; readonly png: Uint8Array }
     try {
-      shot = archive.observation(fid)
+      shot = svc.observation(fid)
     } catch (err) {
       images.push({ label: `<visual kind="current" frame="${fid}"/>`, error: errorMessage(err) })
       continue

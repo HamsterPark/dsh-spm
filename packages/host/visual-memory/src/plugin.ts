@@ -16,15 +16,17 @@
  * the tool call (`exec.agent.id`; {@link sessionDirName} makes it safe as a
  * directory name). A session that is resumed later, in this process or the
  * next, finds its frames and notes again; two sessions never see each other's.
- * Calls without an agent (tests, host code, the service methods below) use
- * `<root>/frames` and `<root>/notes`, as before sessions existed.
+ * Calls without an agent (tests, host code) use `<root>/frames` and
+ * `<root>/notes`, as before sessions existed.
  *
  * How a call finds its session: the plugin runs every tool dispatch
- * (`tools/execute`) inside an AsyncLocalStorage scope keyed by the call's agent,
- * and the tools' `archive` / `notes` are getters that resolve that scope when
- * they are read. So a tool reads `deps.archive` / `deps.notes` at call time,
- * inside `execute` — never at definition time. K14 runs inside the skill tool's
- * dispatch and resolves the same scope ({@link FrameArchiveService.current}).
+ * (`tools/execute`) inside an AsyncLocalStorage scope keyed by the call's agent.
+ * The service's `archive` and `notes` are getters that resolve that scope when
+ * they are read, and every service method (`addScan`, `addSpectrum`, `get`, …)
+ * goes through them, so `ctx.frameArchive` acts on the calling session. The
+ * tools' deps are getters too: a tool reads `deps.archive` / `deps.notes` at
+ * call time, inside `execute` — never at definition time. K14 runs inside the
+ * skill tool's dispatch and so files into the same session.
  */
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { createHash } from 'node:crypto'
@@ -75,14 +77,15 @@ export function sessionDirName(session: string): string {
   return `${stem}-${createHash('sha256').update(session, 'utf8').digest('hex').slice(0, 16)}`
 }
 
-/** `ctx.frameArchive`: the archive interface of VISUAL-HARNESS §4.1 plus the notes store. */
+/**
+ * `ctx.frameArchive`: the archive interface of VISUAL-HARNESS §4.1 plus the
+ * notes store, acting on the memory of the call in progress (module comment).
+ */
 export class FrameArchiveService extends Service {
-  /** The archive of calls without an agent (`<root>/frames`). */
-  readonly archive: FrameArchive
-  /** The notes of calls without an agent (`<root>/notes`). */
-  readonly notes: NotesStore
   private readonly root: string
   private readonly archiveOptions: ArchiveOptions
+  /** The memory of calls without an agent (`<root>/frames`, `<root>/notes`). */
+  private readonly agentless: SessionMemory
   private readonly sessions = new Map<string, SessionMemory>()
   private readonly scope = new AsyncLocalStorage<string | undefined>()
 
@@ -97,8 +100,22 @@ export class FrameArchiveService extends Service {
       ...(config.displayMax === undefined ? {} : { displayMax: config.displayMax }),
       grid: config.grid ?? true,
     }
-    this.archive = new FrameArchive(join(config.root, 'frames'), this.archiveOptions)
-    this.notes = new NotesStore(join(config.root, 'notes'))
+    this.agentless = {
+      session: undefined,
+      dir: config.root,
+      archive: new FrameArchive(join(config.root, 'frames'), this.archiveOptions),
+      notes: new NotesStore(join(config.root, 'notes')),
+    }
+  }
+
+  /** The archive of the call in progress: its agent's session in a tool dispatch, `<root>/frames` outside one. */
+  get archive(): FrameArchive {
+    return this.current().archive
+  }
+
+  /** The notes of the call in progress, like {@link archive}. */
+  get notes(): NotesStore {
+    return this.current().notes
   }
 
   addScan(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
@@ -165,9 +182,7 @@ export class FrameArchiveService extends Service {
    * without an agent.
    */
   session(session?: string | null): SessionMemory {
-    if (session === undefined || session === null) {
-      return { session: undefined, dir: this.root, archive: this.archive, notes: this.notes }
-    }
+    if (session === undefined || session === null) return this.agentless
     const open = this.sessions.get(session)
     if (open !== undefined) return open
     const dir = join(this.root, 'sessions', sessionDirName(session))
@@ -221,10 +236,10 @@ export function apply(ctx: Context, config: Config): void {
   const tools = defineVisualTools({
     // Getters, read by the tools at call time: the calling session's memory.
     get archive() {
-      return svc.current().archive
+      return svc.archive
     },
     get notes() {
-      return svc.current().notes
+      return svc.notes
     },
     attachments: () => ctx.get('attachments'),
   })
