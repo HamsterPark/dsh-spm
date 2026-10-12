@@ -390,26 +390,32 @@ describe('linePlot', () => {
     return best
   }
 
-  it('fills exactly the requested size, the panels sharing its height equally above the x axis', () => {
+  it('fills exactly the requested size, the panels sharing its height and the first ones the odd pixels', () => {
     const panels = [0, 1, 2].map((k) => ({ yLabel: `y${k} (pA)`, series: [{ x: [0, 1, 2], y: [k, k + 1, k] }] }))
-    for (const height of [642, 644]) {
-      // 3 × 200 + 42 px, then 2 px more that an even split leaves blank at the bottom
+    // above the 42-px x axis band: 600 = 200 + 200 + 200 px, 602 = 201 + 201 + 200 px
+    const cases = [
+      { height: 642, tops: [0, 200, 400], shares: [200, 200, 200] },
+      { height: 644, tops: [0, 201, 402], shares: [201, 201, 200] },
+    ]
+    for (const { height, tops, shares } of cases) {
       const r = linePlot({ width: 600, height, xLabel: 'Bias (V)', panels })
       expect([r.width, r.height]).toEqual([600, height])
       const img = decoded(r.png)
       expect([img.width, img.height]).toEqual([600, height])
       const frame = frameAt(img, 31)
       expect(frame[1] - frame[0]).toBeGreaterThan(450)
-      for (let k = 0; k < 3; k += 1) {
-        expect(frameAt(img, k * 200 + 31), `top of panel ${k}`).toEqual(frame)
-        expect(frameAt(img, k * 200 + 184), `bottom of panel ${k}`).toEqual(frame) // 200 - 48 px of plot area
-      }
-      expect(where(img, WHITE).filter(([, y]) => y >= 638)).toHaveLength(600 * (height - 638)) // under the x label
+      tops.forEach((top, k) => {
+        expect(frameAt(img, top + 31), `top of panel ${k}`).toEqual(frame)
+        // the plot area is the panel's share less 48 px; the frame's bottom edge is the row after it
+        expect(frameAt(img, top + 32 + (shares[k] as number) - 48), `bottom of panel ${k}`).toEqual(frame)
+      })
+      const lowest = Math.max(...where(img, BLACK).map((p) => p[1])) // the x label, at the bottom
+      expect(height - 1 - lowest).toBe(10) // under its capitals: 6 px of descender rows and pad, then the 4-px margin
     }
-    const profile = linePlot({ width: 768, height: 400, xLabel: 'distance from p1 (nm)', panels: panels.slice(0, 1) })
-    expect(pngSize(profile.png)).toEqual({ width: 768, height: 400 }) // the reference's profile size
-    const spectrum = linePlot({ width: 600, height: 600, xLabel: 'Bias (V)', panels: [...panels, ...panels.slice(0, 1)] })
-    expect(pngSize(spectrum.png)).toEqual({ width: 600, height: 600 }) // four columns at the reference's smallest size
+    for (const [width, height, n] of [[768, 400, 1], [768, 802, 1], [768, 768, 4], [600, 600, 4]] as const) {
+      const r = linePlot({ width, height, xLabel: 'Bias (V)', panels: Array.from({ length: n }, (_, k) => panels[k % 3] as (typeof panels)[0]) })
+      expect(pngSize(r.png), `${n} panel(s) in ${width} x ${height}`).toEqual({ width, height })
+    }
   })
 
   it('breaks a line at a non-finite value and dots a lone sample', () => {
