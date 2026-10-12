@@ -146,8 +146,9 @@ function foldCoord(x: number, n: number, mode: InterpMode): number | null {
  * 折完坐标、取完整之后，**下标还可能越界**，这里按同一个模式再折一次。
  *
  * 只有 `mirror` 会真的走到这里（抬头 ④ 那一段），其余模式要么折完就在界内，
- * 要么越界的那一格权重恰为 0。但**判据不能靠「恰好」** ——
- * `nearest`/`wrap`/`constant` 夹边界，`reflect`/`mirror` 按各自的周期折。
+ * 要么越界的那一格权重恰为 0。权重为 0 也要折对：NaN · 0 = NaN，这一格决定 NaN
+ * 怎么传。按 scipy 1.17 实测：`nearest` 夹边界，`reflect` 按 2n 周期折，
+ * `mirror` 与 `constant` 按 2n − 2 周期折，`wrap`（scipy 旧的 wrap）周期 n − 1。
  */
 function foldIndex(i: number, n: number, mode: InterpMode): number {
   if (i >= 0 && i < n) return i
@@ -158,11 +159,16 @@ function foldIndex(i: number, n: number, mode: InterpMode): number {
       const m = mod(i, p)
       return m >= n ? p - 1 - m : m
     }
+    // scipy 的 constant 在界内插值时按 mirror 延拓邻点，越界的坐标才取 cval
+    case 'constant':
     case 'mirror': {
       const p = 2 * n - 2
       const m = mod(i, p)
       return m >= n ? p - m : m
     }
+    // scipy 旧的 wrap：周期 n − 1
+    case 'wrap':
+      return mod(i, n - 1)
     default:
       return i < 0 ? 0 : n - 1
   }
@@ -180,15 +186,22 @@ function sampleFolded(m: Mat, ry: number, cx: number, order: InterpOrder, mode: 
   const c0 = Math.floor(cx)
   const fr = ry - r0
   const fc = cx - c0
+  // 与 scipy 1.17 逐位一致（ni_splines.c / ni_interpolation.c，20000 个随机点实测全等）：
+  // ① 权重是 `1 − t` 与 `1 − (1 − t)`——scipy 让末位权重等于 1 减其余，而不是 t；
+  // ② 四个邻点按 C 序累加，每个是 `(值 · 行权重) · 列权重`；
+  // ③ 权重为 0 的邻点也算（越界的那格按 foldIndex 折回），所以权重为 0 的 NaN 邻点
+  //    让结果是 NaN，和 scipy 一样。
+  // 2026-10-12 之前这里先乘权重、跳过零权重、末位权重取 t：约三成的点末位不同，
+  // 部分采集帧上 NaN 的语义也不同（visual-memory 剖线移植时发现）。
+  const wr0 = 1 - fr
+  const wc0 = 1 - fc
+  const wr = [wr0, 1 - wr0]
+  const wc = [wc0, 1 - wc0]
   let acc = 0
   for (let dr = 0; dr <= 1; dr += 1) {
-    const wr = dr === 0 ? 1 - fr : fr
-    if (wr === 0) continue // 权重为 0 的那一格可能越界，也没有必要去读
     const r = foldIndex(r0 + dr, m.rows, mode)
     for (let dc = 0; dc <= 1; dc += 1) {
-      const wc = dc === 0 ? 1 - fc : fc
-      if (wc === 0) continue
-      acc += wr * wc * (m.data[r * m.cols + foldIndex(c0 + dc, m.cols, mode)] as number)
+      acc += ((m.data[r * m.cols + foldIndex(c0 + dc, m.cols, mode)] as number) * (wr[dr] as number)) * (wc[dc] as number)
     }
   }
   return acc

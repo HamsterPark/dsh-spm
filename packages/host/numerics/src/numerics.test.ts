@@ -681,6 +681,30 @@ describe('重采样：`order=0` 没有容差，`order=1` 只有 8 eps', () => {
     expect(() => mapCoordinates(img, [0, 1], [0], 1)).toThrow(/对不上/)
   })
 
+  it('order=1 与 scipy 1.17 逐位一致：末位权重是 1 − (1 − t)，值先乘', () => {
+    // scipy.ndimage.map_coordinates(a, [[r], [c]], order=1, mode='nearest') 的实测值；
+    // 末位权重取 t、或先乘权重的写法，后两点在末位不同
+    const a = matFromRows([[0.597, 0.299, 0.542], [0.987, 0.672, 0.529], [0.87, 0.915, 0.075]])
+    const got = mapCoordinates(a, [0.992, 1.605, 0.678], [0.408, 0.293, 0.301], 1, 'nearest')
+    expect([...got]).toEqual([0.8554154880000001, 0.8877354, 0.768252674])
+  })
+
+  it('权重为 0 的 NaN 邻点也让结果是 NaN；越界邻点按各模式折回（scipy 1.17 实测）', () => {
+    const nan = Number.NaN
+    const rowEdge = matFromRows([[1, nan], [3, 4]])
+    const colEdge = matFromRows([[1, 2], [nan, 4]])
+    const big = matFromRows([[1, 2, 3], [nan, 5, 6], [7, 8, 9]])
+    const want: Record<string, number[]> = {
+      constant: [nan, nan, nan], mirror: [nan, nan, nan], wrap: [nan, nan, nan], nearest: [3, 2, 7], reflect: [3, 2, 7],
+    }
+    for (const [mode, w] of Object.entries(want)) {
+      const m = mode as InterpMode
+      const got = [mapCoordinates(rowEdge, [1], [0], 1, m)[0], mapCoordinates(colEdge, [0], [1], 1, m)[0], mapCoordinates(big, [2], [0], 1, m)[0]]
+      expect(got, mode).toEqual(w)
+    }
+    expect(mapCoordinates(matFromRows([[nan, 2], [3, 4]]), [0], [0], 1, 'nearest')[0]).toBeNaN()
+  })
+
   // ── 三条特意为了「能分辨」而加的探针 ──
 
   for (const c of g.edge_probe.cases as any[]) {
