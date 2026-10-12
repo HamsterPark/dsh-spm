@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FrameArchive } from './archive.js'
 import { decodePng, encodePngRgb } from './png.js'
+import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm } from './synthetic-sxm.js'
 import { inspect, MAX_READ_SAMPLES, readValues, sampleAxis, type ViewToolResult } from './views.js'
 
@@ -50,13 +51,13 @@ function err(r: ViewToolResult): string {
   return r.error
 }
 
-/** A hand-made spectrum record (spectra are not ingested yet) to reach the spectrum branches. */
-function addSpectrumRecord(a: FrameArchive): void {
-  writeFileSync(join(a.root, 't0000.d0.png'), encodePngRgb(1, 1, new Uint8Array(3)))
-  appendFileSync(
-    join(a.root, 'index.jsonl'),
-    `${JSON.stringify({ fid: 't0000.d0', turn: 0, kind: 'd', index: 0, source_name: 'sts.dat', channels: ['Bias (V)', 'Current (A)'], directions: [], nx: 10, ny: 1, geometry: null, nm_per_px: null, display_scale: 1, display_size: [0, 0], bias_v: null, setpoint_a: null, scan_dir: null, acquired_rows: null, rec_time: '', sim_s: null, units: {}, default_channel: 'Current (A)', extra: {} })}\n`,
-  )
+/** The reference's test spectrum (`tests/test_frames.write_dat`): `n` points from -0.5 to 0.5 V, three columns. */
+function addSts(a: FrameArchive, n = 21, turn = 0): string {
+  const v = Array.from({ length: n }, (_, i) => -0.5 + i / (n - 1))
+  return a.addSpectrumBytes(turn, encodeSyntheticDat({
+    header: { Experiment: 'bias spectroscopy', 'X (m)': 1.25e-9, 'Y (m)': -2e-9, 'Bias>Bias (V)': 0.5, 'Z-Controller>Setpoint': 1e-10 },
+    columns: [['Bias calc (V)', v], ['Current (A)', v.map((x) => x * 2e-10)], ['LI Demod 1 X (A)', v.map((x) => 1e-12 + 1e-13 * x)]],
+  }), { sourceName: 'x.dat' }).fid
 }
 
 describe('inspect', () => {
@@ -108,9 +109,10 @@ describe('inspect', () => {
   it('says what to change for every invalid argument', () => {
     const { a } = setup()
     a.addDerived(0, encodePngRgb(8, 4, new Uint8Array(96)), { tool: 'stm_fft_peaks' })
-    addSpectrumRecord(a)
+    addSts(a)
     const b = new FrameArchive(a.root, { displayMax: 64 })
     const v = (over: Record<string, unknown>) => ({ question: 'q', views: [{ label: 'v', frame: 't0000.s0', ...over }] })
+    const sp = (over: Record<string, unknown>) => v({ frame: 't0000.d0', ...over })
     const cases: [unknown, RegExp][] = [
       [[1], /^inspect: arguments must be a JSON object, got list$/],
       [{ question: 'q', views: [], extra: 1 }, /unknown field\(s\) \['extra'\]; allowed: \['question', 'views'\]/],
@@ -120,7 +122,7 @@ describe('inspect', () => {
       [{ question: 'q', views: [] }, /views must be a non-empty list/],
       [{ question: 'q', views: Array.from({ length: 17 }, () => ({ label: 'v', frame: 't0000.s0' })) }, /at most 16 views per call \(got 17\)/],
       [{ question: 'q', views: ['t0000.s0'] }, /views\[1\] must be an object/],
-      [v({ zoom: 2 }), /views\[1\]: unknown field\(s\) \['zoom'\]/],
+      [v({ zoom: 2 }), /views\[1\]: unknown field\(s\) \['zoom'\]; allowed: \['channel', 'clip_pct', 'direction', 'flatten', 'frame', 'highpass_nm', 'label', 'region', 'x_col', 'x_range', 'y_col'\]$/],
       [{ question: 'q', views: [{ frame: 't0000.s0' }] }, /views\[1\]: missing required field\(s\) \['label'\]/],
       [v({ label: '' }), /views\[1\]\.label must be a non-empty string/],
       [v({ label: 'x'.repeat(129) }), /label is longer than 128 characters/],
@@ -145,7 +147,18 @@ describe('inspect', () => {
       [v({ clip_pct: 30 }), /clip_pct must be <= 25/],
       [v({ clip_pct: Number.NaN }), /clip_pct must be finite/],
       [{ question: 'q', views: [{ label: 'v', frame: 't0000.m0', channel: 'Z' }] }, /\['channel'\] do not apply to a derived image frame/],
-      [{ question: 'q', views: [{ label: 'v', frame: 't0000.d0' }] }, /t0000\.d0 is a spectrum; spectra cannot be inspected yet/],
+      [v({ x_range: [0, 1] }), /^inspect: views\[1\]: \['x_range'\] do not apply to a scan frame; allowed: \['channel', 'clip_pct', 'direction', 'flatten', 'frame', 'highpass_nm', 'label', 'region'\]$/],
+      [sp({ region: { x: 0, y: 0, width: 5, height: 5 } }), /^inspect: views\[1\]: \['region'\] do not apply to a spectrum frame; allowed: \['frame', 'label', 'x_col', 'x_range', 'y_col'\]$/],
+      [sp({ y_cols: ['Current'] }), /unknown field\(s\) \['y_cols'\]/],
+      [sp({ x_col: 3 }), /^inspect: views\[1\]\.x_col must be a string$/],
+      [sp({ y_col: '' }), /^inspect: views\[1\]\.y_col must have 1\.\.64 characters$/],
+      [sp({ x_range: [1] }), /^inspect: views\[1\]\.x_range must be \[low, high\] numbers$/],
+      [sp({ x_range: [1, '2'] }), /x_range must be \[low, high\] numbers/],
+      [sp({ x_range: 0.1 }), /x_range must be \[low, high\] numbers/],
+      [sp({ x_range: [0.1, 0.1] }), /^inspect: views\[1\]\.x_range needs two different finite numbers$/],
+      [sp({ x_col: 'phase' }), /^inspect: views\[1\]: no channel 'phase'; this frame has \['Bias calc \(V\)', 'Current \(A\)', 'LI Demod 1 X \(A\)'\]$/],
+      [sp({ y_col: 'phase' }), /^inspect: views\[1\]: no channel 'phase'/],
+      [sp({ x_range: [1000, 900] }), /^inspect: views\[1\]: x_range 900\.0\.\.1000\.0 V contains no samples \(x spans -0\.5\.\.0\.5 V\)$/],
     ]
     for (const [args, re] of cases) expect(err(inspect(b, args))).toMatch(re)
   })
@@ -242,7 +255,7 @@ describe('read_values', () => {
 
   it('enforces the per-call limits and the scan-view fields', () => {
     const { a } = setup()
-    addSpectrumRecord(a)
+    addSts(a)
     const b = new FrameArchive(a.root, { displayMax: 64 })
     const view = { label: 'v', frame: 't0000.s0', rows: 1, columns: 1 }
     expect(err(readValues(b, { question: 'q', views: Array.from({ length: 65 }, () => view) }))).toMatch(/at most 64 views per call \(got 65\)/)
@@ -253,8 +266,140 @@ describe('read_values', () => {
     expect(err(readValues(b, { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: 2 }] }))).toMatch(/a scan view needs rows and columns/)
     expect(err(readValues(b, { question: 'q', views: [{ ...view, rows: 0 }] }))).toMatch(/rows must be >= 1/)
     expect(err(readValues(b, { question: 'q', views: [{ ...view, columns: 4097 }] }))).toMatch(/columns must be <= 4096/)
-    expect(err(readValues(b, { question: 'q', views: [{ ...view, flatten: 'plane' }] }))).toMatch(/unknown field\(s\) \['flatten'\]/)
-    expect(err(readValues(b, { question: 'q', views: [{ ...view, frame: 't0000.d0' }] }))).toMatch(/spectra cannot be read yet/)
+    expect(err(readValues(b, { question: 'q', views: [{ ...view, flatten: 'plane' }] }))).toBe(
+      "read_values: views[1]: unknown field(s) ['flatten']; allowed: ['channel', 'columns', 'direction', 'frame', 'label', 'n', 'region', 'rows', 'x_col', 'x_range', 'y_cols']",
+    )
+    expect(err(readValues(b, { question: 'q', views: [{ ...view, n: 3 }] }))).toBe(
+      "read_values: views[1]: ['n'] do not apply to a scan frame; allowed: ['channel', 'columns', 'direction', 'frame', 'label', 'region', 'rows']",
+    )
+    expect(err(readValues(b, { question: 'q', views: [{ ...view, frame: 't0000.d0' }] }))).toBe(
+      "read_values: views[1]: ['columns', 'rows'] do not apply to a spectrum frame; allowed: ['frame', 'label', 'n', 'x_col', 'x_range', 'y_cols']",
+    )
+  })
+})
+
+describe('spectrum views', () => {
+  it('inspect: a line plot per view with the reference reply, keys in its order', () => {
+    const { a } = setup()
+    const d = addSts(a)
+    const r = ok(inspect(a, {
+      question: 'Where does the current rise?',
+      views: [
+        { label: 'plot', frame: d, y_col: 'Current', x_range: [-0.2, 0.2] },
+        { label: 'default', frame: d },
+        { label: 'swapped', frame: d, x_col: 'current', y_col: 'bias calc', x_range: [100, -1e-6] },
+      ],
+    }))
+    const views = r.reply['views'] as Record<string, unknown>[]
+    expect(views[0]).toEqual({
+      index: 1, label: 'plot', frame: 't0000.d0', kind: 'spectrum', x_col: 'Bias calc (V)', x_unit: 'V',
+      y: [{ column: 'Current (A)', unit: 'pA' }], n_points: 9, x_shown_v: [-0.2, 0.2], image_size_px: [600, 390],
+    })
+    expect(Object.keys(views[0] as object)).toEqual(['index', 'label', 'frame', 'kind', 'x_col', 'x_unit', 'y', 'n_points', 'x_shown_v', 'image_size_px'])
+    expect(views[1]).toMatchObject({ n_points: 21, x_shown_v: [-0.5, 0.5], image_size_px: [600, 600], y: [{ column: 'Current (A)', unit: 'pA' }, { column: 'LI Demod 1 X (A)', unit: 'pA' }] })
+    expect(views[2]).toMatchObject({ x_col: 'Current (A)', x_unit: 'pA', y: [{ column: 'Bias calc (V)', unit: 'V' }], n_points: 11, x_shown_pa: [0, 100] })
+    expect(r.images.map((i) => i.label)).toEqual([
+      '<visual kind="inspection" index="1" count="3" label="plot" frame="t0000.d0" plot="spectrum" x="Bias calc [V]" y="Current [pA]" points="9" size="600x390" x_range="-0.2..0.2"/>',
+      '<visual kind="inspection" index="2" count="3" label="default" frame="t0000.d0" plot="spectrum" x="Bias calc [V]" y="Current [pA]; LI Demod 1 X [pA]" points="21" size="600x600"/>',
+      '<visual kind="inspection" index="3" count="3" label="swapped" frame="t0000.d0" plot="spectrum" x="Current [pA]" y="Bias calc [V]" points="11" size="600x390" x_range="0..100"/>',
+    ])
+    expect(r.images.map((i) => i.name)).toEqual(['t0000.d0.inspect-1.png', 't0000.d0.inspect-2.png', 't0000.d0.inspect-3.png'])
+    const img = decodePng(r.images[0]?.png as Uint8Array)
+    expect([img.width, img.height]).toEqual([600, 390])
+  })
+
+  it('read_values: samples at bin centers of the points in x_range, like the reference', () => {
+    const { a } = setup()
+    const d = addSts(a)
+    const r = ok(readValues(a, { question: 'q', views: [{ label: 's', frame: d, x_range: [-0.1, 0.1], n: 3, y_cols: ['Current'] }] }))
+    const v = (r.reply['views'] as Record<string, unknown>[])[0] as Record<string, unknown>
+    expect(v).toEqual({
+      index: 1, label: 's', frame: 't0000.d0', kind: 'spectrum', column_names: ['Bias calc (V)', 'Current (A)'], column_units: ['V', 'pA'],
+      column_decimals: [3, 1], n: 3, points_in_range: 5, sample_index: [8, 10, 12], values: [[-0.1, 0, 0.1], [-20, 0, 20]], x_range_v: [-0.1, 0.1],
+    })
+    expect(Object.keys(v)).toEqual([
+      'index', 'label', 'frame', 'kind', 'column_names', 'column_units', 'column_decimals', 'n', 'points_in_range', 'sample_index', 'values', 'x_range_v',
+    ])
+    expect(r.reply['sample_count']).toBe(6)
+    const all = ok(readValues(a, { question: 'q', views: [{ label: 'all', frame: d }] }))
+    const w = (all.reply['views'] as Record<string, unknown>[])[0] as Record<string, unknown>
+    expect(w).toMatchObject({ n: 21, points_in_range: 21, column_names: ['Bias calc (V)', 'Current (A)', 'LI Demod 1 X (A)'], column_decimals: [3, 1, 4] })
+    expect((w['values'] as unknown[]).length).toBe(3)
+    expect(w).not.toHaveProperty('x_range_v')
+    expect(all.reply['sample_count']).toBe(63)
+    // n larger than the points in range is capped; x by another column, in its unit; a scan view alongside.
+    const mixed = ok(readValues(a, {
+      question: 'q',
+      views: [
+        { label: 'capped', frame: d, x_col: 'Current', x_range: [-1, 1], n: 50, y_cols: ['bias calc', 'Current'] },
+        { label: 'scan', frame: 't0000.s0', rows: 1, columns: 2 },
+      ],
+    }))
+    const [c, s] = mixed.reply['views'] as Record<string, unknown>[]
+    expect(c).toMatchObject({
+      column_names: ['Current (A)', 'Bias calc (V)', 'Current (A)'], column_units: ['pA', 'V', 'pA'], n: 1, points_in_range: 1,
+      sample_index: [10], values: [[0], [0], [0]], x_range_pa: [-1, 1],
+    })
+    expect(s).toMatchObject({ frame: 't0000.s0', values_pm: [[expect.any(Number), expect.any(Number)]] })
+    expect(mixed.reply['sample_count']).toBe(5)
+  })
+
+  it('read_values: says what to change for a spectrum view', () => {
+    const { a } = setup()
+    const d = addSts(a)
+    addSts(a, 5000, 1)
+    const one = (over: Record<string, unknown>) => readValues(a, { question: 'q', views: [{ label: 's', frame: d, ...over }] })
+    expect(err(one({ x_range: [900, 1000] }))).toBe('read_values: views[1].x_range 900.0..1000.0 V contains no samples; x spans -0.5..0.5 V')
+    expect(err(one({ x_range: [1e-7, 2e-7] }))).toBe('read_values: views[1].x_range 1e-07..2e-07 V contains no samples; x spans -0.5..0.5 V')
+    expect(err(one({ x_range: [2, 2] }))).toBe('read_values: views[1].x_range needs two different finite numbers')
+    expect(err(one({ x_col: 'phase' }))).toBe("read_values: views[1]: no channel 'phase'; this frame has ['Bias calc (V)', 'Current (A)', 'LI Demod 1 X (A)']")
+    expect(err(one({ x_col: '' }))).toBe('read_values: views[1].x_col must have 1..64 characters')
+    expect(err(one({ y_cols: ['Current', 'phase'] }))).toMatch(/^read_values: views\[1\]: no channel 'phase'/)
+    for (const bad of [[], 'Current', [3]]) {
+      expect(err(one({ y_cols: bad }))).toBe('read_values: views[1].y_cols must be a list of column names')
+    }
+    expect(err(one({ n: 0 }))).toBe('read_values: views[1].n must be >= 1')
+    expect(err(one({ n: 2.5 }))).toBe('read_values: views[1].n must be an integer')
+    expect(err(one({ n: 4097 }))).toBe('read_values: views[1].n must be <= 4096')
+    // A spectrum longer than 4096 points needs n; samples count every column.
+    expect(err(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0' }] }))).toBe('read_values: views[1].n must be <= 4096')
+    expect(err(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0', n: 2000 }] }))).toBe(
+      'read_values: at most 4096 samples per call; views 1..1 already ask for 6000',
+    )
+    expect(ok(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0', n: 2048, y_cols: ['Current'] }] })).reply['sample_count']).toBe(4096)
+  })
+  it('writes x_shown as null when the x column has no finite value (spec/deviations.md D-VMEM-13)', () => {
+    const { a } = setup()
+    const fid = a.addSpectrumBytes(0, encodeSyntheticDat({
+      columns: [['Bias calc (V)', [Number.NaN, Number.NaN, Number.NaN]], ['Current (A)', [1e-12, 2e-12, 3e-12]]],
+    }), { sourceName: 'nan.dat' }).fid
+    const r = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: fid }] }))
+    expect((r.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ n_points: 3, x_shown_v: [Number.NaN, Number.NaN] })
+    expect(JSON.stringify(r.reply)).toContain('"x_shown_v":[null,null]')
+    expect(r.images[0]?.label).toContain('x="Bias calc [V]" y="Current [pA]" points="3"')
+    expect(err(readValues(a, { question: 'q', views: [{ label: 'v', frame: fid, x_range: [0, 1] }] }))).toBe(
+      'read_values: views[1].x_range 0.0..1.0 V contains no samples; x spans nan..nan V',
+    )
+    const read = ok(readValues(a, { question: 'q', views: [{ label: 'v', frame: fid }] }))
+    expect((read.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ values: [[null, null, null], [1, 2, 3]] })
+  })
+
+  it('explains spectrum records that lack columns or values', () => {
+    const { a } = setup()
+    const record = (index: number, channels: string[]) => ({
+      fid: `t0000.d${index}`, turn: 0, kind: 'd', index, source_name: 'hand.dat', channels, directions: [], nx: 10, ny: 1, geometry: null,
+      nm_per_px: null, display_scale: 1, display_size: [0, 0], bias_v: null, setpoint_a: null, scan_dir: null, acquired_rows: null,
+      rec_time: '', sim_s: null, units: {}, default_channel: channels[0] ?? null, extra: {},
+    })
+    writeFileSync(join(a.root, 't0000.d0.png'), encodePngRgb(1, 1, new Uint8Array(3)))
+    writeFileSync(join(a.root, 't0000.d1.png'), encodePngRgb(1, 1, new Uint8Array(3)))
+    appendFileSync(join(a.root, 'index.jsonl'), `${JSON.stringify(record(0, ['Bias (V)', 'Current (A)']))}\n${JSON.stringify(record(1, []))}\n`)
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    const view = (frame: string) => ({ question: 'q', views: [{ label: 'v', frame }] })
+    expect(err(inspect(b, view('t0000.d0')))).toBe('inspect: views[1]: t0000.d0 is a spectrum without archived values')
+    expect(err(readValues(b, view('t0000.d0')))).toBe('read_values: t0000.d0 is a spectrum without archived values')
+    expect(err(inspect(b, view('t0000.d1')))).toBe('inspect: views[1]: t0000.d1 is a spectrum without columns')
+    expect(err(readValues(b, view('t0000.d1')))).toBe('read_values: views[1]: t0000.d1 is a spectrum without columns')
   })
 })
 

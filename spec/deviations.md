@@ -4046,14 +4046,14 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 |---|---|
 | **Python**（`vista_spm/measure.py`、`frames.py`） | `_draw_marks` 用 Pillow 画圈与编号（DejaVu Sans 13–22 px，2 px 黑色描边）；`_plot_png`、`render_spectrum` 用 matplotlib 画剖线与谱线（抗锯齿，`tight_layout`） |
 | **TS**（`dsh-spm-visual-memory` 的 `draw.ts`） | 自带 RGB 画布和为本包手绘的 5 × 7 点阵字体（6 × 9 字格，整数倍放大，可选 1 字素描边），不抗锯齿；折线图版式自定 |
-| **测试** | `packages/host/visual-memory/src/draw.test.ts` |
+| **测试** | `packages/host/visual-memory/src/draw.test.ts`；谱图的标签、回复与图像尺寸见 `spectra.parity.test.ts`（逐项相同，不比像素） |
 
 **为什么有意**：包内不加依赖，Pillow / matplotlib 及其字体数据都不能搬进来（许可），逐像素一致无从谈起。
 派生图上**画什么、标在哪、怎么标**是模型看到的内容，按参考实现：标记圈的位置与半径（2 px），编号在圈的右上
 （`x + 0.72 r + 1`、`y − 0.72 r − 1`，贴边时移入图内），标记色 `MARK_RGB = (255, 214, 0)`，字号随图像尺寸
 （取大写字母不矮于参考 13–22 px 字号的最小整数倍：长边 886 px 及以下 2 倍，以上 3 倍）；折线图每列一个面板、
 共享 x 轴，轴标签带单位，剖线台阶处画红色虚线并在顶端编号。图像宽高也照参考实现：尺寸写进标签和回复，
-调用方按参考的算法给出（剖线 `max(600, display_max)` × 400，谱图高 `max(360, min(宽, 90 + 300 n))`），
+调用方按参考的算法给出（剖线 `max(600, display_max)` × 400，谱图宽 `max(600, display_max)`、高 `max(360, min(宽, 90 + 300 n))`；matplotlib 再把每边截成 `int(px / 100 · 100)`，宽 803 时出 802，谱图照此算，见 `spectrum.ts` 与金样 `spectra.plot_size`），
 `linePlot` 输出的 PNG 恰为这个尺寸。
 
 像素层面的差别：y 轴标签横排在各面板上方（不旋转）；x 轴紧贴数据范围（matplotlib 左右各留 5 %），y 轴留 5 %；
@@ -4063,3 +4063,15 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 **重新考虑的条件**：需要与参考实现逐像素比对派生图（例如金样改为录制派生图像素），或 dsh 侧提供可用的
 字体与矢量渲染。
+
+## D-VMEM-13 · 谱视图里非有限的 x 范围写成 `null`
+
+| | |
+|---|---|
+| **Python**（`vista_spm/viewtools.py` `_view_summary`） | `x_shown_<unit>` 是 `float(f"{v:.6g}")`；x 列没有有限值时为 NaN（含 ±inf 时为 ±inf），`compact_json` 不设 `allow_nan=False`，回复里出现非法的 JSON 记号 `NaN` / `Infinity` |
+| **TS** | 同一位置写 `null`（`JSON.stringify` 的规则），与「缺测为 null」一致；标签里的 `x_range` 与拒绝文案照样写 `nan`，与参考实现相同 |
+| **测试** | `views.test.ts`「writes x_shown as null when the x column has no finite value」 |
+
+**为什么有意**：工具回复是 JSON，`NaN` 不是合法 JSON，严格的解析器会拒绝整条回复。只有 x 列全是 NaN 或含无穷时
+才会出现，这本身是坏文件。已作为参考实现的缺陷报告。
+**重新考虑的条件**：参考实现改为 `null`（或拒绝这样的谱）时，本条销账。

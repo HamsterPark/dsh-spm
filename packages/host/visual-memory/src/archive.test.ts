@@ -4,6 +4,8 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { ArchiveError, channelDirections, entryFromRecord, entryScale, entrySummary, FrameArchive, hasValues, INDEX_NAME, mergeAttrs } from './archive.js'
 import { encodePngRgb, decodePng } from './png.js'
+import { loadDat } from './spectrum.js'
+import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm, type SyntheticSxm } from './synthetic-sxm.js'
 
 const dirs: string[] = []
@@ -370,7 +372,7 @@ describe('edges of the lookup and summary', () => {
     expect(entrySummary(e)).not.toHaveProperty('setpoint_a')
   })
 
-  it('refuses to render a spectrum record and to resolve channels of a plain image', () => {
+  it('refuses to render a spectrum record without values and to resolve channels of a plain image', () => {
     const root = tmp()
     const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
     writeFileSync(join(a.root, 't0000.d0.png'), encodePngRgb(1, 1, new Uint8Array(3)))
@@ -379,7 +381,7 @@ describe('edges of the lookup and summary', () => {
       `${JSON.stringify({ fid: 't0000.d0', turn: 0, kind: 'd', index: 0, source_name: '', channels: ['Bias (V)'], directions: [], nx: 1, ny: 1, geometry: null, nm_per_px: null, display_scale: 1, display_size: [0, 0], bias_v: null, setpoint_a: null, scan_dir: null, acquired_rows: null, rec_time: '', sim_s: null, units: {}, default_channel: 'Bias (V)', extra: {} })}\n`,
     )
     const b = new FrameArchive(a.root, { displayMax: 64 })
-    expect(() => b.render('t0000.d0')).toThrow(/is a spectrum; spectra are not rendered/)
+    expect(() => b.render('t0000.d0')).toThrow(/^t0000\.d0 is a spectrum without archived values$/)
     expect(entrySummary(b.get('t0000.d0'))).toEqual({ frame: 't0000.d0', turn: 0, kind: 'spectrum', source: '', columns: ['Bias (V)'], n_points: 1 })
     const m = b.addDerived(0, encodePngRgb(2, 2, new Uint8Array(12)), { tool: 'x' })
     expect(() => b.resolveChannel(m)).toThrow(/derived image without channels/)
@@ -443,6 +445,131 @@ describe('edges of the lookup and summary', () => {
     })
     expect(() => entryFromRecord({ fid: 't0005.d2', turn: 5, kind: 'd', index: 2, channels: 'Bias' })).toThrow(/malformed channels$/)
     expect(() => entryFromRecord({ fid: 't0005.d2', turn: 5, kind: 'd', index: 2, units: 3, extra: [] })).toThrow(/malformed units, extra$/)
+  })
+})
+
+/** The reference's test spectrum (`tests/test_frames.write_dat`): 21 points from -0.5 to 0.5 V, three columns. */
+function stsDat(extra: readonly (readonly [string, number[]])[] = []): Uint8Array {
+  const v = Array.from({ length: 21 }, (_, i) => -0.5 + i / 20)
+  return encodeSyntheticDat({
+    header: {
+      Experiment: 'bias spectroscopy', 'X (m)': 1.25e-9, 'Y (m)': -2e-9, 'Bias>Bias (V)': 0.5, 'Z-Controller>Setpoint': 1e-10,
+    },
+    columns: [['Bias calc (V)', v], ['Current (A)', v.map((x) => x * 2e-10)], ['LI Demod 1 X (A)', v.map((x) => 1e-12 + 1e-13 * x)], ...extra],
+  })
+}
+
+const STS_COLUMNS = ['Bias calc (V)', 'Current (A)', 'LI Demod 1 X (A)']
+
+describe('spectra', () => {
+  it('keep a copy of the file, every column as float64 and the default plot, like the reference', () => {
+    const root = tmp()
+    const path = join(root, 's.dat')
+    writeFileSync(path, stsDat())
+    const a = new FrameArchive(join(root, 'arch'), { displayMax: 64 })
+    a.addScan(2, writeSxm(root, 'f.sxm'))
+    const d = a.addSpectrum(2, path, { simS: 3 })
+    expect(d).toMatchObject({
+      fid: 't0002.d0', turn: 2, kind: 'd', index: 0, source_name: 's.dat', channels: STS_COLUMNS, directions: [], nx: 21, ny: 1,
+      geometry: null, nm_per_px: null, display_scale: 1, display_size: [600, 600], bias_v: 0.5, setpoint_a: 1e-10, scan_dir: null,
+      acquired_rows: null, rec_time: '', sim_s: 3, units: { 'Bias calc (V)': 'V', 'Current (A)': 'A', 'LI Demod 1 X (A)': 'A' },
+      default_channel: 'Current (A)',
+    })
+    expect(d.extra).toMatchObject({ array_keys: STS_COLUMNS, experiment: 'bias spectroscopy', setpoint_unit: 'A', source_path: path })
+    expect(d.extra.render?.image_size).toEqual([600, 600])
+    expect(readFileSync(join(a.root, 't0002.d0.dat')).equals(readFileSync(path))).toBe(true)
+    for (const f of ['t0002.d0.a0.npy', 't0002.d0.a1.npy', 't0002.d0.a2.npy', 't0002.d0.png']) expect(existsSync(join(a.root, f))).toBe(true)
+    expect(entrySummary(d)).toEqual({
+      frame: 't0002.d0', turn: 2, kind: 'spectrum', source: 's.dat', columns: STS_COLUMNS, n_points: 21, position_nm: [1.25, -2],
+      experiment: 'bias spectroscopy', bias_v: 0.5, setpoint_pa: 100, sim_s: 3,
+    })
+    const obs = a.observation(d.fid)
+    expect(obs.label).toBe('<visual kind="current" frame="t0002.d0" plot="spectrum" x="Bias calc [V]" y="Current [pA]; LI Demod 1 X [pA]" points="21" size="600x600"/>')
+    const img = decodePng(obs.png)
+    expect([img.width, img.height, img.channels]).toEqual([600, 600, 3])
+    // Re-rendered from the archived columns: one y column, an x range.
+    const r = a.render(d.fid, { yCol: 'Current', xRange: [-0.1, 0.1], labelKind: 'inspection', labelAttrs: [['index', 1]] })
+    expect(r.meta).toMatchObject({
+      frame: 't0002.d0', kind: 'spectrum', x_col: 'Bias calc (V)', x_unit: 'V', y: [{ column: 'Current (A)', unit: 'pA' }], n_points: 5,
+      x_shown: [-0.1, 0.1], region_px: [0, 0, 600, 390], image_size_px: [600, 390], magnification: 1,
+    })
+    expect(r.meta.label).toBe('<visual kind="inspection" index="1" frame="t0002.d0" plot="spectrum" x="Bias calc [V]" y="Current [pA]" points="5" size="600x390" x_range="-0.1..0.1"/>')
+    expect(a.render(d.fid, { xCol: 'current', yCol: ['bias calc', 'LI Demod 1 X'], displayMax: 800 }).meta).toMatchObject({
+      x_col: 'Current (A)', x_unit: 'pA', y: [{ column: 'Bias calc (V)', unit: 'V' }, { column: 'LI Demod 1 X (A)', unit: 'pA' }],
+      n_points: 21, x_shown: [-100, 100], image_size_px: [800, 690],
+    })
+    expect(() => a.render(d.fid, { region: { x: 0, y: 0, width: 5, height: 5 } })).toThrow(/^t0002\.d0 is a spectrum: use x_range instead of region$/)
+    expect(() => a.render(d.fid, { xRange: [900, 1000] })).toThrow(/^x_range 900\.0\.\.1000\.0 V contains no samples \(x spans -0\.5\.\.0\.5 V\)$/)
+    expect(() => a.render(d.fid, { yCol: 'Phase' })).toThrow(/^no channel 'Phase'; this frame has \['Bias calc \(V\)', 'Current \(A\)', 'LI Demod 1 X \(A\)'\]$/)
+    // Re-opened: the same record, the columns bit for bit.
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    expect(b.loadWarnings).toEqual([])
+    expect(b.frames().map((e) => e.fid)).toEqual(['t0002.s0', 't0002.d0'])
+    expect(b.get(d.fid)).toEqual(d)
+    const want = loadDat(stsDat(), 's.dat').columns
+    for (const c of STS_COLUMNS) expect([...b.column(b.get(d.fid), c)]).toEqual([...(want.get(c) as Float64Array)])
+    expect(b.addSpectrumBytes(2, stsDat(), { sourceName: 'again.dat' }).fid).toBe('t0002.d1')
+  })
+
+  it('report each column in its model unit with decimals from its span, and resolve column names like channels', () => {
+    const root = tmp()
+    const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
+    const d = a.addSpectrumBytes(0, stsDat(), { sourceName: 's.dat' })
+    expect(a.fmt(d, 'Bias calc (V)')).toEqual({ factor: 1, unit: 'V', decimals: 3 }) // span 0.99 V
+    expect(a.fmt(d, 'Current (A)')).toEqual({ factor: 1e12, unit: 'pA', decimals: 1 }) // span 198 pA
+    expect(a.fmt(d, 'Mystery')).toEqual({ factor: 1, unit: '', decimals: 1 })
+    expect(a.resolveColumn(d, 'current')).toBe('Current (A)')
+    expect(a.resolveColumn(d, 'It')).toBe('Current (A)')
+    expect(() => a.resolveColumn(d, '')).toThrow(/^no channel ''; this frame has/)
+    expect(() => a.column(d, 'Current')).toThrow(/^t0000\.d0 has no column 'Current'; it has \['Bias calc \(V\)', /)
+    expect(() => a.array(d.fid)).toThrow(/^t0000\.d0 is a spectrum; read its columns with column\(\)$/)
+    expect(() => a.values(d, 'Current (A)')).toThrow(/^t0000\.d0 is a spectrum; its values are columns$/)
+    const s = a.addScan(0, writeSxm(root, 's.sxm'))
+    expect(() => a.column(s, 'Z')).toThrow(/^t0000\.s0 is a scan, not a spectrum$/)
+  })
+
+  it('plot up to four columns other than x by default, or x itself when it is the only column', () => {
+    const root = tmp()
+    const a = new FrameArchive(join(root, 'f'), { displayMax: 768 })
+    const ramp = Array.from({ length: 21 }, (_, i) => i * 1e-12)
+    const wide = a.addSpectrumBytes(0, stsDat([['LI Demod 1 Y (A)', ramp], ['Current [bwd] (A)', ramp], ['Z (m)', ramp]]), { sourceName: 'w.dat' })
+    expect(a.render(wide.fid).meta.y?.map((c) => c.column)).toEqual(['Current (A)', 'LI Demod 1 X (A)', 'LI Demod 1 Y (A)', 'Current [bwd] (A)'])
+    expect(wide.display_size).toEqual([768, 768])
+    expect(a.observation(wide.fid).label).toContain('y="Current [pA]; LI Demod 1 X [pA]; LI Demod 1 Y [pA]; Current [bwd] [pA]" points="21" size="768x768"')
+    const one = a.addSpectrumBytes(0, encodeSyntheticDat({ columns: [['Index', [1, 2, 3]]] }), { sourceName: 'one.dat' })
+    expect(one).toMatchObject({ channels: ['Index'], default_channel: 'Index', nx: 3, display_size: [768, 390] })
+    expect(a.observation(one.fid).label).toBe('<visual kind="current" frame="t0000.d1" plot="spectrum" x="Index []" y="Index []" points="3" size="768x390"/>')
+    expect(entrySummary(one)).toEqual({ frame: 't0000.d1', turn: 0, kind: 'spectrum', source: 'one.dat', columns: ['Index'], n_points: 3 })
+  })
+
+  it('refuse missing or empty files, and arrays that disagree with the record', () => {
+    const root = tmp()
+    const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
+    expect(() => a.addSpectrum(0, join(root, 'nope.dat'))).toThrow(/^no such \.dat file: /)
+    expect(() => a.addSpectrumBytes(0, new TextEncoder().encode('Experiment\tx\t\n'), { sourceName: 'e.dat' })).toThrow(ArchiveError)
+    expect(() => a.addSpectrumBytes(0, new TextEncoder().encode('Experiment\tx\t\n'), { sourceName: 'e.dat' })).toThrow(/^e\.dat: no data columns$/)
+    expect(a.frames()).toEqual([])
+    a.addSpectrumBytes(0, stsDat(), { sourceName: 's.dat' })
+    const other = new FrameArchive(join(root, 'other'), { displayMax: 64 })
+    other.addSpectrumBytes(0, encodeSyntheticDat({ columns: [['A (V)', [1, 2]]] }), { sourceName: 'o.dat' })
+    writeFileSync(join(a.root, 't0000.d0.a1.npy'), readFileSync(join(other.root, 't0000.d0.a0.npy')))
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    expect(() => b.render('t0000.d0')).toThrow(/^t0000\.d0: array file 1 is 2, the spectrum has 21 points$/)
+    unlinkSync(join(a.root, 't0000.d0.a2.npy'))
+    expect(new FrameArchive(a.root, { displayMax: 64 }).loadWarnings).toEqual(['t0000.d0: missing t0000.d0.a2.npy; skipped'])
+  })
+
+  it('recompute a span the record lacks from the archived columns, and reload evicted columns from disk', () => {
+    const root = tmp()
+    const a = new FrameArchive(join(root, 'f'), { displayMax: 64 })
+    const d = a.addSpectrumBytes(0, stsDat(), { sourceName: 's.dat' })
+    const rec = JSON.parse(readFileSync(a.indexPath, 'utf8').trim()) as Record<string, unknown> & { extra: Record<string, unknown> }
+    delete rec.extra['span']
+    writeFileSync(a.indexPath, `${JSON.stringify(rec)}\n`)
+    const b = new FrameArchive(a.root, { displayMax: 64 })
+    expect(b.fmt(b.get(d.fid), 'Current (A)')).toEqual(a.fmt(d, 'Current (A)'))
+    for (let t = 1; t < 10; t += 1) b.addSpectrumBytes(t, stsDat(), { sourceName: 's.dat' })
+    expect([...b.column(b.get(d.fid), 'Bias calc (V)')]).toEqual([...a.column(d, 'Bias calc (V)')])
   })
 })
 

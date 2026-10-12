@@ -2,10 +2,10 @@
  * dsh-spm-visual-memory — the session's lossless visual memory and the tools
  * that let the model look again (VISUAL-HARNESS, decision D12).
  *
- * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
- * flattening, rendering, drawing (marks and line plots on derived images),
- * PNG, the directory archive, the notes store and the `inspect` /
- * `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * Pure core (no dsh imports): frame ids, `.sxm` and `.dat` ingestion, display
+ * geometry, flattening, rendering, drawing (marks and line plots on derived
+ * images and spectra), PNG, the directory archive, the notes store and the
+ * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
@@ -131,6 +131,23 @@ export {
   type PartialMeta,
   type ScanData,
 } from './scan-data.js'
+export {
+  SPECTRUM_MIN_HEIGHT,
+  SPECTRUM_MIN_WIDTH,
+  SPECTRUM_PANEL_PX,
+  SPECTRUM_RGB,
+  SpectrumError,
+  inRange,
+  loadDat,
+  nanExtent,
+  renderSpectrumPlot,
+  spectrumPlotSize,
+  type SpectrumColumn,
+  type SpectrumData,
+  type SpectrumPlot,
+  type SpectrumPlotMeta,
+  type SpectrumPlotOptions,
+} from './spectrum.js'
 export { encodeSyntheticSxm, type SyntheticChannel, type SyntheticSxm } from './synthetic-sxm.js'
 export {
   ArchiveError,
