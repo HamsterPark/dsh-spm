@@ -172,6 +172,18 @@ export function flattenArgs(v: Obj, where: string): [FlattenMode, number] {
   return [mode, hp]
 }
 
+/** `x_range` of a spectrum view: two different finite numbers, returned as `[low, high]`; null when absent. */
+export function xRangeArg(v: Obj, where: string): [number, number] | null {
+  const xr = v['x_range']
+  if (xr === undefined || xr === null) return null
+  if (!Array.isArray(xr) || xr.length !== 2 || !xr.every((x) => typeof x === 'number')) {
+    throw new ArgError(`${where}.x_range must be [low, high] numbers`)
+  }
+  const [lo, hi] = xr as [number, number]
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo === hi) throw new ArgError(`${where}.x_range needs two different finite numbers`)
+  return [Math.min(lo, hi), Math.max(lo, hi)]
+}
+
 export function failure(tool: string, err: unknown): ViewToolResult {
   if (err instanceof ArgError || err instanceof ArchiveError) return { ok: false, error: `${tool}: ${err.message}` }
   const e = err as Error

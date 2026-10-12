@@ -4,8 +4,8 @@
  *
  * | tool | does |
  * |---|---|
- * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening |
- * | `stm_read_values` | read exact archived values at cell centers |
+ * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
+ * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
  * | `stm_line_profile` | values and steps along a line, with an archived plot |
  * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
@@ -195,13 +195,22 @@ const COMMON_VIEW_PROPS = {
   frame: {
     type: 'string',
     required: true,
-    description: "Archived frame id, e.g. 't0007.s0' (saved scan), 't0007.p0' (partial scan), 't0007.m0' (derived image).",
+    description:
+      "Archived frame id, e.g. 't0007.s0' (saved scan), 't0007.p0' (partial scan), 't0007.d0' (spectrum), 't0007.m0' (derived image).",
   },
   channel: {
     type: 'string',
     description: "Scan channel, e.g. 'Z' or 'Current'. Default: the frame's default channel (Z; Current for a constant-height frame).",
   },
   direction: { type: 'string', enum: [...DIRECTIONS], description: 'Scan pass. Default forward.' },
+} as const
+
+const X_COL = { type: 'string', description: 'Spectrum only: x column (default the sweep column).' } as const
+
+const X_RANGE = {
+  type: 'array',
+  items: { type: 'number' },
+  description: "Spectrum only: [low, high] of the x axis, in the x column's unit as the plot shows it (bias in V, Z in pm).",
 } as const
 
 const QUESTION = {
@@ -222,13 +231,14 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
     name: 'stm_inspect',
     description:
       'Look again at archived frames without changing the instrument. Each view re-renders one frame from its ' +
-      'archived values: a saved scan, a partial scan, or a derived image. For a scan, choose the channel, the ' +
+      'archived values: a saved scan, a partial scan, a spectrum or a derived image. For a scan, choose the channel, the ' +
       'direction (forward or backward), the flattening and the contrast. Omit region to see the whole frame, or ' +
       "select a rectangle in display pixels of that frame's full image (origin at the top-left corner, x to the " +
       'right, y down). The region is cropped exactly, widened to whole scan pixels, and enlarged by the largest ' +
       `whole number of image pixels per scan pixel that fits ${dm}x${dm}, without smoothing. Images are gray ` +
       `(black = low, white = high, contrast from the selected region); ${drawn} ` +
-      'A derived image is cropped as stored. State the visual question these views ' +
+      'A spectrum view is a line plot (x_col, y_col, x_range instead of region); a derived image is cropped as ' +
+      'stored. State the visual question these views ' +
       `should answer and give each view a short label. 1 to ${MAX_INSPECT_VIEWS} views per call; they are returned ` +
       'in request order, one image each, every image preceded by a label line with its index. The reply text ' +
       "gives each view's region in display pixels (region_px), the scan-frame nm of its corners (corners_nm), " +
@@ -273,6 +283,12 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
                 `Contrast: black and white at this percentile and 100 minus it of the selected region, 0 to ${MAX_CLIP_PCT}. ` +
                 `Default ${CLIP_PCT_DEFAULT}.`,
             },
+            x_col: X_COL,
+            y_col: {
+              type: 'string',
+              description: 'Spectrum only: one y column (default: up to the first 4 columns other than x, one panel each).',
+            },
+            x_range: X_RANGE,
           },
         },
       },
@@ -287,16 +303,18 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
   return defineTool({
     name: 'stm_read_values',
     description:
-      'Read exact archived values from one or more frames without changing the instrument. For each view, the ' +
+      'Read exact archived values from one or more frames without changing the instrument. For a scan view, the ' +
       "region (display pixels of that frame's full image: origin at the top-left corner, x to the right, y down; " +
       'omit it for the whole frame) is divided into equal rows and columns and the archived pixel at the center ' +
       'of every cell is read: display pixel x + floor(((2c+1)*width)/(2*columns)), likewise for y. Values are ' +
       'physical and unflattened, in one unit per quantity carried by the key: values_pm for Z, values_pa for ' +
       "current, values_hz for frequency shift, values_v for voltages; rounded to the view's decimals (about " +
       "1/100 of the channel's value range); null where nothing was acquired. The reply gives the sampled " +
-      'display pixels, the decimals and the ' +
-      `scan-frame nm of the first and last sample. 1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} ` +
-      'samples (rows x columns, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
+      'display pixels, the decimals and the scan-frame nm of the first and last sample. For a spectrum view, ' +
+      "give x_range (in the x column's unit), n and y_cols instead; n samples at bin centers of the points in " +
+      'x_range come back per column with column_units and column_decimals. ' +
+      `1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} samples (rows x columns for a scan, ` +
+      'n x (1 + number of y_cols) for a spectrum, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
       'large readouts over several calls. This tool only reads values; it does not flatten, ' +
       'align, compare or interpret them. State the question and give each view a short label.',
     parameters: {
@@ -321,8 +339,19 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
                 height: { type: 'integer', required: true },
               },
             },
-            rows: { type: 'integer', required: true, description: `Number of equal rows the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
-            columns: { type: 'integer', required: true, description: `Number of equal columns the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            rows: { type: 'integer', description: `Scan frames: number of equal rows the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            columns: { type: 'integer', description: `Scan frames: number of equal columns the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            x_col: X_COL,
+            y_cols: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Spectrum only: columns to return besides x (default all).',
+            },
+            x_range: X_RANGE,
+            n: {
+              type: 'integer',
+              description: `Spectrum only: number of samples at bin centers, 1 to ${MAX_READ_SAMPLES} (default: every point in x_range).`,
+            },
           },
         },
       },

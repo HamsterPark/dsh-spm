@@ -9,6 +9,9 @@
  *     <root>/t0007.s0.a1.npy      (float32 '<f4'; the record's extra.array_keys
  *     …                            names them: "Z/forward", "Z/backward", …)
  *     <root>/t0007.s0.png         the default rendering ("what the model saw")
+ *     <root>/t0007.d0.dat         a spectrum keeps the original file, one float64
+ *     <root>/t0007.d0.a0.npy      ('<f8') array per column (array_keys names the
+ *     …                            columns) and the default plot
  *     <root>/t0007.m0.png         a derived image a measurement tool produced
  *
  * Files are written first (each atomically: temporary file, fsync, rename) and
@@ -23,6 +26,9 @@
  * kind within a turn. A scan keeps every channel and direction as oriented
  * float32 arrays in SI units with NaN for rows never acquired, plus its
  * geometry, pixel size, bias, setpoint, scan direction, acquired rows and times.
+ * A spectrum keeps every column of its `.dat` file as float64 in SI units (the
+ * first column is the sweep axis), the tip position, bias, setpoint and the
+ * experiment; it renders as a line plot ({@link renderSpectrumPlot}).
  *
  * Everything here is synchronous: one call writes or reads whole files and
  * finishes before any other archive call can start, so concurrent tool calls
@@ -30,7 +36,9 @@
  */
 import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, statSync, writeSync } from 'node:fs'
 import { basename, join } from 'node:path'
+import { encodeNpyFloat64 } from 'dsh-spm-kernel'
 import { MAX_FILE_BYTES } from 'dsh-spm-nanonis-files'
+import { decodeNpy } from 'dsh-spm-numerics'
 import { ChannelError, resolveChannel as resolveChannelName } from './channels.js'
 import { flatten, FlattenError, HIGHPASS_NM_DEFAULT, isFlattenMode, type FlattenMode } from './flatten.js'
 import { FrameIdError, frameId, KIND_NAMES, KIND_WORDS, parseFrameId, type FrameKind } from './frame-id.js'
@@ -74,7 +82,8 @@ import {
   type PartialMeta,
   type ScanData,
 } from './scan-data.js'
-import { channelFormat, displayUnit, formatValue, rangeAttr, robustSpan, unitKey, type ChannelFormat } from './units.js'
+import { loadDat, renderSpectrumPlot, SpectrumError, type SpectrumColumn, type SpectrumData } from './spectrum.js'
+import { channelFormat, displayUnit, formatValue, rangeAttr, robustSpan, stripUnit, unitKey, type ChannelFormat } from './units.js'
 
 export const INDEX_NAME = 'index.jsonl'
 const CACHE_FRAMES = 8
@@ -110,7 +119,7 @@ export interface FrameExtra {
   readonly description?: string | null
   readonly label_attrs?: readonly LabelAttr[]
   /** Spectra: tip position in scan-frame nm and the experiment named in the file. */
-  readonly position_nm?: readonly number[] | null
+  readonly position_nm?: readonly (number | null)[] | null
   readonly experiment?: string | null
 }
 
@@ -254,18 +263,25 @@ export interface RenderOptions {
   readonly labelKind?: string
   /** Attributes placed first in the label (e.g. index, count, label). */
   readonly labelAttrs?: readonly LabelAttr[]
+  /** Spectra: the x column (default: the first column, the sweep axis). */
+  readonly xCol?: string | null
+  /** Spectra: one y column or several, one panel each (default: up to the first 4 columns other than x). */
+  readonly yCol?: string | readonly string[] | null
+  /** Spectra: `[low, high]` of x in the x column's model unit (default: every point). */
+  readonly xRange?: readonly [number, number] | null
 }
 
 /** What a rendering was (everything the reply text reports about one image). */
 export interface RenderMeta {
   readonly frame: string
-  /** Model-facing kind: scan, partial, derived. */
+  /** Model-facing kind: scan, partial, spectrum, derived. */
   readonly kind: string
   readonly channel?: string
   readonly direction?: Direction
   readonly flatten?: FlattenMode
   /** The background width, only for `flatten: 'highpass'`. */
   readonly highpass_nm?: number | null
+  /** Display px of the frame's full image shown (a spectrum plot: the whole plot). */
   readonly region_px: readonly [number, number, number, number]
   readonly native_px?: readonly [number, number, number, number]
   readonly image_size_px: readonly [number, number]
@@ -284,6 +300,12 @@ export interface RenderMeta {
   readonly min?: number | null
   readonly max?: number | null
   readonly tool?: string | null
+  /** Spectra: the x column and its model unit, the plotted columns, the points and x extent shown. */
+  readonly x_col?: string
+  readonly x_unit?: string
+  readonly y?: readonly SpectrumColumn[]
+  readonly n_points?: number
+  readonly x_shown?: readonly [number, number]
   readonly label_attrs: readonly LabelAttr[]
   /** The text block that goes right before the image. */
   readonly label: string
@@ -306,6 +328,9 @@ export interface FrameArray {
   /** Row-major copy; row 0 is the frame's top edge. */
   readonly data: Float32Array
 }
+
+type ImageArrays = ReadonlyMap<string, Float32Array>
+type SpectrumColumns = ReadonlyMap<string, Float64Array>
 
 export interface ArchiveOptions {
   /** Longest side of a rendered observation (`D`), default 768, at least 64. */
@@ -439,7 +464,8 @@ export class FrameArchive {
   readonly loadWarnings: string[] = []
   private readonly entries = new Map<string, FrameEntry>()
   private readonly order: string[] = []
-  private readonly cache = new Map<string, ReadonlyMap<string, Float32Array>>()
+  /** Values of the last frames used: image arrays by `"<channel>/<direction>"`, spectrum columns by name. */
+  private readonly cache = new Map<string, ImageArrays | SpectrumColumns>()
   private turn = 0
 
   constructor(root: string, options: ArchiveOptions = {}) {
@@ -520,18 +546,32 @@ export class FrameArchive {
     return keys
   }
 
-  private cachePut(fid: string, arrays: ReadonlyMap<string, Float32Array>): void {
+  private saveColumns(fid: string, columns: SpectrumColumns): string[] {
+    const keys = [...columns.keys()]
+    keys.forEach((k, i) => {
+      const v = columns.get(k) as Float64Array
+      writeFileDurable(join(this.root, `${fid}.a${i}.npy`), encodeNpyFloat64(Array.from(v), [v.length]))
+    })
+    return keys
+  }
+
+  private cachePut(fid: string, arrays: ImageArrays | SpectrumColumns): void {
     this.cache.delete(fid)
     this.cache.set(fid, arrays)
     while (this.cache.size > CACHE_FRAMES) this.cache.delete(this.cache.keys().next().value as string)
   }
 
-  private arrays(e: FrameEntry): ReadonlyMap<string, Float32Array> {
+  /** A frame's values from the cache; a frame id keeps its kind, so the cached kind is the frame's. */
+  private cached(e: FrameEntry): ImageArrays | SpectrumColumns | undefined {
     const hit = this.cache.get(e.fid)
-    if (hit !== undefined) {
-      this.cachePut(e.fid, hit)
-      return hit
-    }
+    if (hit !== undefined) this.cachePut(e.fid, hit)
+    return hit
+  }
+
+  private arrays(e: FrameEntry): ImageArrays {
+    if (e.kind === 'd') throw new ArchiveError(`${e.fid} is a spectrum; its values are columns`)
+    const hit = this.cached(e)
+    if (hit !== undefined) return hit as ImageArrays
     const keys = e.extra.array_keys ?? []
     if (keys.length === 0) throw new ArchiveError(`${e.fid} is a ${kindWord(e)} without archived values`)
     const out = new Map<string, Float32Array>()
@@ -541,6 +581,24 @@ export class FrameArchive {
         throw new ArchiveError(`${e.fid}: array file ${i} is ${grid.rows}x${grid.cols}, the frame is ${e.ny}x${e.nx}`)
       }
       out.set(k, grid.data)
+    })
+    this.cachePut(e.fid, out)
+    return out
+  }
+
+  private columns(e: FrameEntry): SpectrumColumns {
+    if (e.kind !== 'd') throw new ArchiveError(`${e.fid} is a ${kindWord(e)}, not a spectrum`)
+    const hit = this.cached(e)
+    if (hit !== undefined) return hit as SpectrumColumns
+    const keys = e.extra.array_keys ?? []
+    if (keys.length === 0) throw new ArchiveError(`${e.fid} is a spectrum without archived values`)
+    const out = new Map<string, Float64Array>()
+    keys.forEach((k, i) => {
+      const a = decodeNpy(readFileSync(join(this.root, `${e.fid}.a${i}.npy`)))
+      if (a.shape.length !== 1 || a.values.length !== e.nx) {
+        throw new ArchiveError(`${e.fid}: array file ${i} is ${a.shape.join('x')}, the spectrum has ${e.nx} points`)
+      }
+      out.set(k, a.values)
     })
     this.cachePut(e.fid, out)
     return out
@@ -592,6 +650,77 @@ export class FrameArchive {
       throw new ArchiveError((err as IngestError).message)
     }
     return this.addScanData(turn, 'p', data, meta.simS ?? null, null)
+  }
+
+  /** Archive a saved spectrum (`.dat`): a copy of the file, every column (float64, SI) and the default plot. */
+  addSpectrum(turn: number, datPath: string, meta: { readonly simS?: number } = {}): FrameEntry {
+    if (!existsSync(datPath)) throw new ArchiveError(`no such .dat file: ${datPath}`)
+    const size = statSync(datPath).size
+    if (size > MAX_FILE_BYTES) throw new ArchiveError(`${basename(datPath)} is too large to archive (${size} bytes)`)
+    return this.addSpectrumBytes(turn, new Uint8Array(readFileSync(datPath)), {
+      sourceName: basename(datPath),
+      sourcePath: datPath,
+      ...(meta.simS === undefined ? {} : { simS: meta.simS }),
+    })
+  }
+
+  /** Archive `.dat` bytes already in memory. */
+  addSpectrumBytes(
+    turn: number,
+    bytes: Uint8Array,
+    meta: { readonly sourceName: string; readonly sourcePath?: string; readonly simS?: number },
+  ): FrameEntry {
+    let data: SpectrumData
+    try {
+      data = loadDat(bytes, meta.sourceName)
+    } catch (err) {
+      throw new ArchiveError((err as IngestError).message)
+    }
+    const names = [...data.columns.keys()]
+    const span: Record<string, number | null> = {}
+    for (const [c, v] of data.columns) span[c] = robustSpan(v)
+    const { fid, index } = this.allocate(turn, 'd')
+    writeFileDurable(join(this.root, `${fid}.dat`), bytes)
+    const keys = this.saveColumns(fid, data.columns)
+    const base: FrameEntry = {
+      fid,
+      turn,
+      kind: 'd',
+      index,
+      source_name: data.source_name,
+      channels: names,
+      directions: [],
+      nx: (data.columns.get(names[0] as string) as Float64Array).length,
+      ny: 1,
+      geometry: null,
+      nm_per_px: null,
+      display_scale: 1,
+      display_size: [0, 0],
+      bias_v: data.bias_v,
+      setpoint_a: data.setpoint_a,
+      scan_dir: null,
+      acquired_rows: null,
+      rec_time: data.rec_time,
+      sim_s: meta.simS ?? null,
+      units: { ...data.units },
+      default_channel: (names.length > 1 ? names[1] : names[0]) as string,
+      extra: {
+        array_keys: keys,
+        experiment: data.experiment,
+        position_nm: data.x_nm === null ? null : [data.x_nm, data.y_nm],
+        span,
+        setpoint_unit: data.setpoint_unit,
+        source_path: meta.sourcePath ?? null,
+      },
+    }
+    this.cachePut(fid, data.columns)
+    const { png, meta: shown } = this.renderSpectrum(base, {})
+    writeFileDurable(join(this.root, `${fid}.png`), png)
+    return this.commit({
+      ...base,
+      display_size: [...shown.image_size_px],
+      extra: { ...base.extra, render: { label_attrs: shown.label_attrs, image_size: shown.image_size_px } },
+    })
   }
 
   private addScanData(turn: number, kind: 's' | 'p', data: ScanData, simS: number | null, sourcePath: string | null): FrameEntry {
@@ -783,7 +912,7 @@ export class FrameArchive {
     }
   }
 
-  /** Archived values (SI) of a resolved channel and direction; the cached array, do not mutate. */
+  /** Archived values (SI) of a resolved channel and direction of an image frame; the cached array, do not mutate. */
   values(e: FrameEntry, channel: string, direction: Direction = 'forward'): Float32Array {
     const a = this.arrays(e).get(arrayKey(channel, direction))
     if (a === undefined) {
@@ -792,9 +921,10 @@ export class FrameArchive {
     return a
   }
 
-  /** Archived values of one channel and direction (a copy, SI units). */
+  /** Archived values of one channel and direction of an image frame (a copy, SI units); spectra: {@link column}. */
   array(fid: string, channel?: string | null, direction: Direction = 'forward'): FrameArray {
     const e = this.get(fid)
+    if (e.kind === 'd') throw new ArchiveError(`${e.fid} is a spectrum; read its columns with column()`)
     if (!hasValues(e)) throw new ArchiveError(`${e.fid} is a ${kindWord(e)} without archived values`)
     const ch = this.resolveChannel(e, channel)
     const data = Float32Array.from(this.values(e, ch, direction))
@@ -808,24 +938,48 @@ export class FrameArchive {
   fmt(e: FrameEntry, channel: string): ChannelFormat {
     let span = e.extra.span?.[channel]
     if ((span === undefined || span === null) && (e.extra.array_keys?.length ?? 0) > 0) {
-      span = robustSpan(...channelDirections(e, channel).map((d) => this.arrays(e).get(arrayKey(channel, d))))
+      span =
+        e.kind === 'd'
+          ? robustSpan(this.columns(e).get(channel))
+          : robustSpan(...channelDirections(e, channel).map((d) => this.arrays(e).get(arrayKey(channel, d))))
     }
     return channelFormat(e.units[channel] ?? '', span ?? null)
+  }
+
+  /** A spectrum column (exact name) as archived: float64, SI units; the cached array, do not mutate. */
+  column(e: FrameEntry, name: string): Float64Array {
+    const c = this.columns(e).get(name)
+    if (c === undefined) throw new ArchiveError(`${e.fid} has no column ${pyRepr(name)}; it has ${pyRepr(e.channels)}`)
+    return c
+  }
+
+  /** The spectrum column a request names (the channel-name rules, no default). */
+  resolveColumn(e: FrameEntry, name: string): string {
+    try {
+      return resolveChannelName(name, e.channels, e.units)
+    } catch (err) {
+      if (err instanceof ChannelError) throw new ArchiveError(err.message)
+      throw err
+    }
   }
 
   // ── rendering ──────────────────────────────────────────────────────────
 
   /**
    * Re-render a frame from its archived values (not from the stored PNG).
-   * Scans: channel, direction, flattening, contrast and an exact region; derived
+   * Scans: channel, direction, flattening, contrast and an exact region; spectra:
+   * a line plot of y columns against the x column, within an x range; derived
    * images: an exact crop of the stored image. `meta.label` is the text block
    * that goes before the image.
    */
   render(fid: string, options: RenderOptions = {}): Rendered {
     const e = this.get(fid)
     if (e.kind === 's' || e.kind === 'p') return this.renderScan(e, options)
-    if (e.kind === 'm') return this.renderDerived(e, options)
-    throw new ArchiveError(`${e.fid} is a ${kindWord(e)}; spectra are not rendered by this archive yet`)
+    if (e.kind === 'd') {
+      if (options.region !== undefined && options.region !== null) throw new ArchiveError(`${e.fid} is a spectrum: use x_range instead of region`)
+      return this.renderSpectrum(e, options)
+    }
+    return this.renderDerived(e, options)
   }
 
   private renderScan(e: FrameEntry, o: RenderOptions): Rendered {
@@ -909,6 +1063,56 @@ export class FrameArchive {
       label: visualLabel(o.labelKind ?? 'current', attrs),
     }
     return { png, meta }
+  }
+
+  private renderSpectrum(e: FrameEntry, o: RenderOptions): Rendered {
+    const names = e.channels
+    if (names.length === 0) throw new ArchiveError(`${e.fid} is a spectrum without columns`)
+    const xc = o.xCol === undefined || o.xCol === null || o.xCol === '' ? (names[0] as string) : this.resolveColumn(e, o.xCol)
+    const asked = typeof o.yCol === 'string' ? [o.yCol] : [...(o.yCol ?? [])]
+    let ycs = asked.map((c) => this.resolveColumn(e, c))
+    if (ycs.length === 0) ycs = names.filter((c) => c !== xc).slice(0, 4)
+    if (ycs.length === 0) ycs = [xc]
+    let plot
+    try {
+      plot = renderSpectrumPlot(this.columns(e), e.units, {
+        xCol: xc,
+        yCols: ycs,
+        xRange: o.xRange ?? null,
+        widthPx: Math.max(600, o.displayMax ?? this.displayMax),
+      })
+    } catch (err) {
+      if (err instanceof SpectrumError) throw new ArchiveError(err.message)
+      throw err
+    }
+    const { png, width: W, height: H, meta: pm } = plot
+    const updates: LabelAttr[] = [
+      ['frame', e.fid],
+      ['plot', 'spectrum'],
+      ['x', `${stripUnit(xc)} [${pm.x_unit}]`],
+      ['y', pm.y.map((d) => `${stripUnit(d.column)} [${d.unit}]`).join('; ')],
+      ['points', pm.n_points],
+      ['size', `${W}x${H}`],
+    ]
+    if (o.xRange !== undefined && o.xRange !== null) updates.push(['x_range', `${pyG(pm.x_shown[0], 6)}..${pyG(pm.x_shown[1], 6)}`])
+    const attrs = mergeAttrs(o.labelAttrs ?? [], updates)
+    return {
+      png,
+      meta: {
+        frame: e.fid,
+        kind: kindName(e),
+        x_col: xc,
+        x_unit: pm.x_unit,
+        y: pm.y,
+        n_points: pm.n_points,
+        x_shown: pm.x_shown,
+        region_px: [0, 0, W, H],
+        image_size_px: [W, H],
+        magnification: 1,
+        label_attrs: attrs,
+        label: visualLabel(o.labelKind ?? 'current', attrs),
+      },
+    }
   }
 
   private derivedLabelAttrs(e: FrameEntry): LabelAttr[] {
