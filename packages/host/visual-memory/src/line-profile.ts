@@ -40,11 +40,11 @@
  * Never throws: invalid arguments come back as `{ ok: false, error }`.
  */
 import { linspace, npMean, npStd } from 'dsh-spm-numerics'
+import { linePlot } from './draw.js'
 import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, flattenArgs, frameArg, isObj, numArg, type Obj, type ViewToolResult } from './args.js'
 import { entryScale, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
 import { flatten, FlattenError, nanMedian, type FlattenMode } from './flatten.js'
 import { nativeToScanNm, scanNmToNative, type ScanGeometry } from './geometry.js'
-import { encodePngRgb } from './png.js'
 import { pyG, pyRound, pyRoundInt } from './pyfmt.js'
 import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
 import type { Direction } from './scan-data.js'
@@ -388,9 +388,25 @@ export function scanAngleDeg(e: FrameEntry, dcol: number, drow: number): number 
   return pyMod(a + 180, 360) - 180
 }
 
-/** The profile plot as PNG bytes: `max(600, display_max)` × 400 pixels. */
-function profilePlot(width: number): Uint8Array {
-  return encodePngRgb(width, PROFILE_PLOT_HEIGHT, new Uint8Array(width * PROFILE_PLOT_HEIGHT * 3).fill(255))
+/**
+ * The reference's profile plot (`_plot_png` with its `draw`), `width` × 400 px: the values
+ * against the distance from p1, a dashed red line at each step's position numbered at
+ * the top, axis labels with units. Drawn by `draw.ts` (pixels differ, D-VMEM-6).
+ */
+function profilePlot(width: number, m: MeasuredLine, steps: readonly { readonly id: number; readonly position_nm: number }[]): Uint8Array {
+  const unit = m.fmt.unit
+  return linePlot({
+    width,
+    height: PROFILE_PLOT_HEIGHT,
+    xLabel: 'distance from p1 (nm)',
+    panels: [
+      {
+        yLabel: unit === '' ? m.channel : `${m.channel} (${unit})`,
+        series: [{ x: m.dist, y: m.vals }],
+        vlines: steps.map((s) => ({ x: s.position_nm, text: String(s.id) })),
+      },
+    ],
+  }).png
 }
 
 function segmentReport(fmt: ChannelFormat, g: ProfileSegment): Record<string, number | null> {
@@ -478,7 +494,7 @@ export function lineProfile(archive: FrameArchive, args: unknown): ViewToolResul
         y_nm: pyRound(Y, 4),
       }
     })
-    const png = profilePlot(Math.max(600, archive.displayMax))
+    const png = profilePlot(Math.max(600, archive.displayMax), m, steps)
     const de = archive.addDerived(archive.currentTurn, png, {
       tool: 'line_profile',
       sources: [e.fid],
