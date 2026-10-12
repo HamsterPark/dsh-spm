@@ -20,8 +20,8 @@ import { FrameArchive, INDEX_NAME } from './archive.js'
 import { bandpass, clipPolygon, divergingRgb, frameDiff, lowpass, MAX_REGIONS, sameGeometry } from './frame-diff.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
 import { nelderMead } from './nelder-mead.js'
-import { mapCoordinates1, mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
-import { decodePng, encodePngRgb, pngSize } from './png.js'
+import { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
+import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
 import { corrLength, nccSurface, register } from './register.js'
 import { inspect, readValues } from './views.js'
@@ -93,6 +93,17 @@ function err(r: ReturnType<typeof frameDiff>): string {
   return r.error
 }
 
+/** Image pixels in the colour of the region marks, as [x, y]. */
+function markPixels(png: Uint8Array): [number, number][] {
+  const im = decodePng(png)
+  const rgb = toRgb(im)
+  const out: [number, number][] = []
+  for (let i = 0; i < im.width * im.height; i += 1) {
+    if (rgb[i * 3] === 20 && rgb[i * 3 + 1] === 20 && rgb[i * 3 + 2] === 20) out.push([i % im.width, Math.floor(i / im.width)])
+  }
+  return out
+}
+
 const bump = (x0: number, y0: number, sig: number, amp: number): Surface => (X, Y) => amp * Math.exp(-((X - x0) ** 2 + (Y - y0) ** 2) / (2 * sig * sig))
 
 describe('frameDiff: registration and change', () => {
@@ -135,6 +146,11 @@ describe('frameDiff: registration and change', () => {
       expect(r.images[0]?.label).toContain(`frames="${fa},${fb}"`)
       expect(r.images[0]?.label).toMatch(/color="red \+, blue -, white 0, full color at \+-[0-9.]+ pm"/)
       expect(pngSize(r.images[0]?.png as Uint8Array)).toEqual({ width: 768, height: 768 })
+      // The region is numbered on the image with a dark ring (a colour the map itself never takes).
+      expect(r.images[0]?.label).toContain(`marks="${regions.length} numbered regions"`)
+      const marked = markPixels(r.images[0]?.png as Uint8Array)
+      expect(marked.length).toBeGreaterThan(20)
+      expect(marked.some(([x, y]) => Math.hypot(x - 70.5 * 8, y - 25.5 * 8) < 80)).toBe(true)
       const read = readValues(archive, { question: 'q', views: [{ label: 'd', frame: dfid, rows: 2, columns: 2 }] })
       if (!read.ok) throw new Error(read.error)
       expect((read.reply['views'] as Record<string, unknown>[])[0]).toHaveProperty('values_pm')
@@ -181,6 +197,9 @@ describe('frameDiff: registration and change', () => {
     expect(Math.abs(same['registration'].shift_nm[0])).toBeLessThan(1e-3)
     expect(Math.abs(same['registration'].shift_nm[1])).toBeLessThan(1e-3)
     expect(same['difference'].n_regions).toBe(0)
+    const shown = frameDiff(archive, { frame_a: fa, frame_b: fc })
+    if (!shown.ok) throw new Error(shown.error)
+    expect(markPixels(shown.images[0]?.png as Uint8Array)).toEqual([])
     const unaligned = ok(frameDiff(archive, { frame_a: fa, frame_b: fc, align: false }))
     expect(unaligned).not.toHaveProperty('registration')
     expect(unaligned['align']).toBe(false)
@@ -400,11 +419,7 @@ describe('the pieces', () => {
     expect(mirrorIndex(-3, 1)).toBe(0)
     const shifted = shiftConstant(a, 20, 17, 0.5, -0.5, 1)
     expect(shifted[0]).toBe(0) // its source lies outside the frame
-    expect(mapCoordinates1(a, 20, 17, [0, 19, 19.0001, -0.0001, Number.NaN], [0, 16, 3, 3, 3])).toEqual(
-      Float64Array.from([a[0] as number, a[19 * 17 + 16] as number, 0, 0, 0]),
-    )
     expect(() => shiftConstant(a, 20, 16, 0, 0, 1)).toThrow(/is not 20 rows x 16 columns/)
-    expect(() => mapCoordinates1(a, 20, 17, [0], [0, 1])).toThrow(/1 row and 2 column coordinates/)
   })
 
   it('geometry, polygon clip, filters and colours', () => {

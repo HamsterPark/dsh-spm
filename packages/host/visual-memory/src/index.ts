@@ -199,7 +199,7 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
-export { mapCoordinates1, mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
+export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
 export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
 export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
 export {

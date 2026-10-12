@@ -20,7 +20,7 @@
  *    the overlap).
  * 5. Changed regions: 8-connected pixels above 5 robust noise sigmas (and
  *    at least 0.2 nm across), strongest first, at most {@link MAX_REGIONS}
- *    listed.
+ *    listed and numbered on the image.
  *
  * It measures change; it does not say why something changed.
  *
@@ -31,7 +31,7 @@
  * moved from the schema into the parameter descriptions (dsh's schema has no
  * ranges).
  */
-import { gaussianFilter2d, labelConnected, matOf, npSum } from 'dsh-spm-numerics'
+import { gaussianFilter2d, labelConnected, mapCoordinates, matOf, npSum } from 'dsh-spm-numerics'
 import { channelDirections, entryScale, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
 import {
   ArgError,
@@ -47,10 +47,10 @@ import {
   type ViewToolResult,
 } from './args.js'
 import { ChannelError, resolveChannel } from './channels.js'
+import { Canvas, drawMarks } from './draw.js'
 import { blockMean, fitSurface, flatten, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nanMedian, type FlattenMode } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
-import { mapCoordinates1, shiftConstant } from './ndinterp.js'
-import { encodePngRgb } from './png.js'
+import { shiftConstant } from './ndinterp.js'
 import { pyG, pyRepr, pyRound, rint } from './pyfmt.js'
 import { register, type Registration } from './register.js'
 import { fmtNum, percentileSorted, planView, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
@@ -260,8 +260,8 @@ export function commonGrid(ea: FrameEntry, eb: FrameEntry, za: Float64Array, zb:
       cols[k] = c - 0.5
       rows[k] = r - 0.5
     }
-    const out = mapCoordinates1(z.map((v) => (Number.isFinite(v) ? v : 0)), e.ny, e.nx, rows, cols)
-    const m = mapCoordinates1(z.map((v) => (Number.isFinite(v) ? 1 : 0)), e.ny, e.nx, rows, cols)
+    const out = mapCoordinates(matOf(e.ny, e.nx, z.map((v) => (Number.isFinite(v) ? v : 0))), rows, cols, 1, 'constant', 0)
+    const m = mapCoordinates(matOf(e.ny, e.nx, z.map((v) => (Number.isFinite(v) ? 1 : 0))), rows, cols, 1, 'constant', 0)
     return out.map((v, k) => {
       const c = cols[k] as number
       const r = rows[k] as number
@@ -356,10 +356,15 @@ export interface Mark {
   readonly text: string
 }
 
-/** PNG of the difference image with its numbered region marks. */
+/**
+ * PNG of the difference image with its numbered region marks, dark rings and
+ * numbers as the reference draws them (`_draw_marks(…, colour=(20, 20, 20))`;
+ * the pixels are draw.ts's, spec/deviations.md D-VMEM-6).
+ */
 function diffPng(rgb: Uint8Array, width: number, height: number, marks: readonly Mark[]): Uint8Array {
-  void marks
-  return encodePngRgb(width, height, rgb)
+  const canvas = Canvas.fromRgb(width, height, rgb)
+  drawMarks(canvas, marks, { colour: DIFF_MARK_RGB })
+  return canvas.png()
 }
 
 // ── the tool ────────────────────────────────────────────────────────────────

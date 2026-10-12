@@ -1,13 +1,12 @@
 /**
- * The three `scipy.ndimage` interpolation calls the frame difference makes,
- * with scipy's own arithmetic (VISTA-SPM `measure.diff`, `register`,
- * `_common_grid`, `_shift_image`):
+ * The `scipy.ndimage` shifts the frame difference makes, with scipy's own
+ * arithmetic (VISTA-SPM `measure.register`, `_shift_image`); its bilinear
+ * `map_coordinates` (`_common_grid`) is `dsh-spm-numerics`' `mapCoordinates`.
  *
  * | here | scipy |
  * |---|---|
  * | {@link splineFilter3} | `spline_filter(a, order=3)` (mode `mirror`) |
  * | {@link shiftConstant} | `shift(a, d, order=1, mode='constant')` and `shift(c, d, order=3, mode='constant', prefilter=False)` |
- * | {@link mapCoordinates1} | `map_coordinates(a, [rows, cols], order=1, mode='constant')` |
  *
  * ## Tolerance: none — bit-identical
  *
@@ -19,11 +18,9 @@
  * moves a coefficient only when `|z|^(n-1)` times the last sample is within an
  * ulp of a rounding boundary of the first one — never seen in the goldens.
  *
- * Why not `dsh-spm-numerics`' `mapCoordinates` / `shiftImage`: they compute the
- * second weight as `x - floor(x)` and multiply `(wr·wc)·v`, scipy as
- * `1 - (1 - x)` and `(v·wr)·wc`, so about a third of the outputs differ in the
- * last bit (within their stated `8·eps`); and order 3 is not there at all
- * (it needs the global spline prefilter).
+ * Order 3 is not in `dsh-spm-numerics` (it needs the global spline prefilter);
+ * the order-1 shift shares this module's code so that both shifts of the
+ * registration objective fold their edges the same way.
  *
  * ## The rules, as scipy implements them
  *
@@ -120,25 +117,6 @@ export function shiftConstant(a: Float64Array, rows: number, cols: number, dy: n
       const C = cs[c] as Stencil | null
       if (C !== null) out[r * cols + c] = interpolate(a, cols, R, C)
     }
-  }
-  return out
-}
-
-/** `scipy.ndimage.map_coordinates(a, [rows, cols], order=1, mode='constant', cval=0)`. */
-export function mapCoordinates1(
-  a: Float64Array,
-  rows: number,
-  cols: number,
-  rowCoords: ArrayLike<number>,
-  colCoords: ArrayLike<number>,
-): Float64Array {
-  checkShape(a, rows, cols)
-  if (rowCoords.length !== colCoords.length) throw new RangeError(`${rowCoords.length} row and ${colCoords.length} column coordinates`)
-  const out = new Float64Array(rowCoords.length)
-  for (let k = 0; k < out.length; k += 1) {
-    const R = stencil(rowCoords[k] as number, rows, 1)
-    const C = R === null ? null : stencil(colCoords[k] as number, cols, 1)
-    if (R !== null && C !== null) out[k] = interpolate(a, cols, R, C)
   }
   return out
 }

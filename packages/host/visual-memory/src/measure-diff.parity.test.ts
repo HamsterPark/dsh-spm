@@ -50,13 +50,14 @@ import { createHash } from 'node:crypto'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { mapCoordinates, matOf } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import golden from '../../../../spec/golden/measure_diff.json' with { type: 'json' }
 import { entrySummary, FrameArchive } from './archive.js'
 import { clipPolygon, divergingRgb, FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters, sameGeometry, type DiffTrace, type Point } from './frame-diff.js'
 import { decodePng } from './png.js'
 import { nelderMead } from './nelder-mead.js'
-import { mapCoordinates1, shiftConstant, splineFilter3 } from './ndinterp.js'
+import { shiftConstant, splineFilter3 } from './ndinterp.js'
 import { register } from './register.js'
 
 type Arr = { shape: number[]; f32?: string; f64?: string; u8?: string }
@@ -141,10 +142,10 @@ describe('parity with the Python reference: scipy kernels, bit for bit', () => {
     expect(n).toBe(36)
   })
 
-  it('map_coordinates(order=1, mode constant), edges and out-of-range points included', () => {
+  it("map_coordinates(order=1, mode constant), edges and out-of-range points included (numerics' mapCoordinates)", () => {
     for (const c of golden.kernels.map_coordinates) {
       const [rows, cols] = c.input.shape as [number, number]
-      expect(differing(mapCoordinates1(f64(c.input), rows, cols, c.rows, c.cols), f64(c.output))).toEqual([])
+      expect(differing(mapCoordinates(matOf(rows, cols, f64(c.input)), c.rows, c.cols, 1, 'constant', 0), f64(c.output))).toEqual([])
     }
   })
 
