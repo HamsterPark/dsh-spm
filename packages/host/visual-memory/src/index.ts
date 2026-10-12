@@ -179,4 +179,25 @@ export {
   type ViewToolValue,
   type VisualToolDeps,
 } from './tools.js'
-export { FrameArchiveService, apply, inject, name, visualMemoryProvider, type Config } from './plugin.js'
+export {
+  FrameArchiveService,
+  apply,
+  inject,
+  name,
+  sessionDirName,
+  visualMemoryProvider,
+  type Config,
+  type SessionMemory,
+} from './plugin.js'
+export {
+  IMAGES_NOT_DELIVERED,
+  NO_SPECTRA,
+  TEXT_ONLY_ROUTE,
+  frameObserver,
+  observationPresenter,
+  presentObservation,
+  renderObservation,
+  routeTakesImages,
+  type FrameObserverOptions,
+} from './observe.js'
+export { VISUAL_HARNESS_PROMPT, VISUAL_HARNESS_PROMPT_NAME, VISUAL_HARNESS_PROMPT_ORDER } from './prompt.js'
