@@ -196,6 +196,19 @@ describe('stm_inspect', () => {
     if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
   })
 
+  it('never hands the tools null for a typed optional argument (spec/deviations.md D-VMEM-14)', async () => {
+    const { ctx } = await host()
+    const views = [{ clip_pct: null }, { flatten: null }, { direction: null }, { flatten: 'highpass', highpass_nm: null }, { x_range: null }]
+    for (const over of views) {
+      const res = await call(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'v', frame: 't0000.s0', ...over }] })
+      expect(res.isError).toBe(true)
+      if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
+    }
+    const res = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: 1, columns: 1, n: null }] })
+    expect(res.isError).toBe(true)
+    if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
+  })
+
   it('reports images it could not store instead of dropping them', async () => {
     const without = await host(false)
     const res = await call(without.ctx, 'stm_inspect', { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] })
