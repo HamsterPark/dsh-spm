@@ -2,8 +2,9 @@
  * dsh-spm-visual-memory — the session's lossless visual memory and the tools
  * that let the model look again (VISUAL-HARNESS, decision D12).
  *
- * Pure core (no dsh imports): frame ids, `.sxm` and `.dat` ingestion, display geometry,
- * flattening, rendering, PNG, the directory archive, the notes store and the
+ * Pure core (no dsh imports): frame ids, `.sxm` and `.dat` ingestion, display
+ * geometry, flattening, rendering, drawing (marks and line plots on derived
+ * images and spectra), PNG, the directory archive, the notes store and the
  * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
@@ -19,7 +20,7 @@ export {
   type FrameKind,
   type ParsedFrameId,
 } from './frame-id.js'
-export { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+export { pyFixed, pyG, pyRepr, pyRound, pyRoundInt, pyTypeName, rint } from './pyfmt.js'
 export { PngError, crc32, decodePng, encodePngRgb, pngSize, toRgb, type DecodedPng, type PngOptions } from './png.js'
 export {
   DISPLAY_MAX_DEFAULT,
@@ -104,6 +105,16 @@ export {
   type View,
   type ViewGrid,
 } from './render.js'
+export {
+  Canvas,
+  MARK_RGB,
+  drawMarks,
+  linePlot,
+  type LinePlotOptions,
+  type PlotPanel,
+  type PlotSeries,
+  type Rgb,
+} from './draw.js'
 export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
 export {
   DIRECTIONS,

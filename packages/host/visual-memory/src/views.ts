@@ -33,6 +33,7 @@
 import { pyFloatRepr } from 'dsh-spm-kernel'
 import {
   ArgError,
+  argsObject,
   channelDirectionArgs,
   checkKeys,
   failure,
@@ -91,7 +92,7 @@ interface InspectPlan {
   readonly region: Region | null
 }
 
-/** Python `float(f"{v:.6g}")`; a non-finite value stays, and the reply text carries it as null (spec/deviations.md D-VMEM-14). */
+/** Python `float(f"{v:.6g}")`; a non-finite value stays, and the reply text carries it as null (spec/deviations.md D-VMEM-13). */
 function g6(v: number): number {
   return Number.isFinite(v) ? Number(pyG(v, 6)) : v
 }
@@ -141,9 +142,10 @@ function viewSummary(i: number, label: string, e: FrameEntry, meta: RenderMeta):
 /** `inspect(question, views)`: see the module comment. Never throws. */
 export function inspect(archive: FrameArchive, args: unknown): ViewToolResult {
   try {
-    checkKeys(args, TOP_KEYS, ['question', 'views'], 'arguments')
-    questionArg(args)
-    const views = viewsArg(args, MAX_INSPECT_VIEWS)
+    const a = argsObject(args)
+    checkKeys(a, TOP_KEYS, ['question', 'views'], 'arguments')
+    questionArg(a)
+    const views = viewsArg(a, MAX_INSPECT_VIEWS)
     const plans: InspectPlan[] = views.map((v, k) => {
       const where = `views[${k + 1}]`
       checkKeys(v, INSPECT_ALL_KEYS, ['label', 'frame'], where)
@@ -348,9 +350,10 @@ function readSpectrum(archive: FrameArchive, i: number, p: SpectrumReadPlan): Re
 /** `read_values(question, views)`: see the module comment. Never throws. */
 export function readValues(archive: FrameArchive, args: unknown): ViewToolResult {
   try {
-    checkKeys(args, TOP_KEYS, ['question', 'views'], 'arguments')
-    questionArg(args)
-    const views = viewsArg(args, MAX_READ_VIEWS)
+    const a = argsObject(args)
+    checkKeys(a, TOP_KEYS, ['question', 'views'], 'arguments')
+    questionArg(a)
+    const views = viewsArg(a, MAX_READ_VIEWS)
     let total = 0
     const plans: (ScanReadPlan | SpectrumReadPlan)[] = views.map((v, k) => {
       const i = k + 1

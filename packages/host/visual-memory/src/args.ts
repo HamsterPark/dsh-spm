@@ -5,6 +5,7 @@
  * so a bad argument becomes an error reply, never a throw.
  */
 import { ArchiveError, channelDirections, hasValues, type FrameArchive, type FrameEntry } from './archive.js'
+import { pyRepr, pyTypeName } from './pyfmt.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT, type FlattenMode } from './flatten.js'
 import type { Region } from './render.js'
 import { DIRECTIONS, type Direction } from './scan-data.js'
@@ -40,6 +41,12 @@ export function sortedList(xs: Iterable<string>): string {
   return `[${[...xs].sort().map((x) => `'${x}'`).join(', ')}]`
 }
 
+/** A tool's arguments: a JSON object, or the reference's error naming what came instead. */
+export function argsObject(args: unknown): Obj {
+  if (!isObj(args)) throw new ArgError(`arguments must be a JSON object, got ${pyTypeName(args)}`)
+  return args
+}
+
 export function checkKeys(obj: unknown, allowed: ReadonlySet<string>, required: readonly string[], where: string): asserts obj is Obj {
   if (!isObj(obj)) throw new ArgError(`${where} must be an object`)
   const extra = Object.keys(obj).filter((k) => !allowed.has(k))
@@ -60,7 +67,7 @@ export function strArg(
   const maxLen = opts.maxLen ?? 256
   if (v.length < 1 || v.length > maxLen) throw new ArgError(`${where}.${key} must have 1..${maxLen} characters`)
   if (opts.choices !== undefined && !opts.choices.includes(v)) {
-    throw new ArgError(`${where}.${key} must be one of ${JSON.stringify(opts.choices)}, not ${JSON.stringify(v)}`)
+    throw new ArgError(`${where}.${key} must be one of ${pyRepr(opts.choices)}, not ${pyRepr(v)}`)
   }
   return v
 }
@@ -135,7 +142,7 @@ export function channelDirectionArgs(archive: FrameArchive, e: FrameEntry, v: Ob
   }
   const direction = strArg(v, 'direction', where, { def: 'forward', choices: DIRECTIONS }) as Direction
   const has = channelDirections(e, ch)
-  if (!has.includes(direction)) throw new ArgError(`${where}.direction: ${e.fid} channel ${JSON.stringify(ch)} has only ${JSON.stringify(has)}`)
+  if (!has.includes(direction)) throw new ArgError(`${where}.direction: ${e.fid} channel ${pyRepr(ch)} has only ${pyRepr(has)}`)
   return [ch, direction]
 }
 

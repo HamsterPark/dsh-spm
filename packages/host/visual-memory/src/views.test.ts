@@ -114,7 +114,7 @@ describe('inspect', () => {
     const v = (over: Record<string, unknown>) => ({ question: 'q', views: [{ label: 'v', frame: 't0000.s0', ...over }] })
     const sp = (over: Record<string, unknown>) => v({ frame: 't0000.d0', ...over })
     const cases: [unknown, RegExp][] = [
-      [[1], /^inspect: arguments must be an object$/],
+      [[1], /^inspect: arguments must be a JSON object, got list$/],
       [{ question: 'q', views: [], extra: 1 }, /unknown field\(s\) \['extra'\]; allowed: \['question', 'views'\]/],
       [{ views: [{}] }, /missing required field\(s\) \['question'\]/],
       [{ question: ' ', views: [{}] }, /question must be a non-empty string/],
@@ -127,12 +127,12 @@ describe('inspect', () => {
       [v({ label: '' }), /views\[1\]\.label must be a non-empty string/],
       [v({ label: 'x'.repeat(129) }), /label is longer than 128 characters/],
       [v({ frame: 7 }), /views\[1\]\.frame must be a frame id like 't0007\.s0'/],
-      [v({ frame: 't0009.s0' }), /views\[1\]\.frame: no frame "t0009\.s0"/],
-      [v({ channel: 'phase' }), /views\[1\]\.channel: t0000\.s0: no channel "phase"/],
+      [v({ frame: 't0009.s0' }), /views\[1\]\.frame: no frame 't0009\.s0'/],
+      [v({ channel: 'phase' }), /views\[1\]\.channel: t0000\.s0: no channel 'phase'/],
       [v({ channel: 3 }), /views\[1\]\.channel must be a string/],
       [v({ channel: 'x'.repeat(65) }), /views\[1\]\.channel must have 1\.\.64 characters/],
-      [v({ direction: 'up' }), /views\[1\]\.direction must be one of \["forward","backward"\], not "up"/],
-      [v({ channel: 'Current', direction: 'backward' }), /views\[1\]\.direction: t0000\.s0 channel "Current" has only \["forward"\]/],
+      [v({ direction: 'up' }), /views\[1\]\.direction must be one of \['forward', 'backward'\], not 'up'/],
+      [v({ channel: 'Current', direction: 'backward' }), /views\[1\]\.direction: t0000\.s0 channel 'Current' has only \['forward'\]/],
       [v({ region: { x: 0, y: 0, width: 4 } }), /views\[1\]\.region: missing required field\(s\) \['height'\]/],
       [v({ region: { x: 0, y: 0, width: 4, height: 4, z: 1 } }), /region: unknown field\(s\) \['z'\]/],
       [v({ region: { x: 60, y: 0, width: 8, height: 4 } }), /leaves t0000\.s0's 64x32 display image \(need x \+ width <= 64 and y \+ height <= 32\)/],
@@ -156,8 +156,8 @@ describe('inspect', () => {
       [sp({ x_range: [1, '2'] }), /x_range must be \[low, high\] numbers/],
       [sp({ x_range: 0.1 }), /x_range must be \[low, high\] numbers/],
       [sp({ x_range: [0.1, 0.1] }), /^inspect: views\[1\]\.x_range needs two different finite numbers$/],
-      [sp({ x_col: 'phase' }), /^inspect: views\[1\]: no channel "phase"; this frame has \["Bias calc \(V\)","Current \(A\)","LI Demod 1 X \(A\)"\]$/],
-      [sp({ y_col: 'phase' }), /^inspect: views\[1\]: no channel "phase"/],
+      [sp({ x_col: 'phase' }), /^inspect: views\[1\]: no channel 'phase'; this frame has \['Bias calc \(V\)', 'Current \(A\)', 'LI Demod 1 X \(A\)'\]$/],
+      [sp({ y_col: 'phase' }), /^inspect: views\[1\]: no channel 'phase'/],
       [sp({ x_range: [1000, 900] }), /^inspect: views\[1\]: x_range 900\.0\.\.1000\.0 V contains no samples \(x spans -0\.5\.\.0\.5 V\)$/],
     ]
     for (const [args, re] of cases) expect(err(inspect(b, args))).toMatch(re)
@@ -352,9 +352,9 @@ describe('spectrum views', () => {
     expect(err(one({ x_range: [900, 1000] }))).toBe('read_values: views[1].x_range 900.0..1000.0 V contains no samples; x spans -0.5..0.5 V')
     expect(err(one({ x_range: [1e-7, 2e-7] }))).toBe('read_values: views[1].x_range 1e-07..2e-07 V contains no samples; x spans -0.5..0.5 V')
     expect(err(one({ x_range: [2, 2] }))).toBe('read_values: views[1].x_range needs two different finite numbers')
-    expect(err(one({ x_col: 'phase' }))).toBe('read_values: views[1]: no channel "phase"; this frame has ["Bias calc (V)","Current (A)","LI Demod 1 X (A)"]')
+    expect(err(one({ x_col: 'phase' }))).toBe("read_values: views[1]: no channel 'phase'; this frame has ['Bias calc (V)', 'Current (A)', 'LI Demod 1 X (A)']")
     expect(err(one({ x_col: '' }))).toBe('read_values: views[1].x_col must have 1..64 characters')
-    expect(err(one({ y_cols: ['Current', 'phase'] }))).toMatch(/^read_values: views\[1\]: no channel "phase"/)
+    expect(err(one({ y_cols: ['Current', 'phase'] }))).toMatch(/^read_values: views\[1\]: no channel 'phase'/)
     for (const bad of [[], 'Current', [3]]) {
       expect(err(one({ y_cols: bad }))).toBe('read_values: views[1].y_cols must be a list of column names')
     }
@@ -368,7 +368,7 @@ describe('spectrum views', () => {
     )
     expect(ok(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0', n: 2048, y_cols: ['Current'] }] })).reply['sample_count']).toBe(4096)
   })
-  it('writes x_shown as null when the x column has no finite value (spec/deviations.md D-VMEM-14)', () => {
+  it('writes x_shown as null when the x column has no finite value (spec/deviations.md D-VMEM-13)', () => {
     const { a } = setup()
     const fid = a.addSpectrumBytes(0, encodeSyntheticDat({
       columns: [['Bias calc (V)', [Number.NaN, Number.NaN, Number.NaN]], ['Current (A)', [1e-12, 2e-12, 3e-12]]],

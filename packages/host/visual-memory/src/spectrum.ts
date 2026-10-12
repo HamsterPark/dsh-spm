@@ -22,13 +22,13 @@
  * 802 come out one pixel narrower. The size is in every label and `inspect`
  * reply, so it is reproduced here exactly; the pixels themselves are drawn by
  * this package and are not compared with the reference's (spec/deviations.md
- * D-VMEM-13).
+ * D-VMEM-6).
  */
 import { pyFloatRepr } from 'dsh-spm-kernel'
 import { pyFloat, readDat } from 'dsh-spm-nanonis-files'
 import { DISPLAY_MAX_DEFAULT } from './geometry.js'
 import { encodePngRgb } from './png.js'
-import { pyG } from './pyfmt.js'
+import { pyG, pyRepr } from './pyfmt.js'
 import { IngestError, setpointUnit } from './scan-data.js'
 import { columnUnit, displayUnit, stripUnit } from './units.js'
 
@@ -183,7 +183,7 @@ export function renderSpectrumPlot(
 ): SpectrumPlot {
   const { xCol, yCols } = options
   const xsSi = columns.get(xCol)
-  if (xsSi === undefined) throw new SpectrumError(`no column ${JSON.stringify(xCol)}`)
+  if (xsSi === undefined) throw new SpectrumError(`no column ${pyRepr(xCol)}`)
   const { factor: fx, unit: ux } = displayUnit(units[xCol] ?? '')
   const xs = xsSi.map((v) => v * fx)
   let sel = Array.from(xs, (_, i) => i)
@@ -202,7 +202,7 @@ export function renderSpectrumPlot(
   const y: SpectrumColumn[] = []
   const panels = yCols.map((yc) => {
     const ysSi = columns.get(yc)
-    if (ysSi === undefined) throw new SpectrumError(`no column ${JSON.stringify(yc)}`)
+    if (ysSi === undefined) throw new SpectrumError(`no column ${pyRepr(yc)}`)
     const { factor: fy, unit: uy } = displayUnit(units[yc] ?? '')
     y.push({ column: yc, unit: uy })
     return {
