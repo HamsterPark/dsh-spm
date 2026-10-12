@@ -126,7 +126,7 @@ describe('inspect', () => {
       [v({ label: 'x'.repeat(129) }), /label is longer than 128 characters/],
       [v({ frame: 7 }), /views\[1\]\.frame must be a frame id like 't0007\.s0'/],
       [v({ frame: 't0009.s0' }), /views\[1\]\.frame: no frame 't0009\.s0'/],
-      [v({ channel: 'phase' }), /views\[1\]\.channel: t0000\.s0: no channel 'phase'/],
+      [v({ channel: 'phase' }), /views\[1\]\.channel: no channel 'phase'; this frame has/],
       [v({ channel: 3 }), /views\[1\]\.channel must be a string/],
       [v({ channel: 'x'.repeat(65) }), /views\[1\]\.channel must have 1\.\.64 characters/],
       [v({ direction: 'up' }), /views\[1\]\.direction must be one of \['forward', 'backward'\], not 'up'/],
