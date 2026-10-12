@@ -13,7 +13,7 @@ import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef } 
 import { afterEach, describe, expect, it } from 'vitest'
 import { FrameArchive, INDEX_NAME } from './archive.js'
 import { frameStats } from './frame-stats.js'
-import { bandProfile, bilinearNearest, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine } from './line-profile.js'
+import { bandProfile, bilinearNearest, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine, plotPx } from './line-profile.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
 import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
@@ -112,6 +112,11 @@ describe('bilinear sampling (scipy map_coordinates, order 1, nearest)', () => {
     expect(bilinearNearest(Float64Array.from([1, 2, 3, 4]), 2, 2, 0.25, 0.5)).toBe(2)
   })
 
+  it('weighs 1 − t and 1 − (1 − t) like scipy, which differs from t when t has bits below 2^-53', () => {
+    // scipy 1.17: map_coordinates([[1, 1], [3, 3]], [[0.1], [0]], order=1) is 1.2; weights 0.9 and 0.1 would give 1.2000000000000002
+    expect(bilinearNearest(Float64Array.from([1, 1, 3, 3]), 2, 2, 0.1, 0)).toBe(1.2)
+  })
+
   it('averages the lines of a band, half to even, and skips a line that is NaN', () => {
     const grid = Float64Array.from({ length: 64 }, (_, i) => (i >= 40 ? Number.NaN : i % 8))
     // a horizontal line through row 3.5 (native centre 3): 2.5 scan px wide → round(2.5) = 2 lines at rows 2.375, 3.625
@@ -126,6 +131,12 @@ describe('bilinear sampling (scipy map_coordinates, order 1, nearest)', () => {
     const lines = [-1.3125, -0.4375, 0.4375, 1.3125].map((o) => Array.from({ length: 9 }, (_, i) => bilinearNearest(grid, 8, 8, 4 + o, i - 0.5)))
     expect(lines[2]?.every(Number.isNaN)).toBe(true)
     expect([...four]).toEqual(lines[0]?.map((v, i) => (v + (lines[1]?.[i] as number)) / 2))
+  })
+})
+
+describe('the plot size', () => {
+  it('is what matplotlib makes of a figure px / 100 inches wide at 100 dpi', () => {
+    expect([600, 768, 802, 803, 804, 805, 400].map(plotPx)).toEqual([600, 768, 802, 802, 803, 805, 400])
   })
 })
 

@@ -25,9 +25,10 @@
  *
  * - sampling is scipy's `map_coordinates(order=1, mode='nearest')` exactly
  *   ({@link bilinearNearest}): every one of the four neighbours is multiplied in, so a
- *   NaN neighbour makes the sample NaN even at weight 0. `dsh-spm-numerics`'
- *   `mapCoordinates` skips zero weights and multiplies the weights first, which differs
- *   in both respects, so it is not used here;
+ *   NaN neighbour makes the sample NaN even at weight 0, and a coordinate outside the
+ *   frame (the first and last half pixel of a line on the edge) keeps its fraction.
+ *   `dsh-spm-numerics`' `mapCoordinates` clamps such a coordinate first, so it is not
+ *   used here;
  * - the line length is CPython's `math.hypot` ({@link pyHypot}), because the sample count
  *   is `ceil(L) + 1`;
  * - prefix sums, the sum of squared residuals, the split search, medians, means
@@ -54,8 +55,17 @@ import { formatKey, formatValues, roundTo, type ChannelFormat } from './units.js
 export const MAX_PROFILE_SAMPLES = 400
 /** A step is reported when the two sides differ by at least this many noise sigmas. */
 export const STEP_MIN_JUMP_SIGMA = 4
-/** Height of the profile plot in pixels; its width is `max(600, display_max)`. */
+/** Height of the profile plot in pixels; its width is `max(600, display_max)` (both through {@link plotPx}). */
 export const PROFILE_PLOT_HEIGHT = 400
+
+/**
+ * The pixels matplotlib gives a side of `px` pixels: the reference makes a figure of
+ * `px / 100` inches at 100 dpi, and the canvas is `int(inches · dpi)` in float64, so
+ * some sizes lose a pixel (803 → 802; 107 of the widths 600..2048).
+ */
+export function plotPx(px: number): number {
+  return Math.trunc((px / 100) * 100)
+}
 
 // ── shared by the measurement tools ──────────────────────────────────────
 
@@ -282,24 +292,30 @@ export function changePoints(x: ArrayLike<number>, y: ArrayLike<number>, options
 
 /**
  * scipy's `map_coordinates(z, [[row], [col]], order=1, mode='nearest')`, bit for bit:
- * the neighbours `floor(c)` and `floor(c) + 1` of each axis, clamped into the frame,
- * weighted `1 − t` and `t`, accumulated as `value · w_row · w_col` row by row. All four
- * products are added, so a NaN neighbour gives NaN even when its weight is 0.
+ * along each axis the neighbours `floor(c)` and `floor(c) + 1` of the coordinate as given
+ * (outside the frame too), their indices clamped into it, weighted `1 − t` and
+ * `1 − (1 − t)` (scipy makes the last weight one minus the others; it differs from `t`
+ * when `t` has bits below 2^-53, i.e. for coordinates in (−1, 1)), accumulated as
+ * `value · w_row · w_col` row by row. All four products are added, so a NaN neighbour
+ * gives NaN even when its weight is 0. `dsh-spm-numerics`' `mapCoordinates` clamps a
+ * coordinate outside the frame before it interpolates, which scipy's `nearest` does not.
  */
 export function bilinearNearest(z: ArrayLike<number>, nx: number, ny: number, row: number, col: number): number {
   const r0 = Math.floor(row)
   const c0 = Math.floor(col)
-  const tr = row - r0
-  const tc = col - c0
+  const wr0 = 1 - (row - r0)
+  const wc0 = 1 - (col - c0)
+  const wr1 = 1 - wr0
+  const wc1 = 1 - wc0
   const ra = Math.min(Math.max(r0, 0), ny - 1) * nx
   const rb = Math.min(Math.max(r0 + 1, 0), ny - 1) * nx
   const ca = Math.min(Math.max(c0, 0), nx - 1)
   const cb = Math.min(Math.max(c0 + 1, 0), nx - 1)
   let acc = 0
-  acc += (z[ra + ca] as number) * (1 - tr) * (1 - tc)
-  acc += (z[ra + cb] as number) * (1 - tr) * tc
-  acc += (z[rb + ca] as number) * tr * (1 - tc)
-  acc += (z[rb + cb] as number) * tr * tc
+  acc += (z[ra + ca] as number) * wr0 * wc0
+  acc += (z[ra + cb] as number) * wr0 * wc1
+  acc += (z[rb + ca] as number) * wr1 * wc0
+  acc += (z[rb + cb] as number) * wr1 * wc1
   return acc
 }
 
@@ -389,15 +405,16 @@ export function scanAngleDeg(e: FrameEntry, dcol: number, drow: number): number 
 }
 
 /**
- * The reference's profile plot (`_plot_png` with its `draw`), `width` × 400 px: the values
- * against the distance from p1, a dashed red line at each step's position numbered at
- * the top, axis labels with units. Drawn by `draw.ts` (pixels differ, D-VMEM-6).
+ * The reference's profile plot (`_plot_png` with its `draw`), as large as matplotlib makes
+ * a `max(600, display_max)` × 400 figure ({@link plotPx}): the values against the
+ * distance from p1, a dashed red line at each step's position numbered at the top, axis
+ * labels with units. Drawn by `draw.ts` (pixels differ, D-VMEM-6).
  */
-function profilePlot(width: number, m: MeasuredLine, steps: readonly { readonly id: number; readonly position_nm: number }[]): Uint8Array {
+function profilePlot(displayMax: number, m: MeasuredLine, steps: readonly { readonly id: number; readonly position_nm: number }[]): Uint8Array {
   const unit = m.fmt.unit
   return linePlot({
-    width,
-    height: PROFILE_PLOT_HEIGHT,
+    width: plotPx(Math.max(600, displayMax)),
+    height: plotPx(PROFILE_PLOT_HEIGHT),
     xLabel: 'distance from p1 (nm)',
     panels: [
       {
@@ -494,7 +511,7 @@ export function lineProfile(archive: FrameArchive, args: unknown): ViewToolResul
         y_nm: pyRound(Y, 4),
       }
     })
-    const png = profilePlot(Math.max(600, archive.displayMax), m, steps)
+    const png = profilePlot(archive.displayMax, m, steps)
     const de = archive.addDerived(archive.currentTurn, png, {
       tool: 'line_profile',
       sources: [e.fid],

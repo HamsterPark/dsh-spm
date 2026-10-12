@@ -193,6 +193,7 @@ export {
   lineProfile,
   linfit,
   measureLine,
+  plotPx,
   type ChangePointOptions,
   type ChangePoints,
   type MeasuredLine,
