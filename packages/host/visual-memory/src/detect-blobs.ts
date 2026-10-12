@@ -57,8 +57,9 @@ import {
   type ViewToolResult,
 } from './args.js'
 import { entryScale, type FrameArchive, type FrameEntry } from './archive.js'
-import { flatten, HIGHPASS_NM_DEFAULT, medianBackground, nanMedian } from './flatten.js'
-import { degrees, imageEntry, maximumFilter, paintMarks, pixelNm, type Mark, type MarkPainter } from './fft-peaks.js'
+import { HIGHPASS_NM_DEFAULT, medianBackground, nanMedian } from './flatten.js'
+import { degrees, maximumFilter, paintMarks, type Mark, type MarkPainter } from './fft-peaks.js'
+import { flatFrame, imageEntry, pixelNm } from './line-profile.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
 import { leastSquares, LeastSquaresError } from './least-squares.js'
 import { decodePng, toRgb } from './png.js'
@@ -599,7 +600,7 @@ export function detectBlobs(archive: FrameArchive, args: unknown, paint: MarkPai
     if (bgnm < 3.0 * Math.sqrt(dx * dy)) {
       throw new ArgError(`background_nm must be at least 3 scan pixels (${pyG(3 * Math.sqrt(dx * dy), 3)} nm here)`)
     }
-    const z = flatten(archive.values(e, ch, direction), e.nx, e.ny, 'plane', { nmPerPx: Math.sqrt(dx * dy), highpassNm: HIGHPASS_NM_DEFAULT })
+    const z = flatFrame(archive, e, ch, direction, 'plane', HIGHPASS_NM_DEFAULT)
     let res: BlobResult
     try {
       res = findBlobs(z, e.nx, e.ny, {
