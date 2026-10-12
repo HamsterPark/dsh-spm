@@ -344,6 +344,17 @@ describe('spectrum views', () => {
     expect(mixed.reply['sample_count']).toBe(5)
   })
 
+  it('treats an explicit null argument as absent (D-VMEM-14)', () => {
+    const { a } = setup()
+    const d = addSts(a)
+    const withNull = ok(readValues(a, { question: 'q', views: [{ label: 's', frame: d, n: null }] }))
+    const without = ok(readValues(a, { question: 'q', views: [{ label: 's', frame: d }] }))
+    expect(withNull.reply).toEqual(without.reply)
+    const shown = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: 't0000.s0', clip_pct: null, direction: null }] }))
+    const plain = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] }))
+    expect(shown.reply).toEqual(plain.reply)
+  })
+
   it('read_values: says what to change for a spectrum view', () => {
     const { a } = setup()
     const d = addSts(a)
