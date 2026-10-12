@@ -96,8 +96,148 @@ describe('PNG encoder', () => {
   })
 })
 
+/** A seeded uniform generator (mulberry32). */
+function rng(seed: number): () => number {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * Rows of every kind the encoder treats differently, mixed: noise (None wins), ramps across and
+ * down (Sub, Up), smooth fields (Average, Paeth), flats, zero rows, copies of the row above
+ * (recognised without filtering) and small changes to it.
+ */
+function randomImage(rand: () => number, w: number, h: number): Uint8Array {
+  const stride = w * 3
+  const rgb = new Uint8Array(h * stride)
+  const byte = (): number => Math.floor(rand() * 256)
+  for (let y = 0; y < h; y += 1) {
+    const row = rgb.subarray(y * stride, (y + 1) * stride)
+    const above = y > 0 ? rgb.subarray((y - 1) * stride, y * stride) : new Uint8Array(stride)
+    const kind = Math.floor(rand() * 8)
+    const [s, t] = [byte(), byte()]
+    for (let i = 0; i < stride; i += 1) {
+      const x = Math.floor(i / 3)
+      row[i] = [
+        byte(),
+        (s + x * t) & 0xff,
+        ((above[i] as number) + 7) & 0xff,
+        (128 + 100 * Math.sin(x / (1 + t / 16) + y / 5 + (i % 3))) & 0xff,
+        s,
+        0,
+        above[i] as number,
+        ((above[i] as number) + (rand() < 0.05 ? 1 : 0)) & 0xff,
+      ][kind] as number
+    }
+  }
+  return rgb
+}
+
+describe('PNG encoder against the straightforward one', () => {
+  /**
+   * The encoder's filter stage before it was rewritten without per-byte branches: each filter
+   * in turn, then its cost, the first least one wins. Kept as the oracle for the bytes.
+   */
+  function straightforward(width: number, height: number, rgb: Uint8Array): Uint8Array {
+    const paeth = (a: number, b: number, c: number): number => {
+      const p = a + b - c
+      const pa = Math.abs(p - a)
+      const pb = Math.abs(p - b)
+      const pc = Math.abs(p - c)
+      if (pa <= pb && pa <= pc) return a
+      return pb <= pc ? b : c
+    }
+    const bpp = 3
+    const stride = width * bpp
+    const raw = new Uint8Array(height * (stride + 1))
+    let prev: Uint8Array = new Uint8Array(stride)
+    const candidates = [0, 1, 2, 3, 4].map(() => new Uint8Array(stride))
+    for (let y = 0; y < height; y += 1) {
+      const row = rgb.subarray(y * stride, (y + 1) * stride)
+      let best = 0
+      let bestCost = Infinity
+      for (let t = 0; t < 5; t += 1) {
+        const out = candidates[t] as Uint8Array
+        for (let i = 0; i < row.length; i += 1) {
+          const x = row[i] as number
+          const a = i >= bpp ? (row[i - bpp] as number) : 0
+          const b = prev[i] as number
+          const c = i >= bpp ? (prev[i - bpp] as number) : 0
+          let v: number
+          switch (t) {
+            case 0: v = x; break
+            case 1: v = x - a; break
+            case 2: v = x - b; break
+            case 3: v = x - ((a + b) >> 1); break
+            default: v = x - paeth(a, b, c)
+          }
+          out[i] = v & 0xff
+        }
+        let cost = 0
+        for (const v of out) cost += v < 128 ? v : 256 - v
+        if (cost < bestCost) {
+          bestCost = cost
+          best = t
+        }
+      }
+      raw[y * (stride + 1)] = best
+      raw.set(candidates[best] as Uint8Array, y * (stride + 1) + 1)
+      prev = row
+    }
+    const ihdr = new Uint8Array(13)
+    new DataView(ihdr.buffer).setUint32(0, width)
+    new DataView(ihdr.buffer).setUint32(4, height)
+    ihdr[8] = 8
+    ihdr[9] = 2
+    const sig = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+    const idat = new Uint8Array(deflateSync(raw, { level: 9 }))
+    return new Uint8Array(Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', idat), chunk('IEND', new Uint8Array(0))]))
+  }
+
+  it('writes the same bytes on random images of every row kind, including 1- and 2-pixel-wide ones', () => {
+    const rand = rng(20261013)
+    for (let k = 0; k < 400; k += 1) {
+      const w = k < 20 ? 1 + (k % 2) : 1 + Math.floor(rand() * 40)
+      const h = 1 + Math.floor(rand() * 24)
+      const rgb = randomImage(rand, w, h)
+      expect(Buffer.from(encodePngRgb(w, h, rgb)).equals(Buffer.from(straightforward(w, h, rgb))), `image ${k}, ${w}x${h}`).toBe(true)
+    }
+  })
+
+  it('writes the same bytes on whole images: blank, black, noise and a scan-like enlargement', () => {
+    const rand = rng(7)
+    const w = 96
+    const h = 64
+    const blocks = new Uint8Array(w * h * 3)
+    for (let i = 0; i < blocks.length; i += 1) blocks[i] = (Math.floor(i / 3 / 8) % 12) * 20 + Math.floor(i / (w * 3) / 8) * 9
+    const images = [new Uint8Array(w * h * 3).fill(255), new Uint8Array(w * h * 3), Uint8Array.from({ length: w * h * 3 }, () => Math.floor(rand() * 256)), blocks]
+    for (const rgb of images) expect(Buffer.from(encodePngRgb(w, h, rgb)).equals(Buffer.from(straightforward(w, h, rgb)))).toBe(true)
+  })
+})
+
 describe('PNG decoder', () => {
   const row = (vals: number[]): Uint8Array => Uint8Array.from(vals)
+
+  it('undoes every filter on random rows of every layout', () => {
+    const rand = rng(99)
+    for (const [colourType, channels] of [[0, 1], [4, 2], [2, 3], [6, 4]] as const) {
+      for (let k = 0; k < 40; k += 1) {
+        const w = 1 + Math.floor(rand() * 20)
+        const h = 1 + Math.floor(rand() * 12)
+        const rows = Array.from({ length: h }, () => Uint8Array.from({ length: w * channels }, () => (rand() < 0.5 ? Math.floor(rand() * 256) : 128)))
+        const filters = rows.map(() => Math.floor(rand() * 5))
+        const img = decodePng(handPng(w, h, colourType, channels, rows, filters))
+        expect([img.width, img.height, img.channels]).toEqual([w, h, channels])
+        expect(Buffer.from(img.data).equals(Buffer.concat(rows)), `layout ${channels}, image ${k}`).toBe(true)
+      }
+    }
+  })
 
   it('reads grey, grey+alpha and RGBA with all five filters', () => {
     const grey = [row([0, 10, 20, 250]), row([5, 15, 25, 35]), row([9, 9, 9, 9]), row([1, 2, 3, 4]), row([200, 100, 50, 25])]

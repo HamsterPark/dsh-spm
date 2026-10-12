@@ -268,17 +268,32 @@ function put(cv: Canvas, x: number, y: number, c: Rgb): void {
   cv.rgb[o + 2] = c[2]
 }
 
-/** Fill the integer box [x, x + w) × [y, y + h), clipped. */
+/**
+ * Fill the integer box [x, x + w) × [y, y + h), clipped. A grey box is filled
+ * natively; otherwise the first row is written pixel by pixel and copied to
+ * the others, so a whole canvas costs one row of JavaScript.
+ */
 function fillBox(cv: Canvas, x: number, y: number, w: number, h: number, c: Rgb): void {
   const x0 = Math.max(0, x)
   const x1 = Math.min(cv.width, x + w)
-  for (let j = Math.max(0, y); j < Math.min(cv.height, y + h); j += 1) {
-    for (let o = (j * cv.width + x0) * 3, end = (j * cv.width + x1) * 3; o < end; o += 3) {
-      cv.rgb[o] = c[0]
-      cv.rgb[o + 1] = c[1]
-      cv.rgb[o + 2] = c[2]
-    }
+  const y0 = Math.max(0, y)
+  const y1 = Math.min(cv.height, y + h)
+  if (x1 <= x0 || y1 <= y0) return
+  const rgb = cv.rgb
+  const stride = cv.width * 3
+  if (c[0] === c[1] && c[1] === c[2]) {
+    if (x0 === 0 && x1 === cv.width) rgb.fill(c[0], y0 * stride, y1 * stride)
+    else for (let j = y0; j < y1; j += 1) rgb.fill(c[0], j * stride + x0 * 3, j * stride + x1 * 3)
+    return
   }
+  const start = y0 * stride + x0 * 3
+  const end = y0 * stride + x1 * 3
+  for (let o = start; o < end; o += 3) {
+    rgb[o] = c[0]
+    rgb[o + 1] = c[1]
+    rgb[o + 2] = c[2]
+  }
+  for (let j = y0 + 1; j < y1; j += 1) rgb.copyWithin(j * stride + x0 * 3, start, end)
 }
 
 function lerp(a: number, b: number, t: number): number {
