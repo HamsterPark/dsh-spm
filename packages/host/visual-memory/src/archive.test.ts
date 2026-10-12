@@ -209,7 +209,7 @@ describe('lookup', () => {
     expect(a.array('t0000.s0', 'current').channel).toBe('Current')
     expect(a.array('t0000.s0', 'height').channel).toBe('Z')
     expect(() => a.array('t0000.s0', 'Current', 'backward')).toThrow(/has no backward pass; it has \['forward'\]/)
-    expect(() => a.array('t0000.s0', 'phase')).toThrow(/t0000\.s0: no channel 'phase'/)
+    expect(() => a.array('t0000.s0', 'phase')).toThrow(/^no channel 'phase'; this frame has \['Z', 'Current'\]$/)
     // Current 100..227 pA: robust span 125.7 pA → 1 decimal
     expect(a.fmt(a.get('t0000.s0'), 'Current')).toEqual({ factor: 1e12, unit: 'pA', decimals: 1 })
   })

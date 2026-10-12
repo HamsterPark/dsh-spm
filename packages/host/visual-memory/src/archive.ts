@@ -778,7 +778,7 @@ export class FrameArchive {
     try {
       return resolveChannelName(channel, e.channels, e.units)
     } catch (err) {
-      if (err instanceof ChannelError) throw new ArchiveError(`${e.fid}: ${err.message}`)
+      if (err instanceof ChannelError) throw new ArchiveError(err.message)
       throw err
     }
   }
