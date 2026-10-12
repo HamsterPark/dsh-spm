@@ -4,7 +4,7 @@
  *
  * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
  * flattening, rendering, PNG, the directory archive, the notes store and the
- * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * `inspect` / `read_values` / `diff` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
@@ -171,6 +171,24 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
+export { mapCoordinates1, mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
+export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
+export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
+export {
+  FRAME_DIFF_DESCRIPTION,
+  MAX_REGIONS,
+  bandpass,
+  clipPolygon,
+  commonGrid,
+  divergingRgb,
+  frameDiff,
+  frameDiffParameters,
+  lowpass,
+  sameGeometry,
+  type CommonGrid,
+  type DiffTrace,
+  type Mark,
+} from './frame-diff.js'
 export {
   VISUAL_TOOL_NAMES,
   defineVisualTools,

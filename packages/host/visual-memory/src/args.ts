@@ -83,6 +83,12 @@ export function numArg(
   return v
 }
 
+export function boolArg(obj: Obj, key: string, where: string, def: boolean): boolean {
+  const v = obj[key] ?? def
+  if (typeof v !== 'boolean') throw new ArgError(`${where}.${key} must be true or false`)
+  return v
+}
+
 export function questionArg(args: Obj): void {
   const q = args['question']
   if (typeof q !== 'string' || q.trim() === '') throw new ArgError('question must be a non-empty string')
@@ -158,8 +164,8 @@ export function regionArg(e: FrameEntry, v: Obj, where: string): Region | null {
   return { x, y, width: w, height: h }
 }
 
-export function flattenArgs(v: Obj, where: string): [FlattenMode, number] {
-  const mode = strArg(v, 'flatten', where, { def: 'plane', choices: FLATTEN_MODES }) as FlattenMode
+export function flattenArgs(v: Obj, where: string, def: FlattenMode = 'plane'): [FlattenMode, number] {
+  const mode = strArg(v, 'flatten', where, { def, choices: FLATTEN_MODES }) as FlattenMode
   const hp = numArg(v, 'highpass_nm', where, { def: HIGHPASS_NM_DEFAULT, lo: 0, hi: MAX_HIGHPASS_NM, loExclusive: true }) as number
   if (v['highpass_nm'] !== undefined && mode !== 'highpass') throw new ArgError(`${where}.highpass_nm only applies with flatten='highpass'`)
   return [mode, hp]

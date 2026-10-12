@@ -1,5 +1,5 @@
 /**
- * Cordis plugin entry: provides `ctx.frameArchive` and registers the four
+ * Cordis plugin entry: provides `ctx.frameArchive` and registers the
  * visual-memory tools (VISUAL-HARNESS §4.1, §4.4).
  *
  * Not mounted by any profile or bundle yet: wiring it into K14, the IC persona

@@ -6,10 +6,11 @@
  * |---|---|
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening |
  * | `stm_read_values` | read exact archived values at cell centers |
+ * | `stm_frame_diff` | register two frames and archive their aligned difference with its values |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
- * None of them touches the instrument; all four are concurrency-safe (the
+ * None of them touches the instrument; all are concurrency-safe (the
  * archive and the notes store work synchronously inside one call, and the notes
  * files are replaced whole and atomically).
  *
@@ -35,6 +36,7 @@
 import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefinition } from 'dsh-spm-compat'
 import type { FrameArchive } from './archive.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
+import { FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters } from './frame-diff.js'
 import { GUIDE_FILE, MAX_GUIDE_BYTES, MAX_WORKING_BYTES, NOTE_FILES, NotesError, WORKING_FILE, type NotesStore } from './notes.js'
 import { CLIP_PCT_DEFAULT, GRID_COLOUR_NAME, NAN_NAME } from './render.js'
 import { DIRECTIONS } from './scan-data.js'
@@ -65,7 +67,7 @@ export interface VisualToolDeps {
   readonly displayMax?: number
 }
 
-export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_notes_read', 'stm_notes_write'] as const
+export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_frame_diff', 'stm_notes_read', 'stm_notes_write'] as const
 
 /** An {@link ImageAttachmentRef} as plain JSON (the tool value must be lossless JSON). */
 export type AttachmentJson = {
@@ -329,6 +331,17 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
+function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_diff',
+    description: FRAME_DIFF_DESCRIPTION,
+    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
+  })
+}
+
 const NOTE_FILE_PARAM = {
   type: 'string',
   required: true,
@@ -386,7 +399,7 @@ function notesWriteTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
-/** The four tools, in the order the model should see them. */
+/** The tools, in the order the model should see them. */
 export function defineVisualTools(deps: VisualToolDeps): ToolDefinition[] {
-  return [inspectTool(deps), readValuesTool(deps), notesReadTool(deps), notesWriteTool(deps)]
+  return [inspectTool(deps), readValuesTool(deps), frameDiffTool(deps), notesReadTool(deps), notesWriteTool(deps)]
 }
