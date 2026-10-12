@@ -168,6 +168,7 @@ python tools/spec-export/<脚本>.py
 | `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
 | `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复（连同模型读到的键顺序），和读回的索引记录（存扫描帧、谱帧）的摘要；以及方格纸：格距选择、格线所在像素、带格线视图的像素，和开启方格纸的档案的观测标签、`inspect` 回复与图像像素。运行 VISTA-SPM 的 `vista_spm` 参考实现（需 NumPy、SciPy、Pillow），输入为合成帧，档案建在临时目录、用后删除，记录参考文件的 sha256 |
+| `measure_diff.json` | `export_measure_diff.py` | 视觉线束的帧差分工具 `stm_frame_diff`（参考 `measure.diff`）。合成帧上 39 次调用：亚像素平移（含旋转帧）、台阶加变化的蠕变弯曲与大位移、plane 去衬底、不同尺寸与旋转的重采样、更粗的像素、无本底周期晶格（置信度接近 1）、移动的特征（正负两种变化区）、未采集行、区域、Current 通道与反扫、相同帧、`align=false`、超过 30 个变化区、超出搜索范围、没有正的第二峰（confidence 为 null）、降采样的差分图，以及全部拒绝文案。每次记录解析后回复与模型读到的键顺序、派生帧的摘要与标签、存档的差分值，以及参考途中算出的配准输入与结果、Nelder–Mead 的每次求值、重采样网格、未加标记的差分图与编号标记的位置。另有逐位比对用的 scipy 部件（order 3 `spline_filter`、order 1/3 `shift`、order 1 `map_coordinates`、按参考选项的 Nelder–Mead、`argsort` 的平局次序）与 `_clip_polygon` / `_same_geometry` / `_diverging_rgb`。途中结果靠在导出进程内替换模块属性捕获，不写参考目录；需 NumPy、SciPy、Pillow；数组以 base64 存，记录参考文件的 sha256 |
 
 ## 二、维护约束
 
