@@ -132,7 +132,7 @@ export function spectrumPlotSize(widthPx: number, panels: number): [number, numb
   return [canvasPx(w), canvasPx(h)]
 }
 
-/** A plot request the columns cannot satisfy (an `x_range` without points); the message says why. */
+/** A plot request the spectrum cannot satisfy (an `x_range` without points, an unknown column, more panels than fit); the message says why. */
 export class SpectrumError extends Error {
   override readonly name = 'SpectrumError'
 }
