@@ -23,12 +23,11 @@
  *
  * ## Same numbers as the reference
  *
- * - sampling is scipy's `map_coordinates(order=1, mode='nearest')` exactly
- *   ({@link bilinearNearest}): every one of the four neighbours is multiplied in, so a
- *   NaN neighbour makes the sample NaN even at weight 0, and a coordinate outside the
- *   frame (the first and last half pixel of a line on the edge) keeps its fraction.
- *   `dsh-spm-numerics`' `mapCoordinates` clamps such a coordinate first, so it is not
- *   used here;
+ * - sampling is scipy's `map_coordinates(order=1, mode='nearest')` bit for bit
+ *   (`dsh-spm-numerics`' `mapCoordinates`): weights `1 − t` and `1 − (1 − t)`, every one
+ *   of the four neighbours multiplied in (a NaN neighbour makes the sample NaN even at
+ *   weight 0), and a coordinate outside the frame (the first and last half pixel of a
+ *   line on the edge) keeps its fraction while the neighbours are clamped;
  * - the line length is CPython's `math.hypot` ({@link pyHypot}), because the sample count
  *   is `ceil(L) + 1`;
  * - prefix sums, the sum of squared residuals, the split search, medians, means
@@ -40,7 +39,7 @@
  *
  * Never throws: invalid arguments come back as `{ ok: false, error }`.
  */
-import { linspace, npMean, npStd } from 'dsh-spm-numerics'
+import { linspace, mapCoordinates, matOf, npMean, npStd } from 'dsh-spm-numerics'
 import { linePlot } from './draw.js'
 import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, flattenArgs, frameArg, isObj, numArg, type Obj, type ViewToolResult } from './args.js'
 import { entryScale, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
@@ -291,42 +290,14 @@ export function changePoints(x: ArrayLike<number>, y: ArrayLike<number>, options
 // ── sampling ──────────────────────────────────────────────────────────────
 
 /**
- * scipy's `map_coordinates(z, [[row], [col]], order=1, mode='nearest')`, bit for bit:
- * along each axis the neighbours `floor(c)` and `floor(c) + 1` of the coordinate as given
- * (outside the frame too), their indices clamped into it, weighted `1 − t` and
- * `1 − (1 − t)` (scipy makes the last weight one minus the others; it differs from `t`
- * when `t` has bits below 2^-53, i.e. for coordinates in (−1, 1)), accumulated as
- * `value · w_row · w_col` row by row. All four products are added, so a NaN neighbour
- * gives NaN even when its weight is 0. `dsh-spm-numerics`' `mapCoordinates` clamps a
- * coordinate outside the frame before it interpolates, which scipy's `nearest` does not.
- */
-export function bilinearNearest(z: ArrayLike<number>, nx: number, ny: number, row: number, col: number): number {
-  const r0 = Math.floor(row)
-  const c0 = Math.floor(col)
-  const wr0 = 1 - (row - r0)
-  const wc0 = 1 - (col - c0)
-  const wr1 = 1 - wr0
-  const wc1 = 1 - wc0
-  const ra = Math.min(Math.max(r0, 0), ny - 1) * nx
-  const rb = Math.min(Math.max(r0 + 1, 0), ny - 1) * nx
-  const ca = Math.min(Math.max(c0, 0), nx - 1)
-  const cb = Math.min(Math.max(c0 + 1, 0), nx - 1)
-  let acc = 0
-  acc += (z[ra + ca] as number) * wr0 * wc0
-  acc += (z[ra + cb] as number) * wr0 * wc1
-  acc += (z[rb + ca] as number) * wr1 * wc0
-  acc += (z[rb + cb] as number) * wr1 * wc1
-  return acc
-}
-
-/**
  * The band average along a line: `n` samples from `(c1, r1)` to `(c2, r2)` (native
  * continuous coordinates; pixel centres at `i + 0.5`) on `max(1, round(wn))` lines
- * `wn / lines` apart across a band `wn` scan pixels wide; NaN where no line has a
+ * `wn / lines` apart across a band `wn` scan pixels wide, each line sampled with scipy's
+ * `map_coordinates(order=1, mode='nearest')` (`mapCoordinates`); NaN where no line has a
  * finite sample (`np.nanmean` over the lines, summed in order).
  */
 export function bandProfile(
-  z: ArrayLike<number>,
+  z: Float64Array,
   nx: number,
   ny: number,
   ends: readonly [number, number, number, number],
@@ -336,22 +307,23 @@ export function bandProfile(
   const [c1, r1, c2, r2] = ends
   const L = pyHypot(c2 - c1, r2 - r1)
   const t = linspace(0, 1, n)
+  const cs = t.map((v) => c1 + v * (c2 - c1) - 0.5)
+  const rs = t.map((v) => r1 + v * (r2 - r1) - 0.5)
   const nLines = Math.max(1, pyRoundInt(wn))
   const nc = -(r2 - r1) / L
   const nr = (c2 - c1) / L
+  const grid = matOf(ny, nx, z)
   const tot = new Float64Array(n)
   const cnt = new Int32Array(n)
   for (let k = 0; k < nLines; k += 1) {
     const o = (k - (nLines - 1) / 2) * (wn / nLines)
-    for (let i = 0; i < n; i += 1) {
-      const cs = c1 + (t[i] as number) * (c2 - c1) - 0.5
-      const rs = r1 + (t[i] as number) * (r2 - r1) - 0.5
-      const v = bilinearNearest(z, nx, ny, rs + o * nr, cs + o * nc)
+    const line = mapCoordinates(grid, rs.map((r) => r + o * nr), cs.map((c) => c + o * nc), 1, 'nearest')
+    line.forEach((v, i) => {
       if (!Number.isNaN(v)) {
         tot[i] = (tot[i] as number) + v
         cnt[i] = (cnt[i] as number) + 1
       }
-    }
+    })
   }
   return tot.map((s, i) => s / (cnt[i] as number))
 }

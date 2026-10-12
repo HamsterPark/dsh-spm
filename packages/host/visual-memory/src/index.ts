@@ -205,7 +205,6 @@ export {
   PROFILE_PLOT_HEIGHT,
   STEP_MIN_JUMP_SIGMA,
   bandProfile,
-  bilinearNearest,
   changePoints,
   lineProfile,
   linfit,

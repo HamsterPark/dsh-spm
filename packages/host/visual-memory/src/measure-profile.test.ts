@@ -10,10 +10,11 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef } from 'dsh-spm-compat'
+import { mapCoordinates, matOf } from 'dsh-spm-numerics'
 import { afterEach, describe, expect, it } from 'vitest'
 import { FrameArchive, INDEX_NAME } from './archive.js'
 import { frameStats } from './frame-stats.js'
-import { bandProfile, bilinearNearest, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine, plotPx } from './line-profile.js'
+import { bandProfile, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine, plotPx } from './line-profile.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
 import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
@@ -96,41 +97,29 @@ describe('CPython arithmetic', () => {
   })
 })
 
-describe('bilinear sampling (scipy map_coordinates, order 1, nearest)', () => {
+describe('the band average', () => {
   // 3 x 3, the middle row never acquired
   const z = Float64Array.from([1, 2, 3, Number.NaN, Number.NaN, Number.NaN, 7, 8, 9])
 
-  it('multiplies every neighbour in: a NaN neighbour gives NaN even at weight 0', () => {
-    expect(bilinearNearest(z, 3, 3, 0, 1)).toBeNaN()
-    expect(bilinearNearest(z, 3, 3, 0.5, 1)).toBeNaN()
-    expect(bilinearNearest(z, 3, 3, 2, 1)).toBe(8) // the last row's second neighbour is itself
+  it('samples like scipy: a NaN neighbour at weight 0 gives NaN, a coordinate outside the frame keeps its fraction', () => {
+    // along row 0's centre every sample has row 1 as a neighbour, at weight 0 (scipy 1.17: NaN)
+    expect([...bandProfile(z, 3, 3, [0.5, 0.5, 2.5, 0.5], 3, 1)].every(Number.isNaN)).toBe(true)
+    // 0.3 scan px above it the row coordinate is −0.3: its neighbours −1 and 0 are both row 0 (scipy 1.17: 1, 2, 3)
+    expect([...bandProfile(z, 3, 3, [0.5, 0.2, 2.5, 0.2], 3, 1)]).toEqual([1, 2, 3])
   })
 
-  it('keeps a coordinate outside the frame and clamps the indices', () => {
-    expect(bilinearNearest(z, 3, 3, -0.3, 1)).toBe(2)
-    expect(bilinearNearest(z, 3, 3, 2.7, 3.4)).toBe(9)
-    expect(bilinearNearest(Float64Array.from([1, 2, 3, 4]), 2, 2, 0.25, 0.5)).toBe(2)
-  })
-
-  it('weighs 1 − t and 1 − (1 − t) like scipy, which differs from t when t has bits below 2^-53', () => {
-    // scipy 1.17: map_coordinates([[1, 1], [3, 3]], [[0.1], [0]], order=1) is 1.2; weights 0.9 and 0.1 would give 1.2000000000000002
-    expect(bilinearNearest(Float64Array.from([1, 1, 3, 3]), 2, 2, 0.1, 0)).toBe(1.2)
-  })
-
-  it('averages the lines of a band, half to even, and skips a line that is NaN', () => {
+  it('averages max(1, round(w)) lines, half to even, and skips a line that is NaN', () => {
     const grid = Float64Array.from({ length: 64 }, (_, i) => (i >= 40 ? Number.NaN : i % 8))
-    // a horizontal line through row 3.5 (native centre 3): 2.5 scan px wide → round(2.5) = 2 lines at rows 2.375, 3.625
-    const two = bandProfile(grid, 8, 8, [0, 3.5, 8, 3.5], 9, 2.5)
-    const manual = Array.from({ length: 9 }, (_, i) => {
-      const col = i - 0.5
-      return (bilinearNearest(grid, 8, 8, 3 - 0.625, col) + bilinearNearest(grid, 8, 8, 3 + 0.625, col)) / 2
-    })
-    expect([...two]).toEqual(manual)
-    // 3.5 → 4 lines; through row 4.5 the lines below row 4 run into rows never acquired
-    const four = bandProfile(grid, 8, 8, [0, 4.5, 8, 4.5], 9, 3.5)
-    const lines = [-1.3125, -0.4375, 0.4375, 1.3125].map((o) => Array.from({ length: 9 }, (_, i) => bilinearNearest(grid, 8, 8, 4 + o, i - 0.5)))
-    expect(lines[2]?.every(Number.isNaN)).toBe(true)
-    expect([...four]).toEqual(lines[0]?.map((v, i) => (v + (lines[1]?.[i] as number)) / 2))
+    const mat = matOf(8, 8, grid)
+    const cols = Array.from({ length: 9 }, (_, i) => i - 0.5)
+    const line = (row: number): Float64Array => mapCoordinates(mat, cols.map(() => row), cols, 1, 'nearest')
+    // through row 3.5 (native centre 3), 2.5 scan px wide: round(2.5) = 2 lines, at rows 3 ∓ 0.625
+    const two = [line(3 - 0.625), line(3 + 0.625)]
+    expect([...bandProfile(grid, 8, 8, [0, 3.5, 8, 3.5], 9, 2.5)]).toEqual([...(two[0] as Float64Array)].map((v, i) => (v + (two[1]?.[i] as number)) / 2))
+    // through row 4.5, 3.5 wide: 4 lines; the two below row 4 run into rows never acquired
+    const four = [-1.3125, -0.4375, 0.4375, 1.3125].map((o) => line(4 + o))
+    expect([...(four[2] as Float64Array)].every(Number.isNaN)).toBe(true)
+    expect([...bandProfile(grid, 8, 8, [0, 4.5, 8, 4.5], 9, 3.5)]).toEqual([...(four[0] as Float64Array)].map((v, i) => (v + (four[1]?.[i] as number)) / 2))
   })
 })
 
