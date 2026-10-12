@@ -4039,3 +4039,18 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 **为什么有意**：本仓约定（facts.md §5 工具一行）是「抛异常 = isError，领域失败放 value」，
 与技能工具（`defineSkillTool`）一致；模型看到的文字说明了要改什么。
+
+## D-VMEM-7 · 共用参数检查的报错：名字写成 JSON，通道报错前多一个帧编号
+
+| | |
+|---|---|
+| **Python**（`vista_spm/viewtools.py`、`archive.py`、`frames.py`） | 名字与列表照 Python `repr`：`no frame 't0042.s0'; … latest frames: ['t0004.m8', …]`、`must be one of ['none', 'plane', …], not 'tilt'`、`channel 'Z' has only ['forward']`、`arguments.channel: no channel 'Phase'; this frame has ['Z']` |
+| **TS**（`args.ts`、`archive.ts`、`channels.ts`） | 同一句话，名字与列表写成 JSON：`no frame "t0042.s0"; … latest frames: ["t0004.m8",…]`、`must be one of ["none","plane",…], not "tilt"`、`channel "Z" has only ["forward"]`；通道报错前多一个帧编号：`arguments.channel: t0000.p0: no channel "Phase"; this frame has ["Z"]` |
+| **测试** | `measure-profile.parity.test.ts`：这几条报错按上述改写后与金样逐字相等，其余报错直接逐字相等；`views.test.ts` 钉住 TS 的写法 |
+
+**为什么登记**：这是视觉记忆移植以来共用检查的写法，`inspect` / `read_values` 一直如此；
+`measure_profile.json` 第一次把报错逐字收进金样（`stm_line_profile` / `stm_frame_stats`），
+差别因此可见。字段名、合法值和范围两侧一样，模型照样能据此改对参数。
+**重新考虑的条件**：要求模型面报错与参考逐字一致时（例如实验把报错文案也当作实验参数），
+把 `args.ts` / `archive.ts` / `channels.ts` 改成 Python `repr` 的引号并去掉帧编号前缀；
+这会同时改变 `inspect` / `read_values` 的报错与 `views.test.ts` 的断言。
