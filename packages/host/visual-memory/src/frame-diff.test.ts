@@ -33,6 +33,11 @@ afterEach(async () => {
   for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true })
 })
 
+/** An archive with 256-px observations: small images keep coverage runs fast. */
+function small(): FrameArchive {
+  return new FrameArchive(tmp(), { displayMax: 256 })
+}
+
 function tmp(): string {
   const d = mkdtempSync(join(tmpdir(), 'vm-diff-'))
   dirs.push(d)
@@ -109,7 +114,7 @@ const bump = (x0: number, y0: number, sig: number, amp: number): Surface => (X, 
 describe('frameDiff: registration and change', () => {
   for (const angle of [0, 25]) {
     it(`recovers a known sub-pixel shift and finds what is new in b (frame at ${angle} deg)`, () => {
-      const archive = new FrameArchive(tmp())
+      const archive = small()
       const g = geom(96, 96, 9.6, 9.6, 1.5, -2, angle)
       const tex = texture(1)
       const shift = [0.137, -0.262] // nm, scan frame: the surface moved by this
@@ -145,12 +150,12 @@ describe('frameDiff: registration and change', () => {
       expect(r.images[0]?.label).toContain('derived="diff"')
       expect(r.images[0]?.label).toContain(`frames="${fa},${fb}"`)
       expect(r.images[0]?.label).toMatch(/color="red \+, blue -, white 0, full color at \+-[0-9.]+ pm"/)
-      expect(pngSize(r.images[0]?.png as Uint8Array)).toEqual({ width: 768, height: 768 })
+      expect(pngSize(r.images[0]?.png as Uint8Array)).toEqual({ width: 192, height: 192 })
       // The region is numbered on the image with a dark ring (a colour the map itself never takes).
       expect(r.images[0]?.label).toContain(`marks="${regions.length} numbered regions"`)
       const marked = markPixels(r.images[0]?.png as Uint8Array)
       expect(marked.length).toBeGreaterThan(20)
-      expect(marked.some(([x, y]) => Math.hypot(x - 70.5 * 8, y - 25.5 * 8) < 80)).toBe(true)
+      expect(marked.some(([x, y]) => Math.hypot(x - 70.5 * 2, y - 25.5 * 2) < 30)).toBe(true)
       const read = readValues(archive, { question: 'q', views: [{ label: 'd', frame: dfid, rows: 2, columns: 2 }] })
       if (!read.ok) throw new Error(read.error)
       expect((read.reply['views'] as Record<string, unknown>[])[0]).toHaveProperty('values_pm')
@@ -160,15 +165,15 @@ describe('frameDiff: registration and change', () => {
   }
 
   it('survives steps, a creep bow that changes and a large shift, with the default highpass', () => {
-    const archive = new FrameArchive(tmp())
-    const g = geom()
+    const archive = small()
+    const g = geom(64, 64, 6.4, 6.4)
     const r = rng(7)
-    const atoms = Array.from({ length: 18 }, () => [16 * r() - 8, 16 * r() - 8] as const)
+    const atoms = Array.from({ length: 10 }, () => [12 * r() - 6, 12 * r() - 6] as const)
     const terrace: Surface = (X, Y) =>
       60e-12 * (0.5 + 0.5 * Math.tanh((X + 0.3 * Y - 1.5) / 0.3)) + atoms.reduce((s, [ax, ay]) => s + bump(ax, ay, 0.3, 60e-12)(X, Y), 0)
     const bowA: Surface = (X, Y) => 4e-12 * (X * X + 0.5 * Y * Y)
     const bowB: Surface = (X, Y) => 2.5e-12 * (0.3 * X * X + Y * Y) + 4e-12 * (X + Y)
-    const shift = [2.6, -0.4]
+    const shift = [1.8, -0.4]
     const fa = add(archive, 0, g, (X, Y) => terrace(X, Y) + bowA(X, Y))
     const fb = add(archive, 1, g, (X, Y) => terrace(X - (shift[0] as number), Y - (shift[1] as number)) + bowB(X, Y))
     const body = ok(frameDiff(archive, { frame_a: fa, frame_b: fb }))
@@ -180,24 +185,31 @@ describe('frameDiff: registration and change', () => {
     expect(plane).not.toHaveProperty('highpass_nm')
   })
 
-  it('resamples frames of different size and rotation onto their overlap; identical frames show no change', () => {
-    const archive = new FrameArchive(tmp())
+  it('resamples frames of different size and rotation onto their overlap', () => {
+    const archive = small()
     const tex = texture(2)
-    const ga = geom(96, 96, 9.6, 9.6)
-    const fa = add(archive, 0, ga, tex)
-    const fb = add(archive, 1, geom(80, 80, 8, 8, 0.8, -0.5, 10), tex)
+    const fa = add(archive, 0, geom(80, 80, 8, 8), tex)
+    const fb = add(archive, 1, geom(64, 64, 6.4, 6.4, 0.6, -0.4, 10), tex)
     const body = ok(frameDiff(archive, { frame_a: fa, frame_b: fb }))
     expect(body['same_geometry']).toBe(false)
     expect(body['grid'].resampled).toBe(true)
-    expect(body['grid'].field_nm[0]).toBeLessThan(9.6)
-    expect(Math.abs(body['registration'].shift_nm[0])).toBeLessThan(0.02)
-    expect(Math.abs(body['registration'].shift_nm[1])).toBeLessThan(0.02)
-    const fc = add(archive, 2, ga, tex)
-    const same = ok(frameDiff(archive, { frame_a: fa, frame_b: fc }))
+    expect(body['grid'].field_nm[0]).toBeLessThan(8)
+    // The same surface: no shift, within 0.3 grid px for frames this size (bilinear resampling of a rotated frame).
+    expect(Math.abs(body['registration'].shift_nm[0])).toBeLessThan(0.03)
+    expect(Math.abs(body['registration'].shift_nm[1])).toBeLessThan(0.03)
+  })
+
+  it('shows no change between identical frames, aligned or not', () => {
+    const archive = small()
+    const tex = texture(2)
+    const ga = geom(64, 64, 6.4, 6.4)
+    const fa = add(archive, 0, ga, tex)
+    const fc = add(archive, 1, ga, tex)
+    const shown = frameDiff(archive, { frame_a: fa, frame_b: fc })
+    const same = ok(shown)
     expect(Math.abs(same['registration'].shift_nm[0])).toBeLessThan(1e-3)
     expect(Math.abs(same['registration'].shift_nm[1])).toBeLessThan(1e-3)
     expect(same['difference'].n_regions).toBe(0)
-    const shown = frameDiff(archive, { frame_a: fa, frame_b: fc })
     if (!shown.ok) throw new Error(shown.error)
     expect(markPixels(shown.images[0]?.png as Uint8Array)).toEqual([])
     const unaligned = ok(frameDiff(archive, { frame_a: fa, frame_b: fc, align: false }))
@@ -207,8 +219,8 @@ describe('frameDiff: registration and change', () => {
   })
 
   it('reports a moved feature as a region of each sign, strongest at its new and old places', () => {
-    const archive = new FrameArchive(tmp())
-    const g = geom()
+    const archive = small()
+    const g = geom(64, 64, 6.4, 6.4)
     const tex = texture(3)
     const fa = add(archive, 0, g, (X, Y) => tex(X, Y) + bump(0.4, 0.6, 0.25, 40e-12)(X, Y))
     const fb = add(archive, 1, g, (X, Y) => tex(X, Y) + bump(1.4, 0.6, 0.25, 40e-12)(X, Y))
@@ -222,7 +234,7 @@ describe('frameDiff: registration and change', () => {
   })
 
   it('lists at most 30 regions, strongest first, and counts the rest', () => {
-    const archive = new FrameArchive(tmp())
+    const archive = small()
     const g = geom()
     const tex = texture(4)
     const spots: Surface[] = []
@@ -236,34 +248,41 @@ describe('frameDiff: registration and change', () => {
     expect(d.regions.map((x: Record<string, number>) => x['id'])).toEqual(Array.from({ length: 30 }, (_, i) => i + 1))
   })
 
-  it('compares a region, the Current channel and the backward pass, rows not acquired included', () => {
-    const archive = new FrameArchive(tmp())
-    const g = geom()
+  it('compares a region of the Current channel in the backward pass', () => {
+    const archive = small()
+    const g = geom(64, 64, 6.4, 6.4)
     const tex = texture(5)
     const cur = (s: Surface): Surface => (X, Y) => 1e-10 + 2 * s(X, Y)
     const fa = add(archive, 0, g, tex, { 'Z/backward': tex, Current: cur(tex), 'Current/backward': cur(tex) })
     const moved: Surface = (X, Y) => tex(X - 0.3, Y + 0.1)
     const fb = add(archive, 1, g, moved, { 'Z/backward': moved, Current: cur(moved), 'Current/backward': cur(moved) })
-    const body = ok(frameDiff(archive, { frame_a: fa, frame_b: fb, channel: 'current', direction: 'backward', flatten: 'line', region: { x: 80, y: 80, width: 480, height: 400 } }))
+    const region = { x: 32, y: 32, width: 160, height: 120 } // display scale 4: scan pixels 8..48 x 8..38
+    const body = ok(frameDiff(archive, { frame_a: fa, frame_b: fb, channel: 'current', direction: 'backward', flatten: 'line', region }))
     expect(body['channel']).toBe('Current')
-    expect(body['grid'].size_px).toEqual([60, 50])
+    expect(body['grid'].size_px).toEqual([40, 30])
     expect(body['registration'].shift_nm[0]).toBeCloseTo(0.3, 1)
     expect(body['difference']).toHaveProperty('noise_pa')
+  })
+
+  it('registers frames with rows not acquired, in b, in a, and resampled', () => {
+    const archive = small()
+    const g = geom(64, 64, 6.4, 6.4)
+    const tex = texture(5)
+    const moved: Surface = (X, Y) => tex(X - 0.3, Y + 0.1)
+    const fa = add(archive, 0, g, tex)
     const partial = sample(g, moved)
-    partial.data.fill(NaN, 60 * 96)
-    const fp = archive.addPartial(2, { Z: partial }, { geometry: g }).fid
+    partial.data.fill(NaN, 40 * 64)
+    const fp = archive.addPartial(1, { Z: partial }, { geometry: g }).fid
     const withGaps = ok(frameDiff(archive, { frame_a: fa, frame_b: fp }))
     expect(withGaps['registration'].shift_nm[0]).toBeCloseTo(0.3, 1)
     const values = archive.array(withGaps['difference'].frame, 'diff').data
-    expect(Number.isNaN(values[95 * 96] as number)).toBe(true)
-    // Rows missing in frame a, and in a resampled frame.
-    const fq = archive.addPartial(3, { Z: partial }, { geometry: g }).fid
-    expect(ok(frameDiff(archive, { frame_a: fq, frame_b: fa }))['registration'].shift_nm[0]).toBeCloseTo(-0.3, 1)
-    const g2 = geom(80, 80, 8, 8, 0.4, 0.2, 5)
+    expect(Number.isNaN(values[63 * 64] as number)).toBe(true)
+    expect(ok(frameDiff(archive, { frame_a: fp, frame_b: fa }))['registration'].shift_nm[0]).toBeCloseTo(-0.3, 1)
+    const g2 = geom(56, 56, 5.6, 5.6, 0.4, 0.2, 5)
     const p2 = sample(g2, moved)
-    p2.data.fill(NaN, 50 * 80)
-    const fr = archive.addPartial(4, { Z: p2 }, { geometry: g2 }).fid
-    const resampled = ok(frameDiff(archive, { frame_a: fq, frame_b: fr }))
+    p2.data.fill(NaN, 36 * 56)
+    const fr = archive.addPartial(2, { Z: p2 }, { geometry: g2 }).fid
+    const resampled = ok(frameDiff(archive, { frame_a: fp, frame_b: fr }))
     expect(resampled['grid'].resampled).toBe(true)
     expect(Math.abs(resampled['registration'].shift_nm[0])).toBeLessThan(0.05)
   })
@@ -271,16 +290,17 @@ describe('frameDiff: registration and change', () => {
   it('draws a block-mean difference image for a grid larger than the display', () => {
     const archive = new FrameArchive(tmp(), { displayMax: 64 })
     const tex = texture(6)
-    const fa = add(archive, 0, geom(), tex)
-    const fb = add(archive, 1, geom(), (X, Y) => tex(X - 0.1, Y))
-    const r = frameDiff(archive, { frame_a: fa, frame_b: fb, region: { x: 5, y: 5, width: 30, height: 25 } })
+    const g = geom(72, 72, 7.2, 7.2)
+    const fa = add(archive, 0, g, tex)
+    const fb = add(archive, 1, g, (X, Y) => tex(X - 0.1, Y))
+    const r = frameDiff(archive, { frame_a: fa, frame_b: fb, region: { x: 3, y: 3, width: 20, height: 15 } })
     const body = ok(r)
-    expect(body['grid'].size_px).toEqual([60, 50])
+    expect(body['grid'].size_px).toEqual([40, 30]) // display scale 1/2: scan pixels 6..46 x 6..36
     if (!r.ok) throw new Error(r.error)
     expect(r.images[0]?.label).toContain('scale="1"')
-    const full = frameDiff(archive, { frame_a: fa, frame_b: fb })
+    const full = frameDiff(archive, { frame_a: fa, frame_b: fb, align: false })
     if (!full.ok) throw new Error(full.error)
-    expect(pngSize(full.images[0]?.png as Uint8Array)).toEqual({ width: 48, height: 48 })
+    expect(pngSize(full.images[0]?.png as Uint8Array)).toEqual({ width: 36, height: 36 })
     expect(full.images[0]?.label).toContain('scale="1/2"')
   })
 })
@@ -291,19 +311,19 @@ describe('frameDiff: refusals', () => {
     // A spectrum record restored from the index (this archive does not ingest spectra yet).
     writeFileSync(join(root, INDEX_NAME), `${JSON.stringify({ fid: 't0000.d0', turn: 0, kind: 'd', index: 0, channels: ['Bias (V)', 'Current (A)'], nx: 64 })}\n`)
     writeFileSync(join(root, 't0000.d0.png'), encodePngRgb(2, 2, new Uint8Array(12)))
-    const archive = new FrameArchive(root)
+    const archive = new FrameArchive(root, { displayMax: 256 })
     const tex = texture(8)
-    const fa = add(archive, 1, geom(), tex)
-    const fb = add(archive, 2, geom(), (X, Y) => tex(X - 0.2, Y))
+    const fa = add(archive, 1, geom(64, 64, 6.4, 6.4), tex)
+    const fb = add(archive, 2, geom(64, 64, 6.4, 6.4), (X, Y) => tex(X - 0.2, Y))
     return { archive, fa, fb, root }
   }
 
   it('says what to change', () => {
     const { archive, fa, fb } = setup()
     const plain = archive.addDerived(3, encodePngRgb(4, 4, new Uint8Array(48)), { tool: 'fft_peaks', sources: [fa] }).fid
-    const diffFrame = ok(frameDiff(archive, { frame_a: fa, frame_b: fb }))['difference'].frame as string
-    const far = add(archive, 4, geom(96, 96, 9.6, 9.6, 500), texture(8))
-    const edge = add(archive, 5, geom(96, 96, 9.6, 9.6, 8.6), texture(8))
+    const diffFrame = ok(frameDiff(archive, { frame_a: fa, frame_b: fb, align: false }))['difference'].frame as string
+    const far = add(archive, 4, geom(64, 64, 6.4, 6.4, 500), texture(8))
+    const edge = add(archive, 5, geom(64, 64, 6.4, 6.4, 5.4), texture(8))
     const g32 = geom(32, 32, 3.2, 3.2)
     const full = add(archive, 6, g32, texture(8))
     const oneRow = sample(g32, texture(8))
@@ -326,10 +346,10 @@ describe('frameDiff: refusals', () => {
       [{ frame_a: fa, frame_b: fb, channel: 'Current' }, "diff: arguments.channel: no channel 'Current'; this frame has ['Z']"],
       [{ frame_a: fa, frame_b: fb, align: 'yes' }, 'diff: arguments.align must be true or false'],
       [{ frame_a: fa, frame_b: fb, flatten: 'plane', highpass_nm: 2 }, "diff: arguments.highpass_nm only applies with flatten='highpass'"],
-      [{ frame_a: fa, frame_b: fb, region: { x: 0, y: 0, width: 100, height: 100 } }, 'diff: the compared region must be at least 16 x 16 scan pixels'],
+      [{ frame_a: fa, frame_b: fb, region: { x: 0, y: 0, width: 40, height: 40 } }, 'diff: the compared region must be at least 16 x 16 scan pixels'],
       [{ frame_a: fa, frame_b: far }, `diff: ${fa} and ${far} do not overlap`],
-      [{ frame_a: fa, frame_b: edge, region: { x: 0, y: 0, width: 300, height: 768 } }, `diff: ${fa} and ${edge} do not overlap inside the region`],
-      [{ frame_a: fa, frame_b: edge }, `diff: the overlap of ${fa} and ${edge} is only 10x96 pixels of 0.1 nm`],
+      [{ frame_a: fa, frame_b: edge, region: { x: 0, y: 0, width: 100, height: 256 } }, `diff: ${fa} and ${edge} do not overlap inside the region`],
+      [{ frame_a: fa, frame_b: edge }, `diff: the overlap of ${fa} and ${edge} is only 10x64 pixels of 0.1 nm`],
       [{ frame_a: full, frame_b: sparse }, 'diff: too few pixels overlap after alignment to form a difference'],
     ]
     for (const [args, want] of cases) {
@@ -340,14 +360,17 @@ describe('frameDiff: refusals', () => {
   })
 
   it('reads null optional arguments as absent (spec/deviations.md D-VMEM-11)', () => {
-    const archive = new FrameArchive(tmp())
+    const archive = small()
     const tex = texture(14)
-    const fa = add(archive, 0, geom(), tex)
-    const fb = add(archive, 1, geom(), (X, Y) => tex(X - 0.2, Y))
+    const g = geom(48, 48, 4.8, 4.8)
+    const fa = add(archive, 0, g, tex)
+    const fb = add(archive, 1, g, (X, Y) => tex(X - 0.2, Y))
     const without = (r: Record<string, any>) => ({ ...r, difference: { ...r['difference'], frame: null } })
-    const plain = without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb })))
-    for (const k of ['align', 'flatten', 'highpass_nm', 'channel', 'direction', 'region']) {
-      expect([k, without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb, [k]: null })))]).toEqual([k, plain])
+    const aligned = without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb })))
+    expect(['align', without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb, align: null })))]).toEqual(['align', aligned])
+    const plain = without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb, align: false })))
+    for (const k of ['flatten', 'highpass_nm', 'channel', 'direction', 'region']) {
+      expect([k, without(ok(frameDiff(archive, { frame_a: fa, frame_b: fb, align: false, [k]: null })))]).toEqual([k, plain])
     }
     // As in the reference, highpass_nm (even null) does not go with another flattening.
     expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, flatten: 'plane', highpass_nm: null }))).toBe(
@@ -356,7 +379,7 @@ describe('frameDiff: refusals', () => {
   })
 
   it('names the channel and passes frame_b lacks', () => {
-    const archive = new FrameArchive(tmp())
+    const archive = small()
     const tex = texture(9)
     const fa = add(archive, 0, geom(), tex, { 'Z/backward': tex, Current: tex })
     const fb = add(archive, 1, geom(), tex)
