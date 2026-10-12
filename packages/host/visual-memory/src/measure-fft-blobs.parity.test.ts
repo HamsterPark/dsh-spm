@@ -40,7 +40,9 @@
  *   change, not the blob's own, is the scale), at least 1e-6 px for positions and sigmas,
  *   1e-6 relative for heights and 1e-3 deg for the axis; each reply number likewise, or one
  *   unit of its last decimal;
- * - blob marks: their position and radius within the same tolerance in image pixels.
+ * - marks: on the spectrum within 1e-9 relative (they follow the peak frequencies); on
+ *   blob images, position and radius within the blob tolerance converted to image pixels.
+ *   Pixels are not compared (draw.ts draws its own, spec/deviations.md D-VMEM-6).
  *
  * Deviations (spec/deviations.md) are asserted as such, not skipped: D-VMEM-9 (`max_n` at
  * most 50) and D-VMEM-10 (equidistant pixels belong to the earlier candidate; the
