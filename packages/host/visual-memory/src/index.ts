@@ -3,8 +3,9 @@
  * that let the model look again (VISUAL-HARNESS, decision D12).
  *
  * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
- * flattening, rendering, PNG, the directory archive, the notes store and the
- * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * flattening, rendering, drawing (marks and line plots on derived images),
+ * PNG, the directory archive, the notes store and the `inspect` /
+ * `read_values` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
@@ -104,6 +105,16 @@ export {
   type View,
   type ViewGrid,
 } from './render.js'
+export {
+  Canvas,
+  MARK_RGB,
+  drawMarks,
+  linePlot,
+  type LinePlotOptions,
+  type PlotPanel,
+  type PlotSeries,
+  type Rgb,
+} from './draw.js'
 export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
 export {
   DIRECTIONS,
