@@ -2,19 +2,24 @@
  * Unit tests of the pieces behind `stm_fft_peaks` and `stm_detect_blobs` that the
  * parity golden does not reach on its own: the transform against the numerics
  * package's FFT, the small NumPy/Python helpers, the optimizer's refusals and
- * rarely taken branches, and the tools' answers for frames they cannot use.
+ * rarely taken branches, the tools' answers for frames they cannot use, and the
+ * two tools through a real dsh dispatcher (reply, label block, image block).
  * Parity with the reference itself is `measure-fft-blobs.parity.test.ts`.
  */
+import { createHash } from 'node:crypto'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef } from 'dsh-spm-compat'
 import { fft2, greyDilation, matOf, rectSE } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import { FrameArchive } from './archive.js'
+import { MARK_RGB } from './draw.js'
+import * as plugin from './plugin.js'
 import { blobGeometry, BlobError, detectBlobs, findBlobs, gaussModel, MAX_BLOBS, scipyGaussianKernel } from './detect-blobs.js'
 import { fft2Magnitude, fftPeaks, interpIndex, longestFiniteRows, maximumFilter, nextFastLen, shiftedFreq, spectrumPeaks, SpectrumSizeError } from './fft-peaks.js'
 import { leastSquares, LeastSquaresError, nextAfter } from './least-squares.js'
-import { encodePngRgb } from './png.js'
+import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 
 function seeded(seed: number): () => number {
   let s = seed >>> 0
@@ -195,5 +200,119 @@ describe('the tools on frames they cannot use', () => {
     const e = arc.addPartial(6, { Z: { rows: 16, cols: 16, data: new Float32Array(256) } }, { geometry: { cx_nm: 0, cy_nm: 0, w_nm: 3.2, h_nm: 3.2 } })
     expect(detectBlobs(arc, { frame: e.fid, max_n: 51 })).toEqual({ ok: false, error: 'detect_blobs: arguments.max_n must be <= 50' })
     expect(detectBlobs(arc, { frame: e.fid, max_n: 50 }).ok).toBe(true)
+  })
+})
+
+// ── through a real dsh dispatcher ─────────────────────────────────────────
+
+class FakeAttachments extends Service {
+  readonly saved: Uint8Array[] = []
+  constructor(ctx: Context) {
+    super(ctx, 'attachments')
+  }
+  saveImage(input: { readonly data: Uint8Array; readonly mediaType: string; readonly name?: string }): Promise<ImageAttachmentRef> {
+    this.saved.push(input.data)
+    const { width, height } = pngSize(input.data)
+    return Promise.resolve({
+      attachmentId: `sha256:${createHash('sha256').update(input.data).digest('hex')}`,
+      mediaType: 'image/png',
+      bytes: input.data.length,
+      width,
+      height,
+      ...(input.name === undefined ? {} : { name: input.name }),
+    } as unknown as ImageAttachmentRef)
+  }
+}
+
+describe('the dsh tools', () => {
+  const contexts: Context[] = []
+  const roots: string[] = []
+  afterAll(async () => {
+    for (const c of contexts) await c.registry.delete(plugin)
+    for (const r of roots) rmSync(r, { recursive: true, force: true })
+  })
+
+  /** A 96 x 96 frame, 0.2 nm per pixel: a grating of period 1.6 nm plus three Gaussian bumps. */
+  async function host(): Promise<{ ctx: Context; att: FakeAttachments }> {
+    const ctx = new Context()
+    contexts.push(ctx)
+    await ctx.plugin(SystemPrompt).await()
+    await ctx.plugin(ToolRuntime).await()
+    const att = new FakeAttachments(ctx)
+    const root = mkdtempSync(join(tmpdir(), 'measure-dsh-'))
+    roots.push(root)
+    await ctx.plugin(plugin, { root, displayMax: 192 }).await()
+    const n = 96
+    const rnd = seeded(5)
+    const z = new Float32Array(n * n)
+    const bumps: readonly (readonly [number, number])[] = [[20.3, 30.6], [60.5, 40.2], [45.1, 75.7]]
+    for (let r = 0; r < n; r += 1) {
+      for (let c = 0; c < n; c += 1) {
+        let v = 4e-12 * Math.cos((2 * Math.PI * (c + 0.5)) / 8) + 0.5e-12 * rnd()
+        for (const [bc, br] of bumps) v += 40e-12 * Math.exp((-0.5 * ((c + 0.5 - bc) ** 2 + (r + 0.5 - br) ** 2)) / 1.8 ** 2)
+        z[r * n + c] = v
+      }
+    }
+    ctx.frameArchive.addPartial(0, { Z: { rows: n, cols: n, data: z } }, { geometry: { cx_nm: 0, cy_nm: 0, w_nm: 19.2, h_nm: 19.2 } })
+    return { ctx, att }
+  }
+
+  let k = 0
+  const call = (ctx: Context, name: string, args: unknown) => {
+    k += 1
+    return ctx.tools.execute({ name, callId: `fb-${k}` as never, arguments: args, signal: new AbortController().signal })
+  }
+  const texts = (content: readonly { type: string }[]): string[] =>
+    content.filter((b) => b.type === 'text').map((b) => (b as unknown as { text: string }).text)
+  /** Pixels of the mark colour in a delivered PNG. */
+  const markPixels = (png: Uint8Array): number => {
+    const rgb = toRgb(decodePng(png))
+    let hits = 0
+    for (let i = 0; i < rgb.length; i += 3) if (rgb[i] === MARK_RGB[0] && rgb[i + 1] === MARK_RGB[1] && rgb[i + 2] === MARK_RGB[2]) hits += 1
+    return hits
+  }
+
+  it('stm_fft_peaks returns the reply, then the numbered spectrum with its label', async () => {
+    const { ctx, att } = await host()
+    const res = await call(ctx, 'stm_fft_peaks', { frame: 't0000.p0', n_peaks: 2 })
+    expect(res.isError).toBe(false)
+    expect(res.content.map((b) => b.type)).toEqual(['text', 'text', 'image'])
+    const [reply, label] = texts(res.content)
+    const body = JSON.parse(reply as string)
+    expect(body).toMatchObject({ instrument_unchanged: true, frame: 't0000.p0', image: { frame: 't0000.m0' } })
+    expect(body.peaks[0].period_nm).toBeCloseTo(1.6, 2)
+    expect(label).toContain('<visual kind="derived" frame="t0000.m0" derived="fft_peaks" frames="t0000.p0" channel="Z" direction="forward" spectrum="log magnitude"')
+    expect(label).toMatch(/marks="\d+ numbered peaks" size="\d+x\d+"\/>/)
+    expect(markPixels(att.saved[0] as Uint8Array)).toBeGreaterThan(0)
+  })
+
+  it('stm_detect_blobs returns the reply, then the frame with numbered rings', async () => {
+    const { ctx, att } = await host()
+    const res = await call(ctx, 'stm_detect_blobs', { frame: 't0000.p0' })
+    expect(res.content.map((b) => b.type)).toEqual(['text', 'text', 'image'])
+    const [reply, label] = texts(res.content)
+    const body = JSON.parse(reply as string)
+    expect(body.n_blobs).toBe(3)
+    expect(body.blobs.map((b: { fit: string }) => b.fit)).toEqual(['gaussian', 'gaussian', 'gaussian'])
+    expect(label).toContain(
+      'derived="detect_blobs" frames="t0000.p0" channel="Z" direction="forward" flatten="plane" region="0,0,192,192" magnification="1" marks="3 numbered rings" size="192x192"',
+    )
+    const image = res.content[2] as { type: 'image'; attachment: ImageAttachmentRef }
+    expect(image.attachment).toMatchObject({ mediaType: 'image/png', width: 192, height: 192, name: 't0000.m0.png' })
+    expect(markPixels(att.saved[0] as Uint8Array)).toBeGreaterThan(0)
+  })
+
+  it('refusals are values; ranges are in the descriptions', async () => {
+    const { ctx } = await host()
+    const bad = await call(ctx, 'stm_detect_blobs', { frame: 't0000.p0', max_n: 60 })
+    expect(bad.isError).toBe(false)
+    expect(JSON.parse(texts(bad.content)[0] as string)).toEqual({ error: 'detect_blobs: arguments.max_n must be <= 50', instrument_unchanged: true })
+    const small = await call(ctx, 'stm_fft_peaks', { frame: 't0000.p0', region: { x: 0, y: 0, width: 10, height: 10 } })
+    expect(JSON.parse(texts(small.content)[0] as string).error).toBe('fft_peaks: the region needs at least 8 x 8 acquired pixels for a spectrum')
+    const fft = ctx.tools.schemas().find((s) => s.name === 'stm_fft_peaks')
+    expect(JSON.stringify(fft?.parameters)).toContain('Maximum number of peaks listed, 1 to 20. Default 6.')
+    const blobs = ctx.tools.schemas().find((s) => s.name === 'stm_detect_blobs')
+    expect(JSON.stringify(blobs?.parameters)).toContain('the highest: 1 to 50. Default 50.')
+    expect(JSON.stringify(blobs?.parameters)).toContain('at most 192x192')
   })
 })
