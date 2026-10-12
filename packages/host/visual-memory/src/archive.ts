@@ -265,7 +265,7 @@ export interface RenderOptions {
   readonly labelAttrs?: readonly LabelAttr[]
   /** Spectra: the x column (default: the first column, the sweep axis). */
   readonly xCol?: string | null
-  /** Spectra: one y column or several, one panel each (default: up to four columns other than x). */
+  /** Spectra: one y column or several, one panel each (default: up to the first 4 columns other than x). */
   readonly yCol?: string | readonly string[] | null
   /** Spectra: `[low, high]` of x in the x column's model unit (default: every point). */
   readonly xRange?: readonly [number, number] | null

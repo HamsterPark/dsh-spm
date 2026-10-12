@@ -338,6 +338,9 @@ describe('the service', () => {
     const datPath = join(root, 'sts.dat')
     writeFileSync(datPath, encodeSyntheticDat({ columns: [['Bias (V)', [0, 1]], ['Current (A)', [0, 1e-12]]] }))
     expect(svc.addSpectrum(3, datPath, { simS: 1 })).toMatchObject({ fid: 't0003.d0', source_name: 'sts.dat', sim_s: 1 })
+    const bytes = encodeSyntheticDat({ columns: [['Z rel (m)', [0, 1e-10]], ['Current (A)', [2e-12, 1e-12]]] })
+    expect(svc.addSpectrumBytes(3, bytes, { sourceName: 'z.dat' })).toMatchObject({ fid: 't0003.d1', source_name: 'z.dat', sim_s: null })
+    expect(svc.observation('t0003.d1').label).toBe('<visual kind="current" frame="t0003.d1" plot="spectrum" x="Z rel [pm]" y="Current [pA]" points="2" size="600x390"/>')
   })
 })
 

@@ -24,7 +24,7 @@
  * package's own `linePlot` and are not compared with the reference's
  * (spec/deviations.md D-VMEM-6). Within that height `linePlot` has room for
  * at most eight panels at the smallest width; the tools ask for four at most
- * (`inspect` plots one y column, or up to four by default), so only a host
+ * (`inspect` plots one y column, or up to the first 4 by default), so only a host
  * call with more columns gets a {@link SpectrumError} instead of the
  * reference's squeezed panels.
  */

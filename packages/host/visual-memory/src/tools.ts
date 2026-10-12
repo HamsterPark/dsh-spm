@@ -282,7 +282,7 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
             x_col: X_COL,
             y_col: {
               type: 'string',
-              description: 'Spectrum only: one y column (default: up to four columns other than x, one panel each).',
+              description: 'Spectrum only: one y column (default: up to the first 4 columns other than x, one panel each).',
             },
             x_range: X_RANGE,
           },

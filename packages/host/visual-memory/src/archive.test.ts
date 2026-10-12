@@ -528,7 +528,7 @@ describe('spectra', () => {
     expect(() => a.column(s, 'Z')).toThrow(/^t0000\.s0 is a scan, not a spectrum$/)
   })
 
-  it('plot up to four columns other than x by default, or x itself when it is the only column', () => {
+  it('plot up to the first 4 columns other than x by default, or x itself when it is the only column', () => {
     const root = tmp()
     const a = new FrameArchive(join(root, 'f'), { displayMax: 768 })
     const ramp = Array.from({ length: 21 }, (_, i) => i * 1e-12)

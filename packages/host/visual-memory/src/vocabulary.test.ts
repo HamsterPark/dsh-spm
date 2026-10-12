@@ -22,6 +22,17 @@ const FORBIDDEN_KEYS = new Set(['fid', 'type', 'visual_kind', 'measurement', 'un
 /** Strings that Python's float() accepts: surrounding whitespace, digit underscores, inf and nan. */
 const PY_FLOAT = /^[+-]?(?:(?:\p{Nd}(?:_?\p{Nd})*)?\.\p{Nd}(?:_?\p{Nd})*|\p{Nd}(?:_?\p{Nd})*\.?)(?:e[+-]?\p{Nd}(?:_?\p{Nd})*)?$|^[+-]?(?:inf|infinity|nan)$/iu
 
+/**
+ * The one named exception: `$.views[i].y[j].unit` of a spectrum plot reply. The reference builds
+ * `y: [{column, unit}]` for every plotted column (vista_spm/archive.py `_render_spectrum`) and
+ * copies it into the inspect reply (vista_spm/viewtools.py `_view_summary`), although its own
+ * guard forbids the key `unit`; that guard never runs a spectrum view. The port follows the
+ * reference for parity; the maintainer fixes it in VISTA-SPM later, and this exception goes then.
+ */
+function referenceSpectrumUnitKeys(reply: { readonly views: readonly { readonly y?: readonly unknown[] }[] }): string[] {
+  return reply.views.flatMap((v, i) => (v.y ?? []).map((_, j) => `$.views[${i}].y[${j}].unit`))
+}
+
 /** Keys and values that break the model-facing JSON rules, as paths (the reference's `_vocabulary_violations`). */
 function vocabularyViolations(obj: unknown, path = '$'): string[] {
   if (Array.isArray(obj)) return obj.flatMap((v, i) => vocabularyViolations(v, `${path}[${i}]`))
@@ -195,9 +206,7 @@ describe('model-facing JSON', () => {
     expect(await json(bare, 'stm_inspect', { question: 'q', views: [{ label: 'a', frame: 't0000.p0' }] })).toMatchObject({ images_not_delivered: 1 })
     for (const r of replies) expect(vocabularyViolations(r)).toEqual([])
 
-    // Spectrum plots follow the reference, which names each plotted column's unit `unit` inside
-    // `y`: a key its own guard forbids, though that guard never runs a spectrum view (reported to
-    // the maintainer). Exactly those keys break the rules, and nothing else.
+    // Spectrum plots: exactly the named exception breaks the rules, and nothing else.
     const [plotText] = await call(ctx, 'stm_inspect', {
       question: 'q',
       views: [
@@ -205,7 +214,9 @@ describe('model-facing JSON', () => {
         { label: 'b', frame: fs, y_col: 'Current', x_range: [-0.1, 0.1] },
       ],
     })
-    expect(vocabularyViolations(JSON.parse(plotText as string))).toEqual(['$.views[0].y[0].unit', '$.views[0].y[1].unit', '$.views[1].y[0].unit'])
+    const plot = JSON.parse(plotText as string) as Parameters<typeof referenceSpectrumUnitKeys>[0]
+    expect(referenceSpectrumUnitKeys(plot)).toEqual(['$.views[0].y[0].unit', '$.views[0].y[1].unit', '$.views[1].y[0].unit'])
+    expect(vocabularyViolations(plot)).toEqual(referenceSpectrumUnitKeys(plot))
 
     const spectrum = entryFromRecord({
       fid: 't0005.d0', turn: 5, kind: 'd', index: 0, source_name: 'sts.dat', channels: ['Bias (V)', 'Current (A)'], nx: 64,
