@@ -13,7 +13,6 @@
  * - {@link pyMod}: Python's float `%` (the result takes the divisor's sign).
  * - {@link pyMax} / {@link pyMin}: the builtins on two floats, ties to the first argument
  *   (`max(-0.0, 0.0)` is `-0.0`, which `Math.max` turns into `0`).
- * - {@link pyTypeName}: the Python type name of a parsed JSON value, for messages.
  *
  * Tolerance: none. `measure_profile.json` pins `pyHypot` on every Pythagorean triple below
  * 400, random pairs and the edge cases (zero, subnormal, huge).
@@ -120,14 +119,4 @@ export function pyMax(a: number, b: number): number {
 /** Python's `min(a, b)` on floats: `b` only when it is strictly smaller. */
 export function pyMin(a: number, b: number): number {
   return b < a ? b : a
-}
-
-/** `type(v).__name__` of a value parsed from JSON, as Python would name it. */
-export function pyTypeName(v: unknown): string {
-  if (v === null || v === undefined) return 'NoneType'
-  if (Array.isArray(v)) return 'list'
-  if (typeof v === 'string') return 'str'
-  if (typeof v === 'boolean') return 'bool'
-  if (typeof v === 'number') return Number.isInteger(v) ? 'int' : 'float'
-  return 'dict'
 }

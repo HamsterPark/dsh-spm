@@ -14,10 +14,7 @@
  *   number in a reply is rounded (to the channel's decimals, 3–5 decimals of nm, 4
  *   significant digits of a slope), and the differences below are 10^7 times smaller
  *   than any of those steps;
- * - error messages: exact, except where the shared argument helpers write a name or a
- *   list as JSON (`"Z"`, `["forward"]`) and the reference as a Python repr (`'Z'`,
- *   `['forward']`), and where the archive puts the frame id before a channel error
- *   (spec/deviations.md D-VMEM-7); those cases are compared after that one rewrite;
+ * - error messages: exact (the shared argument helpers quote names like Python's repr);
  * - `math.hypot`: exact (`pyHypot` is CPython's algorithm);
  * - the band averages along each line, before rounding: exact without flattening (the
  *   same float32 values, scipy's bilinear operation order, numpy's sequential sum over
@@ -67,14 +64,6 @@ function keyPaths(obj: unknown, path = '$'): string[] {
   return Object.entries(obj).flatMap(([k, v]) => [`${path}.${k}`, ...keyPaths(v, `${path}.${k}`)])
 }
 
-/** The reference's message as the shared helpers word it (D-VMEM-7): JSON names, the frame id before a channel error. */
-function sharedHelperWording(message: string, fid: string): string {
-  return message
-    .replace(/\[('[^']*'(?:, '[^']*')*)\]/g, (_, items: string) => JSON.stringify(items.split(', ').map((s) => s.slice(1, -1))))
-    .replace(/'([^']*)'/g, (m, s: string, at: number, all: string) => (/(like |flatten=)$/.test(all.slice(0, at)) ? m : JSON.stringify(s)))
-    .replace(/channel: no channel/, `channel: ${fid}: no channel`)
-}
-
 // ── the archives, rebuilt from the golden ────────────────────────────────
 
 const dir = mkdtempSync(join(tmpdir(), 'measure-parity-'))
@@ -106,14 +95,6 @@ for (const name of golden.frame_order) {
 }
 
 type Call = (typeof golden.calls)[number]
-const SHARED_HELPER_ERRORS = new Set([
-  'line_profile/bad_flatten',
-  'line_profile/unknown_frame',
-  'line_profile/unknown_channel',
-  'line_profile/missing_direction',
-  'stats/unknown_frame',
-  'stats/missing_direction',
-])
 
 function run(c: Call) {
   const archive = archives[c.archive] as FrameArchive
@@ -207,9 +188,7 @@ describe('parity with the Python reference: measurement tools', () => {
         const r = run(c)
         if (c.is_error) {
           if (r.ok) throw new Error(`expected a refusal, got ${JSON.stringify(r.reply).slice(0, 200)}`)
-          const want = (c.reply as { error: string }).error
-          const fid = (c.args as { frame?: string } | null)?.frame ?? ''
-          expect(r.error).toBe(SHARED_HELPER_ERRORS.has(`${c.tool}/${c.name}`) ? sharedHelperWording(want, fid) : want)
+          expect(r.error).toBe((c.reply as { error: string }).error)
           return
         }
         if (!r.ok) throw new Error(r.error)

@@ -40,13 +40,13 @@
  * Never throws: invalid arguments come back as `{ ok: false, error }`.
  */
 import { linspace, npMean, npStd } from 'dsh-spm-numerics'
-import { ArgError, channelDirectionArgs, checkKeys, failure, flattenArgs, frameArg, isObj, numArg, type Obj, type ViewToolResult } from './args.js'
+import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, flattenArgs, frameArg, isObj, numArg, type Obj, type ViewToolResult } from './args.js'
 import { entryScale, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
 import { flatten, FlattenError, nanMedian, type FlattenMode } from './flatten.js'
 import { nativeToScanNm, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { encodePngRgb } from './png.js'
 import { pyG, pyRound, pyRoundInt } from './pyfmt.js'
-import { pyHypot, pyMax, pyMin, pyMod, pyTypeName } from './pymath.js'
+import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
 import type { Direction } from './scan-data.js'
 import { formatKey, formatValues, roundTo, type ChannelFormat } from './units.js'
 
@@ -58,12 +58,6 @@ export const STEP_MIN_JUMP_SIGMA = 4
 export const PROFILE_PLOT_HEIGHT = 400
 
 // ── shared by the measurement tools ──────────────────────────────────────
-
-/** The reference's `never_raises`: arguments that are not a JSON object are refused by type name. */
-export function argsObject(args: unknown): Obj {
-  if (!isObj(args)) throw new ArgError(`arguments must be a JSON object, got ${pyTypeName(args)}`)
-  return args
-}
 
 /** Has a 2-D grid of values: a scan, a partial scan, or a derived map with values (`is_image`). */
 export function isImage(e: FrameEntry): boolean {

@@ -23,10 +23,10 @@
  * Never throws: invalid arguments come back as `{ ok: false, error }`.
  */
 import { corrcoef, npMean, npStd } from 'dsh-spm-numerics'
-import { ArgError, channelDirectionArgs, checkKeys, failure, regionArg, type ViewToolResult } from './args.js'
+import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, regionArg, type ViewToolResult } from './args.js'
 import { channelDirections, entryScale, type FrameArchive, type FrameEntry } from './archive.js'
 import { fitSurface, nanMedian } from './flatten.js'
-import { argsObject, imageEntry } from './line-profile.js'
+import { imageEntry } from './line-profile.js'
 import { pyRound } from './pyfmt.js'
 import { crop, percentileSorted, regionToNative, RegionError, type Region } from './render.js'
 import { formatKey, formatValue } from './units.js'

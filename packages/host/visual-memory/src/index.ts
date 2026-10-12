@@ -171,7 +171,7 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
-export { pyHypot, pyMax, pyMin, pyMod, pyTypeName } from './pymath.js'
+export { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
 export {
   MAX_PROFILE_SAMPLES,
   PROFILE_PLOT_HEIGHT,

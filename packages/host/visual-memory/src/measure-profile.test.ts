@@ -16,7 +16,7 @@ import { frameStats } from './frame-stats.js'
 import { bandProfile, bilinearNearest, changePoints, lineProfile, linfit, MAX_PROFILE_SAMPLES, measureLine } from './line-profile.js'
 import { encodePngRgb, pngSize } from './png.js'
 import * as plugin from './plugin.js'
-import { pyHypot, pyMax, pyMin, pyMod, pyTypeName } from './pymath.js'
+import { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
 import type { ViewToolResult } from './args.js'
 
 const dirs: string[] = []
@@ -86,14 +86,13 @@ describe('CPython arithmetic', () => {
     expect(pyHypot(5e-324, 5e-324)).toBe(5e-324)
   })
 
-  it('float % takes the sign of the divisor, ties of max and min go to the first argument', () => {
+  it('float % takes the sign of the divisor; ties of max and min go to the first argument', () => {
     expect(pyMod(-190, 360)).toBe(170)
     expect(pyMod(190, -360)).toBe(-170)
     expect(Object.is(pyMod(-0, 360), 0)).toBe(true)
     expect(Object.is(pyMod(360, -360), -0)).toBe(true)
     expect(Object.is(pyMax(-0, 0), -0)).toBe(true)
     expect(Object.is(pyMin(0, -0), 0)).toBe(true)
-    expect([null, undefined, [], 'a', true, 3, 3.5, {}].map(pyTypeName)).toEqual(['NoneType', 'NoneType', 'list', 'str', 'bool', 'int', 'float', 'dict'])
   })
 })
 
@@ -245,7 +244,7 @@ describe('line_profile', () => {
     const a = archive()
     const fid = a.addPartial(0, { Z: step() }, { geometry: GEOMETRY }).fid
     expect(err(lineProfile(a, { frame: fid, direction: 'backward', p1: { x: 0, y: 0 }, p2: { x: 9, y: 9 } }))).toBe(
-      'line_profile: arguments.direction: t0000.p0 channel "Z" has only ["forward"]',
+      "line_profile: arguments.direction: t0000.p0 channel 'Z' has only ['forward']",
     )
     expect(err(lineProfile(a, null))).toBe('line_profile: arguments must be a JSON object, got NoneType')
     expect(err(lineProfile(a, 'frame'))).toBe('line_profile: arguments must be a JSON object, got str')
@@ -390,7 +389,7 @@ describe('the dsh tools', () => {
     const bad = await call(ctx, 'stm_frame_stats', { frame: 't0000.p0', channel: 'Current' })
     expect(bad.isError).toBe(false)
     expect(JSON.parse(texts(bad.content)[0] as string)).toEqual({
-      error: 'stats: arguments.channel: t0000.p0: no channel "Current"; this frame has ["Z"]',
+      error: "stats: arguments.channel: no channel 'Current'; this frame has ['Z']",
       instrument_unchanged: true,
     })
     const unknown = await call(ctx, 'stm_line_profile', { frame: 't0000.p0', p1: { x: 0, y: 0 }, p2: { x: 9, y: 9 }, bogus: 1 })
