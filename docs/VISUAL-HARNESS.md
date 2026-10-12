@@ -73,7 +73,7 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 
 存储：会话目录下 `index.jsonl`（只追加）与每帧一份无损数组文件和默认渲染 PNG；进程重启后从索引恢复。帧数据是持久真源，不依赖 session log。
 
-**每个 dsh 会话一份**（2026-10-13 实现）：插件的 `config.root` 下，`sessions/<会话>/frames` 与 `sessions/<会话>/notes` 是一个会话的帧档案与笔记；`<会话>` 是发起调用的 agent 的会话 id（`exec.agent.id`），普通名字原样用，其余换成可读前缀加 SHA-256 的 16 位（`sessionDirName`）。同一会话恢复时（同一进程或之后的进程）找回自己的帧与笔记，两个会话互不可见；没有 agent 的调用（测试、宿主直接调用、服务上的方法）仍用 `<root>/frames` 与 `<root>/notes`。插件在宿主层的 `tools/execute` 上用 AsyncLocalStorage 记下调用所属的会话，工具的 `archive` / `notes` 是调用时才解析的 getter——所以工具必须在 `execute` 里读 `deps.archive` / `deps.notes`，不要在定义时存进闭包；显式访问用 `ctx.frameArchive.session(id)`。agent 销毁时只关掉打开的档案，文件留着。依据见 [dsh 事实](dsh/facts.md) §9.7。
+**每个 dsh 会话一份**（2026-10-13 实现）：插件的 `config.root` 下，`sessions/<会话>/frames` 与 `sessions/<会话>/notes` 是一个会话的帧档案与笔记；`<会话>` 是发起调用的 agent 的会话 id（`exec.agent.id`），普通名字原样用，其余换成可读前缀加 SHA-256 的 16 位（`sessionDirName`）。同一会话恢复时（同一进程或之后的进程）找回自己的帧与笔记，两个会话互不可见；没有 agent 的调用（测试、宿主直接调用）仍用 `<root>/frames` 与 `<root>/notes`。插件在宿主层的 `tools/execute` 上用 AsyncLocalStorage 记下调用所属的会话；服务的 `archive` / `notes` 是调用时才解析的 getter，服务上的每个方法（`addScan`、`addSpectrum`、`get`……）都经过它们，所以 `ctx.frameArchive` 作用于发起调用的会话。工具的 deps 也是 getter——工具必须在 `execute` 里读 `deps.archive` / `deps.notes`，不要在定义时存进闭包；指定某个会话用 `ctx.frameArchive.session(id)`。agent 销毁时只关掉打开的档案，文件留着。依据见 [dsh 事实](dsh/facts.md) §9.7。
 
 ### 4.2 帧与编号
 
@@ -115,7 +115,7 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 - **「已进入上下文」= 同一 agent 的下一个 `agent/pre-step`**：agent-loop 把一步里的全部工具结果提交进会话日志之后才提议下一步，而每次请求都由日志推导；同一步里的第二个动作因此被拒，下一步放行。证据（读包、仓外探针、契约测试）见 [dsh 事实](dsh/facts.md) §9.5；契约测试是 `packages/host/stm-skills/contract/act-gate.test.ts`（含同一步两个动作与并发）。
 - 只有登记过的（`registerSkill`）改变仪器状态的技能受闸；视觉记忆的回看、读值与笔记工具、`stm_get_state` 不受闸；没有 agent 的调用不是模型发的，也不受闸。
 - 补救动作（`WithdrawTip`、`SafeRetract`、`EmergencyRetract`、`StopScan` 等样品门控豁免名，以及带 `stop` / `emergency` 标签的技能）**永不被拒**，但同样记账。
-- 与参考实现的差异（没有 `act` 工具、补救动作例外、没有 10 s 超时兜底、放行即记账）登记为 [D-ACT-1 – D-ACT-3](../spec/deviations.md)。
+- 与参考实现的差异（没有 `act` 工具、补救动作例外、没有 10 s 超时兜底、放行即记账）登记为 [D-VMEM-15](../spec/deviations.md)。
 
 ### 4.6 与内核 K14 的接线
 
@@ -124,16 +124,16 @@ K14 在 depth 0 时：技能产生的 .sxm/.dat 先经 `frameArchive.add*` 入�
 **已实现（2026-10-13）**，分三处：
 
 - **内核**（`skill-kernel.ts`）：注入的 `SkillObserver`，depth 0 时在 K11 之前问一次 `begin`、K13 之后问一次 `end`（成功、失败、执行中抛出都问；被闸门拒掉的调用不问，子步不问）。观察者交回帧编号与摘要（`SkillObservation`），内核把 `new_frames`（新帧摘要）或 `latest_frame`（没有新帧时最近的扫描帧，只给改变仪器状态的调用）、`not_archived`、`observation_error` 几行接在 K13 文本之后（不受 2000 字截断），观测挂在 `outcome.observation` 上。没接观察者时结局一字不变。
-- **找文件与入档**（visual-memory `observe.ts` 的 `frameObserver`）：比较控制器保存目录调用前后的 `.sxm` / `.dat`（不递归；首次见到的目录里已有的都算旧的；按大小与修改时间认「变了」），新文件按修改时间先后入当前调用会话的档案。改变仪器状态的调用开下一个动作序号，读类调用记在当前序号下。`.dat` 走档案的 `addSpectrum`（谱的移植提供），没有时列进 `not_archived`；读不了的文件列进 `not_archived`，文件再变时重试。随结果出图的是最新的新扫描帧，再加最后两条新谱（参考实现 `_observation_for`）。保存目录由宿主给（`saveDir`）；stm-skills 的 `controllerSaveDir` 问仪器（`Util_SessionPathGet`，与 `GetLatestScanFile` 同一个解析与归一）。**不读技能结果里的路径键**：`ScanAt` / `FullScan` / `WaitScanComplete` 不报路径，`SaveScan` 的 `saved_path`、`AcquireSTS` 的 `path` 是「最近 120 s 里最新的那个」，分析类技能的 `scan_path` / `dat_path` 是输入。
+- **找文件与入档**（visual-memory `observe.ts` 的 `frameObserver`）：比较控制器保存目录调用前后的 `.sxm` / `.dat`（不递归；首次见到的目录里已有的都算旧的；按大小与修改时间认「变了」），新文件按修改时间先后入当前调用会话的档案。改变仪器状态的调用开下一个动作序号，读类调用记在当前序号下。入档走 `ctx.frameArchive.addScan` / `addSpectrum`（作用于发起调用的会话）；读不了的文件列进 `not_archived`，文件再变时重试。随结果出图的是最新的新扫描帧，再加最后两条新谱（参考实现 `_observation_for`）。保存目录由宿主给（`saveDir`）；stm-skills 的 `controllerSaveDir` 问仪器（`Util_SessionPathGet`，与 `GetLatestScanFile` 同一个解析与归一）。**不读技能结果里的路径键**：`ScanAt` / `FullScan` / `WaitScanComplete` 不报路径，`SaveScan` 的 `saved_path`、`AcquireSTS` 的 `path` 是「最近 120 s 里最新的那个」，分析类技能的 `scan_path` / `dat_path` 是输入。
 - **出站**（visual-memory 的 `observationPresenter`，交给 `defineSkillTool(skill, { kernel, present })`）：按帧编号取观测图（`<fid>.png`）存成附件，内容是文本、再每张图一行标签加图像块（同 `stm_inspect`）；没有图时内容就是那段文本，与不接 presenter 的技能工具一字不差。存不了、或会话的模型路由只收文本时，文本末尾加 `images_not_delivered: N`（后者带原因）。
 
-宿主组合的写法（尚未挂进 bundle）见 `packages/host/stm-skills/contract/k14-wiring.test.ts` 的抬头；与参考实现的差异登记为 [D-K14-1、D-K14-2](../spec/deviations.md)。
+宿主组合的写法（尚未挂进 bundle）见 `packages/host/stm-skills/contract/k14-wiring.test.ts` 的抬头；与参考实现的差异登记为 [D-VMEM-16](../spec/deviations.md)。
 
 ### 4.7 提示与笔记
 
 IC persona 增加 VISTA 的五句约定：尽量少用仪器时间与动作；维护可修订的仪器—针尖—样品模型；动作前写预期、动作后报告全部可见变化；把持久认识写进 `GUIDE.md`，用 `WORKING.md` 做草稿。上下文接近压缩阈值时，先要求模型保存 `WORKING.md`，压缩后以「环境记录 + 笔记 + 当前帧」重新开局；dsh 是否提供压缩前钩子见 §7。
 
-**已实现（2026-10-13）**：本仓还没有 IC agent preset，五句约定由 visual-memory 插件注册成系统提示段（`prompt.ts`，段名 `mast-visual-harness`，order 150，紧跟部署 persona 前缀），文字照参考实现 `prompts.py::SYSTEM_TEMPLATE`（图像档、带笔记），`act` 改成「each action that changes the instrument」，另加一句「旧图不见了就用 `stm_inspect` 重看」（[D-K14-3](../spec/deviations.md)）。有了 IC preset 之后可以并进它的 `deployment:persona-prefix`。压缩前钩子：dsh 没有（[dsh 事实](dsh/facts.md) §9.4，退路是在 `agent/pre-step` 上抢在压缩之前插检查点）；压缩检查点本次没有做。
+**已实现（2026-10-13）**：本仓还没有 IC agent preset，五句约定由 visual-memory 插件注册成系统提示段（`prompt.ts`，段名 `mast-visual-harness`，order 150，紧跟部署 persona 前缀），文字照参考实现 `prompts.py::SYSTEM_TEMPLATE`（图像档、带笔记），`act` 改成「each action that changes the instrument」，另加一句「旧图不见了就用 `stm_inspect` 重看」（[D-VMEM-16](../spec/deviations.md)）。有了 IC preset 之后可以并进它的 `deployment:persona-prefix`。压缩前钩子：dsh 没有（[dsh 事实](dsh/facts.md) §9.4，退路是在 `agent/pre-step` 上抢在压缩之前插检查点）；压缩检查点本次没有做。
 
 ### 4.8 模型要求
 

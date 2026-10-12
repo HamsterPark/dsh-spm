@@ -18,7 +18,7 @@
  *
  * 退针、急停、各种 Stop 是**出事时立刻要能跑**的东西（与样品门控、中止闩同一条原则：
  * 安全操作绝不能被记账类的闸挡住）。它们照样记「待观察」——退针之后再动别的，
- * 也得先看过退针的结果。参考实现没有这条例外（spec/deviations.md D-ACT-2）。
+ * 也得先看过退针的结果。参考实现没有这条例外（spec/deviations.md D-VMEM-15）。
  */
 import { GATE_EXEMPT_NAMES } from './sample-gate.js'
 

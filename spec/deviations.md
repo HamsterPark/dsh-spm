@@ -4095,76 +4095,36 @@ TS 统一按未给处理。
 **判据**：上面两条测试——视图函数对 `null` 的回复与省略该参数时逐项相同；经 dsh 的调用在 schema 校验处被拒。
 **重新考虑的条件**：dsh 的参数校验开始放行 `null`（模型就能走到这里），或参考实现给 `null` 定下别的明确语义（例如统一拒绝并说明原因）。
 
-## D-ACT-1 · 没有单一的 `act` 工具：「动作」是改变仪器状态的技能工具
+## D-VMEM-15 · 一动一观：没有单一的 `act` 工具、补救动作不拒、回执是下一个 `agent/pre-step`
 
 | | |
 |---|---|
-| **Python**（`vista_spm/host.py`、`prompts.py`） | 唯一会动仪器的工具 `act`（动作名 + 参数）；闸门拒绝文案 `Observe the result of the previous act before another action. No action was executed.`；提示「Before each `act`, briefly state what you expect to see…」 |
-| **TS**（kernel `act-gate.ts` / `messages.ts`，stm-skills `act-gate.ts`，visual-memory `prompt.ts`） | 动作 = 登记过的、类别不是 `read` / `analysis` 的技能工具（缺类别也算）；文案 `[act_gate] Observe the result of the previous action that changes the instrument before another such action. No action was executed.`；提示里 `act` 换成「each action that changes the instrument」 |
-| **测试** | kernel `act-gate.test.ts`（分类与逐字文案）；stm-skills `contract/act-gate.test.ts`；visual-memory `sessions.test.ts`（提示逐字） |
+| **Python**（`vista_spm/host.py`、`claude_runner.py`、`prompts.py`） | 唯一会动仪器的工具 `act`（动作名 + 参数），`withdraw` 也是其中一个动作；拒绝文案 `Observe the result of the previous act before another action. No action was executed.`；运行器读到 `act` 的 `tool_result` 进了 Claude Code 的 user 消息时回执，10 s 内没回执就放行并计 `gate_fallbacks`；参数校验失败、未知动作的 `act` 不置「待观察」；提示「Before each `act`, briefly state what you expect to see…」 |
+| **TS**（kernel `act-gate.ts` / `messages.ts`，stm-skills `act-gate.ts`，visual-memory `prompt.ts`） | ① 动作 = 登记过的、类别不是 `read` / `analysis` 的技能工具（缺类别也算）；文案 `[act_gate] Observe the result of the previous action that changes the instrument before another such action. No action was executed.`，提示里 `act` 换成「each action that changes the instrument」。② 补救动作——样品门控豁免表里的名字（`WithdrawTip`、`SafeRetract`、`EmergencyRetract`、`StopScan`…）与带 `stop` / `emergency` 标签的技能——**总是放行**，但照样记「待观察」。③ 回执 = 同一 agent 的下一个 `agent/pre-step`，**没有**时间兜底；guard 放行的那一刻记账，所以放行后又被别的 guard 拒、或被 dsh 的参数校验拒（`INVALID_ARGS`，在工具体里）的调用也算一次动作；没有 agent 的调用不受闸 |
+| **测试** | kernel `act-gate.test.ts`（分类、补救、逐字文案）；stm-skills `contract/act-gate.test.ts`（回执、同一步两个动作、并发、guard 顺序、会话隔离、`agent/disposed`）；visual-memory `sessions.test.ts`（提示逐字） |
 
-**为什么有意**：本仓把每个技能直接做成一个 dsh 工具（`defineSkillTool`），没有把 400 多个技能收进一个
-`act`。闸门因此按技能声明的类别判，未知类别按「会改变」处理（与仪器锁同向）。文案前缀 `[act_gate]`
-是 PLAN §3.2-16 要求的机器可判码。**重新考虑的条件**：本仓改成单一动作工具。
-
-## D-ACT-2 · 补救动作（退针、急停、Stop*）永不被一动一观拒绝
-
-| | |
-|---|---|
-| **Python** | 闸门拦的是 `act` 本身，`withdraw` 也在其中：上一个结果没被看到时，退针同样被拒 |
-| **TS** | 样品门控豁免表里的名字（`WithdrawTip`、`SafeRetract`、`EmergencyRetract`、`StopScan`…）与带 `stop` / `emergency` 标签的技能**总是放行**，但照样记「待观察」——退针之后再动别的仍须先看过退针的结果 |
-| **测试** | kernel `act-gate.test.ts`「补救动作」；stm-skills `contract/act-gate.test.ts`「补救动作……照样跑」 |
-
-**为什么有意**：本仓的安全原则是记账类的闸不许挡住安全操作（样品门控 fail-open、中止闩在动词层放行
-`ZCtrl_Withdraw`）。一动一观约束的是观察纪律，不是安全；模型在同一步里发现要退针时，退针必须能跑。
-`withdraw` / `retract` 标签不算：`SetWithdrawRate`、`SetZSpectrRetract` 是配置写。
-**重新考虑的条件**：消融显示同一步里的补救动作被模型滥用（例如用 Stop* 绕开观察）。
-
-## D-ACT-3 · 回执是同一 agent 的下一个 `agent/pre-step`，没有超时兜底；放行即记账
-
-| | |
-|---|---|
-| **Python** | 运行器读到 `act` 的 `tool_result` 进了 Claude Code 的 user 消息时回执；10 s 内没回执就放行并计 `gate_fallbacks`；参数校验失败、未知动作的 `act` 不置「待观察」 |
-| **TS** | 回执 = 同一 agent 的下一个 `agent/pre-step`（facts.md §9.5）；**没有**时间兜底；guard 放行的那一刻记账，所以放行之后又被别的 guard 拒、或被 dsh 的参数校验拒（`INVALID_ARGS`，在工具体里）的调用也算一次动作；没有 agent 的调用不受闸 |
-| **测试** | stm-skills `contract/act-gate.test.ts`（回执、并发、guard 顺序、会话隔离、`agent/disposed`） |
-
-**为什么有意**：dsh 的 agent-loop 在下一次模型请求之前一定跑 pre-step，回执不会丢，兜底只会让第二个
-动作在没被观察时跑起来。记账放在 guard 里，是为了「查」与「记」在同一个同步调用里完成，并发下只放一个；
+**为什么有意**：① 本仓把每个技能直接做成一个 dsh 工具（`defineSkillTool`），没有把 400 多个技能收进一个 `act`；
+闸门因此按技能声明的类别判，未知类别按「会改变」处理（与仪器锁同向）。`[act_gate]` 前缀是 PLAN §3.2-16 要求的机器可判码。
+② 本仓的安全原则是记账类的闸不许挡住安全操作（样品门控 fail-open、中止闩在动词层放行 `ZCtrl_Withdraw`）；一动一观约束的是
+观察纪律，不是安全，模型在同一步里发现要退针时，退针必须能跑。`withdraw` / `retract` 标签不算：`SetWithdrawRate`、
+`SetZSpectrRetract` 是配置写。③ dsh 的 agent-loop 在下一次模型请求之前一定跑 pre-step（facts.md §9.5），回执不会丢，
+兜底只会让第二个动作在没被观察时跑起来；记账放在 guard 里，是为了「查」与「记」在同一个同步调用里完成、并发下只放一个，
 代价是偏保守（同一步里被别的闸拒掉的调用之后的动作也被拒，下一步即放行）。没有 agent 的调用不是模型发的。
-**重新考虑的条件**：出现不经 agent-loop、却代表模型发调用的驱动（那时要换回执事件）；或保守记账在消融里
-造成可测的动作浪费。
+**重新考虑的条件**：本仓改成单一动作工具；消融显示同一步里的补救动作被滥用（例如用 Stop* 绕开观察）；出现不经 agent-loop、
+却代表模型发调用的驱动（那时要换回执事件）；或保守记账在消融里造成可测的动作浪费。
 
-## D-K14-1 · 读类技能的调用也入档；结果文本只接帧编号与摘要
-
-| | |
-|---|---|
-| **Python**（`host.py::_act`） | 只在 `act` 之后入档新文件；回执是整份 JSON（`turn`、`ok`、`result`、`instrument` 状态回显、`budget`、`instrument_s`、`new_frames` 或 `latest_frame`） |
-| **TS**（kernel K14 + visual-memory `observe.ts`） | depth 0 的每个技能调用（读类也算）结束时都看保存目录：改变仪器状态的调用开一个新动作序号，读类调用的新帧记在当前序号下、没有新帧时什么都不加；技能自己的文本后面只接 `new_frames` / `latest_frame`（后者只给改变仪器状态的调用）/ `not_archived` / `observation_error` 几行，没有状态回显、预算与仪器用时 |
-| **测试** | kernel `k14-observation.test.ts`；visual-memory `observe.test.ts`；stm-skills `contract/k14-wiring.test.ts` |
-
-**为什么有意**：本仓的读类技能里有会等到新文件落盘的（`WaitScanComplete`），只在动作之后入档会把那张帧
-推迟到下一个动作。状态回显由 `instrument-state` 的实时状态块每轮带进上下文，仪器时间预算在 dsh 侧没有对应物。
-**重新考虑的条件**：消融显示状态回显或预算放进动作回执有可测收益。
-
-## D-K14-2 · 存下却没能入档的文件告诉模型
+## D-VMEM-16 · K14：读类调用也入档、回执只接帧编号、没入档的文件告诉模型；提示多一行 `stm_inspect`
 
 | | |
 |---|---|
-| **Python** | 读不了的文件记进 ledger 的 `archive_error` 事件，模型看不到 |
-| **TS** | 结果文本加一行 `not_archived: [{"file", "error"}]`；保存目录问不到、列不出时，改变仪器状态的调用加一行 `observation_error` |
-| **测试** | visual-memory `observe.test.ts`；kernel `k14-observation.test.ts` |
+| **Python**（`host.py::_act`、`prompts.py::SYSTEM_TEMPLATE`） | 只在 `act` 之后入档新文件；动作回执是整份 JSON（`turn`、`ok`、`result`、`instrument` 状态回显、`budget`、`instrument_s`、`new_frames` 或 `latest_frame`）；读不了的文件记进 ledger 的 `archive_error` 事件，模型看不到；提示五句 |
+| **TS**（kernel K14 + visual-memory `observe.ts` / `prompt.ts`） | ① depth 0 的每个技能调用（读类也算）结束时都看保存目录：改变仪器状态的调用开一个新动作序号，读类调用的新帧记在当前序号下、没有新帧时什么都不加；技能自己的文本后面只接 `new_frames` / `latest_frame`（后者只给改变仪器状态的调用）/ `not_archived` / `observation_error` 几行，没有状态回显、预算与仪器用时。② 存下却没能入档的文件列进 `not_archived`；保存目录问不到、列不出时，改变仪器状态的调用加一行 `observation_error`。③ 提示同五句（`act` 的改写见 D-VMEM-15），再加「An earlier image that is no longer shown can be looked at again with `stm_inspect`.」 |
+| **测试** | kernel `k14-observation.test.ts`；visual-memory `observe.test.ts`、`sessions.test.ts`（提示逐字）；stm-skills `contract/k14-wiring.test.ts` |
 
-**为什么有意**：没入档的帧模型回看不了；与 VISUAL-HARNESS §4.8「不得静默丢图」同一条理由。写到一半的文件
-下次改变时会重试，所以这一行可能只是暂时的。**重新考虑的条件**：这一行在长会话里成了噪声。
-
-## D-K14-3 · 视觉线束提示多一行：旧图不见了就用 `stm_inspect` 重看
-
-| | |
-|---|---|
-| **Python**（`prompts.py::SYSTEM_TEMPLATE`） | 五句：仪器任务、少用仪器时间与动作、可修订的模型、动作前写预期动作后报变化、笔记 |
-| **TS**（visual-memory `prompt.ts`） | 同五句（`act` 的改写见 D-ACT-1），再加「An earlier image that is no longer shown can be looked at again with `stm_inspect`.」 |
-| **测试** | visual-memory `sessions.test.ts`（逐字） |
-
-**为什么有意**：dsh 的 pi-ai 路由在历史图像超过 20 MiB 时把最早的图换成「ask the user to attach it again」
-（facts.md §9.3），对工具图是错的提示；Claude Code（参考实现的运行器）没有这种卸载。
-**重新考虑的条件**：dsh 的卸载文案改成指向工具，或本仓接管卸载文案。
+**为什么有意**：① 本仓的读类技能里有会等到新文件落盘的（`WaitScanComplete`），只在动作之后入档会把那张帧推迟到下一个动作；
+状态回显由 `instrument-state` 的实时状态块每轮带进上下文，仪器时间预算在 dsh 侧没有对应物。② 没入档的帧模型回看不了，与
+VISUAL-HARNESS §4.8「不得静默丢图」同一条理由；写到一半的文件下次改变时会重试，所以这一行可能只是暂时的。③ dsh 的 pi-ai 路由在
+历史图像超过 20 MiB 时把最早的图换成「ask the user to attach it again」（facts.md §9.3），对工具图是错的提示；Claude Code
+（参考实现的运行器）没有这种卸载。
+**重新考虑的条件**：消融显示状态回显或预算放进动作回执有可测收益；`not_archived` 在长会话里成了噪声；dsh 的卸载文案改成指向工具，
+或本仓接管卸载文案。

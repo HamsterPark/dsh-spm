@@ -7,7 +7,7 @@
  * objective, a revisable model, expect before / report after, and notes.
  * Nothing here teaches STM technique; the task comes from the user.
  *
- * Two intended differences (spec/deviations.md D-ACT-1, D-K14-3):
+ * Two intended differences (spec/deviations.md D-VMEM-15, D-VMEM-16):
  * - "Before each `act`" reads "Before each action that changes the
  *   instrument": this repository has no single `act` tool; the actions are
  *   the skill tools that change the instrument, and those are the ones the

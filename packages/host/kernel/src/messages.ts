@@ -18,7 +18,7 @@ export const ACT_GATE_CODE = 'act_gate'
  *
  * 措辞取自参考实现（VISTA-SPM `host.py::GATE_REFUSAL`，原句英文），只把 `act` 换成
  * 「改变仪器状态的动作」——本仓没有单一的 `act` 工具，动作就是那些改变仪器状态的技能工具
- * （spec/deviations.md D-ACT-1）。**「No action was executed」必须留着**：模型要知道这一次
+ * （spec/deviations.md D-VMEM-15）。**「No action was executed」必须留着**：模型要知道这一次
  * 什么都没发生，下一步看过上一个结果再决定，而不是以为它已经跑了。
  */
 export const ACT_GATE_REFUSAL =
