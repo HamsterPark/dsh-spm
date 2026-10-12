@@ -10,11 +10,12 @@
  * ```
  * K0 覆盖 → K1 SI 解析 → K2 中止闩 → K3 样品闸 → K5 快照+计时
  *   → K6 参数校验 → K7 荒谬/包络/模式/硬闸 → K8 前置条件 → K9 锁
- *   → K11 执行 → K12 写回缓存 → K13 组文本 → K15 状态增量 → K18 异常
+ *   → K11 执行 → K12 写回缓存 → K13 组文本 → K14 观测入档 → K15 状态增量 → K18 异常
  * ```
  *
  * **K5 在闸门之前**：被拒绝的调用也要有快照与耗时，否则「为什么被拒」事后无从复原。
  */
+import { isStateChangingSkill } from './act-gate.js'
 import { argsHash } from './args-hash.js'
 import type { HardwareState } from './hardware-state.js'
 import { checkStatePreconditions, type ComputedCheck } from './preconditions.js'
@@ -80,6 +81,8 @@ export interface SkillOutcome {
   readonly argsHash: string
   /** 结束本轮（中止闩之类）。 */
   readonly concludeTurn?: boolean | undefined
+  /** K14：这次调用新入档的帧与随结果出图的帧（depth 0、接了观察者才有）。 */
+  readonly observation?: SkillObservation | undefined
 }
 
 /** 技能执行时拿到的上下文。**`markers` 必填**——见下面构造期的检查。 */
@@ -290,6 +293,83 @@ export interface SkillResultLike {
 // 数字，16 个米制参数受影响）。**一个技能的严格性只能有一个来源**：模型读到的描述
 // 与这里的解析必须由同一个表达式算出。所以内核向 schema 侧要，而不是各算各的。
 
+// ── K14：观测入档（决策 D12，VISUAL-HARNESS §4.6） ──────────────────────────
+//
+// depth 0 的调用跑完——成功、失败、执行中抛出都算——控制器为它存下的 .sxm/.dat 进帧档案，
+// 结果文本列出新帧的编号与摘要；最新的扫描帧（再加最后两条谱）是「当前观测」，随结果出图。
+//
+// **内核走路径不走像素**（PLAN §3.2-8）：观察者交回来的只有帧编号与摘要，图由出站那一侧
+// （工具层）按编号去取、存成附件。找文件、入档、读图全在注入的观察者里，内核仍零 I/O。
+//
+// 子步（depth ≥ 1）不观察：组合技能里扫出来的每一帧都在它自己那一次 K14 里一并入档，
+// 而不是每个子步各报一遍。
+
+/** 交给观察者的一次调用。 */
+export interface ObservedCall {
+  readonly spec: SkillSpec
+  /** K1 解析过的参数。 */
+  readonly params: Readonly<Record<string, unknown>>
+  /** 会不会改变仪器状态（与一动一观同一判据）。改变的调用开一个新的动作序号。 */
+  readonly stateChanging: boolean
+  /**
+   * 这次调用自己的仪器出口——技能拿到的同一个，带同一道中止门。观察者可以用它问
+   * 控制器的保存目录（`Util_SessionPathGet`）。
+   */
+  readonly safeCall: SafeCall
+}
+
+/** 调用结束时观察者另外拿到的：成败与数据。执行中抛出算失败、没有数据。 */
+export interface ObservedOutcome extends ObservedCall {
+  readonly success: boolean
+  readonly data?: Readonly<Record<string, unknown>> | undefined
+}
+
+/** 新入档的一帧：编号与模型面的帧摘要（单位在键名里）。 */
+export interface ObservedFrame {
+  readonly id: string
+  readonly summary: Readonly<Record<string, unknown>>
+}
+
+export interface SkillObservation {
+  /** 这次调用新入档的帧，按入档顺序。 */
+  readonly frames: readonly ObservedFrame[]
+  /** 随结果出图的帧编号，按出图顺序。 */
+  readonly show: readonly string[]
+  /**
+   * 没有新帧时最近的那张扫描帧（只对改变仪器状态的调用给）：`null` = 档案里还没有扫描帧，
+   * 缺席 = 不报。
+   */
+  readonly latestFrame?: string | null | undefined
+  /** 存下了却没能入档的文件与原因。**不静默丢**：没入档的帧模型回看不了，它得知道。 */
+  readonly notArchived: readonly { readonly file: string; readonly error: string }[]
+  /** 观察者自己出了错（K14 兜住的）。 */
+  readonly error?: string | undefined
+}
+
+/** K14 的注入点。宿主的实现见 `dsh-spm-visual-memory` 的 `frameObserver`。 */
+export interface SkillObserver {
+  /** K11 之前：记下调用前的现场（例如保存目录里已有哪些文件），返回的令牌原样交回 {@link end}。 */
+  begin(call: ObservedCall): Promise<unknown>
+  /** K14：调用之后入档、选图。`null` = 这次没有可报的观测。 */
+  end(token: unknown, call: ObservedOutcome): Promise<SkillObservation | null>
+}
+
+/**
+ * K14 给模型的那几行，接在 K13 的文本后面（**不受 {@link TOOL_RETURN_CAP} 截断**：
+ * 帧编号是模型回看的唯一把手，截掉一半比没有更糟）。
+ *
+ * 键名取参考实现的动作回执（`new_frames` / `latest_frame`），值是 JSON。
+ */
+export function observationText(o: SkillObservation | null): string {
+  if (o === null) return ''
+  const lines: string[] = []
+  if (o.frames.length > 0) lines.push(`new_frames: ${JSON.stringify(o.frames.map((f) => f.summary))}`)
+  else if (o.latestFrame !== undefined) lines.push(`latest_frame: ${JSON.stringify(o.latestFrame)}`)
+  if (o.notArchived.length > 0) lines.push(`not_archived: ${JSON.stringify(o.notArchived)}`)
+  if (o.error !== undefined) lines.push(`observation_error: ${JSON.stringify(o.error)}`)
+  return lines.length === 0 ? '' : `\n${lines.join('\n')}`
+}
+
 // ── 内核 ────────────────────────────────────────────────────────────────────
 
 /** 一次调用要问的外部世界。全部注入 ⇒ 内核本身零 I/O、可完全脚本化测试。 */
@@ -354,6 +434,11 @@ export interface KernelDeps {
   readonly sleep?: ((ms: number) => Promise<void>) | undefined
   /** 超长文本落盘（K13），返回引用。 */
   readonly offload?: ((skill: string, full: string) => string) | undefined
+  /**
+   * K14 观测入档（depth 0）。**缺席不是错**：没接就没有 K14，结局与文本一字不变——
+   * 没有帧档案的组合（最小运行栈）就是这样。
+   */
+  readonly observer?: SkillObserver | undefined
   readonly clock?: (() => number) | undefined
 }
 
@@ -590,6 +675,20 @@ export class SkillKernel {
       runSkill: (name, p) => this.runSub(name, p, depth, opts, markers, hash),
     }
 
+    // ── K14 之前（depth 0）：观察者记下调用前的现场 ──
+    // 放在锁里、执行前：它可能要问仪器保存目录，而「之前」必须真的在技能动仪器之前。
+    const observer = depth === 0 ? this.deps.observer : undefined
+    const observed: ObservedCall = { spec, params, stateChanging: isStateChangingSkill(spec), safeCall }
+    let token: unknown
+    if (observer !== undefined) {
+      try {
+        token = await observer.begin(observed)
+      } catch {
+        // 记不下现场只让这一次可能少入档几帧；K14 照样跑，把它能说的说出来
+        token = undefined
+      }
+    }
+
     try {
       // ── K11 执行 ──
       const result = await skill.execute(ctx, params)
@@ -606,49 +705,81 @@ export class SkillKernel {
       // ── K13 组文本 ──
       const { text, textRef } = this.composeText(spec.name, result)
 
+      // ── K14 观测入档（depth 0） ──
+      const observation = await this.observe(observer, token, {
+        ...observed,
+        success: result.success,
+        data: result.data,
+      })
+
       // ── K15 状态增量 ──
       const after = this.deps.snapshot()
       const delta = diffState(before, after)
 
-      return finish({
-        kind: result.success ? 'ok' : 'failed',
-        signature: result.success ? `ok:${spec.name}` : `failed:${spec.name}:${result.error ?? ''}`,
-        text,
-        textRef,
-        data: result.data,
-        stateDelta: delta,
-      })
+      return finish(
+        withObservation(
+          {
+            kind: result.success ? 'ok' : 'failed',
+            signature: result.success ? `ok:${spec.name}` : `failed:${spec.name}:${result.error ?? ''}`,
+            text,
+            textRef,
+            data: result.data,
+            stateDelta: delta,
+          },
+          observation,
+        ),
+      )
     } catch (e) {
       // ── K18 异常 ──
       markers.emit('skill_crashed', { skill: spec.name, error: (e as Error).message })
+      let crashed: Omit<SkillOutcome, 'elapsedMs' | 'argsHash'>
       // **中止与占用不回滚**：中止是人喊停，回滚会把仪器又动一遍；
       // 占用意味着**我们根本没跑**，没有可回滚的东西。
       if (e instanceof AbortRequestedError) {
-        return finish({
+        crashed = {
           kind: 'aborted',
           signature: `aborted:${spec.name}`,
           text: `[${spec.name}] aborted: ${e.message}`,
-        })
-      }
-      if (e instanceof BusyError) {
-        return finish({ kind: 'busy', code: 'busy', signature: `busy:${spec.name}`, text: `[${spec.name}] busy: ${e.message}` })
-      }
-      let rolledBack = false
-      if (skill.rollback !== undefined) {
-        try {
-          await skill.rollback(ctx)
-          rolledBack = true
-        } catch (re) {
-          markers.emit('rollback_failed', { skill: spec.name, error: (re as Error).message })
+        }
+      } else if (e instanceof BusyError) {
+        crashed = { kind: 'busy', code: 'busy', signature: `busy:${spec.name}`, text: `[${spec.name}] busy: ${e.message}` }
+      } else {
+        let rolledBack = false
+        if (skill.rollback !== undefined) {
+          try {
+            await skill.rollback(ctx)
+            rolledBack = true
+          } catch (re) {
+            markers.emit('rollback_failed', { skill: spec.name, error: (re as Error).message })
+          }
+        }
+        crashed = {
+          kind: rolledBack ? 'rolled_back' : 'failed',
+          signature: `crashed:${spec.name}`,
+          text: `[${spec.name}] ${rolledBack ? 'rolled_back' : 'failed'}: ${(e as Error).message}`,
         }
       }
-      return finish({
-        kind: rolledBack ? 'rolled_back' : 'failed',
-        signature: `crashed:${spec.name}`,
-        text: `[${spec.name}] ${rolledBack ? 'rolled_back' : 'failed'}: ${(e as Error).message}`,
-      })
+      // K14 照样跑：抛出之前控制器可能已经存下了帧（扫到一半被中止、组合技能的前几步）
+      return finish(withObservation(crashed, await this.observe(observer, token, { ...observed, success: false })))
     } finally {
       release?.()
+    }
+  }
+
+  /**
+   * K14：问观察者这次调用入档了什么。**永不抛**——入档出错不改变这次调用的结局
+   * （同 K16「记录永不打断技能」），但要说出来：帧没进档案，模型就回看不了它。
+   */
+  private async observe(
+    observer: SkillObserver | undefined,
+    token: unknown,
+    call: ObservedOutcome,
+  ): Promise<SkillObservation | null> {
+    if (observer === undefined) return null
+    try {
+      return await observer.end(token, call)
+    } catch (e) {
+      return { frames: [], show: [], notArchived: [], error: e instanceof Error ? e.message : String(e) }
     }
   }
 
@@ -799,6 +930,14 @@ export function stripAuditOnly(
   if (data === undefined) return undefined
   if (!AUDIT_ONLY_KEYS.some((k) => k in data)) return { ...data }
   return Object.fromEntries(Object.entries(data).filter(([k]) => !AUDIT_ONLY_KEYS.includes(k)))
+}
+
+/** K14 接进结局：文本后面接那几行，观测挂在 `observation` 上。没有观测就原样返回——一字不变。 */
+function withObservation(
+  core: Omit<SkillOutcome, 'elapsedMs' | 'argsHash'>,
+  o: SkillObservation | null,
+): Omit<SkillOutcome, 'elapsedMs' | 'argsHash'> {
+  return o === null ? core : { ...core, text: core.text + observationText(o), observation: o }
 }
 
 /** 结论之外，把**支撑它的东西**也带过工具边界。 */
