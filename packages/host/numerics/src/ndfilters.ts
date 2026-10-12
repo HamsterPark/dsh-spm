@@ -136,12 +136,18 @@ export function rankOfWindow(n: number): number {
 }
 
 /**
- * `a[0..n)`（无 NaN，会被打乱）排好之后第 `k` 个**值**：三路划分的快速选择，三数取中
- * （段首、段中、段尾）作枢轴。剩下的段不长于 16 时插入排序；划分了 `2⌈log₂ n⌉ + 4` 轮
- * 还没完（枢轴屡屡选坏）就把剩下那段用类型化数组的数值排序排好（内省选择）。
- * −0 与 +0 谁排在前都无妨：选出 0 时由 {@link zeroOfRank} 回到窗口里去认是哪一个。
+ * `a[0..n)` 排好之后第 `k` 个**值**（`np.partition(a, k)[k]`），就地进行，会打乱 `a`。
+ * 前提：`a[0..n)` 里没有 NaN。返回之后 `a[0..k)` 都 ≤ 它、`a(k..n)` 都 ≥ 它
+ * （于是 `a[0..k)` 里最大的就是第 `k − 1` 个）。
+ *
+ * 三路划分的快速选择，三数取中（段首、段中、段尾）作枢轴。剩下的段不长于 16 时插入排序；
+ * 划分了 `2⌈log₂ n⌉ + 4` 轮还没完（枢轴屡屡选坏）就把剩下那段用类型化数组的数值排序排好
+ * （内省选择）。
+ *
+ * **−0 与 +0 当作相等**，选出 0 时返回哪一个不作保证：要逐位复现某种排序的调用方自己
+ * 回到原顺序去认（中值滤波见 {@link zeroOfRank}，visual-memory 的 `nanMedian` 同理）。
  */
-function selectKth(a: Float64Array, n: number, k: number): number {
+export function selectKth(a: Float64Array, n: number, k: number): number {
   let lo = 0
   let hi = n - 1
   let budget = 2 * Math.ceil(Math.log2(n)) + 4

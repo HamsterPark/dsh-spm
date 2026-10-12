@@ -32,7 +32,7 @@
  * values). Block means sum in row-major order, numpy sums pairwise, so
  * downsampled values may differ in the last bits.
  */
-import { mapCoordinates, matOf, medianFilter2d } from 'dsh-spm-numerics'
+import { mapCoordinates, matOf, medianFilter2d, selectKth } from 'dsh-spm-numerics'
 import { pyRoundInt } from './pyfmt.js'
 
 export const FLATTEN_MODES = ['none', 'plane', 'line', 'poly2', 'highpass'] as const
@@ -124,17 +124,51 @@ export function projectOnto(columns: readonly Float64Array[], y: Float64Array): 
   return out
 }
 
-/** numpy `median` of the finite values (mean of the two middle values when even); NaN if none. */
+/**
+ * numpy `median` of the finite values (mean of the two middle values when even); NaN if none.
+ *
+ * Bit-identical to sorting the finite values with `(a, b) => a - b`, which is what this
+ * did until 2026-10-13, without the sort: `selectKth` finds the middle value(s). On finite
+ * values that comparator is a total order and the sort is stable, so equal values keep
+ * their input order; equal non-zero values have equal bits, and only a middle zero needs
+ * its sign: it is the zero the stable sort put there, counted in input order after every
+ * negative value. Pinned against the old code in `nan-median.test.ts`.
+ */
 export function nanMedian(values: ArrayLike<number>): number {
-  const fin: number[] = []
+  const fin = new Float64Array(values.length)
+  let n = 0
+  let negatives = 0
   for (let i = 0; i < values.length; i += 1) {
     const v = values[i] as number
-    if (Number.isFinite(v)) fin.push(v)
+    if (Number.isFinite(v)) {
+      fin[n] = v
+      n += 1
+      if (v < 0) negatives += 1
+    }
   }
-  if (fin.length === 0) return NaN
-  fin.sort((a, b) => a - b)
-  const h = fin.length >> 1
-  return fin.length % 2 === 1 ? (fin[h] as number) : ((fin[h - 1] as number) + (fin[h] as number)) / 2
+  if (n === 0) return NaN
+  const h = n >> 1
+  const upper = selectKth(fin, n, h)
+  if (n % 2 === 1) return upper === 0 ? zeroInOrder(values, h - negatives) : upper
+  // the (h - 1)-th value is the largest of fin[0..h) once the h-th is selected
+  let lower = fin[0] as number
+  for (let i = 1; i < h; i += 1) if ((fin[i] as number) > lower) lower = fin[i] as number
+  // x + (±0) is x for x ≠ 0, so a zero's sign matters only when both middles are zero
+  if (lower === 0 && upper === 0) return (zeroInOrder(values, h - 1 - negatives) + zeroInOrder(values, h - negatives)) / 2
+  return (lower + upper) / 2
+}
+
+/** The `j`-th zero (−0 or +0) of `values`, in input order. */
+function zeroInOrder(values: ArrayLike<number>, j: number): number {
+  let k = j
+  for (let i = 0; i < values.length; i += 1) {
+    const v = values[i] as number
+    if (v === 0) {
+      if (k === 0) return v
+      k -= 1
+    }
+  }
+  return 0 // not reached: callers ask only for a zero that exists
 }
 
 /** Each row's median of finite values; 0 for a row with none. */
