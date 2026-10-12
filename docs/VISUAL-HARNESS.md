@@ -59,7 +59,7 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 
 ### 4.1 新包与接缝
 
-`packages/host/visual-memory`（`dsh-spm-visual-memory`）提供 Service `ctx.frameArchive` 和一组模型可见工具。依赖 `dsh-spm-nanonis-files`（读 .sxm/.dat）、`dsh-spm-numerics` 与 `dsh-spm-vision`（去衬底、FFT、互相关、亚像素配准、连通域等已迁移实现）。dsh 的附件与图像内容块只经 `dsh-spm-compat` 使用（AGENTS 约束 3）。
+`packages/host/visual-memory`（`dsh-spm-visual-memory`）提供 Service `ctx.frameArchive` 和一组模型可见工具。依赖 `dsh-spm-nanonis-files`（读 .sxm/.dat）与 `dsh-spm-numerics`（插值、高斯、中值滤波、连通域等）。测量工具需要而 `numerics` 没有、或数值行为与参考实现不同的部件（FFT、SciPy 的 `least_squares` 与 Nelder–Mead、三阶样条平移）按参考实现移植在本包内，以后收进 `numerics`；不依赖 `dsh-spm-vision`。dsh 的附件与图像内容块只经 `dsh-spm-compat` 使用（AGENTS 约束 3）。
 
 `ctx.frameArchive` 的接口：
 
@@ -156,9 +156,9 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 
 1. 本文与 PLAN 修订。
 2. `compat` 增加附件与图像内容块的导出；contract 测试核实各适配器对工具结果图像的处理，结论写入 [dsh 事实](dsh/facts.md)。
-3. `dsh-spm-visual-memory`：档案、渲染、坐标、`stm_inspect`、`stm_read_values`、笔记工具；单元测试与参考金样。
+3. `dsh-spm-visual-memory`：档案、渲染、坐标、`stm_inspect`、`stm_read_values`、笔记工具；单元测试与参考金样。谱（`.dat`）于 2026-10-12 并入。
 4. K14 接线、IC persona 提示、一动一观闸门。**已实现（2026-10-13，§4.1 末段、§4.5–4.8）**：内核 K14 观察者接缝与一动一观判据、stm-skills 的闸门服务与技能工具出站接缝、visual-memory 的入档观察者 / 出图 presenter / 每会话视觉记忆 / 提示段；契约测试 `act-gate.test.ts`、`k14-wiring.test.ts`。挂进 bundle 与 profile 留给集成。
-5. 测量工具（复用 `vision` / `numerics` 的已迁移实现）。
+5. 测量工具。**已实现（2026-10-13，§4.4）**：`stm_line_profile`、`stm_fft_peaks`、`stm_detect_blobs`、`stm_frame_diff`、`stm_frame_stats`，照 VISTA-SPM 的 `vista_spm/measure.py` 移植；参考金样 `measure_profile.json`、`measure_fft_blobs.json`、`measure_diff.json`，偏差 D-VMEM-9–11。数值部件见 §4.1；`numerics` 的插值族为此改为在帧边与缺测处也与 scipy 逐位一致（`interp_edges.json`）。
 6. `stm_advisor`；`vision-onnx` 视消融结果决定是否实施。
 7. 在 dsh-spm 运行时上复现 STM-Bench 场景，与参考实现做结果级对比。
 
