@@ -26,15 +26,17 @@
  * 换句话说，丢的是「模型能不能在生成时就被约束住」，不是「越界能不能被拦住」。
  */
 import type {
+  ContentBlock,
   ParameterPropertySpec,
   ParameterSchemaSpec,
   ToolDefinition,
   ToolExecution,
   ToolExecutionResult,
   ToolRunContext,
+  ValueSchemaSpec,
 } from 'dsh-spm-compat'
 import { defineTool } from 'dsh-spm-compat'
-import type { SafetyLimits, Skill, SkillContext, SkillKernel, ToolParameters } from 'dsh-spm-kernel'
+import type { SafetyLimits, Skill, SkillContext, SkillKernel, SkillOutcome, ToolParameters } from 'dsh-spm-kernel'
 import { explainValidationError, formatG, parametersFromSpec } from 'dsh-spm-kernel'
 
 /** 把界写成模型读得懂的一句话。没有单位就不写单位。 */
@@ -117,6 +119,26 @@ export interface SkillToolDeps {
   readonly approvalSource?: 'llm' | 'human' | 'auto' | undefined
   /** 标记发射器。缺省无操作；2.13 的 RunLedger 会接上真的那个。 */
   readonly markers?: ((exec: ToolRunContext) => SkillContext['markers']) | undefined
+  /**
+   * K14 的出站一侧（决策 D12）。**缺省没有**：工具值就是那段文本，与从前一字不差
+   * ——最小运行栈与它的验收记录走的是这条路。
+   */
+  readonly present?: OutcomePresenter | undefined
+}
+
+/**
+ * K14 的出站一侧：内核交回的观测（只有帧编号）在这里变成模型收到的内容——文本、标签与图。
+ *
+ * 图「走路径不走像素」，到这一步才 materialize（PLAN §3.2-8）：`present` 在执行期按编号
+ * 取图、存成附件，把引用放进工具值；`render` 是纯函数，live 与回放都调它（dsh 的约定，
+ * facts.md §9.1）。实现在 `dsh-spm-visual-memory`（`observationPresenter`）——这里只认
+ * 形状，不 import 它：技能接缝不该知道帧档案长什么样。
+ */
+export interface OutcomePresenter {
+  /** 工具值的 schema。dsh 在执行之后按它校验值，所以值的形状有运行期兜底。 */
+  readonly schema: ValueSchemaSpec
+  present(outcome: SkillOutcome, exec: ToolRunContext): Promise<unknown>
+  render(value: unknown): ContentBlock[]
 }
 
 /**
@@ -125,56 +147,75 @@ export interface SkillToolDeps {
  * 输出是**一段文本**，不是结构体：模型读的就是这段文本，而拒绝、失败、成功走的是
  * 同一条通道（Python 那边也是——拒绝是一条 tool message，不是异常，模型据此改正）。
  * 结构化的那份留在 `SkillOutcome` 里，2.13 的 RunLedger 从内核直接取，不绕道模型。
+ *
+ * 接了 `present` 的例外只有一处：观测图要随结果走，工具值就成了「文本 + 图的引用」，
+ * 由 presenter 决定形状（K14）。文本仍是同一段。
  */
 export function defineSkillTool(skill: Skill, deps: SkillToolDeps): ToolDefinition {
   const spec = skill.spec
   const params = toDshParameters(parametersFromSpec(spec, deps.limits))
 
+  /**
+   * D-SCHEMA-3：参数校验失败时，把旧仓那段**教学文案**贴回去。
+   *
+   * dsh 在 `execute` **之前**按 schema 校验参数（漏必填、类型不对、枚举不在集合里），
+   * 失败时模型读到的是 `invalid arguments: missing required property "x"`。旧仓当年
+   * 专门挂 `handle_validation_error` 就是为了这个：样板话「不是模型能据此行动的
+   * 东西」。语言换了，问题没换。
+   *
+   * **偏差在于我们不丢掉 dsh 那一行。** 旧仓的钩子完全忽略异常内容，于是一次
+   * 「少传了 setpoint_a」会被渲染成「参数超出允许范围」——文案对，指向错。
+   * dsh 那行说的是**哪个参数怎么了**，这是旧仓当时拿不到、或者说没去拿的信息。
+   * 所以：dsh 的一行 + 逐字的教学文案，两段都留。逐字那一段单独可测（对金样）。
+   */
+  const finalizeContent = (_exec: Readonly<ToolExecution>, result: Readonly<ToolExecutionResult>) => {
+    if (result.isError !== true) return undefined
+    if (result.error.info?.code !== 'INVALID_ARGS') return undefined
+    return [
+      { type: 'text' as const, text: result.error.message },
+      { type: 'text' as const, text: explainValidationError(spec, deps.limits) },
+    ]
+  }
+
+  const run = async (args: unknown, exec: ToolRunContext): Promise<SkillOutcome> => {
+    const outcome = await deps.kernel.run(skill, args as Record<string, unknown>, {
+      rootCallId: exec.rootCallId,
+      // `Agent` 上只有 `id`（一个 SessionId）——Python 那边 owner 是 agent 名字，
+      // 这里能拿到的最接近的东西就是它。记录里认得出是谁发的就够了。
+      ...(exec.agent === undefined ? {} : { owner: exec.agent.id }),
+      signal: exec.signal,
+      approvalSource: deps.approvalSource ?? 'llm',
+      ...(deps.markers === undefined ? {} : { markers: deps.markers(exec) }),
+    })
+    // 中止闩要**结束本轮**，不是让模型接着试下一个技能——`concludeTurn` 就是
+    // dsh 侧表达这件事的地方，内核那一位布尔到此为止。
+    if (outcome.concludeTurn === true) exec.concludeTurn()
+    return outcome
+  }
+
+  const present = deps.present
+  if (present === undefined) {
+    return defineTool({
+      name: spec.name,
+      description: spec.description,
+      parameters: params,
+      output: {
+        schema: { type: 'string' },
+        // 返回类型不标注：`defineTool` 的选项类型已经知道它是 ContentBlock[]，
+        // 为一个标注给 compat 引一整个 `dsh-llm` 依赖不划算（还要钉三处版本）。
+        render: (_args, value) => [{ type: 'text' as const, text: value }],
+      },
+      finalizeContent,
+      execute: async (args, exec): Promise<string> => (await run(args, exec)).text,
+    })
+  }
   return defineTool({
     name: spec.name,
     description: spec.description,
     parameters: params,
-    output: {
-      schema: { type: 'string' },
-      // 返回类型不标注：`defineTool` 的选项类型已经知道它是 ContentBlock[]，
-      // 为一个标注给 compat 引一整个 `dsh-llm` 依赖不划算（还要钉三处版本）。
-      render: (_args, value) => [{ type: 'text' as const, text: value }],
-    },
-    /**
-     * D-SCHEMA-3：参数校验失败时，把旧仓那段**教学文案**贴回去。
-     *
-     * dsh 在 `execute` **之前**按 schema 校验参数（漏必填、类型不对、枚举不在集合里），
-     * 失败时模型读到的是 `invalid arguments: missing required property "x"`。旧仓当年
-     * 专门挂 `handle_validation_error` 就是为了这个：样板话「不是模型能据此行动的
-     * 东西」。语言换了，问题没换。
-     *
-     * **偏差在于我们不丢掉 dsh 那一行。** 旧仓的钩子完全忽略异常内容，于是一次
-     * 「少传了 setpoint_a」会被渲染成「参数超出允许范围」——文案对，指向错。
-     * dsh 那行说的是**哪个参数怎么了**，这是旧仓当时拿不到、或者说没去拿的信息。
-     * 所以：dsh 的一行 + 逐字的教学文案，两段都留。逐字那一段单独可测（对金样）。
-     */
-    finalizeContent: (_exec: Readonly<ToolExecution>, result: Readonly<ToolExecutionResult>) => {
-      if (result.isError !== true) return undefined
-      if (result.error.info?.code !== 'INVALID_ARGS') return undefined
-      return [
-        { type: 'text' as const, text: result.error.message },
-        { type: 'text' as const, text: explainValidationError(spec, deps.limits) },
-      ]
-    },
-    execute: async (args, exec): Promise<string> => {
-      const outcome = await deps.kernel.run(skill, args as Record<string, unknown>, {
-        rootCallId: exec.rootCallId,
-        // `Agent` 上只有 `id`（一个 SessionId）——Python 那边 owner 是 agent 名字，
-        // 这里能拿到的最接近的东西就是它。记录里认得出是谁发的就够了。
-        ...(exec.agent === undefined ? {} : { owner: exec.agent.id }),
-        signal: exec.signal,
-        approvalSource: deps.approvalSource ?? 'llm',
-        ...(deps.markers === undefined ? {} : { markers: deps.markers(exec) }),
-      })
-      // 中止闩要**结束本轮**，不是让模型接着试下一个技能——`concludeTurn` 就是
-      // dsh 侧表达这件事的地方，内核那一位布尔到此为止。
-      if (outcome.concludeTurn === true) exec.concludeTurn()
-      return outcome.text
-    },
+    output: { schema: present.schema, render: (_args, value) => present.render(value) },
+    finalizeContent,
+    // 值的静态类型只有 presenter 知道；dsh 执行后按 `present.schema` 校验它（见上）。
+    execute: async (args, exec) => (await present.present(await run(args, exec), exec)) as never,
   })
 }
