@@ -21,7 +21,8 @@
  * each side to `int(px / 100 · 100)` in double precision, so a few widths above
  * 802 come out one pixel narrower. The size is in every label and `inspect`
  * reply, so it is reproduced here exactly; the pixels themselves are drawn by
- * this package and are not compared with the reference's.
+ * this package and are not compared with the reference's (spec/deviations.md
+ * D-VMEM-13).
  */
 import { pyFloatRepr } from 'dsh-spm-kernel'
 import { pyFloat, readDat } from 'dsh-spm-nanonis-files'

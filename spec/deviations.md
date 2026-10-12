@@ -4039,3 +4039,29 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 **为什么有意**：本仓约定（facts.md §5 工具一行）是「抛异常 = isError，领域失败放 value」，
 与技能工具（`defineSkillTool`）一致；模型看到的文字说明了要改什么。
+
+## D-VMEM-13 · 谱图的像素由本包绘制，不是 matplotlib
+
+| | |
+|---|---|
+| **Python**（`vista_spm/frames.py` `render_spectrum`） | matplotlib Agg：每个 y 列一个面板、共用 x，线宽 1.6、颜色 `#1f4e9c`，轴标签「名称 (单位)」，网格，DejaVu 字体的刻度与标签 |
+| **TS**（`dsh-spm-visual-memory` `spectrum.ts`） | 本包的绘图代码画同样的面板、序列、颜色与轴标签；字体、刻度位置、边距与抗锯齿不同，像素不同 |
+| **测试** | `spectra.parity.test.ts`（摘要、标签、回复、拒绝文案逐项相同，图像尺寸相同，不比像素）；`spectrum.test.ts`（尺寸规则） |
+
+**为什么有意**：本仓的宿主侧不带 Python 绘图栈。模型读到的文字与数（标签里的 `size`、`points`、
+`x_range`，回复里的 `x_shown_*`、`n_points`、`image_size_px`）都与参考实现逐项一致；图像尺寸照参考实现的
+`W = max(600, D)`、`H = max(360, min(W, 90 + 300·n))`，连同 matplotlib 把每边截成 `int(px / 100 · 100)` 的结果
+（`D = 803` 时宽 802），由金样的 `plot_size` 表钉住。
+**重新考虑的条件**：消融显示谱图的绘制细节（刻度密度、字号、线宽）改变模型对谱的判读。
+
+## D-VMEM-14 · 谱视图里非有限的 x 范围写成 `null`
+
+| | |
+|---|---|
+| **Python**（`vista_spm/viewtools.py` `_view_summary`） | `x_shown_<unit>` 是 `float(f"{v:.6g}")`；x 列没有有限值时为 NaN（含 ±inf 时为 ±inf），`compact_json` 不设 `allow_nan=False`，回复里出现非法的 JSON 记号 `NaN` / `Infinity` |
+| **TS** | 同一位置写 `null`（`JSON.stringify` 的规则），与「缺测为 null」一致；标签里的 `x_range` 与拒绝文案照样写 `nan`，与参考实现相同 |
+| **测试** | `views.test.ts`「writes x_shown as null when the x column has no finite value」 |
+
+**为什么有意**：工具回复是 JSON，`NaN` 不是合法 JSON，严格的解析器会拒绝整条回复。只有 x 列全是 NaN 或含无穷时
+才会出现，这本身是坏文件。已作为参考实现的缺陷报告。
+**重新考虑的条件**：参考实现改为 `null`（或拒绝这样的谱）时，本条销账。

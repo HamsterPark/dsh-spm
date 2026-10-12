@@ -91,7 +91,7 @@ interface InspectPlan {
   readonly region: Region | null
 }
 
-/** Python `float(f"{v:.6g}")`; non-finite values stay as they are. */
+/** Python `float(f"{v:.6g}")`; a non-finite value stays, and the reply text carries it as null (spec/deviations.md D-VMEM-14). */
 function g6(v: number): number {
   return Number.isFinite(v) ? Number(pyG(v, 6)) : v
 }

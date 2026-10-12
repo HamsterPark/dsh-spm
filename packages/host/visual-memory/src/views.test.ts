@@ -368,6 +368,22 @@ describe('spectrum views', () => {
     )
     expect(ok(readValues(a, { question: 'q', views: [{ label: 'long', frame: 't0001.d0', n: 2048, y_cols: ['Current'] }] })).reply['sample_count']).toBe(4096)
   })
+  it('writes x_shown as null when the x column has no finite value (spec/deviations.md D-VMEM-14)', () => {
+    const { a } = setup()
+    const fid = a.addSpectrumBytes(0, encodeSyntheticDat({
+      columns: [['Bias calc (V)', [Number.NaN, Number.NaN, Number.NaN]], ['Current (A)', [1e-12, 2e-12, 3e-12]]],
+    }), { sourceName: 'nan.dat' }).fid
+    const r = ok(inspect(a, { question: 'q', views: [{ label: 'v', frame: fid }] }))
+    expect((r.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ n_points: 3, x_shown_v: [Number.NaN, Number.NaN] })
+    expect(JSON.stringify(r.reply)).toContain('"x_shown_v":[null,null]')
+    expect(r.images[0]?.label).toContain('x="Bias calc [V]" y="Current [pA]" points="3"')
+    expect(err(readValues(a, { question: 'q', views: [{ label: 'v', frame: fid, x_range: [0, 1] }] }))).toBe(
+      'read_values: views[1].x_range 0.0..1.0 V contains no samples; x spans nan..nan V',
+    )
+    const read = ok(readValues(a, { question: 'q', views: [{ label: 'v', frame: fid }] }))
+    expect((read.reply['views'] as Record<string, unknown>[])[0]).toMatchObject({ values: [[null, null, null], [1, 2, 3]] })
+  })
+
   it('explains spectrum records that lack columns or values', () => {
     const { a } = setup()
     const record = (index: number, channels: string[]) => ({

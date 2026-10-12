@@ -70,7 +70,12 @@ sys.path.insert(0, str(ROOT))
 MAST_ROOT = require_mast_root()
 if not (MAST_ROOT / "mast" / "io" / "nanonis_files.py").is_file():
     raise RuntimeError(f"MAST_ROOT must contain mast/io/nanonis_files.py (MAST's MASTv2/ directory): {MAST_ROOT}")
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="vm-golden-mast-"))
+MAST_RUNTIME = None  # an isolated MAST run directory made here, removed at the end
+if not os.environ.get("MAST2_PROJECT_ROOT"):
+    MAST_RUNTIME = tempfile.mkdtemp(prefix="vm-golden-mast-")
+    os.environ["MAST2_PROJECT_ROOT"] = MAST_RUNTIME
+if Path(os.environ["MAST2_PROJECT_ROOT"]).resolve().is_relative_to(MAST_ROOT.parent):
+    raise RuntimeError(f"MAST2_PROJECT_ROOT points into the read-only reference: {os.environ['MAST2_PROJECT_ROOT']}")
 sys.path.insert(1, str(MAST_ROOT))
 import matplotlib  # noqa: E402
 import mast.io.nanonis_files  # noqa: E402,F401  (what frames.load_dat imports; fail here, not mid-export)
@@ -603,6 +608,8 @@ try:
     }
 finally:
     shutil.rmtree(work, ignore_errors=True)
+    if MAST_RUNTIME is not None:
+        shutil.rmtree(MAST_RUNTIME, ignore_errors=True)
 
 frames_py = ROOT / "vista_spm" / "frames.py"
 archive_py = ROOT / "vista_spm" / "archive.py"
