@@ -125,7 +125,21 @@ describe('the band average', () => {
 
 describe('the plot size', () => {
   it('is what matplotlib makes of a figure px / 100 inches wide at 100 dpi', () => {
+    // int(px / 100 * 100) in float64, checked against the reference's _plot_png for every width 600..2048
     expect([600, 768, 802, 803, 804, 805, 400].map(plotPx)).toEqual([600, 768, 802, 802, 803, 805, 400])
+    expect([1003, 1012, 1020, 1024, 1606, 2048].map(plotPx)).toEqual([1002, 1011, 1019, 1024, 1605, 2048])
+  })
+
+  it('sizes the archived plot and its label that way above display_max 803', () => {
+    for (const [displayMax, width] of [[1020, 1019], [1024, 1024]] as const) {
+      const a = archive(displayMax)
+      const fid = a.addPartial(0, { Z: step() }, { geometry: GEOMETRY }).fid
+      const r = lineProfile(a, { frame: fid, p1: { x: 0, y: 5 }, p2: { x: 100, y: 5 } })
+      if (!r.ok) throw new Error(r.error)
+      const image = r.images[0] as { png: Uint8Array; label: string }
+      expect([pngSize(image.png).width, pngSize(image.png).height]).toEqual([width, 400])
+      expect(image.label).toContain(` size="${width}x400"/>`)
+    }
   })
 })
 
