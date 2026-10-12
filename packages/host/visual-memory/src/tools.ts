@@ -6,10 +6,12 @@
  * |---|---|
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
  * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
+ * | `stm_line_profile` | values and steps along a line, with an archived plot |
+ * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
- * None of them touches the instrument; all four are concurrency-safe (the
+ * None of them touches the instrument; all are concurrency-safe (the
  * archive and the notes store work synchronously inside one call, and the notes
  * files are replaced whole and atomically).
  *
@@ -35,6 +37,8 @@
 import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefinition } from 'dsh-spm-compat'
 import type { FrameArchive } from './archive.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
+import { frameStats } from './frame-stats.js'
+import { lineProfile } from './line-profile.js'
 import { GUIDE_FILE, MAX_GUIDE_BYTES, MAX_WORKING_BYTES, NOTE_FILES, NotesError, WORKING_FILE, type NotesStore } from './notes.js'
 import { CLIP_PCT_DEFAULT, GRID_COLOUR_NAME, NAN_NAME } from './render.js'
 import { DIRECTIONS } from './scan-data.js'
@@ -65,7 +69,7 @@ export interface VisualToolDeps {
   readonly displayMax?: number
 }
 
-export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_notes_read', 'stm_notes_write'] as const
+export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_line_profile', 'stm_frame_stats', 'stm_notes_read', 'stm_notes_write'] as const
 
 /** An {@link ImageAttachmentRef} as plain JSON (the tool value must be lossless JSON). */
 export type AttachmentJson = {
@@ -358,6 +362,88 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
+// ── measurement tools (vista_spm.measure) ────────────────────────────────
+
+const MEASURE_FRAME = { type: 'string', required: true, description: "Archived scan frame id, e.g. 't0007.s0'." } as const
+const MEASURE_CHANNEL = { type: 'string', description: "Channel, e.g. 'Z' or 'Current'. Default: the frame's default channel." } as const
+const MEASURE_DIRECTION = { type: 'string', enum: [...DIRECTIONS], description: 'Scan pass. Default forward.' } as const
+
+const POINT = {
+  type: 'object',
+  required: true,
+  additionalProperties: false,
+  description: "A point: either {x, y} in display pixels of the frame's full image, or {x_nm, y_nm} in scan-frame nm.",
+  properties: { x: { type: 'number' }, y: { type: 'number' }, x_nm: { type: 'number' }, y_nm: { type: 'number' } },
+} as const
+
+function lineProfileTool(deps: VisualToolDeps): ToolDefinition {
+  const dm = deps.displayMax ?? deps.archive.displayMax
+  return defineTool({
+    name: 'stm_line_profile',
+    description:
+      'Measure values along a straight line in one archived scan frame without changing the instrument. p1 and p2 ' +
+      "are either {x, y} in display pixels of that frame's full image or {x_nm, y_nm} in scan-frame nm. The " +
+      'flattened frame (default plane) is interpolated bilinearly at most one scan pixel apart and averaged across ' +
+      'width_px. The reply gives distance_nm from p1 and the values (values_pm for Z, values_pa for current) per ' +
+      "sample; the line's length and direction in the scan frame; the straight segments of a piecewise-linear fit " +
+      '(from_nm, to_nm, slope, mean); and step candidates where the segments on either side of a short transition ' +
+      'differ by at least 4 noise sigmas: position_nm along the line, the scan-frame x_nm and y_nm, the height ' +
+      '(right side minus left side, e.g. height_pm) and transition_nm. A bump wider than the transition window ' +
+      'appears as a rise and a fall. One plot of the profile is returned and archived as a derived frame ' +
+      '(plot.frame). It measures; it does not decide what a step or a feature is. Keys carry their unit: _nm, ' +
+      '_deg, _px, and for channel values _pm (Z), _pa (current), _hz (frequency shift), _v (voltage).',
+    parameters: {
+      frame: MEASURE_FRAME,
+      p1: POINT,
+      p2: POINT,
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+      width_px: { type: 'number', description: `Band width in display pixels averaged across the line, 1 to ${dm}. Default 1.` },
+      flatten: { type: 'string', enum: [...FLATTEN_MODES], description: 'Background removed over the whole frame first (default plane).' },
+      highpass_nm: {
+        type: 'number',
+        description: `Background width in nm for flatten='highpass': more than 0, at most ${MAX_HIGHPASS_NM}. Default ${HIGHPASS_NM_DEFAULT}.`,
+      },
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('line_profile', lineProfile(deps.archive, args), deps.attachments()),
+  })
+}
+
+function frameStatsTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_stats',
+    description:
+      "Summary statistics of one archived scan frame, or of a region of it (display pixels of the frame's full " +
+      'image), without changing the instrument: mean, standard deviation, min, max and percentiles of the raw ' +
+      'values; RMS roughness, mean absolute deviation and peak-to-valley after subtracting a plane fitted to the ' +
+      'region; the correlation and RMS difference between the forward and backward passes (both plane-flattened) ' +
+      'when both exist; a line-noise index (median absolute offset between consecutive row medians divided by the ' +
+      'plane-flattened standard deviation); and the fraction of rows acquired. Keys carry their unit: _nm, _deg, ' +
+      '_px, and for channel values _pm (Z), _pa (current), _hz (frequency shift), _v (voltage).',
+    parameters: {
+      frame: MEASURE_FRAME,
+      region: {
+        type: 'object',
+        additionalProperties: false,
+        description: REGION_DESCRIPTION(deps.displayMax ?? deps.archive.displayMax),
+        properties: {
+          x: { type: 'integer', required: true },
+          y: { type: 'integer', required: true },
+          width: { type: 'integer', required: true },
+          height: { type: 'integer', required: true },
+        },
+      },
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('stats', frameStats(deps.archive, args), deps.attachments()),
+  })
+}
+
 const NOTE_FILE_PARAM = {
   type: 'string',
   required: true,
@@ -415,7 +501,7 @@ function notesWriteTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
-/** The four tools, in the order the model should see them. */
+/** The tools, in the order the model should see them. */
 export function defineVisualTools(deps: VisualToolDeps): ToolDefinition[] {
-  return [inspectTool(deps), readValuesTool(deps), notesReadTool(deps), notesWriteTool(deps)]
+  return [inspectTool(deps), readValuesTool(deps), lineProfileTool(deps), frameStatsTool(deps), notesReadTool(deps), notesWriteTool(deps)]
 }

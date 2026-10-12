@@ -113,7 +113,10 @@ function foldCoord(x: number, n: number, mode: InterpMode): number | null {
     case 'constant':
       return null
     case 'nearest':
-      return x < 0 ? 0 : n - 1
+      // 坐标原样留着（小数部分照用），由 foldIndex 把两个邻点下标夹回 —— scipy 1.17 实测如此。
+      // 先把坐标夹到 0 / n−1 的话，x = −0.3 会去读第 1 行（权重 0，那一行是 NaN 时结果就是 NaN），
+      // 有限值在末位也会不同（visual-memory 剖线移植的金样钉住了这两种情形）。
+      return x
     case 'wrap': {
       // 周期 n−1：首尾两点重合。**不是** filters.ts 的周期 n。
       const sz = n - 1

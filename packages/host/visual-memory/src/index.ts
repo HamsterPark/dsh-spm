@@ -199,6 +199,24 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
+export { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
+export {
+  MAX_PROFILE_SAMPLES,
+  PROFILE_PLOT_HEIGHT,
+  STEP_MIN_JUMP_SIGMA,
+  bandProfile,
+  changePoints,
+  lineProfile,
+  linfit,
+  measureLine,
+  plotPx,
+  type ChangePointOptions,
+  type ChangePoints,
+  type MeasuredLine,
+  type ProfileSegment,
+  type ProfileStep,
+} from './line-profile.js'
+export { frameStats } from './frame-stats.js'
 export {
   VISUAL_TOOL_NAMES,
   defineVisualTools,

@@ -705,6 +705,17 @@ describe('重采样：`order=0` 没有容差，`order=1` 只有 8 eps', () => {
     expect(mapCoordinates(matFromRows([[nan, 2], [3, 4]]), [0], [0], 1, 'nearest')[0]).toBeNaN()
   })
 
+  it('nearest 模式下界外坐标原样保留，只把邻点下标夹回（scipy 1.17 实测）', () => {
+    // scipy.ndimage.map_coordinates(a, [[r], [c]], order=1, mode='nearest') 的实测值；
+    // 先把坐标夹到边上的写法，前两点末位不同（0.394956、0.44601500000000005），
+    // 第三点会把权重为 0 的 NaN 行读进来而得 NaN
+    const nan = Number.NaN
+    const a = matFromRows([[0.597, 0.299, 0.542], [0.987, 0.672, 0.529], [0.87, 0.915, 0.075]])
+    expect([...mapCoordinates(a, [-0.37, -0.3], [0.678, 1.605], 1, 'nearest')]).toEqual([0.3949559999999999, 0.446015])
+    const holed = matFromRows([[0.597, 0.299, 0.542], [nan, nan, nan], [0.87, 0.915, 0.075]])
+    expect(mapCoordinates(holed, [-0.3], [1], 1, 'nearest')[0]).toBe(0.299)
+  })
+
   // ── 三条特意为了「能分辨」而加的探针 ──
 
   for (const c of g.edge_probe.cases as any[]) {
