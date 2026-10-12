@@ -52,7 +52,7 @@ node scripts/build-progress.ts --check
 
 ### 从 MAST 重导
 
-MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属于公开仓库的基本构建／单测前置条件。并非所有导出器都有此依赖，例如 `export_numerics.py` 使用 NumPy、SciPy 和 scikit-image，无需 MAST。先检查实际脚本入口及依赖：`MAST_ROOT` 必须设置为包含 `mast/` 包的只读源码目录（可能是参考项目的 `MASTv2/` 子目录）；涉及 STM-Bench 的导出器另需将 `STMSIM_ROOT` 设置为包含 `stmsim/` 的目录；视觉记忆导出器 `export_visual_memory.py` 需将 `VISTA_SPM_ROOT` 设置为包含 `vista_spm/` 的 VISTA-SPM 源码目录。缺少变量或指向非目录时，入口明确报错。它们与隔离运行目录 `MAST2_PROJECT_ROOT` 用途不同；文档中的 `<MAST_ROOT>` 是占位符，不是可直接执行的路径。
+MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属于公开仓库的基本构建／单测前置条件。并非所有导出器都有此依赖，例如 `export_numerics.py` 使用 NumPy、SciPy 和 scikit-image，无需 MAST。先检查实际脚本入口及依赖：`MAST_ROOT` 必须设置为包含 `mast/` 包的只读源码目录（可能是参考项目的 `MASTv2/` 子目录）；涉及 STM-Bench 的导出器另需将 `STMSIM_ROOT` 设置为包含 `stmsim/` 的目录；视觉记忆导出器 `export_visual_memory.py` 需将 `VISTA_SPM_ROOT` 设置为包含 `vista_spm/` 的 VISTA-SPM 源码目录；测量工具导出器 `export_measure_profile.py` 同样读它，并另需 matplotlib（参考实现用它画剖面图，金样只记图的尺寸）。缺少变量或指向非目录时，入口明确报错。它们与隔离运行目录 `MAST2_PROJECT_ROOT` 用途不同；文档中的 `<MAST_ROOT>` 是占位符，不是可直接执行的路径。
 
 - 参考仓保持只读。导出器须在导入 MAST 前设置 `os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(...))`；同时确认进程中已有的同名变量没有指回参考仓，因为 `setdefault` 不会覆盖它。
 - 防止导入过程在参考仓写 `__pycache__`，例如设置 `PYTHONDONTWRITEBYTECODE=1`。记录运行前后文件状态，并扫描参考目录中开跑后写入的文件；PowerShell 可用 `Get-ChildItem` 配合 `LastWriteTimeUtc`。不要只检查 Git 跟踪文件而漏掉配置或数据目录。
