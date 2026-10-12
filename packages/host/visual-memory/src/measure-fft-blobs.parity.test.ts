@@ -53,7 +53,8 @@ import { afterAll, describe, expect, it } from 'vitest'
 import golden from '../../../../spec/golden/measure_fft_blobs.json' with { type: 'json' }
 import { entrySummary, FrameArchive } from './archive.js'
 import { detectBlobs, findBlobs, gaussModel, type Blob } from './detect-blobs.js'
-import { fftPeaks, nextFastLen, pyMod, spectrumPeaks, type Mark, type MarkPainter } from './fft-peaks.js'
+import { fftPeaks, nextFastLen, spectrumPeaks, type Mark, type MarkPainter } from './fft-peaks.js'
+import { pyMod } from './pymath.js'
 import { encodePngRgb } from './png.js'
 import { leastSquares } from './least-squares.js'
 import type { ViewToolResult } from './args.js'
@@ -267,44 +268,6 @@ describe('measure parity: find_blobs', () => {
 
 // ── the tools on a replica of the reference archive ────────────────────────
 
-/**
- * Refusals worded by the shared helpers (`args.ts` choices and channel/direction checks,
- * `archive.ts` frame lookup and channel resolution), which quote with JSON where the
- * reference uses Python's repr, and prefix the frame id to an unknown channel. Every
- * stm_* tool answers them this way, the view tools' tests pin it, and it is an open gap
- * reported with this change, not a deviation of these two tools: [reference, port].
- */
-const SHARED_WORDING: readonly (readonly [string, string])[] = [
-  [
-    "fft_peaks: frame: 'nope' is not a frame id (expected like 't0007.s0'); latest frames: ['t0005.m20', 't0005.m21', 't0005.m22', 't0005.m23', 't0005.m24', 't0005.m25']",
-    'fft_peaks: frame: "nope" is not a frame id (expected like \'t0007.s0\'); latest frames: ["t0005.m20","t0005.m21","t0005.m22","t0005.m23","t0005.m24","t0005.m25"]',
-  ],
-  [
-    "fft_peaks: frame: no frame 't0099.s0'; turns 0..5 exist; latest frames: ['t0005.m20', 't0005.m21', 't0005.m22', 't0005.m23', 't0005.m24', 't0005.m25']",
-    'fft_peaks: frame: no frame "t0099.s0"; turns 0..5 exist; latest frames: ["t0005.m20","t0005.m21","t0005.m22","t0005.m23","t0005.m24","t0005.m25"]',
-  ],
-  [
-    "fft_peaks: arguments.channel: no channel 'Nope'; this frame has ['Z', 'Current']",
-    'fft_peaks: arguments.channel: t0001.p0: no channel "Nope"; this frame has ["Z","Current"]',
-  ],
-  [
-    "fft_peaks: arguments.direction: t0001.p0 channel 'Current' has only ['forward']",
-    'fft_peaks: arguments.direction: t0001.p0 channel "Current" has only ["forward"]',
-  ],
-  [
-    "fft_peaks: arguments.direction must be one of ['forward', 'backward'], not 'sideways'",
-    'fft_peaks: arguments.direction must be one of ["forward","backward"], not "sideways"',
-  ],
-  [
-    "fft_peaks: arguments.flatten must be one of ['none', 'plane', 'line', 'poly2', 'highpass'], not 'bogus'",
-    'fft_peaks: arguments.flatten must be one of ["none","plane","line","poly2","highpass"], not "bogus"',
-  ],
-  [
-    "detect_blobs: arguments.polarity must be one of ['bright', 'dark'], not 'both'",
-    'detect_blobs: arguments.polarity must be one of ["bright","dark"], not "both"',
-  ],
-]
-
 const UNIT: Readonly<Record<string, number>> = {
   x_px: 0.01,
   y_px: 0.01,
@@ -434,24 +397,18 @@ describe('measure parity: the tools', () => {
   })
 
   it('errors: the reference\'s refusals, word for word', () => {
-    let shared = 0
     ;(T.errors as any[]).forEach((c, k) => {
       const r = errors[k] as ViewToolResult
       expect(r.ok).toBe(false)
       const got = parsed(r).error as string
-      const known = SHARED_WORDING.find(([ref]) => ref === c.reply.error)
       if (c.args?.max_n === 201) {
         // D-VMEM-9: the same refusal, against this port's bound
         expect(c.reply.error).toBe('detect_blobs: arguments.max_n must be <= 200')
         expect(got).toBe('detect_blobs: arguments.max_n must be <= 50')
-      } else if (known !== undefined) {
-        shared += 1
-        expect(got, JSON.stringify(c.args)).toBe(known[1])
       } else {
         expect(got, JSON.stringify(c.args)).toBe(c.reply.error)
       }
     })
-    expect(shared).toBe(SHARED_WORDING.length)
   })
 
   it('D-VMEM-10: the lattice (121 candidates) matches the reference with ties to the earlier candidate', () => {

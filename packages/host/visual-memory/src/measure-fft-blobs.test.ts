@@ -12,19 +12,7 @@ import { fft2, greyDilation, matOf, rectSE } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import { FrameArchive } from './archive.js'
 import { blobGeometry, BlobError, detectBlobs, findBlobs, gaussModel, MAX_BLOBS, scipyGaussianKernel } from './detect-blobs.js'
-import {
-  fft2Magnitude,
-  fftPeaks,
-  interpIndex,
-  longestFiniteRows,
-  maximumFilter,
-  nextFastLen,
-  pyMod,
-  pyTypeName,
-  shiftedFreq,
-  spectrumPeaks,
-  SpectrumError,
-} from './fft-peaks.js'
+import { fft2Magnitude, fftPeaks, interpIndex, longestFiniteRows, maximumFilter, nextFastLen, shiftedFreq, spectrumPeaks, SpectrumSizeError } from './fft-peaks.js'
 import { leastSquares, LeastSquaresError, nextAfter } from './least-squares.js'
 import { encodePngRgb } from './png.js'
 
@@ -89,19 +77,11 @@ describe('the transform', () => {
   })
 
   it('refuses fewer than 8 x 8 pixels', () => {
-    expect(() => spectrumPeaks(new Float64Array(7 * 9), 9, 7, 0.1, 0.1)).toThrow(SpectrumError)
+    expect(() => spectrumPeaks(new Float64Array(7 * 9), 9, 7, 0.1, 0.1)).toThrow(SpectrumSizeError)
   })
 })
 
 describe('Python and NumPy semantics', () => {
-  it('float modulo takes the sign of the divisor and can round up to it', () => {
-    expect([pyMod(-30, 180), pyMod(190, 180), pyMod(-1e-17, 180), pyMod(0, 180), pyMod(-0, -180)]).toEqual([150, 10, 180, 0, -0])
-  })
-
-  it('type names for the not-an-object refusal', () => {
-    expect([null, undefined, [], 'x', true, 3, 2.5, {}].map(pyTypeName)).toEqual(['NoneType', 'NoneType', 'list', 'str', 'bool', 'int', 'float', 'dict'])
-  })
-
   it('SciPy\'s Gaussian kernel: radius int(4 sigma + 0.5), normalised', () => {
     const k = scipyGaussianKernel(0.82)
     expect(k.length).toBe(2 * 3 + 1)

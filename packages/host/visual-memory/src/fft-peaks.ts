@@ -35,21 +35,20 @@
  *   a few percent of inputs;
  * - `hypot`: NumPy's (the C runtime's) is `sqrt(x*x + y*y)` on the exporter's
  *   platform — 0 mismatches in 200,000 random pairs — which is what
- *   {@link hypot} computes. It matters because annulus bins are
+ *   {@link npHypot} computes. It matters because annulus bins are
  *   `floor(|k| / dk)` and Pythagorean bin offsets such as (6, 8) land exactly
  *   on a bin edge, where the last bit of |k| picks the annulus. CPython's
- *   `math.hypot` (used for a peak's |k|) is correctly rounded instead; that
- *   difference is far below the reported 5 decimals.
+ *   `math.hypot` (a peak's |k|) is correctly rounded instead: `pyHypot`.
  */
 import { mapCoordinates, matOf, npSum } from 'dsh-spm-numerics'
 import {
   ArgError,
+  argsObject,
   channelDirectionArgs,
   checkKeys,
   failure,
   flattenArgs,
   frameArg,
-  isObj,
   numArg,
   regionArg,
   type Obj,
@@ -57,8 +56,9 @@ import {
 } from './args.js'
 import { entryScale, hasValues, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
 import { fitSurface, flatten } from './flatten.js'
-import { encodePngRgb } from './png.js'
+import { Canvas, drawMarks } from './draw.js'
 import { pyG, pyRound } from './pyfmt.js'
+import { pyHypot, pyMod } from './pymath.js'
 import { crop, greyRgb, percentileSorted, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
 
 export const FFT_PEAKS_DEFAULT = 6
@@ -67,47 +67,20 @@ export const MAX_FFT_PEAKS = 20
 export const MIN_PEAK_STRENGTH = 3
 
 /** A region too small for a spectrum (the reference's `ValueError`). */
-export class SpectrumError extends RangeError {
-  override readonly name = 'SpectrumError'
+export class SpectrumSizeError extends RangeError {
+  override readonly name = 'SpectrumSizeError'
 }
 
 // ── shared small pieces (also used by detect-blobs.ts) ─────────────────────
 
-/** NumPy's `hypot` on the exporter's platform: `sqrt(x*x + y*y)` (see the module comment). */
-export function hypot(x: number, y: number): number {
+/** NumPy's `hypot` (and complex `abs`) on the exporter's platform: `sqrt(x*x + y*y)` (see the module comment). */
+export function npHypot(x: number, y: number): number {
   return Math.sqrt(x * x + y * y)
-}
-
-/** Python's float `%`: the result takes the sign of the divisor. */
-export function pyMod(a: number, b: number): number {
-  let m = a % b
-  if (m !== 0) {
-    if (b < 0 !== m < 0) m += b
-  } else {
-    m = b < 0 ? -0 : 0
-  }
-  return m
 }
 
 /** `math.degrees`: CPython multiplies by the constant 180/pi. */
 export function degrees(rad: number): number {
   return rad * (180.0 / Math.PI)
-}
-
-/** `type(x).__name__` of a JSON value, for "arguments must be a JSON object, got NoneType". */
-export function pyTypeName(v: unknown): string {
-  if (v === null || v === undefined) return 'NoneType'
-  if (Array.isArray(v)) return 'list'
-  if (typeof v === 'string') return 'str'
-  if (typeof v === 'boolean') return 'bool'
-  if (typeof v === 'number') return Number.isInteger(v) ? 'int' : 'float'
-  return 'dict'
-}
-
-/** The reference's `never_raises` rejects anything but a JSON object first. */
-export function objectArgs(args: unknown): Obj {
-  if (!isObj(args)) throw new ArgError(`arguments must be a JSON object, got ${pyTypeName(args)}`)
-  return args
 }
 
 /** `_image_entry`: a frame with a scan grid (scan, partial scan, or a derived map with values). */
@@ -267,7 +240,7 @@ export function fft2Magnitude(z: ArrayLike<number>, ny: number, nx: number, Py: 
     }
   }
   const mag = new Float64Array(Py * Px)
-  for (let i = 0; i < mag.length; i += 1) mag[i] = hypot(re[i] as number, im[i] as number)
+  for (let i = 0; i < mag.length; i += 1) mag[i] = npHypot(re[i] as number, im[i] as number)
   return mag
 }
 
@@ -399,7 +372,7 @@ export interface SpectrumOptions {
 
 /**
  * `spectrum_peaks(z, dx_nm, dy_nm, n_peaks, min_strength, angle_deg)` on a row-major
- * `ny x nx` array (row 0 = top). Throws {@link SpectrumError} when fewer than 8 x 8
+ * `ny x nx` array (row 0 = top). Throws {@link SpectrumSizeError} when fewer than 8 x 8
  * pixels remain.
  */
 export function spectrumPeaks(zIn: ArrayLike<number>, nxIn: number, nyIn: number, dxNm: number, dyNm: number, options: SpectrumOptions = {}): Spectrum {
@@ -409,7 +382,7 @@ export function spectrumPeaks(zIn: ArrayLike<number>, nxIn: number, nyIn: number
   const run = longestFiniteRows(zIn, nxIn, nyIn)
   const ny = run.rows
   const nx = nxIn
-  if (ny < 8 || nx < 8) throw new SpectrumError('the region needs at least 8 x 8 acquired pixels for a spectrum')
+  if (ny < 8 || nx < 8) throw new SpectrumSizeError('the region needs at least 8 x 8 acquired pixels for a spectrum')
   const z = new Float64Array(ny * nx)
   // np.nanmean: the pairwise sum of the array with NaN as 0, over the count of finite values
   const zeroed = new Float64Array(ny * nx)
@@ -466,7 +439,7 @@ export function spectrumPeaks(zIn: ArrayLike<number>, nxIn: number, nyIn: number
   for (let r = 0; r < Py; r += 1) {
     const kv = -(fy[r] as number)
     for (let c = 0; c < Px; c += 1) {
-      const k = hypot(fx[c] as number, kv)
+      const k = npHypot(fx[c] as number, kv)
       kr[r * Px + c] = k
       const b = Math.floor(k / dk)
       bins[r * Px + c] = b
@@ -528,7 +501,7 @@ export function spectrumPeaks(zIn: ArrayLike<number>, nxIn: number, nyIn: number
     if (c > 0 && c < Px - 1) dc = vertex(logm[i - 1] as number, logm[i] as number, logm[i + 1] as number)
     const ku = interpIndex(c + dc, fx)
     const kv = -interpIndex(r + dr, fy)
-    const k = Math.sqrt(ku * ku + kv * kv)
+    const k = pyHypot(ku, kv)
     const kx = ca * ku - sa * kv
     const ky = sa * ku + ca * kv
     peaks.push({
@@ -642,18 +615,23 @@ export function spectrumMarks(res: Spectrum, K: number, size: number): Mark[] {
 
 const FFT_KEYS: ReadonlySet<string> = new Set(['frame', 'region', 'channel', 'direction', 'n_peaks', 'flatten', 'highpass_nm'])
 
-/** Draws the numbered marks; replaced by the shared drawing module once it lands. */
+/** Turns an RGB image and its marks into the PNG that is archived (a parameter so tests can see the marks). */
 export type MarkPainter = (rgb: Uint8Array, width: number, height: number, marks: readonly Mark[]) => Uint8Array
 
-const encodeOnly: MarkPainter = (rgb, width, height) => encodePngRgb(width, height, rgb)
+/** The reference's `_draw_marks`: numbered rings in the mark colour (spec/deviations.md D-VMEM-6 for the pixels). */
+export const paintMarks: MarkPainter = (rgb, width, height, marks) => {
+  const canvas = Canvas.fromRgb(width, height, rgb)
+  drawMarks(canvas, marks)
+  return canvas.png()
+}
 
 /**
  * `fft_peaks(archive, args)`: see the module comment. Never throws; invalid
  * arguments come back as `{ ok: false, error }` with the reference's message.
  */
-export function fftPeaks(archive: FrameArchive, args: unknown, paint: MarkPainter = encodeOnly): ViewToolResult {
+export function fftPeaks(archive: FrameArchive, args: unknown, paint: MarkPainter = paintMarks): ViewToolResult {
   try {
-    const a = objectArgs(args)
+    const a = argsObject(args)
     checkKeys(a, FFT_KEYS, ['frame'], 'arguments')
     const e = imageEntry(archive, a)
     const [ch, direction] = channelDirectionArgs(archive, e, a, 'arguments')
@@ -669,7 +647,7 @@ export function fftPeaks(archive: FrameArchive, args: unknown, paint: MarkPainte
     try {
       res = spectrumPeaks(crop(flat, e.nx, box), i1 - i0, j1 - j0, dx, dy, { nPeaks, angleDeg: angle })
     } catch (err) {
-      if (err instanceof SpectrumError) throw new ArgError(err.message)
+      if (err instanceof SpectrumSizeError) throw new ArgError(err.message)
       throw err
     }
     const img = spectrumImage(res, archive.displayMax)

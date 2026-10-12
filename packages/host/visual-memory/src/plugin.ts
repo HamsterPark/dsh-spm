@@ -1,5 +1,5 @@
 /**
- * Cordis plugin entry: provides `ctx.frameArchive` and registers the four
+ * Cordis plugin entry: provides `ctx.frameArchive` and registers the
  * visual-memory tools (VISUAL-HARNESS §4.1, §4.4).
  *
  * Not mounted by any profile or bundle yet: wiring it into K14, the IC persona
@@ -46,6 +46,18 @@ export class FrameArchiveService extends Service {
 
   addScan(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
     return this.archive.addScan(turn, path, meta)
+  }
+
+  addSpectrum(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
+    return this.archive.addSpectrum(turn, path, meta)
+  }
+
+  addSpectrumBytes(
+    turn: number,
+    bytes: Uint8Array,
+    meta: { readonly sourceName: string; readonly sourcePath?: string; readonly simS?: number },
+  ): FrameEntry {
+    return this.archive.addSpectrumBytes(turn, bytes, meta)
   }
 
   addPartial(

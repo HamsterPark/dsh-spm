@@ -1,6 +1,6 @@
 import { pyFixed as kernelPyFixed, pyRound as kernelPyRound } from 'dsh-spm-kernel'
 import { describe, expect, it } from 'vitest'
-import { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+import { pyFixed, pyG, pyRepr, pyRound, pyRoundInt, pyTypeName, rint } from './pyfmt.js'
 
 /**
  * Expected values were produced by CPython 3.14 / numpy 2.4 (`round`, f-strings,
@@ -108,5 +108,22 @@ describe('numpy rint', () => {
     ]
     for (const [v, want] of cases) expect(rint(v)).toBe(want)
     expect(Object.is(rint(-0.5), -0)).toBe(true)
+  })
+})
+
+describe('pyRepr and pyTypeName', () => {
+  it('quote like Python repr', () => {
+    expect(pyRepr('Z')).toBe("'Z'")
+    expect(pyRepr(["t0001.s0", 'Current (A)'])).toBe("['t0001.s0', 'Current (A)']")
+    expect(pyRepr([])).toBe('[]')
+    expect(pyRepr("it's")).toBe('"it\'s"')
+    expect(pyRepr('a\'b"c')).toBe("'a\\'b\"c'")
+    expect(pyRepr('back\\slash\ttab\nnl\x01')).toBe("'back\\\\slash\\ttab\\nnl\\x01'")
+    expect(pyRepr('Δf (Hz) µV')).toBe("'Δf (Hz) µV'")
+  })
+
+  it('name decoded JSON values like type(x).__name__', () => {
+    expect([null, undefined, true, 3, 2.5, 's', [1], { a: 1 }].map(pyTypeName)).toEqual(
+      ['NoneType', 'NoneType', 'bool', 'int', 'float', 'str', 'list', 'dict'])
   })
 })

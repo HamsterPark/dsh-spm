@@ -47,6 +47,7 @@
 import { npSum } from 'dsh-spm-numerics'
 import {
   ArgError,
+  argsObject,
   channelDirectionArgs,
   checkKeys,
   failure,
@@ -57,11 +58,12 @@ import {
 } from './args.js'
 import { entryScale, type FrameArchive, type FrameEntry } from './archive.js'
 import { flatten, HIGHPASS_NM_DEFAULT, medianBackground, nanMedian } from './flatten.js'
-import { degrees, hypot, imageEntry, maximumFilter, objectArgs, pixelNm, pyMod, type Mark, type MarkPainter } from './fft-peaks.js'
+import { degrees, imageEntry, maximumFilter, paintMarks, pixelNm, type Mark, type MarkPainter } from './fft-peaks.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
 import { leastSquares, LeastSquaresError } from './least-squares.js'
-import { decodePng, encodePngRgb, toRgb } from './png.js'
+import { decodePng, toRgb } from './png.js'
 import { pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+import { pyHypot, pyMod } from './pymath.js'
 import { CLIP_PCT_DEFAULT, planView, regionToNative, renderValues, type LabelAttr, type Region, type View } from './render.js'
 import { formatKey, formatValue } from './units.js'
 
@@ -278,7 +280,7 @@ export function fitBlob(inp: FitInput, k: number, row: number, col: number, sigm
   }
   if (!sol.success) return null
   const [A, x0, y0, sa, sb, th, c] = Array.from(sol.x) as [number, number, number, number, number, number, number]
-  if (Math.sqrt((x0 - col) * (x0 - col) + (y0 - row) * (y0 - row)) > Math.max(2.0, 1.5 * sigma0 + 1.0)) return null
+  if (pyHypot(x0 - col, y0 - row) > Math.max(2.0, 1.5 * sigma0 + 1.0)) return null
   if (sa >= 1.95 * R || sb >= 1.95 * R || A <= 0) return null
   return { A: A * A0, x0, y0, sa, sb, theta: th, c: c * A0 + c0, fit: 'gaussian' }
 }
@@ -396,7 +398,7 @@ export function findBlobs(z: ArrayLike<number>, nx: number, ny: number, options:
     let merged = false
     const peak = rsF[rr * nx + cc] as number
     for (const [kr, kc] of kept) {
-      const d = hypot(rr - kr, cc - kc)
+      const d = pyHypot(rr - kr, cc - kc)
       if (d > mergeR) continue
       const m = Math.ceil(d) + 1
       const ts = unitLinspace(m)
@@ -575,15 +577,13 @@ const BLOB_KEYS: ReadonlySet<string> = new Set([
   'frame', 'region', 'channel', 'direction', 'polarity', 'min_height', 'min_sep_nm', 'background_nm', 'max_n',
 ])
 
-const encodeOnly: MarkPainter = (rgb, width, height) => encodePngRgb(width, height, rgb)
-
 /**
  * `detect_blobs(archive, args)`: see the module comment. Never throws; invalid
  * arguments come back as `{ ok: false, error }` with the reference's message.
  */
-export function detectBlobs(archive: FrameArchive, args: unknown, paint: MarkPainter = encodeOnly): ViewToolResult {
+export function detectBlobs(archive: FrameArchive, args: unknown, paint: MarkPainter = paintMarks): ViewToolResult {
   try {
-    const a = objectArgs(args)
+    const a = argsObject(args)
     checkKeys(a, BLOB_KEYS, ['frame'], 'arguments')
     const e = imageEntry(archive, a)
     const [ch, direction] = channelDirectionArgs(archive, e, a, 'arguments')

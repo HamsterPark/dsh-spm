@@ -14,12 +14,24 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { entryFromRecord, entrySummary } from './archive.js'
 import { encodePngRgb, pngSize } from './png.js'
 import * as plugin from './plugin.js'
+import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm } from './synthetic-sxm.js'
 
 const FORBIDDEN_KEYS = new Set(['fid', 'type', 'visual_kind', 'measurement', 'unit', 'setpoint_a', 'centre_nm'])
 
 /** Strings that Python's float() accepts: surrounding whitespace, digit underscores, inf and nan. */
 const PY_FLOAT = /^[+-]?(?:(?:\p{Nd}(?:_?\p{Nd})*)?\.\p{Nd}(?:_?\p{Nd})*|\p{Nd}(?:_?\p{Nd})*\.?)(?:e[+-]?\p{Nd}(?:_?\p{Nd})*)?$|^[+-]?(?:inf|infinity|nan)$/iu
+
+/**
+ * The one named exception: `$.views[i].y[j].unit` of a spectrum plot reply. The reference builds
+ * `y: [{column, unit}]` for every plotted column (vista_spm/archive.py `_render_spectrum`) and
+ * copies it into the inspect reply (vista_spm/viewtools.py `_view_summary`), although its own
+ * guard forbids the key `unit`; that guard never runs a spectrum view. The port follows the
+ * reference for parity; the maintainer fixes it in VISTA-SPM later, and this exception goes then.
+ */
+function referenceSpectrumUnitKeys(reply: { readonly views: readonly { readonly y?: readonly unknown[] }[] }): string[] {
+  return reply.views.flatMap((v, i) => (v.y ?? []).map((_, j) => `$.views[${i}].y[${j}].unit`))
+}
 
 /** Keys and values that break the model-facing JSON rules, as paths (the reference's `_vocabulary_violations`). */
 function vocabularyViolations(obj: unknown, path = '$'): string[] {
@@ -132,6 +144,11 @@ describe('model-facing JSON', () => {
       tool: 'stm_frame_diff', sources: [fa, fb], geometry: { cx_nm: 0, cy_nm: 0, w_nm: 8, h_nm: 6 }, units: { diff: 'm' },
       arrays: { 'diff/forward': heights(16, 12) },
     }).fid
+    const bias = Array.from({ length: 21 }, (_, i) => -0.5 + i / 20)
+    const fs = archive.addSpectrumBytes(4, encodeSyntheticDat({
+      header: { Experiment: 'bias spectroscopy', 'X (m)': 1.5e-9, 'Y (m)': -2.5e-9, 'Bias>Bias (V)': 0.5, 'Z-Controller>Setpoint': 1e-10 },
+      columns: [['Bias calc (V)', bias], ['Current (A)', bias.map((v) => 2e-10 * v)], ['OC M1 Freq. Shift (Hz)', bias.map((v) => -3 + v)]],
+    }), { sourceName: 'sts.dat' }).fid
 
     const replies: Record<string, unknown>[] = []
     const json = async (c: Context, name: string, args: unknown): Promise<Record<string, unknown>> => {
@@ -167,25 +184,46 @@ describe('model-facing JSON', () => {
       ],
     })
     expect((read['views'] as Record<string, unknown>[])[2]).toHaveProperty('null_count')
+    const sampled = await json(ctx, 'stm_read_values', {
+      question: 'q',
+      views: [
+        { label: 'a', frame: fs, n: 4 },
+        { label: 'b', frame: fs, x_col: 'df', x_range: [-3.2, -2.8], y_cols: ['Current', 'bias calc'] },
+      ],
+    })
+    expect((sampled['views'] as Record<string, unknown>[])[1]).toHaveProperty('x_range_hz')
     await json(ctx, 'stm_notes_write', { file: 'WORKING.md', content: 'scan the step edge next' })
     // Refusals are replies too.
     await json(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'x', frame: 't0099.s0' }] })
     await json(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'x', frame: fa, channel: 'Mystery', rows: 1, columns: 1 }] })
     await json(ctx, 'stm_notes_write', { file: 'GUIDE.md', content: '   ' })
+    await json(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'x', frame: fs, x_range: [900, 1000] }] })
     const refusalKeys = ['error', 'instrument_unchanged']
-    expect(replies.slice(-3).map((r) => Object.keys(r))).toEqual([refusalKeys, refusalKeys, refusalKeys])
+    expect(replies.slice(-4).map((r) => Object.keys(r))).toEqual([refusalKeys, refusalKeys, refusalKeys, refusalKeys])
     // Without an attachment service the reply counts the images it could not deliver.
     const bare = await host(false)
     bare.frameArchive.archive.addPartial(0, { Z: heights(16, 8) }, { geometry: g })
     expect(await json(bare, 'stm_inspect', { question: 'q', views: [{ label: 'a', frame: 't0000.p0' }] })).toMatchObject({ images_not_delivered: 1 })
     for (const r of replies) expect(vocabularyViolations(r)).toEqual([])
 
+    // Spectrum plots: exactly the named exception breaks the rules, and nothing else.
+    const [plotText] = await call(ctx, 'stm_inspect', {
+      question: 'q',
+      views: [
+        { label: 'a', frame: fs },
+        { label: 'b', frame: fs, y_col: 'Current', x_range: [-0.1, 0.1] },
+      ],
+    })
+    const plot = JSON.parse(plotText as string) as Parameters<typeof referenceSpectrumUnitKeys>[0]
+    expect(referenceSpectrumUnitKeys(plot)).toEqual(['$.views[0].y[0].unit', '$.views[0].y[1].unit', '$.views[1].y[0].unit'])
+    expect(vocabularyViolations(plot)).toEqual(referenceSpectrumUnitKeys(plot))
+
     const spectrum = entryFromRecord({
       fid: 't0005.d0', turn: 5, kind: 'd', index: 0, source_name: 'sts.dat', channels: ['Bias (V)', 'Current (A)'], nx: 64,
       setpoint_a: 5e-11, extra: { position_nm: [1.5, -2.5], experiment: 'bias spectroscopy' },
     })
     const summaries = [...ctx.frameArchive.index(), entrySummary(spectrum)]
-    expect(summaries.map((s) => s['kind'])).toEqual(['partial', 'scan', 'partial', 'partial', 'derived', 'derived', 'spectrum'])
+    expect(summaries.map((s) => s['kind'])).toEqual(['partial', 'scan', 'partial', 'partial', 'derived', 'derived', 'spectrum', 'spectrum'])
     for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
 
     // The checks the reference makes on its test frame.
@@ -201,5 +239,33 @@ describe('model-facing JSON', () => {
     expect(entrySummary(archive.get(fw))).toMatchObject({ display_scale: 0.5, display_scale_frac: '1/2', sim_s: 4.5 })
     expect(entrySummary(archive.get(ff))).toMatchObject({ setpoint_hz: -2.5, feedback: 'OFF' })
     expect(entrySummary(archive.get(fb))).toMatchObject({ kind: 'scan', feedback: 'ON', setpoint_pa: 200 })
+  })
+})
+
+describe('model-facing JSON of the measurement tools', () => {
+  it('keeps stm_line_profile and stm_frame_stats replies, and the plots they archive, in the shared vocabulary', async () => {
+    const ctx = await host(true)
+    // The reference's test frame again (its guard measures it with line_profile and stats).
+    const fa = ctx.frameArchive.archive.addPartial(0, {
+      Z: heights(128, 128, 100),
+      'Z/backward': heights(128, 128, 100),
+      Current: { rows: 128, cols: 128, data: new Float64Array(128 * 128).fill(1e-10) },
+    }, { geometry: { cx_nm: 3, cy_nm: -2, w_nm: 12.8, h_nm: 12.8, angle_deg: 10 }, bias_v: 0.1, setpoint_a: 1e-10, scan_dir: 'down' }).fid
+    const replies: Record<string, unknown>[] = []
+    for (const [name, args] of [
+      ['stm_line_profile', { frame: fa, p1: { x: 4, y: 4 }, p2: { x: 100, y: 66 } }],
+      ['stm_line_profile', { frame: fa, channel: 'Current', p1: { x_nm: 0, y_nm: 0 }, p2: { x_nm: 5, y_nm: -3 }, flatten: 'highpass', highpass_nm: 2 }],
+      ['stm_frame_stats', { frame: fa }],
+      ['stm_frame_stats', { frame: fa, channel: 'Current', region: { x: 0, y: 0, width: 100, height: 100 } }],
+      ['stm_line_profile', { frame: fa, p1: { x: 4, y: 4 }, p2: { x: 4, y: 4 } }],
+    ] as const) {
+      const [text] = await call(ctx, name, args)
+      replies.push(JSON.parse(text as string) as Record<string, unknown>)
+    }
+    expect(replies.map((r) => 'error' in r)).toEqual([false, false, false, false, true])
+    for (const r of replies) expect(vocabularyViolations(r)).toEqual([])
+    const summaries = ctx.frameArchive.index()
+    expect(summaries.map((s) => s['tool'] ?? s['kind'])).toEqual(['partial', 'line_profile', 'line_profile'])
+    for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
   })
 })
