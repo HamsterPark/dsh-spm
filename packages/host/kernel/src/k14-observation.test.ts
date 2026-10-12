@@ -232,6 +232,18 @@ describe('K14 · 观察者自己出错', () => {
     expect(o.observation).toEqual(FRAME)
   })
 
+  it('观察者两头都出错，K9 的锁照样放（等观察者的那一段在 finally 里）', async () => {
+    let released = 0
+    const o = await new SkillKernel(
+      deps({
+        acquireLock: () => Promise.resolve(() => void (released += 1)),
+        observer: { begin: () => Promise.reject(new Error('x')), end: () => Promise.reject(new Error('y')) },
+      }),
+    ).run(skill(), {})
+    expect(o.kind).toBe('ok')
+    expect(released).toBe(1)
+  })
+
   it('end 回 `null`：这次没有可报的观测，文本一字不变', async () => {
     const o = await new SkillKernel(deps({ observer: observer(null) })).run(skill(), {})
     expect(o.text).toBe('_Act: ok')

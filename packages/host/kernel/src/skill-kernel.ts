@@ -675,21 +675,23 @@ export class SkillKernel {
       runSkill: (name, p) => this.runSub(name, p, depth, opts, markers, hash),
     }
 
-    // ── K14 之前（depth 0）：观察者记下调用前的现场 ──
-    // 放在锁里、执行前：它可能要问仪器保存目录，而「之前」必须真的在技能动仪器之前。
     const observer = depth === 0 ? this.deps.observer : undefined
     const observed: ObservedCall = { spec, params, stateChanging: isStateChangingSkill(spec), safeCall }
     let token: unknown
-    if (observer !== undefined) {
-      try {
-        token = await observer.begin(observed)
-      } catch {
-        // 记不下现场只让这一次可能少入档几帧；K14 照样跑，把它能说的说出来
-        token = undefined
-      }
-    }
 
     try {
+      // ── K14 之前（depth 0）：观察者记下调用前的现场 ──
+      // 放在锁里、执行前：它可能要问仪器保存目录，而「之前」必须真的在技能动仪器之前。
+      // 也放在这个 try 里：锁由下面的 finally 放，等观察者的时候出什么事都不会把锁留下。
+      if (observer !== undefined) {
+        try {
+          token = await observer.begin(observed)
+        } catch {
+          // 记不下现场只让这一次可能少入档几帧；K14 照样跑，把它能说的说出来
+          token = undefined
+        }
+      }
+
       // ── K11 执行 ──
       const result = await skill.execute(ctx, params)
 
