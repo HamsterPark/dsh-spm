@@ -203,3 +203,31 @@ describe('model-facing JSON', () => {
     expect(entrySummary(archive.get(fb))).toMatchObject({ kind: 'scan', feedback: 'ON', setpoint_pa: 200 })
   })
 })
+
+describe('model-facing JSON of the measurement tools', () => {
+  it('keeps stm_line_profile and stm_frame_stats replies, and the plots they archive, in the shared vocabulary', async () => {
+    const ctx = await host(true)
+    // The reference's test frame again (its guard measures it with line_profile and stats).
+    const fa = ctx.frameArchive.archive.addPartial(0, {
+      Z: heights(128, 128, 100),
+      'Z/backward': heights(128, 128, 100),
+      Current: { rows: 128, cols: 128, data: new Float64Array(128 * 128).fill(1e-10) },
+    }, { geometry: { cx_nm: 3, cy_nm: -2, w_nm: 12.8, h_nm: 12.8, angle_deg: 10 }, bias_v: 0.1, setpoint_a: 1e-10, scan_dir: 'down' }).fid
+    const replies: Record<string, unknown>[] = []
+    for (const [name, args] of [
+      ['stm_line_profile', { frame: fa, p1: { x: 4, y: 4 }, p2: { x: 100, y: 66 } }],
+      ['stm_line_profile', { frame: fa, channel: 'Current', p1: { x_nm: 0, y_nm: 0 }, p2: { x_nm: 5, y_nm: -3 }, flatten: 'highpass', highpass_nm: 2 }],
+      ['stm_frame_stats', { frame: fa }],
+      ['stm_frame_stats', { frame: fa, channel: 'Current', region: { x: 0, y: 0, width: 100, height: 100 } }],
+      ['stm_line_profile', { frame: fa, p1: { x: 4, y: 4 }, p2: { x: 4, y: 4 } }],
+    ] as const) {
+      const [text] = await call(ctx, name, args)
+      replies.push(JSON.parse(text as string) as Record<string, unknown>)
+    }
+    expect(replies.map((r) => 'error' in r)).toEqual([false, false, false, false, true])
+    for (const r of replies) expect(vocabularyViolations(r)).toEqual([])
+    const summaries = ctx.frameArchive.index()
+    expect(summaries.map((s) => s['tool'] ?? s['kind'])).toEqual(['partial', 'line_profile', 'line_profile'])
+    for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
+  })
+})
