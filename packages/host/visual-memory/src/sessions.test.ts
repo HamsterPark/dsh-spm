@@ -70,7 +70,7 @@ describe('the tools read and write the calling session', () => {
     expect(a.content.map((b) => b.type)).toEqual(['text', 'text']) // reply + label (no attachment service here)
     expect(JSON.parse(text(a))).toMatchObject({ view_count: 1 })
     const b = await call(ctx, 'stm_inspect', view, 'session-b')
-    expect(JSON.parse(text(b)).error).toMatch(/no frame "t0001\.s0"; the archive is empty/)
+    expect(JSON.parse(text(b)).error).toMatch(/no frame 't0001\.s0'; the archive is empty/)
     const none = await call(ctx, 'stm_inspect', view)
     expect(JSON.parse(text(none)).error).toMatch(/the archive is empty/)
   })

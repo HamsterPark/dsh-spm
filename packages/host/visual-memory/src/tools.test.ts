@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef } from 'dsh-spm-compat'
 import { afterEach, describe, expect, it } from 'vitest'
+import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm } from './synthetic-sxm.js'
 import { pngSize } from './png.js'
 import * as plugin from './plugin.js'
@@ -111,6 +112,8 @@ describe('registration', () => {
     const validArgs: Record<string, unknown> = {
       stm_inspect: { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] },
       stm_read_values: { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: 1, columns: 1 }] },
+      stm_line_profile: { frame: 't0000.s0', p1: { x: 0, y: 16 }, p2: { x: 64, y: 16 } },
+      stm_frame_stats: { frame: 't0000.s0' },
       stm_notes_read: { file: 'GUIDE.md' },
       stm_notes_write: { file: 'WORKING.md', content: 'x' },
     }
@@ -126,6 +129,10 @@ describe('registration', () => {
     expect(inspect?.description).toContain('fits 64x64')
     const read = ctx.tools.schemas().find((s) => s.name === 'stm_read_values')
     expect(read?.description).toContain('at most 4096')
+    expect(inspect?.description).toContain('a saved scan, a partial scan, a spectrum or a derived image')
+    expect(inspect?.description).toContain('A spectrum view is a line plot (x_col, y_col, x_range instead of region)')
+    expect(read?.description).toContain("For a spectrum view, give x_range (in the x column's unit), n and y_cols instead")
+    expect(read?.description).toContain('n x (1 + number of y_cols) for a spectrum')
   })
 
   it('draws the graph paper by default and says so; grid: false draws and says nothing', async () => {
@@ -191,6 +198,19 @@ describe('stm_inspect', () => {
     if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
   })
 
+  it('never hands the tools null for a typed optional argument (spec/deviations.md D-VMEM-14)', async () => {
+    const { ctx } = await host()
+    const views = [{ clip_pct: null }, { flatten: null }, { direction: null }, { flatten: 'highpass', highpass_nm: null }, { x_range: null }]
+    for (const over of views) {
+      const res = await call(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'v', frame: 't0000.s0', ...over }] })
+      expect(res.isError).toBe(true)
+      if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
+    }
+    const res = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'v', frame: 't0000.s0', rows: 1, columns: 1, n: null }] })
+    expect(res.isError).toBe(true)
+    if (res.isError) expect(res.error.info?.code).toBe('INVALID_ARGS')
+  })
+
   it('reports images it could not store instead of dropping them', async () => {
     const without = await host(false)
     const res = await call(without.ctx, 'stm_inspect', { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] })
@@ -206,6 +226,31 @@ describe('stm_inspect', () => {
     ;(failing.att as FakeAttachments).failWith = 'plain string' as never
     const res3 = await call(failing.ctx, 'stm_inspect', { question: 'q', views: [{ label: 'v', frame: 't0000.s0' }] })
     expect(texts(res3.content)[1]).toContain('[image not delivered: plain string]')
+  })
+})
+
+describe('spectrum views', () => {
+  it('pass dsh\'s schema without rows or columns: a plot from stm_inspect, a readout from stm_read_values', async () => {
+    const { ctx, att } = await host()
+    const v = [-0.2, -0.1, 0, 0.1, 0.2]
+    ctx.frameArchive.archive.addSpectrumBytes(1, encodeSyntheticDat({
+      header: { Experiment: 'bias spectroscopy', 'Bias>Bias (V)': 0.2 },
+      columns: [['Bias calc (V)', v], ['Current (A)', v.map((x) => x * 1e-10)]],
+    }), { sourceName: 'sts.dat' })
+    const shown = await call(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'iv', frame: 't0001.d0', x_range: [-0.1, 0.2] }] })
+    expect(shown.isError).toBe(false)
+    expect(shown.content.map((b) => b.type)).toEqual(['text', 'text', 'image'])
+    const [reply, label] = texts(shown.content)
+    expect(JSON.parse(reply as string).views[0]).toMatchObject({ kind: 'spectrum', n_points: 4, x_shown_v: [-0.1, 0.2], image_size_px: [600, 390] })
+    expect(label).toBe('<visual kind="inspection" index="1" count="1" label="iv" frame="t0001.d0" plot="spectrum" x="Bias calc [V]" y="Current [pA]" points="4" size="600x390" x_range="-0.1..0.2"/>\n')
+    expect((shown.content[2] as { attachment: ImageAttachmentRef }).attachment).toMatchObject({ width: 600, height: 390, name: 't0001.d0.inspect-1.png' })
+    expect(att?.saved).toHaveLength(1)
+    const read = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'iv', frame: 't0001.d0', n: 2, y_cols: ['current'] }] })
+    expect(read.isError).toBe(false)
+    expect(read.content.map((b) => b.type)).toEqual(['text'])
+    expect(JSON.parse(texts(read.content)[0] as string)).toMatchObject({
+      sample_count: 4, views: [{ column_names: ['Bias calc (V)', 'Current (A)'], sample_index: [1, 3], values: [[-0.1, 0.1], [-10, 10]] }],
+    })
   })
 })
 
@@ -239,7 +284,7 @@ describe('stm_read_values', () => {
     const { ctx } = await host()
     const res = await call(ctx, 'stm_read_values', { question: 'q', views: [{ label: 'g', frame: 't0004.s0', rows: 1, columns: 1 }] })
     expect(res.isError).toBe(false)
-    expect(JSON.parse(texts(res.content)[0] as string).error).toMatch(/^read_values: views\[1\]\.frame: no frame "t0004\.s0"/)
+    expect(JSON.parse(texts(res.content)[0] as string).error).toMatch(/^read_values: views\[1\]\.frame: no frame 't0004\.s0'/)
   })
 })
 
@@ -305,6 +350,12 @@ describe('the service', () => {
       channels: [{ name: 'Z', unit: 'm', forward: new Float32Array(16) }],
     }))
     expect(svc.addScan(2, sxmPath).fid).toBe('t0002.s0')
+    const datPath = join(root, 'sts.dat')
+    writeFileSync(datPath, encodeSyntheticDat({ columns: [['Bias (V)', [0, 1]], ['Current (A)', [0, 1e-12]]] }))
+    expect(svc.addSpectrum(3, datPath, { simS: 1 })).toMatchObject({ fid: 't0003.d0', source_name: 'sts.dat', sim_s: 1 })
+    const bytes = encodeSyntheticDat({ columns: [['Z rel (m)', [0, 1e-10]], ['Current (A)', [2e-12, 1e-12]]] })
+    expect(svc.addSpectrumBytes(3, bytes, { sourceName: 'z.dat' })).toMatchObject({ fid: 't0003.d1', source_name: 'z.dat', sim_s: null })
+    expect(svc.observation('t0003.d1').label).toBe('<visual kind="current" frame="t0003.d1" plot="spectrum" x="Z rel [pm]" y="Current [pA]" points="2" size="600x390"/>')
   })
 })
 

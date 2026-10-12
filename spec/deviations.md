@@ -1213,6 +1213,11 @@ TS 没有运行期类名。判据（**「源给的不是一份读数 ⇒ 当作�
 注明为「没有定义」）。**于是 `interpolate.ts` 不复用 `filters.ts` 的 `boundaryIndex` ——
 复用才是 bug。** 两处各有一条测试互相指认。
 
+这一条说的是**坐标**。越界的**邻点下标**另按 scipy 的 `_get_spline_boundary_mode` 延拓，
+`wrap` 在那里用 mirror（周期 2n − 2）：`x = n − 1` 上权重为 0 的邻点落到第 n − 2 行，不是第 1 行。
+权重为 0 也要折对，因为它照样乘进结果，缺测行的 NaN 由它传出来（2026-10-13，`interpolate.ts` 抬头 ⑤–⑧，
+判据 `interp_edges.json`）。
+
 **变异**：`numerics-interp-wrap-period-is-n-minus-1`。
 
 ## D-NUM-10 · `mirror` 在 `(n−1, n)` 这一段上**根本不折坐标**
@@ -4039,6 +4044,56 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 **为什么有意**：本仓约定（facts.md §5 工具一行）是「抛异常 = isError，领域失败放 value」，
 与技能工具（`defineSkillTool`）一致；模型看到的文字说明了要改什么。
+
+## D-VMEM-6 · 派生图由本包自己的绘图模块画：内容跟参考实现，像素不跟
+
+| | |
+|---|---|
+| **Python**（`vista_spm/measure.py`、`frames.py`） | `_draw_marks` 用 Pillow 画圈与编号（DejaVu Sans 13–22 px，2 px 黑色描边）；`_plot_png`、`render_spectrum` 用 matplotlib 画剖线与谱线（抗锯齿，`tight_layout`） |
+| **TS**（`dsh-spm-visual-memory` 的 `draw.ts`） | 自带 RGB 画布和为本包手绘的 5 × 7 点阵字体（6 × 9 字格，整数倍放大，可选 1 字素描边），不抗锯齿；折线图版式自定 |
+| **测试** | `packages/host/visual-memory/src/draw.test.ts`；谱图的标签、回复与图像尺寸见 `spectra.parity.test.ts`（逐项相同，不比像素） |
+
+**为什么有意**：包内不加依赖，Pillow / matplotlib 及其字体数据都不能搬进来（许可），逐像素一致无从谈起。
+派生图上**画什么、标在哪、怎么标**是模型看到的内容，按参考实现：标记圈的位置与半径（2 px），编号在圈的右上
+（`x + 0.72 r + 1`、`y − 0.72 r − 1`，贴边时移入图内），标记色 `MARK_RGB = (255, 214, 0)`，字号随图像尺寸
+（取大写字母不矮于参考 13–22 px 字号的最小整数倍：长边 886 px 及以下 2 倍，以上 3 倍）；折线图每列一个面板、
+共享 x 轴，轴标签带单位，剖线台阶处画红色虚线并在顶端编号。图像宽高也照参考实现：尺寸写进标签和回复，
+调用方按参考的算法给出（剖线 `max(600, display_max)` × 400，谱图宽 `max(600, display_max)`、高 `max(360, min(宽, 90 + 300 n))`；matplotlib 再把每边截成 `int(px / 100 · 100)`，宽 803 时出 802，谱图照此算，见 `spectrum.ts` 与金样 `spectra.plot_size`），
+`linePlot` 输出的 PNG 恰为这个尺寸。
+
+像素层面的差别：y 轴标签横排在各面板上方（不旋转）；x 轴紧贴数据范围（matplotlib 左右各留 5 %），y 轴留 5 %；
+刻度只取 1、2、5 × 10ⁿ；各面板平分底部 42 px x 轴区以上的高度，除不尽的像素逐个分给排在前面的面板。另有两处
+为了好认而改：深色标记（参考 `diff` 用 (20, 20, 20)）改用白色描边，黑描边会把数字的空隙填死；所有圆圈先画、
+编号后画，圈不压字。
+
+**重新考虑的条件**：需要与参考实现逐像素比对派生图（例如金样改为录制派生图像素），或 dsh 侧提供可用的
+字体与矢量渲染。
+
+## D-VMEM-13 · 谱视图里非有限的 x 范围写成 `null`
+
+| | |
+|---|---|
+| **Python**（`vista_spm/viewtools.py` `_view_summary`） | `x_shown_<unit>` 是 `float(f"{v:.6g}")`；x 列没有有限值时为 NaN（含 ±inf 时为 ±inf），`compact_json` 不设 `allow_nan=False`，回复里出现非法的 JSON 记号 `NaN` / `Infinity` |
+| **TS** | 同一位置写 `null`（`JSON.stringify` 的规则），与「缺测为 null」一致；标签里的 `x_range` 与拒绝文案照样写 `nan`，与参考实现相同 |
+| **测试** | `views.test.ts`「writes x_shown as null when the x column has no finite value」 |
+
+**为什么有意**：工具回复是 JSON，`NaN` 不是合法 JSON，严格的解析器会拒绝整条回复。只有 x 列全是 NaN 或含无穷时
+才会出现，这本身是坏文件。已作为参考实现的缺陷报告。
+**重新考虑的条件**：参考实现改为 `null`（或拒绝这样的谱）时，本条销账。
+
+## D-VMEM-14 · 视图里可选参数为 `null` 时按未给处理
+
+| | |
+|---|---|
+| **Python**（`vista_spm/viewtools.py` `num_arg` / `str_arg`） | 用 `obj.get(key, default)` 取值：键在、值为 `None` 时不取默认值。`read_values` 谱视图的 `n: null` 随后在 `int(None)` 处、`inspect` 的 `clip_pct: null` 与 `flatten: 'highpass'` 下的 `highpass_nm: null` 在 `float(None)` 处抛 TypeError，回复 `internal error TypeError: …`；`flatten: null` 被拒为 `flatten must be one of (…), not None`，`direction: null` 被拒为 `channel 'Z' has only ['forward', 'backward']`。`x_col`、`y_col`、`y_cols`、`x_range`、`channel`、`region` 为 null 时按未给处理，`rows` / `columns` 为 null 时报缺 |
+| **TS**（`args.ts` `numArg` / `strArg`） | `null` 与未给相同（`obj[key] ?? 默认`）：`n` 取 x 范围内全部点，`clip_pct` 0.5，`highpass_nm` 3，`flatten` plane，`direction` forward；`rows` / `columns` 为 null 时同样报缺。经 dsh 调用时这些参数的 schema 不收 `null`，dsh 在工具运行前以 `INVALID_ARGS`（`isError: true`）拒绝，模型走不到这里 |
+| **测试** | `views.test.ts`「treats null optional arguments as absent」；`tools.test.ts`「never hands the tools null for a typed optional argument」 |
+
+**为什么有意**：`null` 是 JSON 里「没有值」的写法。参考实现在三处崩成内部错误、两处给出与原因无关的文案，都是
+`.get(key, default)` 碰上 `None` 的副作用，不是设计；它对 `x_col`、`channel`、`region` 等参数的 `null` 本来就按未给处理。
+TS 统一按未给处理。
+**判据**：上面两条测试——视图函数对 `null` 的回复与省略该参数时逐项相同；经 dsh 的调用在 schema 校验处被拒。
+**重新考虑的条件**：dsh 的参数校验开始放行 `null`（模型就能走到这里），或参考实现给 `null` 定下别的明确语义（例如统一拒绝并说明原因）。
 
 ## D-ACT-1 · 没有单一的 `act` 工具：「动作」是改变仪器状态的技能工具
 

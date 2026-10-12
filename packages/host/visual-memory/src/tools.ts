@@ -4,12 +4,14 @@
  *
  * | tool | does |
  * |---|---|
- * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening |
- * | `stm_read_values` | read exact archived values at cell centers |
+ * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
+ * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
+ * | `stm_line_profile` | values and steps along a line, with an archived plot |
+ * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
- * None of them touches the instrument; all four are concurrency-safe (the
+ * None of them touches the instrument; all are concurrency-safe (the
  * archive and the notes store work synchronously inside one call, and the notes
  * files are replaced whole and atomically).
  *
@@ -35,6 +37,8 @@
 import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefinition } from 'dsh-spm-compat'
 import type { FrameArchive } from './archive.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
+import { frameStats } from './frame-stats.js'
+import { lineProfile } from './line-profile.js'
 import { GUIDE_FILE, MAX_GUIDE_BYTES, MAX_WORKING_BYTES, NOTE_FILES, NotesError, WORKING_FILE, type NotesStore } from './notes.js'
 import { CLIP_PCT_DEFAULT, GRID_COLOUR_NAME, NAN_NAME } from './render.js'
 import { DIRECTIONS } from './scan-data.js'
@@ -65,7 +69,7 @@ export interface VisualToolDeps {
   readonly displayMax?: number
 }
 
-export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_notes_read', 'stm_notes_write'] as const
+export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_line_profile', 'stm_frame_stats', 'stm_notes_read', 'stm_notes_write'] as const
 
 /** An {@link ImageAttachmentRef} as plain JSON (the tool value must be lossless JSON). */
 export type AttachmentJson = {
@@ -195,13 +199,22 @@ const COMMON_VIEW_PROPS = {
   frame: {
     type: 'string',
     required: true,
-    description: "Archived frame id, e.g. 't0007.s0' (saved scan), 't0007.p0' (partial scan), 't0007.m0' (derived image).",
+    description:
+      "Archived frame id, e.g. 't0007.s0' (saved scan), 't0007.p0' (partial scan), 't0007.d0' (spectrum), 't0007.m0' (derived image).",
   },
   channel: {
     type: 'string',
     description: "Scan channel, e.g. 'Z' or 'Current'. Default: the frame's default channel (Z; Current for a constant-height frame).",
   },
   direction: { type: 'string', enum: [...DIRECTIONS], description: 'Scan pass. Default forward.' },
+} as const
+
+const X_COL = { type: 'string', description: 'Spectrum only: x column (default the sweep column).' } as const
+
+const X_RANGE = {
+  type: 'array',
+  items: { type: 'number' },
+  description: "Spectrum only: [low, high] of the x axis, in the x column's unit as the plot shows it (bias in V, Z in pm).",
 } as const
 
 const QUESTION = {
@@ -222,13 +235,14 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
     name: 'stm_inspect',
     description:
       'Look again at archived frames without changing the instrument. Each view re-renders one frame from its ' +
-      'archived values: a saved scan, a partial scan, or a derived image. For a scan, choose the channel, the ' +
+      'archived values: a saved scan, a partial scan, a spectrum or a derived image. For a scan, choose the channel, the ' +
       'direction (forward or backward), the flattening and the contrast. Omit region to see the whole frame, or ' +
       "select a rectangle in display pixels of that frame's full image (origin at the top-left corner, x to the " +
       'right, y down). The region is cropped exactly, widened to whole scan pixels, and enlarged by the largest ' +
       `whole number of image pixels per scan pixel that fits ${dm}x${dm}, without smoothing. Images are gray ` +
       `(black = low, white = high, contrast from the selected region); ${drawn} ` +
-      'A derived image is cropped as stored. State the visual question these views ' +
+      'A spectrum view is a line plot (x_col, y_col, x_range instead of region); a derived image is cropped as ' +
+      'stored. State the visual question these views ' +
       `should answer and give each view a short label. 1 to ${MAX_INSPECT_VIEWS} views per call; they are returned ` +
       'in request order, one image each, every image preceded by a label line with its index. The reply text ' +
       "gives each view's region in display pixels (region_px), the scan-frame nm of its corners (corners_nm), " +
@@ -273,6 +287,12 @@ function inspectTool(deps: VisualToolDeps): ToolDefinition {
                 `Contrast: black and white at this percentile and 100 minus it of the selected region, 0 to ${MAX_CLIP_PCT}. ` +
                 `Default ${CLIP_PCT_DEFAULT}.`,
             },
+            x_col: X_COL,
+            y_col: {
+              type: 'string',
+              description: 'Spectrum only: one y column (default: up to the first 4 columns other than x, one panel each).',
+            },
+            x_range: X_RANGE,
           },
         },
       },
@@ -287,16 +307,18 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
   return defineTool({
     name: 'stm_read_values',
     description:
-      'Read exact archived values from one or more frames without changing the instrument. For each view, the ' +
+      'Read exact archived values from one or more frames without changing the instrument. For a scan view, the ' +
       "region (display pixels of that frame's full image: origin at the top-left corner, x to the right, y down; " +
       'omit it for the whole frame) is divided into equal rows and columns and the archived pixel at the center ' +
       'of every cell is read: display pixel x + floor(((2c+1)*width)/(2*columns)), likewise for y. Values are ' +
       'physical and unflattened, in one unit per quantity carried by the key: values_pm for Z, values_pa for ' +
       "current, values_hz for frequency shift, values_v for voltages; rounded to the view's decimals (about " +
       "1/100 of the channel's value range); null where nothing was acquired. The reply gives the sampled " +
-      'display pixels, the decimals and the ' +
-      `scan-frame nm of the first and last sample. 1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} ` +
-      'samples (rows x columns, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
+      'display pixels, the decimals and the scan-frame nm of the first and last sample. For a spectrum view, ' +
+      "give x_range (in the x column's unit), n and y_cols instead; n samples at bin centers of the points in " +
+      'x_range come back per column with column_units and column_decimals. ' +
+      `1 to ${MAX_READ_VIEWS} views and at most ${MAX_READ_SAMPLES} samples (rows x columns for a scan, ` +
+      'n x (1 + number of y_cols) for a spectrum, summed over views) per call; a reply longer than 48000 bytes is refused, so split ' +
       'large readouts over several calls. This tool only reads values; it does not flatten, ' +
       'align, compare or interpret them. State the question and give each view a short label.',
     parameters: {
@@ -321,8 +343,19 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
                 height: { type: 'integer', required: true },
               },
             },
-            rows: { type: 'integer', required: true, description: `Number of equal rows the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
-            columns: { type: 'integer', required: true, description: `Number of equal columns the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            rows: { type: 'integer', description: `Scan frames: number of equal rows the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            columns: { type: 'integer', description: `Scan frames: number of equal columns the region is divided into, 1 to ${MAX_READ_SAMPLES}.` },
+            x_col: X_COL,
+            y_cols: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Spectrum only: columns to return besides x (default all).',
+            },
+            x_range: X_RANGE,
+            n: {
+              type: 'integer',
+              description: `Spectrum only: number of samples at bin centers, 1 to ${MAX_READ_SAMPLES} (default: every point in x_range).`,
+            },
           },
         },
       },
@@ -330,6 +363,88 @@ function readValuesTool(deps: VisualToolDeps): ToolDefinition {
     output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
     isConcurrencySafe: () => true,
     execute: async (args) => deliver('read_values', readValues(deps.archive, args), deps.attachments()),
+  })
+}
+
+// ── measurement tools (vista_spm.measure) ────────────────────────────────
+
+const MEASURE_FRAME = { type: 'string', required: true, description: "Archived scan frame id, e.g. 't0007.s0'." } as const
+const MEASURE_CHANNEL = { type: 'string', description: "Channel, e.g. 'Z' or 'Current'. Default: the frame's default channel." } as const
+const MEASURE_DIRECTION = { type: 'string', enum: [...DIRECTIONS], description: 'Scan pass. Default forward.' } as const
+
+const POINT = {
+  type: 'object',
+  required: true,
+  additionalProperties: false,
+  description: "A point: either {x, y} in display pixels of the frame's full image, or {x_nm, y_nm} in scan-frame nm.",
+  properties: { x: { type: 'number' }, y: { type: 'number' }, x_nm: { type: 'number' }, y_nm: { type: 'number' } },
+} as const
+
+function lineProfileTool(deps: VisualToolDeps): ToolDefinition {
+  const dm = deps.displayMax ?? deps.archive.displayMax
+  return defineTool({
+    name: 'stm_line_profile',
+    description:
+      'Measure values along a straight line in one archived scan frame without changing the instrument. p1 and p2 ' +
+      "are either {x, y} in display pixels of that frame's full image or {x_nm, y_nm} in scan-frame nm. The " +
+      'flattened frame (default plane) is interpolated bilinearly at most one scan pixel apart and averaged across ' +
+      'width_px. The reply gives distance_nm from p1 and the values (values_pm for Z, values_pa for current) per ' +
+      "sample; the line's length and direction in the scan frame; the straight segments of a piecewise-linear fit " +
+      '(from_nm, to_nm, slope, mean); and step candidates where the segments on either side of a short transition ' +
+      'differ by at least 4 noise sigmas: position_nm along the line, the scan-frame x_nm and y_nm, the height ' +
+      '(right side minus left side, e.g. height_pm) and transition_nm. A bump wider than the transition window ' +
+      'appears as a rise and a fall. One plot of the profile is returned and archived as a derived frame ' +
+      '(plot.frame). It measures; it does not decide what a step or a feature is. Keys carry their unit: _nm, ' +
+      '_deg, _px, and for channel values _pm (Z), _pa (current), _hz (frequency shift), _v (voltage).',
+    parameters: {
+      frame: MEASURE_FRAME,
+      p1: POINT,
+      p2: POINT,
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+      width_px: { type: 'number', description: `Band width in display pixels averaged across the line, 1 to ${dm}. Default 1.` },
+      flatten: { type: 'string', enum: [...FLATTEN_MODES], description: 'Background removed over the whole frame first (default plane).' },
+      highpass_nm: {
+        type: 'number',
+        description: `Background width in nm for flatten='highpass': more than 0, at most ${MAX_HIGHPASS_NM}. Default ${HIGHPASS_NM_DEFAULT}.`,
+      },
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('line_profile', lineProfile(deps.archive, args), deps.attachments()),
+  })
+}
+
+function frameStatsTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_stats',
+    description:
+      "Summary statistics of one archived scan frame, or of a region of it (display pixels of the frame's full " +
+      'image), without changing the instrument: mean, standard deviation, min, max and percentiles of the raw ' +
+      'values; RMS roughness, mean absolute deviation and peak-to-valley after subtracting a plane fitted to the ' +
+      'region; the correlation and RMS difference between the forward and backward passes (both plane-flattened) ' +
+      'when both exist; a line-noise index (median absolute offset between consecutive row medians divided by the ' +
+      'plane-flattened standard deviation); and the fraction of rows acquired. Keys carry their unit: _nm, _deg, ' +
+      '_px, and for channel values _pm (Z), _pa (current), _hz (frequency shift), _v (voltage).',
+    parameters: {
+      frame: MEASURE_FRAME,
+      region: {
+        type: 'object',
+        additionalProperties: false,
+        description: REGION_DESCRIPTION(deps.displayMax ?? deps.archive.displayMax),
+        properties: {
+          x: { type: 'integer', required: true },
+          y: { type: 'integer', required: true },
+          width: { type: 'integer', required: true },
+          height: { type: 'integer', required: true },
+        },
+      },
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('stats', frameStats(deps.archive, args), deps.attachments()),
   })
 }
 
@@ -390,7 +505,7 @@ function notesWriteTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
-/** The four tools, in the order the model should see them. */
+/** The tools, in the order the model should see them. */
 export function defineVisualTools(deps: VisualToolDeps): ToolDefinition[] {
-  return [inspectTool(deps), readValuesTool(deps), notesReadTool(deps), notesWriteTool(deps)]
+  return [inspectTool(deps), readValuesTool(deps), lineProfileTool(deps), frameStatsTool(deps), notesReadTool(deps), notesWriteTool(deps)]
 }

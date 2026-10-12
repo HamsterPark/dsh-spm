@@ -1,5 +1,5 @@
 /**
- * Cordis plugin entry: provides `ctx.frameArchive`, registers the four
+ * Cordis plugin entry: provides `ctx.frameArchive`, registers the
  * visual-memory tools (VISUAL-HARNESS §4.1, §4.4) and the harness's standing
  * instructions (§4.7, `prompt.ts`).
  *
@@ -103,6 +103,18 @@ export class FrameArchiveService extends Service {
 
   addScan(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
     return this.archive.addScan(turn, path, meta)
+  }
+
+  addSpectrum(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
+    return this.archive.addSpectrum(turn, path, meta)
+  }
+
+  addSpectrumBytes(
+    turn: number,
+    bytes: Uint8Array,
+    meta: { readonly sourceName: string; readonly sourcePath?: string; readonly simS?: number },
+  ): FrameEntry {
+    return this.archive.addSpectrumBytes(turn, bytes, meta)
   }
 
   addPartial(

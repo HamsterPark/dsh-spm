@@ -13,11 +13,10 @@ import { join } from 'node:path'
 import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef, type ToolRunContext } from 'dsh-spm-compat'
 import { emptyHardwareState, SkillKernel, type Skill, type SkillOutcome } from 'dsh-spm-kernel'
 import { afterEach, describe, expect, it } from 'vitest'
-import { entryFromRecord, type FrameArchive, type FrameEntry } from './archive.js'
+import type { FrameArchive } from './archive.js'
 import {
   frameObserver,
   IMAGES_NOT_DELIVERED,
-  NO_SPECTRA,
   observationPresenter,
   presentObservation,
   renderObservation,
@@ -26,6 +25,7 @@ import {
 } from './observe.js'
 import { pngSize } from './png.js'
 import * as plugin from './plugin.js'
+import { encodeSyntheticDat } from './synthetic-dat.js'
 import { encodeSyntheticSxm } from './synthetic-sxm.js'
 import { NO_ATTACHMENT_SERVICE, VIEW_OUTPUT } from './tools.js'
 
@@ -102,6 +102,14 @@ function sxm(seed = 0): Uint8Array {
   return encodeSyntheticSxm({
     nx: 16, ny: 8, widthM: 8e-9, heightM: 4e-9, offsetXM: 0, offsetYM: 0, scanDir: 'down',
     channels: [{ name: 'Z', unit: 'm', forward: Float32Array.from({ length: 128 }, (_, i) => 1e-12 * ((i + seed) % 16)) }],
+  })
+}
+
+/** A three-point I(V) spectrum in the controller's .dat layout. */
+function dat(): Uint8Array {
+  return encodeSyntheticDat({
+    header: { 'Experiment': 'bias spectroscopy', 'X (m)': 1e-9, 'Y (m)': -2e-9 },
+    columns: [['Bias calc (V)', [-0.1, 0, 0.1]], ['Current (A)', [-1e-11, 0, 1.2e-11]]],
   })
 }
 
@@ -208,32 +216,31 @@ describe('frameObserver: which files a call archives', () => {
 })
 
 describe('frameObserver: spectra', () => {
-  it('without addSpectrum a .dat is reported as not archived, never dropped', async () => {
+  it('archives the .dat spectra a call saved and shows the last two after the newest scan', async () => {
     const h = await host()
-    const o = await runAs(h, kernel(h), saving('AcquireSTS', 'write', () => writeFileSync(join(h.saveDir, 'sts001.dat'), 'x')))
-    expect(o.observation?.notArchived).toEqual([{ file: 'sts001.dat', error: NO_SPECTRA }])
-    expect(o.observation?.latestFrame).toBeNull()
-  })
-
-  it("with addSpectrum (the spectra port) .dat files are archived and the last two spectra shown after the newest scan", async () => {
-    const h = await host()
-    const archive = archiveOf(h)
-    let i = 0
-    const added: string[] = []
-    ;(archive as unknown as { addSpectrum: (turn: number, path: string) => FrameEntry }).addSpectrum = (turn, path) => {
-      added.push(path)
-      return entryFromRecord({ fid: `t${String(turn).padStart(4, '0')}.d${i}`, turn, kind: 'd', index: i++, source_name: path.slice(-9), nx: 3 })
-    }
     const now = Date.now() / 1000
     const o = await runAs(h, kernel(h), saving('DemoScanAndSTS', 'composite', () => {
       for (const [name, age] of [['scan1.sxm', 40], ['sts01.dat', 30], ['sts02.dat', 20], ['sts03.dat', 10]] as const) {
-        writeFileSync(join(h.saveDir, name), name.endsWith('.sxm') ? sxm() : 'x')
+        writeFileSync(join(h.saveDir, name), name.endsWith('.sxm') ? sxm() : dat())
         utimesSync(join(h.saveDir, name), now - age, now - age)
       }
     }))
-    expect(added.map((p) => p.slice(-9))).toEqual(['sts01.dat', 'sts02.dat', 'sts03.dat'])
+    expect(o.observation?.frames.map((f) => f.id)).toEqual(['t0001.s0', 't0001.d0', 't0001.d1', 't0001.d2'])
     expect(o.observation?.show).toEqual(['t0001.s0', 't0001.d1', 't0001.d2'])
-    expect(o.observation?.frames[1]?.summary).toMatchObject({ kind: 'spectrum', source: 'sts01.dat', n_points: 3 })
+    expect(o.observation?.frames[1]?.summary).toMatchObject({ frame: 't0001.d0', kind: 'spectrum', source: 'sts01.dat', n_points: 3 })
+    expect(archiveOf(h).frames({ kind: 'd' }).map((e) => e.source_name)).toEqual(['sts01.dat', 'sts02.dat', 'sts03.dat'])
+
+    // the spectra's default plots go with the result too
+    const value = await h.ctx.frameArchive.runInSession('session-a', () => presentObservation(h.ctx, o, execFor(null)))
+    expect(h.att?.saved.map((s) => s.name)).toEqual(['t0001.s0.png', 't0001.d1.png', 't0001.d2.png'])
+    expect(value.images.map((im) => im.label.match(/frame="([^"]+)"/)?.[1])).toEqual(['t0001.s0', 't0001.d1', 't0001.d2'])
+  })
+
+  it('a .dat that cannot be read is reported as not archived, never dropped', async () => {
+    const h = await host()
+    const o = await runAs(h, kernel(h), saving('AcquireSTS', 'write', () => writeFileSync(join(h.saveDir, 'sts001.dat'), 'x')))
+    expect(o.observation?.notArchived).toEqual([{ file: 'sts001.dat', error: expect.stringContaining('sts001.dat') }])
+    expect(o.observation?.latestFrame).toBeNull()
   })
 })
 
@@ -348,7 +355,7 @@ describe('observationPresenter: the images with the result', () => {
     const h = await host()
     const o: SkillOutcome = { kind: 'ok', signature: 'ok:x', text: 'x: ok', elapsedMs: 0, argsHash: 'h', observation: { frames: [], show: ['t0009.s0'], notArchived: [] } }
     const value = await presentObservation(h.ctx, o, execFor(null))
-    expect(value.images).toEqual([{ label: '<visual kind="current" frame="t0009.s0"/>', error: expect.stringContaining('no frame "t0009.s0"') }])
+    expect(value.images).toEqual([{ label: '<visual kind="current" frame="t0009.s0"/>', error: expect.stringContaining("no frame 't0009.s0'") }])
     expect(value.text).toBe(`x: ok\n${IMAGES_NOT_DELIVERED}: 1`)
   })
 

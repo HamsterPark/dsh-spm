@@ -9,7 +9,7 @@
  * golden also pins model units, decimals, rounding, and the summaries, labels and
  * parsed `inspect` / `read_values` replies of a small synthetic archive, and the
  * metric graph paper on scan images (spacing, line pixels, rendered pixels, and an
- * archive that draws it), exactly.
+ * archive that draws it), exactly. Spectra are compared in `spectra.parity.test.ts`.
  *
  * Tolerances, and why:
  * - archive summaries, labels and parsed replies: exact (values are rounded to
