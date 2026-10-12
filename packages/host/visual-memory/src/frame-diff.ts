@@ -46,8 +46,7 @@ import {
   type ViewToolResult,
 } from './args.js'
 import { ChannelError, resolveChannel } from './channels.js'
-import { Canvas, drawMarks } from './draw.js'
-import type { Mark } from './fft-peaks.js'
+import { Canvas, drawMarks, type Mark } from './draw.js'
 import { blockMean, fitSurface, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nanMedian } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { shiftConstant } from './ndinterp.js'

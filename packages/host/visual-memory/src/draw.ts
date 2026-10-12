@@ -457,6 +457,14 @@ export class Canvas {
 /** DejaVu Sans, the reference's font: capital height per em. */
 const REF_CAP_EM = 0.729
 
+/** A numbered mark at image coordinates: `(x, y)` centre, radius `r` (image pixels), label `text`. */
+export interface Mark {
+  readonly x: number
+  readonly y: number
+  readonly r: number
+  readonly text: string
+}
+
 /**
  * The reference's `_draw_marks`: a 2-px ring of radius `r` around each mark
  * (unless `ring` is false) and its text to the upper right, the outlined
@@ -473,7 +481,7 @@ const REF_CAP_EM = 0.729
  */
 export function drawMarks(
   canvas: Canvas,
-  marks: readonly { x: number; y: number; r: number; text: string }[],
+  marks: readonly Mark[],
   opts: { colour?: Rgb; ring?: boolean } = {},
 ): void {
   const colour = opts.colour ?? MARK_RGB
