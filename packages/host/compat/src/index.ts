@@ -13,6 +13,11 @@
 export { defineTool } from '@deepseek-ai/dsh-tools'
 export type { DefineToolOptions } from '@deepseek-ai/dsh-tools'
 /**
+ * 工具值的 schema（dsh 的值 DSL）。调用方：`defineSkillTool` 的观测出站（K14，
+ * `OutcomePresenter.schema`）——工具值的形状由出站一侧决定，技能接缝只转交。
+ */
+export type { ValueSchemaSpec } from '@deepseek-ai/dsh-tools'
+/**
  * 课时 2.12 的 `defineSkillTool()` 要的四个名字。
  *
  * `ParameterSchemaSpec` 是 dsh 自己的参数 DSL，**不是 JSON Schema**——它的关键字

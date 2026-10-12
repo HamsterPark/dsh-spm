@@ -101,7 +101,7 @@ export type ViewToolValue = {
   images: { label: string; attachment?: AttachmentJson; error?: string }[]
 }
 
-function refToJson(ref: ImageAttachmentRef): AttachmentJson {
+export function refToJson(ref: ImageAttachmentRef): AttachmentJson {
   return {
     attachmentId: ref.attachmentId,
     mediaType: ref.mediaType,
@@ -115,7 +115,8 @@ function refToJson(ref: ImageAttachmentRef): AttachmentJson {
   }
 }
 
-const VIEW_OUTPUT = {
+/** Output schema of a tool whose value is a {@link ViewToolValue} (also the K14 presenter's). */
+export const VIEW_OUTPUT = {
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -164,7 +165,10 @@ export function renderViewValue(value: { readonly text: string; readonly images:
  */
 export const MAX_REPLY_BYTES = 48_000
 
-function errorMessage(err: unknown): string {
+/** Why an image was not stored when no attachment service is composed. */
+export const NO_ATTACHMENT_SERVICE = 'this composition has no attachment service (ctx.attachments)'
+
+export function errorMessage(err: unknown): string {
   const e = err as { code?: unknown; message?: unknown }
   const code = typeof e?.code === 'string' ? `${e.code}: ` : ''
   return `${code}${typeof e?.message === 'string' ? e.message : String(err)}`
@@ -183,7 +187,7 @@ async function deliver(tool: string, result: ViewToolResult, saver: ImageSaver |
   const images: ViewToolValue['images'] = []
   for (const im of result.images) {
     if (saver === undefined) {
-      images.push({ label: im.label, error: 'this composition has no attachment service (ctx.attachments)' })
+      images.push({ label: im.label, error: NO_ATTACHMENT_SERVICE })
       continue
     }
     try {

@@ -471,10 +471,11 @@ stderr 空、端口正常释放。
 
 - **核实记录**：web profile `--dump-config` alpha.3 vs alpha.4 逐行相同（145 行 / 27 disabled）；npx 缓存两棵树的 `.md/.d.ts/.yml` 逐文件相同（原因见 §1：alpha.3 启动器已浮动到 alpha.4 子包）。因此 09-01 按 alpha.3 时代文档核实的 §5 能力表与 §6 陷阱在 alpha.4 上未发现失效项；逐条 API 级复核由 0.6 spike 的 contract 测试承担。
 
-## 9. 视觉线束：工具结果里的图像、各适配器的送达方式、压缩钩子与「一动一观」（2026-10-09，对照 0.1.5-rc.2）
+## 9. 视觉线束：工具结果里的图像、各适配器的送达方式、压缩钩子与「一动一观」（2026-10-09，对照 0.1.5-rc.2；2026-10-13 补 §9.5 复核与 §9.7）
 
 > 回答 [VISUAL-HARNESS](../VISUAL-HARNESS.md) §7 前三条开放问题。**来源分三种**：
-> **实测（契约）** = 本仓 `packages/host/compat/contract/image-results.test.ts` 对真包跑出来的，随每次升级重跑；
+> **实测（契约）** = 本仓 `packages/host/compat/contract/image-results.test.ts`（§9.1–9.3）与
+> `packages/host/stm-skills/contract/{act-gate,k14-wiring}.test.ts`（§9.5、§9.7）对真包跑出来的，随每次升级重跑；
 > **实测（探针）** = 在仓外临时目录装同版本包、对本机 mock HTTP 服务抓请求体得到的，探针**未入仓**，升级时要重做；
 > **包** = 读 npm 包内 `lib/*.js` / `.d.ts`，行号是该包内文件的行号。
 > 适配器（`dsh-llm-pi-ai`、`dsh-llm-deepseek`）、`dsh-agent-loop`、`dsh-compaction*`、`dsh-attachment-local`
@@ -586,11 +587,32 @@ stderr 空、端口正常释放。
 - **pre-execute 时已知调用所在的步**：`tool/call`（`{turn, step, callId}`）在 `prepare()` 之前追加
   （`lib/index.js:587-588, 687-695`），而 `session/event` 观察者在 `append` 内同步触发
   （`dsh-session` `lib/index.js:1190-1203`）。[包]
-- **推荐的闸门**：宿主层（不按 agent 作用域过滤）的 `tools/pre-execute` 监听者，只在这次改变仪器的调用所在
-  `(turn, step)` 字典序**晚于**上一次被放行的改变仪器调用的 `(turn, step)` 时放行，放行时记下；否则以固定短语拒绝。
-  同一步里的第二个动作因此被拒（它的前一个结果还没进上下文）。例外：两步之间的 pre-step 若发生溢出压缩，
-  上一个结果可能已被摘掉。更精确但更耦合的做法：在 `llm/stream` 瀑布里检查真正发出的请求是否含上一次的
-  tool-result 块。PTC 子调用（`exec.parent` 有值、callId 形如 `<parent>:ptc:n`）没有 `tool/call` 事件，继承父调用的步。[包]
+- **2026-10-13 复核**（`dsh-agent-loop@0.1.5-rc.2` 的 `lib/index.js`）：`executeToolCalls` 给每个调用设
+  `agent: ctx.agents.requireInitiator()`（512-513）；独占调用一个一组，`runGroup` 先 `appendToolCall`、再
+  `prepare`（pre-execute + guard）、dispatch，`commitReady` 按模型顺序 `appendToolResult` 之后这一组才返回
+  （557-640、687-715）；`step()` 在 `executeToolCalls` 返回后才返回（1118-1119），`turn()` 在 `step()` 返回后
+  才为下一步调 `preStep`（937；`agent/pre-step` 瀑布在 894）；请求由 `buildRequest`（1030、1166）从会话推导。
+  README：「every accepted fact is appended to the session log before the next step derives from it」。[包]
+- **探针实测**（2026-10-13，仓外 scratch 目录装同版本 `dsh-agent-loop` 及其 peer，**未入仓**）：真 `AgentLoop` +
+  `AgentRegistry` + `SessionStore` + `SessionProjectionRegistry` + `LlmRuntime` + 脚本化 `LlmAdapter`（第 1 次请求
+  回两个工具调用 c1、c2，第 2 次回一个 c3，第 3 次回文本），宿主层挂与本仓 `ActGateService` 同逻辑的 guard 与
+  pre-step 回执。观察到的顺序：`pre-step 1.1` → `tool/call c1` → c1 放行、工具体跑 → `tool/result c1` →
+  `tool/call c2` → **c2 被拒** → `tool/result c2` → `step/end 1.1` → `pre-step 1.2` → 第 2 次请求带着
+  `[c1, c2(error)]` → c3 放行。工具体里 `exec.agent.id` 就是会话 id。[实测（探针）] 升级时重做。
+- **本仓的落点**（stm-skills `act-gate.ts`，2026-10-13）：回执 = 同一 agent 的下一个 `agent/pre-step`
+  （宿主层监听，一进来就回执、照常 `next()`）。不看这一步最后放不放行：模型要再发调用，只能在回应一次更晚的
+  请求，而那次请求同样由日志推导、同样带着结果。拒绝走宿主层 guard，**放行即记账**（同一个同步调用），
+  所以并发与同一步里的第二个动作都被拒。早先推荐的 `(turn, step)` 比较与此等价，没有采用：它要另从
+  `tool/call` 事件取步号。例外：pre-step 上的压缩若把上一个结果摘进了摘要，模型看到的是摘要（§9.4）。
+  PTC 子调用继承父调用的 `agent`（`dsh-tools` `lib/index.js:1211-1218`），所以一个 `run_code` 程序里的第二个
+  动作同样被拒。[包]
+- **契约测试钉住**（`packages/host/stm-skills/contract/act-gate.test.ts`，真 `ToolRuntime` + `dsh-agent` 的
+  `agentEvents` / `emitAgentEvent`）：宿主层（不带作用域）的 `agent/pre-step`、`agent/disposed` 监听者收得到经
+  agent 作用域载体派发的事件（`scopeTarget` 的契约：untagged 监听者全收）；guard 拿得到 `exec.agent`，拒绝变成
+  `isError`、`error.message` 是原文、content 是 `Error: <原文>`；全局 guard 按登记顺序问、第一个拒绝就停
+  （`dsh-tools` `lib/index.js:2823-2830`）；并发 `execute` 下只放一个。`dsh-agent-loop` 本身不在依赖树里，上面
+  「先提交、后 pre-step」一条由读包与探针支撑；要在 CI 里钉住，需把它（及 peer `dsh-session-persistence`、
+  `dsh-settings`）加成 devDependency——新依赖，留给维护者决定。[实测（契约）]
 - `dsh-tool-present`（§8.-1 提过）只声明「把哪些文件交给用户」，不往模型上下文放任何东西，与观测图无关。[包]
 
 ### 9.6 本仓的落点
@@ -602,5 +624,22 @@ stderr 空、端口正常释放。
   类型层由 `packages/host/compat/src/image-types.test.ts` 在 `tsc -b` 时检查（含「不是 any」）。
 - 设计后果落在 `packages/host/visual-memory`：观测图写 RGB PNG；每个视图存一张附件并给可读的 `name`
   （如 `t0007.s0.inspect-1.png`）；标签带 `index` / `count`（图像被移到后续 user 消息时只剩顺序可依）；
-  每个文本块以换行结尾（DeepSeek 无分隔符拼接）。K14 接线时还要补两条：按模型的 `inputModalities`
-  报「N 张图像未送达」，以及在 IC persona 里写明「旧图被卸载时用 `stm_inspect` 重看」。
+  每个文本块以换行结尾（DeepSeek 无分隔符拼接）。K14 接线时补的两条（2026-10-13 已落）：技能结果的出站一侧
+  （`observe.ts` 的 `observationPresenter`）按会话路由的 `inputModalities` 报 `images_not_delivered: N`；
+  视觉线束的提示段（`prompt.ts`）写明「旧图不见了就用 `stm_inspect` 重看」。见 §9.7。
+
+### 9.7 K14 接线用到的 dsh 事实（2026-10-13）
+
+- **会话 = agent**：`Agent.id` 就是 `SessionId`（`dsh-agent` `lib/types/types.d.ts`），一个品牌字符串，格式由创建方定
+  （agent-loop 的声明式 agent 是 `${id}-session-<uuid>`，README）；同一会话恢复时 id 不变。`agent.session.requestHeader()`
+  给出会话最近一次请求头的 `config`（provider / model，`dsh-session` `lib/types/index.d.ts`），`agent.options` 是创建时的
+  路由。[包]
+- **路由收不收图**：`ctx.llm.resolveModelInfo(provider, model)` 交回 `inputModalities`；`LlmRuntime` 只在它**声明了且不含**
+  `image` 时把图换成占位文本（`dsh-llm` `lib/index.js:2251`），本仓按同一判据报未送达。[包]
+- **每次工具调度都过 `tools/execute`**（`dsh-tools` `lib/index.js:3209-3213`，工具体在 `next()` 里）：visual-memory 在宿主层
+  这个瀑布上用 AsyncLocalStorage 记下调用所属的会话，工具与 K14 在工具体里读到它（每会话一份视觉记忆）。宿主层（不带作用域）
+  的监听者收到每个 agent 的调用。[包；单测 `packages/host/visual-memory/src/sessions.test.ts` 走真 `ToolRuntime`]
+- **提示段的位置**：`dsh-system-prompt` 的 `SECTION_ORDERS`：harness 身份 -1000、部署 persona 前缀 0、plan / team 策略
+  500 / 600、工具段 1000 起、persona 后缀 10200；agent preset 用同名段 `deployment:persona-prefix` 遮住部署的 persona。
+  视觉线束的五句约定是 order 150 的独立段；将来有 IC preset 时可以并进它的 persona。[包]
+- **压缩前钩子**：仍然没有（§9.4）。本次没有做压缩检查点。[包]
