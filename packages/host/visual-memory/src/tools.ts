@@ -7,6 +7,8 @@
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
  * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
  * | `stm_line_profile` | values and steps along a line, with an archived plot |
+ * | `stm_fft_peaks` | peaks of a frame's Fourier spectrum, with a numbered spectrum image |
+ * | `stm_detect_blobs` | compact bright or dark features, numbered on an image |
  * | `stm_frame_diff` | register two frames and archive their aligned difference with its values |
  * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
@@ -37,6 +39,8 @@
  */
 import { defineTool, type ContentBlock, type ImageAttachmentRef, type ToolDefinition } from 'dsh-spm-compat'
 import type { FrameArchive } from './archive.js'
+import { BACKGROUND_NM_DEFAULT, BLOBS_DEFAULT, detectBlobs, MAX_BLOBS, MIN_SEP_NM_DEFAULT } from './detect-blobs.js'
+import { FFT_PEAKS_DEFAULT, fftPeaks, MAX_FFT_PEAKS, MIN_PEAK_STRENGTH } from './fft-peaks.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
 import { FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters } from './frame-diff.js'
 import { frameStats } from './frame-stats.js'
@@ -71,7 +75,17 @@ export interface VisualToolDeps {
   readonly displayMax?: number
 }
 
-export const VISUAL_TOOL_NAMES = ['stm_inspect', 'stm_read_values', 'stm_line_profile', 'stm_frame_diff', 'stm_frame_stats', 'stm_notes_read', 'stm_notes_write'] as const
+export const VISUAL_TOOL_NAMES = [
+  'stm_inspect',
+  'stm_read_values',
+  'stm_line_profile',
+  'stm_fft_peaks',
+  'stm_detect_blobs',
+  'stm_frame_diff',
+  'stm_frame_stats',
+  'stm_notes_read',
+  'stm_notes_write',
+] as const
 
 /** An {@link ImageAttachmentRef} as plain JSON (the tool value must be lossless JSON). */
 export type AttachmentJson = {
@@ -90,7 +104,7 @@ export type ViewToolValue = {
   images: { label: string; attachment?: AttachmentJson; error?: string }[]
 }
 
-function refToJson(ref: ImageAttachmentRef): AttachmentJson {
+export function refToJson(ref: ImageAttachmentRef): AttachmentJson {
   return {
     attachmentId: ref.attachmentId,
     mediaType: ref.mediaType,
@@ -104,7 +118,8 @@ function refToJson(ref: ImageAttachmentRef): AttachmentJson {
   }
 }
 
-const VIEW_OUTPUT = {
+/** Output schema of a tool whose value is a {@link ViewToolValue} (also the K14 presenter's). */
+export const VIEW_OUTPUT = {
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -153,7 +168,10 @@ export function renderViewValue(value: { readonly text: string; readonly images:
  */
 export const MAX_REPLY_BYTES = 48_000
 
-function errorMessage(err: unknown): string {
+/** Why an image was not stored when no attachment service is composed. */
+export const NO_ATTACHMENT_SERVICE = 'this composition has no attachment service (ctx.attachments)'
+
+export function errorMessage(err: unknown): string {
   const e = err as { code?: unknown; message?: unknown }
   const code = typeof e?.code === 'string' ? `${e.code}: ` : ''
   return `${code}${typeof e?.message === 'string' ? e.message : String(err)}`
@@ -172,7 +190,7 @@ async function deliver(tool: string, result: ViewToolResult, saver: ImageSaver |
   const images: ViewToolValue['images'] = []
   for (const im of result.images) {
     if (saver === undefined) {
-      images.push({ label: im.label, error: 'this composition has no attachment service (ctx.attachments)' })
+      images.push({ label: im.label, error: NO_ATTACHMENT_SERVICE })
       continue
     }
     try {
@@ -413,17 +431,6 @@ function lineProfileTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
-function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
-  return defineTool({
-    name: 'stm_frame_diff',
-    description: FRAME_DIFF_DESCRIPTION,
-    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
-    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
-    isConcurrencySafe: () => true,
-    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
-  })
-}
-
 function frameStatsTool(deps: VisualToolDeps): ToolDefinition {
   return defineTool({
     name: 'stm_frame_stats',
@@ -454,6 +461,110 @@ function frameStatsTool(deps: VisualToolDeps): ToolDefinition {
     output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
     isConcurrencySafe: () => true,
     execute: async (args) => deliver('stats', frameStats(deps.archive, args), deps.attachments()),
+  })
+}
+
+const MEASURE_REGION = (dm: number) =>
+  ({
+    type: 'object',
+    additionalProperties: false,
+    description: REGION_DESCRIPTION(dm),
+    properties: {
+      x: { type: 'integer', required: true },
+      y: { type: 'integer', required: true },
+      width: { type: 'integer', required: true },
+      height: { type: 'integer', required: true },
+    },
+  }) as const
+
+function fftPeaksTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_fft_peaks',
+    description:
+      'Compute the 2-D Fourier spectrum of one archived scan frame, or of a region of it (display pixels of the ' +
+      "frame's full image), without changing the instrument, and list its strongest peaks. The region is " +
+      'flattened (default plane over the whole frame, then a plane over the region), Hann-windowed and ' +
+      'zero-padded; the central DC lobe (2/field along each axis) is excluded. Each peak gives the spatial ' +
+      'frequency k = 1/period in cycles per nm (k_per_nm, no 2 pi), the real-space period_nm, the direction of k ' +
+      'in the scan frame (angle_deg, from +x toward +y, 0..180; stripes or atom rows with this period run ' +
+      "perpendicular to it), its components and a strength: log-magnitude above the spectrum's 30th percentile " +
+      'at the same |k|, in robust units of its lower spread. Only one peak of each +k/-k pair is listed; peaks ' +
+      `weaker than ${MIN_PEAK_STRENGTH} are not. One image of the log-magnitude spectrum with the listed peaks numbered ` +
+      "is returned (center = k 0, right = +x and up = +y of the frame's own axes) and archived as a derived frame " +
+      '(image.frame). The spectrum is measured; whether a peak is a lattice, a reconstruction or noise is your judgement.',
+    parameters: {
+      frame: MEASURE_FRAME,
+      region: MEASURE_REGION(deps.displayMax ?? deps.archive.displayMax),
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+      n_peaks: { type: 'integer', description: `Maximum number of peaks listed, 1 to ${MAX_FFT_PEAKS}. Default ${FFT_PEAKS_DEFAULT}.` },
+      flatten: { type: 'string', enum: [...FLATTEN_MODES], description: 'Background removed over the whole frame first (default plane).' },
+      highpass_nm: {
+        type: 'number',
+        description: `Background width in nm for flatten='highpass': more than 0, at most ${MAX_HIGHPASS_NM}. Default ${HIGHPASS_NM_DEFAULT}.`,
+      },
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('fft_peaks', fftPeaks(deps.archive, args), deps.attachments()),
+  })
+}
+
+function detectBlobsTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_detect_blobs',
+    description:
+      'Find compact bright (or dark) features in one archived scan frame, or in a region of it (display pixels of ' +
+      "the frame's full image), without changing the instrument. The frame is plane-flattened, a median background " +
+      'of background_nm is subtracted, the residual is lightly smoothed, and local maxima above 6 robust noise ' +
+      'sigmas are kept; maxima not separated by a saddle are merged; each feature is fitted with an elliptical ' +
+      'Gaussian. Per blob: id, centroid in display pixels of the full frame (x_px, y_px) and in scan-frame nm ' +
+      '(x_nm, y_nm), height relative to the local background (height_pm for Z, height_pa for current; negative for ' +
+      "dark blobs), FWHM along the frame's x and y and along its major/minor axes (nm), elongation (major/minor), " +
+      'the major axis angle (axis_angle_deg, scan frame, from +x toward +y) and whether the centroid comes from the ' +
+      'Gaussian fit or from intensity moments (fit). Blobs are numbered in reading order (top to bottom, left to ' +
+      'right). One image of the frame or region with numbered rings is returned and archived as a derived frame ' +
+      '(image.frame); the marks exist only on that image. It counts and locates; it does not identify species or ' +
+      'decide what is an atom. Keys carry their unit: _nm, _deg, _px, and for channel values _pm (Z), _pa ' +
+      '(current), _hz (frequency shift), _v (voltage).',
+    parameters: {
+      frame: MEASURE_FRAME,
+      region: MEASURE_REGION(deps.displayMax ?? deps.archive.displayMax),
+      channel: MEASURE_CHANNEL,
+      direction: MEASURE_DIRECTION,
+      polarity: { type: 'string', enum: ['bright', 'dark'], description: 'Look for protrusions (bright, default) or depressions (dark).' },
+      min_height: {
+        type: 'number',
+        description:
+          'Only report blobs at least this high above (dark: this deep below) their local background, in the ' +
+          "channel's unit (pm for Z, pA for current); 0 or more.",
+      },
+      min_sep_nm: {
+        type: 'number',
+        description: `Maxima closer than this are one candidate: more than 0, at most 100. Default ${MIN_SEP_NM_DEFAULT} nm.`,
+      },
+      background_nm: {
+        type: 'number',
+        description:
+          'Width of the median background removed first: more than 0, at most 1000, and at least 3 scan pixels. ' +
+          `Default ${BACKGROUND_NM_DEFAULT} nm; use a larger value for larger features.`,
+      },
+      max_n: { type: 'integer', description: `At most this many blobs, the highest: 1 to ${MAX_BLOBS}. Default ${BLOBS_DEFAULT}.` },
+    },
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('detect_blobs', detectBlobs(deps.archive, args), deps.attachments()),
+  })
+}
+
+function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_diff',
+    description: FRAME_DIFF_DESCRIPTION,
+    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
   })
 }
 
@@ -516,5 +627,15 @@ function notesWriteTool(deps: VisualToolDeps): ToolDefinition {
 
 /** The tools, in the order the model should see them. */
 export function defineVisualTools(deps: VisualToolDeps): ToolDefinition[] {
-  return [inspectTool(deps), readValuesTool(deps), lineProfileTool(deps), frameDiffTool(deps), frameStatsTool(deps), notesReadTool(deps), notesWriteTool(deps)]
+  return [
+    inspectTool(deps),
+    readValuesTool(deps),
+    lineProfileTool(deps),
+    fftPeaksTool(deps),
+    detectBlobsTool(deps),
+    frameDiffTool(deps),
+    frameStatsTool(deps),
+    notesReadTool(deps),
+    notesWriteTool(deps),
+  ]
 }

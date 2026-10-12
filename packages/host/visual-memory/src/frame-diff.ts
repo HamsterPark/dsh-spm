@@ -48,6 +48,7 @@ import {
 } from './args.js'
 import { ChannelError, resolveChannel } from './channels.js'
 import { Canvas, drawMarks } from './draw.js'
+import type { Mark } from './fft-peaks.js'
 import { blockMean, fitSurface, flatten, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, type FlattenMode } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { shiftConstant } from './ndinterp.js'
@@ -346,14 +347,6 @@ export function divergingRgb(d: ArrayLike<number>, L: number): Uint8Array {
     out[i * 3 + 2] = rint(255 * (1 - pos * 0.85))
   }
   return out
-}
-
-/** A numbered mark on the difference image: centre, radius (image pixels), text. */
-export interface Mark {
-  readonly x: number
-  readonly y: number
-  readonly r: number
-  readonly text: string
 }
 
 /**

@@ -3,3 +3,6 @@ export * from './tool.js'
 export * from './l0/index.js'
 export * from './gated-call.js'
 export * from './sidecar.js'
+// 视觉线束（D12）：一动一观的闸门、K14 要问的保存目录
+export * from './act-gate.js'
+export * from './save-dir.js'

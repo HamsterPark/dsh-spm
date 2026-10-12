@@ -116,6 +116,8 @@ describe('registration', () => {
       stm_frame_stats: { frame: 't0000.s0' },
       stm_notes_read: { file: 'GUIDE.md' },
       stm_notes_write: { file: 'WORKING.md', content: 'x' },
+      stm_fft_peaks: { frame: 't0000.s0' },
+      stm_detect_blobs: { frame: 't0000.s0' },
       stm_frame_diff: { frame_a: 't0000.s0', frame_b: 't0000.s0' },
     }
     for (const s of ctx.tools.schemas().filter((x) => x.name.startsWith('stm_'))) {

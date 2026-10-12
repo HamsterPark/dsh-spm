@@ -217,6 +217,40 @@ export {
   type ProfileStep,
 } from './line-profile.js'
 export { frameStats } from './frame-stats.js'
+export { LeastSquaresError, leastSquares, type TrfOptions, type TrfResult } from './least-squares.js'
+export {
+  FFT_PEAKS_DEFAULT,
+  MAX_FFT_PEAKS,
+  MIN_PEAK_STRENGTH,
+  SpectrumSizeError,
+  fftPeaks,
+  nextFastLen,
+  paintMarks,
+  spectrumImage,
+  spectrumMarks,
+  spectrumPeaks,
+  type Mark,
+  type MarkPainter,
+  type Spectrum,
+  type SpectrumImage,
+  type SpectrumPeak,
+} from './fft-peaks.js'
+export {
+  BACKGROUND_NM_DEFAULT,
+  BLOBS_DEFAULT,
+  BlobError,
+  FWHM_PER_SIGMA,
+  MAX_BLOBS,
+  MIN_SEP_NM_DEFAULT,
+  blobGeometry,
+  blobMarks,
+  detectBlobs,
+  findBlobs,
+  type Blob,
+  type BlobGeometry,
+  type BlobResult,
+  type FindBlobsOptions,
+} from './detect-blobs.js'
 export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
 export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
 export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
@@ -233,7 +267,6 @@ export {
   sameGeometry,
   type CommonGrid,
   type DiffTrace,
-  type Mark,
 } from './frame-diff.js'
 export {
   VISUAL_TOOL_NAMES,
@@ -243,4 +276,24 @@ export {
   type ViewToolValue,
   type VisualToolDeps,
 } from './tools.js'
-export { FrameArchiveService, apply, inject, name, visualMemoryProvider, type Config } from './plugin.js'
+export {
+  FrameArchiveService,
+  apply,
+  inject,
+  name,
+  sessionDirName,
+  visualMemoryProvider,
+  type Config,
+  type SessionMemory,
+} from './plugin.js'
+export {
+  IMAGES_NOT_DELIVERED,
+  TEXT_ONLY_ROUTE,
+  frameObserver,
+  observationPresenter,
+  presentObservation,
+  renderObservation,
+  routeTakesImages,
+  type FrameObserverOptions,
+} from './observe.js'
+export { VISUAL_HARNESS_PROMPT, VISUAL_HARNESS_PROMPT_NAME, VISUAL_HARNESS_PROMPT_ORDER } from './prompt.js'

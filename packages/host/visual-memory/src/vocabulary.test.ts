@@ -271,4 +271,29 @@ describe('model-facing JSON of the measurement tools', () => {
     expect(summaries.map((s) => s['tool'] ?? s['kind'])).toEqual(['partial', 'line_profile', 'line_profile'])
     for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
   })
+
+  it('keeps stm_fft_peaks and stm_detect_blobs replies, and the images they archive, in the shared vocabulary', async () => {
+    const ctx = await host(true)
+    // The reference's guard measures the same frame with fft_peaks and detect_blobs.
+    const fa = ctx.frameArchive.archive.addPartial(0, {
+      Z: heights(128, 128, 100),
+      Current: { rows: 128, cols: 128, data: new Float64Array(128 * 128).fill(1e-10) },
+    }, { geometry: { cx_nm: 3, cy_nm: -2, w_nm: 12.8, h_nm: 12.8, angle_deg: 10 }, bias_v: 0.1, setpoint_a: 1e-10, scan_dir: 'down' }).fid
+    const replies: Record<string, unknown>[] = []
+    for (const [name, args] of [
+      ['stm_fft_peaks', { frame: fa }],
+      ['stm_fft_peaks', { frame: fa, region: { x: 0, y: 0, width: 128, height: 128 }, flatten: 'highpass', highpass_nm: 2 }],
+      ['stm_detect_blobs', { frame: fa }],
+      ['stm_detect_blobs', { frame: fa, polarity: 'dark', min_height: 1 }],
+      ['stm_detect_blobs', { frame: fa, max_n: 51 }],
+    ] as const) {
+      const [text] = await call(ctx, name, args)
+      replies.push(JSON.parse(text as string) as Record<string, unknown>)
+    }
+    expect(replies.map((r) => 'error' in r)).toEqual([false, false, false, false, true])
+    for (const r of replies) expect(vocabularyViolations(r)).toEqual([])
+    const summaries = ctx.frameArchive.index()
+    expect(summaries.map((s) => s['tool'] ?? s['kind'])).toEqual(['partial', 'fft_peaks', 'fft_peaks', 'detect_blobs', 'detect_blobs'])
+    for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
+  })
 })

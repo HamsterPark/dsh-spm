@@ -4069,6 +4069,37 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 **重新考虑的条件**：需要与参考实现逐像素比对派生图（例如金样改为录制派生图像素），或 dsh 侧提供可用的
 字体与矢量渲染。
 
+## D-VMEM-9 · `stm_detect_blobs` 最多 50 个斑点（参考实现 200）
+
+| | |
+|---|---|
+| **Python**（`vista_spm/measure.py`） | `MAX_BLOBS = 200`：`max_n` 取 1..200，默认 50 |
+| **TS**（`detect-blobs.ts`） | `MAX_BLOBS = 50`：`max_n` 取 1..50，默认 50；51..200 返回 `detect_blobs: arguments.max_n must be <= 50`，不留派生帧 |
+| **测试** | `measure-fft-blobs.parity.test.ts`「D-VMEM-9」（金样中参考实现接受的 `max_n` 51 与 200）；`measure-fft-blobs.test.ts` |
+
+**为什么有意**：VISUAL-HARNESS §4.4 把上限定为 50，回复体积与使用记录都支持这一点。
+参考实现在一帧 256×256、扫描中心远离原点（坐标取最长写法）的晶格上以 `max_n` 200 返回 200 个斑点，
+回复 45 451 字节，单个斑点最多 228 字节（金样 `evidence.max_n_200`），只比 dsh 整段显示的
+48 000 字节上限（D-VMEM-4）少 5 %；电流通道的高度可到 6 位小数、像素坐标可到 4 位整数，那样的回复就会越线，
+被 `deliver` 整条拒绝，而那条拒绝要模型「减少视图或样点」，对这个工具没有意义。50 个斑点的回复不超过约 12 KB。
+VISTA 第一轮矩阵（m1）的 73 次 `detect_blobs` 调用中 `max_n` 最大为 10（63 次用默认值），回复最多 23 个斑点，
+没有一次被截断。
+**重新考虑的条件**：模型需要一次数清 50 个以上的特征（例如整幅原子分辨晶格），并且回复能保证不超过 dsh 的整段显示上限
+（例如分页，或只列坐标）。
+
+## D-VMEM-10 · 与两个候选等距的像素归先出现（更强）的候选
+
+| | |
+|---|---|
+| **Python** | `find_blobs` 用 SciPy `cKDTree.query` 为每个像素找最近的候选（Voronoi 归属，决定哪些像素参与该斑点的拟合）。等距时：候选不多于 16 个（`leafsize`，整棵树只有一个叶结点）取先出现的；多于 16 个时由树的中位数划分与遍历次序决定，而划分用 C++ 标准库的 `nth_element`，结果随平台而变 |
+| **TS**（`detect-blobs.ts`） | 逐个候选比较整数平方距离，等距取先出现的；候选按平滑残差从高到低排列，即更强的那个 |
+| **测试** | `measure-fft-blobs.parity.test.ts`：16 个以内的用例与参考实现本身比对；`many25`（25 个候选）、`lattice`（121 个）及工具的晶格用例与「参考实现改用同一规则」的重跑比对，并断言参考实现两种规则之间的差 |
+
+**为什么有意**：整数像素网格上等距很常见（两个候选的行差与列差同为偶数时，中垂线穿过格点），而归属决定拟合用哪些像素。
+参考实现在多于 16 个候选时的结果取决于所在平台的标准库，无法逐位复现；TS 取一条确定的规则，并与参考实现在
+16 个以内时的行为相同。金样实测：25 个散布斑点两种规则的结果相同；121 个候选的晶格中，保留的 50 个斑点位置最多差
+1.3e-3 像素、高度最多差约 1e-3（相对），工具回复的 `x_px` / `y_px` 最多差末位一格（0.01）。
+**重新考虑的条件**：参考实现改用确定的归属规则（例如等距取先出现的候选），或需要逐位对齐某一平台上的 `cKDTree`。
 ## D-VMEM-11 · `stm_frame_diff` 的可选参数为 `null` 时按未给处理
 
 | | |
@@ -4107,3 +4138,37 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 TS 统一按未给处理。
 **判据**：上面两条测试——视图函数对 `null` 的回复与省略该参数时逐项相同；经 dsh 的调用在 schema 校验处被拒。
 **重新考虑的条件**：dsh 的参数校验开始放行 `null`（模型就能走到这里），或参考实现给 `null` 定下别的明确语义（例如统一拒绝并说明原因）。
+
+## D-VMEM-15 · 一动一观：没有单一的 `act` 工具、补救动作不拒、回执是下一个 `agent/pre-step`
+
+| | |
+|---|---|
+| **Python**（`vista_spm/host.py`、`claude_runner.py`、`prompts.py`） | 唯一会动仪器的工具 `act`（动作名 + 参数），`withdraw` 也是其中一个动作；拒绝文案 `Observe the result of the previous act before another action. No action was executed.`；运行器读到 `act` 的 `tool_result` 进了 Claude Code 的 user 消息时回执，10 s 内没回执就放行并计 `gate_fallbacks`；参数校验失败、未知动作的 `act` 不置「待观察」；提示「Before each `act`, briefly state what you expect to see…」 |
+| **TS**（kernel `act-gate.ts` / `messages.ts`，stm-skills `act-gate.ts`，visual-memory `prompt.ts`） | ① 动作 = 登记过的、类别不是 `read` / `analysis` 的技能工具（缺类别也算）；文案 `[act_gate] Observe the result of the previous action that changes the instrument before another such action. No action was executed.`，提示里 `act` 换成「each action that changes the instrument」。② 补救动作——样品门控豁免表里的名字（`WithdrawTip`、`SafeRetract`、`EmergencyRetract`、`StopScan`…）与带 `stop` / `emergency` 标签的技能——**总是放行**，但照样记「待观察」。③ 回执 = 同一 agent 的下一个 `agent/pre-step`，**没有**时间兜底；guard 放行的那一刻记账，所以放行后又被别的 guard 拒、或被 dsh 的参数校验拒（`INVALID_ARGS`，在工具体里）的调用也算一次动作；没有 agent 的调用不受闸 |
+| **测试** | kernel `act-gate.test.ts`（分类、补救、逐字文案）；stm-skills `contract/act-gate.test.ts`（回执、同一步两个动作、并发、guard 顺序、会话隔离、`agent/disposed`）；visual-memory `sessions.test.ts`（提示逐字） |
+
+**为什么有意**：① 本仓把每个技能直接做成一个 dsh 工具（`defineSkillTool`），没有把 400 多个技能收进一个 `act`；
+闸门因此按技能声明的类别判，未知类别按「会改变」处理（与仪器锁同向）。`[act_gate]` 前缀是 PLAN §3.2-16 要求的机器可判码。
+② 本仓的安全原则是记账类的闸不许挡住安全操作（样品门控 fail-open、中止闩在动词层放行 `ZCtrl_Withdraw`）；一动一观约束的是
+观察纪律，不是安全，模型在同一步里发现要退针时，退针必须能跑。`withdraw` / `retract` 标签不算：`SetWithdrawRate`、
+`SetZSpectrRetract` 是配置写。③ dsh 的 agent-loop 在下一次模型请求之前一定跑 pre-step（facts.md §9.5），回执不会丢，
+兜底只会让第二个动作在没被观察时跑起来；记账放在 guard 里，是为了「查」与「记」在同一个同步调用里完成、并发下只放一个，
+代价是偏保守（同一步里被别的闸拒掉的调用之后的动作也被拒，下一步即放行）。没有 agent 的调用不是模型发的。
+**重新考虑的条件**：本仓改成单一动作工具；消融显示同一步里的补救动作被滥用（例如用 Stop* 绕开观察）；出现不经 agent-loop、
+却代表模型发调用的驱动（那时要换回执事件）；或保守记账在消融里造成可测的动作浪费。
+
+## D-VMEM-16 · K14：读类调用也入档、回执只接帧编号、没入档的文件告诉模型；提示多一行 `stm_inspect`
+
+| | |
+|---|---|
+| **Python**（`host.py::_act`、`prompts.py::SYSTEM_TEMPLATE`） | 只在 `act` 之后入档新文件；动作回执是整份 JSON（`turn`、`ok`、`result`、`instrument` 状态回显、`budget`、`instrument_s`、`new_frames` 或 `latest_frame`）；读不了的文件记进 ledger 的 `archive_error` 事件，模型看不到；提示五句 |
+| **TS**（kernel K14 + visual-memory `observe.ts` / `prompt.ts`） | ① depth 0 的每个技能调用（读类也算）结束时都看保存目录：改变仪器状态的调用开一个新动作序号，读类调用的新帧记在当前序号下、没有新帧时什么都不加；技能自己的文本后面只接 `new_frames` / `latest_frame`（后者只给改变仪器状态的调用）/ `not_archived` / `observation_error` 几行，没有状态回显、预算与仪器用时。② 存下却没能入档的文件列进 `not_archived`；保存目录问不到、列不出时，改变仪器状态的调用加一行 `observation_error`。③ 提示同五句（`act` 的改写见 D-VMEM-15），再加「An earlier image that is no longer shown can be looked at again with `stm_inspect`.」 |
+| **测试** | kernel `k14-observation.test.ts`；visual-memory `observe.test.ts`、`sessions.test.ts`（提示逐字）；stm-skills `contract/k14-wiring.test.ts` |
+
+**为什么有意**：① 本仓的读类技能里有会等到新文件落盘的（`WaitScanComplete`），只在动作之后入档会把那张帧推迟到下一个动作；
+状态回显由 `instrument-state` 的实时状态块每轮带进上下文，仪器时间预算在 dsh 侧没有对应物。② 没入档的帧模型回看不了，与
+VISUAL-HARNESS §4.8「不得静默丢图」同一条理由；写到一半的文件下次改变时会重试，所以这一行可能只是暂时的。③ dsh 的 pi-ai 路由在
+历史图像超过 20 MiB 时把最早的图换成「ask the user to attach it again」（facts.md §9.3），对工具图是错的提示；Claude Code
+（参考实现的运行器）没有这种卸载。
+**重新考虑的条件**：消融显示状态回显或预算放进动作回执有可测收益；`not_archived` 在长会话里成了噪声；dsh 的卸载文案改成指向工具，
+或本仓接管卸载文案。
