@@ -4082,8 +4082,6 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 回复 45 451 字节，单个斑点最多 228 字节（金样 `evidence.max_n_200`），只比 dsh 整段显示的
 48 000 字节上限（D-VMEM-4）少 5 %；电流通道的高度可到 6 位小数、像素坐标可到 4 位整数，那样的回复就会越线，
 被 `deliver` 整条拒绝，而那条拒绝要模型「减少视图或样点」，对这个工具没有意义。50 个斑点的回复不超过约 12 KB。
-VISTA 第一轮矩阵（m1）的 73 次 `detect_blobs` 调用中 `max_n` 最大为 10（63 次用默认值），回复最多 23 个斑点，
-没有一次被截断。
 **重新考虑的条件**：模型需要一次数清 50 个以上的特征（例如整幅原子分辨晶格），并且回复能保证不超过 dsh 的整段显示上限
 （例如分页，或只列坐标）。
 
@@ -4100,6 +4098,19 @@ VISTA 第一轮矩阵（m1）的 73 次 `detect_blobs` 调用中 `max_n` 最大�
 16 个以内时的行为相同。金样实测：25 个散布斑点两种规则的结果相同；121 个候选的晶格中，保留的 50 个斑点位置最多差
 1.3e-3 像素、高度最多差约 1e-3（相对），工具回复的 `x_px` / `y_px` 最多差末位一格（0.01）。
 **重新考虑的条件**：参考实现改用确定的归属规则（例如等距取先出现的候选），或需要逐位对齐某一平台上的 `cKDTree`。
+
+## D-VMEM-11 · `stm_frame_diff` 的可选参数为 `null` 时按未给处理
+
+| | |
+|---|---|
+| **Python**（`vista_spm/measure.py` `diff`，经 `viewtools` 的 `bool_arg` / `str_arg` / `num_arg`） | `obj.get(key, default)` 碰上 `None`：`align: null` 被拒为 `arguments.align must be true or false`，`flatten: null` 在 `frames.flatten` 处被拒为 `flatten must be one of ('none', …), not None`，`highpass_nm: null` 在 `float(None)` 处抛 TypeError（回复 `internal error TypeError: …`），`direction: null` 被拒为 `arguments.direction: <帧> channel 'Z' has only [...]`；`channel`、`region` 为 null 时按未给处理 |
+| **TS**（`frame-diff.ts`，`args.ts` 的 `boolArg` / `strArg` / `numArg`） | `null` 与未给相同：`align` true，`flatten` highpass，`highpass_nm` 3，`direction` forward；与参考相同的是 `flatten` 不为 highpass 时给了 `highpass_nm`（哪怕是 null）仍被拒。经 dsh 调用时这些参数的 schema 不收 `null`，dsh 在工具运行前以 `INVALID_ARGS`（`isError: true`）拒绝 |
+| **测试** | `frame-diff.test.ts`「reads null optional arguments as absent」（回复与省略该参数时逐项相同）与「through a real dsh dispatcher」（`null` 在 schema 校验处被拒） |
+
+**为什么有意**：与 D-VMEM-14 同一条规则用到差分工具的参数上：`null` 是 JSON 里「没有值」的写法，参考实现的
+拒绝与内部错误是 `.get(key, default)` 碰上 `None` 的副作用，不是设计；它对 `channel`、`region` 的 `null` 本来就按
+未给处理。布尔参数 `align` 另需 `boolArg`，按同一规则写。
+**重新考虑的条件**：同 D-VMEM-14——dsh 的参数校验开始放行 `null`，或参考实现给 `null` 定下明确语义。
 
 ## D-VMEM-13 · 谱视图里非有限的 x 范围写成 `null`
 

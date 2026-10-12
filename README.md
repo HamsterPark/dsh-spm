@@ -100,7 +100,7 @@ The [final candidate validation and publication boundary](docs/handoff/publicati
 - [AGENTS.md](AGENTS.md): task routing, boundaries and validation defaults for coding agents.
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md): migration acceptance, generation, tests and collaboration.
 - [RELEASE-TODO.md](docs/RELEASE-TODO.md): publication preparation and recorded checks.
-- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md): planned image-first perception design (decision D12; not yet implemented).
+- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md): image-first perception design (decision D12). The visual-memory package, its measurement tools, the K14 observation wiring and the act gate are implemented with unit, contract and reference-parity tests; they are not yet mounted in the bundle or any profile and have no runtime acceptance.
 - [SOURCES.md](docs/SOURCES.md): provenance and third-party notices, including reference-derived fixtures and public-text normalization.
 
 Licensed under [MIT](LICENSE). Third-party material retains the notices described in the source register.

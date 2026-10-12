@@ -7,9 +7,10 @@
  * | `stm_inspect` | re-render archived frames: region, channel, direction, flattening; spectra as line plots |
  * | `stm_read_values` | read exact archived values at cell centers; spectrum columns at bin centers |
  * | `stm_line_profile` | values and steps along a line, with an archived plot |
- * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_fft_peaks` | peaks of a frame's Fourier spectrum, with a numbered spectrum image |
  * | `stm_detect_blobs` | compact bright or dark features, numbered on an image |
+ * | `stm_frame_diff` | register two frames and archive their aligned difference with its values |
+ * | `stm_frame_stats` | summary statistics of a frame or a region |
  * | `stm_notes_read` | read GUIDE.md or WORKING.md |
  * | `stm_notes_write` | replace GUIDE.md or WORKING.md |
  *
@@ -41,6 +42,7 @@ import type { FrameArchive } from './archive.js'
 import { BACKGROUND_NM_DEFAULT, BLOBS_DEFAULT, detectBlobs, MAX_BLOBS, MIN_SEP_NM_DEFAULT } from './detect-blobs.js'
 import { FFT_PEAKS_DEFAULT, fftPeaks, MAX_FFT_PEAKS, MIN_PEAK_STRENGTH } from './fft-peaks.js'
 import { FLATTEN_MODES, HIGHPASS_NM_DEFAULT } from './flatten.js'
+import { FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters } from './frame-diff.js'
 import { frameStats } from './frame-stats.js'
 import { lineProfile } from './line-profile.js'
 import { GUIDE_FILE, MAX_GUIDE_BYTES, MAX_WORKING_BYTES, NOTE_FILES, NotesError, WORKING_FILE, type NotesStore } from './notes.js'
@@ -79,6 +81,7 @@ export const VISUAL_TOOL_NAMES = [
   'stm_line_profile',
   'stm_fft_peaks',
   'stm_detect_blobs',
+  'stm_frame_diff',
   'stm_frame_stats',
   'stm_notes_read',
   'stm_notes_write',
@@ -554,6 +557,17 @@ function detectBlobsTool(deps: VisualToolDeps): ToolDefinition {
   })
 }
 
+function frameDiffTool(deps: VisualToolDeps): ToolDefinition {
+  return defineTool({
+    name: 'stm_frame_diff',
+    description: FRAME_DIFF_DESCRIPTION,
+    parameters: frameDiffParameters(deps.displayMax ?? deps.archive.displayMax),
+    output: { schema: VIEW_OUTPUT, render: (_args, value) => renderViewValue(value) },
+    isConcurrencySafe: () => true,
+    execute: async (args) => deliver('diff', frameDiff(deps.archive, args), deps.attachments()),
+  })
+}
+
 const NOTE_FILE_PARAM = {
   type: 'string',
   required: true,
@@ -619,6 +633,7 @@ export function defineVisualTools(deps: VisualToolDeps): ToolDefinition[] {
     lineProfileTool(deps),
     fftPeaksTool(deps),
     detectBlobsTool(deps),
+    frameDiffTool(deps),
     frameStatsTool(deps),
     notesReadTool(deps),
     notesWriteTool(deps),

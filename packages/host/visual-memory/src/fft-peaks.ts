@@ -45,7 +45,7 @@ import { ArgError, argsObject, channelDirectionArgs, checkKeys, failure, flatten
 import { entryScale, type FrameArchive } from './archive.js'
 import { fitSurface } from './flatten.js'
 import { flatFrame, imageEntry, pixelNm } from './line-profile.js'
-import { Canvas, drawMarks } from './draw.js'
+import { Canvas, drawMarks, type Mark } from './draw.js'
 import { pyG, pyRound } from './pyfmt.js'
 import { pyHypot, pyMod } from './pymath.js'
 import { crop, greyRgb, percentileSorted, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
@@ -565,14 +565,6 @@ export function spectrumImage(res: Spectrum, displayMax: number): SpectrumImage 
   const hi = percentileSorted(sorted, 99.9)
   const up = Math.max(1, Math.floor(displayMax / G))
   return { rgb: upscaleRgb(greyRgb(img, lo, hi), G, G, up), K, size: G * up }
-}
-
-/** A numbered mark at image coordinates: `(x, y)` centre, radius `r`, label `text`. */
-export interface Mark {
-  readonly x: number
-  readonly y: number
-  readonly r: number
-  readonly text: string
 }
 
 /** The reference's marks on the spectrum image: peak `i` at its (ku, kv), radius max(7, 1.8 % of the size). */
