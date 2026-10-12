@@ -2,7 +2,7 @@
  * The two visual-memory tools as pure functions over an archive:
  * `inspect` (look again) and `read_values` (read exact values). VISTA's
  * `inspect` / `read_pixels` ported to STM frames, with the Python reference's
- * (`stmbench.vista.viewtools`) argument rules, reply fields and messages.
+ * (`vista_spm.viewtools`) argument rules, reply fields and messages.
  *
  * Both are read-only: they never touch the instrument, only the archive.
  *

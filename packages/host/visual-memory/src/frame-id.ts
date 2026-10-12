@@ -12,7 +12,7 @@
  * | `m` | derived image a measurement tool produced |
  *
  * and `i` counts the frames of that kind within the turn. Same grammar as the
- * Python reference (`stmbench.vista.protocol.frame_id`): the turn is zero-padded
+ * Python reference (`vista_spm.protocol.frame_id`): the turn is zero-padded
  * to at least four digits, the index is not padded.
  */
 

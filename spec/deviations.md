@@ -3980,7 +3980,7 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 | | |
 |---|---|
-| **Python**（`stmbench/vista/frames.py`） | `compose_rgb`：没有缺测像素时写 8 位灰度（L），有缺测时写 RGB |
+| **Python**（`vista_spm/frames.py`） | `compose_rgb`：没有缺测像素时写 8 位灰度（L），有缺测时写 RGB |
 | **TS**（`dsh-spm-visual-memory`） | 一律写 8 位 RGB（colour type 2，R = G = B），只有 IHDR / IDAT / IEND |
 | **测试** | `packages/host/visual-memory/src/png.test.ts`（块与 colour type）；`parity.test.ts`（解码后的像素与参考逐字节相同） |
 

@@ -2,8 +2,8 @@
  * Parity with the Python reference (VISUAL-HARNESS §5).
  *
  * `spec/golden/visual_memory.json` is produced by
- * `tools/spec-export/export_visual_memory.py`, which runs STM-Bench's
- * `stmbench/vista/frames.py`, `archive.py` and `viewtools.py` on synthetic
+ * `tools/spec-export/export_visual_memory.py`, which runs VISTA-SPM's
+ * `vista_spm/frames.py`, `archive.py` and `viewtools.py` on synthetic
  * inputs; the reference file hashes are recorded in the golden. Since the TS
  * port follows the reference's current model-facing vocabulary (2026-10-09), the
  * golden also pins model units, decimals, rounding, and the summaries, labels and

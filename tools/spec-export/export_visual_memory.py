@@ -4,21 +4,21 @@ VISUAL-HARNESS §5 asks the TypeScript visual memory to match the Python
 reference implementation of the same design: display scale, display <-> scan-nm
 transforms, flattening, contrast, grey levels, views of exact regions, the
 read_values sampling rule, model units, decimals, rounding and labels. This
-exporter runs the reference (``stmbench/vista/frames.py``, ``archive.py`` and
+exporter runs the reference (``vista_spm/frames.py``, ``archive.py`` and
 ``viewtools.py``) on synthetic inputs and stores inputs and results together in
 ``spec/golden/visual_memory.json``, including the parsed ``inspect`` /
 ``read_values`` replies and the frame summaries of a small synthetic archive with
 the key order the model reads, and the summaries of index records read back, so a
 change of the model-facing vocabulary on either side fails a test.
 
-The reference lives in the STM-Bench source tree and is imported read-only from
-``STMSIM_ROOT`` (no bytecode is written there). It needs NumPy, SciPy and Pillow,
-not MAST or matplotlib; the synthetic archive lives in a temporary directory that
-is removed afterwards.
+The reference is the VISTA-SPM harness (its own repository, not public yet) and is
+imported read-only from ``VISTA_SPM_ROOT`` (no bytecode is written there). It needs
+NumPy, SciPy and Pillow, not MAST, STM-Bench or matplotlib; the synthetic archive
+lives in a temporary directory that is removed afterwards.
 Inputs are synthetic (seeded); no instrument data. The JSON records the sha256 of
 the reference files it ran, because the reference is still under development.
 
-    STMSIM_ROOT=<STM-Bench source root> python tools/spec-export/export_visual_memory.py
+    VISTA_SPM_ROOT=<VISTA-SPM source root> python tools/spec-export/export_visual_memory.py
 """
 
 from __future__ import annotations
@@ -40,17 +40,17 @@ from typing import Any  # noqa: E402
 import numpy as np  # noqa: E402
 import scipy  # noqa: E402
 
-from _paths import require_stmsim_root  # noqa: E402
+from _paths import require_vista_spm_root  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "visual_memory.json"
 SEED = 20261009
 
-ROOT = require_stmsim_root()
+ROOT = require_vista_spm_root()
 sys.path.insert(0, str(ROOT))
-from stmbench.vista import frames as F  # noqa: E402
-from stmbench.vista import viewtools as V  # noqa: E402
-from stmbench.vista.archive import Archive, FrameEntry, sample_axis  # noqa: E402
+from vista_spm import frames as F  # noqa: E402
+from vista_spm import viewtools as V  # noqa: E402
+from vista_spm.archive import Archive, FrameEntry, sample_axis  # noqa: E402
 
 
 def _plain(v: Any) -> Any:
@@ -356,13 +356,13 @@ try:
 finally:
     shutil.rmtree(work, ignore_errors=True)
 
-frames_py = ROOT / "stmbench" / "vista" / "frames.py"
-archive_py = ROOT / "stmbench" / "vista" / "archive.py"
+frames_py = ROOT / "vista_spm" / "frames.py"
+archive_py = ROOT / "vista_spm" / "archive.py"
 golden = {
     "reference": {
         "frames_py_sha256": _sha(frames_py),
         "archive_py_sha256": _sha(archive_py),
-        "stm_bench_head": _head(ROOT),
+        "vista_spm_head": _head(ROOT),
         "python": platform.python_version(),
         "numpy": np.__version__,
         "scipy": scipy.__version__,
