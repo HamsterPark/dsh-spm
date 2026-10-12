@@ -83,14 +83,24 @@ function stencil(cc: number, n: number, order: 1 | 3): Stencil | null {
   return { idx, w }
 }
 
-function interpolate(a: Float64Array, cols: number, r: Stencil, c: Stencil): number {
-  let t = 0.0
-  for (let i = 0; i < r.idx.length; i += 1) {
-    const base = (r.idx[i] as number) * cols
-    const wr = r.w[i] as number
-    for (let j = 0; j < c.idx.length; j += 1) t += ((a[base + (c.idx[j] as number)] as number) * wr) * (c.w[j] as number)
+/**
+ * The stencils of one axis of `n` samples shifted by `shift`, flattened: indices and weights
+ * of sample `k` at `[k·m, (k + 1)·m)`, `m = order + 1`; `ok[k]` is 0 where it has none.
+ */
+function axisStencils(n: number, shift: number, order: 1 | 3): { idx: Int32Array; w: Float64Array; ok: Uint8Array } {
+  const m = order + 1
+  const idx = new Int32Array(n * m)
+  const w = new Float64Array(n * m)
+  const ok = new Uint8Array(n)
+  for (let k = 0; k < n; k += 1) {
+    // scipy adds the negated shift to the output index: k + (−d).
+    const s = stencil(k + -shift, n, order)
+    if (s === null) continue
+    ok[k] = 1
+    idx.set(s.idx, k * m)
+    w.set(s.w, k * m)
   }
-  return t
+  return { idx, w, ok }
 }
 
 function checkShape(a: ArrayLike<number>, rows: number, cols: number): void {
@@ -106,16 +116,73 @@ function checkShape(a: ArrayLike<number>, rows: number, cols: number): void {
  */
 export function shiftConstant(a: Float64Array, rows: number, cols: number, dy: number, dx: number, order: 1 | 3): Float64Array {
   checkShape(a, rows, cols)
-  // scipy adds the negated shift to the output index: k + (−d).
-  const rs = Array.from({ length: rows }, (_, k) => stencil(k + -dy, rows, order))
-  const cs = Array.from({ length: cols }, (_, k) => stencil(k + -dx, cols, order))
+  const R = axisStencils(rows, dy, order)
+  const C = axisStencils(cols, dx, order)
   const out = new Float64Array(rows * cols)
+  // The sum t = 0; t += (c·w_row)·w_col over the stencil, row by row, column fastest, written
+  // out per order: the same operations in the same order as a loop, without a call and two
+  // loops per sample, which coverage instrumentation made the registration's main cost.
+  if (order === 1) {
+    for (let r = 0; r < rows; r += 1) {
+      if (R.ok[r] === 0) continue
+      const b0 = (R.idx[2 * r] as number) * cols
+      const b1 = (R.idx[2 * r + 1] as number) * cols
+      const w0 = R.w[2 * r] as number
+      const w1 = R.w[2 * r + 1] as number
+      for (let c = 0; c < cols; c += 1) {
+        if (C.ok[c] === 0) continue
+        const j0 = C.idx[2 * c] as number
+        const j1 = C.idx[2 * c + 1] as number
+        const v0 = C.w[2 * c] as number
+        const v1 = C.w[2 * c + 1] as number
+        let t = 0.0
+        t += ((a[b0 + j0] as number) * w0) * v0
+        t += ((a[b0 + j1] as number) * w0) * v1
+        t += ((a[b1 + j0] as number) * w1) * v0
+        t += ((a[b1 + j1] as number) * w1) * v1
+        out[r * cols + c] = t
+      }
+    }
+    return out
+  }
   for (let r = 0; r < rows; r += 1) {
-    const R = rs[r] as Stencil | null
-    if (R === null) continue
+    if (R.ok[r] === 0) continue
+    const b0 = (R.idx[4 * r] as number) * cols
+    const b1 = (R.idx[4 * r + 1] as number) * cols
+    const b2 = (R.idx[4 * r + 2] as number) * cols
+    const b3 = (R.idx[4 * r + 3] as number) * cols
+    const w0 = R.w[4 * r] as number
+    const w1 = R.w[4 * r + 1] as number
+    const w2 = R.w[4 * r + 2] as number
+    const w3 = R.w[4 * r + 3] as number
     for (let c = 0; c < cols; c += 1) {
-      const C = cs[c] as Stencil | null
-      if (C !== null) out[r * cols + c] = interpolate(a, cols, R, C)
+      if (C.ok[c] === 0) continue
+      const j0 = C.idx[4 * c] as number
+      const j1 = C.idx[4 * c + 1] as number
+      const j2 = C.idx[4 * c + 2] as number
+      const j3 = C.idx[4 * c + 3] as number
+      const v0 = C.w[4 * c] as number
+      const v1 = C.w[4 * c + 1] as number
+      const v2 = C.w[4 * c + 2] as number
+      const v3 = C.w[4 * c + 3] as number
+      let t = 0.0
+      t += ((a[b0 + j0] as number) * w0) * v0
+      t += ((a[b0 + j1] as number) * w0) * v1
+      t += ((a[b0 + j2] as number) * w0) * v2
+      t += ((a[b0 + j3] as number) * w0) * v3
+      t += ((a[b1 + j0] as number) * w1) * v0
+      t += ((a[b1 + j1] as number) * w1) * v1
+      t += ((a[b1 + j2] as number) * w1) * v2
+      t += ((a[b1 + j3] as number) * w1) * v3
+      t += ((a[b2 + j0] as number) * w2) * v0
+      t += ((a[b2 + j1] as number) * w2) * v1
+      t += ((a[b2 + j2] as number) * w2) * v2
+      t += ((a[b2 + j3] as number) * w2) * v3
+      t += ((a[b3 + j0] as number) * w3) * v0
+      t += ((a[b3 + j1] as number) * w3) * v1
+      t += ((a[b3 + j2] as number) * w3) * v2
+      t += ((a[b3 + j3] as number) * w3) * v3
+      out[r * cols + c] = t
     }
   }
   return out
