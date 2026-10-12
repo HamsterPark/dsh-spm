@@ -120,18 +120,21 @@ function fft1(re: Float64Array, im: Float64Array, p: Plan, inverse: boolean): vo
   for (let len = 2; len <= n; len <<= 1) {
     const half = len >> 1
     const step = n / len
-    for (let i = 0; i < n; i += len) {
-      for (let k = 0; k < half; k += 1) {
-        const wr = p.cos[k * step] as number
-        const wi = sign * (p.sin[k * step] as number)
-        const a = i + k
+    for (let k = 0; k < half; k += 1) {
+      const wr = p.cos[k * step] as number
+      const wi = sign * (p.sin[k * step] as number)
+      for (let a = k; a < n; a += len) {
         const b = a + half
-        const xr = (re[b] as number) * wr - (im[b] as number) * wi
-        const xi = (re[b] as number) * wi + (im[b] as number) * wr
-        re[b] = (re[a] as number) - xr
-        im[b] = (im[a] as number) - xi
-        re[a] = (re[a] as number) + xr
-        im[a] = (im[a] as number) + xi
+        const br = re[b] as number
+        const bi = im[b] as number
+        const xr = br * wr - bi * wi
+        const xi = br * wi + bi * wr
+        const ar = re[a] as number
+        const ai = im[a] as number
+        re[b] = ar - xr
+        im[b] = ai - xi
+        re[a] = ar + xr
+        im[a] = ai + xi
       }
     }
   }
@@ -149,18 +152,27 @@ function fft2(re: Float64Array, im: Float64Array, rows: number, cols: number, in
     re.set(lr, r * cols)
     im.set(li, r * cols)
   }
+  // Columns in blocks of up to 16, gathered row by row: each row's cache line is read once per block.
   const pc = plan(rows)
-  const cr = new Float64Array(rows)
-  const ci = new Float64Array(rows)
-  for (let c = 0; c < cols; c += 1) {
+  const B = Math.min(16, cols)
+  const cr = Array.from({ length: B }, () => new Float64Array(rows))
+  const ci = Array.from({ length: B }, () => new Float64Array(rows))
+  for (let c0 = 0; c0 < cols; c0 += B) {
+    const nb = Math.min(B, cols - c0)
     for (let r = 0; r < rows; r += 1) {
-      cr[r] = re[r * cols + c] as number
-      ci[r] = im[r * cols + c] as number
+      const o = r * cols + c0
+      for (let j = 0; j < nb; j += 1) {
+        ;(cr[j] as Float64Array)[r] = re[o + j] as number
+        ;(ci[j] as Float64Array)[r] = im[o + j] as number
+      }
     }
-    fft1(cr, ci, pc, inverse)
+    for (let j = 0; j < nb; j += 1) fft1(cr[j] as Float64Array, ci[j] as Float64Array, pc, inverse)
     for (let r = 0; r < rows; r += 1) {
-      re[r * cols + c] = cr[r] as number
-      im[r * cols + c] = ci[r] as number
+      const o = r * cols + c0
+      for (let j = 0; j < nb; j += 1) {
+        re[o + j] = (cr[j] as Float64Array)[r] as number
+        im[o + j] = (ci[j] as Float64Array)[r] as number
+      }
     }
   }
 }
@@ -388,24 +400,38 @@ export function register(
   const maW = window(ma, cols, y0w, x0w, wy, wx)
   const mbW = window(mb, cols, y0w, x0w, wy, wx)
   const b0W = window(b0, cols, y0w, x0w, wy, wx)
+  // Buffers reused by every evaluation: the selected pixels of the shifted a and of b, and products.
+  const su = new Float64Array(wy * wx)
+  const sv = new Float64Array(wy * wx)
+  const prod = new Float64Array(wy * wx)
   const negNcc = (d: readonly number[]): number => {
     const sa = shiftConstant(coeffs, wy, wx, d[0] as number, d[1] as number, 3)
     const valid = shiftConstant(maW, wy, wx, d[0] as number, d[1] as number, 1)
-    const su: number[] = []
-    const sv: number[] = []
+    let m = 0
     for (let i = 0; i < sa.length; i += 1) {
       if ((valid[i] as number) > 0.999 && (mbW[i] as number) > 0) {
-        su.push(sa[i] as number)
-        sv.push(b0W[i] as number)
+        su[m] = sa[i] as number
+        sv[m] = b0W[i] as number
+        m += 1
       }
     }
-    if (su.length < 16) return 1.0
-    const mu = npMean(su)
-    const mv = npMean(sv)
-    const u = Float64Array.from(su, (x) => x - mu)
-    const v = Float64Array.from(sv, (x) => x - mv)
-    const den = Math.sqrt(npSum(u.map((x) => x * x)) * npSum(v.map((x) => x * x)))
-    return den > 0 ? -(npSum(u.map((x, i) => x * (v[i] as number))) / den) : 1.0
+    if (m < 16) return 1.0
+    const u = su.subarray(0, m)
+    const v = sv.subarray(0, m)
+    const p = prod.subarray(0, m)
+    const mu = npMean(u)
+    const mv = npMean(v)
+    for (let i = 0; i < m; i += 1) {
+      u[i] = (u[i] as number) - mu
+      v[i] = (v[i] as number) - mv
+    }
+    for (let i = 0; i < m; i += 1) p[i] = (u[i] as number) * (u[i] as number)
+    const uu = npSum(p)
+    for (let i = 0; i < m; i += 1) p[i] = (v[i] as number) * (v[i] as number)
+    const den = Math.sqrt(uu * npSum(p))
+    if (!(den > 0)) return 1.0
+    for (let i = 0; i < m; i += 1) p[i] = (u[i] as number) * (v[i] as number)
+    return -(npSum(p) / den)
   }
   let dy = dy0
   let dx = dx0

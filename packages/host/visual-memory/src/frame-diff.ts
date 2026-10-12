@@ -48,7 +48,7 @@ import {
 } from './args.js'
 import { ChannelError, resolveChannel } from './channels.js'
 import { Canvas, drawMarks } from './draw.js'
-import { blockMean, fitSurface, flatten, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nanMedian, type FlattenMode } from './flatten.js'
+import { blockMean, fitSurface, flatten, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, type FlattenMode } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { shiftConstant } from './ndinterp.js'
 import { pyG, pyRepr, pyRound, rint } from './pyfmt.js'
@@ -381,11 +381,18 @@ function flatFrame(archive: FrameArchive, e: FrameEntry, ch: string, direction: 
   return flatten(archive.values(e, ch, direction), e.nx, e.ny, mode, { nmPerPx: Math.sqrt(dx * dy), highpassNm: hp })
 }
 
+/** numpy `nanmedian` of a non-empty set of values (the mean of the two middle ones when even). */
+function median(v: Float64Array): number {
+  const s = v.filter((x) => Number.isFinite(x)).sort()
+  const h = s.length >> 1
+  return s.length % 2 === 1 ? (s[h] as number) : ((s[h - 1] as number) + (s[h] as number)) / 2
+}
+
 /** 1.4826 × the median absolute deviation of the finite values (`_mad_sigma`; here never empty). */
 function madSigma(v: Float64Array): number {
   const fin = v.filter((x) => Number.isFinite(x))
-  const med = nanMedian(fin)
-  return 1.4826 * nanMedian(fin.map((x) => Math.abs(x - med)))
+  const med = median(fin)
+  return 1.4826 * median(fin.map((x) => Math.abs(x - med)))
 }
 
 function percentile(values: Float64Array, q: number): number {
@@ -491,7 +498,7 @@ export function frameDiff(archive: FrameArchive, args: unknown, trace?: DiffTrac
     const aShifted = align ? shiftImage(A, ny, nx, dyPx, dxPx) : A
     let D = B.map((v, i) => v - (aShifted[i] as number))
     if (D.filter((v) => Number.isFinite(v)).length < 64) throw new ArgError('too few pixels overlap after alignment to form a difference')
-    const offset = nanMedian(D)
+    const offset = median(D)
     D = D.map((v) => v - offset)
     const plane = fitSurface(D, nx, ny, 1)
     D = D.map((v, i) => v - (plane[i] as number))
