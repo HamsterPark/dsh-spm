@@ -142,7 +142,7 @@ describe('channel names', () => {
     expect(resolveChannel('Δf', ['OC M1 Freq. Shift'])).toBe('OC M1 Freq. Shift')
     expect(resolveChannel('df', ['Amp', 'Tuning'], { Tuning: 'Hz' })).toBe('Tuning')
     expect(() => resolveChannel('phase', chans)).toThrow(ChannelError)
-    expect(() => resolveChannel('df', ['Z'])).toThrow(/this frame has \["Z"\]/)
+    expect(() => resolveChannel('df', ['Z'])).toThrow(/this frame has \['Z'\]/)
     expect(() => resolveChannel('height', ['Current'])).toThrow(ChannelError)
   })
 

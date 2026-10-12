@@ -27,6 +27,7 @@
  */
 import {
   ArgError,
+  argsObject,
   channelDirectionArgs,
   checkKeys,
   failure,
@@ -113,9 +114,10 @@ function viewSummary(i: number, label: string, e: FrameEntry, meta: RenderMeta):
 /** `inspect(question, views)`: see the module comment. Never throws. */
 export function inspect(archive: FrameArchive, args: unknown): ViewToolResult {
   try {
-    checkKeys(args, TOP_KEYS, ['question', 'views'], 'arguments')
-    questionArg(args)
-    const views = viewsArg(args, MAX_INSPECT_VIEWS)
+    const a = argsObject(args)
+    checkKeys(a, TOP_KEYS, ['question', 'views'], 'arguments')
+    questionArg(a)
+    const views = viewsArg(a, MAX_INSPECT_VIEWS)
     const allowed = new Set([...INSPECT_SCAN_KEYS])
     const plans: InspectPlan[] = views.map((v, k) => {
       const where = `views[${k + 1}]`
@@ -229,9 +231,10 @@ function readScan(archive: FrameArchive, i: number, p: ReadPlan): Record<string,
 /** `read_values(question, views)`: see the module comment. Never throws. */
 export function readValues(archive: FrameArchive, args: unknown): ViewToolResult {
   try {
-    checkKeys(args, TOP_KEYS, ['question', 'views'], 'arguments')
-    questionArg(args)
-    const views = viewsArg(args, MAX_READ_VIEWS)
+    const a = argsObject(args)
+    checkKeys(a, TOP_KEYS, ['question', 'views'], 'arguments')
+    questionArg(a)
+    const views = viewsArg(a, MAX_READ_VIEWS)
     let total = 0
     const plans: ReadPlan[] = views.map((v, k) => {
       const i = k + 1

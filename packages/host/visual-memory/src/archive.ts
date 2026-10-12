@@ -47,7 +47,7 @@ import {
 } from './geometry.js'
 import { decodeNpyFloat32, encodeNpyFloat32 } from './npy32.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
-import { pyG, pyRound } from './pyfmt.js'
+import { pyG, pyRepr, pyRound } from './pyfmt.js'
 import {
   CLIP_PCT_DEFAULT,
   crop,
@@ -738,12 +738,12 @@ export class FrameArchive {
       turn = parseFrameId(key).turn
     } catch (err) {
       if (!(err instanceof FrameIdError)) throw err
-      return `${JSON.stringify(key)} is not a frame id (expected like 't0007.s0'); latest frames: ${JSON.stringify(this.order.slice(-6))}`
+      return `${pyRepr(key)} is not a frame id (expected like 't0007.s0'); latest frames: ${pyRepr(this.order.slice(-6))}`
     }
     const same = this.order.filter((f) => this.entries.get(f)?.turn === turn)
-    if (same.length > 0) return `no frame ${JSON.stringify(key)}; turn ${turn} has ${JSON.stringify(same)}`
-    if (this.order.length === 0) return `no frame ${JSON.stringify(key)}; the archive is empty`
-    return `no frame ${JSON.stringify(key)}; turns 0..${this.turn} exist; latest frames: ${JSON.stringify(this.order.slice(-6))}`
+    if (same.length > 0) return `no frame ${pyRepr(key)}; turn ${turn} has ${pyRepr(same)}`
+    if (this.order.length === 0) return `no frame ${pyRepr(key)}; the archive is empty`
+    return `no frame ${pyRepr(key)}; turns 0..${this.turn} exist; latest frames: ${pyRepr(this.order.slice(-6))}`
   }
 
   /** Frames in archive order, optionally of one turn and/or kind. */
@@ -787,7 +787,7 @@ export class FrameArchive {
   values(e: FrameEntry, channel: string, direction: Direction = 'forward'): Float32Array {
     const a = this.arrays(e).get(arrayKey(channel, direction))
     if (a === undefined) {
-      throw new ArchiveError(`${e.fid} channel ${JSON.stringify(channel)} has no ${direction} pass; it has ${JSON.stringify(channelDirections(e, channel))}`)
+      throw new ArchiveError(`${e.fid} channel ${pyRepr(channel)} has no ${direction} pass; it has ${pyRepr(channelDirections(e, channel))}`)
     }
     return a
   }
