@@ -512,12 +512,13 @@ export interface PlotPanel {
 }
 
 export interface LinePlotOptions {
+  /** The image size in px, exactly: the panels, margins and axis labels share it. */
   readonly width: number
-  readonly panelHeight: number
+  readonly height: number
   /** Under the last panel, with the unit. */
   readonly xLabel: string
   readonly panels: readonly PlotPanel[]
-  /** The x axis limits; default the extent of the data, marker lines and points. */
+  /** The x axis limits; default the extent of the finite samples of all series. */
   readonly xRange?: readonly [number, number]
 }
 
@@ -635,15 +636,13 @@ function xLimits(opts: LinePlotOptions): [number, number] {
   }
   let lo = Infinity
   let hi = -Infinity
-  const see = (x: number): void => {
-    if (!Number.isFinite(x)) return
-    lo = Math.min(lo, x)
-    hi = Math.max(hi, x)
-  }
   for (const p of opts.panels) {
-    for (const s of p.series) eachPoint(s, see)
-    for (const v of p.vlines ?? []) see(v.x)
-    for (const q of p.points ?? []) if (Number.isFinite(q.y)) see(q.x)
+    for (const s of p.series) {
+      eachPoint(s, (x) => {
+        lo = Math.min(lo, x)
+        hi = Math.max(hi, x)
+      })
+    }
   }
   return lo <= hi ? widen(lo, hi) : [0, 1]
 }
@@ -821,15 +820,17 @@ function drawPanel(
 
 /**
  * The reference's matplotlib line plots, a profile (one panel) and a spectrum
- * (one panel per column), drawn here. Panels stack top to bottom, each
- * `panelHeight` px with its y label above its plot area; they share the x
- * axis, whose tick labels and label sit under the last one, so the image is
- * `width × (panels.length · panelHeight + 42)` px.
+ * (one panel per column), drawn here as an image of exactly `width × height`
+ * px. Panels stack top to bottom with equal heights, each with its y label
+ * above its plot area; they share the x axis, whose tick labels and label
+ * take the 42 px under the last one. The pixels an uneven split leaves over
+ * (fewer than there are panels) stay blank at the bottom.
  *
- * - limits: x spans `xRange`, or exactly the data, marker lines and points;
- *   each panel's y spans its data and points within that x range plus 5 % on
- *   each side, like matplotlib's margins (±5 %, or ±0.5 around 0, for a
- *   single value); a panel with no data in range says "no data";
+ * - limits: x spans `xRange`, or exactly the finite samples of all series
+ *   (marker lines and points outside it are left out); each panel's y spans
+ *   its data and points within that x range plus 5 % on each side, like
+ *   matplotlib's margins (±5 %, or ±0.5 around 0, for a single value); a
+ *   panel with no data in range says "no data";
  * - ticks: {@link niceTicks}, as many as fit without crowding their labels,
  *   with light grid lines; y tick labels on every panel, x ones at the bottom;
  * - series: 2-px lines in their colour or the next of a fixed palette (first
@@ -848,14 +849,15 @@ function drawPanel(
  */
 export function linePlot(opts: LinePlotOptions): { png: Uint8Array; width: number; height: number } {
   const W = positiveInt('plot width', opts.width)
-  const P = opts.panelHeight
-  const ph = P - PLOT_TOP - PANEL_GAP
-  if (!Number.isInteger(P) || ph < MIN_PLOT_PX) {
-    throw new RangeError(`panelHeight must be an integer of at least ${PLOT_TOP + PANEL_GAP + MIN_PLOT_PX}, got ${P}`)
-  }
+  const H = positiveInt('plot height', opts.height)
   const { panels } = opts
   if (panels.length === 0) throw new RangeError('linePlot needs at least one panel')
-  const H = panels.length * P + X_BAND
+  const P = Math.floor((H - X_BAND) / panels.length) // each panel's share
+  const ph = P - PLOT_TOP - PANEL_GAP
+  if (ph < MIN_PLOT_PX) {
+    const least = X_BAND + panels.length * (PLOT_TOP + PANEL_GAP + MIN_PLOT_PX)
+    throw new RangeError(`plot height ${H} is too small for ${panels.length} panel(s): it needs at least ${least} px`)
+  }
   const labelWidth = (s: string): number => measure(s, PLOT_SCALE).width
 
   const [x0, x1] = xLimits(opts)

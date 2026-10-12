@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Canvas, drawMarks, linePlot, MARK_RGB, niceTicks, type LinePlotOptions, type Rgb } from './draw.js'
-import { decodePng, toRgb } from './png.js'
+import { decodePng, pngSize, toRgb } from './png.js'
 
 const BLACK: Rgb = [0, 0, 0]
 const WHITE: Rgb = [255, 255, 255]
@@ -390,27 +390,33 @@ describe('linePlot', () => {
     return best
   }
 
-  it('stacks the panels to the requested height, sharing the x axis', () => {
+  it('fills exactly the requested size, the panels sharing its height equally above the x axis', () => {
     const panels = [0, 1, 2].map((k) => ({ yLabel: `y${k} (pA)`, series: [{ x: [0, 1, 2], y: [k, k + 1, k] }] }))
-    const r = linePlot({ width: 600, panelHeight: 200, xLabel: 'Bias (V)', panels })
-    expect([r.width, r.height]).toEqual([600, 3 * 200 + 42])
-    const img = decoded(r.png)
-    expect([img.width, img.height]).toEqual([600, 642])
-    const frame = frameAt(img, 31)
-    expect(frame[1] - frame[0]).toBeGreaterThan(450)
-    for (let k = 0; k < 3; k += 1) {
-      expect(frameAt(img, k * 200 + 31), `top of panel ${k}`).toEqual(frame)
-      expect(frameAt(img, k * 200 + 184), `bottom of panel ${k}`).toEqual(frame) // 200 - 48 px of plot area
+    for (const height of [642, 644]) {
+      // 3 × 200 + 42 px, then 2 px more that an even split leaves blank at the bottom
+      const r = linePlot({ width: 600, height, xLabel: 'Bias (V)', panels })
+      expect([r.width, r.height]).toEqual([600, height])
+      const img = decoded(r.png)
+      expect([img.width, img.height]).toEqual([600, height])
+      const frame = frameAt(img, 31)
+      expect(frame[1] - frame[0]).toBeGreaterThan(450)
+      for (let k = 0; k < 3; k += 1) {
+        expect(frameAt(img, k * 200 + 31), `top of panel ${k}`).toEqual(frame)
+        expect(frameAt(img, k * 200 + 184), `bottom of panel ${k}`).toEqual(frame) // 200 - 48 px of plot area
+      }
+      expect(where(img, WHITE).filter(([, y]) => y >= 638)).toHaveLength(600 * (height - 638)) // under the x label
     }
-    const profile = linePlot({ width: 768, panelHeight: 358, xLabel: 'distance from p1 (nm)', panels: [panels[0] as (typeof panels)[0]] })
-    expect(profile.height).toBe(400) // the reference's profile height
+    const profile = linePlot({ width: 768, height: 400, xLabel: 'distance from p1 (nm)', panels: panels.slice(0, 1) })
+    expect(pngSize(profile.png)).toEqual({ width: 768, height: 400 }) // the reference's profile size
+    const spectrum = linePlot({ width: 600, height: 600, xLabel: 'Bias (V)', panels: [...panels, ...panels.slice(0, 1)] })
+    expect(pngSize(spectrum.png)).toEqual({ width: 600, height: 600 }) // four columns at the reference's smallest size
   })
 
   it('breaks a line at a non-finite value and dots a lone sample', () => {
     const img = decoded(
       linePlot({
         width: 500,
-        panelHeight: 250,
+        height: 292,
         xLabel: 'x (nm)',
         panels: [{ yLabel: 'y (pm)', series: [{ x: ramp(11), y: [1, 2, 1, 2, Number.NaN, 2, Infinity, 2, 1, 2, 1] }] }],
       }).png,
@@ -428,7 +434,7 @@ describe('linePlot', () => {
     const img = decoded(
       linePlot({
         width: 500,
-        panelHeight: 200,
+        height: 242,
         xLabel: 'x (nm)',
         xRange: [4, 2],
         panels: [
@@ -455,7 +461,7 @@ describe('linePlot', () => {
     const img = decoded(
       linePlot({
         width: 600,
-        panelHeight: 240,
+        height: 282,
         xLabel: 'distance from p1 (nm)',
         xRange: [0, 10],
         panels: [
@@ -490,7 +496,7 @@ describe('linePlot', () => {
     const r = (): Uint8Array =>
       linePlot({
         width: 600,
-        panelHeight: 240,
+        height: 282,
         xLabel: 'Bias (V)',
         panels: [
           {
@@ -516,7 +522,7 @@ describe('linePlot', () => {
     const many = Array.from({ length: 9 }, (_, i) => ({ x: [0, 1], y: [i, i + 0.5] }))
     const opts: LinePlotOptions = {
       width: 400,
-      panelHeight: 150,
+      height: 3 * 150 + 42,
       xLabel: 't (s)',
       panels: [
         { yLabel: 'many (pA)', series: many },
@@ -540,7 +546,7 @@ describe('linePlot', () => {
   it('makes room for wide x tick labels and fits or shortens long axis labels', () => {
     const r = linePlot({
       width: 600,
-      panelHeight: 120,
+      height: 2 * 120 + 42,
       xLabel: 'x '.repeat(200),
       xRange: [24591.25, 24591.35],
       panels: [
@@ -558,35 +564,47 @@ describe('linePlot', () => {
     expect(Math.max(...titleRows(120).map((p) => p[0]))).toBeGreaterThan(500)
   })
 
-  it('spans x over the data, marker lines and points, or 0..1 with no data at all', () => {
+  it('spans x over the finite samples of all series, or 0..1 without any, leaving out markers beyond it', () => {
     const one = decoded(
-      linePlot({ width: 400, panelHeight: 150, xLabel: 'x', panels: [{ yLabel: 'y', series: [{ x: [3], y: [5] }], vlines: [{ x: 3 }] }] }).png,
+      linePlot({ width: 400, height: 192, xLabel: 'x', panels: [{ yLabel: 'y', series: [{ x: [3], y: [5] }], vlines: [{ x: 3 }] }] }).png,
     )
     expect(where(one, SERIES_1).length).toBe(9) // a single sample: a dot
-    const empty = decoded(linePlot({ width: 400, panelHeight: 150, xLabel: 'x', panels: [{ yLabel: 'y', series: [] }] }).png)
+    const empty = decoded(linePlot({ width: 400, height: 192, xLabel: 'x', panels: [{ yLabel: 'y', series: [] }] }).png)
     expect(where(empty, NOTE).length).toBeGreaterThan(30)
-    const wide = decoded(
+    const img = decoded(
       linePlot({
         width: 400,
-        panelHeight: 150,
+        height: 2 * 150 + 42,
         xLabel: 'x',
-        panels: [{ yLabel: 'y', series: [{ x: [0, 1], y: [0, 1] }], vlines: [{ x: 4 }], points: [{ x: -1, y: 0.5 }] }],
+        panels: [
+          {
+            yLabel: 'y',
+            series: [{ x: [0, 1], y: [0, 1] }],
+            vlines: [{ x: 4, text: 'far' }, { x: 1 }],
+            points: [{ x: -1, y: 0.5, text: 'gone' }],
+          },
+          { yLabel: 'z', series: [{ x: [Number.NaN, 2, 3], y: [0, Number.NaN, 1] }] }, // only (3, 1) counts
+        ],
       }).png,
     )
-    const [fl, fr] = frameAt(wide, 31)
-    const red = where(wide, MARKER).map((p) => p[0])
-    expect(red.filter((x) => x === fr - 1).length).toBeGreaterThan(40) // the marker line at x = 4 ends the axis
-    expect(red.some((x) => x === fl + 1)).toBe(true) // the point at x = -1 starts it
-    expect(red.every((x) => x > fl && x < fr)).toBe(true)
+    const [fl, fr] = frameAt(img, 31)
+    const at1 = fl + 1 + Math.round((1 / 3) * (fr - fl - 2)) // x spans 0..3
+    const red = where(img, MARKER).map((p) => p[0])
+    expect(red.length).toBeGreaterThan(40)
+    expect(new Set(red)).toEqual(new Set([at1, at1 + 1])) // the 2-px marker line at x = 1, nothing for x = 4 or -1
   })
 
   it('refuses no panels, sizes that leave no plot area, and a non-finite x range', () => {
     const panel = { yLabel: 'y', series: [{ x: [0, 1], y: [0, 1] }] }
-    expect(() => linePlot({ width: 600, panelHeight: 200, xLabel: 'x', panels: [] })).toThrow(/at least one panel/)
-    expect(() => linePlot({ width: 600, panelHeight: 60, xLabel: 'x', panels: [panel] })).toThrow(/panelHeight must be an integer of at least 68/)
-    expect(() => linePlot({ width: 600, panelHeight: 100.5, xLabel: 'x', panels: [panel] })).toThrow(RangeError)
-    expect(() => linePlot({ width: 0, panelHeight: 200, xLabel: 'x', panels: [panel] })).toThrow(/plot width must be a positive integer/)
-    expect(() => linePlot({ width: 80, panelHeight: 200, xLabel: 'x', panels: [panel] })).toThrow(/leaves less than 20 px/)
-    expect(() => linePlot({ width: 600, panelHeight: 200, xLabel: 'x', xRange: [0, Number.NaN], panels: [panel] })).toThrow(/xRange/)
+    expect(() => linePlot({ width: 600, height: 242, xLabel: 'x', panels: [] })).toThrow(/at least one panel/)
+    expect(() => linePlot({ width: 600, height: 109, xLabel: 'x', panels: [panel] })).toThrow(
+      /plot height 109 is too small for 1 panel\(s\): it needs at least 110 px/,
+    )
+    expect(linePlot({ width: 600, height: 110, xLabel: 'x', panels: [panel] }).height).toBe(110)
+    expect(() => linePlot({ width: 600, height: 313, xLabel: 'x', panels: [panel, panel, panel, panel] })).toThrow(/at least 314 px/)
+    expect(() => linePlot({ width: 600, height: 242.5, xLabel: 'x', panels: [panel] })).toThrow(/plot height must be a positive integer/)
+    expect(() => linePlot({ width: 0, height: 242, xLabel: 'x', panels: [panel] })).toThrow(/plot width must be a positive integer/)
+    expect(() => linePlot({ width: 80, height: 242, xLabel: 'x', panels: [panel] })).toThrow(/leaves less than 20 px/)
+    expect(() => linePlot({ width: 600, height: 242, xLabel: 'x', xRange: [0, Number.NaN], panels: [panel] })).toThrow(/xRange/)
   })
 })
