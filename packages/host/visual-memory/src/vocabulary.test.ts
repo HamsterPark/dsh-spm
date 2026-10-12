@@ -192,6 +192,9 @@ describe('model-facing JSON', () => {
       ],
     })
     expect((sampled['views'] as Record<string, unknown>[])[1]).toHaveProperty('x_range_hz')
+    // The reference diffs its test frame with an identical one.
+    const diffed = await json(ctx, 'stm_frame_diff', { frame_a: fa, frame_b: fa })
+    expect(diffed['difference']).toHaveProperty('noise_pm')
     await json(ctx, 'stm_notes_write', { file: 'WORKING.md', content: 'scan the step edge next' })
     // Refusals are replies too.
     await json(ctx, 'stm_inspect', { question: 'q', views: [{ label: 'x', frame: 't0099.s0' }] })
@@ -223,7 +226,7 @@ describe('model-facing JSON', () => {
       setpoint_a: 5e-11, extra: { position_nm: [1.5, -2.5], experiment: 'bias spectroscopy' },
     })
     const summaries = [...ctx.frameArchive.index(), entrySummary(spectrum)]
-    expect(summaries.map((s) => s['kind'])).toEqual(['partial', 'scan', 'partial', 'partial', 'derived', 'derived', 'spectrum', 'spectrum'])
+    expect(summaries.map((s) => s['kind'])).toEqual(['partial', 'scan', 'partial', 'partial', 'derived', 'derived', 'spectrum', 'derived', 'spectrum'])
     for (const s of summaries) expect(vocabularyViolations(s)).toEqual([])
 
     // The checks the reference makes on its test frame.
