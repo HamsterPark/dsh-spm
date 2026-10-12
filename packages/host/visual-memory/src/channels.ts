@@ -7,6 +7,7 @@
  * few aliases (height/topography → Z, I/It → Current, df/Δf → the channel in Hz).
  * Same rules as the Python reference (`frames.resolve_channel`).
  */
+import { pyRepr } from './pyfmt.js'
 import { stripUnit, unitForChannel } from './units.js'
 
 /** An unknown channel; the message lists the channels that exist. */
@@ -61,7 +62,7 @@ export function resolveChannel(
     const hz = channels.find((c) => unitForChannel(c, units) === 'Hz' || c.toLowerCase().includes('freq'))
     if (hz !== undefined) return hz
   }
-  throw new ChannelError(`no channel ${JSON.stringify(name)}; this frame has ${JSON.stringify(channels)}`)
+  throw new ChannelError(`no channel ${pyRepr(name)}; this frame has ${pyRepr(channels)}`)
 }
 
 /** Peak-to-peak of the finite values (0 when there are none). */

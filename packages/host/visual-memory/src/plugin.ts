@@ -48,6 +48,18 @@ export class FrameArchiveService extends Service {
     return this.archive.addScan(turn, path, meta)
   }
 
+  addSpectrum(turn: number, path: string, meta: { readonly simS?: number } = {}): FrameEntry {
+    return this.archive.addSpectrum(turn, path, meta)
+  }
+
+  addSpectrumBytes(
+    turn: number,
+    bytes: Uint8Array,
+    meta: { readonly sourceName: string; readonly sourcePath?: string; readonly simS?: number },
+  ): FrameEntry {
+    return this.archive.addSpectrumBytes(turn, bytes, meta)
+  }
+
   addPartial(
     turn: number,
     arrays: Readonly<Record<string, ArrayInput>>,

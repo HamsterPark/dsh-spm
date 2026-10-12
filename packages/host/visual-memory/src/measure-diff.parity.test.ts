@@ -42,10 +42,7 @@
  *   reply must be equal up to the sign of a rounded zero shift.
  * - Parsed replies keep the sign of a rounded zero like Python's (`-0.0`); JSON
  *   text from `JSON.stringify` prints it as `0`.
- * - Error messages: equal, except that the package's shared argument checks
- *   quote names and lists as JSON (`"Z"`, `["forward"]`) where Python prints
- *   reprs (`'Z'`, `['forward']`), and name the frame of a missing channel
- *   (`t0000.p0: no channel …`); those are compared after undoing exactly that.
+ * - Error messages: equal, every one.
  * - The numbered marks are drawn by `draw.ts`, not Pillow (spec/deviations.md
  *   D-VMEM-6): positions, radii and texts are compared, not their pixels.
  */
@@ -111,13 +108,6 @@ function unsignedZeros(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(unsignedZeros)
   if (v !== null && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, unsignedZeros(x)]))
   return Object.is(v, -0) ? 0 : v
-}
-
-/** A Python message with the package's quoting: reprs of names and lists as JSON. */
-function jsonQuoted(py: string): string {
-  return py
-    .replace(/\[((?:'[^']*'(?:, )?)*)\]/g, (_, inner: string) => JSON.stringify([...inner.matchAll(/'([^']*)'/g)].map((m) => m[1])))
-    .replace(/'([^']*)'/g, (_, s: string) => JSON.stringify(s))
 }
 
 describe('measure_diff golden: provenance', () => {
@@ -402,10 +392,8 @@ describe('parity with the Python reference: diff, end to end', () => {
       const { result } = results.get(c.name) as { result: ReturnType<typeof frameDiff> }
       expect(result.ok, c.name).toBe(false)
       if (result.ok) continue
-      const want = (c.reply as { error: string }).error
       expect(Object.keys(c.reply)).toEqual(['error', 'instrument_unchanged'])
-      const sharedQuoting = jsonQuoted(want).replace(/^diff: arguments\.channel: /, 'diff: arguments.channel: t0000.p0: ')
-      expect([c.name, result.error === want || result.error === sharedQuoting]).toEqual([c.name, true])
+      expect([c.name, result.error]).toEqual([c.name, (c.reply as { error: string }).error])
     }
   })
 

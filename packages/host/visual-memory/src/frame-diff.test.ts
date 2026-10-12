@@ -303,8 +303,8 @@ describe('frameDiff: refusals', () => {
       [{ frame_a: 't0000.d0', frame_b: fb }, 'diff: frame_a: t0000.d0 is a spectrum; this tool needs a scan frame'],
       [{ frame_a: plain, frame_b: fb }, `diff: frame_a: ${plain} is a derived image without values; use the frame it was derived from (${fa})`],
       [{ frame_a: diffFrame, frame_b: fb }, 'diff: diff compares scan frames (kinds s or p)'],
-      [{ frame_a: fa, frame_b: 't0042.s0' }, /^diff: frame_b: no frame "t0042\.s0"/],
-      [{ frame_a: fa, frame_b: fb, channel: 'Current' }, /^diff: arguments\.channel: t0001\.p0: no channel "Current"/],
+      [{ frame_a: fa, frame_b: 't0042.s0' }, /^diff: frame_b: no frame 't0042\.s0'; turns 0\.\.7 exist/],
+      [{ frame_a: fa, frame_b: fb, channel: 'Current' }, "diff: arguments.channel: no channel 'Current'; this frame has ['Z']"],
       [{ frame_a: fa, frame_b: fb, align: 'yes' }, 'diff: arguments.align must be true or false'],
       [{ frame_a: fa, frame_b: fb, flatten: 'plane', highpass_nm: 2 }, "diff: arguments.highpass_nm only applies with flatten='highpass'"],
       [{ frame_a: fa, frame_b: fb, region: { x: 0, y: 0, width: 100, height: 100 } }, 'diff: the compared region must be at least 16 x 16 scan pixels'],
@@ -325,8 +325,8 @@ describe('frameDiff: refusals', () => {
     const tex = texture(9)
     const fa = add(archive, 0, geom(), tex, { 'Z/backward': tex, Current: tex })
     const fb = add(archive, 1, geom(), tex)
-    expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, channel: 'Current' }))).toBe('diff: frame_b: no channel "Current"; this frame has ["Z"]')
-    expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, direction: 'backward' }))).toBe('diff: frame_b t0001.p0 channel "Z" has only ["forward"]')
+    expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, channel: 'Current' }))).toBe("diff: frame_b: no channel 'Current'; this frame has ['Z']")
+    expect(err(frameDiff(archive, { frame_a: fa, frame_b: fb, direction: 'backward' }))).toBe("diff: frame_b t0001.p0 channel 'Z' has only ['forward']")
   })
 })
 
@@ -471,7 +471,7 @@ describe('stm_frame_diff through a real dsh dispatcher', () => {
     const refused = await call({ frame_a: fa, frame_b: 't0009.s0' })
     expect(refused.isError).toBe(false)
     expect(JSON.parse((refused.content[0] as unknown as { text: string }).text)).toEqual({
-      error: expect.stringMatching(/^diff: frame_b: no frame "t0009\.s0"/),
+      error: expect.stringMatching(/^diff: frame_b: no frame 't0009\.s0'/),
       instrument_unchanged: true,
     })
   })

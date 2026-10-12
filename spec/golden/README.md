@@ -18,7 +18,7 @@
 
 - `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录，可能是参考项目的 `MASTv2/` 子目录。
 - `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，相关协议导出器需要。
-- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库，暂未公开），`export_visual_memory.py` 需要。
+- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库，暂未公开），`export_visual_memory.py` 需要；该导出器自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
 缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
@@ -167,8 +167,8 @@ python tools/spec-export/<脚本>.py
 | `z_settle.json` | `export_z_settle.py` | `ZSettle`、`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 两套不同措辞的方向判定，以及位移与阶梯规则；10 个读数形状、两组各 15 个方向用例、8 个无位移用例 |
 | `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
-| `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复（连同模型读到的键顺序），和读回的索引记录（存扫描帧、谱帧）的摘要；以及方格纸：格距选择、格线所在像素、带格线视图的像素，和开启方格纸的档案的观测标签、`inspect` 回复与图像像素。运行 VISTA-SPM 的 `vista_spm` 参考实现（需 NumPy、SciPy、Pillow），输入为合成帧，档案建在临时目录、用后删除，记录参考文件的 sha256 |
-| `measure_diff.json` | `export_measure_diff.py` | 视觉线束的帧差分工具 `stm_frame_diff`（参考 `measure.diff`）。合成帧上 39 次调用：亚像素平移（含旋转帧）、台阶加变化的蠕变弯曲与大位移、plane 去衬底、不同尺寸与旋转的重采样、更粗的像素、无本底周期晶格（置信度接近 1）、移动的特征（正负两种变化区）、未采集行、区域、Current 通道与反扫、相同帧、`align=false`、超过 30 个变化区、超出搜索范围、没有正的第二峰（confidence 为 null）、降采样的差分图，以及全部拒绝文案。每次记录解析后回复与模型读到的键顺序、派生帧的摘要与标签、存档的差分值，以及参考途中算出的配准输入与结果、Nelder–Mead 的每次求值、重采样网格、未加标记的差分图与编号标记的位置。另有逐位比对用的 scipy 部件（order 3 `spline_filter`、order 1/3 `shift`、order 1 `map_coordinates`、按参考选项的 Nelder–Mead、`argsort` 的平局次序）与 `_clip_polygon` / `_same_geometry` / `_diverging_rgb`。途中结果靠在导出进程内替换模块属性捕获，不写参考目录；需 NumPy、SciPy、Pillow；数组以 base64 存，记录参考文件的 sha256 |
+| `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复（连同模型读到的键顺序），和读回的索引记录（存扫描帧、谱帧）的摘要；以及方格纸：格距选择、格线所在像素、带格线视图的像素，和开启方格纸的档案的观测标签、`inspect` 回复与图像像素；以及谱（2026-10-12）：按控制器文本格式合成的 `.dat` 经参考 `Archive.add_spectrum` 入档后的帧摘要、观测标签、`inspect` 谱视图（折线图的标签与图像尺寸，不比像素）与 `read_values` 谱视图的解析后回复（连同键顺序）、谱视图的拒绝文案，以及各宽度与面板数下的图像尺寸。运行 VISTA-SPM 的 `vista_spm` 参考实现（需 NumPy、SciPy、Pillow 与 matplotlib；`.dat` 经 MAST 的 `mast.io.nanonis_files.read_dat` 读取，故另需 `MAST_ROOT`，只导入该模块及两级 `__init__`，仅依赖 NumPy），输入为合成帧与合成谱，档案建在临时目录、用后删除，记录参考文件（含 `viewtools.py` 与 MAST 的 `nanonis_files.py`）的 sha256 与 matplotlib 版本。当前金样以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1、matplotlib 3.10.8 导出；换解释器或 NumPy 后须核对旧节逐值不变 |
+| `measure_diff.json` | `export_measure_diff.py` | 视觉线束的帧差分工具 `stm_frame_diff`（参考 `measure.diff`）。合成帧上 39 次调用：亚像素平移（含旋转帧）、台阶加变化的蠕变弯曲与大位移、plane 去衬底、不同尺寸与旋转的重采样、更粗的像素、无本底周期晶格（置信度接近 1）、移动的特征（正负两种变化区）、未采集行、区域、Current 通道与反扫、相同帧、`align=false`、超过 30 个变化区、超出搜索范围、没有正的第二峰（confidence 为 null）、降采样的差分图，以及全部拒绝文案。每次记录解析后回复与模型读到的键顺序、派生帧的摘要与标签、存档的差分值，以及参考途中算出的配准输入与结果、Nelder–Mead 的每次求值、重采样网格、未加标记的差分图与编号标记的位置。另有逐位比对用的 scipy 部件（order 3 `spline_filter`、order 1/3 `shift`、order 1 `map_coordinates`、按参考选项的 Nelder–Mead、`argsort` 的平局次序）与 `_clip_polygon` / `_same_geometry` / `_diverging_rgb`。途中结果靠在导出进程内替换模块属性捕获，不写参考目录；需 NumPy、SciPy、Pillow；数组以 base64 存，记录参考文件的 sha256。当前金样以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1 导出 |
 
 ## 二、维护约束
 

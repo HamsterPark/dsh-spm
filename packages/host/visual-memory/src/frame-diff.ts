@@ -27,22 +27,21 @@
  * Reply keys, their order, units in the key suffixes, decimals and error
  * messages follow the reference; `measure_diff.json` pins them
  * (`measure-diff.parity.test.ts`). Adapted for dsh: the tool names in the
- * description (`stm_read_values`, `stm_inspect`), the argument ranges moved
- * from the schema into the parameter descriptions (dsh's schema has no
- * ranges), and quoting in messages that name a channel or list (JSON, like
- * the package's shared argument checks).
+ * description (`stm_read_values`, `stm_inspect`) and the argument ranges,
+ * moved from the schema into the parameter descriptions (dsh's schema has no
+ * ranges).
  */
 import { gaussianFilter2d, labelConnected, matOf, npSum } from 'dsh-spm-numerics'
 import { channelDirections, entryScale, kindWord, type FrameArchive, type FrameEntry } from './archive.js'
 import {
   ArgError,
+  argsObject,
   boolArg,
   channelDirectionArgs,
   checkKeys,
   failure,
   flattenArgs,
   frameArg,
-  isObj,
   MAX_HIGHPASS_NM,
   regionArg,
   type ViewToolResult,
@@ -52,7 +51,7 @@ import { blockMean, fitSurface, flatten, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nan
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
 import { mapCoordinates1, shiftConstant } from './ndinterp.js'
 import { encodePngRgb } from './png.js'
-import { pyG, pyRound, rint } from './pyfmt.js'
+import { pyG, pyRepr, pyRound, rint } from './pyfmt.js'
 import { register, type Registration } from './register.js'
 import { fmtNum, percentileSorted, planView, regionToNative, upscaleRgb, type LabelAttr } from './render.js'
 import { DIRECTIONS, type Direction } from './scan-data.js'
@@ -365,15 +364,6 @@ function diffPng(rgb: Uint8Array, width: number, height: number, marks: readonly
 
 // ── the tool ────────────────────────────────────────────────────────────────
 
-function pyTypeName(v: unknown): string {
-  if (Array.isArray(v)) return 'list'
-  if (v === null || v === undefined) return 'NoneType'
-  if (typeof v === 'string') return 'str'
-  if (typeof v === 'boolean') return 'bool'
-  if (typeof v === 'number') return Number.isInteger(v) ? 'int' : 'float'
-  return typeof v
-}
-
 function imageEntry(archive: FrameArchive, args: Record<string, unknown>, key: string): FrameEntry {
   const e = frameArg(archive, args[key], key, true)
   const isImage = e.geometry !== null && (e.kind === 's' || e.kind === 'p' || e.kind === 'm') && e.channels.length > 0
@@ -434,12 +424,12 @@ interface Region {
 /** `diff(frame_a, frame_b, …)`: see the module comment. Never throws. */
 export function frameDiff(archive: FrameArchive, args: unknown, trace?: DiffTrace): ViewToolResult {
   try {
-    if (!isObj(args)) throw new ArgError(`arguments must be a JSON object, got ${pyTypeName(args)}`)
-    checkKeys(args, KEYS, ['frame_a', 'frame_b'], 'arguments')
-    const ea = imageEntry(archive, args, 'frame_a')
-    const eb = imageEntry(archive, args, 'frame_b')
+    const a = argsObject(args)
+    checkKeys(a, KEYS, ['frame_a', 'frame_b'], 'arguments')
+    const ea = imageEntry(archive, a, 'frame_a')
+    const eb = imageEntry(archive, a, 'frame_b')
     if (ea.kind === 'm' || eb.kind === 'm') throw new ArgError('diff compares scan frames (kinds s or p)')
-    const [ch, direction] = channelDirectionArgs(archive, ea, args, 'arguments')
+    const [ch, direction] = channelDirectionArgs(archive, ea, a, 'arguments')
     let chB: string
     try {
       chB = resolveChannel(ch, eb.channels, eb.units)
@@ -447,10 +437,10 @@ export function frameDiff(archive: FrameArchive, args: unknown, trace?: DiffTrac
       throw err instanceof ChannelError ? new ArgError(`frame_b: ${err.message}`) : err
     }
     const dirsB = channelDirections(eb, chB)
-    if (!dirsB.includes(direction)) throw new ArgError(`frame_b ${eb.fid} channel ${JSON.stringify(chB)} has only ${JSON.stringify(dirsB)}`)
-    const align = boolArg(args, 'align', 'arguments', true)
-    const [mode, hp] = flattenArgs(args, 'arguments', 'highpass')
-    const region = regionArg(ea, args, 'arguments')
+    if (!dirsB.includes(direction)) throw new ArgError(`frame_b ${eb.fid} channel ${pyRepr(chB)} has only ${pyRepr(dirsB)}`)
+    const align = boolArg(a, 'align', 'arguments', true)
+    const [mode, hp] = flattenArgs(a, 'arguments', 'highpass')
+    const region = regionArg(ea, a, 'arguments')
     const box = regionToNative(region, ea.nx, ea.ny, entryScale(ea))
     const za = flatFrame(archive, ea, ch, direction, mode, hp)
     const zb = flatFrame(archive, eb, chB, direction, mode, hp)
