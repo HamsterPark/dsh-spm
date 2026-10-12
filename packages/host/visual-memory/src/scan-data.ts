@@ -118,9 +118,9 @@ export function sxmChannelUnits(bytes: Uint8Array): Record<string, string> {
 
 /**
  * The setpoint's SI unit: the header's unit field, else a unit written after the
- * number (`"2.0E-10 A"`), else amperes (current feedback).
+ * number (`"2.0E-10 A"`), else amperes (current feedback). Spectra use it too.
  */
-function setpointUnit(unitField: unknown, valueField: unknown): string {
+export function setpointUnit(unitField: unknown, valueField: unknown): string {
   const u = String(unitField ?? '').trim()
   if (u !== '') return u
   const toks = String(valueField ?? '').split(/\s+/).filter((t) => t !== '')
