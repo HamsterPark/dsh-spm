@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { decodePng } from './png.js'
 import { IngestError } from './scan-data.js'
-import { inRange, loadDat, nanExtent, renderSpectrumPlot, SpectrumError, spectrumPlotSize } from './spectrum.js'
+import { inRange, loadDat, nanExtent, renderSpectrumPlot, SPECTRUM_RGB, SpectrumError, spectrumPlotSize } from './spectrum.js'
 import { encodeSyntheticDat, formatE6, syntheticDatText } from './synthetic-dat.js'
 
 /** The reference's test spectrum (`tests/test_frames.write_dat`): 21 points from -0.5 to 0.5 V. */
@@ -99,9 +99,22 @@ describe('the plot', () => {
     })
     const img = decodePng(p.png)
     expect([img.width, img.height, p.width, p.height]).toEqual([768, 690, 768, 690])
+    let blue = 0 // the curves are drawn in the reference's colour
+    for (let i = 0; i < img.data.length; i += 3) {
+      if (img.data[i] === SPECTRUM_RGB[0] && img.data[i + 1] === SPECTRUM_RGB[1] && img.data[i + 2] === SPECTRUM_RGB[2]) blue += 1
+    }
+    expect(blue).toBeGreaterThan(500)
     const all = renderSpectrumPlot(d.columns, d.units, { xCol: 'Current (A)', yCols: ['Bias calc (V)'] })
     expect(all.meta).toMatchObject({ x_unit: 'pA', n_points: 21, x_shown: [-100, 100] })
     expect([all.width, all.height]).toEqual([768, 390])
+  })
+
+  it('refuses more panels than the reference height leaves room for (the tools ask for at most four)', () => {
+    const d = loadDat(sts(), 's.dat')
+    const nine = Array.from({ length: 9 }, () => 'Current (A)')
+    expect(() => renderSpectrumPlot(d.columns, d.units, { xCol: 'Bias calc (V)', yCols: nine, widthPx: 64 })).toThrow(SpectrumError)
+    expect(() => renderSpectrumPlot(d.columns, d.units, { xCol: 'Bias calc (V)', yCols: nine, widthPx: 64 })).toThrow(/too small for 9 panel/)
+    expect(renderSpectrumPlot(d.columns, d.units, { xCol: 'Bias calc (V)', yCols: nine.slice(1), widthPx: 64 }).height).toBe(600)
   })
 
   it('says where x lies when x_range holds no point', () => {

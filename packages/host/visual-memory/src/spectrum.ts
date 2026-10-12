@@ -20,14 +20,18 @@
  * high for `n` panels; the reference draws it with matplotlib, which truncates
  * each side to `int(px / 100 · 100)` in double precision, so a few widths above
  * 802 come out one pixel narrower. The size is in every label and `inspect`
- * reply, so it is reproduced here exactly; the pixels themselves are drawn by
- * this package and are not compared with the reference's (spec/deviations.md
- * D-VMEM-6).
+ * reply, so it is reproduced here exactly; the pixels are drawn by the
+ * package's own `linePlot` and are not compared with the reference's
+ * (spec/deviations.md D-VMEM-6). Within that height `linePlot` has room for
+ * at most eight panels at the smallest width; the tools ask for four at most
+ * (`inspect` plots one y column, or up to four by default), so only a host
+ * call with more columns gets a {@link SpectrumError} instead of the
+ * reference's squeezed panels.
  */
 import { pyFloatRepr } from 'dsh-spm-kernel'
 import { pyFloat, readDat } from 'dsh-spm-nanonis-files'
+import { linePlot, type Rgb } from './draw.js'
 import { DISPLAY_MAX_DEFAULT } from './geometry.js'
-import { encodePngRgb } from './png.js'
 import { pyG, pyRepr } from './pyfmt.js'
 import { IngestError, setpointUnit } from './scan-data.js'
 import { columnUnit, displayUnit, stripUnit } from './units.js'
@@ -113,8 +117,8 @@ export function nanExtent(values: ArrayLike<number>): [number, number] {
 export const SPECTRUM_MIN_WIDTH = 600
 export const SPECTRUM_MIN_HEIGHT = 360
 export const SPECTRUM_PANEL_PX = 300
-/** The plotted series' colour. */
-export const SPECTRUM_RGB = '#1f4e9c'
+/** The plotted series' colour, the reference's `#1f4e9c`. */
+export const SPECTRUM_RGB: Rgb = [31, 78, 156]
 
 /** matplotlib's canvas side for a figure of `px / 100` inches at 100 dpi. */
 function canvasPx(px: number): number {
@@ -210,7 +214,14 @@ export function renderSpectrumPlot(
       series: [{ x: xShown, y: Float64Array.from(sel, (i) => (ysSi[i] as number) * fy), colour: SPECTRUM_RGB }],
     }
   })
-  const plot = linePlot({ width, height, xLabel: axisLabel(xCol, ux), panels })
+  let plot
+  try {
+    plot = linePlot({ width, height, xLabel: axisLabel(xCol, ux), panels })
+  } catch (err) {
+    // Too many panels for the reference's height: the plot cannot be drawn, say why.
+    if (err instanceof RangeError) throw new SpectrumError(err.message)
+    throw err
+  }
   const [xmin, xmax] = nanExtent(xShown)
   return {
     png: plot.png,
@@ -218,16 +229,4 @@ export function renderSpectrumPlot(
     height: plot.height,
     meta: { x_col: xCol, x_unit: ux, y, n_points: sel.length, x_shown: [xmin, xmax] },
   }
-}
-
-// TEMPORARY: a blank plot of the right size until the shared drawing module
-// (`src/draw.ts`, `linePlot`) lands on feat/visual-tools.
-function linePlot(spec: {
-  readonly width: number
-  readonly height: number
-  readonly xLabel: string
-  readonly panels: readonly { readonly yLabel: string; readonly series: readonly { readonly x: ArrayLike<number>; readonly y: ArrayLike<number>; readonly colour?: string }[] }[]
-}): { png: Uint8Array; width: number; height: number } {
-  const { width, height } = spec
-  return { png: encodePngRgb(width, height, new Uint8Array(width * height * 3).fill(255)), width, height }
 }
