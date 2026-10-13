@@ -84,6 +84,30 @@ export { WebServer } from '@deepseek-ai/dsh-host-webserver' // 值也导出：�
 export type { WebRoute, WebRouteKind } from '@deepseek-ai/dsh-host-webserver'
 
 /**
+ * Image tool results (VISUAL-HARNESS D12). First caller: `dsh-spm-visual-memory`.
+ *
+ * A model-visible image is a content block that REFERENCES a durable attachment,
+ * `{ type: 'image', attachment: ImageAttachmentRef }`; it never carries pixels.
+ * Because `output.render` must stay pure (live and replay both call it), a tool
+ * saves its PNG with `ctx.attachments.saveImage()` inside `execute`, returns the
+ * reference in its value, and `render` turns the reference into the block.
+ * The facts behind this (adapters, normalization, limits) are in
+ * `docs/dsh/facts.md` §9.
+ *
+ * Type-only on purpose: nothing below adds a runtime import, so the minimal
+ * distribution's set of external packages does not change. Importing these
+ * types also activates dsh-attachment's augmentation that types
+ * `ctx.attachments` (service name `attachments`) on the Cordis `Context`.
+ */
+export type { ContentBlock, ImageBlock, TextBlock } from '@deepseek-ai/dsh-llm'
+export type {
+  AttachmentStore,
+  ImageAttachmentRef,
+  ImageMediaType,
+  SaveImageAttachment,
+} from '@deepseek-ai/dsh-attachment'
+
+/**
  * 会话投影。课时 1.10 的 `mast.instrumentState` 是第一个调用方。
  *
  * 投影是「对**已提交**会话事件的纯同步 fold」：框架负责订阅、水位缓存与变更通知，

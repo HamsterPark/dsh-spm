@@ -25,3 +25,7 @@ def require_mast_root() -> Path:
 
 def require_stmsim_root() -> Path:
     return require_directory("STMSIM_ROOT", "read-only STM-Bench source root")
+
+
+def require_vista_spm_root() -> Path:
+    return require_directory("VISTA_SPM_ROOT", "read-only VISTA-SPM source root")
