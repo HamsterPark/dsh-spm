@@ -19,7 +19,6 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { FrameArchive, INDEX_NAME } from './archive.js'
 import { bandpass, clipPolygon, divergingRgb, frameDiff, lowpass, MAX_REGIONS, sameGeometry } from './frame-diff.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
-import { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
 import { corrLength, nccSurface, register } from './register.js'
@@ -444,19 +443,6 @@ describe('the pieces', () => {
     // anywhere, so the search's first shift, which Nelder-Mead (every value 1) keeps.
     const flat = register(new Float64Array(16 * 16).fill(0.25), Float64Array.from({ length: 256 }, () => r()), 16, 16)
     expect([flat.ncc_peak, flat.at_search_edge, flat.dx, flat.dy, flat.refined]).toEqual([0, true, -6, -6, true])
-  })
-
-  it('interpolation kernels: identity shifts, mirror folding, constant edges, shape checks', () => {
-    const r = rng(12)
-    const a = Float64Array.from({ length: 20 * 17 }, () => r())
-    expect(shiftConstant(a, 20, 17, 0, 0, 1)).toEqual(a)
-    const c = splineFilter3(a, 20, 17)
-    shiftConstant(c, 20, 17, 0, 0, 3).forEach((v, i) => expect(v).toBeCloseTo(a[i] as number, 13))
-    expect([-1, -2, -5, -9, 0, 4, 5, 6, 9, 10].map((i) => mirrorIndex(i, 5))).toEqual([1, 2, 3, 1, 0, 4, 3, 2, 1, 2])
-    expect(mirrorIndex(-3, 1)).toBe(0)
-    const shifted = shiftConstant(a, 20, 17, 0.5, -0.5, 1)
-    expect(shifted[0]).toBe(0) // its source lies outside the frame
-    expect(() => shiftConstant(a, 20, 16, 0, 0, 1)).toThrow(/is not 20 rows x 16 columns/)
   })
 
   it('geometry, polygon clip, filters and colours', () => {

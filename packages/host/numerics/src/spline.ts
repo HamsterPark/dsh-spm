@@ -1,7 +1,9 @@
 /**
  * The `scipy.ndimage` shifts the frame difference makes, with scipy's own
  * arithmetic (VISTA-SPM `measure.register`, `_shift_image`); its bilinear
- * `map_coordinates` (`_common_grid`) is `dsh-spm-numerics`' `mapCoordinates`.
+ * `map_coordinates` (`_common_grid`) is this package's `mapCoordinates`.
+ * Moved here from visual-memory's `ndinterp.ts` (2026-10-13); its callers are
+ * `stm_frame_diff`'s `register.ts` and `frame-diff.ts`.
  *
  * | here | scipy |
  * |---|---|
@@ -18,9 +20,16 @@
  * moves a coefficient only when `|z|^(n-1)` times the last sample is within an
  * ulp of a rounding boundary of the first one — never seen in the goldens.
  *
- * Order 3 is not in `dsh-spm-numerics` (it needs the global spline prefilter);
- * the order-1 shift shares this module's code so that both shifts of the
- * registration objective fold their edges the same way.
+ * ## Next to `interpolate.ts`
+ *
+ * `shiftImage` / `mapCoordinates` (`interpolate.ts`) are the general entries:
+ * orders 0 and 1, every boundary mode, any coordinates. Order 3 is not there (it
+ * needs the global spline prefilter, which `interpolate.ts` refuses). The order-1
+ * shift here is mode `constant` only and gives the same doubles as
+ * `shiftImage(…, 1, 'constant', 0)` (`spline.test.ts` pins it); it stays because the
+ * registration objective calls it on every Nelder–Mead evaluation (its stencils are
+ * built once per axis, not per pixel) and so that both shifts of that objective
+ * fold their edges with one piece of code.
  *
  * ## The rules, as scipy implements them
  *

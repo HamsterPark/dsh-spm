@@ -31,7 +31,7 @@
  * moved from the schema into the parameter descriptions (dsh's schema has no
  * ranges).
  */
-import { gaussianFilter2d, labelConnected, mapCoordinates, matOf, npSum } from 'dsh-spm-numerics'
+import { gaussianFilter2d, labelConnected, mapCoordinates, matOf, npSum, shiftConstant } from 'dsh-spm-numerics'
 import { channelDirections, entryScale, type FrameArchive, type FrameEntry } from './archive.js'
 import {
   ArgError,
@@ -49,7 +49,6 @@ import { ChannelError, resolveChannel } from './channels.js'
 import { Canvas, drawMarks, type Mark } from './draw.js'
 import { blockMean, fitSurface, FLATTEN_MODES, HIGHPASS_NM_DEFAULT, nanMedian } from './flatten.js'
 import { nativeToScanNm, scalePair, scaleText, scanNmToNative, type ScanGeometry } from './geometry.js'
-import { shiftConstant } from './ndinterp.js'
 import { pyG, pyRepr, pyRound, rint } from './pyfmt.js'
 import { flatFrame, imageEntry, madSigma, pixelNm } from './line-profile.js'
 import { register, type Registration } from './register.js'

@@ -249,7 +249,6 @@ export {
   type BlobResult,
   type FindBlobsOptions,
 } from './detect-blobs.js'
-export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
 export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
 export {
   FRAME_DIFF_DESCRIPTION,

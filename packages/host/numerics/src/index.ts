@@ -71,3 +71,5 @@ export * from './fft-mixed.js'
 export * from './least-squares.js'
 // `nelder-mead`：scipy 的 Nelder–Mead（`stm_frame_diff` 的亚像素细化），与 scipy 同序同值。
 export * from './nelder-mead.js'
+// `spline`：scipy 的三阶样条预滤波与 constant 模式的 order 1/3 平移（帧配准的目标函数）；与 `interpolate.ts` 的关系见其抬头。
+export * from './spline.js'
