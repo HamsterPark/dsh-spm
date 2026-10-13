@@ -22,6 +22,18 @@
  * `actual_reduction` of order 1e-17, `ftol` met by a hair) can take one more or
  * one fewer iteration; the result then differs by that last step, which is
  * below the fit's own `ftol` / `xtol` resolution.
+ *
+ * ## Next to `curveFit` and `lstsqQr`
+ *
+ * Moved here from visual-memory (2026-10-13); its caller is `stm_detect_blobs`
+ * (`detect-blobs.ts`, the reference's `_fit_blob`). This package has two other
+ * least-squares solvers, for other callers, and none replaces another:
+ * - `curveFit` (`curve-fit.ts`): Levenberg–Marquardt without bounds, `curve_fit`'s
+ *   `lmdif` side, judged by the parameter uncertainty rather than SciPy's path;
+ * - `lstsqQr` (`lsq.ts`): linear least squares by Householder QR.
+ * This one is the bounded Trust Region Reflective method, followed step by step
+ * because where it stops decides what the blob tool reports: `success` and the
+ * final `x` choose between a Gaussian fit and the moments fallback.
  */
 
 const EPS = Number.EPSILON

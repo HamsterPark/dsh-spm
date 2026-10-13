@@ -9,11 +9,12 @@
  * the resampled grid, the unmarked difference image and the region marks.
  *
  * Tolerances, and why:
- * - scipy kernels on the golden's inputs (spline filter, order-1/3 shifts,
- *   order-1 `map_coordinates`), Nelder–Mead on analytic functions (every
- *   evaluation, `nit`, `nfev`), the polygon clip, the same-geometry test and the
- *   diverging colour map: exact (`Object.is`) — the same IEEE operations in the
- *   same order.
+ * - scipy's order-1 `map_coordinates` on the golden's inputs, the polygon clip,
+ *   the same-geometry test and the diverging colour map: exact (`Object.is`) —
+ *   the same IEEE operations in the same order. The golden's other kernels are
+ *   checked the same way where their code now lives, in numerics: the spline
+ *   filter and the order-1/3 shifts by `spline.test.ts`, Nelder–Mead on analytic
+ *   functions (every evaluation, `nit`, `nfev`) by `nelder-mead.test.ts`.
  * - `register` on the reference's own (captured) inputs: the correlation
  *   surface comes from different FFTs (scipy's pocketfft vs radix-2 here),
  *   which agree to about `eps · log2(N)` of the correlation sums, so the peaks
@@ -56,8 +57,6 @@ import golden from '../../../../spec/golden/measure_diff.json' with { type: 'jso
 import { entrySummary, FrameArchive } from './archive.js'
 import { clipPolygon, divergingRgb, FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters, sameGeometry, type DiffTrace, type Point } from './frame-diff.js'
 import { decodePng } from './png.js'
-import { nelderMead } from './nelder-mead.js'
-import { shiftConstant, splineFilter3 } from './ndinterp.js'
 import { register } from './register.js'
 
 type Arr = { shape: number[]; f32?: string; f64?: string; u8?: string }
@@ -121,59 +120,10 @@ describe('measure_diff golden: provenance', () => {
 })
 
 describe('parity with the Python reference: scipy kernels, bit for bit', () => {
-  it('spline_filter(order=3), mirror boundary', () => {
-    for (const c of golden.kernels.spline_filter) {
-      const [rows, cols] = c.input.shape as [number, number]
-      expect(differing(splineFilter3(f64(c.input), rows, cols), f64(c.output))).toEqual([])
-    }
-  })
-
-  it('shift(order=1 and 3, mode constant), cubic on prefiltered coefficients', () => {
-    let n = 0
-    for (const c of golden.kernels.shift) {
-      const [rows, cols] = c.input.shape as [number, number]
-      const input = f64(c.input)
-      c.shifts.forEach((d, k) => {
-        const got = shiftConstant(input, rows, cols, d[0] as number, d[1] as number, c.order as 1 | 3)
-        expect(differing(got, f64(c.outputs[k] as Arr)), `order ${c.order} shift ${d}`).toEqual([])
-        n += 1
-      })
-    }
-    expect(n).toBe(36)
-  })
-
   it("map_coordinates(order=1, mode constant), edges and out-of-range points included (numerics' mapCoordinates)", () => {
     for (const c of golden.kernels.map_coordinates) {
       const [rows, cols] = c.input.shape as [number, number]
       expect(differing(mapCoordinates(matOf(rows, cols, f64(c.input)), c.rows, c.cols, 1, 'constant', 0), f64(c.output))).toEqual([])
-    }
-  })
-
-  it("Nelder-Mead with the reference's options: the same evaluations, nit and nfev", () => {
-    const fns: Record<string, (x: number, y: number) => number> = {
-      bowl: (x, y) => (x - 0.3) * (x - 0.3) + 2.0 * (y + 0.7) * (y + 0.7) + 0.5 * x * y,
-      rosenbrock: (x, y) => (1.0 - x) * (1.0 - x) + 100.0 * (y - x * x) * (y - x * x),
-      constant: () => 1.0,
-      plateau: (x, y) => (x * x + y * y > 0.25 ? 1.0 : -0.5 + x * x),
-    }
-    for (const c of golden.kernels.nelder_mead) {
-      const f = fns[c.function] as (x: number, y: number) => number
-      const evals: number[][] = []
-      const res = nelderMead((d) => {
-        const v = f(d[0] as number, d[1] as number)
-        evals.push([d[0] as number, d[1] as number, v])
-        return v
-      }, c.options.initial_simplex, { xatol: c.options.xatol, fatol: c.options.fatol, maxiter: c.options.maxiter })
-      expect(evals.length, c.function).toBe(c.evals.length)
-      expect(differing(evals.flat(), c.evals.flat()), c.function).toEqual([])
-      expect([res.nit, res.nfev]).toEqual([c.nit, c.nfev])
-      expect(differing([...res.x, res.fun], [...c.x, c.fun])).toEqual([])
-    }
-  })
-
-  it("numpy's argsort keeps ties in order, like the stable sort Nelder-Mead uses here", () => {
-    for (const c of golden.kernels.argsort) {
-      expect(c.values.map((_, i) => i).sort((i, j) => (c.values[i] as number) - (c.values[j] as number))).toEqual(c.order)
     }
   })
 

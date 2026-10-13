@@ -100,6 +100,21 @@
  *   `√(32·fftRelTol(N))` ≈ **8e−7**（N = 1024）的绝对精度 ——
  *   也就是说 `error = 1e−8` 与 `error = 1e−7` 是同一个数。
  *   谁拿 `error` 当「配准好不好」的阈值，**阈值不能设在 `1e−6` 以下**。
+ *
+ * ## 两种入口，一个 radix-2 核
+ *
+ * | 入口 | 长度 | 输入 | 归一化 | 二维次序 |
+ * |---|---|---|---|---|
+ * | `fft` / `ifft` / `fft2` / `ifft2` | 任意（非 2 的幂走 Bluestein） | 复制 | `ifft*` 除 N（numpy） | `fft2` 先行后列，`ifft2` 先列后行（numpy） |
+ * | `fftInPlace` / `fft2InPlace` | 只收 2 的幂 | 原地 | 不除 | 正反都先行后列 |
+ *
+ * 2 的幂上两者是同一个核、逐位相同（`fft2InPlace` 的逆变换除外：次序不同）。原地那一对给热循环用 ——
+ * visual-memory 的帧配准每次评估要做五次 2 的幂长度的二维变换；它从前在那边有一份自己的拷贝，
+ * 与这里的核逐位相同，于是只留了一份（理由见 `Radix2Plan`）。
+ *
+ * 本包另有一个 FFT：`fft-mixed.ts` 的混合基变换（`stm_fft_peaks` 的补零谱，长度取 SciPy 的
+ * `next_fast_len`）。它与这里**不**逐位相同 —— 因式分解与运算次序都不一样 —— 所以两个都留着，
+ * 理由写在那边的抬头。
  */
 import { matOf, type Mat } from './mat.js'
 import { EPS, sum } from './stats.js'
@@ -146,17 +161,57 @@ function dft(re: Float64Array, im: Float64Array, inverse: boolean): Complex {
   return isPow2(n) ? radix2(re, im, inverse) : bluestein(re, im, inverse)
 }
 
-/** 原地 radix-2（Cooley–Tukey，DIT）。输入被复制，不改调用方的数组。 */
-function radix2(reIn: Float64Array, imIn: Float64Array, inverse: boolean): Complex {
-  const n = reIn.length
-  const re = Float64Array.from(reIn)
-  const im = Float64Array.from(imIn)
+/**
+ * 一个长度（2 的幂）的旋转因子表与位反转表，按长度缓存：帧配准一次要做上百次同样长度的变换，
+ * 每只蝶形现算一次 `cos`/`sin` 是它的主要开销。
+ *
+ * **表不改变结果，一位都不改**：第 `len` 级第 `k` 只蝶形查的是 `k·(n/len)` 那一格，
+ * 角度 `(2π·k·(n/len))/n`；从前现算的是 `(∓2π/len)·k`。`n/len` 与 `len` 都是 2 的幂，
+ * 乘除 2 的幂不舍入，于是两个角度都等于 `round(2π·k)/len`，同一个 double。
+ * `cos` 是偶函数、`sin` 是奇函数（V8 的 fdlibm 对 `−x` 逐位对称），负角度的那一份
+ * 与正角度的那一份只差一个符号，而符号在这里由 `sign` 乘上去（乘 −1 不舍入）。
+ * 蝶形的四则运算与次序不变。`fft-kernel.test.ts` 把从前的实现原样留作 oracle，逐位比对。
+ */
+interface Radix2Plan {
+  readonly n: number
+  /** `cos(2πk/n)`，`k < n/2`。 */
+  readonly cos: Float64Array
+  /** `sin(2πk/n)`，`k < n/2`。 */
+  readonly sin: Float64Array
+  /** 位反转置换。 */
+  readonly rev: Uint32Array
+}
 
-  // 位反转置换
-  for (let i = 1, j = 0; i < n; i += 1) {
-    let bit = n >> 1
-    for (; (j & bit) !== 0; bit >>= 1) j ^= bit
-    j ^= bit
+const RADIX2_PLANS = new Map<number, Radix2Plan>()
+
+function radix2Plan(n: number): Radix2Plan {
+  let p = RADIX2_PLANS.get(n)
+  if (p === undefined) {
+    const half = n >> 1
+    const cos = new Float64Array(half)
+    const sin = new Float64Array(half)
+    for (let k = 0; k < half; k += 1) {
+      cos[k] = Math.cos((2 * Math.PI * k) / n)
+      sin[k] = Math.sin((2 * Math.PI * k) / n)
+    }
+    const rev = new Uint32Array(n)
+    const bits = Math.round(Math.log2(n))
+    for (let i = 0; i < n; i += 1) {
+      let r = 0
+      for (let b = 0; b < bits; b += 1) r |= ((i >> b) & 1) << (bits - 1 - b)
+      rev[i] = r
+    }
+    p = { n, cos, sin, rev }
+    RADIX2_PLANS.set(n, p)
+  }
+  return p
+}
+
+/** 原地 radix-2（Cooley–Tukey，DIT）的核：长度 `p.n`，**不除 N**。 */
+function radix2InPlace(re: Float64Array, im: Float64Array, p: Radix2Plan, inverse: boolean): void {
+  const n = p.n
+  for (let i = 0; i < n; i += 1) {
+    const j = p.rev[i] as number
     if (i < j) {
       const tr = re[i] as number
       re[i] = re[j] as number
@@ -166,30 +221,99 @@ function radix2(reIn: Float64Array, imIn: Float64Array, inverse: boolean): Compl
       im[j] = ti
     }
   }
-
   const sign = inverse ? 1 : -1
   for (let len = 2; len <= n; len <<= 1) {
-    const ang = (sign * 2 * Math.PI) / len
-    // 每一级**重算**旋转因子而不是递推相乘：递推的相位误差会随级数累积，
-    // 而 `Math.cos/sin` 每次都是从一个精确的角度出发。
-    for (let i = 0; i < n; i += len) {
-      for (let k = 0; k < len / 2; k += 1) {
-        const wr = Math.cos(ang * k)
-        const wi = Math.sin(ang * k)
-        const a = i + k
-        const b = i + k + len / 2
-        const xr = re[b] as number
-        const xi = im[b] as number
-        const tr = xr * wr - xi * wi
-        const ti = xr * wi + xi * wr
-        re[b] = (re[a] as number) - tr
-        im[b] = (im[a] as number) - ti
-        re[a] = (re[a] as number) + tr
-        im[a] = (im[a] as number) + ti
+    const half = len >> 1
+    const step = n / len
+    for (let k = 0; k < half; k += 1) {
+      const wr = p.cos[k * step] as number
+      const wi = sign * (p.sin[k * step] as number)
+      for (let a = k; a < n; a += len) {
+        const b = a + half
+        const br = re[b] as number
+        const bi = im[b] as number
+        const xr = br * wr - bi * wi
+        const xi = br * wi + bi * wr
+        const ar = re[a] as number
+        const ai = im[a] as number
+        re[b] = ar - xr
+        im[b] = ai - xi
+        re[a] = ar + xr
+        im[a] = ai + xi
       }
     }
   }
+}
+
+/** radix-2，输入被复制，不改调用方的数组。 */
+function radix2(reIn: Float64Array, imIn: Float64Array, inverse: boolean): Complex {
+  const re = Float64Array.from(reIn)
+  const im = Float64Array.from(imIn)
+  radix2InPlace(re, im, radix2Plan(re.length), inverse)
   return { re, im }
+}
+
+function checkPow2(n: number, what: string): void {
+  if (!isPow2(n)) throw new RangeError(`${what} 必须是 2 的幂：得到 ${n}`)
+}
+
+/**
+ * 原地的一维 radix-2 变换：长度必须是 2 的幂，**不归一化**（`inverse` 只换旋转因子的符号）。
+ *
+ * 与 {@link fft} 的 2 的幂那一路是同一个核、逐位相同；它给热循环用 —— 不复制、不分配。
+ */
+export function fftInPlace(re: Float64Array, im: Float64Array, inverse = false): void {
+  if (re.length !== im.length) throw new RangeError(`实部与虚部长度不同：${re.length} vs ${im.length}`)
+  checkPow2(re.length, 'fftInPlace 的长度')
+  radix2InPlace(re, im, radix2Plan(re.length), inverse)
+}
+
+/**
+ * 原地的二维 radix-2 变换（行主序 `rows × cols`，两边都必须是 2 的幂），**不归一化**。
+ *
+ * **先行后列**，正反变换都是。正变换与 {@link fft2} 同序、逐位相同；逆变换**不是**
+ * `ifft2 · rows·cols`：{@link ifft2} 照 numpy 先列后行再除，次序不同，末位就不同。
+ * 消费方是 visual-memory 的帧配准（`register.ts` 的相关面：每次评估五次变换），
+ * 它要的正是「不复制、不除」。列按 16 列一块成批收集：每一行的缓存行一块只读一次。
+ */
+export function fft2InPlace(re: Float64Array, im: Float64Array, rows: number, cols: number, inverse = false): void {
+  checkPow2(rows, 'fft2InPlace 的行数')
+  checkPow2(cols, 'fft2InPlace 的列数')
+  if (re.length !== rows * cols || im.length !== rows * cols) {
+    throw new RangeError(`fft2InPlace 要 ${rows}×${cols} 个数：得到 ${re.length} 与 ${im.length}`)
+  }
+  const pr = radix2Plan(cols)
+  const lr = new Float64Array(cols)
+  const li = new Float64Array(cols)
+  for (let r = 0; r < rows; r += 1) {
+    lr.set(re.subarray(r * cols, (r + 1) * cols))
+    li.set(im.subarray(r * cols, (r + 1) * cols))
+    radix2InPlace(lr, li, pr, inverse)
+    re.set(lr, r * cols)
+    im.set(li, r * cols)
+  }
+  const pc = radix2Plan(rows)
+  const B = Math.min(16, cols)
+  const cr = Array.from({ length: B }, () => new Float64Array(rows))
+  const ci = Array.from({ length: B }, () => new Float64Array(rows))
+  for (let c0 = 0; c0 < cols; c0 += B) {
+    const nb = Math.min(B, cols - c0)
+    for (let r = 0; r < rows; r += 1) {
+      const o = r * cols + c0
+      for (let j = 0; j < nb; j += 1) {
+        ;(cr[j] as Float64Array)[r] = re[o + j] as number
+        ;(ci[j] as Float64Array)[r] = im[o + j] as number
+      }
+    }
+    for (let j = 0; j < nb; j += 1) radix2InPlace(cr[j] as Float64Array, ci[j] as Float64Array, pc, inverse)
+    for (let r = 0; r < rows; r += 1) {
+      const o = r * cols + c0
+      for (let j = 0; j < nb; j += 1) {
+        re[o + j] = (cr[j] as Float64Array)[r] as number
+        im[o + j] = (ci[j] as Float64Array)[r] as number
+      }
+    }
+  }
 }
 
 /**
@@ -321,6 +445,65 @@ export function ifft2(s: Complex2d): Complex2d {
     im[i] = (b.im.data[i] as number) / n
   }
   return { re: matOf(b.re.rows, b.re.cols, re), im: matOf(b.re.rows, b.re.cols, im) }
+}
+
+/**
+ * numpy 的 `fftshift(fftfreq(n, d))`：频率轴，零频在中间（`n` 为偶数时在 `n/2`）。
+ *
+ * 写法照 numpy：`整数下标 · val`，`val = 1/(n·d)` —— 一次除法求 `val`、每格一次乘法，
+ * 不是每格 `k/(n·d)`。两种写法末位不同，而频率轴的末位会被下游取整、分箱。
+ * 消费方：visual-memory `fft-peaks.ts`（`stm_fft_peaks` 的 k 轴）。
+ */
+export function shiftedFreq(n: number, d: number): Float64Array {
+  const val = 1.0 / (n * d)
+  const half = Math.floor(n / 2)
+  const N = Math.floor((n - 1) / 2) + 1
+  const out = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    const j = (((i - half) % n) + n) % n // fftshift: out[i] = in[(i - n//2) mod n]
+    out[i] = (j < N ? j : j - n) * val
+  }
+  return out
+}
+
+/**
+ * `np.fft.rfft(x)` —— 实序列的单边谱，长度 `⌊n/2⌋ + 1`。
+ *
+ * 本包没有专门的实数 FFT：这里走一遍完整的复 FFT 再取前 `⌊n/2⌋+1` 格。
+ * 对 Hermite 对称的谱，那前半段与 numpy 的 `rfft` **是同一组数**
+ * （numpy 内部也只是省掉了后半段的计算，不是换了算法）。
+ *
+ * ## 容差：`fftRelTol(n)`（相对，见本文件抬头）
+ *
+ * 多算的那后半段不进结果，所以误差界与一次长度 `n` 的复 FFT 相同。
+ * **不给 0**：本仓是自写的 radix-2 / Bluestein，numpy 是 pocketfft ——
+ * 两种蝶形顺序，逐位相同没有理由。
+ *
+ * 消费方：stm-skills 的 `MonitorCurrentFFT`（2026-10-13 从那里搬来，一个字未改）。
+ */
+export function rfft(x: Float64Array | readonly number[]): Complex {
+  const n = x.length
+  const full = fft(x)
+  const m = (n >> 1) + 1
+  return { re: full.re.slice(0, m), im: full.im.slice(0, m) }
+}
+
+/**
+ * `np.fft.rfftfreq(n, d)` = `arange(0, n/2+1) / (n·d)`。
+ *
+ * ⚠️ 除法写成 `k / (n·d)`，**不是** `k·fs/n`。两者数学上相同（`d = 1/fs`），
+ * 浮点上不同：前者一次乘法一次除法，后者两次。判据是金样里那一串刻度，
+ * 而频率刻度错一位就等于把峰安在别的频率上。容差 **0**。
+ *
+ * （与上面 {@link shiftedFreq} 的「下标 · `1/(n·d)`」不是同一种写法：两处各照各的来源，
+ * 这一条照的是 `MonitorCurrentFFT` 的轨迹金样。）
+ */
+export function rfftfreq(n: number, d: number): Float64Array {
+  const m = (n >> 1) + 1
+  const out = new Float64Array(m)
+  const den = n * d
+  for (let k = 0; k < m; k += 1) out[k] = k / den
+  return out
 }
 
 /**

@@ -10,7 +10,8 @@
  * precision); the reference file hashes and head are recorded in it.
  *
  * Exact (the same arithmetic in the same order, or integers and strings):
- * `next_fast_len` for 1..2200; the spectrum's sizes, zero padding, frequency axes,
+ * `next_fast_len` for 1..2200 (numerics' `fft-mixed.test.ts` reads that part of the
+ * golden); the spectrum's sizes, zero padding, frequency axes,
  * k_min, Nyquist and DC lobe; peak counts and ranks; every fft_peaks reply (its numbers
  * are rounded to 2-6 decimals and agree there); reply keys and their order; derived frame
  * ids, labels and summaries, the archive index; error replies; the blob candidates,
@@ -22,7 +23,7 @@
  *   units, the top log-magnitude 1e-13: pocketfft against the mixed-radix FFT here, and
  *   `log10` / `cos` of V8 against the C runtime, differ in the last bits (measured: below
  *   4e-14);
- * - `least_squares` (`least-squares.ts`): where the problem is well conditioned from its
+ * - `least_squares` (numerics' `least-squares.ts`): where the problem is well conditioned from its
  *   start, the iterate itself to 1e-8 and SciPy's `status`, `nfev` and `njev`; where the
  *   start is a circle (`sa == sb`, `theta == 0`, the way `_fit_blob` starts every fit) the
  *   first Jacobian's theta column is rounding noise of `exp`, so the path depends on the
@@ -51,15 +52,15 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { leastSquares } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import golden from '../../../../spec/golden/measure_fft_blobs.json' with { type: 'json' }
 import { entrySummary, FrameArchive } from './archive.js'
 import { detectBlobs, findBlobs, gaussModel, type Blob } from './detect-blobs.js'
 import type { Mark } from './draw.js'
-import { fftPeaks, nextFastLen, spectrumPeaks, type MarkPainter } from './fft-peaks.js'
+import { fftPeaks, spectrumPeaks, type MarkPainter } from './fft-peaks.js'
 import { pyMod } from './pymath.js'
 import { encodePngRgb } from './png.js'
-import { leastSquares } from './least-squares.js'
 import type { ViewToolResult } from './args.js'
 import type { PartialGeometry, PartialMeta } from './scan-data.js'
 
@@ -92,11 +93,6 @@ describe('measure parity: reference and SciPy pieces', () => {
       expect(G.reference[k]).toMatch(/^[0-9a-f]{64}$/)
     }
     expect(G.reference.max_blobs).toBe(200)
-  })
-
-  it('next_fast_len for 1..2200', () => {
-    const got = (G.next_fast_len.sizes as number[]).map((_, i) => nextFastLen(i + 1))
-    expect(got).toEqual(G.next_fast_len.sizes)
   })
 
   describe('least_squares (bounded TRF)', () => {

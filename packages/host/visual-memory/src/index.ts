@@ -218,14 +218,12 @@ export {
   type ProfileStep,
 } from './line-profile.js'
 export { frameStats } from './frame-stats.js'
-export { LeastSquaresError, leastSquares, type TrfOptions, type TrfResult } from './least-squares.js'
 export {
   FFT_PEAKS_DEFAULT,
   MAX_FFT_PEAKS,
   MIN_PEAK_STRENGTH,
   SpectrumSizeError,
   fftPeaks,
-  nextFastLen,
   paintMarks,
   spectrumImage,
   spectrumMarks,
@@ -251,8 +249,6 @@ export {
   type BlobResult,
   type FindBlobsOptions,
 } from './detect-blobs.js'
-export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
-export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
 export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
 export {
   FRAME_DIFF_DESCRIPTION,
