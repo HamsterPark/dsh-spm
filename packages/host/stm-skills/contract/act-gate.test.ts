@@ -10,7 +10,7 @@
  * 3. 全局 guard 按登记顺序问，第一个拒绝就停——决定了「别的闸先拒了，这里不记账」。
  *
  * 「第 S 步的全部结果在第 S+1 步的 pre-step 之前提交、请求由日志推导」是 `dsh-agent-loop`
- * 的行为，那个包不在本仓依赖树里：证据见 facts.md §9.5（读包 + 仓外探针）。
+ * 的行为，由 act-gate-loop.test.ts 用真 agent-loop 钉住（facts.md §9.5）。
  */
 import { agentEvents, emitAgentEvent, type Agent } from '@deepseek-ai/dsh-agent'
 import { Context, SystemPrompt, ToolRuntime, defineTool, type ToolExecutionResult } from 'dsh-spm-compat'

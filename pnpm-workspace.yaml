@@ -9,6 +9,7 @@ allowBuilds:
 
 minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-agent@0.1.5-rc.2'
+  - '@deepseek-ai/dsh-agent-loop@0.1.5-rc.2'
   - '@deepseek-ai/dsh-brand@0.1.5-rc.2'
   - '@deepseek-ai/dsh-code-runtime@0.1.5-rc.2'
   - '@deepseek-ai/dsh-commands@0.1.5-rc.2'
@@ -17,8 +18,10 @@ minimumReleaseAgeExclude:
   - '@deepseek-ai/dsh-invariants@0.1.5-rc.2'
   - '@deepseek-ai/dsh-llm@0.1.5-rc.2'
   - '@deepseek-ai/dsh-scope@0.1.5-rc.2'
+  - '@deepseek-ai/dsh-session-persistence@0.1.5-rc.2'
   - '@deepseek-ai/dsh-session-projection@0.1.5-rc.2'
   - '@deepseek-ai/dsh-session@0.1.5-rc.2'
+  - '@deepseek-ai/dsh-settings@0.1.5-rc.2'
   - '@deepseek-ai/dsh-system-prompt@0.1.5-rc.2'
   - '@deepseek-ai/dsh-timeout@0.1.5-rc.2'
   - '@deepseek-ai/dsh-tools@0.1.5-rc.2'
@@ -56,6 +59,7 @@ overrides:
   # 两张表的成员必须一致 —— 一个包只出现在其中一张，就是一处没人执法的钉。
   '@deepseek-ai/dsh-attachment': '0.1.5-rc.2'
   '@deepseek-ai/dsh-agent': '0.1.5-rc.2'
+  '@deepseek-ai/dsh-agent-loop': '0.1.5-rc.2'
   '@deepseek-ai/dsh-brand': '0.1.5-rc.2'
   '@deepseek-ai/dsh-code-runtime': '0.1.5-rc.2'
   '@deepseek-ai/dsh-commands': '0.1.5-rc.2'
@@ -64,7 +68,9 @@ overrides:
   '@deepseek-ai/dsh-llm': '0.1.5-rc.2'
   '@deepseek-ai/dsh-scope': '0.1.5-rc.2'
   '@deepseek-ai/dsh-session': '0.1.5-rc.2'
+  '@deepseek-ai/dsh-session-persistence': '0.1.5-rc.2'
   '@deepseek-ai/dsh-session-projection': '0.1.5-rc.2'
+  '@deepseek-ai/dsh-settings': '0.1.5-rc.2'
   '@deepseek-ai/dsh-system-prompt': '0.1.5-rc.2'
   '@deepseek-ai/dsh-timeout': '0.1.5-rc.2'
   '@deepseek-ai/dsh-tools': '0.1.5-rc.2'
