@@ -16,7 +16,7 @@ reference ``Archive.add_spectrum``, and the summaries, observation labels, the
 spectrum views of ``inspect`` / ``read_values``, their refusals and the plot sizes
 are recorded.
 
-The reference is the VISTA-SPM harness (its own repository, not public yet) and is
+The reference is the VISTA-SPM harness (https://github.com/HamsterPark/VISTA-SPM) and is
 imported read-only from ``VISTA_SPM_ROOT`` (no bytecode is written there). It needs
 NumPy, SciPy, Pillow and matplotlib (the reference draws spectrum plots with it,
 and the plot size is in every spectrum label). The reference reads ``.dat`` files

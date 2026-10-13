@@ -18,7 +18,7 @@
 
 - `MAST_ROOT`：包含 `mast/` Python 包的只读参考源码目录，可能是参考项目的 `MASTv2/` 子目录。
 - `STMSIM_ROOT`：包含 `stmsim/` 的只读 STM-Bench 源码目录，相关协议导出器需要。
-- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库，暂未公开），`export_visual_memory.py`、`export_measure_profile.py` 与 `export_measure_fft_blobs.py` 需要；`export_visual_memory.py` 自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
+- `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库 [HamsterPark/VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM)），`export_visual_memory.py`、`export_measure_profile.py`、`export_measure_fft_blobs.py` 与 `export_measure_diff.py` 需要。这四份金样导出自 VISTA-SPM 的 3bef5c7（标签 `m1-surface`），VISTA-SPM 此后的参考实现修复尚未重导进来；`export_visual_memory.py` 自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
 缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。

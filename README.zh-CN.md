@@ -42,8 +42,6 @@ STM 利用尖锐针尖与邻近样品之间的隧穿电流探测表面。电流�
 | **dsh-spm——本仓库** | DeepSeek Harness 中的 SPM 工具、仪器连接、执行检查、记录与视觉 harness 集成 | 将源自 MAST 的领域能力和 VISTA-SPM 的设计接入 dsh 的 TypeScript 宿主与会话生命周期。 |
 | [STM-Bench](https://github.com/HamsterPark/STM-Bench) | 模拟显微镜、科学场景、采集记录与基于证据的评估 | 为运行时验证提供可控仪器环境，也为研究实验行为提供共同基础。 |
 
-**公开状态：** VISTA-SPM 目前仍为私有仓库，公开后即可访问其链接。本仓库已经提供 TypeScript 实现及其参考夹具。
-
 核心分工是：**MAST 提供仪器控制系统，VISTA-SPM 发展视觉推理框架，dsh-spm 将这些能力接入另一种智能体宿主，STM-Bench 提供模拟与评估。** 可复用的核心是科学接口——带物理坐标的观测、带单位的测量，以及有结果记录的动作；这些接口可以在不同运行时中实现。
 
 ## TypeScript 中的视觉推理与计量

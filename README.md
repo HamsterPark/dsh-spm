@@ -42,8 +42,6 @@ The projects address different parts of autonomous microscopy, with explicit int
 | **dsh-spm — this repository** | SPM tools, instrument connections, execution checks, records and visual-harness integration for DeepSeek Harness | Makes MAST-derived domain capabilities and the VISTA-SPM design available within dsh's TypeScript host and session lifecycle. |
 | [STM-Bench](https://github.com/HamsterPark/STM-Bench) | Simulated microscopy environments, scientific scenarios, acquisition records and evidence-based evaluation | Provides a controlled instrument environment for runtime validation and a shared basis for studying experimental behavior. |
 
-**Publication note:** VISTA-SPM is currently private; its repository link will become generally accessible when it is published. The TypeScript implementation and its reference fixtures are available in this repository.
-
 The central division is straightforward: **MAST supplies an instrument-control system; VISTA-SPM develops the visual reasoning framework; dsh-spm integrates these capabilities with a different agent host; STM-Bench supplies simulation and evaluation.** The reusable unit is the scientific interface—observations with physical coordinates, measurements with units, and actions with recorded outcomes—which can be implemented across runtimes.
 
 ## Visual reasoning and metrology in TypeScript
