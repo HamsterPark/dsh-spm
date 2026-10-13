@@ -1240,6 +1240,12 @@ scipy 的 `order >= 2` 先对整张图做一次**样条预滤波**（一条前�
 `export_numerics.py` 仍然录了 `order=3` 的金样：**录下来是为了证明我们知道它长什么样、
 并且确实没在复现它**，将来谁要补这一块，判据现成。
 
+**2026-10-13 补记**：本包现在有一份 order 3，但不在这两个入口上 —— `spline.ts` 的
+`splineFilter3`（`spline_filter`，mirror）加 `shiftConstant(…, 3)`（`shift`，只 `constant`
+模式），从 visual-memory 收进来，供帧差分的配准用，与 scipy 逐位一致（金样
+`measure_diff.json` 的 `kernels`，`spline.test.ts`）。`mapCoordinates` / `shiftImage` 照旧对
+`order >= 2` 抛：要把三阶接进通用入口，其它模式先拿上面那份 `order=3` 金样核对。
+
 ## D-NUM-12 · `shift` 改名叫 `shiftImage`
 
 这个包是扁平导出的（60 多个顶层名字）。一个叫 `shift` 的导出迟早会被某个局部变量遮住，

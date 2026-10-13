@@ -59,7 +59,7 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 
 ### 4.1 新包与接缝
 
-`packages/host/visual-memory`（`dsh-spm-visual-memory`）提供 Service `ctx.frameArchive` 和一组模型可见工具。依赖 `dsh-spm-nanonis-files`（读 .sxm/.dat）与 `dsh-spm-numerics`（插值、高斯、中值滤波、连通域等）。测量工具需要而 `numerics` 没有、或数值行为与参考实现不同的部件（FFT、SciPy 的 `least_squares` 与 Nelder–Mead、三阶样条平移）按参考实现移植在本包内，以后收进 `numerics`；不依赖 `dsh-spm-vision`。dsh 的附件与图像内容块只经 `dsh-spm-compat` 使用（AGENTS 约束 3）。
+`packages/host/visual-memory`（`dsh-spm-visual-memory`）提供 Service `ctx.frameArchive` 和一组模型可见工具。依赖 `dsh-spm-nanonis-files`（读 .sxm/.dat）与 `dsh-spm-numerics`（插值、高斯、中值滤波、连通域等）。测量工具按参考实现移植、`numerics` 原先没有的数值件，2026-10-13 起都在 `numerics`：`stm_fft_peaks` 的混合基 FFT 与 `next_fast_len`（`fft-mixed.ts`，与 `fft.ts` 不逐位相同，两个都留）、SciPy 的 `least_squares`（有界 TRF）与 Nelder–Mead、三阶样条滤波与 constant 模式平移（`spline.ts`）；帧配准的 radix-2 FFT 与 `numerics` 原有的是同一个核（`fft2InPlace`）。不依赖 `dsh-spm-vision`。dsh 的附件与图像内容块只经 `dsh-spm-compat` 使用（AGENTS 约束 3）。
 
 `ctx.frameArchive` 的接口：
 
