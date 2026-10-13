@@ -41,8 +41,7 @@
  * jump and the reported shift snaps to an integer (the golden's
  * `steps_creep_large_shift`: 29.000, 4.000 px). The port keeps it.
  */
-import { fft2InPlace, npMean, npSum } from 'dsh-spm-numerics'
-import { nelderMead } from './nelder-mead.js'
+import { fft2InPlace, nelderMead, npMean, npSum } from 'dsh-spm-numerics'
 import { shiftConstant, splineFilter3 } from './ndinterp.js'
 import { rint } from './pyfmt.js'
 

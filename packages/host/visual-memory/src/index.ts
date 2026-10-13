@@ -250,7 +250,6 @@ export {
   type FindBlobsOptions,
 } from './detect-blobs.js'
 export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
-export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
 export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
 export {
   FRAME_DIFF_DESCRIPTION,

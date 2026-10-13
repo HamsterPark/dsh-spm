@@ -69,3 +69,5 @@ export * from './phase-shift.js'
 export * from './fft-mixed.js'
 // `least-squares`：SciPy `least_squares` 的有界 TRF（`stm_detect_blobs` 的拟合）；与 `curveFit`（无界 LM）、`lstsqQr`（线性）各有各的消费方。
 export * from './least-squares.js'
+// `nelder-mead`：scipy 的 Nelder–Mead（`stm_frame_diff` 的亚像素细化），与 scipy 同序同值。
+export * from './nelder-mead.js'

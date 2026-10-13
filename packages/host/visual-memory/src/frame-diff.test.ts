@@ -19,7 +19,6 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { FrameArchive, INDEX_NAME } from './archive.js'
 import { bandpass, clipPolygon, divergingRgb, frameDiff, lowpass, MAX_REGIONS, sameGeometry } from './frame-diff.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
-import { nelderMead } from './nelder-mead.js'
 import { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 import * as plugin from './plugin.js'
@@ -445,15 +444,6 @@ describe('the pieces', () => {
     // anywhere, so the search's first shift, which Nelder-Mead (every value 1) keeps.
     const flat = register(new Float64Array(16 * 16).fill(0.25), Float64Array.from({ length: 256 }, () => r()), 16, 16)
     expect([flat.ncc_peak, flat.at_search_edge, flat.dx, flat.dy, flat.refined]).toEqual([0, true, -6, -6, true])
-  })
-
-  it('Nelder-Mead minimises a bowl and checks its simplex', () => {
-    const res = nelderMead((x) => ((x[0] as number) - 1) ** 2 + ((x[1] as number) + 2) ** 2, [[0, 0], [0.3, 0], [0, 0.3]], { xatol: 1e-8, fatol: 1e-12, maxiter: 400 })
-    expect(res.x[0]).toBeCloseTo(1, 6)
-    expect(res.x[1]).toBeCloseTo(-2, 6)
-    expect(res.nfev).toBeGreaterThan(res.nit)
-    expect(nelderMead(() => NaN, [[0, 0], [1, 0], [0, 1]], { xatol: 1e-3, fatol: 1e-3, maxiter: 5 }).fun).toBeNaN()
-    expect(() => nelderMead(() => 0, [[0, 0], [1, 0]], { xatol: 1, fatol: 1, maxiter: 1 })).toThrow(/N \+ 1 vertices/)
   })
 
   it('interpolation kernels: identity shifts, mirror folding, constant edges, shape checks', () => {

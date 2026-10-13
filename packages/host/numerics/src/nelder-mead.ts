@@ -19,6 +19,11 @@
  * keeps ties in their original order (pinned by the golden's `argsort` probe);
  * the sort here is stable. Not ported: `bounds`, `adaptive`, callbacks,
  * `return_all` and the default simplex — the reference passes none of them.
+ *
+ * Moved here from visual-memory (2026-10-13). Its caller is the sub-pixel
+ * refinement of `stm_frame_diff` (visual-memory `register.ts`); it is this
+ * package's only derivative-free minimiser (`curveFit` and `leastSquares` fit
+ * residual vectors).
  */
 
 export interface NelderMeadOptions {

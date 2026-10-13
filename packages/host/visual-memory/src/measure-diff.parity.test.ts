@@ -10,10 +10,10 @@
  *
  * Tolerances, and why:
  * - scipy kernels on the golden's inputs (spline filter, order-1/3 shifts,
- *   order-1 `map_coordinates`), Nelder–Mead on analytic functions (every
- *   evaluation, `nit`, `nfev`), the polygon clip, the same-geometry test and the
+ *   order-1 `map_coordinates`), the polygon clip, the same-geometry test and the
  *   diverging colour map: exact (`Object.is`) — the same IEEE operations in the
- *   same order.
+ *   same order. Nelder–Mead on the golden's analytic functions (every evaluation,
+ *   `nit`, `nfev`) is checked the same way by numerics' `nelder-mead.test.ts`.
  * - `register` on the reference's own (captured) inputs: the correlation
  *   surface comes from different FFTs (scipy's pocketfft vs radix-2 here),
  *   which agree to about `eps · log2(N)` of the correlation sums, so the peaks
@@ -56,7 +56,6 @@ import golden from '../../../../spec/golden/measure_diff.json' with { type: 'jso
 import { entrySummary, FrameArchive } from './archive.js'
 import { clipPolygon, divergingRgb, FRAME_DIFF_DESCRIPTION, frameDiff, frameDiffParameters, sameGeometry, type DiffTrace, type Point } from './frame-diff.js'
 import { decodePng } from './png.js'
-import { nelderMead } from './nelder-mead.js'
 import { shiftConstant, splineFilter3 } from './ndinterp.js'
 import { register } from './register.js'
 
@@ -146,34 +145,6 @@ describe('parity with the Python reference: scipy kernels, bit for bit', () => {
     for (const c of golden.kernels.map_coordinates) {
       const [rows, cols] = c.input.shape as [number, number]
       expect(differing(mapCoordinates(matOf(rows, cols, f64(c.input)), c.rows, c.cols, 1, 'constant', 0), f64(c.output))).toEqual([])
-    }
-  })
-
-  it("Nelder-Mead with the reference's options: the same evaluations, nit and nfev", () => {
-    const fns: Record<string, (x: number, y: number) => number> = {
-      bowl: (x, y) => (x - 0.3) * (x - 0.3) + 2.0 * (y + 0.7) * (y + 0.7) + 0.5 * x * y,
-      rosenbrock: (x, y) => (1.0 - x) * (1.0 - x) + 100.0 * (y - x * x) * (y - x * x),
-      constant: () => 1.0,
-      plateau: (x, y) => (x * x + y * y > 0.25 ? 1.0 : -0.5 + x * x),
-    }
-    for (const c of golden.kernels.nelder_mead) {
-      const f = fns[c.function] as (x: number, y: number) => number
-      const evals: number[][] = []
-      const res = nelderMead((d) => {
-        const v = f(d[0] as number, d[1] as number)
-        evals.push([d[0] as number, d[1] as number, v])
-        return v
-      }, c.options.initial_simplex, { xatol: c.options.xatol, fatol: c.options.fatol, maxiter: c.options.maxiter })
-      expect(evals.length, c.function).toBe(c.evals.length)
-      expect(differing(evals.flat(), c.evals.flat()), c.function).toEqual([])
-      expect([res.nit, res.nfev]).toEqual([c.nit, c.nfev])
-      expect(differing([...res.x, res.fun], [...c.x, c.fun])).toEqual([])
-    }
-  })
-
-  it("numpy's argsort keeps ties in order, like the stable sort Nelder-Mead uses here", () => {
-    for (const c of golden.kernels.argsort) {
-      expect(c.values.map((_, i) => i).sort((i, j) => (c.values[i] as number) - (c.values[j] as number))).toEqual(c.order)
     }
   })
 
