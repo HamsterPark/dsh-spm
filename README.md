@@ -25,6 +25,8 @@ These challenges make STM a compelling setting for research on autonomous experi
 
 ### Why visual memory belongs in the experimental loop
 
+**Representation is part of reasoning.** We put this principle into practice through interfaces that preserve the relationships among images, scan coordinates, physical units, and acquisition history. A model's ability to revisit a region, compare scans, or request a numerical measurement shapes how it tests a physical interpretation. The TypeScript visual tools make these operations available within the agent's reasoning cycle.
+
 Atomic lattices, reconstructions, steps and adsorbates make STM images rich in spatial relationships. Their significance often emerges through comparison: the same area before and after a manipulation, opposite scan directions, or a feature measured under different tunneling conditions. Preserving those observations gives an agent access to evidence that may become relevant only later in the experiment.
 
 [VISTA](https://arxiv.org/abs/2610.02200) provides a useful foundation for this approach: direct visual observations, lossless memory and active retrieval support reasoning over extended interactions. Our connection to STM is both spatial and experimental. Like the interactive tasks studied in ARC-AGI-3, a microscopy sequence asks the agent to infer relationships from images, intervene and use the resulting changes to refine its understanding. STM adds physical units, instrument dynamics and evolving tip–sample conditions. These demands motivate the combination of visual memory with quantitative metrology in VISTA-SPM and its TypeScript implementation here.
