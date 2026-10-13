@@ -46,8 +46,6 @@ STM 利用尖锐针尖与邻近样品之间的隧穿电流探测表面。电流�
 
 核心分工是：**MAST 提供仪器控制系统，VISTA-SPM 发展视觉推理框架，dsh-spm 将这些能力接入另一种智能体宿主，STM-Bench 提供模拟与评估。** 可复用的核心是科学接口——带物理坐标的观测、带单位的测量，以及有结果记录的动作；这些接口可以在不同运行时中实现。
 
-相关分析项目进一步延伸这一研究方向：[AFS3D](https://github.com/HamsterPark/AFS3D) 处理三维原子力谱、漂移校正与力重建；[dft-spm-toolkit](https://github.com/HamsterPark/dft-spm-toolkit) 则通过电子结构与探针粒子模拟，把 STM/nc-AFM 衬度联系到微观成像机制。
-
 ## TypeScript 中的视觉推理与计量
 
 [视觉记忆包](packages/host/visual-memory/src/index.ts) 将 VISTA-SPM 的设计实现为可复用服务和模型工具，把图像解释连接到实验关心的量：特征位置、台阶高度、晶格或重构周期、扫描前后的变化，以及谱学信号。

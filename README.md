@@ -46,8 +46,6 @@ The projects address different parts of autonomous microscopy, with explicit int
 
 The central division is straightforward: **MAST supplies an instrument-control system; VISTA-SPM develops the visual reasoning framework; dsh-spm integrates these capabilities with a different agent host; STM-Bench supplies simulation and evaluation.** The reusable unit is the scientific interface—observations with physical coordinates, measurements with units, and actions with recorded outcomes—which can be implemented across runtimes.
 
-Related analysis projects extend this program: [AFS3D](https://github.com/HamsterPark/AFS3D) addresses three-dimensional atomic force spectroscopy, drift correction and force reconstruction, while [dft-spm-toolkit](https://github.com/HamsterPark/dft-spm-toolkit) connects STM/nc-AFM contrast with electronic-structure and probe-particle simulations.
-
 ## Visual reasoning and metrology in TypeScript
 
 The [visual-memory package](packages/host/visual-memory/src/index.ts) turns the VISTA-SPM design into reusable services and model tools. It connects image interpretation to quantities that matter experimentally: feature positions, step heights, lattice or reconstruction periods, changes between scans and spectral signals.
