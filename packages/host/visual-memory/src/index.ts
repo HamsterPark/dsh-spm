@@ -225,7 +225,6 @@ export {
   MIN_PEAK_STRENGTH,
   SpectrumSizeError,
   fftPeaks,
-  nextFastLen,
   paintMarks,
   spectrumImage,
   spectrumMarks,

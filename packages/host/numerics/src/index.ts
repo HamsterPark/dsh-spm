@@ -63,3 +63,7 @@ export * from './phase-shift.js'
 // ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）在这一行下面加 export ──
 
 // ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）在这一行下面加 export ──
+
+// ── 视觉线束测量工具的数值件（2026-10-13 从 visual-memory / stm-skills 收进来）──
+// `fft-mixed`：`stm_fft_peaks` 的混合基补零谱与 `next_fast_len`；与 `fft.ts` 不逐位相同，两个都留。
+export * from './fft-mixed.js'

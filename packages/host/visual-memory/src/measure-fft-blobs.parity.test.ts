@@ -10,7 +10,8 @@
  * precision); the reference file hashes and head are recorded in it.
  *
  * Exact (the same arithmetic in the same order, or integers and strings):
- * `next_fast_len` for 1..2200; the spectrum's sizes, zero padding, frequency axes,
+ * `next_fast_len` for 1..2200 (numerics' `fft-mixed.test.ts` reads that part of the
+ * golden); the spectrum's sizes, zero padding, frequency axes,
  * k_min, Nyquist and DC lobe; peak counts and ranks; every fft_peaks reply (its numbers
  * are rounded to 2-6 decimals and agree there); reply keys and their order; derived frame
  * ids, labels and summaries, the archive index; error replies; the blob candidates,
@@ -56,7 +57,7 @@ import golden from '../../../../spec/golden/measure_fft_blobs.json' with { type:
 import { entrySummary, FrameArchive } from './archive.js'
 import { detectBlobs, findBlobs, gaussModel, type Blob } from './detect-blobs.js'
 import type { Mark } from './draw.js'
-import { fftPeaks, nextFastLen, spectrumPeaks, type MarkPainter } from './fft-peaks.js'
+import { fftPeaks, spectrumPeaks, type MarkPainter } from './fft-peaks.js'
 import { pyMod } from './pymath.js'
 import { encodePngRgb } from './png.js'
 import { leastSquares } from './least-squares.js'
@@ -92,11 +93,6 @@ describe('measure parity: reference and SciPy pieces', () => {
       expect(G.reference[k]).toMatch(/^[0-9a-f]{64}$/)
     }
     expect(G.reference.max_blobs).toBe(200)
-  })
-
-  it('next_fast_len for 1..2200', () => {
-    const got = (G.next_fast_len.sizes as number[]).map((_, i) => nextFastLen(i + 1))
-    expect(got).toEqual(G.next_fast_len.sizes)
   })
 
   describe('least_squares (bounded TRF)', () => {

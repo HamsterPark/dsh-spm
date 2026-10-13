@@ -111,6 +111,10 @@
  * 2 的幂上两者是同一个核、逐位相同（`fft2InPlace` 的逆变换除外：次序不同）。原地那一对给热循环用 ——
  * visual-memory 的帧配准每次评估要做五次 2 的幂长度的二维变换；它从前在那边有一份自己的拷贝，
  * 与这里的核逐位相同，于是只留了一份（理由见 `Radix2Plan`）。
+ *
+ * 本包另有一个 FFT：`fft-mixed.ts` 的混合基变换（`stm_fft_peaks` 的补零谱，长度取 SciPy 的
+ * `next_fast_len`）。它与这里**不**逐位相同 —— 因式分解与运算次序都不一样 —— 所以两个都留着，
+ * 理由写在那边的抬头。
  */
 import { matOf, type Mat } from './mat.js'
 import { EPS, sum } from './stats.js'
@@ -441,6 +445,25 @@ export function ifft2(s: Complex2d): Complex2d {
     im[i] = (b.im.data[i] as number) / n
   }
   return { re: matOf(b.re.rows, b.re.cols, re), im: matOf(b.re.rows, b.re.cols, im) }
+}
+
+/**
+ * numpy 的 `fftshift(fftfreq(n, d))`：频率轴，零频在中间（`n` 为偶数时在 `n/2`）。
+ *
+ * 写法照 numpy：`整数下标 · val`，`val = 1/(n·d)` —— 一次除法求 `val`、每格一次乘法，
+ * 不是每格 `k/(n·d)`。两种写法末位不同，而频率轴的末位会被下游取整、分箱。
+ * 消费方：visual-memory `fft-peaks.ts`（`stm_fft_peaks` 的 k 轴）。
+ */
+export function shiftedFreq(n: number, d: number): Float64Array {
+  const val = 1.0 / (n * d)
+  const half = Math.floor(n / 2)
+  const N = Math.floor((n - 1) / 2) + 1
+  const out = new Float64Array(n)
+  for (let i = 0; i < n; i += 1) {
+    const j = (((i - half) % n) + n) % n // fftshift: out[i] = in[(i - n//2) mod n]
+    out[i] = (j < N ? j : j - n) * val
+  }
+  return out
 }
 
 /**

@@ -1,23 +1,24 @@
 /**
  * Unit tests of the pieces behind `stm_fft_peaks` and `stm_detect_blobs` that the
- * parity golden does not reach on its own: the transform against the numerics
- * package's FFT, the small NumPy/Python helpers, the optimizer's refusals and
- * rarely taken branches, the tools' answers for frames they cannot use, and the
- * two tools through a real dsh dispatcher (reply, label block, image block).
- * Parity with the reference itself is `measure-fft-blobs.parity.test.ts`.
+ * parity golden does not reach on its own: the small NumPy/Python helpers, the
+ * optimizer's refusals and rarely taken branches, the tools' answers for frames they
+ * cannot use, and the two tools through a real dsh dispatcher (reply, label block,
+ * image block). The transform, `next_fast_len` and the frequency axis are numerics'
+ * (`fft-mixed.test.ts`, `spectral.test.ts`). Parity with the reference itself is
+ * `measure-fft-blobs.parity.test.ts`.
  */
 import { createHash } from 'node:crypto'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context, Service, SystemPrompt, ToolRuntime, type ImageAttachmentRef } from 'dsh-spm-compat'
-import { fft2, greyDilation, matOf, rectSE } from 'dsh-spm-numerics'
+import { greyDilation, matOf, rectSE } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import { FrameArchive } from './archive.js'
 import { MARK_RGB } from './draw.js'
 import * as plugin from './plugin.js'
 import { blobGeometry, BlobError, detectBlobs, findBlobs, gaussModel, MAX_BLOBS, scipyGaussianKernel } from './detect-blobs.js'
-import { fft2Magnitude, fftPeaks, interpIndex, longestFiniteRows, maximumFilter, nextFastLen, shiftedFreq, spectrumPeaks, SpectrumSizeError } from './fft-peaks.js'
+import { fftPeaks, interpIndex, longestFiniteRows, maximumFilter, spectrumPeaks, SpectrumSizeError } from './fft-peaks.js'
 import { leastSquares, LeastSquaresError, nextAfter } from './least-squares.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 
@@ -29,35 +30,7 @@ function seeded(seed: number): () => number {
   }
 }
 
-describe('the transform', () => {
-  it('next_fast_len is the next 11-smooth size', () => {
-    expect([1, 7, 11, 13, 17, 23, 130, 513, 1023, 2047].map(nextFastLen)).toEqual([1, 7, 11, 14, 18, 24, 132, 525, 1024, 2048])
-    for (const bad of [0, -3, 1.5, Number.NaN]) expect(() => nextFastLen(bad)).toThrow(RangeError)
-  })
-
-  it('the padded magnitude agrees with the numerics FFT for radix 2, 3, 5, 7, 11 and 13', () => {
-    const rnd = seeded(7)
-    for (const [ny, nx, Py, Px] of [[6, 10, 12, 20], [7, 11, 7, 11], [5, 9, 15, 18], [3, 13, 6, 13], [1, 4, 1, 8]] as const) {
-      const z = Float64Array.from({ length: ny * nx }, rnd)
-      const got = fft2Magnitude(z, ny, nx, Py, Px)
-      const padded = new Float64Array(Py * Px)
-      for (let r = 0; r < ny; r += 1) for (let c = 0; c < nx; c += 1) padded[r * Px + c] = z[r * nx + c] as number
-      const want = fft2(matOf(Py, Px, padded))
-      let scale = 0
-      const ref = new Float64Array(Py * Px)
-      for (let i = 0; i < ref.length; i += 1) {
-        ref[i] = Math.hypot(want.re.data[i] as number, want.im.data[i] as number)
-        scale = Math.max(scale, ref[i] as number)
-      }
-      got.forEach((v, i) => expect(Math.abs(v - (ref[i] as number))).toBeLessThanOrEqual(1e-13 * scale))
-    }
-  })
-
-  it('shifted frequencies follow numpy, odd lengths included', () => {
-    expect(Array.from(shiftedFreq(5, 0.5))).toEqual([-0.8, -0.4, 0, 0.4, 0.8])
-    expect(Array.from(shiftedFreq(4, 1))).toEqual([-0.5, -0.25, 0, 0.25])
-  })
-
+describe('the spectrum pieces', () => {
   it('interp at index positions: ends, knots, between, NaN', () => {
     const fp = Float64Array.from([10, 20, 40])
     expect([interpIndex(-1, fp), interpIndex(5, fp), interpIndex(2, fp), interpIndex(1, fp), interpIndex(1.25, fp)]).toEqual([10, 40, 40, 20, 25])
