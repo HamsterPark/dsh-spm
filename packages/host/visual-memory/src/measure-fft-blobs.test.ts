@@ -1,11 +1,11 @@
 /**
  * Unit tests of the pieces behind `stm_fft_peaks` and `stm_detect_blobs` that the
  * parity golden does not reach on its own: the small NumPy/Python helpers, the
- * optimizer's refusals and rarely taken branches, the tools' answers for frames they
- * cannot use, and the two tools through a real dsh dispatcher (reply, label block,
- * image block). The transform, `next_fast_len` and the frequency axis are numerics'
- * (`fft-mixed.test.ts`, `spectral.test.ts`). Parity with the reference itself is
- * `measure-fft-blobs.parity.test.ts`.
+ * tools' answers for frames they cannot use, and the two tools through a real dsh
+ * dispatcher (reply, label block, image block). The transform, `next_fast_len`, the
+ * frequency axis and the optimizer's refusals and rare branches are numerics'
+ * (`fft-mixed.test.ts`, `spectral.test.ts`, `least-squares.test.ts`). Parity with the
+ * reference itself is `measure-fft-blobs.parity.test.ts`.
  */
 import { createHash } from 'node:crypto'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -17,9 +17,8 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { FrameArchive } from './archive.js'
 import { MARK_RGB } from './draw.js'
 import * as plugin from './plugin.js'
-import { blobGeometry, BlobError, detectBlobs, findBlobs, gaussModel, MAX_BLOBS, scipyGaussianKernel } from './detect-blobs.js'
+import { blobGeometry, BlobError, detectBlobs, findBlobs, MAX_BLOBS, scipyGaussianKernel } from './detect-blobs.js'
 import { fftPeaks, interpIndex, longestFiniteRows, maximumFilter, spectrumPeaks, SpectrumSizeError } from './fft-peaks.js'
-import { leastSquares, LeastSquaresError, nextAfter } from './least-squares.js'
 import { decodePng, encodePngRgb, pngSize, toRgb } from './png.js'
 
 function seeded(seed: number): () => number {
@@ -67,53 +66,6 @@ describe('Python and NumPy semantics', () => {
     expect(k[0]).toBe(k[6])
   })
 
-  it('nextafter', () => {
-    expect(nextAfter(1, 2)).toBe(1 + Number.EPSILON)
-    expect(nextAfter(1, 0)).toBe(1 - Number.EPSILON / 2)
-    expect(nextAfter(-1, 0)).toBe(-1 + Number.EPSILON / 2)
-    expect(nextAfter(0, -1)).toBe(-Number.MIN_VALUE)
-    expect(nextAfter(3, 3)).toBe(3)
-    expect(nextAfter(Number.NaN, 1)).toBeNaN()
-  })
-})
-
-describe('least squares (TRF): refusals and branches', () => {
-  const line = (p: Float64Array) => Float64Array.from([p[0] as number - 1, (p[1] as number) - 2])
-
-  it('refuses what SciPy refuses', () => {
-    expect(() => leastSquares(line, [0, 0], [0, 1], [1, 1])).toThrow('strictly less')
-    expect(() => leastSquares(line, [5, 0], [0, 0], [1, 1])).toThrow('outside of provided bounds')
-    expect(() => leastSquares(line, [0, 0], [0], [1])).toThrow('Inconsistent shapes')
-    expect(() => leastSquares(() => Float64Array.of(Number.NaN), [0.5], [0], [1])).toThrow(LeastSquaresError)
-  })
-
-  it('stops on gtol at an exact solution', () => {
-    const r = leastSquares(line, [0, 0], [-5, -5], [5, 5])
-    expect(r.status).toBe(1)
-    expect(Array.from(r.x).map((v) => Number(v.toFixed(9)))).toEqual([1, 2])
-  })
-
-  it('shrinks the trust region where a trial step makes the residuals non-finite', () => {
-    const f = (p: Float64Array) => Float64Array.of(Math.sqrt((p[0] as number) - 1) - 0.01)
-    const r = leastSquares(f, [50], [0], [100])
-    expect(r.success).toBe(true)
-    expect(r.x[0]).toBeCloseTo(1.0001, 6)
-  })
-
-  it('handles a rank-deficient Jacobian', () => {
-    const f = (p: Float64Array) => {
-      const s = (p[0] as number) + (p[1] as number)
-      return Float64Array.of(s - 3, 2 * s - 6.1)
-    }
-    const r = leastSquares(f, [0, 0], [-10, -10], [10, 10])
-    expect(r.success).toBe(true)
-    expect((r.x[0] as number) + (r.x[1] as number)).toBeCloseTo(3.04, 9)
-  })
-
-  it('stops at max_nfev with status 0', () => {
-    const r = leastSquares((p) => gaussModel(p, [0, 1, 2, 3], [0, 0, 0, 0]).map((v, i) => v - [0.1, 0.5, 1, 0.5][i]!), [0.5, 1, 0, 1, 1, 0, 0], [0, -5, -5, 0.1, 0.1, -4, -1], [4, 5, 5, 9, 9, 4, 1], { maxNfev: 2 })
-    expect([r.status, r.success, r.nfev]).toEqual([0, false, 2])
-  })
 })
 
 describe('find_blobs edges', () => {

@@ -67,3 +67,5 @@ export * from './phase-shift.js'
 // ── 视觉线束测量工具的数值件（2026-10-13 从 visual-memory / stm-skills 收进来）──
 // `fft-mixed`：`stm_fft_peaks` 的混合基补零谱与 `next_fast_len`；与 `fft.ts` 不逐位相同，两个都留。
 export * from './fft-mixed.js'
+// `least-squares`：SciPy `least_squares` 的有界 TRF（`stm_detect_blobs` 的拟合）；与 `curveFit`（无界 LM）、`lstsqQr`（线性）各有各的消费方。
+export * from './least-squares.js'

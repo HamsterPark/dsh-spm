@@ -218,7 +218,6 @@ export {
   type ProfileStep,
 } from './line-profile.js'
 export { frameStats } from './frame-stats.js'
-export { LeastSquaresError, leastSquares, type TrfOptions, type TrfResult } from './least-squares.js'
 export {
   FFT_PEAKS_DEFAULT,
   MAX_FFT_PEAKS,

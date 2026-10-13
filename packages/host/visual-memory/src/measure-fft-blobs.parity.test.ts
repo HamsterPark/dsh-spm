@@ -23,7 +23,7 @@
  *   units, the top log-magnitude 1e-13: pocketfft against the mixed-radix FFT here, and
  *   `log10` / `cos` of V8 against the C runtime, differ in the last bits (measured: below
  *   4e-14);
- * - `least_squares` (`least-squares.ts`): where the problem is well conditioned from its
+ * - `least_squares` (numerics' `least-squares.ts`): where the problem is well conditioned from its
  *   start, the iterate itself to 1e-8 and SciPy's `status`, `nfev` and `njev`; where the
  *   start is a circle (`sa == sb`, `theta == 0`, the way `_fit_blob` starts every fit) the
  *   first Jacobian's theta column is rounding noise of `exp`, so the path depends on the
@@ -52,6 +52,7 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { leastSquares } from 'dsh-spm-numerics'
 import { afterAll, describe, expect, it } from 'vitest'
 import golden from '../../../../spec/golden/measure_fft_blobs.json' with { type: 'json' }
 import { entrySummary, FrameArchive } from './archive.js'
@@ -60,7 +61,6 @@ import type { Mark } from './draw.js'
 import { fftPeaks, spectrumPeaks, type MarkPainter } from './fft-peaks.js'
 import { pyMod } from './pymath.js'
 import { encodePngRgb } from './png.js'
-import { leastSquares } from './least-squares.js'
 import type { ViewToolResult } from './args.js'
 import type { PartialGeometry, PartialMeta } from './scan-data.js'
 

@@ -42,9 +42,9 @@
  * taps summed outside-in as `NI_Correlate1D` does), sums over pixels are NumPy's
  * pairwise sums. What differs is the last bit of `exp` (V8 vs. the C runtime),
  * the block mean and bilinear resampling of the background, and the optimizer
- * (see `least-squares.ts`); the parity test states the tolerances.
+ * (see numerics' `least-squares.ts`); the parity test states the tolerances.
  */
-import { npSum } from 'dsh-spm-numerics'
+import { leastSquares, LeastSquaresError, npSum } from 'dsh-spm-numerics'
 import {
   ArgError,
   argsObject,
@@ -62,7 +62,6 @@ import { type Mark } from './draw.js'
 import { degrees, maximumFilter, paintMarks, type MarkPainter } from './fft-peaks.js'
 import { flatFrame, imageEntry, pixelNm } from './line-profile.js'
 import { nativeToScanNm, type ScanGeometry } from './geometry.js'
-import { leastSquares, LeastSquaresError } from './least-squares.js'
 import { decodePng, toRgb } from './png.js'
 import { pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
 import { pyHypot, pyMod } from './pymath.js'
