@@ -3198,17 +3198,17 @@ function physicallyAbsurdViolations_unused(`,
   },
   {
     id: 'fft-window-is-symmetric',
-    why: '`np.hanning` 的分母是 **M−1**（对称窗）。换成 M ⇒ 变成周期窗，旁瓣整个不一样 —— 而两条谱都「看起来像一条谱」',
-    file: `${SK}/l0/current-monitor.ts`,
-    find: '  for (let k = 0; k < m; k += 1) out[k] = 0.5 + 0.5 * Math.cos((Math.PI * (1 - m + 2 * k)) / (m - 1))',
-    replace: '  for (let k = 0; k < m; k += 1) out[k] = 0.5 + 0.5 * Math.cos((Math.PI * (1 - m + 2 * k)) / m)',
+    why: '`np.hanning` 的分母是 **M−1**（对称窗）。换成 M ⇒ 变成周期窗，旁瓣整个不一样 —— 而两条谱都「看起来像一条谱」。窗 2026-10-13 起是 numerics 的 `hanning`（`MonitorCurrentFFT`、`phase_shift`、`stm_fft_peaks` 共用）',
+    file: `${NU}/correlate.ts`,
+    find: '    out[k] = 0.5 + 0.5 * Math.cos((Math.PI * n) / (m - 1))',
+    replace: '    out[k] = 0.5 + 0.5 * Math.cos((Math.PI * n) / m)',
     scope: 'packages/host',
   },
   {
     id: 'fft-window-name-picks-the-window',
     why: '`window` 参数真的换窗。分派拆掉 ⇒ 每一条谱都是不加窗的那一条，而返回值里的 `window` 仍然写着 `hann`',
     file: `${SK}/l0/current-monitor.ts`,
-    find: "      windowName === 'hann' ? npHanning(n) : windowName === 'hamming' ? npHamming(n) : ones(n)",
+    find: "      windowName === 'hann' ? hanning(n) : windowName === 'hamming' ? hamming(n) : ones(n)",
     // ⚠️ **不能**写成 `=== 'hann' && === 'hamming'`：TS 6 在第一次比较之后就把
     // `windowName` 收窄成 `'hann'`，第二次比较因此报 TS2367（两个字面量类型无交集），
     // 而**一条编不过的变异等于那道闸永远验不到**。`||` 不触发那次收窄。
@@ -3241,8 +3241,8 @@ function physicallyAbsurdViolations_unused(`,
   },
   {
     id: 'rfft-keeps-half-plus-one',
-    why: '`rfft` 的长度是 `⌊n/2⌋+1` —— **加一**是 Nyquist 那一格。少一格 ⇒ 频率刻度与谱对不齐，而下标越界的那一端悄悄丢掉最高频',
-    file: `${SK}/l0/current-monitor.ts`,
+    why: '`rfft` 的长度是 `⌊n/2⌋+1` —— **加一**是 Nyquist 那一格。少一格 ⇒ 频率刻度与谱对不齐，而下标越界的那一端悄悄丢掉最高频。`rfft` 2026-10-13 起在 numerics `fft.ts`',
+    file: `${NU}/fft.ts`,
     find: '  const full = fft(x)\n  const m = (n >> 1) + 1',
     replace: '  const full = fft(x)\n  const m = n >> 1',
     scope: 'packages/host',

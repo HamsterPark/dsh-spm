@@ -467,6 +467,46 @@ export function shiftedFreq(n: number, d: number): Float64Array {
 }
 
 /**
+ * `np.fft.rfft(x)` —— 实序列的单边谱，长度 `⌊n/2⌋ + 1`。
+ *
+ * 本包没有专门的实数 FFT：这里走一遍完整的复 FFT 再取前 `⌊n/2⌋+1` 格。
+ * 对 Hermite 对称的谱，那前半段与 numpy 的 `rfft` **是同一组数**
+ * （numpy 内部也只是省掉了后半段的计算，不是换了算法）。
+ *
+ * ## 容差：`fftRelTol(n)`（相对，见本文件抬头）
+ *
+ * 多算的那后半段不进结果，所以误差界与一次长度 `n` 的复 FFT 相同。
+ * **不给 0**：本仓是自写的 radix-2 / Bluestein，numpy 是 pocketfft ——
+ * 两种蝶形顺序，逐位相同没有理由。
+ *
+ * 消费方：stm-skills 的 `MonitorCurrentFFT`（2026-10-13 从那里搬来，一个字未改）。
+ */
+export function rfft(x: Float64Array | readonly number[]): Complex {
+  const n = x.length
+  const full = fft(x)
+  const m = (n >> 1) + 1
+  return { re: full.re.slice(0, m), im: full.im.slice(0, m) }
+}
+
+/**
+ * `np.fft.rfftfreq(n, d)` = `arange(0, n/2+1) / (n·d)`。
+ *
+ * ⚠️ 除法写成 `k / (n·d)`，**不是** `k·fs/n`。两者数学上相同（`d = 1/fs`），
+ * 浮点上不同：前者一次乘法一次除法，后者两次。判据是金样里那一串刻度，
+ * 而频率刻度错一位就等于把峰安在别的频率上。容差 **0**。
+ *
+ * （与上面 {@link shiftedFreq} 的「下标 · `1/(n·d)`」不是同一种写法：两处各照各的来源，
+ * 这一条照的是 `MonitorCurrentFFT` 的轨迹金样。）
+ */
+export function rfftfreq(n: number, d: number): Float64Array {
+  const m = (n >> 1) + 1
+  const out = new Float64Array(m)
+  const den = n * d
+  for (let k = 0; k < m; k += 1) out[k] = k / den
+  return out
+}
+
+/**
  * 互功率谱 `A · conj(B)`，**归一化可关**（`normalize = false` 时原样给出）。
  * 关掉它是另一个算法不是另一档精度 —— 见文件抬头 `normalization` 那一节。
  *

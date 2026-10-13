@@ -3,6 +3,7 @@
  *
  * 放一个文件里是因为它们服务**同一条路** —— 「两张帧差了多少」：
  * 先用汉宁窗把边缘的不连续压下去，再看相关面的峰在哪一格。
+ * 同族的 `numpy.hamming` 也住这里（`MonitorCurrentFFT` 的另一种窗），免得一族窗分两处。
  *
  * ## 容差：`correlate2d` = `convRelTol(taps)`，`taps = 核的元素个数`
  *
@@ -83,6 +84,23 @@ export function hanning(m: number): Float64Array {
   for (let k = 0; k < m; k += 1) {
     const n = 1 - m + 2 * k
     out[k] = 0.5 + 0.5 * Math.cos((Math.PI * n) / (m - 1))
+  }
+  return out
+}
+
+/**
+ * numpy 的 `hamming(M)`：`0.54 + 0.46·cos(π·n/(M−1))`，`n = 1−M, 3−M, …, M−1` ——
+ * 与 {@link hanning} 同式同序，只换两个系数；容差同 `HANNING_REL_TOL` 的理由。
+ * 消费方：stm-skills 的 `MonitorCurrentFFT`（`window='hamming'`，2026-10-13 从那里搬来）。
+ */
+export function hamming(m: number): Float64Array {
+  if (!Number.isInteger(m)) throw new RangeError(`hamming 的窗长必须是整数：得到 ${m}`)
+  if (m < 1) return new Float64Array(0)
+  if (m === 1) return Float64Array.from([1])
+  const out = new Float64Array(m)
+  for (let k = 0; k < m; k += 1) {
+    const n = 1 - m + 2 * k
+    out[k] = 0.54 + 0.46 * Math.cos((Math.PI * n) / (m - 1))
   }
   return out
 }
