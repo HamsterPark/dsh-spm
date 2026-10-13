@@ -74,13 +74,30 @@ node scripts/native-session.ts --install-dir $profileDir --dsh-home $dshHome --p
 
 每条命令建立一个独立的原生 dsh 会话，不继承上一条的模型上下文；模拟器设置保持连续。因此需要明确写出目标值和动作。默认模型是 `deepseek-official/deepseek-flash`，默认每轮最多八次 agent 请求、120 秒。可用 `--model PROVIDER/MODEL`、`--max-requests`（1–20）、`--timeout-ms`（10000–600000）调整。
 
-工具目录固定为 `stm_hello`、`GetBias`、`GetCurrent`、`GetZPosition`、`GetScanStatus`、`SetBias`、`StartScan`、`StopScan`。启动守卫核对目录，请求后再从原生日志核对模型路由与目录。每轮在 `$dshHome\nanonis-runs\` 下新建记录目录，保存报告、SQLite 动作、完整工具结果；原生会话保存在该 home 的 `sessions` 下，终端打印本轮位置。
+工具目录固定为 `stm_hello`、`GetBias`、`GetCurrent`、`GetZPosition`、`GetScanStatus`、`SetBias`、`StartScan`、`StopScan`；加 `--visual` 时另有九个视觉工具（见[视觉线束](#视觉线束可选)）。启动守卫核对目录，请求后再从原生日志核对模型路由与目录。每轮在 `$dshHome\nanonis-runs\` 下新建记录目录，保存报告、SQLite 动作、完整工具结果；原生会话保存在该 home 的 `sessions` 下，终端打印本轮位置。
 
 ## 工具行为与操作边界
 
 偏压写入及扫描启停均回读核对；确认失败时，结果区分“命令已发送”和“状态已确认”，拒绝或断链保留失败记录。原生模式逐条执行工具及其回读，不启用自动后台轮询或看门狗退针。
 
 `SetBias` 是立即设置，不支持 `slew_rate_v_per_s` 斜坡参数。`StartScan` 要求 Z feedback 已开启且当前未扫描，不会自动开启反馈。它保留扫描框、速度、文件名、保存模块与 autosave 设置；若 Continuous scan 开启，会关闭并核对该设置，再启动一次扫描。连续扫描关闭后不会自动恢复。工具结果会报告这些限制；确认 running/stopped 不表示已经取得或导出完整图像。
+
+## 视觉线束（可选）
+
+加 `--visual --save-dir <Session path>` 时，本轮会话挂上[视觉线束](VISUAL-HARNESS.md)（决策 D12）。不加时运行栈与上述验收一致：工具目录、提示和回复都不变。
+
+```powershell
+$sessionPath = '<Nanonis 的 Session path，即扫描自动保存的目录>'
+
+node scripts/native-session.ts --install-dir $profileDir --dsh-home $dshHome --pid $simulatorPid --ports $nativePorts --credential-file $credentialFile --visual --save-dir $sessionPath --prompt '向下开始一次扫描；扫描结束后查询状态，并描述图像。'
+```
+
+- **帧从哪来**：`--save-dir` 是 Nanonis 保存扫描的目录，须开启 autosave。扫描结束时存下的 `.sxm` 在下一次工具调用结束时入档，并随那次结果出图；结果末尾的 `new_frames` 一行给出帧编号与摘要。目录须在启动前存在。给错目录时不会读入别处的文件，只是没有帧入档。本入口不向模拟器查询保存目录，TCP 白名单保持不变。
+- **多出的工具**：`stm_inspect`、`stm_read_values`、`stm_line_profile`、`stm_fft_peaks`、`stm_detect_blobs`、`stm_frame_diff`、`stm_frame_stats`、`stm_notes_read`、`stm_notes_write`。它们只读帧档案、读写笔记，不发送仪器命令。仪器工具仍是上述七个。
+- **一动一观**：同一步里只执行一个改变仪器的动作（`SetBias`、`StartScan`）。第二个会被拒绝，模型看到第一个的结果后才放行；`StopScan` 是补救动作，永不被拒。每次拒绝在 SQLite 和 JSONL 各记一行（`kind` 为 `refused`）。
+- **记录**：帧与笔记保存在 `--visual-root` 下（默认 `$dshHome\visual-memory`），每个会话一个 `sessions\<会话 id>` 目录；观测图另存为 dsh 附件。JSONL 中的技能结果增加 `observation` 字段，记录入档和出图的帧。
+- **模型**：图像随工具结果发送。模型路由只接受文本时，结果末尾写明 `images_not_delivered: N`，不会静默丢图。
+- **验收状态**：这一开关有单元和契约测试，其中包括由真实 dsh agent loop 驱动的完整回合。它还没有经过真实模型验收，下文的 2026-09-21 记录不覆盖它。
 
 ## 退出与重启
 
@@ -92,6 +109,6 @@ node scripts/native-session.ts --install-dir $profileDir --dsh-home $dshHome --p
 
 2026-09-21 的记录绑定 SHA256 **`b5a7ab1a088ea91cc6b504a6f67763287898e46fb996790ef58f37f0bd2c081b`**：安装态验证通过，真实模型发起 7 次请求、9 次工具调用，覆盖七个 STM 工具；hello 在目录中，未在该模型流程中调用。模型会话、工具结果、SQLite 和 JSONL 按调用 ID 关联。详见 [实施交接](handoff/native-nanonis-20260921.md) 和 [结构化结果](handoff/native-nanonis-20260921.json)。
 
-这些记录对应当时的 Windows 与 Generic 5e / RT Release 15016。它们不证明其他 Nanonis 版本、跨平台、完整图像采集／导出、专用 STM 前端、npm 发布或真实仪器行为。原始会话和数据库路径属于验收机器；仓库保存摘要及关联结果。
+这些记录对应当时的 Windows 与 Generic 5e / RT Release 15016。它们不证明其他 Nanonis 版本、跨平台、完整图像采集／导出、专用 STM 前端、npm 发布或真实仪器行为。视觉线束开关（`--visual`）在这些记录之后加入，不在其范围内。原始会话和数据库路径属于验收机器；仓库保存摘要及关联结果。
 
 受管 STM-Bench 的双 home 验收属于此前 `8c510e…` 包，不扩展到这里的 `b5a7ab…` 包。重新构建即使沿用同一 tarball 文件名，也应按新哈希记录自己的验收结果。

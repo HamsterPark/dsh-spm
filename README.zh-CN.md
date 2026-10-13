@@ -100,7 +100,7 @@ pnpm test --project unit --project contract
 - [AGENTS.md](AGENTS.md)：面向编码智能体的任务入口、边界和默认验证要求。
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md)：迁移验收、生成、测试和协作流程。
 - [RELEASE-TODO.md](docs/RELEASE-TODO.md)：公开发布准备与已记录检查。
-- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md)：以图像为主的感知设计（决策 D12）。视觉记忆包及其测量工具、K14 观测接线和一动一观闸门已实现，有单元、契约与参考对照测试；尚未挂进 bundle 或任何 profile，没有运行验收。
+- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md)：以图像为主的感知设计（决策 D12）。视觉记忆包及其测量工具、K14 观测接线和一动一观闸门已实现，有单元、契约与参考对照测试。最小运行栈可以通过开关挂上它们（`visualHarness`，缺省不挂；Nanonis 模拟器用 `scripts/native-session.ts --visual`），还没有真实模型验收。
 - [SOURCES.md](docs/SOURCES.md)：来源和第三方声明，包括参考派生夹具与公开文本规范化。
 
 本项目采用 [MIT 许可证](LICENSE)。第三方材料保留来源登记中说明的声明。

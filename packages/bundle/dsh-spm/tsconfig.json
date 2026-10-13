@@ -25,6 +25,9 @@
       "path": "../../host/stm-skills"
     },
     {
+      "path": "../../host/visual-memory"
+    },
+    {
       "path": "../../instrument/nanonis-wire"
     },
     {

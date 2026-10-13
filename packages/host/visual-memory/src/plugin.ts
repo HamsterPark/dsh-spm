@@ -3,7 +3,8 @@
  * visual-memory tools (VISUAL-HARNESS §4.1, §4.4) and the harness's standing
  * instructions (§4.7, `prompt.ts`).
  *
- * Not mounted by any profile or bundle yet: the bundle composes it with the
+ * The bundle's minimal runtime mounts it behind its `visualHarness` switch
+ * (`packages/bundle/dsh-spm/src/visual-harness.ts`), composed with the
  * kernel's K14 observer and the skill tools' presenter (`observe.ts`). The
  * attachment service is optional — it is read at call time with
  * `ctx.get('attachments')`, so the tools still answer (with

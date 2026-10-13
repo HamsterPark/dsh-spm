@@ -3,6 +3,9 @@
  *
  * 这里的名单有意是闭的。新增技能必须在本文件逐项评审；不能把完整技能注册表
  * 动态铺给模型。
+ *
+ * 视觉线束（`Config.visualHarness`，缺省不挂）只在这份名单之上加观察与回看，不加仪器技能；
+ * 见 `visual-harness.ts`。
  */
 import { closeSync, mkdirSync, openSync } from 'node:fs'
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -17,9 +20,18 @@ import { NANONIS_METHODS } from 'dsh-spm-nanonis-wire'
 import { RecordsService } from 'dsh-spm-stm-records'
 import { StmSafetyService } from 'dsh-spm-stm-safety'
 import { GetBias, defineSkillTool, gatedSafeCall } from 'dsh-spm-stm-skills'
+import type { ViewToolValue } from 'dsh-spm-visual-memory'
 import { MinimalPersistence, type MinimalResultRecord } from './minimal-persistence.js'
 import { NativeSimulatorConnection, NativeSimulatorInstrument, type NativeSimulatorOptions } from './native-simulator.js'
 import { NATIVE_SKILLS, formatNativeToolText } from './native-skills.js'
+import {
+  NATIVE_VISUAL_PROMPT,
+  formatObservedToolText,
+  mountVisualHarness,
+  parseVisualHarness,
+  prepareVisualHarness,
+  type VisualHarnessConfig,
+} from './visual-harness.js'
 
 export const name = 'dsh-spm-minimal-runtime'
 
@@ -49,7 +61,18 @@ export interface Config extends StmsimOptions {
   readonly runId?: string
   readonly stateIntervalMs?: number
   readonly watchdogIntervalMs?: number
+  /**
+   * 视觉线束（决策 D12）：在场即挂上视觉记忆、一动一观闸门与 K14 观测。**缺省不挂**，
+   * 工具目录、提示与回复与不挂时一字不差。本机模式必须给 `saveDir`。见 `visual-harness.ts`。
+   */
+  readonly visualHarness?: VisualHarnessConfig
 }
+
+/** 本机模式的提示段（开关关着时就是这一段，一字不变）。 */
+export const NATIVE_PROMPT =
+  '已接入本机 Nanonis STM Simulator。只提供偏压、电流、Z 位置、扫描状态、设置偏压、单帧扫描启停。' +
+  '依照用户请求逐步调用工具。设置偏压和扫描启停均回读确认。读数必须引用本次工具结果，失败时不得声称成功。' +
+  'StartScan 要求操作员已在 Nanonis 中开启 Z 反馈，不支持持续扫描覆盖。关闭本会话只断开连接，不关闭模拟器。'
 
 function diskPath(value: string | undefined, fallback: string): string {
   const path = resolve(value ?? fallback)
@@ -111,6 +134,9 @@ export class ManagedSimulatorInstrument extends InstrumentService {
 }
 
 export async function apply(ctx: Context, config: Config = {}): Promise<void> {
+  // 视觉线束的配置先于一切核验：配错了不启动、也不接入模拟器。
+  const visualSettings = parseVisualHarness(config.visualHarness, config.nativeSimulator !== undefined)
+  if (visualSettings !== undefined) prepareVisualHarness(visualSettings)
   const recordsPath = diskPath(config.recordsPath, '.dsh-spm/records.sqlite')
   const resultsPath = diskPath(config.resultsPath, '.dsh-spm/tool-results.jsonl')
 
@@ -159,6 +185,11 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
       },
     })
 
+    // 视觉线束：在建内核之前挂（观察者是内核的构造参数）。闸门拒掉的调用内核不跑，
+    // JSONL 的那一行由这里补（SQLite 那一行闸门自己记）。
+    const visual = visualSettings === undefined ? undefined : mountVisualHarness(ctx, visualSettings,
+      (exec, reason) => { persistence.refused(exec.rootCallId, exec.name, reason) })
+
     const kernel = new SkillKernel({
       snapshot: () => state.snapshot(),
       refreshState: async () => {
@@ -174,14 +205,13 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
       safeCall: call,
       emergencyCall: (method, ...args) => connectedInstrument.urgentCall(method, args),
       record: persistence.record,
+      ...(visual === undefined ? {} : { observer: visual.observer }),
     })
 
     if (native) {
       ctx.effect(() => ctx.systemPrompt.section({
         name: 'native-nanonis-simulator', order: 200,
-        text: '已接入本机 Nanonis STM Simulator。只提供偏压、电流、Z 位置、扫描状态、设置偏压、单帧扫描启停。' +
-          '依照用户请求逐步调用工具。设置偏压和扫描启停均回读确认。读数必须引用本次工具结果，失败时不得声称成功。' +
-          'StartScan 要求操作员已在 Nanonis 中开启 Z 反馈，不支持持续扫描覆盖。关闭本会话只断开连接，不关闭模拟器。',
+        text: visual === undefined ? NATIVE_PROMPT : NATIVE_PROMPT + NATIVE_VISUAL_PROMPT,
       }))
     }
     for (const original of native ? NATIVE_SKILLS : [GetBias]) {
@@ -199,16 +229,21 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
         },
       } : original
       const unregisterDeclaration = safety.registerSkill(skill.spec)
-      const base = defineSkillTool(skill, { kernel })
+      const unregisterGate = visual?.registerSkill(skill.spec)
+      const base = defineSkillTool(skill, visual === undefined ? { kernel } : { kernel, present: visual.present })
       const execute = base.execute.bind(base)
       const durableTool: ToolDefinition = {
         ...base,
         execute: (args, exec) => {
           persistence.begin(exec.rootCallId)
           const run = () => callScope.run({ id: exec.rootCallId, signal: exec.signal }, async (): Promise<unknown> => {
-            const text = await execute(args, exec)
+            const value = await execute(args, exec)
             assertPersisted(persistence, exec.rootCallId)
-            return formatMinimalToolText(persistence.takeResult(exec.rootCallId), text)
+            const record = persistence.takeResult(exec.rootCallId)
+            // 挂着视觉线束时值是「文本 + 图」：本机格式化只换内核那段文本，K14 的几行与图保留
+            return visual === undefined
+              ? formatMinimalToolText(record, value)
+              : formatObservedToolText(record, value as ViewToolValue)
           })
           // A write and its readback form one transaction relative to other
           // model tools; parallel SetBias calls must not cross their readbacks.
@@ -225,6 +260,7 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
           unregisterTool()
           await Promise.allSettled([...inFlight])
           unregisterDeclaration()
+          unregisterGate?.()
         }
       })
     }

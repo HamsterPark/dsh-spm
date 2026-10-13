@@ -69,4 +69,16 @@ describe('minimal runtime 持久证据', () => {
     } satisfies KernelRecord)
     expect(() => assertPersisted(sink, 'call-bad')).toThrow(/persistence_failed.*call-bad/)
   })
+
+  it('一动一观拒掉的调用补一行 refused；写不进去时如实返回 false', () => {
+    const { records, sink, results } = fixture()
+    expect(sink.refused('call-r', 'SetBias', '[act_gate] refused')).toBe(true)
+    expect(JSON.parse(readFileSync(results, 'utf8').trim())).toMatchObject({
+      version: 1, toolCallId: 'call-r', skill: 'SetBias', kind: 'refused', text: '[act_gate] refused', instrumentCalls: [],
+    })
+    // 结果路径是一个目录：追加写必然失败
+    const blocked = new MinimalPersistence(records, dirs[0]!, 'r1')
+    expect(blocked.refused('call-x', 'SetBias', 'x')).toBe(false)
+    records.store.close()
+  })
 })

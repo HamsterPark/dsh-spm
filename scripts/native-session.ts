@@ -11,21 +11,53 @@ import { parseArgs } from 'node:util'
 import { readSessionRows } from './minimal-session-log.ts'
 
 export const NATIVE_TOOLS = ['GetBias', 'GetCurrent', 'GetScanStatus', 'GetZPosition', 'SetBias', 'StartScan', 'StopScan', 'stm_hello']
+/** `--visual` 多出的工具，与 dsh-spm-visual-memory 的 `VISUAL_TOOL_NAMES` 一致（契约测试钉住）。 */
+export const NATIVE_VISUAL_TOOLS = [
+  'stm_inspect', 'stm_read_values', 'stm_line_profile', 'stm_fft_peaks', 'stm_detect_blobs',
+  'stm_frame_diff', 'stm_frame_stats', 'stm_notes_read', 'stm_notes_write',
+]
 let interrupted = false
 let activeShutdown: ((reason: string) => void) | undefined
 const interrupt = (): void => { interrupted = true; activeShutdown?.('user-interrupt') }
 
 const HELP = `用法：
   node scripts/native-session.ts --install-dir PROFILE_DIR --dsh-home DIR --pid PID [--ports 6501,6502,6503,6504] [--credential-file FILE] [--prompt "读取偏压、电流和扫描状态"]
+    [--visual --save-dir NANONIS_SESSION_DIR [--visual-root DIR]]
 
 省略 --prompt 进入交互命令循环；输入 exit 退出。每条命令建立一个独立、持久保存的 dsh 会话。
 --profile 默认 minimal；--model 默认 deepseek-official/deepseek-flash。
 凭据优先取 DEEPSEEK_API_KEY；--credential-file 接受单个密钥或 dsh 的 .credentials.yaml。
---timeout-ms 默认 120000；--max-requests 默认 8。不会启动或关闭 Nanonis 模拟器。`
+--timeout-ms 默认 120000；--max-requests 默认 8。不会启动或关闭 Nanonis 模拟器。
+--visual 挂上视觉线束（帧档案、回看与测量工具、一动一观）；需要 --save-dir 指向 Nanonis 的
+Session path（扫描自动保存的目录）。帧与笔记存在 --visual-root，默认 DSH_HOME 下的 visual-memory。`
 
-interface Options {
+export interface VisualOptions { readonly root: string; readonly saveDir: string }
+
+export interface Options {
   installDir: string; dshHome: string; profile: string; pid: number; ports: number[]
-  model: string; credentialFile?: string; prompt?: string; timeoutMs: number; maxRequests: number
+  model: string; credentialFile?: string | undefined; prompt?: string | undefined; timeoutMs: number; maxRequests: number
+  /** 在场即开视觉线束。 */
+  visual?: VisualOptions
+}
+
+/** 本轮的工具目录（已排序；启动守卫与请求头都按它核对）。 */
+export function nativeToolCatalog(visual: boolean): string[] {
+  return visual ? [...NATIVE_TOOLS, ...NATIVE_VISUAL_TOOLS].sort() : [...NATIVE_TOOLS]
+}
+
+/**
+ * 必须在 JSONL 与 SQLite 各有一行的调用：除 `stm_hello` 外的全部调用（目录外的名字也算，
+ * 与挂视觉线束之前相同）；`--visual` 时视觉工具也除外——它们只读写帧档案与笔记，不碰仪器。
+ */
+export function recordedCalls<T extends { readonly name: string }>(calls: readonly T[], visual: boolean): T[] {
+  return calls.filter((call) => call.name !== 'stm_hello' && !(visual && NATIVE_VISUAL_TOOLS.includes(call.name)))
+}
+
+/** 覆盖 `mast-minimal-runtime` 那一行的 config（patch 按 id 整行替换，键要写全）。 */
+export function runtimeConfigRow(o: Pick<Options, 'pid' | 'ports' | 'visual'>, paths: { recordsPath: string; resultsPath: string; runId: string }): string {
+  return `- id: mast-minimal-runtime\n  config:\n    nativeSimulator:\n      pid: ${o.pid}\n      ports: [${o.ports.join(', ')}]\n` +
+    `    recordsPath: ${JSON.stringify(paths.recordsPath)}\n    resultsPath: ${JSON.stringify(paths.resultsPath)}\n    runId: ${JSON.stringify(paths.runId)}` +
+    (o.visual === undefined ? '' : `\n    visualHarness:\n      root: ${JSON.stringify(o.visual.root)}\n      saveDir: ${JSON.stringify(o.visual.saveDir)}`)
 }
 
 export function nativePorts(value = '6501,6502,6503,6504'): number[] {
@@ -36,12 +68,13 @@ export function nativePorts(value = '6501,6502,6503,6504'): number[] {
   return ports
 }
 
-function parse(argv: string[]): Options | undefined {
+export function parseNativeSessionArgs(argv: string[]): Options | undefined {
   const { values: v } = parseArgs({ args: argv, options: {
     'install-dir': { type: 'string' }, 'dsh-home': { type: 'string' }, profile: { type: 'string', default: 'minimal' },
     pid: { type: 'string' }, ports: { type: 'string' }, model: { type: 'string', default: 'deepseek-official/deepseek-flash' },
     'credential-file': { type: 'string' }, prompt: { type: 'string' }, 'timeout-ms': { type: 'string', default: '120000' },
     'max-requests': { type: 'string', default: '8' }, help: { type: 'boolean' },
+    visual: { type: 'boolean' }, 'save-dir': { type: 'string' }, 'visual-root': { type: 'string' },
   } })
   if (v.help) { console.log(HELP); return }
   if (!v['install-dir'] || !v['dsh-home'] || !v.pid) throw new Error(HELP)
@@ -51,9 +84,16 @@ function parse(argv: string[]): Options | undefined {
   if (!/^[^\s/]+\/[^\s]+$/.test(v.model!)) throw new Error('--model 必须是 PROVIDER/MODEL')
   if (!Number.isInteger(timeoutMs) || timeoutMs < 10000 || timeoutMs > 600000) throw new Error('--timeout-ms 范围为 10000..600000')
   if (!Number.isInteger(maxRequests) || maxRequests < 1 || maxRequests > 20) throw new Error('--max-requests 范围为 1..20')
+  // 视觉线束：显式开关；目录参数没有开关时报错，不静默忽略
+  if (!v.visual && (v['save-dir'] !== undefined || v['visual-root'] !== undefined)) {
+    throw new Error('--save-dir / --visual-root 只在 --visual 时有效')
+  }
+  if (v.visual && !v['save-dir']) throw new Error('--visual 需要 --save-dir（Nanonis 的 Session path，扫描自动保存的目录）')
+  const dshHome = resolve(v['dsh-home'])
   return {
-    installDir: resolve(v['install-dir']), dshHome: resolve(v['dsh-home']), profile: v.profile!, pid,
+    installDir: resolve(v['install-dir']), dshHome, profile: v.profile!, pid,
     ports: nativePorts(v.ports), model: v.model!, credentialFile: v['credential-file'], prompt: v.prompt, timeoutMs, maxRequests,
+    ...(v.visual ? { visual: { saveDir: resolve(v['save-dir']!), root: resolve(v['visual-root'] ?? join(dshHome, 'visual-memory')) } } : {}),
   }
 }
 
@@ -117,6 +157,7 @@ async function runOne(o: Options, task: string, apiKey: string, dshBin: string):
   const shutdownFile = join(directory, 'shutdown-request.json')
   const [provider, ...modelParts] = o.model.split('/')
   const model = modelParts.join('/')
+  const catalog = nativeToolCatalog(o.visual !== undefined)
   await writeFile(guardPath, `import { existsSync, writeFileSync } from 'node:fs'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
@@ -124,7 +165,7 @@ export const name = 'native-simulator-tool-guard'
 export const inject = ['tools', 'minimalSpm']
 export function apply(ctx) {
   const names = ctx.tools.schemas().map(x => x.name).sort()
-  const expected = ${JSON.stringify(NATIVE_TOOLS)}
+  const expected = ${JSON.stringify(catalog)}
   if (JSON.stringify(names) !== JSON.stringify(expected)) throw new Error('Native tool catalog mismatch: ' + names.join(','))
   const state = { tools: names, requestCount: 0, shutdownRequested: false, transportClosed: false }
   const save = () => writeFileSync(${JSON.stringify(control)}, JSON.stringify(state))
@@ -172,7 +213,7 @@ export function apply(ctx) {
   const disabled = ['tool-bash', 'tool-pwsh', 'tool-jobs', 'tool-fs', 'tool-fs-search', 'tool-skill', 'tool-subagent-control', 'tool-subagent-list-agents', 'tool-subagent', 'tool-subagent-fork', 'tool-workflow', 'tool-result-pruner', 'tool-todo', 'tool-goal', 'tool-ralph', 'tool-web', 'plan-mode', 'session-title-llm', 'llm-retry']
   await writeFile(overlay, [
     `- id: agent-default-model\n  config:\n    provider: ${JSON.stringify(provider)}\n    model: ${JSON.stringify(model)}`,
-    `- id: mast-minimal-runtime\n  config:\n    nativeSimulator:\n      pid: ${o.pid}\n      ports: [${o.ports.join(', ')}]\n    recordsPath: ${JSON.stringify(recordsPath)}\n    resultsPath: ${JSON.stringify(resultsPath)}\n    runId: ${JSON.stringify(runId)}`,
+    runtimeConfigRow(o, { recordsPath, resultsPath, runId }),
     ...disabled.map((id) => `- id: ${id}\n  disabled: true`),
     `- insert:\n    - id: native-tool-guard\n      name: ${JSON.stringify(pathToFileURL(guardPath).href)}`,
   ].join('\n') + '\n')
@@ -234,7 +275,8 @@ export function apply(ctx) {
   try { guard = JSON.parse(await readFile(control, 'utf8')) } catch { /* startup failures have no guard */ }
   let localResults: any[] = []
   try { localResults = (await readFile(resultsPath, 'utf8')).split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line)) } catch { /* startup failures have no results */ }
-  const nativeCalls = toolCalls.filter((call) => call.name !== 'stm_hello')
+  // 一动一观拒掉的调用也有两行（闸门记 SQLite，运行栈补 JSONL），所以照样计入
+  const nativeCalls = recordedCalls(toolCalls, o.visual !== undefined)
   const unrecordedCalls = nativeCalls.filter((call) => !localResults.some((row) => row.toolCallId === call.callId))
   let actions: any[] = []
   let persistenceError: string | undefined
@@ -246,9 +288,10 @@ export function apply(ctx) {
   } catch (error) { persistenceError = redact(error instanceof Error ? error.message : String(error), apiKey) }
   const requestHeaders = events.flatMap(({ events: rows }) => rows.filter((event: any) => event.type === 'request/header').map((event: any) => event.data?.header))
   const wrongRequest = requestHeaders.some((header: any) => header?.config?.provider !== provider || header?.config?.model !== model ||
-    JSON.stringify((header?.tools ?? []).map((tool: any) => tool.name).sort()) !== JSON.stringify(NATIVE_TOOLS))
+    JSON.stringify((header?.tools ?? []).map((tool: any) => tool.name).sort()) !== JSON.stringify(catalog))
   const evidence = {
     version: 1, runId, at: new Date().toISOString(), model: o.model, externalSimulator: { pid: o.pid, ports: o.ports },
+    visualHarness: o.visual ?? null,
     process: exit, requestCount: guard?.requestCount ?? null, toolCatalog: guard?.tools ?? null,
     sessionFiles: changed, toolCalls, toolResults, localResults, unrecordedCalls, persistedActions: actions, persistenceError,
     requestHeadersVerified: requestHeaders.length > 0 && !wrongRequest,
@@ -264,7 +307,7 @@ export function apply(ctx) {
 }
 
 async function main(): Promise<void> {
-  const o = parse(process.argv.slice(2))
+  const o = parseNativeSessionArgs(process.argv.slice(2))
   if (!o) return
   process.on('SIGINT', interrupt)
   process.on('SIGTERM', interrupt)
