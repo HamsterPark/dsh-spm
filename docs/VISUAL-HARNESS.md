@@ -112,7 +112,7 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 **已实现（2026-10-13）**：判据在 kernel `act-gate.ts`（`isStateChangingSkill`：类别不是 `read` / `analysis` 就算改变，缺类别也算；`ActGate`：每会话一位「有结果没被看到」，`admit` 在同一个同步调用里查与记，并发只放一个），文案在 kernel `messages.ts`（`ACT_GATE_REFUSAL`，`[act_gate]` 开头，参考实现原句只把 `act` 换成「改变仪器状态的动作」）。接线在 stm-skills `act-gate.ts`（`ActGateService`，`ctx.stmActGate`）：
 
 - **拒绝走宿主层 guard**（与 `stm-safety` 同理：单调，翻不回来），不是 `tools/pre-execute`；guard 拒在 dispatch 之前，所以拒绝由闸门自己记进记录库。
-- **「已进入上下文」= 同一 agent 的下一个 `agent/pre-step`**：agent-loop 把一步里的全部工具结果提交进会话日志之后才提议下一步，而每次请求都由日志推导；同一步里的第二个动作因此被拒，下一步放行。证据（读包、仓外探针、契约测试）见 [dsh 事实](dsh/facts.md) §9.5；契约测试是 `packages/host/stm-skills/contract/act-gate.test.ts`（含同一步两个动作与并发）。
+- **「已进入上下文」= 同一 agent 的下一个 `agent/pre-step`**：agent-loop 把一步里的全部工具结果提交进会话日志之后才提议下一步，而每次请求都由日志推导；同一步里的第二个动作因此被拒，下一步放行。证据（读包、仓外探针、契约测试）见 [dsh 事实](dsh/facts.md) §9.5；契约测试是 `packages/host/stm-skills/contract/act-gate.test.ts`（含同一步两个动作与并发）与 `act-gate-loop.test.ts`（真 agent-loop 驱动一整个回合）。
 - 只有登记过的（`registerSkill`）改变仪器状态的技能受闸；视觉记忆的回看、读值与笔记工具、`stm_get_state` 不受闸；没有 agent 的调用不是模型发的，也不受闸。
 - 补救动作（`WithdrawTip`、`SafeRetract`、`EmergencyRetract`、`StopScan` 等样品门控豁免名，以及带 `stop` / `emergency` 标签的技能）**永不被拒**，但同样记账。
 - 与参考实现的差异（没有 `act` 工具、补救动作例外、没有 10 s 超时兜底、放行即记账）登记为 [D-VMEM-15](../spec/deviations.md)。
@@ -157,7 +157,7 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 1. 本文与 PLAN 修订。
 2. `compat` 增加附件与图像内容块的导出；contract 测试核实各适配器对工具结果图像的处理，结论写入 [dsh 事实](dsh/facts.md)。
 3. `dsh-spm-visual-memory`：档案、渲染、坐标、`stm_inspect`、`stm_read_values`、笔记工具；单元测试与参考金样。谱（`.dat`）于 2026-10-12 并入。
-4. K14 接线、IC persona 提示、一动一观闸门。**已实现（2026-10-13，§4.1 末段、§4.5–4.8）**：内核 K14 观察者接缝与一动一观判据、stm-skills 的闸门服务与技能工具出站接缝、visual-memory 的入档观察者 / 出图 presenter / 每会话视觉记忆 / 提示段；契约测试 `act-gate.test.ts`、`k14-wiring.test.ts`。挂进 bundle 与 profile 留给集成。
+4. K14 接线、IC persona 提示、一动一观闸门。**已实现（2026-10-13，§4.1 末段、§4.5–4.8）**：内核 K14 观察者接缝与一动一观判据、stm-skills 的闸门服务与技能工具出站接缝、visual-memory 的入档观察者 / 出图 presenter / 每会话视觉记忆 / 提示段；契约测试 `act-gate.test.ts`、`act-gate-loop.test.ts`、`k14-wiring.test.ts`。挂进 bundle 与 profile 留给集成。
 5. 测量工具。**已实现（2026-10-13，§4.4）**：`stm_line_profile`、`stm_fft_peaks`、`stm_detect_blobs`、`stm_frame_diff`、`stm_frame_stats`，照 VISTA-SPM 的 `vista_spm/measure.py` 移植；参考金样 `measure_profile.json`、`measure_fft_blobs.json`、`measure_diff.json`，偏差 D-VMEM-9–11。数值部件见 §4.1；`numerics` 的插值族为此改为在帧边与缺测处也与 scipy 逐位一致（`interp_edges.json`）。
 6. `stm_advisor`；`vision-onnx` 视消融结果决定是否实施。
 7. 在 dsh-spm 运行时上复现 STM-Bench 场景，与参考实现做结果级对比。
@@ -169,7 +169,7 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 - ~~「结果已进入上下文」在 dsh 中对应哪个可观察事件~~ → 已答并实现：同一 agent 的下一个 `agent/pre-step`（§9.5，2026-10-13，§4.5）。
 - 附件的保留期与磁盘占用（长会话可能产生数百张图）；单次请求的图像数量与尺寸上限随提供方不同。
 - 受管模拟器的时钟暂停控制面（§4.9）。
-- `dsh-agent-loop` 不在本仓依赖树里：「先提交结果、后 pre-step」靠读包与仓外探针，要在 CI 里钉住需把它加成 devDependency（维护者决定）。
+- ~~`dsh-agent-loop` 不在本仓依赖树里：「先提交结果、后 pre-step」靠读包与仓外探针~~ → 已钉住：2026-10-13 起它与 peer `dsh-session-persistence`、`dsh-settings` 是 stm-skills 的 devDependency，`act-gate-loop.test.ts` 用真 agent-loop 跑同一场景（[dsh 事实](dsh/facts.md) §9.5）。
 
 ## 8. 非目标
 

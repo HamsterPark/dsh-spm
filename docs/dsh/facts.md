@@ -475,12 +475,13 @@ stderr 空、端口正常释放。
 
 > 回答 [VISUAL-HARNESS](../VISUAL-HARNESS.md) §7 前三条开放问题。**来源分三种**：
 > **实测（契约）** = 本仓 `packages/host/compat/contract/image-results.test.ts`（§9.1–9.3）与
-> `packages/host/stm-skills/contract/{act-gate,k14-wiring}.test.ts`（§9.5、§9.7）对真包跑出来的，随每次升级重跑；
+> `packages/host/stm-skills/contract/{act-gate,act-gate-loop,k14-wiring}.test.ts`（§9.5、§9.7）对真包跑出来的，随每次升级重跑；
 > **实测（探针）** = 在仓外临时目录装同版本包、对本机 mock HTTP 服务抓请求体得到的，探针**未入仓**，升级时要重做；
 > **包** = 读 npm 包内 `lib/*.js` / `.d.ts`，行号是该包内文件的行号。
-> 适配器（`dsh-llm-pi-ai`、`dsh-llm-deepseek`）、`dsh-agent-loop`、`dsh-compaction*`、`dsh-attachment-local`
+> 适配器（`dsh-llm-pi-ai`、`dsh-llm-deepseek`）、`dsh-compaction*`、`dsh-attachment-local`
 > **不在本仓依赖树里**；它们的结论都属后两种。要在 CI 里钉住适配器行为，得把它们加成 compat 的
-> devDependencies —— 那是新依赖，留给维护者决定。
+> devDependencies —— 那是新依赖，留给维护者决定。`dsh-agent-loop`（连同 peer `dsh-session-persistence`、
+> `dsh-settings`）2026-10-13 起是 stm-skills 的 devDependency，§9.5 的「先提交、后 pre-step」由契约测试钉住。
 
 ### 9.1 工具结果里的图像块
 
@@ -598,7 +599,11 @@ stderr 空、端口正常释放。
   回两个工具调用 c1、c2，第 2 次回一个 c3，第 3 次回文本），宿主层挂与本仓 `ActGateService` 同逻辑的 guard 与
   pre-step 回执。观察到的顺序：`pre-step 1.1` → `tool/call c1` → c1 放行、工具体跑 → `tool/result c1` →
   `tool/call c2` → **c2 被拒** → `tool/result c2` → `step/end 1.1` → `pre-step 1.2` → 第 2 次请求带着
-  `[c1, c2(error)]` → c3 放行。工具体里 `exec.agent.id` 就是会话 id。[实测（探针）] 升级时重做。
+  `[c1, c2(error)]` → c3 放行。工具体里 `exec.agent.id` 就是会话 id。[实测（探针）]
+- **同一场景入仓**（2026-10-13，`packages/host/stm-skills/contract/act-gate-loop.test.ts`）：真 `AgentLoop` 驱动一整个回合，
+  闸门是本仓的 `ActGateService` 本身，只有模型是脚本化的 `LlmAdapter`。钉住的时间线：`pre-step 1.1` → c1 →
+  c2 被拒 → 两个 `tool/result` → `pre-step 1.2` → c3 → `pre-step 1.3`；第 2 次请求带着 `[c1, c2(error)]`，
+  第 3 次带着 `[c1, c2(error), c3]`。去掉闸门或去掉回执，这条都会红。[实测（契约）]
 - **本仓的落点**（stm-skills `act-gate.ts`，2026-10-13）：回执 = 同一 agent 的下一个 `agent/pre-step`
   （宿主层监听，一进来就回执、照常 `next()`）。不看这一步最后放不放行：模型要再发调用，只能在回应一次更晚的
   请求，而那次请求同样由日志推导、同样带着结果。拒绝走宿主层 guard，**放行即记账**（同一个同步调用），
@@ -610,9 +615,8 @@ stderr 空、端口正常释放。
   `agentEvents` / `emitAgentEvent`）：宿主层（不带作用域）的 `agent/pre-step`、`agent/disposed` 监听者收得到经
   agent 作用域载体派发的事件（`scopeTarget` 的契约：untagged 监听者全收）；guard 拿得到 `exec.agent`，拒绝变成
   `isError`、`error.message` 是原文、content 是 `Error: <原文>`；全局 guard 按登记顺序问、第一个拒绝就停
-  （`dsh-tools` `lib/index.js:2823-2830`）；并发 `execute` 下只放一个。`dsh-agent-loop` 本身不在依赖树里，上面
-  「先提交、后 pre-step」一条由读包与探针支撑；要在 CI 里钉住，需把它（及 peer `dsh-session-persistence`、
-  `dsh-settings`）加成 devDependency——新依赖，留给维护者决定。[实测（契约）]
+  （`dsh-tools` `lib/index.js:2823-2830`）；并发 `execute` 下只放一个。「先提交、后 pre-step」一条由上面的
+  `act-gate-loop.test.ts` 钉住。[实测（契约）]
 - `dsh-tool-present`（§8.-1 提过）只声明「把哪些文件交给用户」，不往模型上下文放任何东西，与观测图无关。[包]
 
 ### 9.6 本仓的落点
