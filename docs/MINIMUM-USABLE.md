@@ -83,6 +83,8 @@ SQLite 的 `actions.tool_call_id` 对应 JSONL 的 `toolCallId`。JSONL 保存�
 
 正常关闭会注销工具、等待在途调用完成记录、关闭 SQLite/TCP，并停止本轮受管模拟器。Windows 按所启动的进程树清理，记录写失败会返回可观察错误。模型验收超时会终止本轮 dsh 进程树；强制退出不应被当作正常关闭或完整落盘成功，检查失败报告及端口状态后再重试。
 
+受管入口同样接受 `mast-minimal-runtime` 的 `visualHarness` 配置（[视觉线束](VISUAL-HARNESS.md)，缺省不挂）。不给 `saveDir` 时，保存目录向 stmsim 查询（`Util_SessionPathGet`）。本入口只有 GetBias，不会产生帧，因此挂上后只多出回看、测量、笔记工具和提示段。上述验收及 `model-minimal.ts` 都不挂视觉线束。
+
 报告、数据库和安装目录不会自动删除。如需清理，先退出使用该 profile 的会话，确认本轮端口已释放，再删除核实过的安装目录；不要按端口批量终止未知进程。
 
 ## 已记录的验收范围

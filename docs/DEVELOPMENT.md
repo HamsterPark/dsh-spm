@@ -100,7 +100,7 @@ MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属�
 |---|---|
 | `pnpm build:minimal` | 构建并重建专用 staging 目录；覆盖同版本 tarball 及 provenance |
 | `pnpm install:minimal --target <新目录>` | 联网安装精确依赖，在仓库外创建全新目录和隔离 `DSH_HOME`；拒绝覆盖已有目录 |
-| `pnpm native` / `scripts/native-session.ts` | 配置指定专用 profile 的 headless 入口，发起真实模型请求，按工具范围连接和操作模拟器，保存会话与动作记录 |
+| `pnpm native` / `scripts/native-session.ts` | 配置指定专用 profile 的 headless 入口，发起真实模型请求，按工具范围连接和操作模拟器，保存会话与动作记录；`--visual --save-dir` 另挂视觉线束，帧与笔记写入视觉记忆目录 |
 | `pnpm verify:native` / `scripts/verify-native.ts` | 不调用模型；设置 1 V / 1.5 V，验证扫描启停，恢复原偏压并写报告；不是只读探针 |
 | `scripts/verify-minimal.ts values` | 启动受管模拟器；通过未注册给模型的 TCP 夹具写入两个偏压，再验证工具读回 |
 | `scripts/model-minimal.ts` | 在安装态发起真实模型请求，核对工具目录、原生日志、独立读数与持久记录 |

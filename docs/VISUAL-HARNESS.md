@@ -127,7 +127,7 @@ K14 在 depth 0 时：技能产生的 .sxm/.dat 先经 `frameArchive.add*` 入�
 - **找文件与入档**（visual-memory `observe.ts` 的 `frameObserver`）：比较控制器保存目录调用前后的 `.sxm` / `.dat`（不递归；首次见到的目录里已有的都算旧的；按大小与修改时间认「变了」），新文件按修改时间先后入当前调用会话的档案。改变仪器状态的调用开下一个动作序号，读类调用记在当前序号下。入档走 `ctx.frameArchive.addScan` / `addSpectrum`（作用于发起调用的会话）；读不了的文件列进 `not_archived`，文件再变时重试。随结果出图的是最新的新扫描帧，再加最后两条新谱（参考实现 `_observation_for`）。保存目录由宿主给（`saveDir`）；stm-skills 的 `controllerSaveDir` 问仪器（`Util_SessionPathGet`，与 `GetLatestScanFile` 同一个解析与归一）。**不读技能结果里的路径键**：`ScanAt` / `FullScan` / `WaitScanComplete` 不报路径，`SaveScan` 的 `saved_path`、`AcquireSTS` 的 `path` 是「最近 120 s 里最新的那个」，分析类技能的 `scan_path` / `dat_path` 是输入。
 - **出站**（visual-memory 的 `observationPresenter`，交给 `defineSkillTool(skill, { kernel, present })`）：按帧编号取观测图（`<fid>.png`）存成附件，内容是文本、再每张图一行标签加图像块（同 `stm_inspect`）；没有图时内容就是那段文本，与不接 presenter 的技能工具一字不差。存不了、或会话的模型路由只收文本时，文本末尾加 `images_not_delivered: N`（后者带原因）。
 
-宿主组合的写法（尚未挂进 bundle）见 `packages/host/stm-skills/contract/k14-wiring.test.ts` 的抬头；与参考实现的差异登记为 [D-VMEM-16](../spec/deviations.md)。
+宿主组合的写法见 `packages/host/stm-skills/contract/k14-wiring.test.ts` 的抬头，最小运行栈照这个写法挂（`packages/bundle/dsh-spm/src/visual-harness.ts`，§6 第 4 步）；与参考实现的差异登记为 [D-VMEM-16](../spec/deviations.md)。
 
 ### 4.7 提示与笔记
 
@@ -157,7 +157,12 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 1. 本文与 PLAN 修订。
 2. `compat` 增加附件与图像内容块的导出；contract 测试核实各适配器对工具结果图像的处理，结论写入 [dsh 事实](dsh/facts.md)。
 3. `dsh-spm-visual-memory`：档案、渲染、坐标、`stm_inspect`、`stm_read_values`、笔记工具；单元测试与参考金样。谱（`.dat`）于 2026-10-12 并入。
-4. K14 接线、IC persona 提示、一动一观闸门。**已实现（2026-10-13，§4.1 末段、§4.5–4.8）**：内核 K14 观察者接缝与一动一观判据、stm-skills 的闸门服务与技能工具出站接缝、visual-memory 的入档观察者 / 出图 presenter / 每会话视觉记忆 / 提示段；契约测试 `act-gate.test.ts`、`act-gate-loop.test.ts`、`k14-wiring.test.ts`。挂进 bundle 与 profile 留给集成。
+4. K14 接线、IC persona 提示、一动一观闸门。**已实现（2026-10-13，§4.1 末段、§4.5–4.8）**：内核 K14 观察者接缝与一动一观判据、stm-skills 的闸门服务与技能工具出站接缝、visual-memory 的入档观察者 / 出图 presenter / 每会话视觉记忆 / 提示段；契约测试 `act-gate.test.ts`、`act-gate-loop.test.ts`、`k14-wiring.test.ts`。**2026-10-13 挂进最小运行栈**（`packages/bundle/dsh-spm/src/visual-harness.ts`）：
+   - 开关是 `mast-minimal-runtime` 的 `visualHarness`，缺省不挂；不挂时工具目录、提示和回复一字不变。挂上后不增加仪器技能。
+   - 本机 Nanonis 入口用 `scripts/native-session.ts --visual --save-dir <Session path>`。保存目录由配置给出，不向模拟器查询，本机白名单不变；受管入口向 stmsim 查询（`Util_SessionPathGet`）。
+   - 闸门拒绝在 SQLite 和 JSONL 各记一行；JSONL 的技能结果增加 `observation`。
+   - 测试：`packages/bundle/dsh-spm/contract/visual-harness.test.ts`（开关两态、受管模式）、`visual-harness-loop.test.ts`（真 agent-loop 驱动完整回合）。
+   - 还没有真实模型验收。
 5. 测量工具。**已实现（2026-10-13，§4.4）**：`stm_line_profile`、`stm_fft_peaks`、`stm_detect_blobs`、`stm_frame_diff`、`stm_frame_stats`，照 VISTA-SPM 的 `vista_spm/measure.py` 移植；参考金样 `measure_profile.json`、`measure_fft_blobs.json`、`measure_diff.json`，偏差 D-VMEM-9–11。数值部件见 §4.1；`numerics` 的插值族为此改为在帧边与缺测处也与 scipy 逐位一致（`interp_edges.json`）。
 6. `stm_advisor`；`vision-onnx` 视消融结果决定是否实施。
 7. 在 dsh-spm 运行时上复现 STM-Bench 场景，与参考实现做结果级对比。
@@ -169,6 +174,7 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 - ~~「结果已进入上下文」在 dsh 中对应哪个可观察事件~~ → 已答并实现：同一 agent 的下一个 `agent/pre-step`（§9.5，2026-10-13，§4.5）。
 - 附件的保留期与磁盘占用（长会话可能产生数百张图）；单次请求的图像数量与尺寸上限随提供方不同。
 - 受管模拟器的时钟暂停控制面（§4.9）。
+- 挂进最小运行栈的视觉线束（§6 第 4 步）还没有真实模型验收：需要能读图的模型路由，以及一次产生费用的模型会话。本机入口的现有七个技能只能启停扫描，帧来自控制器的 autosave。
 - ~~`dsh-agent-loop` 不在本仓依赖树里：「先提交结果、后 pre-step」靠读包与仓外探针~~ → 已钉住：2026-10-13 起它与 peer `dsh-session-persistence`、`dsh-settings` 是 stm-skills 的 devDependency，`act-gate-loop.test.ts` 用真 agent-loop 跑同一场景（[dsh 事实](dsh/facts.md) §9.5）。
 
 ## 8. 非目标
