@@ -32,7 +32,7 @@ inputs and results together in ``spec/golden/measure_fft_blobs.json``:
   size of a 200-blob reply, the evidence for that cap. Frames carry their build order
   (``seq``) and their arrays in insertion order, because the golden is written with sorted keys.
 
-The reference is the VISTA-SPM harness (its own repository, not public yet), imported
+The reference is the VISTA-SPM harness (https://github.com/HamsterPark/VISTA-SPM), imported
 read-only from ``VISTA_SPM_ROOT`` (no bytecode is written there). It needs NumPy, SciPy and
 Pillow (and matplotlib's font lookup when it is installed), not MAST or STM-Bench. Inputs are
 synthetic (seeded); no instrument data. Frames are stored as little-endian float32 bytes in

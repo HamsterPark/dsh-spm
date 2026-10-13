@@ -18,7 +18,7 @@ archive, frames and argument helpers it uses) on synthetic frames and stores, in
   ``ceil(hypot) + 1``);
 * the two tool descriptions and the sha256 of the reference files.
 
-The reference is the VISTA-SPM harness (its own repository, not public yet) and is
+The reference is the VISTA-SPM harness (https://github.com/HamsterPark/VISTA-SPM) and is
 imported read-only from ``VISTA_SPM_ROOT`` (no bytecode is written there). It needs
 NumPy, SciPy, Pillow and, for the profile plot ``line_profile`` draws, matplotlib; the
 plot's pixels are not recorded, only its size through the derived frame's label. The
