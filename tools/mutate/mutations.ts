@@ -3211,8 +3211,10 @@ function physicallyAbsurdViolations_unused(`,
     find: "      windowName === 'hann' ? hanning(n) : windowName === 'hamming' ? hamming(n) : ones(n)",
     // ⚠️ **不能**写成 `=== 'hann' && === 'hamming'`：TS 6 在第一次比较之后就把
     // `windowName` 收窄成 `'hann'`，第二次比较因此报 TS2367（两个字面量类型无交集），
-    // 而**一条编不过的变异等于那道闸永远验不到**。`||` 不触发那次收窄。
-    replace: "      windowName === 'hann' || windowName === 'hamming' ? ones(n) : ones(n)",
+    // 而**一条编不过的变异等于那道闸永远验不到**。
+    // ⚠️ 也**不能**两支都直接写 `ones(n)`：窗 2026-10-13 起是从 numerics 引入的，两个名字
+    // 不再被读就报 TS6133，同样编不过。所以照常算窗、再整条填成 1 —— 效果就是「不加窗」。
+    replace: "      windowName === 'hann' ? hanning(n).fill(1) : windowName === 'hamming' ? hamming(n).fill(1) : ones(n)",
     scope: 'packages/host',
   },
   {
