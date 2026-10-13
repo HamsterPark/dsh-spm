@@ -3963,6 +3963,11 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 `KernelRecord.outcome.data.bias_v` 渲染 `GetBias: <有限数值> V`。失败仍沿用内核原文；非有限值
 仍由技能拒绝。这个适配只作用于最小运行入口，不改变通用技能或生成规格。
 
+挂着视觉线束时（`visualHarness`，2026-10-13），同一渲染只换掉内核文本那一段：K14 接在其后的
+`new_frames` / `latest_frame` / `not_archived` / `observation_error` 几行、presenter 追加的
+`images_not_delivered` 与观测图原样保留（`visual-harness.ts::formatObservedToolText`，判据
+`visual-harness.test.ts` 与 `contract/visual-harness.test.ts`）。不挂时文本一字不变。
+
 判据包括 `packages/bundle/dsh-spm/src/minimal-persistence.test.ts`、`minimal-lifecycle.test.ts`
 及安装态验收：同一个调用 ID 的 SQLite、JSONL 与模型文本须对应同次 `bias_v`，
 而持久化失败不得返回成功文本。M3/M4 安装态验收
