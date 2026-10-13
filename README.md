@@ -2,13 +2,13 @@
 
 English | [简体中文](README.zh-CN.md)
 
-**Scanning tunneling and scanning probe microscopy (STM/SPM) control as a TypeScript plugin for DeepSeek Harness.**
+**An experimental-science toolkit for scanning tunneling and scanning probe microscopy (STM/SPM), implemented in TypeScript for DeepSeek Harness.**
 
-> **Status: active development · experimental.** The plugin is being developed and iterated. Current validation covers the specific simulator workflows documented below; APIs, configuration and supported tools may change. Real-instrument operation has not yet been validated. See the [remaining work](docs/MIGRATION-TODO.md) and [validation evidence](docs/REVIEW-GUIDE.md).
+`dsh-spm` brings instrument control, quantitative analysis and visual experimental memory into a common agent environment. Its aim is to support the full reasoning cycle of microscopy: establish measurement conditions, acquire evidence, compare observations, test a physical interpretation and choose the next experiment.
 
-`dsh-spm` connects model tool calls to instrument operations with parameter checks, readback and persistent records. It migrates the scientific and instrument-control layer of MAST, a Python/LangGraph system, while dsh provides model orchestration, sessions, approvals and the application shell.
+The project carries MAST's scientific and instrument-control capabilities into TypeScript and implements the visual-memory and metrology design developed in VISTA-SPM. DeepSeek Harness (dsh) supplies model orchestration, sessions, approvals and the application shell; this repository supplies the SPM domain tools and their integration with that host.
 
-The engineering work spans binary protocols, stateful execution, numerical compatibility and test design. A running simulator path now connects an independently installed package to a native dsh model session and records what each tool actually did.
+This combination makes the experimental record an active part of reasoning. Instrument readback establishes what an action achieved, archived images let the model revisit the evidence, and numerical tools connect visual patterns to physical quantities. Independently installed packages already support documented simulator workflows in native dsh model sessions; the visual harness is available as an opt-in implementation for further evaluation.
 
 [Documentation](docs/README.md) · [Code and evidence](docs/REVIEW-GUIDE.md) · [STM-Bench runtime](docs/MINIMUM-USABLE.md) · [Nanonis simulator runtime](docs/NANONIS-SIMULATOR.md) · [Agent instructions](AGENTS.md)
 
@@ -21,7 +21,46 @@ STM probes surfaces through the tunneling current between a sharp tip and a near
 - **Actions have a physical history.** Tip conditioning and manipulation can alter the tip or sample; restoring settings does not necessarily restore the previous physical state. Parameters that worked before a tip change may no longer work afterward, as demonstrated in [atom-manipulation experiments](https://doi.org/10.1038/s41467-022-35149-w).
 - **Scientific judgment requires diagnosis.** A clear image alone does not establish trustworthy spectroscopy. Anomalies call for competing explanations, control measurements and a decision about whether to continue, recover or involve the operator.
 
-These challenges motivate MAST and its successor: connect observations, constrained actions and evidence so that experimental decisions can be checked. `dsh-spm` contributes the instrument and domain layer to that goal; the simulator workflows below establish its current validation scope. For the broader scientific motivation, see [MAST-public's introduction](https://github.com/HamsterPark/MAST-public).
+These challenges make STM a compelling setting for research on autonomous experimental science. The agent must maintain a working account of the tip, sample and measurement conditions, then revise it as new observations arrive. A change in contrast may motivate a new bias, a repeated scan, a spectrum or a tip-conditioning step; the scientific value lies in choosing an informative intervention and interpreting its consequences. For the broader experimental motivation, see [MAST-public's introduction](https://github.com/HamsterPark/MAST-public).
+
+### Why visual memory belongs in the experimental loop
+
+Atomic lattices, reconstructions, steps and adsorbates make STM images rich in spatial relationships. Their significance often emerges through comparison: the same area before and after a manipulation, opposite scan directions, or a feature measured under different tunneling conditions. Preserving those observations gives an agent access to evidence that may become relevant only later in the experiment.
+
+[VISTA](https://arxiv.org/abs/2610.02200) provides a useful foundation for this approach: direct visual observations, lossless memory and active retrieval support reasoning over extended interactions. Our connection to STM is both spatial and experimental. Like the interactive tasks studied in ARC-AGI-3, a microscopy sequence asks the agent to infer relationships from images, intervene and use the resulting changes to refine its understanding. STM adds physical units, instrument dynamics and evolving tip–sample conditions. These demands motivate the combination of visual memory with quantitative metrology in VISTA-SPM and its TypeScript implementation here.
+
+## One research program, complementary repositories
+
+The projects address different parts of autonomous microscopy, with explicit interfaces between experimental execution, visual reasoning and evaluation:
+
+| Project | Responsibility | Connection to dsh-spm |
+|---|---|---|
+| [MAST-public](https://github.com/HamsterPark/MAST-public) | Public subset of MAST's Python/LangGraph instrument runtime, skills, state feedback and experimental workflows | Provides the scientific and operational foundation for the TypeScript migration; MAST remains an independent system. |
+| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | Reusable framework for visual reasoning in microscopy: evidence archives, calibrated inspection, measurement, notes and controlled evaluation | Provides the Python reference design and exported reference results used to check the TypeScript visual tools. |
+| **dsh-spm — this repository** | SPM tools, instrument connections, execution checks, records and visual-harness integration for DeepSeek Harness | Makes MAST-derived domain capabilities and the VISTA-SPM design available within dsh's TypeScript host and session lifecycle. |
+| [STM-Bench](https://github.com/HamsterPark/STM-Bench) | Simulated microscopy environments, scientific scenarios, acquisition records and evidence-based evaluation | Provides a controlled instrument environment for runtime validation and a shared basis for studying experimental behavior. |
+
+**Publication note:** VISTA-SPM is currently private; its repository link will become generally accessible when it is published. The TypeScript implementation and its reference fixtures are available in this repository.
+
+The central division is straightforward: **MAST supplies an instrument-control system; VISTA-SPM develops the visual reasoning framework; dsh-spm integrates these capabilities with a different agent host; STM-Bench supplies simulation and evaluation.** The reusable unit is the scientific interface—observations with physical coordinates, measurements with units, and actions with recorded outcomes—which can be implemented across runtimes.
+
+Related analysis projects extend this program: [AFS3D](https://github.com/HamsterPark/AFS3D) addresses three-dimensional atomic force spectroscopy, drift correction and force reconstruction, while [dft-spm-toolkit](https://github.com/HamsterPark/dft-spm-toolkit) connects STM/nc-AFM contrast with electronic-structure and probe-particle simulations.
+
+## Visual reasoning and metrology in TypeScript
+
+The [visual-memory package](packages/host/visual-memory/src/index.ts) turns the VISTA-SPM design into reusable services and model tools. It connects image interpretation to quantities that matter experimentally: feature positions, step heights, lattice or reconstruction periods, changes between scans and spectral signals.
+
+| Capability | Scientific use | Implementation |
+|---|---|---|
+| Persistent frame archives | Revisit scans, channels, forward/backward directions, partial scans and spectra by stable frame ID | [Archive](packages/host/visual-memory/src/archive.ts) and [session service](packages/host/visual-memory/src/plugin.ts) |
+| Calibrated inspection and readout | Crop or rerender a region, relate display coordinates to scan coordinates, and read values in physical units | [Views and readout](packages/host/visual-memory/src/views.ts) |
+| Quantitative measurement | Extract line profiles, Fourier peaks, compact features, registered differences and statistics | [Measurement tools](packages/host/visual-memory/src/tools.ts) |
+| Experimental notes | Preserve the model's evolving interpretation and current plan in `GUIDE.md` and `WORKING.md` | [Notes](packages/host/visual-memory/src/notes.ts) |
+| Observation-aware execution | Deliver newly archived observations with tool results and sequence ordinary state-changing actions through an observation gate | [Runtime integration](packages/bundle/dsh-spm/src/visual-harness.ts) |
+
+These tools return measurements that the model can relate to competing physical hypotheses. The same archive and analysis interfaces can also be composed around saved microscopy files, giving the visual layer value in retrospective analysis as well as instrument interaction. Reference-parity tests compare geometry, units, rendering and numerical outputs against fixtures exported from VISTA-SPM; the [visual-memory exporter](tools/spec-export/export_visual_memory.py) documents the source and records reference file hashes.
+
+The minimal runtime enables this integration through `visualHarness` (off by default); the Nanonis simulator entry uses `scripts/native-session.ts --visual --save-dir <Nanonis session directory>` alongside its usual connection options. The implementation has unit, contract and reference-parity tests. Acceptance with a live model using the visual harness is a next validation milestone; the completed model-driven simulator records below concern the instrument workflows.
 
 ## From experimental constraints to execution checks
 
@@ -40,6 +79,8 @@ flowchart LR
 
 ## What runs today
 
+**Status: active development · experimental.** APIs, configuration and supported tools continue to evolve. Current acceptance covers the simulator workflows below; real-instrument validation is scheduled for Phase 8. Development priorities and evidence are collected in the [remaining work](docs/MIGRATION-TODO.md) and [review guide](docs/REVIEW-GUIDE.md).
+
 The following Windows acceptance records were produced on **2026-09-21**. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify.
 
 | Runtime | Model-visible tools | Recorded result |
@@ -47,14 +88,14 @@ The following Windows acceptance records were produced on **2026-09-21**. Each r
 | Managed STM-Bench | `stm_hello`, `GetBias` | Package `8c510e…` installed in two independent homes. Real model calls returned bias matching an independent TCP read, with persisted results. A separate dispatcher check recorded failure after simulator disconnection. [Evidence](docs/handoff/minimum-usable-20260921.md) |
 | Already-running Nanonis Mimea + STM Simulator | Hello, bias/current/Z/scan-status reads, `SetBias`, `StartScan`, `StopScan` | Package `b5a7ab…` completed installation and a real model workflow: 7 requests, 9 tool calls, verified bias changes and scan start/stop, with session/SQLite/JSONL records linked by call ID. [Evidence](docs/handoff/native-nanonis-20260921.md) |
 
-These are bounded simulator runtimes. The recorded Nanonis run covers Generic 5e / RT Release 15016; scan-state checks do not establish complete image acquisition. Full client integration, hardware validation, other platforms and public npm distribution remain outside this acceptance scope. MAST's earlier use on real instruments is project background; hardware validation of this plugin is deferred to Phase 8.
+The recorded Nanonis run covers Generic 5e / RT Release 15016 and verifies bias and scan state. Complete image acquisition, full client integration, other platforms and public npm distribution are further milestones. These dated records identify the packages and workflows evaluated; MAST's instrument experience informs the design, while dsh-spm's hardware acceptance is tracked separately.
 
 ## Engineering decisions to inspect
 
 - **Keep execution accountable.** A tool passes through the skill kernel to the instrument connection; measured results and instrument calls are associated with its call ID. Runtime shutdown waits for in-flight calls before closing records. Start with [runtime wiring](packages/bundle/dsh-spm/src/minimal.ts) and the [shutdown regression test](packages/bundle/dsh-spm/src/minimal-lifecycle.test.ts).
 - **Migrate behavior against a reference.** Exported schemas, traces and numerical fixtures make cross-language differences testable. Numerical tolerances belong to the operation; intentional differences have reasons and reconsideration criteria in the [deviation register](spec/deviations.md).
 - **Test the assertions themselves.** The [mutation runner](tools/mutate/run.ts) establishes a passing baseline, applies a compilable defect and checks that the declared test scope detects it. Surviving and inconclusive mutations remain visible.
-- **State the limits of dependency analysis.** Composite workflows follow both direct calls and declared steps to compute transitive dependencies; unresolved dispatch is recorded explicitly. See the [dependency tests](packages/host/stm-skills/src/l0/tip-phase-deps.test.ts).
+- **Make workflow dependencies explicit.** Composite workflows follow both direct calls and declared steps to compute transitive dependencies; unresolved dispatch is recorded explicitly. See the [dependency tests](packages/host/stm-skills/src/l0/tip-phase-deps.test.ts).
 - **Isolate the upstream API.** Production code uses [compat](packages/host/compat/src/index.ts), backed by real-package contract tests and pinned dependencies. The minimum distribution packages internal workspace code and checks dependency identity after installation.
 
 The [review guide](docs/REVIEW-GUIDE.md) connects these choices to specific implementations, tests and acceptance reports.
@@ -87,6 +128,7 @@ The [final candidate validation and publication boundary](docs/handoff/publicati
 |---|---|
 | `packages/host/kernel/` | Skill execution, units, parameter and safety checks |
 | `packages/host/numerics/`, `vision/` | Numerical methods and image-analysis criteria |
+| `packages/host/visual-memory/` | VISTA-SPM-derived archives, calibrated inspection, measurement and experimental notes |
 | `packages/host/stm-skills/` | Tool adaptation, individual skills and composite workflows |
 | `packages/host/stm-records/`, `stm-safety/`, `nanonis-files/`, `compat/` | Persistent records, safety service, file formats and dsh adaptation |
 | `packages/instrument/` | TCP protocol, connections, state, watchdog and simulator process management |
@@ -100,7 +142,7 @@ The [final candidate validation and publication boundary](docs/handoff/publicati
 - [AGENTS.md](AGENTS.md): task routing, boundaries and validation defaults for coding agents.
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md): migration acceptance, generation, tests and collaboration.
 - [RELEASE-TODO.md](docs/RELEASE-TODO.md): publication preparation and recorded checks.
-- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md): image-first perception design (decision D12). The visual-memory package, its measurement tools, the K14 observation wiring and the act gate are implemented with unit, contract and reference-parity tests. The minimal runtime mounts them behind an opt-in switch (`visualHarness`, off by default; `scripts/native-session.ts --visual` for the Nanonis simulator). There is no real-model acceptance yet.
+- [VISUAL-HARNESS.md](docs/VISUAL-HARNESS.md): scientific motivation and design decisions for visual perception (D12); the [runtime integration](packages/bundle/dsh-spm/src/visual-harness.ts) shows the current opt-in composition.
 - [SOURCES.md](docs/SOURCES.md): provenance and third-party notices, including reference-derived fixtures and public-text normalization.
 
 Licensed under [MIT](LICENSE). Third-party material retains the notices described in the source register.
