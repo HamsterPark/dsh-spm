@@ -18,10 +18,21 @@
  * heuristic and compressed at a fixed zlib level, so the same pixels always give
  * the same bytes (with the same zlib build).
  *
+ * ## Speed
+ *
+ * The per-byte loops have no branches: the five filter sums of a row come from
+ * one pass, the Paeth predictor is picked with arithmetic, and a row equal to
+ * the one above is recognised with one native comparison. Coverage
+ * instrumentation counts every branch taken, and with a branch per byte the
+ * coding of an image took about 18 times as long in a coverage run. The
+ * filter choices, hence the bytes, are those of the straightforward encoder;
+ * `png.test.ts` keeps that encoder and compares the two on random images.
+ *
  * The decoder reads what this module writes plus the other common 8-bit,
  * non-interlaced layouts (grey, grey + alpha, RGB, RGBA); it exists for derived
  * images and tests, not as a general-purpose PNG reader.
  */
+import { Buffer } from 'node:buffer'
 import { deflateSync, inflateSync } from 'node:zlib'
 
 const SIGNATURE = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
@@ -58,41 +69,71 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   return out
 }
 
-function paeth(a: number, b: number, c: number): number {
-  const p = a + b - c
-  const pa = Math.abs(p - a)
-  const pb = Math.abs(p - b)
-  const pc = Math.abs(p - c)
-  if (pa <= pb && pa <= pc) return a
-  return pb <= pc ? b : c
-}
+// The Paeth predictor (PNG §9.4) of left a, up b and upper-left c is a when
+// |b − c| <= |a − c| and |b − c| <= |a + b − 2c|, else b when |a − c| <= |a + b − 2c|,
+// else c. The loops below pick it with arithmetic, written out in place: a
+// helper function would not be inlined under coverage instrumentation.
 
-/** Apply filter `type` to one scanline; `prev` is the previous raw row (zeros for row 0). */
-function filterRow(type: number, row: Uint8Array, prev: Uint8Array, bpp: number, out: Uint8Array): void {
-  for (let i = 0; i < row.length; i += 1) {
+/** A filtered byte's cost in the filter heuristic: its magnitude read as a signed byte. */
+const COST = Uint8Array.from({ length: 256 }, (_, v) => (v < 128 ? v : 256 - v))
+
+/**
+ * Filters 1–4 (Sub, Up, Average, Paeth) of one scanline into `out[0..3]`, and
+ * the filter type the heuristic picks: the least sum of {@link COST} over the
+ * filtered bytes, the lowest type on a tie (type 0, None, is the row itself).
+ * `prev` is the previous raw row, zeros for the first.
+ */
+function filterRow(row: Uint8Array, prev: Uint8Array, bpp: number, out: readonly Uint8Array[]): number {
+  const [f1, f2, f3, f4] = out as [Uint8Array, Uint8Array, Uint8Array, Uint8Array]
+  let s0 = 0
+  let s1 = 0
+  let s2 = 0
+  let s3 = 0
+  let s4 = 0
+  // the first pixel has no left neighbour (a = c = 0): Sub is None and Paeth is Up
+  for (let i = 0; i < bpp; i += 1) {
     const x = row[i] as number
-    const a = i >= bpp ? (row[i - bpp] as number) : 0
     const b = prev[i] as number
-    const c = i >= bpp ? (prev[i - bpp] as number) : 0
-    let v: number
-    switch (type) {
-      case 0: v = x; break
-      case 1: v = x - a; break
-      case 2: v = x - b; break
-      case 3: v = x - ((a + b) >> 1); break
-      default: v = x - paeth(a, b, c)
-    }
-    out[i] = v & 0xff
+    const up = (x - b) & 0xff
+    const avg = (x - (b >> 1)) & 0xff
+    f1[i] = x
+    f2[i] = up
+    f3[i] = avg
+    f4[i] = up
+    s0 += COST[x] as number
+    s1 += COST[x] as number
+    s2 += COST[up] as number
+    s3 += COST[avg] as number
+    s4 += COST[up] as number
   }
-}
-
-function filterCost(row: Uint8Array): number {
-  let s = 0
-  for (let i = 0; i < row.length; i += 1) {
-    const v = row[i] as number
-    s += v < 128 ? v : 256 - v
+  for (let i = bpp; i < row.length; i += 1) {
+    const x = row[i] as number
+    const a = row[i - bpp] as number
+    const b = prev[i] as number
+    const c = prev[i - bpp] as number
+    const pa = Math.abs(b - c)
+    const pb = Math.abs(a - c)
+    const pc = Math.abs(a + b - 2 * c)
+    const takeA = +(pa <= pb) & +(pa <= pc)
+    const takeB = (1 - takeA) & +(pb <= pc)
+    const sub = (x - a) & 0xff
+    const up = (x - b) & 0xff
+    const avg = (x - ((a + b) >> 1)) & 0xff
+    const pth = (x - c - takeA * (a - c) - takeB * (b - c)) & 0xff
+    f1[i] = sub
+    f2[i] = up
+    f3[i] = avg
+    f4[i] = pth
+    s0 += COST[x] as number
+    s1 += COST[sub] as number
+    s2 += COST[up] as number
+    s3 += COST[avg] as number
+    s4 += COST[pth] as number
   }
-  return s
+  const sums = [s0, s1, s2, s3, s4]
+  let best = 0
+  for (let t = 1; t < 5; t += 1) if ((sums[t] as number) < (sums[best] as number)) best = t
+  return best
 }
 
 export interface PngOptions {
@@ -113,25 +154,21 @@ export function encodePngRgb(width: number, height: number, rgb: Uint8Array, opt
   }
   const bpp = 3
   const stride = width * bpp
-  const raw = new Uint8Array(height * (stride + 1))
-  let prev: Uint8Array = new Uint8Array(stride)
-  const candidates = [0, 1, 2, 3, 4].map(() => new Uint8Array(stride))
+  const raw = new Uint8Array(height * (stride + 1)) // zeros: each row's filter type, then its filtered bytes
+  const zero = new Uint8Array(stride)
+  const filtered = [1, 2, 3, 4].map(() => new Uint8Array(stride))
   for (let y = 0; y < height; y += 1) {
+    const off = y * (stride + 1)
     const row = rgb.subarray(y * stride, (y + 1) * stride)
-    let best = 0
-    let bestCost = Infinity
-    for (let t = 0; t < 5; t += 1) {
-      const out = candidates[t] as Uint8Array
-      filterRow(t, row, prev, bpp, out)
-      const cost = filterCost(out)
-      if (cost < bestCost) {
-        bestCost = cost
-        best = t
-      }
+    const prev = y === 0 ? zero : rgb.subarray((y - 1) * stride, y * stride)
+    if (Buffer.compare(row, prev) === 0) {
+      // Up gives zeros, the least sum; only an all-zero row has None, also zeros, before it
+      raw[off] = Buffer.compare(row, zero) === 0 ? 0 : 2
+      continue
     }
-    raw[y * (stride + 1)] = best
-    raw.set(candidates[best] as Uint8Array, y * (stride + 1) + 1)
-    prev = row
+    const type = filterRow(row, prev, bpp, filtered)
+    raw[off] = type
+    raw.set(type === 0 ? row : (filtered[type - 1] as Uint8Array), off + 1)
   }
   const ihdr = new Uint8Array(13)
   const hv = new DataView(ihdr.buffer)
@@ -228,45 +265,71 @@ export function decodePng(png: Uint8Array): DecodedPng {
   let prev: Uint8Array = new Uint8Array(stride)
   for (let y = 0; y < height; y += 1) {
     const type = raw[y * (stride + 1)] as number
-    const src = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
     const row = out.subarray(y * stride, (y + 1) * stride)
-    for (let i = 0; i < stride; i += 1) {
-      const a = i >= channels ? (row[i - channels] as number) : 0
-      const b = prev[i] as number
-      const c = i >= channels ? (prev[i - channels] as number) : 0
-      const x = src[i] as number
-      let v: number
-      switch (type) {
-        case 0: v = x; break
-        case 1: v = x + a; break
-        case 2: v = x + b; break
-        case 3: v = x + ((a + b) >> 1); break
-        case 4: v = x + paeth(a, b, c); break
-        default: throw new PngError(`unknown PNG filter type ${type} in row ${y}`)
-      }
-      row[i] = v & 0xff
-    }
+    unfilterRow(type, raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1)), prev, channels, row, y)
     prev = row
   }
   return { width, height, channels, data: out }
 }
 
+/** Undo filter `type` of row `y` (`src`) into `row`; `prev` is the previous decoded row, zeros for the first. */
+function unfilterRow(type: number, src: Uint8Array, prev: Uint8Array, bpp: number, row: Uint8Array, y: number): void {
+  const n = src.length
+  switch (type) {
+    case 0:
+      row.set(src)
+      return
+    case 1:
+      row.set(src.subarray(0, bpp))
+      for (let i = bpp; i < n; i += 1) row[i] = ((src[i] as number) + (row[i - bpp] as number)) & 0xff
+      return
+    case 2:
+      for (let i = 0; i < n; i += 1) row[i] = ((src[i] as number) + (prev[i] as number)) & 0xff
+      return
+    case 3:
+      for (let i = 0; i < bpp; i += 1) row[i] = ((src[i] as number) + ((prev[i] as number) >> 1)) & 0xff
+      for (let i = bpp; i < n; i += 1) row[i] = ((src[i] as number) + (((row[i - bpp] as number) + (prev[i] as number)) >> 1)) & 0xff
+      return
+    case 4:
+      // the first pixel has no left neighbour (a = c = 0): Paeth predicts Up
+      for (let i = 0; i < bpp; i += 1) row[i] = ((src[i] as number) + (prev[i] as number)) & 0xff
+      for (let i = bpp; i < n; i += 1) {
+        const a = row[i - bpp] as number
+        const b = prev[i] as number
+        const c = prev[i - bpp] as number
+        const pa = Math.abs(b - c)
+        const pb = Math.abs(a - c)
+        const pc = Math.abs(a + b - 2 * c)
+        const takeA = +(pa <= pb) & +(pa <= pc)
+        const takeB = (1 - takeA) & +(pb <= pc)
+        row[i] = ((src[i] as number) + c + takeA * (a - c) + takeB * (b - c)) & 0xff
+      }
+      return
+    default:
+      throw new PngError(`unknown PNG filter type ${type} in row ${y}`)
+  }
+}
+
 /** Any decoded PNG as 8-bit RGB (alpha is dropped, grey is replicated). */
 export function toRgb(img: DecodedPng): Uint8Array {
   const n = img.width * img.height
-  if (img.channels === 3) return img.data
+  const ch = img.channels
+  if (ch === 3) return img.data
   const out = new Uint8Array(n * 3)
-  for (let i = 0; i < n; i += 1) {
-    if (img.channels <= 2) {
-      const g = img.data[i * img.channels] as number
+  const data = img.data
+  if (ch <= 2) {
+    for (let i = 0; i < n; i += 1) {
+      const g = data[i * ch] as number
       out[i * 3] = g
       out[i * 3 + 1] = g
       out[i * 3 + 2] = g
-    } else {
-      out[i * 3] = img.data[i * 4] as number
-      out[i * 3 + 1] = img.data[i * 4 + 1] as number
-      out[i * 3 + 2] = img.data[i * 4 + 2] as number
     }
+    return out
+  }
+  for (let i = 0; i < n; i += 1) {
+    out[i * 3] = data[i * 4] as number
+    out[i * 3 + 1] = data[i * 4 + 1] as number
+    out[i * 3 + 2] = data[i * 4 + 2] as number
   }
   return out
 }

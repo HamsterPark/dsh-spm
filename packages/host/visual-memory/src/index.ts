@@ -2,9 +2,10 @@
  * dsh-spm-visual-memory — the session's lossless visual memory and the tools
  * that let the model look again (VISUAL-HARNESS, decision D12).
  *
- * Pure core (no dsh imports): frame ids, `.sxm` ingestion, display geometry,
- * flattening, rendering, PNG, the directory archive, the notes store and the
- * `inspect` / `read_values` logic. dsh-facing layer: `tools.ts` (through
+ * Pure core (no dsh imports): frame ids, `.sxm` and `.dat` ingestion, display
+ * geometry, flattening, rendering, drawing (marks and line plots on derived
+ * images and spectra), PNG, the directory archive, the notes store and the
+ * `inspect` / `read_values` / `diff` logic. dsh-facing layer: `tools.ts` (through
  * `dsh-spm-compat`) and the Cordis entry in `plugin.ts`.
  */
 export {
@@ -19,7 +20,7 @@ export {
   type FrameKind,
   type ParsedFrameId,
 } from './frame-id.js'
-export { pyFixed, pyG, pyRound, pyRoundInt, rint } from './pyfmt.js'
+export { pyFixed, pyG, pyRepr, pyRound, pyRoundInt, pyTypeName, rint } from './pyfmt.js'
 export { PngError, crc32, decodePng, encodePngRgb, pngSize, toRgb, type DecodedPng, type PngOptions } from './png.js'
 export {
   DISPLAY_MAX_DEFAULT,
@@ -104,6 +105,17 @@ export {
   type View,
   type ViewGrid,
 } from './render.js'
+export {
+  Canvas,
+  MARK_RGB,
+  drawMarks,
+  linePlot,
+  type LinePlotOptions,
+  type Mark,
+  type PlotPanel,
+  type PlotSeries,
+  type Rgb,
+} from './draw.js'
 export { NpyShapeError, decodeNpyFloat32, encodeNpyFloat32, type Float32Grid } from './npy32.js'
 export {
   DIRECTIONS,
@@ -120,6 +132,23 @@ export {
   type PartialMeta,
   type ScanData,
 } from './scan-data.js'
+export {
+  SPECTRUM_MIN_HEIGHT,
+  SPECTRUM_MIN_WIDTH,
+  SPECTRUM_PANEL_PX,
+  SPECTRUM_RGB,
+  SpectrumError,
+  inRange,
+  loadDat,
+  nanExtent,
+  renderSpectrumPlot,
+  spectrumPlotSize,
+  type SpectrumColumn,
+  type SpectrumData,
+  type SpectrumPlot,
+  type SpectrumPlotMeta,
+  type SpectrumPlotOptions,
+} from './spectrum.js'
 export { encodeSyntheticSxm, type SyntheticChannel, type SyntheticSxm } from './synthetic-sxm.js'
 export {
   ArchiveError,
@@ -171,6 +200,74 @@ export {
   type ViewImage,
   type ViewToolResult,
 } from './views.js'
+export { pyHypot, pyMax, pyMin, pyMod } from './pymath.js'
+export {
+  MAX_PROFILE_SAMPLES,
+  PROFILE_PLOT_HEIGHT,
+  STEP_MIN_JUMP_SIGMA,
+  bandProfile,
+  changePoints,
+  lineProfile,
+  linfit,
+  measureLine,
+  plotPx,
+  type ChangePointOptions,
+  type ChangePoints,
+  type MeasuredLine,
+  type ProfileSegment,
+  type ProfileStep,
+} from './line-profile.js'
+export { frameStats } from './frame-stats.js'
+export { LeastSquaresError, leastSquares, type TrfOptions, type TrfResult } from './least-squares.js'
+export {
+  FFT_PEAKS_DEFAULT,
+  MAX_FFT_PEAKS,
+  MIN_PEAK_STRENGTH,
+  SpectrumSizeError,
+  fftPeaks,
+  nextFastLen,
+  paintMarks,
+  spectrumImage,
+  spectrumMarks,
+  spectrumPeaks,
+  type MarkPainter,
+  type Spectrum,
+  type SpectrumImage,
+  type SpectrumPeak,
+} from './fft-peaks.js'
+export {
+  BACKGROUND_NM_DEFAULT,
+  BLOBS_DEFAULT,
+  BlobError,
+  FWHM_PER_SIGMA,
+  MAX_BLOBS,
+  MIN_SEP_NM_DEFAULT,
+  blobGeometry,
+  blobMarks,
+  detectBlobs,
+  findBlobs,
+  type Blob,
+  type BlobGeometry,
+  type BlobResult,
+  type FindBlobsOptions,
+} from './detect-blobs.js'
+export { mirrorIndex, shiftConstant, splineFilter3 } from './ndinterp.js'
+export { nelderMead, type NelderMeadOptions, type NelderMeadResult } from './nelder-mead.js'
+export { REFINE_PX, corrLength, nccSurface, register, type Registration } from './register.js'
+export {
+  FRAME_DIFF_DESCRIPTION,
+  MAX_REGIONS,
+  bandpass,
+  clipPolygon,
+  commonGrid,
+  divergingRgb,
+  frameDiff,
+  frameDiffParameters,
+  lowpass,
+  sameGeometry,
+  type CommonGrid,
+  type DiffTrace,
+} from './frame-diff.js'
 export {
   VISUAL_TOOL_NAMES,
   defineVisualTools,
@@ -179,4 +276,24 @@ export {
   type ViewToolValue,
   type VisualToolDeps,
 } from './tools.js'
-export { FrameArchiveService, apply, inject, name, visualMemoryProvider, type Config } from './plugin.js'
+export {
+  FrameArchiveService,
+  apply,
+  inject,
+  name,
+  sessionDirName,
+  visualMemoryProvider,
+  type Config,
+  type SessionMemory,
+} from './plugin.js'
+export {
+  IMAGES_NOT_DELIVERED,
+  TEXT_ONLY_ROUTE,
+  frameObserver,
+  observationPresenter,
+  presentObservation,
+  renderObservation,
+  routeTakesImages,
+  type FrameObserverOptions,
+} from './observe.js'
+export { VISUAL_HARNESS_PROMPT, VISUAL_HARNESS_PROMPT_NAME, VISUAL_HARNESS_PROMPT_ORDER } from './prompt.js'
