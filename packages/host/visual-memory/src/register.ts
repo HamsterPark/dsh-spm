@@ -25,7 +25,7 @@
  *   order) and Nelder–Mead are bit-identical ({@link shiftConstant},
  *   {@link splineFilter3}, `npSum`, {@link nelderMead}).
  * - The correlation surface is not: scipy's `fftconvolve` (pocketfft, real
- *   transforms) and the radix-2 transform here round differently, about
+ *   transforms) and numerics' radix-2 transform (`fft2InPlace`) round differently, about
  *   `eps · log2(N)` of the largest correlation sum. That moves the parabolic
  *   start by ~1e-14 px, and Nelder–Mead then evaluates points that differ by as
  *   much; its branch decisions compare values that differ by far more, so it
@@ -41,7 +41,7 @@
  * jump and the reported shift snaps to an integer (the golden's
  * `steps_creep_large_shift`: 29.000, 4.000 px). The port keeps it.
  */
-import { npMean, npSum } from 'dsh-spm-numerics'
+import { fft2InPlace, npMean, npSum } from 'dsh-spm-numerics'
 import { nelderMead } from './nelder-mead.js'
 import { shiftConstant, splineFilter3 } from './ndinterp.js'
 import { rint } from './pyfmt.js'
@@ -68,114 +68,7 @@ export interface Registration {
   readonly exclusion_px: number
 }
 
-// ── FFT (radix-2, cached twiddles) ──────────────────────────────────────────
-
-interface Plan {
-  readonly n: number
-  readonly cos: Float64Array
-  readonly sin: Float64Array
-  readonly rev: Uint32Array
-}
-
-const plans = new Map<number, Plan>()
-
-function plan(n: number): Plan {
-  let p = plans.get(n)
-  if (p === undefined) {
-    const half = n >> 1
-    const cos = new Float64Array(half)
-    const sin = new Float64Array(half)
-    for (let k = 0; k < half; k += 1) {
-      cos[k] = Math.cos((2 * Math.PI * k) / n)
-      sin[k] = Math.sin((2 * Math.PI * k) / n)
-    }
-    const rev = new Uint32Array(n)
-    const bits = Math.round(Math.log2(n))
-    for (let i = 0; i < n; i += 1) {
-      let r = 0
-      for (let b = 0; b < bits; b += 1) r |= ((i >> b) & 1) << (bits - 1 - b)
-      rev[i] = r
-    }
-    p = { n, cos, sin, rev }
-    plans.set(n, p)
-  }
-  return p
-}
-
-/** In-place transform of one contiguous line; `inverse` does not divide by n. */
-function fft1(re: Float64Array, im: Float64Array, p: Plan, inverse: boolean): void {
-  const n = p.n
-  for (let i = 0; i < n; i += 1) {
-    const j = p.rev[i] as number
-    if (i < j) {
-      const tr = re[i] as number
-      re[i] = re[j] as number
-      re[j] = tr
-      const ti = im[i] as number
-      im[i] = im[j] as number
-      im[j] = ti
-    }
-  }
-  const sign = inverse ? 1 : -1
-  for (let len = 2; len <= n; len <<= 1) {
-    const half = len >> 1
-    const step = n / len
-    for (let k = 0; k < half; k += 1) {
-      const wr = p.cos[k * step] as number
-      const wi = sign * (p.sin[k * step] as number)
-      for (let a = k; a < n; a += len) {
-        const b = a + half
-        const br = re[b] as number
-        const bi = im[b] as number
-        const xr = br * wr - bi * wi
-        const xi = br * wi + bi * wr
-        const ar = re[a] as number
-        const ai = im[a] as number
-        re[b] = ar - xr
-        im[b] = ai - xi
-        re[a] = ar + xr
-        im[a] = ai + xi
-      }
-    }
-  }
-}
-
-/** In-place 2-D transform of a `rows × cols` complex array (both powers of two). */
-function fft2(re: Float64Array, im: Float64Array, rows: number, cols: number, inverse: boolean): void {
-  const pr = plan(cols)
-  const lr = new Float64Array(cols)
-  const li = new Float64Array(cols)
-  for (let r = 0; r < rows; r += 1) {
-    lr.set(re.subarray(r * cols, (r + 1) * cols))
-    li.set(im.subarray(r * cols, (r + 1) * cols))
-    fft1(lr, li, pr, inverse)
-    re.set(lr, r * cols)
-    im.set(li, r * cols)
-  }
-  // Columns in blocks of up to 16, gathered row by row: each row's cache line is read once per block.
-  const pc = plan(rows)
-  const B = Math.min(16, cols)
-  const cr = Array.from({ length: B }, () => new Float64Array(rows))
-  const ci = Array.from({ length: B }, () => new Float64Array(rows))
-  for (let c0 = 0; c0 < cols; c0 += B) {
-    const nb = Math.min(B, cols - c0)
-    for (let r = 0; r < rows; r += 1) {
-      const o = r * cols + c0
-      for (let j = 0; j < nb; j += 1) {
-        ;(cr[j] as Float64Array)[r] = re[o + j] as number
-        ;(ci[j] as Float64Array)[r] = im[o + j] as number
-      }
-    }
-    for (let j = 0; j < nb; j += 1) fft1(cr[j] as Float64Array, ci[j] as Float64Array, pc, inverse)
-    for (let r = 0; r < rows; r += 1) {
-      const o = r * cols + c0
-      for (let j = 0; j < nb; j += 1) {
-        re[o + j] = (cr[j] as Float64Array)[r] as number
-        im[o + j] = (ci[j] as Float64Array)[r] as number
-      }
-    }
-  }
-}
+// ── the correlation surface (numerics' in-place radix-2 transform) ──────────
 
 function nextPow2(n: number): number {
   let p = 1
@@ -200,7 +93,7 @@ function packed(x: Float64Array, y: Float64Array, rows: number, cols: number, P:
     re.set(x.subarray(r * cols, (r + 1) * cols), r * Q)
     im.set(y.subarray(r * cols, (r + 1) * cols), r * Q)
   }
-  fft2(re, im, P, Q, false)
+  fft2InPlace(re, im, P, Q, false)
   return { re, im }
 }
 
@@ -280,8 +173,8 @@ export function nccSurface(
       z2.im[kk] = yy[3]
     }
   }
-  fft2(z1.re, z1.im, P, Q, true)
-  fft2(z2.re, z2.im, P, Q, true)
+  fft2InPlace(z1.re, z1.im, P, Q, true)
+  fft2InPlace(z2.re, z2.im, P, Q, true)
   // scipy transforms an all-zero signal to exact zeros (correlation 0 everywhere, e.g. a flat
   // frame); here its packed partner would leave rounding noise in place of those zeros.
   const aZero = an.every((x) => x === 0)
