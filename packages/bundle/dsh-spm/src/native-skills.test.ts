@@ -157,7 +157,9 @@ describe('native simulator minimal skills', () => {
 
   it('reports uncertainty after a successful write followed by a read failure', async () => {
     // 起点读得到（0.1 → 0.2 走直写），写成功之后的回读失败：缓存不可信，不刷新
-    const { kernel, calls, cache, refreshCount } = fixture({ Bias_Get: [[0.1], 'connection_closed'] }, {}, { live: true })
+    const { kernel, calls, records, cache, refreshCount } = fixture(
+      { Bias_Get: [[0.1], 'connection_closed'] }, {}, { live: true },
+    )
     const result = await kernel.run(NativeSetBias, { bias_v: 0.2 })
     expect(result.kind).toBe('failed')
     expect(result.text).toContain('bias_readback_failed')
@@ -165,7 +167,9 @@ describe('native simulator minimal skills', () => {
     expect(result.data).toMatchObject({ bias_v: null, command_sent: true, verified: false, path: 'SetBias' })
     expect(calls.filter((call) => call.method === 'Bias_Set')).toHaveLength(1)
     expect(refreshCount()).toBe(0)
+    // 残留（偏差登记里有一条）：直写路径上缓存仍是改动前的值，记录的 stateDelta 为空
     expect(cache().bias_v).toBeNull()
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({})
   })
 
   it.each([

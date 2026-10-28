@@ -57,7 +57,9 @@ describe('变异规则体检（不跑演练）', () => {
     expect(at).toBeGreaterThanOrEqual(0)
     expect(args[at + 1]).toBe('**/mutation-registry.test.ts')
     expect(existsSync(new URL('packages/bundle/dsh-spm/contract/mutation-registry.test.ts', ROOT))).toBe(true)
-    // 运行器的 suite() 确实是用 suiteArgs 拼命令行的，而不是另写了一条
-    expect(readFileSync(new URL('tools/mutate/run.ts', ROOT), 'utf8')).toContain('...suiteArgs(scope)')
+    // 运行器的 suite() 确实是用 suiteArgs 拼命令行的，而不是另写了一条；匹配绑在真正的 run( 调用上，
+    // 形参改名不受影响，把这串字留在注释里也蒙混不过去
+    expect(readFileSync(new URL('tools/mutate/run.ts', ROOT), 'utf8'))
+      .toMatch(/\brun\(\[\.\.\.PNPM, \.\.\.suiteArgs\(\w+\)\]/)
   })
 })
