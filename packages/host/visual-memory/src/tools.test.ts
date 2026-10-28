@@ -128,7 +128,7 @@ describe('registration', () => {
       expect(exec({})).toEqual({ kind: 'exclusive' }) // dsh validates before classifying
     }
     const inspect = ctx.tools.schemas().find((s) => s.name === 'stm_inspect')
-    expect(inspect?.description).toContain('1 to 16 views per call')
+    expect(inspect?.description).toContain('1 to 12 views per call')
     expect(inspect?.description).toContain('fits 64x64')
     const read = ctx.tools.schemas().find((s) => s.name === 'stm_read_values')
     expect(read?.description).toContain('at most 4096')
