@@ -696,13 +696,15 @@ stderr 空、端口正常释放。
   只有路由 key 本身是 pi-ai 的 provider id 时才继承目录 ⇒ 手写的 `kimi: { api: 'openai-completions', baseURL, models: [...] }` **默认是纯文本路由**，图像全被换成占位文本（探针用 `kimi-default` 复现）。
   这些是 pi-ai 0.8x 的目录结论，pi-ai 1.x 的目录没有重读。
 - **DeepSeek 默认模型**【包，已更新】：`dsh-llm-deepseek` 的内置目录现在只有 `deepseek-flash`（文本 + 图像，窗口 1,048,576）和 `deepseek-v4-pro`（纯文本）；
-  走官方 API 时官方 `/models` 列表接管目录，列表没点名的模型 id 原样放行（不被拒），但**目录里没有条目的 id 按纯文本路由处理**（`inputModalities` 取 `["text"]`，图像换成占位文字，见本节开头）；内置目录里有而列表没点名的 id 仍用内置条目（§8.-11）【包：`modelInfo` 对没有条目的 id 返回纯文本，`resolveListedCatalog` 保留未被点名的内置条目】。0.1.5 记的 `deepseek-v4-flash-vision-exp` 等已不在内置目录里。
+  走官方 API 时官方 `/models` 列表接管目录，列表没点名的模型 id 原样放行（不被拒），但**目录里没有条目的 id 按纯文本路由处理**（`inputModalities` 取 `["text"]`，图像换成占位文字，见本节开头）；内置目录里有而列表没点名的 id 仍用内置条目（§8.-11）【包：`modelInfo` 对没有条目的 id 返回纯文本，`resolveListedCatalog` 保留未被点名的内置条目】。
+  **列表点名了的 id 另有一道门**：没声明最低客户端版本、内置目录里又没有它的，在发请求之前被 `MODEL_UNSUPPORTED` 拒掉，不是放行；声明了最低版本的，本版本不低于它就放行（能力取自列表），低于它则被 `CLIENT_UPGRADE_REQUIRED` 拒掉【包：`gateOf`、`refuseListedModel`，0.2.1-rc.4 的 `lib/index.js` 已核】。
+  0.1.5 记的 `deepseek-v4-flash-vision-exp` 等已不在内置目录里。
   **这与 VISUAL-HARNESS §4.8「DeepSeek 默认模型行不在此列」不一致**；真 API 是否接受图像**未核**（本仓没有开过真实模型会话）。
 - **丢图无日志**【未重核】：路由不收图而被 `LlmRuntime` 换成占位文字时，宿主侧没有日志也没有事件（0.1.5-rc.2 的结论），模型看到的占位文字是唯一信号。
   §4.8 要求的「本轮有 N 张图像未送达」只能由我们按模型声明的 `inputModalities` 自己算。反应式卸载则会写 `image/offload` 事件（见上）。
 - **尺寸**【改变】：DeepSeek 路线现在按 token 计价而不是按像素预算缩放。用包里导出的 `deepSeekImageTokens`（`@deepseek-ai/dsh-llm-deepseek`）原样算（**不要手算近似式**：近似式给 768² 得 344，真函数得 382）：
   768×768 = **382** token，1536×768 = **724**，1302×1302 = 994，1708×961 = 968，都 ≤ 1024 ⇒ 这两个尺寸**都不缩放**（0.1.5 时 1536×768 在 DeepSeek 路线被缩成 1130×565）。
-  坐标换算依赖图像不被缩放 ⇒ DeepSeek 路线上 `D = 768` 仍然安全；pi-ai 路线未重核。[包；本文调用已安装的 rc.4 包里导出的 `deepSeekImageTokens` 实算]
+  坐标换算依赖图像不被缩放 ⇒ DeepSeek 路线上 `D = 768` 仍然安全；pi-ai 路线未重核。[包；本文在隔离安装的 rc.4 包里调用其导出的 `deepSeekImageTokens` 实算，本仓依赖树里没有它]
 
 ### 9.4 压缩：没有压缩前钩子
 
