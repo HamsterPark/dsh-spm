@@ -1,6 +1,6 @@
 # 视觉线束：以图像为主的感知通道
 
-**状态：设计文档，§6 第 2–4 步已实现（2026-10-13），尚未挂进 bundle 与 profile。** 2026-10-09 起草，对应 [PLAN](PLAN.md) 决策 D12。本文改变的是计划，不改变任何已验收的运行范围；当前可运行能力仍以 [README](../README.md) 与运行指南为准。
+**状态：设计文档；§6 第 2–5 步已实现（2026-10-13）。视觉线束已挂进最小运行栈（`packages/bundle/dsh-spm/src/visual-harness.ts`，由 `visualHarness` 开关控制，缺省不挂，没有任何 profile 默认开启）；还没有真实模型验收，第 6、7 步未做。** 2026-10-09 起草，对应 [PLAN](PLAN.md) 决策 D12。本文改变的是计划，不改变任何已验收的运行范围；当前可运行能力仍以 [README](../README.md) 与运行指南为准。
 
 ## 0. 一句话
 
@@ -91,6 +91,8 @@ Han、Hu、Qiu、Wu、He 的 VISTA（[arXiv 2610.02200](https://arxiv.org/abs/26
 
 ### 4.4 工具面
 
+工具语义与测量规则按 VISTA-SPM 的 `vista_spm/viewtools.py`、`measure.py` 移植，参考版本是标签 `m1-surface`（`3bef5c7`）；四份视觉金样（`visual_memory`、`measure_profile`、`measure_fft_blobs`、`measure_diff`）都记着这个提交。VISTA-SPM 的 main 此后已修复一批参考实现问题（2026-10-13，见该仓 `docs/notes/2026-10-13-reference-fixes.zh-CN.md`），本仓尚未重导对齐；偏差登记里的 D-VMEM-9、11、13、14 按 `3bef5c7` 的行为理解。
+
 | 工具 | 作用 | 上限 |
 |---|---|---|
 | `stm_inspect` | 取回任意档案帧的视图：区域裁剪、最近邻放大到 `D`、换通道/方向/去衬底；每个视图一张图，按请求顺序返回，不拼图；文本给出每个视图的显示像素区域与扫描坐标角点 | 16 个视图 |
@@ -147,8 +149,8 @@ Python 参考实现（VISTA-SPM，运行在 STM-Bench 上）让仿真时间只�
 
 ## 5. 验证与验收
 
-- **参考实现与消融。** Python 版视觉线束在独立仓库 [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) 中实现，在 STM-Bench 上以论文场景（P1 鱼骨重构、P4 单原子定位、P5 力谱）× 多个 seed 做消融：图像 + 笔记 + 视觉记忆 + 读值与测量（完整）、去掉读值与测量、去掉视觉记忆、只有图像、数值网格代替图像、以视觉模型摘要代替图像、完整 + 顾问。指标为判分器核验的复现结果、诊断准确率、仪器时间、动作数与 token 成本。本设计的取舍以该结果为准。
-- **TS 对 Python 的一致性。** 渲染、坐标换算、读值和各测量工具以参考实现导出的金样逐项比对，容差写明；有意差异登记在 [偏差登记](../spec/deviations.md)。
+- **参考实现与消融。** Python 版视觉线束在独立仓库 [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) 中实现，在 STM-Bench 上以论文场景（P1 鱼骨重构、P4 单原子定位、P5 力谱）× 多个 seed 做消融：图像 + 笔记 + 视觉记忆 + 读值与测量（完整）、去掉读值与测量、去掉视觉记忆、只有图像、数值网格代替图像、以视觉模型摘要代替图像、完整 + 顾问。指标为判分器核验的复现结果、诊断准确率、仪器时间、动作数与 token 成本。本设计的取舍以该结果为准。参考版本：金样固定在 VISTA-SPM 的 `3bef5c7`（标签 `m1-surface`），其 main 上此后的修复尚未重导（见 §4.4）。
+- **TS 对 Python 的一致性。** 渲染、坐标换算、读值和各测量工具以参考实现导出的金样逐项比对，容差写明；有意差异登记在 [偏差登记](../spec/deviations.md)。（金样来自 VISTA-SPM `3bef5c7`。）
 - **dsh contract。** 钉住：工具结果中的图像内容块能经各模型适配器送达；图像与文本一样可从 session log 重建（PLAN §3.1 第 5 条）；一动一观闸门的拒绝在并发调用下成立。
 - **Phase 3 验收补充。** 在受管 STM-Bench 上，用支持图像的模型完成「扫一帧 → 回看并放大历史帧 → 读值 → 移针 → 再扫一帧 → 比较两帧」，session log 可重建每一张图。
 
