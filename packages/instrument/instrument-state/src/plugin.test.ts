@@ -219,6 +219,29 @@ describe('把状态送进模型的两条路', () => {
     ctx.registry.delete(instrumentStateProvider)
   })
 
+  // 关掉「可选运行时上下文」的组合（Web 的 minimal preset、sdk-minimal）会调 suppressRuntimeContext()，
+  // 只有标了 required 的 context 留得下来。实时状态是安全相关内容，不能随之消失。
+  it('suppressRuntimeContext() 之后，可选 context 没了，实时状态块还在', async () => {
+    const ctx = new Context()
+    host(ctx)
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    const svc = await stateOf(ctx)
+    await svc.refresh()
+    ctx.systemPrompt.context({ name: 'probe-optional', order: 1, text: () => '可选的上下文' })
+
+    const names = async (): Promise<string[]> => renderContextSections(await ctx.systemPrompt.assemble()).map((s) => s.name)
+    expect(await names()).toEqual(expect.arrayContaining(['probe-optional', LIVE_STATE_NAME]))
+
+    const restore = ctx.systemPrompt.suppressRuntimeContext()
+    expect(await names()).toContain(LIVE_STATE_NAME)
+    expect(await names()).not.toContain('probe-optional')
+    // AgentLoop 每次发请求前走的是 refreshContext()，这条路同样要留住它
+    const refreshed = renderContextSections(ctx.systemPrompt.refreshContext(await ctx.systemPrompt.assemble())).map((s) => s.name)
+    expect(refreshed).toEqual([LIVE_STATE_NAME])
+    restore()
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
   it('stm_get_state 注册进工具表，跑一次是真去读而不是回缓存', async () => {
     const ctx = new Context()
     const { fake, tools } = host(ctx)
