@@ -22,6 +22,9 @@
       "path": "../nanonis-files"
     },
     {
+      "path": "../../instrument/nanonis-wire"
+    },
+    {
       "path": "../numerics"
     },
     {
