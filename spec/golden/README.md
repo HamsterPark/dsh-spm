@@ -39,6 +39,17 @@ python tools/spec-export/<脚本>.py
 
 2026-09-20 的公开文本清理没有重导金样；当前说明与匿名标识不保证与私有原始导出逐字一致。重导后应再次检查公开内容。`manifest.json` 的源码位置记录为 `<MAST_ROOT>`，不得恢复开发者的实际目录。
 
+**公开文本覆盖层** 重导的原始产物会恢复这次清理换掉的文本，不能直接进入本目录。`tools/spec-export/spec_overlay.py` 按仓外的覆盖层数据（`SPEC_OVERLAY` 指向）把这些字符串值换回已审读过的公开文本，每条以（文件、JSON 指针、原文 SHA-256）定位。原文哈希对不上、原文出现在没登记的位置、被引用的文件不能按本目录的序列化规则逐字节往返，都会失败并交人工复核。覆盖层只处理字符串值，不处理对象键与 `.sql`。本目录现有金样是覆盖层的不动点：`verify` 要求每个登记位置都已是公开文本。
+
+重导流程：
+
+1. `run_export.py run --rev <标签> --repeat 2`，原始产物留在暂存区；
+2. `spec_overlay.py apply --in <暂存产物> --out <暂存公开目录>`；`manifest.json` 带 `reference` 时同时写入 `public_text` 标记；
+3. 按 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md) 检查暂存公开目录；
+4. 通过后复制进本目录，`spec_overlay.py verify --dir spec/golden` 确认不动点，再执行 `pnpm gen:skills` → `pnpm build` → `pnpm gen:progress`。
+
+`apply` 遇到哈希不符时，用 `spec_overlay.py show` 查看该位置（输出含私有原文，不外传），定下公开文本后，由原始产物和审读过的公开版本重新 `build` 覆盖层；旧条目都还适用、只多了新位置时，可加 `--base <旧覆盖层>` 只为剩余差异建条目。
+
 **参考基线（历史说明）** 本目录现有的 MAST 金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 用运行器在 `git archive` 快照上复核：在提交 `068c2371` 上重导（同条件两次，48 份逐字节一致），48 份 MAST 金样中 42 份与本目录逐字节相同；其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。所以该提交是这批金样的等价来源。`manifest.json` 里旧的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。今后重导按 `manifest.json` 的 `reference` 记录。
 
 ## 一、文件与导出器
