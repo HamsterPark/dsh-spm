@@ -6,6 +6,7 @@
 import { implausibleReadings, type Skill, type SkillCallRecord, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { bool, body, fail, int, num, ok, strList } from './common.js'
+import { lastPath } from './wire-text.js'
 
 type Exec = (ctx: SkillContext, params: Readonly<Record<string, unknown>>) => Promise<SkillResultLike>
 
@@ -185,22 +186,9 @@ export const GetSafeTipSignal = read(S.GetSafeTipSignalSpec, 'SafeTip_SignalGet'
 
 // ── util / signals ──────────────────────────────────────────────────────────
 
-/**
- * body 里**最后一个字符串**。
- *
- * `Util.SessionPathGet` 的 `ResponseTypes = ["i", "*-c"]` ⇒ body 是
- * `[路径字节数, 路径]`，路径跟在它的长度后面。**一个解析器两处用**
- * （读与 `SetSessionPath` 的回读）——回读若由另一份单独写的解析器来读，
- * 它可以自己和自己一致而两边都是错的。
- */
-export function lastString(rec: SkillCallRecord): string {
-  const b = body(rec)
-  for (let i = b.length - 1; i >= 0; i--) if (typeof b[i] === 'string') return b[i] as string
-  return ''
-}
-
+// 会话路径的解析器在 `wire-text.ts`：读、`SetSessionPath` 的回读和各处找文件的目录共用同一个。
 export const GetSessionPath = read(S.GetSessionPathSpec, 'Util_SessionPathGet', (r) =>
-  ok({ session_path: lastString(r) }),
+  ok({ session_path: lastPath(r) }),
 )
 
 export const GetAcqPeriod = read(S.GetAcqPeriodSpec, 'Util_AcqPeriodGet', (r) =>

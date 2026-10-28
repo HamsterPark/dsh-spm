@@ -64,7 +64,7 @@ import * as S from '../generated/specs.js'
 import { body, fail, ok } from './common.js'
 import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
 import { callIdempotent } from './idempotent.js'
-import { lastString } from './reads-hw.js'
+import { lastPath } from './wire-text.js'
 
 type Params = Readonly<Record<string, unknown>>
 
@@ -251,7 +251,7 @@ function defaultLatestSavedDat(nowS: () => number) {
   return async (ctx: SkillContext): Promise<string | null> => {
     const rec = await ctx.safeCall('Util_SessionPathGet')
     if (failed(rec)) return null
-    const dir = sessionDir(lastString(rec))
+    const dir = sessionDir(lastPath(rec))
     if (dir === null) return null
     const found = findLatestSaved(existingDirs([dir]), '.dat', nowS(), SAVED_DAT_MAX_AGE_S)
     return found === null ? null : found.path

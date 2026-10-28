@@ -55,8 +55,8 @@ import {
 import * as S from '../generated/specs.js'
 import { body, fail, ok } from './common.js'
 import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
-import { lastString } from './reads-hw.js'
 import { readZSweepBudget } from './spectroscopy.js'
+import { lastPath } from './wire-text.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 
@@ -155,7 +155,7 @@ export interface DeltaFDeps {
 
 async function defaultCandidateDirs(ctx: SkillContext): Promise<string[]> {
   const rec = await ctx.safeCall('Util_SessionPathGet')
-  const dir = failed(rec) ? null : sessionDir(lastString(rec))
+  const dir = failed(rec) ? null : sessionDir(lastPath(rec))
   return dir === null ? [] : [dir]
 }
 

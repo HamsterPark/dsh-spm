@@ -12,8 +12,8 @@
 import { valuesMatch, type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { body, fail, int, num, numList, ok } from './common.js'
-import { lastString } from './reads-hw.js'
 import { verifyZController } from './verify.js'
+import { lastPath } from './wire-text.js'
 
 const n = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number => {
   const v = p[k]
@@ -229,7 +229,7 @@ export const SetSessionPath: Skill = {
     }
     // **一个解析器两处用**（`GetSessionPath` 与这里的回读）：回读若由另一份
     // 单独写的解析器来读，它可以自己和自己一致而两边都是错的。
-    const readback = lastString(after)
+    const readback = lastPath(after)
     if (readback === requested) {
       return ok({ requested, save_settings_to_previous: save, session_path: readback, verified: true })
     }
