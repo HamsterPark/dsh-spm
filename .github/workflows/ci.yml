@@ -53,3 +53,11 @@ jobs:
       # `pnpm test --project integration`（台账 B11）。
       # 本地跑全量：设好那两个变量后 `pnpm test`。
       - run: pnpm test --project unit --project contract
+
+      # 导出工具的单测（tools/spec-export/tests/）：只用标准库和 git，不需要参考仓、NumPy 或 SciPy。
+      # 真正的重导要私有参考仓，不在 CI 里跑。
+      # 按完整提交哈希钉住，行尾写版本号；核对：gh api repos/actions/setup-python/commits/v7.1.0 --jq .sha
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - run: python -m unittest discover -s tools/spec-export/tests -v
