@@ -420,6 +420,31 @@ class CompareTests(unittest.TestCase):
             self.assertEqual(rx.main(["compare", str(self.a), str(self.a)]), rx.OK)
 
 
+class ProjectRootFormsTests(unittest.TestCase):
+    """`_paths.project_root_forms`：变量不论写成哪种分隔符，导出器经 pathlib 写出的路径都被抹掉。"""
+
+    def test_native_paths_are_scrubbed_whatever_the_variable_spelling(self) -> None:
+        import _paths
+
+        root = _tmpdir(self, "root-forms-") / "pr"
+        written = str(root / "data" / "frame.npy")
+        for raw in (str(root), str(root).replace("\\", "/"), str(root) + os.sep, f" {root} "):
+            with self.subTest(raw=raw):
+                s = written
+                for form in _paths.project_root_forms(raw):
+                    s = s.replace(form, "<project-root>")
+                self.assertEqual(s, os.path.join("<project-root>", "data", "frame.npy"))
+
+    def test_forms_are_unique_and_longest_first(self) -> None:
+        import _paths
+
+        forms = _paths.project_root_forms("C:/stage/./pr")
+        self.assertEqual(len(forms), len(set(forms)))
+        self.assertEqual([len(f) for f in forms], sorted((len(f) for f in forms), reverse=True))
+        self.assertIn("C:/stage/./pr", forms)
+        self.assertEqual(_paths.project_root_forms("  "), [])
+
+
 class ReferenceTests(unittest.TestCase):
     """`export_mast_spec._reference()`：显式提交号与和行尾无关的源码摘要。"""
 
