@@ -204,21 +204,19 @@
 
 ### 8.-13 **0.2.2-alpha.2 —— 只读不升；它是一次迁移，不是换版本串**（2026-10-28 记录）
 
-0.2.2 目前只有 alpha.2 一个版本（npm 10-27），`alpha` 标签所指；稳定通道 `next` 仍是 `0.2.1-rc.4`，本仓锁的就是它。按 `upgrades.md` 的切换点规则：**alpha 只读发布说明、把影响记进这里，不升。** 下表来自把 alpha.2 的全部 dsh 系包与 rc.4 逐个比较【实测：tarball 比对加 `.d.ts` 比对】。
+0.2.2 目前只有 alpha.2 一个版本（npm 10-27），`alpha` 标签所指；稳定通道 `next` 仍是 `0.2.1-rc.4`，本仓锁的就是它。按 `upgrades.md` 的切换点规则：**alpha 只读发布说明、把影响记进这里，不升。** 来源是 npm 上 `0.2.2-alpha.2` 与 `0.2.1-rc.4` 两版包的逐个比对（dsh 系包 296 → 321 个）和 GitHub 镜像上的发布说明，都是公开的。**下次升级必须处理：**
 
-| 变化 | 打到我们的什么 |
+| 变化 | 要处理什么 |
 |---|---|
-| `@deepseek-ai/dsh` 首次声明 `engines.node >=24.9.0`（rc.4 没有 `engines.node`） | 与本仓的 `^22.19.0 \|\| >=24.0.0` 以及 CI 的 Node 22.19 单元格冲突；升之前先定 Node 下限 |
-| 包集合 296 → 321（+26、−1）：删 `client-ui-deepseek-model-label-1017`；新增含 `dsh-official-bundles`、`tool-executor-native` / `tool-executor-ptc`、computer-use、`cua*`、`forge*`、`liveshare*` 系 | 组合树、快照和 `pnpm gen:dsh-pins` 的两张表都要重建 |
+| `@deepseek-ai/dsh` 首次声明 `engines.node >=24.9.0`（rc.4 没有 `engines.node`） | 与本仓的 `^22.19.0 \|\| >=24.0.0` 以及 CI 的 Node 22.19 单元格冲突；先定 Node 下限 |
 | Cordis 系换到 alpha 版本线：`cordis` 4.0.6-alpha.1、`cordis-plugin-include` 1.0.11-alpha.1、loader 1.0.7-alpha.1、timer 1.1.8-alpha.1、group 1.0.6-alpha.1、`cosmokit` 1.8.7-alpha.1、`schemastery` 3.18.6-alpha.1（`zod` 仍是 4.4.3） | `scripts/dsh-pins.ts` 的 `VENDOR_PINS` 与 `install-minimal` 的 Cordis 覆写要换成预发布版本 |
 | `dsh-session-projection`：`SessionProjectionStateMap` 删除；`register()` 改为返回 `Promise<ProjectionHandle>` | 破坏 `packages/host/compat/src/index.ts` 的类型重导出、`packages/client/stm-ui/src/projection.ts` 的模块增补，以及 `packages/client/stm-ui/src/plugin.ts` 里 `ctx.effect(() => ctx.sessionProjections.register(…))` 的写法 |
 | `dsh-tools`：`ToolRuntime` 成为 `ToolsService` 的别名；`execute` 改收 `ToolBatchInput`、返回 `ToolBatchResult`；删除 16 个导出 | 本仓生产代码不调 `execute`，也没引用被删的 16 个；22 处测试调用（17 个测试文件）要改；`register` 与 `guard` 保留 |
 | `dsh-agent` / `dsh-agent-loop`：`ModelSelectionRef` 删除、`turnBoundaryProjectionDefinition` 移位；模型在 pre-step 之前就定下，`agent/request` 不能再改路由 | 一动一观闸门的契约（`act-gate-loop.test.ts`）要重新验证 |
-| `dsh-base`：`tool-subagent-list-agents` 行删除，新增 `tool-executor-native`、`tool-executor-ptc` 两行 | `scripts/acceptance-overlay.ts` 的行清单与 `DSH_TOOLS_MODE`（`ACCEPTANCE_CHILD_ENV`）要迁移 |
-| `dsh-system-prompt`：`PromptPresentation` 拆分；`dsh-app-boot`：7 个导出删除（bundle 清单搬进 `dsh-official-bundles`） | 本仓不导入这些名字，无影响 |
-| `session-log-deepseek` 与 `session-telemetry-otel` 的行 id 和配置不变 | 隐私默认值的处置不变（§2） |
+| `dsh-base`：`tool-subagent-list-agents` 行删除，新增 `tool-executor-native`、`tool-executor-ptc` 两行 | `scripts/acceptance-overlay.ts` 的行清单引用了已删的行，会让 `probe:compose` 变红（组合里不存在的行 id 只在 stderr 留一句 `patch: entry … not found`）；`DSH_TOOLS_MODE`（`ACCEPTANCE_CHILD_ENV`）要迁移到新的执行器行 |
+| 新增实验性插件 `subagent_oar`（发布说明），把子任务交给本机 Codex / Claude CLI | 又一个可能绕开动作闸的工具族；默认组合里没有，但验收组合与将来的 IC / conduct 组合要把它算进「必须关掉的族」 |
 
-发布说明里值得记的几条【发布说明】：pi-ai 升到 1.3.0，工具参数畸形的响应会在任何工具执行前中止整轮；Web Fetch 接受非公网地址；实验性的 `subagent_oar` 插件把子任务交给本机 Codex / Claude CLI（默认组合里没有，但属于可能绕开工具闸的一类，真机组合前要评估）；关闭时的 Auto-permission 修复。
+不受影响（本仓不导入这些名字，或行 id 与配置不变）：`dsh-system-prompt` 的 `PromptPresentation` 拆分、`dsh-app-boot` 删的 7 个导出（bundle 清单搬进了 `dsh-official-bundles`）、`session-log-deepseek` 与 `session-telemetry-otel`（隐私默认值的处置不变，§2）。发布说明里另有三条要在真机组合前评估：pi-ai 1.3.0（工具参数畸形的响应会在任何工具执行前中止整轮）、Web Fetch 接受非公网地址、关闭时的 Auto-permission 修复。
 
 ⇒ 要升，就是一次带迁移清单的单独升级，不是 `chore(dsh): bump`。
 
