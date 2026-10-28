@@ -211,6 +211,58 @@ describe('K6 · 参数校验', () => {
   })
 })
 
+describe('K6 · 技能规格级上下界带 1e-9 的相对容差（D-LIMITS-?）', () => {
+  /** 只有一个有量纲参数、带规格界的探针：规格界与全局包络的界相同，正是 `SetSetpoint` 的形状。 */
+  const bounded = (minValue: number, maxValue: number): Skill =>
+    probe({
+      spec: {
+        name: '_Probe',
+        description: '内核探针',
+        parameters: [{ name: 'setpoint_a', type: 'float', unit: 'A', required: true, minValue, maxValue }],
+      },
+    })
+  const run = (skill: Skill, value: unknown): ReturnType<SkillKernel['run']> =>
+    new SkillKernel(deps()).run(skill, { setpoint_a: value })
+
+  it('写成上限本身的 `100n`（解析出来比 1e-7 大 1 ulp）放行；真越界仍拒，文案印原界', async () => {
+    const sp = bounded(1e-12, 1e-7)
+    expect((await run(sp, '100n')).kind).toBe('ok')
+    const over = await run(sp, '100.5n')
+    expect(over.code).toBe('invalid_params')
+    expect(over.text).toContain('超过上限 1e-7 A')
+  })
+
+  it('下限一侧同样：`1p` 放行，`0.9p` 拒', async () => {
+    const sp = bounded(1e-12, 1e-7)
+    expect((await run(sp, '1p')).kind).toBe('ok')
+    const under = await run(sp, '0.9p')
+    expect(under.code).toBe('invalid_params')
+    expect(under.text).toContain('小于下限 1e-12 A')
+  })
+
+  it('容差向外放、按界的绝对值算：负界 [-1e-7, 1e-7] 上 `-100n` 放行、`-100.5n` 拒', async () => {
+    // min * (1 - slack) 会把负下界向内收，合法的 -100n 反而被拒
+    const sp = bounded(-1e-7, 1e-7)
+    expect((await run(sp, '-100n')).kind).toBe('ok')
+    const under = await run(sp, '-100.5n')
+    expect(under.code).toBe('invalid_params')
+    expect(under.text).toContain('小于下限')
+  })
+
+  it('界为 0 时容差为 0，哪怕只差 1e-30 也拒；没有声明的界不查', async () => {
+    expect((await run(bounded(0, 1e-6), 0)).kind).toBe('ok')
+    expect((await run(bounded(0, 1e-6), -1e-30)).code).toBe('invalid_params')
+    const open = probe({
+      spec: {
+        name: '_Probe',
+        description: '内核探针',
+        parameters: [{ name: 'setpoint_a', type: 'float', unit: 'A', required: true, minValue: null, maxValue: null }],
+      },
+    })
+    expect((await run(open, '100n')).kind).toBe('ok')
+  })
+})
+
 describe('K8 · 前置条件：不满足时先刷新再判', () => {
   it('缓存说不满足、刷新之后满足 ⇒ **放行**（1.8 修缓存那一半，这里修判定那一半）', async () => {
     let refreshed = false
