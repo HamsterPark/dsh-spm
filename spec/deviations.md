@@ -2595,6 +2595,19 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 布尔那一格是主动收紧（同 `scalarFloat` / `pyFloat`）：一个布尔型的 `z_recede_min_nm` 意味着
 宿主发错了东西，把它当成 `1.0 nm` 用比拒绝它更坏。变异 `profile-blank-string-becomes-zero` 钉着前者。
 
+## D-MOTORZ-? · MotorMove 的 Z 方向按档案声明换算；档案读不到时不发粗动 Z
+
+| | |
+|---|---|
+| **参考实现（7.1.0）** | 7.1.0 之前 `z-retract` 固定为 Z+（码 4）。7.1.0 起按档案声明换算；未声明时按 Z+ 并在结果里警告；读档案抛异常时不发 Z |
+| **本仓** | 声明与未声明同参考实现。**读不到档案（宿主没有接档案读口，或读口抛出）时不发任何粗动 Z**，横向照走 |
+| **测试** | `l0/motor-z-direction.test.ts`；`batch5b.json` 的 `motor_z/*`、`recover/*`（「读不到」格对应参考实现的异常路径，用只有退针方向读不出的档案对象重放；「宿主没接」与「整个读口抛出」只由单元测试覆盖）；`stm-safety` 的 `plugin.test.ts`（人闸与档案状态无关）；变异 `motor-z-*`、`retractdir-*`、`recover-step-log-reports-the-z-basis`、`recover-message-names-the-way` |
+
+理由：参考实现里档案永远存在，空档案等于「未声明」；本仓档案由宿主注入（D-PROF-1），「没接」是可以说出口的状态。
+出厂 z+ 是两个互斥答案之一，猜错的方向是朝样品，而 `z-retract` 不经人审。此刻没有任何生产入口接了档案，
+所以任何挂载 MotorMove / RecoverTipFromSaturation 的入口必须先接 `processInstrumentProfile.source` 并声明 `retract_motor_dir`。
+重新考虑所需的证据：宿主档案读口落地并经模拟器验收；有人对「未接档案时按 Z+ 走并警告」在仪器上的后果作出判断。
+
 ## D-CAL-1 · `ReadCalibrations` 的「标称 f₀/Q」**不移植**，而旧仓那两个字段恒为 `None`
 
 | | |

@@ -72504,6 +72504,355 @@
       ]
     }
   },
+  "motor_z/approach/declared_z_minus": {
+    "calls": [
+      {
+        "args": [
+          4,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-approach",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-approach",
+        "direction_code": 4,
+        "steps": 20,
+        "z_direction_basis": "declared_z-"
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {
+        "retract_motor_dir": "z-"
+      }
+    },
+    "verbs": {}
+  },
+  "motor_z/approach/declared_z_plus": {
+    "calls": [
+      {
+        "args": [
+          5,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-approach",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-approach",
+        "direction_code": 5,
+        "steps": 20,
+        "z_direction_basis": "declared_z+"
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {
+        "retract_motor_dir": "z+"
+      }
+    },
+    "verbs": {}
+  },
+  "motor_z/approach/undeclared": {
+    "calls": [
+      {
+        "args": [
+          5,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-approach",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-approach",
+        "direction_code": 5,
+        "steps": 20,
+        "warning": "本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明",
+        "z_direction_basis": "undeclared_nanonis_standard"
+      },
+      "error": "",
+      "success": true,
+      "summary": "MotorMove z-approach 20 步（方向码 5）。⚠ 本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明"
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {}
+    },
+    "verbs": {}
+  },
+  "motor_z/approach/unreadable": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-approach",
+      "steps": 20
+    },
+    "result": {
+      "data": {},
+      "error": "读不到本机的粗动退针方向配置 —— 方向不明，不发粗动 Z",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": "unreadable"
+    },
+    "verbs": {}
+  },
+  "motor_z/retract/declared_z_minus": {
+    "calls": [
+      {
+        "args": [
+          5,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-retract",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-retract",
+        "direction_code": 5,
+        "steps": 20,
+        "z_direction_basis": "declared_z-"
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {
+        "retract_motor_dir": "z-"
+      }
+    },
+    "verbs": {}
+  },
+  "motor_z/retract/declared_z_plus": {
+    "calls": [
+      {
+        "args": [
+          4,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-retract",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-retract",
+        "direction_code": 4,
+        "steps": 20,
+        "z_direction_basis": "declared_z+"
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {
+        "retract_motor_dir": "z+"
+      }
+    },
+    "verbs": {}
+  },
+  "motor_z/retract/junk_value": {
+    "calls": [
+      {
+        "args": [
+          4,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-retract",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-retract",
+        "direction_code": 4,
+        "steps": 20,
+        "warning": "本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明",
+        "z_direction_basis": "undeclared_nanonis_standard"
+      },
+      "error": "",
+      "success": true,
+      "summary": "MotorMove z-retract 20 步（方向码 4）。⚠ 本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明"
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {
+        "retract_motor_dir": "x+"
+      }
+    },
+    "verbs": {}
+  },
+  "motor_z/retract/undeclared": {
+    "calls": [
+      {
+        "args": [
+          4,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-retract",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "z-retract",
+        "direction_code": 4,
+        "steps": 20,
+        "warning": "本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明",
+        "z_direction_basis": "undeclared_nanonis_standard"
+      },
+      "error": "",
+      "success": true,
+      "summary": "MotorMove z-retract 20 步（方向码 4）。⚠ 本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明"
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": {}
+    },
+    "verbs": {}
+  },
+  "motor_z/retract/unreadable": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "direction": "z-retract",
+      "steps": 20
+    },
+    "result": {
+      "data": {},
+      "error": "读不到本机的粗动退针方向配置 —— 方向不明，不发粗动 Z",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": "unreadable"
+    },
+    "verbs": {}
+  },
+  "motor_z/x_plus/unreadable": {
+    "calls": [
+      {
+        "args": [
+          0,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "x+",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "x+",
+        "steps": 20
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "profile": "unreadable"
+    },
+    "verbs": {}
+  },
   "psd/bad_indices_json": {
     "calls": [
       {
@@ -73481,6 +73830,204 @@
       ]
     }
   },
+  "recover/basis_from_last_good_step": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "max_coarse_steps": 100
+    },
+    "result": {
+      "data": {
+        "coarse_steps_used": 20,
+        "current_after_a": 1.00036e-08,
+        "outcome": "not_recovered",
+        "steps": [
+          {
+            "current_a": 1.00036e-08,
+            "saturated": true,
+            "stage": "piezo_withdraw"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": 5,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 20,
+            "z_direction_basis": "declared_z-"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": null,
+            "error": "粗动被拒：本机粗动耐压未声明",
+            "ok": false,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 30,
+            "z_direction_basis": null
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": null,
+            "error": "粗动被拒：本机粗动耐压未声明",
+            "ok": false,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 50,
+            "z_direction_basis": null
+          }
+        ]
+      },
+      "error": "退了 20 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 本机声明的 Z−（方向码 5） 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 0
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "bias_v": 0.2
+        },
+        "skill": "SetBias"
+      },
+      {
+        "params": {},
+        "skill": "WithdrawTip"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 20
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 30
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 50
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      }
+    ],
+    "runs": {
+      "GetCurrent": [
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        }
+      ],
+      "MotorMove": [
+        {
+          "data": {},
+          "success": true
+        },
+        {
+          "data": {
+            "direction_code": 5,
+            "z_direction_basis": "declared_z-"
+          },
+          "success": true
+        },
+        {
+          "error": "粗动被拒：本机粗动耐压未声明",
+          "success": false
+        }
+      ],
+      "SetBias": [
+        {
+          "data": {},
+          "success": true
+        }
+      ],
+      "WithdrawTip": [
+        {
+          "data": {},
+          "success": true
+        }
+      ]
+    },
+    "skill": "RecoverTipFromSaturation",
+    "verbs": {}
+  },
   "recover/blocked_by_lock": {
     "calls": [],
     "clock_keys": [],
@@ -74201,6 +74748,498 @@
     "skill": "RecoverTipFromSaturation",
     "verbs": {}
   },
+  "recover/not_recovered_declared_z_minus": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "max_coarse_steps": 60
+    },
+    "result": {
+      "data": {
+        "coarse_steps_used": 50,
+        "current_after_a": 1.00036e-08,
+        "outcome": "not_recovered",
+        "steps": [
+          {
+            "current_a": 1.00036e-08,
+            "saturated": true,
+            "stage": "piezo_withdraw"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": 5,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 20,
+            "z_direction_basis": "declared_z-"
+          },
+          {
+            "cumulative": 50,
+            "current_a": 1.00036e-08,
+            "direction_code": 5,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 30,
+            "z_direction_basis": "declared_z-"
+          }
+        ]
+      },
+      "error": "退了 50 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 本机声明的 Z−（方向码 5） 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 0
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "bias_v": 0.2
+        },
+        "skill": "SetBias"
+      },
+      {
+        "params": {},
+        "skill": "WithdrawTip"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 20
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 30
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      }
+    ],
+    "runs": {
+      "GetCurrent": [
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        }
+      ],
+      "MotorMove": [
+        {
+          "data": {},
+          "success": true
+        },
+        {
+          "data": {
+            "direction_code": 5,
+            "z_direction_basis": "declared_z-"
+          },
+          "success": true
+        }
+      ],
+      "SetBias": [
+        {
+          "data": {},
+          "success": true
+        }
+      ],
+      "WithdrawTip": [
+        {
+          "data": {},
+          "success": true
+        }
+      ]
+    },
+    "skill": "RecoverTipFromSaturation",
+    "verbs": {}
+  },
+  "recover/not_recovered_declared_z_plus": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "max_coarse_steps": 60
+    },
+    "result": {
+      "data": {
+        "coarse_steps_used": 50,
+        "current_after_a": 1.00036e-08,
+        "outcome": "not_recovered",
+        "steps": [
+          {
+            "current_a": 1.00036e-08,
+            "saturated": true,
+            "stage": "piezo_withdraw"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": 4,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 20,
+            "z_direction_basis": "declared_z+"
+          },
+          {
+            "cumulative": 50,
+            "current_a": 1.00036e-08,
+            "direction_code": 4,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 30,
+            "z_direction_basis": "declared_z+"
+          }
+        ]
+      },
+      "error": "退了 50 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 本机声明的 Z+（方向码 4） 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 0
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "bias_v": 0.2
+        },
+        "skill": "SetBias"
+      },
+      {
+        "params": {},
+        "skill": "WithdrawTip"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 20
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 30
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      }
+    ],
+    "runs": {
+      "GetCurrent": [
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        }
+      ],
+      "MotorMove": [
+        {
+          "data": {},
+          "success": true
+        },
+        {
+          "data": {
+            "direction_code": 4,
+            "z_direction_basis": "declared_z+"
+          },
+          "success": true
+        }
+      ],
+      "SetBias": [
+        {
+          "data": {},
+          "success": true
+        }
+      ],
+      "WithdrawTip": [
+        {
+          "data": {},
+          "success": true
+        }
+      ]
+    },
+    "skill": "RecoverTipFromSaturation",
+    "verbs": {}
+  },
+  "recover/not_recovered_undeclared": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "max_coarse_steps": 60
+    },
+    "result": {
+      "data": {
+        "coarse_steps_used": 50,
+        "current_after_a": 1.00036e-08,
+        "outcome": "not_recovered",
+        "steps": [
+          {
+            "current_a": 1.00036e-08,
+            "saturated": true,
+            "stage": "piezo_withdraw"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 1.00036e-08,
+            "direction_code": 4,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 20,
+            "z_direction_basis": "undeclared_nanonis_standard"
+          },
+          {
+            "cumulative": 50,
+            "current_a": 1.00036e-08,
+            "direction_code": 4,
+            "error": "",
+            "ok": true,
+            "saturated": true,
+            "stage": "coarse_z",
+            "steps": 30,
+            "z_direction_basis": "undeclared_nanonis_standard"
+          }
+        ]
+      },
+      "error": "退了 50 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 Nanonis 标准 Z+（本机没声明退针方向） 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 0
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "bias_v": 0.2
+        },
+        "skill": "SetBias"
+      },
+      {
+        "params": {},
+        "skill": "WithdrawTip"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 20
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 30
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      }
+    ],
+    "runs": {
+      "GetCurrent": [
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        }
+      ],
+      "MotorMove": [
+        {
+          "data": {},
+          "success": true
+        },
+        {
+          "data": {
+            "direction_code": 4,
+            "z_direction_basis": "undeclared_nanonis_standard"
+          },
+          "success": true
+        }
+      ],
+      "SetBias": [
+        {
+          "data": {},
+          "success": true
+        }
+      ],
+      "WithdrawTip": [
+        {
+          "data": {},
+          "success": true
+        }
+      ]
+    },
+    "skill": "RecoverTipFromSaturation",
+    "verbs": {}
+  },
   "recover/not_saturated": {
     "calls": [],
     "clock_keys": [],
@@ -74354,6 +75393,179 @@
       "MotorMove": [
         {
           "data": {},
+          "success": true
+        }
+      ],
+      "SetBias": [
+        {
+          "data": {},
+          "success": true
+        }
+      ],
+      "WithdrawTip": [
+        {
+          "data": {},
+          "success": true
+        }
+      ]
+    },
+    "skill": "RecoverTipFromSaturation",
+    "verbs": {}
+  },
+  "recover/recovered_declared_z_minus": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "max_coarse_steps": 60
+    },
+    "result": {
+      "data": {
+        "by": "coarse_z",
+        "coarse_steps_used": 20,
+        "current_after_a": 4e-11,
+        "current_before_a": 1.00036e-08,
+        "message": "粗动 Z 退 20 步后电流 4e-11 A，脱离饱和。**针尖已远离样品，要继续工作需重新进针。**",
+        "outcome": "recovered",
+        "steps": [
+          {
+            "current_a": 1.00036e-08,
+            "saturated": true,
+            "stage": "piezo_withdraw"
+          },
+          {
+            "cumulative": 20,
+            "current_a": 4e-11,
+            "direction_code": 5,
+            "error": "",
+            "ok": true,
+            "saturated": false,
+            "stage": "coarse_z",
+            "steps": 20,
+            "z_direction_basis": "declared_z-"
+          }
+        ]
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 0
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "bias_v": 0.2
+        },
+        "skill": "SetBias"
+      },
+      {
+        "params": {},
+        "skill": "WithdrawTip"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {
+          "direction": "z-retract",
+          "steps": 20
+        },
+        "skill": "MotorMove"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      },
+      {
+        "params": {},
+        "skill": "GetCurrent"
+      }
+    ],
+    "runs": {
+      "GetCurrent": [
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 1.00036e-08
+          },
+          "success": true
+        },
+        {
+          "data": {
+            "current_a": 4e-11
+          },
+          "success": true
+        }
+      ],
+      "MotorMove": [
+        {
+          "data": {},
+          "success": true
+        },
+        {
+          "data": {
+            "direction_code": 5,
+            "z_direction_basis": "declared_z-"
+          },
           "success": true
         }
       ],

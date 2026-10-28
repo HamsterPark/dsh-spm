@@ -9,7 +9,7 @@
  *   人从命令路径发起才走「问一次」。这里的实现不重复那道闸——
  *   **一道闸只能有一个实现**，两份就会有两个答案。
  */
-import { type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
+import { readRetractDir, type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { fail, ok } from './common.js'
 import { COARSE_AMP_UNDECLARED } from './reads-hw.js'
@@ -111,14 +111,54 @@ export const EmergencyRetract: Skill = {
 
 // ── 硬闸七件套 ──────────────────────────────────────────────────────────────
 
-/** 方向串 → Nanonis 的方向码。**z-approach 是 5，z-retract 是 4**。 */
-const DIR_MAP: Readonly<Record<string, number>> = {
+/**
+ * 方向串 → Nanonis 的方向码（0 = X+、1 = X−、2 = Y+、3 = Y−、4 = Z+、5 = Z−）。
+ *
+ * 横向四个是定值。两个 Z 标签是**语义**的：`z-retract` = 远离样品，`z-approach` = 朝样品
+ * （人闸 `isCoarseSampleApproach` 认的是这个标签，不看方向码）。它们按本机声明的退针方向
+ * 换算成 Z+ / Z−，见 {@link motorZCodes}，所以这里是 `null`；键不能删，
+ * 未知方向的报错要列出全部 6 个名字。
+ */
+const DIR_MAP: Readonly<Record<string, number | null>> = {
   'x+': 0,
   'x-': 1,
   'y+': 2,
   'y-': 3,
-  'z-retract': 4,
-  'z-approach': 5,
+  'z-retract': null,
+  'z-approach': null,
+}
+
+const Z_PLUS = 4
+const Z_MINUS = 5
+
+export const RETRACT_DIR_UNDECLARED_WARNING =
+  '本机没声明粗动退针方向，按 Nanonis 标准 Z+ 视为远离样品；请在 设置 → 退针 → 退针方向 里声明'
+export const Z_DIR_UNREADABLE = '读不到本机的粗动退针方向配置 —— 方向不明，不发粗动 Z'
+
+type ZBasis = 'declared_z+' | 'declared_z-' | 'undeclared_nanonis_standard'
+type ZCodes =
+  | { readonly ok: true; readonly retract: number; readonly approach: number; readonly basis: ZBasis }
+  | { readonly ok: false }
+
+/**
+ * 本机两个 Z 标签的方向码与依据；档案读不到时 `ok: false`，那时一个 Z 动词也不发。
+ *
+ * - 声明过：`z-retract` = 声明的方向码，`z-approach` = 另一个；
+ * - 没声明：按 Nanonis 标准（Z+ 远离样品），结果里带一句请去声明的警告。
+ *
+ * 读不到时**没有保守默认**：出厂 z+ 是两个互斥答案之一，在 z− 退针的机器上
+ * `z-retract` 就是朝样品，而它不经人审（D-MOTORZ）。
+ */
+export function motorZCodes(): ZCodes {
+  const d = readRetractDir()
+  if (d.state === 'unreadable') return { ok: false }
+  if (d.state === 'declared' && d.code === Z_MINUS) {
+    return { ok: true, retract: Z_MINUS, approach: Z_PLUS, basis: 'declared_z-' }
+  }
+  if (d.state === 'declared') {
+    return { ok: true, retract: Z_PLUS, approach: Z_MINUS, basis: 'declared_z+' }
+  }
+  return { ok: true, retract: Z_PLUS, approach: Z_MINUS, basis: 'undeclared_nanonis_standard' }
 }
 
 export const MotorMove: Skill = {
@@ -130,11 +170,23 @@ export const MotorMove: Skill = {
     // **不认识的方向就大声失败**，绝不默默按 X+ 走。
     // `allowed_values` 现在盖住了执行器与 composite 那两条路，但一次
     // 直接 execute 带着拼错的方向，不能把粗动马达送上另一根轴（2026-07-03 复查）。
-    if (!(direction in DIR_MAP)) {
+    if (!Object.hasOwn(DIR_MAP, direction)) {
       return fail(
         `unknown motor direction '${direction}'; expected one of ` +
           `${JSON.stringify(Object.keys(DIR_MAP).sort())}`,
       )
+    }
+
+    // 两个 Z 标签按本机声明的退针方向换算；读不到档案就拒绝，一个 Z 动词也不发。
+    let dirCode = DIR_MAP[direction] ?? null
+    const zInfo: Record<string, unknown> = {}
+    if (dirCode === null) {
+      const z = motorZCodes()
+      if (!z.ok) return fail(Z_DIR_UNREADABLE)
+      dirCode = direction === 'z-retract' ? z.retract : z.approach
+      zInfo['direction_code'] = dirCode
+      zInfo['z_direction_basis'] = z.basis
+      if (z.basis === 'undeclared_nanonis_standard') zInfo['warning'] = RETRACT_DIR_UNDECLARED_WARNING
     }
 
     // 横向粗动**拖着针尖横着走**。刚做完 STS 时 Z 控制器是关的，但针尖仍在表面
@@ -151,9 +203,14 @@ export const MotorMove: Skill = {
       }
     }
 
-    const rec = await ctx.safeCall('Motor_StartMove', DIR_MAP[direction], steps, 0, 1)
+    const rec = await ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)
     if (rec.error !== undefined && rec.error !== '') return fail(rec.error)
-    return ok({ direction, steps })
+    return ok(
+      { direction, steps, ...zInfo },
+      'warning' in zInfo
+        ? `MotorMove ${direction} ${steps} 步（方向码 ${dirCode}）。⚠ ${RETRACT_DIR_UNDECLARED_WARNING}`
+        : undefined,
+    )
   },
 }
 

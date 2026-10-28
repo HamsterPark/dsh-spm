@@ -1,5 +1,5 @@
 /**
- * 批 5b 的**判据**金样比对 —— `spec/golden/batch5b.json` 的 71 格逐条重放。
+ * 批 5b 的**判据**金样比对 —— `spec/golden/batch5b.json` 的 89 格逐条重放。
  *
  * 与 `traces.test.ts` 的分工：
  *
@@ -56,6 +56,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   emptyHardwareState,
+  processInstrumentProfile,
   slowCallFrom,
   type Skill,
   type SkillCallRecord,
@@ -80,6 +81,8 @@ interface Case {
   readonly verbs: Record<string, VerbReply[]>
   readonly runs: Record<string, RunReply[]>
   readonly clock_keys: string[]
+  /** 这一格的档案（`motor_z/*`）：一份档案对象，或 `"unreadable"`。没有这个键 = 宿主没接档案。 */
+  readonly state?: { readonly profile?: Record<string, unknown> | 'unreadable' }
   readonly calls: { verb: string; args: unknown[]; error: string | null }[]
   readonly run_log: { skill: string; params: Record<string, unknown> }[]
   readonly result: {
@@ -197,6 +200,21 @@ function scriptedCtx(c: Case): Recorded {
  */
 const PSD_IGNORED: Readonly<Record<string, string>> = { 'psd/bad_indices_json': '0,2,5' }
 
+/**
+ * 参考实现的 `"unreadable"` 只是读退针方向的那个函数抛异常，接线配置照常可读。本仓只有一个读口，
+ * 所以用「只在取 `retract_motor_dir` 时抛」的档案对象来对应；整个读口抛出由单元测试覆盖。
+ */
+function retractDirUnreadable(): Record<string, unknown> {
+  const o: Record<string, unknown> = {}
+  Object.defineProperty(o, 'retract_motor_dir', {
+    enumerable: true,
+    get(): never {
+      throw new Error('profile unreadable')
+    },
+  })
+  return o
+}
+
 /** 执行器的时刻台账不是判据（两侧的钟本来就不同量级）。 */
 const PROGRESS_VOLATILE = new Set(['started_at', 'last_update_at'])
 
@@ -269,7 +287,16 @@ describe('批 5b 判据金样：脚本化上下文逐格重放', () => {
       const skill = IMPLEMENTED[c.skill] as Skill | undefined
       expect(skill, `${c.skill} 没在 IMPLEMENTED 里`).toBeDefined()
       const { ctx, calls, runs } = scriptedCtx(c)
-      const got = await (skill as Skill).execute(ctx, c.params)
+      // 档案是进程级的：每格自己装、自己复位，否则后一格会因为前一格声明过 z− 而绿。
+      const p = c.state?.profile
+      processInstrumentProfile.source =
+        p === undefined ? null : p === 'unreadable' ? () => retractDirUnreadable() : () => p
+      let got: SkillResultLike
+      try {
+        got = await (skill as Skill).execute(ctx, c.params)
+      } finally {
+        processInstrumentProfile.source = null
+      }
 
       expect(calls.map((x) => [x.verb, x.args])).toEqual(
         c.calls.map((x) => [x.verb, x.args]),
