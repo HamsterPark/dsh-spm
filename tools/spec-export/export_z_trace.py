@@ -28,12 +28,11 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 from typing import Any
 
 # 旧仓是**只读规格书**。`project_root()` 读不到 MAST2_PROJECT_ROOT 就退回仓根 ——
@@ -42,7 +41,7 @@ from typing import Any
 # （2026-09-19 核出来的；另三台没钉是因为它们根本不 import mast）。
 # 补上之后实测重跑逐字节相同 —— 也就是说这道钉子今天什么都没挡住，
 # **而它存在的理由正是「今天没挡住」不等于「明天不会」。**
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-z-trace-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-z-trace-"))
 
 MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]

@@ -29,10 +29,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _paths import project_root_forms, require_mast_root
+from _paths import isolated_project_root, project_root_forms, require_mast_root
 from typing import Any
 
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-spec-export-"))
 
 #: 脚本白名单的文件名（与 `mast.skills.builtins.nanonis_script._CONFIG_NAME` 同名）。
 _CONFIG_NAME = "nanonis_scripts.json"

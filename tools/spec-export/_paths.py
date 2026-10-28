@@ -37,6 +37,66 @@ def require_vista_spm_root() -> Path:
     return require_directory("VISTA_SPM_ROOT", "read-only VISTA-SPM source root")
 
 
+def _reference_trees() -> list[Path]:
+    """Directories that must not hold the reference's project root, at any depth.
+
+    `MAST_ROOT` holds the `mast` package; its parent is the checkout or the runner's snapshot, and that
+    parent is where the reference keeps its data when `MAST2_PROJECT_ROOT` is empty (`project_root()`
+    in `mast/_runtime_paths.py`). `MAST_REPO` names the checkout the runner archives.
+    """
+    trees = []
+    mast_root = os.environ.get("MAST_ROOT", "").strip()
+    if mast_root:
+        trees.append(Path(mast_root).expanduser().resolve().parent)
+    repo = os.environ.get("MAST_REPO", "").strip()
+    if repo:
+        trees.append(Path(repo).expanduser().resolve())
+    return trees
+
+
+def project_root_refusal() -> str | None:
+    """Why the reference must not run with the current `MAST2_PROJECT_ROOT`, or `None` when it may.
+
+    Unset, empty or blank, the reference finds nothing (it strips the value) and falls back to its own
+    tree, where exporters clear the reference's progress files; `os.environ.setdefault` keeps an empty
+    value. A value is resolved the way the reference resolves it.
+    """
+    raw = os.environ.get("MAST2_PROJECT_ROOT")
+    if raw is None:
+        return "MAST2_PROJECT_ROOT is not set, so the reference would fall back to its own tree"
+    if not raw.strip():
+        return "MAST2_PROJECT_ROOT is empty or blank, so the reference would fall back to its own tree"
+    root = Path(raw.strip()).resolve()
+    for tree in _reference_trees():
+        if root.is_relative_to(tree):
+            return f"MAST2_PROJECT_ROOT {root} is inside the reference tree {tree}"
+    return None
+
+
+def _refuse_unsafe_project_root() -> None:
+    reason = project_root_refusal()
+    if reason is not None:
+        raise SystemExit(f"refused: {reason}")  # exit status 1, the message on stderr
+
+
+def isolated_project_root(fallback: str) -> str:
+    """`os.environ.setdefault("MAST2_PROJECT_ROOT", fallback)`, then a refusal when the value the
+    reference will use is one it must not use.
+
+    Exporters call it before they import the reference. The runner sets one directory per exporter; an
+    exporter run on its own falls back to a temporary directory of its own.
+    """
+    root = os.environ.setdefault("MAST2_PROJECT_ROOT", fallback)
+    _refuse_unsafe_project_root()
+    return root
+
+
+# Also at import, for a value already set: exporters import this module before they touch anything, so
+# such a value stops them before even the temporary directory they pass as `fallback` is made.
+if "MAST2_PROJECT_ROOT" in os.environ:
+    _refuse_unsafe_project_root()
+
+
 def project_root_forms(raw: str) -> list[str]:
     """Spellings of an isolated project root that an exporter replaces with a placeholder.
 

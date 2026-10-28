@@ -76,18 +76,16 @@ from __future__ import annotations
 
 import ast
 import json
-import os
 import tempfile
 from collections.abc import Mapping
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 from typing import Any
 
 #: 红线：旧仓只读。真要有哪一行 import 到旧仓运行时，它写文件也只会写进这个空临时目录。
 #: （本导出器纯 `ast`，一行旧仓代码都不执行 —— 这一句是**结构性**的保险，不是必需品。）
-os.environ.setdefault(
-    "MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="dsh-spm-tip-phase-deps-"))
+isolated_project_root(tempfile.mkdtemp(prefix="dsh-spm-tip-phase-deps-"))
 
 MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]

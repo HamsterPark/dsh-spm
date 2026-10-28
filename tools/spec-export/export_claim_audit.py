@@ -30,9 +30,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-spec-export-"))
 
 MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "claim_audit.json"
