@@ -6,7 +6,17 @@
  *
  * 看门狗与急停在课时 1.9，stmsim/fake provider 在 1.7。
  */
-import { CommsCircuitBreaker, formatCommsDown, type BreakerSnapshot } from 'dsh-spm-kernel'
+import {
+  CONNECT_FAILED,
+  CommsCircuitBreaker,
+  ModuleOpenGrace,
+  formatCommsDown,
+  resendIsSafe,
+  transportOfKind,
+  withNotResentHint,
+  type BreakerSnapshot,
+  type TransportInfo,
+} from 'dsh-spm-kernel'
 import {
   RoleLink,
   RoleLinkError,
@@ -49,6 +59,12 @@ export interface CallRecord {
   readonly at: number
   /** 是否为模拟器。真机与模拟器**只差这一位**，rigGuard 据此拒绝（PLAN §7.1）。 */
   readonly simulated: boolean
+  /**
+   * 这次失败发生在**传输层**（超时、空回包、回声不符、socket 出错、没连上），不是控制器答了一个错误。
+   * 只有 `RoleLinkError` 会带它：忙锁、熔断短路、仪器拒绝、编码出错、宿主合成的记录都不带。
+   * 谱学技能据此对幂等调用隔一会儿重做一次（`l0/idempotent.ts`）；这一层一律不重发。
+   */
+  readonly transport?: TransportInfo | undefined
 }
 
 export interface CallOptions {
@@ -82,6 +98,8 @@ export class InstrumentService extends Service {
   private readonly recordListeners = new Set<(r: CallRecord) => void>()
   /** **四个角色共用一个**熔断器——链路是一条，不是四条（PLAN §7.1）。 */
   readonly breaker: CommsCircuitBreaker
+  /** 模块首次加载的宽限：`*_Open` 与同角色紧跟它的那一条多等一会儿。与熔断器用同一个时钟。 */
+  private readonly grace: ModuleOpenGrace
   readonly simulated: boolean
   readonly typed: NanonisFacade
 
@@ -95,7 +113,9 @@ export class InstrumentService extends Service {
     this.ports = { ...DEFAULT_PORTS, ...config.ports }
     this.simulated = config.simulated ?? false
     this.createLink = config.createLink ?? ((_role, port) => new RoleLink({ port }))
-    this.breaker = new CommsCircuitBreaker(config.clock ? { clock: config.clock } : {})
+    const clock = config.clock ?? ((): number => performance.now() / 1000)
+    this.breaker = new CommsCircuitBreaker({ clock })
+    this.grace = new ModuleOpenGrace(clock)
     this.typed = createFacade(async (command, args, returns) => {
       const method = Object.keys(this.methods).find((m) => this.methods[m]!.command === command)
       const rec = await this.callRaw(method ?? command, command, args, returns, {})
@@ -168,12 +188,16 @@ export class InstrumentService extends Service {
       link = await this.linkFor(role)
     } catch (e) {
       if (countHealth) this.breaker.recordFailure((e as Error).message)
-      return done({ error: (e as Error).message })
+      // 连不上：命令没发出去。只有传输层自己的连接失败才算传输失败；宿主在建连时做的检查
+      // （例如原生模拟器的身份校验）拒绝的不算。
+      return done({ error: (e as Error).message, ...(e instanceof RoleLinkError ? { transport: CONNECT_FAILED } : {}) })
     }
 
+    // 模块首次加载的宽限：`*_Open` 与同角色紧跟它的那一条至少等 30 s。只延长等待，不重发。
+    const timeoutMs = this.grace.budgetMs(role, method, opts.timeoutMs)
     try {
       const body = await link.request(command, encodeArgs(args), {
-        ...(opts.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
+        ...(timeoutMs !== undefined ? { timeoutMs } : {}),
         ...(opts.lockTimeoutMs !== undefined ? { waitMs: opts.lockTimeoutMs } : {}),
       })
       // **一次完整往返 = 链路成功**，哪怕仪器说「模块没加载」（1.5 的 app-error 规则）
@@ -184,18 +208,30 @@ export class InstrumentService extends Service {
       const rejected = errorOnlyBody(body)
       if (rejected !== null) {
         if (rejected.status !== 0) return done({ error: `NanonisError: ${rejected.description}` })
+        this.grace.noteSuccess(role, method)
         return done({ values: [] }) // 无返回字段的方法：成功也是 error-only 形状
       }
 
       const { values, errorSection } = decodeReturns(body, returns)
       const err = parseErrorSection(errorSection)
       if (err.status !== 0) return done({ error: `NanonisError: ${err.description}` })
+      this.grace.noteSuccess(role, method)
       return done({ values })
     } catch (e) {
+      const message = (e as Error).message
+      // 这一层对任何命令都不重发（见 spec/deviations.md D-CONN-?）。命令可能已经送达、而它每到
+      // 一次就做一次事时，在错误里说清楚，让调用方先读状态再决定。只有 `RoleLinkError` 带标记：
+      // 编码出错之类的异常重做也没用。
+      const transport = e instanceof RoleLinkError ? transportOfKind(e.kind) : undefined
+      const error =
+        transport?.maybeDelivered === true && !resendIsSafe(method, args.map((a) => a.value))
+          ? withNotResentHint(message)
+          : message
       const kind = e instanceof RoleLinkError ? e.kind : 'SocketError'
-      // `RoleBusy` 是「现在有人在用」，不是链路坏了——不记熔断，否则一次并发争抢就能熔断链路
-      if (countHealth && kind !== 'RoleBusy') this.breaker.recordFailure((e as Error).message)
-      return done({ error: (e as Error).message })
+      // `RoleBusy` 是「现在有人在用」，不是链路坏了——不记熔断，否则一次并发争抢就能熔断链路。
+      // 熔断记的是原文：提示只给调用方看，不该进 `lastReason`。
+      if (countHealth && kind !== 'RoleBusy') this.breaker.recordFailure(message)
+      return done({ error, ...(transport === undefined ? {} : { transport }) })
     }
   }
 

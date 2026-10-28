@@ -5,6 +5,8 @@ Phase 2 是整个项目的承重墙——后面 400 多个技能全部穿过同�
 
 驱动的是**旧仓真实实现** `mast/core/safety.py` 与 `mast/core/execution_context.py`：
 表直接读出来，判定逐条真跑。TS 侧 `packages/host/kernel/src/safety*.ts` 对着比。
+另录 `mast/core/connection.py` 的重发分类 `resend_is_safe`（TS 侧 `transport-policy.ts`）；
+import 它会连带 import `nanonis_spm`，那是参考实现自己的运行依赖。
 
 Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
 
@@ -36,6 +38,7 @@ OUT = SPEC / "golden" / "safety.json"
 sys.path.insert(0, str(MAST_ROOT))
 from mast.config import SafetyLimits  # noqa: E402
 from mast.core import safety as sf  # noqa: E402
+from mast.core.connection import resend_is_safe  # noqa: E402
 from mast.core import execution_context as ec  # noqa: E402
 from mast.core import sample_gate as sg  # noqa: E402
 from mast.core.types import OperatingMode, ParameterSpec, SkillMetadata  # noqa: E402
@@ -193,6 +196,25 @@ ABORT_CASES: list[tuple[str, list]] = [
 ]
 
 
+# ── 可能已经送达的命令能不能再发一次：按第一个实参判的那两个动词 ────────────────
+# 全部动词在无实参时的判定见 `resend_safe`；这里补第一个实参「读得出 / 读不出」的几格。
+RESEND_ARG0_CASES: list[tuple[str, list]] = [
+    ("Scan_Action", [0, 0]),               # 起扫 ⇒ 不可重发
+    ("Scan_Action", [1, 0]),               # 停
+    ("Scan_Action", [2, 0]),               # 暂停
+    ("Scan_Action", [3, 0]),               # 继续 ⇒ 不可重发
+    ("Scan_Action", []),                   # 实参缺失 ⇒ 读不出 ⇒ 不可重发
+    ("Scan_Action", ["start"]),            # 读不出
+    ("AutoApproach_OnOffSet", [1]),        # 开 ⇒ 不可重发
+    ("AutoApproach_OnOffSet", [True]),     # int(True) == 1
+    ("AutoApproach_OnOffSet", [0]),        # 关
+    ("AutoApproach_OnOffSet", [None]),     # 读不出
+    ("AutoApproach_OnOffSet", [1.9]),      # int(1.9) == 1
+    ("AutoApproach_OnOffSet", ["1"]),      # int("1") == 1
+    ("AutoApproach_OnOffSet", ["1.0"]),    # int("1.0") 是 ValueError ⇒ 读不出
+]
+
+
 
 # ── 样品门控（四张表 + 判定顺序 + 两句拒绝文案） ─────────────────────────────
 # **fail-open**，与 instrument_lock 的 fail-closed 刻意相反：
@@ -293,6 +315,14 @@ def main() -> int:
         "read": sum(1 for m in method_names if ec._is_read(m)),
     }
 
+    # 可能已经送达的命令能不能再发一次：全部动词在无实参时的判定，加上按第一个实参判的那几格。
+    # TS 侧的连接层不重发，这张表只决定「可能已执行」的提示与谱学技能的幂等重做。
+    out["resend_safe"] = {m: resend_is_safe(m, ()) for m in method_names}
+    out["resend_arg0_cases"] = [
+        {"method": m, "args": list(a), "safe": resend_is_safe(m, tuple(a))}
+        for m, a in RESEND_ARG0_CASES
+    ]
+
     out["absurd_cases"] = [
         {
             "case": c["case"],
@@ -351,6 +381,8 @@ def main() -> int:
     print(f"       limits {len(out['limits'])} 字段 · global_checks {len(out['global_checks'])} 行 · "
           f"physical_absurd {len(out['physical_absurd'])} 行")
     print(f"       is_read {out['is_read_summary']['read']}/{out['is_read_summary']['total']} 判为读")
+    print(f"       resend_safe {sum(1 for v in out['resend_safe'].values() if not v)}/{len(out['resend_safe'])} "
+          f"不可重发 · resend_arg0 {len(out['resend_arg0_cases'])} 格")
     print(f"       absurd {len(out['absurd_cases'])} · hard_gate {len(out['hard_gate_cases'])} · "
           f"capability {len(out['capability_cases'])} · mode {len(out['mode_refusal_cases'])} · "
           f"abort {len(out['abort_cases'])} · abort_safe_writes {len(out['abort_safe_writes'])} 条")

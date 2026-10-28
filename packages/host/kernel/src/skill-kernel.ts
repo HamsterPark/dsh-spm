@@ -21,6 +21,7 @@ import type { HardwareState } from './hardware-state.js'
 import { checkStatePreconditions, type ComputedCheck } from './preconditions.js'
 import { SIParseError, parseQuantity } from './si.js'
 import { isStrictParam, siParams } from './tool-schema.js'
+import type { TransportInfo } from './transport-policy.js'
 
 // ── 契约类型 ────────────────────────────────────────────────────────────────
 
@@ -99,6 +100,11 @@ export interface SkillCallRecord {
   readonly args: readonly unknown[]
   readonly values?: readonly unknown[] | undefined
   readonly error?: string | undefined
+  /**
+   * 失败发生在传输层时由仪器层带上（`transport-policy.ts`）。没有它的错误一律不重试：
+   * 控制器的应答、中止门的拒绝、测试替身的记录都不带它。
+   */
+  readonly transport?: TransportInfo | undefined
 }
 
 /** 技能发一次仪器调用。对应旧仓的 `context.safe_call`。 */
