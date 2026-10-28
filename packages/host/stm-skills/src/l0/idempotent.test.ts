@@ -76,6 +76,7 @@ describe('谱学技能的幂等重做', () => {
       'BiasSpectr_Open',
       'BiasSpectr_LimitsSet',
       'BiasSpectr_LimitsSet',
+      'BiasSpectr_PropsGet', // 读当前扫掠数（D-STS-?）
       'BiasSpectr_PropsSet',
       'BiasSpectr_AdvPropsSet',
     ])
@@ -171,6 +172,17 @@ describe('谱学技能的幂等重做', () => {
     expect(got.error).toMatch(/^abort_latched:/)
     expect(got.error).not.toContain('retried once')
     expect(f.sent).toEqual(['BiasSpectr_Open', 'BiasSpectr_LimitsSet'])
+  })
+
+  it('R10 ConfigureSTS 读当前扫掠数的 PropsGet 传输层失败一次 ⇒ 停 1 s 重读，读到的值照样写回', async () => {
+    const f = scripted({
+      BiasSpectr_PropsGet: [transportFail('Timeout: BiasSpectr.PropsGet 没回'), { values: [0, 8, 1, 200] }],
+    })
+    const got = await ConfigureSTS.execute(f.ctx, STS)
+    expect(got.success, got.error).toBe(true)
+    expect(f.sent.filter((v) => v === 'BiasSpectr_PropsGet')).toHaveLength(2)
+    expect(f.sleeps).toEqual([IDEMPOTENT_RETRY_PAUSE_MS])
+    expect(got.data).toMatchObject({ num_sweeps: 8, num_sweeps_source: 'preserved' })
   })
 
   it('R8 纵深防御：有人把不可重发的命令包进来，带标记的失败也不重做', async () => {

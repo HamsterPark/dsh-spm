@@ -1572,6 +1572,16 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 **「没设上」不是「设成了 false」。** 一个宣称了 Z-Ctrl Hold、而那个寄存器根本没碰过的
 返回值，正是这一族最想避免的东西（同 D-LOCKIN-1 的 `phase_deg: 0.0`、D-ZERO-1 的反面）。
 
+## D-STS-? · `ConfigureSTS` 不再把扫掠数打回 1：先读回再原样写（参考 v7.1.0 写死 1）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | `BiasSpectr_PropsSet` 的扫掠数写死为 1，操作员在 Nanonis 里设的多次平均每配置一次就被重置一次。参考仓之后的提交 `7ae1061b` 改为：缺省先 `BiasSpectr_PropsGet` 读回当前值（`var[1]`，≥ 1 才算数，读法包在幂等重试里）并原样写回；读不到时退回 1 并标 `num_sweeps_source = fallback_unreadable`；同时新增 `num_sweeps` 参数（≥ 1 时显式覆盖） |
+| **本仓** | 照这次修复的**缺省行为**走：PropsSet 之前读回扫掠数（`BiasSpectr_PropsGet`，传输层失败时与同技能的其它步骤一样隔 1 s 重读一次），读到 ⇒ 原样写、`preserved`；读不到或不是 ≥ 1 的数 ⇒ 写 1、`fallback_unreadable`。`data` 多 `num_sweeps`、`num_sweeps_source`，调用序列多一发 `BiasSpectr_PropsGet`。参考新增的 `num_sweeps` 参数**没有加**：本仓的技能规格由参考金样生成，等重钉时一并进来，所以也没有 `override` 这一种来源 |
+| **测试** | `l0/spectroscopy.test.ts`（保持、读不到、读到 0、回包不到两项、按整数截）；`l0/idempotent.test.ts` R10；`l0/traces.test.ts` 的 `ConfigureSTS/*` 四格登记（`faultAt` / `extra`）；变异 `configure-sts-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，参数随规格进来，轨迹登记一并删掉。
+
 ## D-LANG-2 · `pyRound`：`round(x, n)` 是**银行家舍入、按精确值算**
 
 语言分歧一族的**第七个**（前六：`pyFloatRepr` / `formatG` / `pyStr` / `pyMod` / `pySum` /

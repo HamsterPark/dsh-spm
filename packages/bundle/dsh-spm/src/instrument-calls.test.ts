@@ -243,6 +243,7 @@ describe('传输失败标记从仪器层一路传到技能', () => {
       'BiasSpectr.Open',
       'BiasSpectr.LimitsSet',
       'BiasSpectr.LimitsSet',
+      'BiasSpectr.PropsGet', // 读当前扫掠数（D-STS-?）
       'BiasSpectr.PropsSet',
       'BiasSpectr.AdvPropsSet',
     ])
