@@ -242,6 +242,22 @@ describe('把状态送进模型的两条路', () => {
     ctx.registry.delete(instrumentStateProvider)
   })
 
+  // 控制器名是仪器回报的字符串。插值的话，登记过的变量（persona 就用 `{{model}}`）会被悄悄换掉，
+  // 没登记的会让组装抛错——而组装每一轮都要跑。
+  it('控制器名里的 {{…}} 原样进提示——实时状态块不做提示变量插值', async () => {
+    const ctx = new Context()
+    const { fake } = host(ctx)
+    fake.reply = { ...fake.reply, ZCtrl_CtrlListGet: [2, 2, ['{{model}}', '{{oops}}'], 0] }
+    ctx.plugin(instrumentStateProvider, { intervalMs: 0 })
+    const svc = await stateOf(ctx)
+    await svc.refresh()
+    ctx.systemPrompt.variable('model', () => 'deepseek-flash')
+
+    const ours = renderContextSections(await ctx.systemPrompt.assemble()).find((s) => s.name === LIVE_STATE_NAME)
+    expect(ours?.text).toContain("- Active Z controller: '{{model}}' (index 0 of 2; available: {{model}}, {{oops}})")
+    ctx.registry.delete(instrumentStateProvider)
+  })
+
   it('stm_get_state 注册进工具表，跑一次是真去读而不是回缓存', async () => {
     const ctx = new Context()
     const { fake, tools } = host(ctx)

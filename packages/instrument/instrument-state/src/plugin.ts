@@ -132,6 +132,9 @@ export function apply(ctx: Context, config: Config = {}): void {
       order: LIVE_STATE_ORDER,
       // 关掉「可选运行时上下文」的组合（Web 的 minimal preset、sdk-minimal）仍要留住实时状态：它是安全相关内容。
       required: true,
+      // 块里有仪器回报的字符串（Z 控制器名）。dsh 缺省会对 context 文本做 `{{变量}}` 插值：
+      // 名字里碰巧有 `{{…}}` 时，要么被换成别的值，要么让每一轮组装都抛错。原样送出。
+      interpolate: false,
       // 空快照渲染成空串，dsh 那侧空文本的 context 不贡献任何东西——不用自己判空。
       text: () => formatLiveState(svc.snapshot()),
     }),
