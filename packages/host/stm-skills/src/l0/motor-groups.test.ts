@@ -16,6 +16,12 @@ import {
   type SkillContext,
 } from 'dsh-spm-kernel'
 import { MotorGetPos } from './reads-hw.js'
+import {
+  ConfigureDigitalLine,
+  GetDigitalLineTTL,
+  PulseDigitalLine,
+  SetDigitalLineStatus,
+} from './user-output.js'
 import { MotorMoveClosedLoop } from './writes-gated.js'
 
 const S0 = emptyHardwareState('T0')
@@ -279,5 +285,159 @@ describe('MotorMoveClosedLoop · group 缺省是配置的组，给了别的组�
     const r = rig({ Motor_StartClosedLoop: null })
     const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
     expect(got).toEqual({ success: false, error: '模拟故障：连接被对端关闭' })
+  })
+})
+
+// ── 三个数字口写技能：保留口 ────────────────────────────────────────────────
+
+const RESERVED_REASON = '测试用的保留口'
+const RESERVED_A = { reserved_digital_ports: [{ port: 0, reason: RESERVED_REASON }] }
+
+/** 参考实现 `motor_groups.py:350-352` 逐字。 */
+function reservedText(label: string, port: number): string {
+  return (
+    `拒绝写 ${label}（port=${port}）：本机配置把它列为保留数字口 —— ${RESERVED_REASON}。` +
+    '误写它的方向位、电平或脉冲可能让接在上面的设备误动作；不会截断，也不会改用别的口。'
+  )
+}
+
+/** 三个写技能：合法参数（口可换）、以及没被拒时该下发的那一条。 */
+const DIGITAL_WRITES = [
+  {
+    name: 'PulseDigitalLine',
+    skill: PulseDigitalLine,
+    params: (port: unknown) => ({ port, lines: '1,2', pulse_width_s: 0.01 }),
+    sent: (port: number) => ({ verb: 'DigLines_Pulse', args: [port, [1, 2], 0.01, 0.001, 1, 1] }),
+  },
+  {
+    name: 'SetDigitalLineStatus',
+    skill: SetDigitalLineStatus,
+    params: (port: unknown) => ({ port, line: 1, status: true }),
+    sent: (port: number) => ({ verb: 'DigLines_OutStatusSet', args: [port, 1, 1] }),
+  },
+  {
+    name: 'ConfigureDigitalLine',
+    skill: ConfigureDigitalLine,
+    params: (port: unknown) => ({ line: 1, port, direction: 1, polarity: 1 }),
+    sent: (port: number) => ({ verb: 'DigLines_PropsSet', args: [1, port, 1, 1] }),
+  },
+] as const
+
+/** 接线配置读不懂的几种形态：不知道哪个口是保留口，就不知道任何一个口是自由的。 */
+const BROKEN_DIGITAL: readonly (readonly [string, () => void])[] = [
+  ['保留口列表不是数组', () => wire({ reserved_digital_ports: 'A' })],
+  [
+    '某一项的 port 不合法',
+    () => wire({ reserved_digital_ports: [{ port: 0, reason: '好的一项' }, { port: 'one' }] }),
+  ],
+  ['stm_coarse_group 不合法', () => wire({ stm_coarse_group: 9, reserved_digital_ports: [{ port: 0 }] })],
+  [
+    '读口抛',
+    () => {
+      processInstrumentProfile.source = () => {
+        throw new Error('profile unreadable')
+      }
+    },
+  ],
+]
+
+describe.each(DIGITAL_WRITES)('$name · 保留口', ({ skill, params, sent }) => {
+  it('保留的口 ⇒ 拒绝，文案逐字，一条下发都没有', async () => {
+    wire(RESERVED_A)
+    const r = rig()
+    const got = await skill.execute(r.ctx, params(0))
+    expect(got).toEqual({ success: false, error: reservedText('Port A', 0) })
+    expect(r.calls).toEqual([])
+  })
+
+  it('没被保留的口 ⇒ 照发，实参与以前逐字相同', async () => {
+    wire(RESERVED_A)
+    const r = rig()
+    const got = await skill.execute(r.ctx, params(1))
+    expect(got.success).toBe(true)
+    expect(r.calls).toEqual([sent(1)])
+  })
+
+  it('没有配置 ⇒ 不保留任何口，Port A 也照发', async () => {
+    wire({})
+    const r = rig()
+    expect((await skill.execute(r.ctx, params(0))).success).toBe(true)
+    expect(r.calls).toEqual([sent(0)])
+  })
+
+  it('宿主没接读口 ⇒ 也照发（与以前一样）', async () => {
+    wire(null)
+    const r = rig()
+    expect((await skill.execute(r.ctx, params(0))).success).toBe(true)
+    expect(r.calls).toEqual([sent(0)])
+  })
+
+  it.each(BROKEN_DIGITAL)('配置读不懂（%s）⇒ **所有**口都拒，哪怕这个口没被列出', async (_name, breakIt) => {
+    breakIt()
+    const r = rig()
+    const got = await skill.execute(r.ctx, params(1))
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('拒绝写数字口')
+    expect(got.error).not.toContain('本机配置把它列为保留数字口')
+    expect(r.calls).toEqual([])
+  })
+
+  it('检查的是实际下发的那个 port：折成整数之后落在保留口上也拒', async () => {
+    // 技能把 port 折成整数再下发（非数字 ⇒ 0，0.9 ⇒ 0），所以检查必须看折过的那个，
+    // 而不是原始参数 —— 否则「检查 'A'、发 0」就绕过了保留。
+    wire(RESERVED_A)
+    for (const weird of ['A', 0.9]) {
+      const r = rig()
+      const got = await skill.execute(r.ctx, params(weird))
+      expect(got.error).toBe(reservedText('Port A', 0))
+      expect(r.calls).toEqual([])
+    }
+  })
+
+  it('retract_motor_dir 一读就抛的档案，不影响保留口检查', async () => {
+    const profile: Record<string, unknown> = { ...RESERVED_A }
+    Object.defineProperty(profile, 'retract_motor_dir', {
+      enumerable: true,
+      get(): never {
+        throw new Error('profile unreadable')
+      },
+    })
+    wire(profile)
+    const refused = rig()
+    expect((await skill.execute(refused.ctx, params(0))).error).toBe(reservedText('Port A', 0))
+    expect(refused.calls).toEqual([])
+    const allowed = rig()
+    expect((await skill.execute(allowed.ctx, params(1))).success).toBe(true)
+    expect(allowed.calls).toEqual([sent(1)])
+  })
+})
+
+describe('数字口技能 · 其余几条', () => {
+  it('ConfigureDigitalLine 把保留口改成输入也拒（两个方向都会断开链路）', async () => {
+    wire(RESERVED_A)
+    const r = rig()
+    const got = await ConfigureDigitalLine.execute(r.ctx, { line: 1, port: 0, direction: 0, polarity: 1 })
+    expect(got.error).toBe(reservedText('Port A', 0))
+    expect(r.calls).toEqual([])
+  })
+
+  it('PulseDigitalLine：更早的拒绝先于保留口检查（lines 解析失败、行号越界）', async () => {
+    wire(RESERVED_A)
+    const bad = rig()
+    const parse = await PulseDigitalLine.execute(bad.ctx, { port: 0, lines: 'x', pulse_width_s: 0.01 })
+    expect(parse.error).toContain('lines 解析失败')
+    const range = await PulseDigitalLine.execute(bad.ctx, { port: 0, lines: '9', pulse_width_s: 0.01 })
+    expect(range.error).toBe('digital line 必须在 1..8 之间，收到 [9]')
+    expect(bad.calls).toEqual([])
+  })
+
+  it('读不设闸：GetDigitalLineTTL 在保留口上、以及配置损坏时都照读', async () => {
+    for (const setup of [() => wire(RESERVED_A), () => wire({ stm_coarse_group: 9 })]) {
+      setup()
+      const r = rig({ DigLines_TTLValGet: [1, 0, 1] })
+      const got = await GetDigitalLineTTL.execute(r.ctx, { port: 0 })
+      expect(got.success).toBe(true)
+      expect(r.calls).toEqual([{ verb: 'DigLines_TTLValGet', args: [0] }])
+    }
   })
 })
