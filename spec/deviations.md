@@ -4293,3 +4293,17 @@ R(+θ) 算出的位置等于真位置绕帧心再转 2θ，偏差 2·r·|sin θ|
 **重新考虑的条件**：参考重钉到 `5ca30763` 之后的版本并重导：三格金样变成 R(−θ) 值，「金样 = R(+θ)」那条断言变红 ⇒
 删掉测试里的分支与本条。真机或厂商模拟器上测到正角是逆时针（例如 θ=90° 扫描首行的针尖位置读数落在 R(+θ) 预言的一侧）⇒
 回退并重新登记。
+
+## D-CONN-? · 传输层对任何命令都不重发；幂等重试放在谱学技能里
+
+| | |
+|---|---|
+| **Python**（`core/connection.py` 的 `ConnectionPool.safe_call`；`skills/builtins/spectroscopy.py` 的 `_call_idempotent`） | TCP 级失败（超时、连接被重置、空回包）后重连并**原样重发一次**；「每到一次就做一次事」的命令例外（名字以 `Pulse` / `Start` / `_Run` 结尾或含 `_Start` 加大写字母，`Scan_Save`，`AtomTrack_DriftComp`，`Scan_Action` 的起扫与继续，`AutoApproach_OnOffSet` 的开），只重连不重发，错误里说命令可能已经执行；重发也失败时，错误以第一次的原因开头。谱学技能另有 `_call_idempotent`：7 个配置／采集技能里的幂等调用（`Open`、设绝对值的属性、读）传输层失败后停 1 s 再做一次。两层叠起来，同一条命令最多发 4 次 |
+| **TS**（kernel `transport-policy.ts`，instrument `instrument.ts`，stm-skills `l0/idempotent.ts`） | 连接层（`InstrumentService.callRaw`）对任何命令都不重发。同一套分类（`resendIsSafe`）只用于 ① 可能已送达的不可重发命令传输失败时，在错误后面追加「命令可能已被控制器收到并执行……重试之前先读仪器状态」；② 让 `callIdempotent` 拒绝重做不可重发的命令。重做只在同一批谱学技能里（含 Δf 曲线共用的两条 Z 谱预算读），停 1 s，一次；两次都失败时错误以第二次的原因开头，第一次的原因放进英文后缀（文案照参考）。仪器层的调用记录在传输层失败时多一个字段 `transport`（`kind`、`maybeDelivered`），运行记录 results JSONL 的 `instrumentCalls` 里也会带着它 |
+| **测试** | kernel `transport-policy.test.ts`（T1–T6、G1–G5）；instrument `instrument.test.ts`（I1–I4）；stm-skills `l0/idempotent.test.ts`（R1–R9）；bundle `src/instrument-calls.test.ts`（I5、E1）；金样 `safety.json` 的 `resend_safe`、`resend_arg0_cases`；变异 `transport-*`、`idempotent-*`、`module-open-*`、`not-resent-hint-is-added` |
+
+**为什么有意**：重发的决定应当放在读写语义最清楚的地方（技能层）；连接层不知道一条命令是否幂等，而超时之后命令很可能已经送达。
+不重发是 fail-closed 的一侧。**后果**：① 非谱学技能里的读／设在瞬断时直接失败，不会被连接池救回；② 谱学技能里同一条命令最多发
+2 次（参考最多 4 次）；③ 参考连接池「重发也失败时以第一次的原因开头」的文案在这里没有对应物，因为连接层只失败一次。
+**重新考虑的条件**：真机或模拟器上非谱学的读／设技能因瞬断失败的实测频率；把幂等集合上移到连接层的方案（那时这张分类表从
+「提示与兜底」变成「决定重发」，金样 `resend_safe` 照用）。

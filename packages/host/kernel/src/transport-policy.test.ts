@@ -20,7 +20,11 @@ import {
 
 const safety = JSON.parse(
   readFileSync(fileURLToPath(new URL('../../../../spec/golden/safety.json', import.meta.url)), 'utf8'),
-) as { is_read: Record<string, boolean> }
+) as {
+  is_read: Record<string, boolean>
+  resend_safe: Record<string, boolean>
+  resend_arg0_cases: { method: string; args: unknown[]; safe: boolean }[]
+}
 
 /** 动词名写错了，判据会安静地走「可重发」那一支：样例里的动词必须在协议表里。 */
 const knownVerb = (method: string): boolean => Object.hasOwn(safety.is_read, method)
@@ -94,6 +98,22 @@ describe('resendIsSafe：可能已经送达的命令能不能再发一次', () =
     expect(resendIsSafe('Scan_StartX')).toBe(false)
     expect(resendIsSafe('Foo_Run')).toBe(false)
     expect(resendIsSafe('FooRun')).toBe(true)
+  })
+
+  it('T4 金样：全部动词在无实参时与参考逐一相等（不可重发 32 个）', () => {
+    const verbs = Object.keys(safety.resend_safe)
+    // 防空转：金样与 `is_read` 是同一张协议表
+    expect(verbs.length).toBe(Object.keys(safety.is_read).length)
+    expect(verbs.length).toBeGreaterThanOrEqual(600)
+    expect(verbs.filter((m) => resendIsSafe(m) !== safety.resend_safe[m])).toEqual([])
+    expect(verbs.filter((m) => !safety.resend_safe[m])).toHaveLength(32)
+  })
+
+  it('T4 金样：按第一个实参判的那几格与参考逐一相等', () => {
+    expect(safety.resend_arg0_cases.length).toBeGreaterThanOrEqual(13)
+    for (const c of safety.resend_arg0_cases) {
+      expect(resendIsSafe(c.method, c.args), `${c.method}(${JSON.stringify(c.args)})`).toBe(c.safe)
+    }
   })
 })
 
