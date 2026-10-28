@@ -5,6 +5,9 @@
  * This file deliberately has no workspace imports.  Resolve every runtime module
  * from --install-dir so a successful run proves that the copied tarball and its
  * installed dependency closure work without reaching back into this checkout.
+ * The expected dsh and Cordis versions come from scripts/dsh-pins.ts (it reads
+ * the compat package's pins); that file only reads JSON and loads no module
+ * under test.
  */
 import { createHash, randomUUID } from 'node:crypto'
 import { createRequire } from 'node:module'
@@ -12,6 +15,7 @@ import { connect } from 'node:net'
 import { readFile, stat, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { CORDIS_VERSION, DSH_VERSION } from './dsh-pins.ts'
 
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json }
 
@@ -187,9 +191,9 @@ async function activate(o: Options): Promise<{ ctx: any; provider: any; fibers: 
     '@deepseek-ai/dsh-llm', '@deepseek-ai/dsh-system-prompt', '@deepseek-ai/dsh-commands',
   ]
   const dshFacts = await Promise.all(dshPackages.map(async (name) => ({ name, ...await packageFact(dshReq, name) })))
-  const wrongVersions = dshFacts.filter((fact) => fact.version !== '0.1.5-rc.2')
-  if (wrongVersions.length) throw new Error(`dsh packages must be 0.1.5-rc.2: ${wrongVersions.map((x) => `${x.name}=${x.version}`).join(', ')}`)
-  if (cordisFact.version !== '4.0.2') throw new Error(`Cordis must be 4.0.2, got ${cordisFact.version}`)
+  const wrongVersions = dshFacts.filter((fact) => fact.version !== DSH_VERSION)
+  if (wrongVersions.length) throw new Error(`dsh packages must be ${DSH_VERSION}: ${wrongVersions.map((x) => `${x.name}=${x.version}`).join(', ')}`)
+  if (cordisFact.version !== CORDIS_VERSION) throw new Error(`Cordis must be ${CORDIS_VERSION}, got ${cordisFact.version}`)
   const pluginReq = createRequire(req.resolve(`${o.packageName}/package.json`))
   const pluginCordis = pluginReq.resolve('@deepseek-ai/cordis/package.json')
   if (resolve(pluginCordis) !== resolve(cordisFact.packageJson)) {

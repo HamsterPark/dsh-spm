@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
+import { ACCEPTANCE_CHILD_ENV, acceptanceOverlayRows } from './acceptance-overlay.ts'
 import { readSessionRows } from './minimal-session-log.ts'
 
 export const NATIVE_TOOLS = ['GetBias', 'GetCurrent', 'GetScanStatus', 'GetZPosition', 'SetBias', 'StartScan', 'StopScan', 'stm_hello']
@@ -210,17 +211,20 @@ export function apply(ctx) {
   })
 }
 `)
-  const disabled = ['tool-bash', 'tool-pwsh', 'tool-jobs', 'tool-fs', 'tool-fs-search', 'tool-skill', 'tool-subagent-control', 'tool-subagent-list-agents', 'tool-subagent', 'tool-subagent-fork', 'tool-workflow', 'tool-result-pruner', 'tool-todo', 'tool-goal', 'tool-ralph', 'tool-web', 'plan-mode', 'session-title-llm', 'llm-retry']
   await writeFile(overlay, [
     `- id: agent-default-model\n  config:\n    provider: ${JSON.stringify(provider)}\n    model: ${JSON.stringify(model)}`,
     runtimeConfigRow(o, { recordsPath, resultsPath, runId }),
-    ...disabled.map((id) => `- id: ${id}\n  disabled: true`),
+    ...acceptanceOverlayRows(),
     `- insert:\n    - id: native-tool-guard\n      name: ${JSON.stringify(pathToFileURL(guardPath).href)}`,
   ].join('\n') + '\n')
+  // agent-instructions 与 skill-filesystem 会读 $DSH_AGENTS_HOME（缺省 ~/.agents）：指向本轮自己的空目录。
+  const agentsHome = join(o.dshHome, 'agents-home')
+  await mkdir(agentsHome, { recursive: true })
+  if ((await readdir(agentsHome)).length !== 0) throw new Error(`${agentsHome} 必须是空目录（本轮的 DSH_AGENTS_HOME）`)
   const before = await sessionFiles(join(o.dshHome, 'sessions'))
   const prompt = '你正在控制经过身份核验的本机 Nanonis 模拟器。请用实际工具完成用户命令，并报告测量值及单位。只能执行用户本次要求的操作；不能把设置请求当成已读回的结果。工具失败必须如实报告，不自行放宽连续扫描检查。用户命令：\n' + task
   const child = spawn(process.execPath, [dshBin, '--profile', o.profile, '--patch', overlay, prompt], {
-    cwd: o.installDir, env: { ...process.env, DSH_HOME: o.dshHome, DEEPSEEK_API_KEY: apiKey, DSH_TOOLS_MODE: 'native', DSH_TELEMETRY_DISABLED: '1' },
+    cwd: o.installDir, env: { ...process.env, ...ACCEPTANCE_CHILD_ENV, DSH_HOME: o.dshHome, DSH_AGENTS_HOME: agentsHome, DEEPSEEK_API_KEY: apiKey },
     // Own process group: parent Ctrl+C is handled by the cooperative file path,
     // not delivered simultaneously to dsh's escalating signal handler.
     stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, detached: true,

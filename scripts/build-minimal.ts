@@ -103,6 +103,9 @@ const result = await build({
 
 const external = externalPackages(result.metafile)
 const pinnedExternalVersions = declaredExternalVersions()
+// 上游兼容闸一旦见到 engines.dsh 就只看它、不再看 peer（dsh-app-boot README），所以必须写，且与 compat 钉的 dsh 版本同源。
+const dshVersion = pinnedExternalVersions['@deepseek-ai/dsh-tools']
+if (dshVersion === undefined) throw new Error('compat 没有钉 @deepseek-ai/dsh-tools，写不出 engines.dsh')
 const unknown = external.filter((name) => pinnedExternalVersions[name] === undefined)
 if (unknown.length !== 0) {
   throw new Error(`最小分发出现未钉版本的外部依赖：${unknown.join(', ')}`)
@@ -134,7 +137,7 @@ const manifest = {
   files: ['lib', 'cordis.minimal.patch.yml'],
   dsh: { bundle: { patch: './cordis.minimal.patch.yml' } },
   peerDependencies,
-  engines: { node: '^22.19.0 || >=24.0.0' },
+  engines: { node: '^22.19.0 || >=24.0.0', dsh: dshVersion },
 }
 
 writeFileSync(join(stageDir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`)

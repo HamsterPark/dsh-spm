@@ -1,6 +1,6 @@
 /**
  * Contract: how an image travels from a tool result to a model request in
- * dsh 0.1.5-rc.2 (VISUAL-HARNESS §7, facts.md §9). Real upstream packages,
+ * dsh 0.2.1-rc.4 (VISUAL-HARNESS §7, facts.md §9). Real upstream packages,
  * no stand-ins for dsh itself; only the attachment store and the model
  * adapter are minimal subclasses of dsh's own abstract classes.
  *
@@ -27,6 +27,7 @@ import {
   type LlmResolvedModelInfo,
   type Message,
   type ModelModality,
+  type RequestMessage,
   type StreamChunk,
   type ToolCallId,
 } from '@deepseek-ai/dsh-llm'
@@ -173,7 +174,7 @@ describe('the attachment store seam', () => {
 })
 
 class RecordingAdapter extends LlmAdapter {
-  readonly seen: Message[][] = []
+  readonly seen: RequestMessage[][] = []
   constructor(private readonly modalities: readonly ModelModality[] | undefined) {
     super()
   }
@@ -201,20 +202,22 @@ function history(): Message[] {
   ]
 }
 
-async function sendThrough(modalities: readonly ModelModality[] | undefined): Promise<Message[]> {
+async function sendThrough(modalities: readonly ModelModality[] | undefined): Promise<RequestMessage[]> {
   const ctx = new Context()
   const llm = new LlmRuntime(ctx)
   const adapter = new RecordingAdapter(modalities)
   llm.registerAdapter(['probe'], adapter)
   for await (const chunk of llm.stream({ provider: 'probe', model: 'm', messages: history() })) void chunk
   expect(adapter.seen).toHaveLength(1)
-  return adapter.seen[0] as Message[]
+  return adapter.seen[0] as RequestMessage[]
 }
 
-function toolResultContent(messages: readonly Message[]): readonly ContentBlock[] {
-  const block = messages[1]?.content[0] as { type: string; content: ContentBlock[] }
-  expect(block.type).toBe('tool-result')
-  return block.content
+// dsh 0.2: a tool result is its own `role: 'tool'` message (toolCallId / isError on the
+// message, content flat); 0.1.5 wrapped it in a user message's `tool-result` block.
+function toolResultContent(messages: readonly RequestMessage[]): readonly ContentBlock[] {
+  const message = messages[1]
+  expect(message?.role).toBe('tool')
+  return message?.role === 'tool' ? message.content : []
 }
 
 describe('what an adapter receives', () => {

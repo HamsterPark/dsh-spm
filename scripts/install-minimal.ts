@@ -4,9 +4,9 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync, writeF
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
+import { CORDIS_VERSION, DSH_VERSION, VENDOR_PINS } from './dsh-pins.ts'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const DSH_VERSION = '0.1.5-rc.2'
 
 function option(name: string, fallback?: string): string {
   const at = process.argv.indexOf(name)
@@ -59,9 +59,27 @@ function installedDshVersions(tree: DependencyNode[]): Record<string, string[]> 
   return Object.fromEntries([...versions].sort(([a], [b]) => a.localeCompare(b)).map(([name, found]) => [name, [...found].sort()]))
 }
 
-async function dshPackageNames(): Promise<string[]> {
+/** 安装树里 VENDOR_PINS 所列各包的实际版本（Cordis 系等独立版本线）。 */
+function installedVendorVersions(tree: DependencyNode[]): Record<string, string[]> {
+  const versions = new Map<string, Set<string>>()
+  const visit = (node: DependencyNode, dependencyName?: string): void => {
+    const name = node.name ?? dependencyName
+    if (name !== undefined && VENDOR_PINS[name] !== undefined && node.version !== undefined) {
+      const found = versions.get(name) ?? new Set<string>()
+      found.add(node.version)
+      versions.set(name, found)
+    }
+    for (const [childName, child] of Object.entries(node.dependencies ?? {})) visit(child, childName)
+  }
+  tree.forEach((node) => visit(node))
+  return Object.fromEntries([...versions].sort(([a], [b]) => a.localeCompare(b)).map(([name, found]) => [name, [...found].sort()]))
+}
+
+/** 启动器依赖闭包里的包名：dsh 系，以及非 dsh 的 `@deepseek-ai/*`（独立版本线，dsh 对它们只声明 `~` 范围）。 */
+async function dshPackageNames(): Promise<{ dsh: string[]; vendor: string[] }> {
   const pending = ['@deepseek-ai/dsh']
   const seen = new Set<string>()
+  const vendor = new Set<string>()
   while (pending.length !== 0) {
     const batch = pending.splice(0)
     const manifests = await Promise.all(
@@ -84,10 +102,11 @@ async function dshPackageNames(): Promise<string[]> {
       const reachable = { ...manifest.dependencies, ...manifest.optionalDependencies, ...manifest.peerDependencies }
       for (const dependency of Object.keys(reachable)) {
         if (dependency.startsWith('@deepseek-ai/dsh-') && !seen.has(dependency)) pending.push(dependency)
+        else if (dependency.startsWith('@deepseek-ai/') && !dependency.startsWith('@deepseek-ai/dsh')) vendor.add(dependency)
       }
     }
   }
-  return [...seen].sort()
+  return { dsh: [...seen].sort(), vendor: [...vendor].sort() }
 }
 
 const target = resolve(option('--target'))
@@ -108,7 +127,11 @@ const copiedArtifact = join(target, basename(artifact))
 copyFileSync(artifact, copiedArtifact)
 const copiedArtifactSha256 = sha256(copiedArtifact)
 
-const dshNames = await dshPackageNames()
+const { dsh: dshNames, vendor: vendorNames } = await dshPackageNames()
+const unpinnedVendors = vendorNames.filter((name) => VENDOR_PINS[name] === undefined)
+if (unpinnedVendors.length !== 0) {
+  throw new Error(`dsh ${DSH_VERSION} 的依赖闭包里有未登记的独立版本线包：${unpinnedVendors.join(', ')}。请把精确版本补进 scripts/dsh-pins.ts 的 VENDOR_PINS。`)
+}
 const packageJson = {
   name: 'dsh-spm-minimal-install',
   version: '0.0.0',
@@ -116,14 +139,17 @@ const packageJson = {
   type: 'module',
   dependencies: {
     '@deepseek-ai/dsh': DSH_VERSION,
-    '@deepseek-ai/cordis': '4.0.2',
+    '@deepseek-ai/cordis': CORDIS_VERSION,
     '@deepseek-ai/dsh-host-webserver': DSH_VERSION,
     '@deepseek-ai/dsh-system-prompt': DSH_VERSION,
     '@deepseek-ai/dsh-tools': DSH_VERSION,
   },
 }
 writeFileSync(join(target, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
-const overrides = dshNames.map((name) => `  '${name}': '${DSH_VERSION}'`).join('\n')
+const overrides = [
+  ...dshNames.map((name) => `  '${name}': '${DSH_VERSION}'`),
+  ...Object.entries(VENDOR_PINS).map(([name, version]) => `  '${name}': '${version}'`),
+].join('\n')
 const excludes = dshNames.map((name) => `  - '${name}@${DSH_VERSION}'`).join('\n')
 writeFileSync(
   join(target, 'pnpm-workspace.yaml'),
@@ -161,9 +187,17 @@ for (const [name, versions] of Object.entries(actualDshVersions)) {
     throw new Error(`${name} 实际安装版本不是唯一的 ${DSH_VERSION}：${versions.join(', ')}`)
   }
 }
+const actualVendorVersions = installedVendorVersions(installedTree)
+for (const [name, versions] of Object.entries(actualVendorVersions)) {
+  if (versions.length !== 1 || versions[0] !== VENDOR_PINS[name]) {
+    throw new Error(`${name} 实际安装版本不是唯一的 ${VENDOR_PINS[name]}：${versions.join(', ')}`)
+  }
+}
 
 const report = {
   dshVersion: DSH_VERSION,
+  vendorPins: VENDOR_PINS,
+  actualVendorVersions,
   dshPackages: dshNames,
   sourceArtifact: artifact,
   copiedArtifact,

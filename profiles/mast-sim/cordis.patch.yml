@@ -17,16 +17,35 @@
 # 而 `webServer` 服务是 `dsh-web-app` 提供的 ⇒ 少了它，`mast-ui-host` 那一行的
 # `inject` 不满足。
 #
-# **2026-09-13 更正**：这里原先写的是「SSE hub 整个不装载，而且不报错（Cordis 静默不装）」。
-# 在 `0.1.5-rc.1` 与 `rc.2` 上实测**都不是静默的**，而是 boot 阶段直接失败并点名：
+# **失败方式随 dsh 版本变过**（这一段原先写的是「Cordis 静默不装、不报错」，09-13 在 0.1.5 上更正过一次，
+# 0.2.x 上又变了）：
+#   - 0.1.5-rc.1 / rc.2：boot 阶段直接失败并点名——
+#       Error: dsh: plugin tree failed to load: dsh: 1 entry did not activate
+#       dsh-spm/stm-ui: pending (waiting for service: webServer)
+#   - 0.2.x：我们的行是**可选行**，等不到服务时只在 stderr 打一段警告，进程照常运行、退出码不变——
+#       dsh: warning: 1 entry did not activate
+#       mast-ui-host (dsh-spm/stm-ui): pending (waiting for service: webServer)
+#     （依据 dsh-app-boot 的 README「Startup and reload failures」表与 activationDiagnostic 的文本；
+#     尚未在本 profile 上实际启动验证。）
+# 所以**启动成功不等于我们的行装上了**：启动后看 stderr 有没有 `did not activate`。
+# 配置树里有一行，同样不等于它装载成功了（`--dump-config` 不启动任何插件）。
 #
-#     Error: dsh: plugin tree failed to load: dsh: 1 entry did not activate
-#     dsh-spm/stm-ui: pending (waiting for service: webServer)
+# 会话日志上传缺省开启（dsh 0.1.5 缺省关闭，0.1.6-alpha.1 起改为开启）：走官方 DeepSeek API 的请求会附带
+# 会话日志增量，其中含工具结果，也就是仪器读数。`DSH_TELEMETRY_DISABLED` 管不到它（它只管 OTel 遥测那一行）。
+# 本 profile 默认关掉。要开：作为 profile 补丁安装时，可在 Web 设置里打开开关；用 `--patch` 叠加时叠加层优先，
+# Web 开关写不进去，改动或删掉下面这一行。关闭后再开启会补传积压的会话日志，开之前想清楚。
+- id: session-log-deepseek
+  config:
+    enabled: false
 #
-# 哪一版改的查不出来（`npx @deepseek-ai/dsh@<旧版>` 只钉住启动器，子包照样被 caret
-# 拉到最新，见 facts.md §8.-2），但**现在的行为是好的**：它说清了是哪一条、在等哪个服务。
-# 09-10 那次「--dump-config 里我们的行在、树里没有 webserver」的观察本身仍然成立——
-# 配置树里有一行，不等于它装载成功了。
+# 反馈遥测：Web 界面里的评分、备注、撤回和 `/feedback`（含反馈对话框）会让 `session-telemetry-otel`
+# （缺省 `FEEDBACK_ONLY`）把整段会话前缀交给 OTel 导出，其中含工具结果，也就是仪器读数。
+# 本 profile 默认关掉这一行；关掉后反馈照常记进本地会话日志，只是不再外发。
+# 要开：删掉下面这一行，或在更靠后的补丁层（`$DSH_HOME/cordis.patch.yml`、`--patch`）写
+# `- id: session-telemetry-otel` 加 `disabled: false`。启动时设非空的 `DSH_TELEMETRY_DISABLED` 也能关这一行，
+# 但环境变量不在本文件里，漏设就会外发，所以这里不依赖它。
+- id: session-telemetry-otel
+  disabled: true
 - insert:
     # 装上它就会 spawn 一份 stmsim，并提供 `simulated: true` 的 `ctx.instrument`；
     # 卸载时 `ctx.effect` 的回滚把进程带走。
