@@ -180,3 +180,26 @@ describe('createInstrumentCalls · ⑥ 缩比的真 TCP', () => {
     expect(elapsedMs).toBeGreaterThan(SHORT_MS)
   })
 })
+
+describe('模块首次加载的宽限 · 缩比的真 TCP', () => {
+  it('I5 Open 与紧跟它的那一条等得到迟到的回复，再下一条照常按缺省超时', async () => {
+    // 宽限是 30 s 的下限，与缩比的缺省超时（60 ms）无关；回复 200 ms 才到，只有带宽限的两条等得到
+    const SHORT_MS = 60
+    const LATE_MS = 200
+    const timers: NodeJS.Timeout[] = []
+    cleanup.push(() => timers.forEach((t) => clearTimeout(t)))
+    const server = await fakeServer((sock, frame) => {
+      timers.push(setTimeout(() => replyOk(sock, frame), LATE_MS))
+    })
+    const port = (server.address() as AddressInfo).port
+    const svc = serviceWith((_role, p) => new RoleLink({ port: p, timeoutMs: SHORT_MS }), { main: port })
+
+    const open = await svc.call('ZSpectr_Open', [])
+    const next = await svc.call('ZSpectr_RangeSet', [0, 1e-9])
+    const third = await svc.call('ZSpectr_PropsSet', [1, 128, 1, 1, 2, 1])
+    expect(open.error).toBeUndefined()
+    expect(next.error).toBeUndefined()
+    expect(third.error).toMatch(/^Timeout:/)
+    expect(third.transport).toEqual({ kind: 'Timeout', maybeDelivered: true })
+  })
+})
