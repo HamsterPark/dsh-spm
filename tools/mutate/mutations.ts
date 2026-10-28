@@ -6756,7 +6756,8 @@ function physicallyAbsurdViolations_unused(`,
     file: `${K}/instrument-profile.ts`,
     find: "  return code === undefined ? { state: 'undeclared' } : { state: 'declared', code }",
     replace: "  return { state: 'declared', code: code ?? 4 }",
-    scope: 'packages/host',
+    // 证人在 kernel 自己的测试里（`instrument-profile.test.ts` 的三态那一组），不必跑整个 packages/host
+    scope: 'packages/host/kernel',
   },
   {
     id: 'retractdir-unreadable-is-not-undeclared',
@@ -6764,7 +6765,7 @@ function physicallyAbsurdViolations_unused(`,
     file: `${K}/instrument-profile.ts`,
     find: "  if (!r.ok) return { state: 'unreadable' }",
     replace: "  if (!r.ok) return { state: 'undeclared' }",
-    scope: 'packages/host',
+    scope: 'packages/host/kernel',
   },
   // ── 粗动驱动：四道锁里的两道 ──────────────────────────────────────
   {
