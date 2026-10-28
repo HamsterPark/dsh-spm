@@ -37,8 +37,8 @@ The projects address different parts of autonomous microscopy, with explicit int
 
 | Project | Responsibility | Connection to dsh-spm |
 |---|---|---|
-| [MAST-public](https://github.com/HamsterPark/MAST-public) | Public subset of MAST's Python/LangGraph instrument runtime, skills, state feedback and experimental workflows | Provides the scientific and operational foundation for the TypeScript migration; MAST remains an independent system. |
-| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | Reusable framework for visual reasoning in microscopy: evidence archives, calibrated inspection, measurement, notes and controlled evaluation | Provides the Python reference design and exported reference results used to check the TypeScript visual tools. |
+| [MAST-public](https://github.com/HamsterPark/MAST-public) | Public subset of MAST's Python/LangGraph instrument runtime, skills, state feedback and experimental workflows; a MAST 6.5.0 source snapshot (2026-09-21) | Provides the scientific and operational foundation for the TypeScript migration; MAST remains an independent system and continues to evolve beyond this snapshot. |
+| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | Reusable framework for visual reasoning in microscopy: evidence archives, calibrated inspection, measurement, notes and controlled evaluation | Provides the Python reference design and exported reference results used to check the TypeScript visual tools. The exported fixtures are pinned to its tag `m1-surface` (`3bef5c7`); fixes made on its main branch afterwards are not yet reflected here. |
 | **dsh-spm — this repository** | SPM tools, instrument connections, execution checks, records and visual-harness integration for DeepSeek Harness | Makes MAST-derived domain capabilities and the VISTA-SPM design available within dsh's TypeScript host and session lifecycle. |
 | [STM-Bench](https://github.com/HamsterPark/STM-Bench) | Simulated microscopy environments, scientific scenarios, acquisition records and evidence-based evaluation | Provides a controlled instrument environment for runtime validation and a shared basis for studying experimental behavior. |
 
