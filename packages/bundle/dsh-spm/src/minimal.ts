@@ -24,7 +24,7 @@ import type { ViewToolValue } from 'dsh-spm-visual-memory'
 import { createInstrumentCalls } from './instrument-calls.js'
 import { MinimalPersistence, type MinimalResultRecord } from './minimal-persistence.js'
 import { NativeSimulatorConnection, NativeSimulatorInstrument, type NativeSimulatorOptions } from './native-simulator.js'
-import { NATIVE_SKILLS, formatNativeToolText } from './native-skills.js'
+import { NATIVE_SKILLS, NATIVE_SUBSKILLS, formatNativeToolText } from './native-skills.js'
 import {
   NATIVE_VISUAL_PROMPT,
   formatObservedToolText,
@@ -211,6 +211,9 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
       emergencyCall: (method, ...args) => connectedInstrument.urgentCall(method, args),
       record: persistence.record,
       ...(visual === undefined ? {} : { observer: visual.observer }),
+      // 原生入口的 SetBias 对跨零、大幅或落进死区的改动走 BiasSettleChange，它要跑子技能；
+      // 受管入口只挂 GetBias，没有子技能，不接注册表。
+      ...(native ? { skillByName: (name: string) => NATIVE_SUBSKILLS.get(name) } : {}),
     })
 
     if (native) {

@@ -6,6 +6,7 @@
 import {
   SET_NO_CHANGE,
   SET_OFF,
+  biasNeedsSafePath,
   scalarFloat,
   type Skill,
   type SkillContext,
@@ -15,6 +16,7 @@ import {
   GetBias,
   GetCurrent,
   GetZPosition,
+  IMPLEMENTED,
   SetBias,
   StartScan,
   StopScan,
@@ -23,6 +25,9 @@ import type { MinimalResultRecord } from './minimal-persistence.js'
 
 const SCAN_VERIFY_ATTEMPTS = 11
 const SCAN_VERIFY_INTERVAL_MS = 100
+
+/** 走安全路径成功时从 `BiasSettleChange` 的结果里带出的字段（参考实现的外部动作面也只带这四个）。 */
+const ROUTED_FIELDS = ['bias_v_start', 'strategy', 'crossed_zero', 'settle_s'] as const
 
 function unexpectedParams(params: Readonly<Record<string, unknown>>, allowed: readonly string[]): string[] {
   return Object.keys(params).filter((name) => !allowed.includes(name)).map((name) =>
@@ -61,7 +66,10 @@ export const NativeGetScanStatus: Skill = {
 export const NativeSetBias: Skill = {
   spec: {
     ...SetBias.spec,
-    description: "立即设置模拟器偏压，并回读确认。bias_v 支持伏特数值或带 SI 前缀的字符串，例如 0.1 或 '100m'，不要附加单位 V。本工具不提供渐变 ramp。",
+    description: "设置模拟器偏压，并回读确认。bias_v 支持伏特数值或带 SI 前缀的字符串，例如 0.1 或 '100m'，不要附加单位 V。" +
+      '本工具没有 ramp 参数：偏压要变号、变化超过 0.5 V、目标落在 ±50 mV 内，或当前偏压读不到时，会自动改走安全路径' +
+      '（BiasSettleChange：斜坡过零并等待稳定，通常要几秒），结果里的 path 说明走了哪条路。' +
+      '目标落在 ±50 mV 死区内而 Z 反馈开着（或状态未知）时会被拒绝；本工具集不能关反馈，请改用更大的偏压。',
     parameters: SetBias.spec.parameters.filter((p) => p.name === 'bias_v'),
     tags: [...(SetBias.spec.tags ?? []), 'readback', 'native-simulator'],
   },
@@ -72,14 +80,47 @@ export const NativeSetBias: Skill = {
   ],
   execute: async (ctx, params) => {
     const target = params['bias_v'] as number
-    const written = await SetBias.execute(ctx, params)
-    if (!written.success) return written
+    // 先读起点再分流：变号、大幅、落进死区、起点读不到，都不直接写（见 biasNeedsSafePath）。
+    // 读不到起点不在这里拒绝——BiasSettleChange 自己读不到会拒绝，那时一次 Bias_Set 都没发。
+    const startRead = await GetBias.execute(ctx, {})
+    const startValue = startRead.success ? startRead.data?.['bias_v'] : undefined
+    const startV = typeof startValue === 'number' ? startValue : null
+    const safe = biasNeedsSafePath(startV, target)
+    const path = safe ? 'BiasSettleChange' : 'SetBias'
+    const routed: Record<string, unknown> = {}
+    if (safe) {
+      const res = await ctx.runSkill('BiasSettleChange', { bias_v: target })
+      if (!res.success) {
+        // 结果里有 strategy 说明已经开始动偏压（斜坡中途失败）；没有就是事前拒绝
+        // （读不到起点、目标落进死区），一次 Bias_Set 都没发。
+        const sent = res.data?.['strategy'] !== undefined
+        const back = sent ? await GetBias.execute(ctx, {}) : undefined
+        const actual = back?.success === true ? back.data?.['bias_v'] : undefined
+        return {
+          success: false,
+          error: res.error ?? 'BiasSettleChange failed',
+          data: {
+            ...res.data,
+            path,
+            requested_bias_v: target,
+            command_sent: sent,
+            verified: false,
+            bias_v: typeof actual === 'number' ? actual : null,
+          },
+        }
+      }
+      for (const key of ROUTED_FIELDS) if (res.data?.[key] !== undefined) routed[key] = res.data[key]
+    } else {
+      const written = await SetBias.execute(ctx, params)
+      if (!written.success) return written // 参考 SetBias 直写自己的失败，原样返回
+      if (startV !== null) routed['bias_v_start'] = startV
+    }
     const readback = await GetBias.execute(ctx, {})
     if (!readback.success) {
       return {
         success: false,
         error: `bias_readback_failed: 偏压命令已下发，但回读失败；当前偏压未确认。${readback.error ?? ''}`,
-        data: { requested_bias_v: target, bias_v: null, verified: false, command_sent: true },
+        data: { requested_bias_v: target, bias_v: null, verified: false, command_sent: true, path, ...routed },
       }
     }
     const observed = readback.data?.['bias_v'] as number
@@ -93,6 +134,8 @@ export const NativeSetBias: Skill = {
       readback_tolerance_v: tolerance,
       verified,
       command_sent: true,
+      path,
+      ...routed,
     }
     return verified ? { success: true, data } : {
       success: false,
@@ -241,6 +284,26 @@ export const NATIVE_SKILLS: readonly Skill[] = [
   NativeStopScan,
 ]
 
+function implemented(name: string): Skill {
+  const skill = IMPLEMENTED[name]
+  if (skill === undefined) throw new Error(`原生子技能 '${name}' 不在已实现的技能表里`)
+  return skill
+}
+
+/**
+ * 原生内核的子技能注册表（`ctx.runSkill` 查它）。**不是**模型可见的工具目录：模型仍只看到上面七个。
+ * 只放 `NativeSetBias` 分流时要跑的三个，子步走完整内核（参数校验、安全闸、前置条件、记录）。
+ *
+ * - `SetBias` 必须是参考的那个，**不是** `NativeSetBias`，否则无限递归；
+ * - `BiasSettleChange` 与 `SetBiasRamp` 没有按名导出，只在 `IMPLEMENTED` 里；
+ * - 按名字用 Map 查，不用对象下标：下标会把 `constructor` 之类的原型成员当成技能。
+ */
+export const NATIVE_SUBSKILLS: ReadonlyMap<string, Skill> = new Map([
+  ['BiasSettleChange', implemented('BiasSettleChange')],
+  ['SetBias', SetBias],
+  ['SetBiasRamp', implemented('SetBiasRamp')],
+])
+
 /** Successful tools must expose observations and units to the model, not just "ok". */
 export function formatNativeToolText(
   record: Pick<MinimalResultRecord, 'kind' | 'skill' | 'data'> | undefined,
@@ -255,7 +318,10 @@ export function formatNativeToolText(
   if (measurement) {
     const value = data?.[measurement[0]]
     if (typeof value === 'number' && Number.isFinite(value)) {
-      return `${record.skill}: ${value} ${measurement[1]}${record.skill === 'SetBias' ? ' (readback verified)' : ''}`
+      // 直走路径的文案一字不变；走了安全路径就说明是哪条策略。
+      const via = record.skill === 'SetBias' && data?.['path'] === 'BiasSettleChange' && typeof data['strategy'] === 'string'
+        ? `, via BiasSettleChange ${data['strategy']}` : ''
+      return `${record.skill}: ${value} ${measurement[1]}${record.skill === 'SetBias' ? ` (readback verified${via})` : ''}`
     }
   }
   if (['GetScanStatus', 'StartScan', 'StopScan'].includes(record.skill) && typeof data?.['scan_running'] === 'boolean') {

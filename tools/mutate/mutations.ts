@@ -8154,4 +8154,31 @@ function physicallyAbsurdViolations_unused(`,
     replace: "    const recMove = await this.#ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)",
     scope: 'packages/host/stm-skills',
   },
+
+  // ── 原生入口（bundle）：模型面 SetBias 的分流与它的持久化 ─────────────────────────
+  // 这一组是仓里第一批 bundle 范围的规则：`file` 与 `scope` 都在 `packages/bundle/dsh-spm` 下。
+  {
+    id: 'native-setbias-routes-crossing-changes',
+    why: '模型面 SetBias 先读起点再分流：变号、大幅、落进死区、读不到起点，都必须改走 BiasSettleChange。拆掉（永远直写） ⇒ 回到 +1 V → −1 V 一步跨零，反馈把针尖往表面推',
+    file: 'packages/bundle/dsh-spm/src/native-skills.ts',
+    find: '    const safe = biasNeedsSafePath(startV, target)',
+    replace: '    const safe = ((): boolean => (void biasNeedsSafePath, false))()',
+    scope: 'packages/bundle/dsh-spm',
+  },
+  {
+    id: 'persistence-sub-steps-stay-out-of-jsonl',
+    why: '子步（depth ≥ 1）与顶层共用调用 id 且先完成；JSONL 只留顶层那一行。拆掉 ⇒ 子步的行排在前面，按调用 id 取第一行的验收脚本取到的是 SetBiasRamp 而不是 SetBias',
+    file: 'packages/bundle/dsh-spm/src/minimal-persistence.ts',
+    find: '    if (rec.depth > 0) return',
+    replace: '    void rec.depth',
+    scope: 'packages/bundle/dsh-spm',
+  },
+  {
+    id: 'persistence-substep-failure-is-not-overwritten',
+    why: '子步的 SQLite 写失败已把这次调用判为没落盘；顶层随后写成功不能把状态翻回成功（累积，不是覆盖）。拆掉 ⇒ 审计少了一行，调用却报成功',
+    file: 'packages/bundle/dsh-spm/src/minimal-persistence.ts',
+    find: '    this.status.set(callId, this.status.get(callId) !== false && stored)',
+    replace: '    this.status.set(callId, stored)',
+    scope: 'packages/bundle/dsh-spm',
+  },
 ]
