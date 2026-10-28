@@ -98,7 +98,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 6. **成功后写回状态缓存**（`patch_state_from_result`），否则下一技能读旧值死循环；前置不满足先 `refresh()` 再判一次。
 7. **失败附全部 data（去审计键），成功只附 detail**；>2000 字符落盘留引用。
 8. **图像走路径不走像素**；像素只在出站 materialize。
-9. **Nanonis**：4 端口/角色、5 s recv 超时硬约束、响应必须逐字回声命令名（不匹配 = 断链，不是 `[]`）、**空回包 = 断链**、`NeedModule` 子串、force-kill 永久损坏端口 ⇒ 优雅关闭、永不 destroy 在途请求；全 positional；`BiasSpectr_*`；`PropsSet` 标志 0/1/2；`_Open` 先于使用；熔断只数 TCP 级失败（3 次/20 s，四角色共用）、app-error 算成功。
+9. **Nanonis**：4 端口/角色、缺省 5 s 的 recv 超时（不是硬约束：长时命令按调用抬高）、响应必须逐字回声命令名（不匹配 = 断链，不是 `[]`）、**空回包 = 断链**、`NeedModule` 子串、force-kill 永久损坏端口 ⇒ 优雅关闭、永不 destroy 在途请求；全 positional；`BiasSpectr_*`；`PropsSet` 标志 0/1/2；`_Open` 先于使用；熔断只数 TCP 级失败（连续 3 次开闸，相邻两次失败隔超过 30 s 就不算连续；开闸后冷却 20 s；四角色共用）、app-error 算成功。
 10. **仪器互斥**（读与停/退针豁免，5 s 等待后拒绝不排队）与「instrument-capable 分支同一时刻至多一个」是两层，都要。
 11. **未加载的工具以桩保持绑定**（收窄工具面会把「读缓冲区」变「回 home」——`tool_choice="required"` 时 6/6 返回绑定名而文本说「未执行」）。**注意：这条在旧仓是未实施的待办**（`docs/api_providers/AUDIT.md`），TS 端复刻的是结论本身，没有可参照的实现——与其它「有代码可抄」的血泪条目性质不同。
 12. **IC `max_tokens ≥ 8192`**（参数 JSON 截断成非法 JSON）；reasoning 模型 ≥ 16000；**带工具调用一律不流式**（流式 tool call 把 `3e-12` 截成 `3`）。

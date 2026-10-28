@@ -9,7 +9,7 @@
  *   取第一个指向**真实存在**的路径（或其上级目录）的；
  * - {@link decodeWireText}：要把读到的串**写回**仪器的地方。不看文件系统，只看字节本身合不合法。
  *
- * 其余技能把二进制串原样交给调用方，与参考实现一致。见 spec/deviations.md D-WIRE-?。
+ * 其余技能把二进制串原样交给调用方，与参考实现一致。见 spec/deviations.md D-WIRE-4。
  */
 import { statSync } from 'node:fs'
 import { dirname } from 'node:path'

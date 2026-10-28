@@ -229,7 +229,7 @@ class Retract {
    * （Z 压电伸长方向），在逼近 / 电流跳变上跳闸。
    */
   async #retractVerify(steps: number, level: number, cumulative: number): Promise<StepResult> {
-    // 读不到退针方向就在这一级之前拒绝（D-MOTORZ）：此前还没发过任何粗动。不拦的话方向会按
+    // 读不到退针方向就在这一级之前拒绝（D-MOTORZ-1）：此前还没发过任何粗动。不拦的话方向会按
     // 出厂 Z+ 发出去，而方向自检要的 `z_extend_sign` 同样读不到，要赔掉这一级的步数才停下。
     const d = readRetractDir()
     if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE }

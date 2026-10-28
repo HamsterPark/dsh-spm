@@ -154,7 +154,7 @@ type ZCodes =
  * - 没声明：按 Nanonis 标准（Z+ 远离样品），结果里带一句请去声明的警告。
  *
  * 读不到时**没有保守默认**：出厂 z+ 是两个互斥答案之一，在 z− 退针的机器上
- * `z-retract` 就是朝样品，而它不经人审（D-MOTORZ）。
+ * `z-retract` 就是朝样品，而它不经人审（D-MOTORZ-1）。
  */
 export function motorZCodes(): ZCodes {
   const d = readRetractDir()

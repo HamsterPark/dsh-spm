@@ -831,7 +831,7 @@ export class SkillKernel {
       if (typeof v === 'number') {
         // 界带 FLOAT_SLACK 的相对容差，向外放：'100n' 解析成 1.0000000000000001e-07，要能通过
         // 1e-07 的上限。参考实现里技能自己的检查是严格的，所以这是放宽，不是移植——
-        // 见 spec/deviations.md D-LIMITS-?。文案仍印原界。
+        // 见 spec/deviations.md D-LIMITS-2。文案仍印原界。
         const lo = p.minValue
         const hi = p.maxValue
         if (lo !== null && lo !== undefined && v < lo - FLOAT_SLACK * Math.abs(lo)) {

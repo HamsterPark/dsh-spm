@@ -394,7 +394,7 @@ class Relocate {
         }
       }
 
-      // 读不到退针方向就在第一级之前拒绝（D-MOTORZ）。不拦的话方向会按出厂 Z+ 发出去，
+      // 读不到退针方向就在第一级之前拒绝（D-MOTORZ-1）。不拦的话方向会按出厂 Z+ 发出去，
       // 而方向自检要的 `z_extend_sign` 同样读不到，梯子要先迈出第一级才停下。
       const d = readRetractDir()
       if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE, data: { rungs } }

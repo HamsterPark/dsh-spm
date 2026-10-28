@@ -465,7 +465,7 @@ function withoutPhantomArg(name: string, trace: string): Deviation {
 }
 
 /**
- * D-STS-?：本仓 `ConfigureSTS` 的动词序列 = 金样那一串，只在 PropsSet 之前多读一发
+ * D-STS-6：本仓 `ConfigureSTS` 的动词序列 = 金样那一串，只在 PropsSet 之前多读一发
  * `BiasSpectr_PropsGet`，并把读到的扫掠数写进 PropsSet 的第 2 个实参（金样里是写死的 1）。
  * 期望**从金样算出来**，差异就是这两处，看得见。
  */
@@ -482,7 +482,7 @@ function withSweepsRead(trace: string, sweeps: number): [string, unknown[]][] {
   return out
 }
 
-/** D-STS-?：读回成功时 `ConfigureSTS` 多报的两个键（夹具的合成回包读到 4）。 */
+/** D-STS-6：读回成功时 `ConfigureSTS` 多报的两个键（夹具的合成回包读到 4）。 */
 const SWEEPS_PRESERVED_4 = { num_sweeps: 4, num_sweeps_source: 'preserved' } as const
 
 /** 按点分路径删一个键。返回它原来在不在。 */
@@ -1306,7 +1306,7 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
     }),
   ),
 
-  // ── D-STS-?：ConfigureSTS 先读回当前扫掠数再原样写（参考仓 v7.1.0 之后的修复） ──
+  // ── D-STS-6：ConfigureSTS 先读回当前扫掠数再原样写（参考仓 v7.1.0 之后的修复） ──
   //
   // 金样是 v7.1.0 的：PropsSet 的扫掠数写死 1，没有那一发 PropsGet。夹具的 PropsGet
   // 合成回包第 1 项是 4，于是本仓读到 4、原样写 4（`preserved`）。多出的那一发让
@@ -1317,7 +1317,7 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'ConfigureSTS/err@2': { faultAt: 3, calls: withSweepsRead('err@2', 4) },
   'ConfigureSTS/err@3': { faultAt: 4, calls: withSweepsRead('err@3', 4), extra: SWEEPS_PRESERVED_4 },
 
-  // ── D-SCAN-?：ConfigureScan 有一个通道对不上就整组不设，并报 channels_source ──
+  // ── D-SCAN-6：ConfigureScan 有一个通道对不上就整组不设，并报 channels_source ──
   //
   // 夹具的 Signals_NamesGet 合成回包是 ['Sig2A', 'Sig2B']，请求的 'Z,Current' 一个都对不上，
   // 金样与本仓都不发 Scan_BufferSet，动词序列相同；本仓多报一个 channels_source。

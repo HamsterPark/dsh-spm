@@ -16,7 +16,11 @@
 import { Socket } from 'node:net'
 import { HEADER_LEN, encodeRequestFrame, echoMatches, parseReplyHeader } from './frame.js'
 
-/** Nanonis 侧 5 秒收超时是硬约束，不是可调偏好。 */
+/**
+ * 一次往返缺省等多久：5 秒，真仪器上合适。它是缺省值，不是硬约束：整条扫掠这类长时命令按调用传
+ * `timeoutMs`（见内核的 `ctx.slowCall`）。超时即断链，迟到的回包不会落进下一次调用的流里；
+ * 目前不开放全局配置。
+ */
 export const DEFAULT_TIMEOUT_MS = 5_000
 /** 拿不到连接就等这么久；超时返回 `RoleBusy:`，**不排队**。 */
 export const DEFAULT_WAIT_MS = 30_000

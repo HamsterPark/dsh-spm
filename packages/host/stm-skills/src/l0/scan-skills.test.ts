@@ -214,7 +214,7 @@ describe('ConfigureScan ④ 通道与速度', () => {
   const bufferSets = (rig: Rig): unknown[][] => rig.calls.filter((c) => c.verb === 'Scan_BufferSet').map((c) => c.args)
   const source = (res: SkillResultLike): unknown => (res.data as Record<string, unknown>)['channels_source']
 
-  it('请求的通道有一个对不上 ⇒ **整组不设**，保持操作员当前的通道，并说出来（D-SCAN-?）', async () => {
+  it('请求的通道有一个对不上 ⇒ **整组不设**，保持操作员当前的通道，并说出来（D-SCAN-6）', async () => {
     // 只设对上的那部分，等于把操作员要的其它通道悄悄砍掉
     const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Nope' })
     expect(res.success).toBe(true)
@@ -360,7 +360,7 @@ describe('StartScan 的闸：不发起一次停不下来的扫描', () => {
 
   it('序列名写回前还原成真字符：读到的是二进制串，请求侧再按 UTF-8 编一次就双重编码了', async () => {
     // `*-c` 的回复是逐字节一字符的串。把「数据」的 UTF-8 字节（E6 95 B0 E6 8D AE）原样当文本写回，
-    // 每个字节都会被编成两个字节；参考实现在这里就是这样坏的，我们不照抄（D-WIRE-?）。
+    // 每个字节都会被编成两个字节；参考实现在这里就是这样坏的，我们不照抄（D-WIRE-4）。
     const utf8 = Buffer.from('数据_Au111', 'utf8').toString('latin1')
     const gbk = Buffer.from([0xca, 0xfd, 0xbe, 0xdd, 0x5f, 0x41, 0x75, 0x31, 0x31, 0x31]).toString('latin1')
     const odd = Buffer.from([0x41, 0xff, 0xfe]).toString('latin1')

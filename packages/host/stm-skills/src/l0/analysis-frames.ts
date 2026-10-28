@@ -296,7 +296,7 @@ export const LocateStepEdge: Skill = {
     })
 
     const nmPerPx = fr.nm_per_px
-    // 像素 → 米走 `parseXyMeta` + `pxToM`（全仓唯一一份，带扫描角；D-ROT-?）。旧仓这里自己拆
+    // 像素 → 米走 `parseXyMeta` + `pxToM`（全仓唯一一份，带扫描角；D-ROT-1）。旧仓这里自己拆
     // `scan_offset`、拿 `nm_per_px` **不旋转**地换算 —— 转过角度的帧上整个错位，而这对坐标
     // 正是拿去沿台阶布谱的。头里读不出偏移或视野 ⇒ 不报坐标（「没有几何」不是「在原点」）。
     const meta = parseXyMeta(scan.header as Readonly<Record<string, unknown>>)

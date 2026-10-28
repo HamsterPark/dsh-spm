@@ -1,5 +1,5 @@
 /**
- * 转过角度的帧上，技能报出来的坐标朝**哪一边**转（D-ROT-?：正 SCAN_ANGLE = 顺时针，
+ * 转过角度的帧上，技能报出来的坐标朝**哪一边**转（D-ROT-1：正 SCAN_ANGLE = 顺时针，
  * 像素 → 米是 R(−θ)）。
  *
  * 金样里团簇一族一格 θ≠0 都没有，`FindFlatRegion` 只有一格、而且只验中心 —— 所以这里
@@ -142,7 +142,7 @@ const BUMP_Y = -66.5e-9
 /** 半个像素：阈值边上的像素会被噪声翻掉一两个，质心偏移在亚像素内。 */
 const CENTROID_TOL = 0.5e-9
 
-describe('θ=90° 帧上的团簇坐标（D-ROT-?）', () => {
+describe('θ=90° 帧上的团簇坐标（D-ROT-1）', () => {
   it('A1 ExtractClusters：斑心落在 R(−θ) 给的位置', () => {
     const r = runExtractClusters({ scan_path: PATH['bump'], polarity: 'bright' })
     expect(r.success).toBe(true)
@@ -208,7 +208,7 @@ function expectCentre(d: any, want: readonly [number, number]): void {
   ).toBe(true)
 }
 
-describe('θ=90° 帧上 FindFlatRegion 的「避开扎过的点」（D-ROT-?）', () => {
+describe('θ=90° 帧上 FindFlatRegion 的「避开扎过的点」（D-ROT-1）', () => {
   it('B1 不排除：选中最平的 P1，中心是 R(−θ) 给的位置', async () => {
     const r = await FindFlatRegion.execute(CTX, { scan_path: PATH['flats'], window_fraction: 0.25 })
     expect(r.success).toBe(true)
@@ -256,7 +256,7 @@ function edgePointPx(path: string): [number, number] {
   return [res.xPx, res.yPx]
 }
 
-describe('θ=90° 帧上 LocateStepEdge 的边上一点（D-ROT-?）', () => {
+describe('θ=90° 帧上 LocateStepEdge 的边上一点（D-ROT-1）', () => {
   it('C1 edge_x_m / edge_y_m 经 R(−θ) 换算，而不是旧仓那个不旋转的式子', async () => {
     const [xPx, yPx] = edgePointPx(PATH['step'] as string)
     const r = await LocateStepEdge.execute(CTX, { scan_path: PATH['step'] })

@@ -518,7 +518,7 @@ describe('ConfigureSTS · 四步各自的早退，外加那一步**不致命**�
   })
 })
 
-describe('ConfigureSTS · 扫掠数先读回再原样写，读不到才退回 1（D-STS-?）', () => {
+describe('ConfigureSTS · 扫掠数先读回再原样写，读不到才退回 1（D-STS-6）', () => {
   const STS = { start_v: -1, end_v: 1, num_points: 128 }
   const propsGet = (values: unknown[]): SkillCallRecord => ({ method: '', args: [], values })
   const propsSetArgs = (f: Fixture): unknown[] | undefined =>
