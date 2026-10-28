@@ -265,6 +265,7 @@ export {
   type DiffTrace,
 } from './frame-diff.js'
 export {
+  MAX_REPLY_BYTES,
   VISUAL_TOOL_NAMES,
   defineVisualTools,
   renderViewValue,
