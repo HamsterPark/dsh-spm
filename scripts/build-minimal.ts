@@ -6,12 +6,15 @@ import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import { build, type Metafile } from 'esbuild'
 import { forbiddenDistributionReference } from './minimal-distribution.ts'
+import { formatFinding, scanStagedDistribution } from './release-hygiene.ts'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const bundleDir = join(root, 'packages', 'bundle', 'dsh-spm')
 const artifactsDir = join(root, 'artifacts')
 const stageDir = join(artifactsDir, 'dsh-spm-minimal-package')
 const libDir = join(stageDir, 'lib')
+/** 分发包恰好由这四个文件组成：暂存目录与 tgz 都按它核对。 */
+const distributionFiles = ['package.json', 'cordis.minimal.patch.yml', 'lib/index.js', 'lib/minimal.js']
 
 type PackageManifest = {
   name?: string
@@ -137,11 +140,18 @@ const manifest = {
 writeFileSync(join(stageDir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`)
 cpSync(join(bundleDir, 'cordis.minimal.patch.yml'), join(stageDir, 'cordis.minimal.patch.yml'))
 
-for (const path of ['package.json', 'cordis.minimal.patch.yml', 'lib/index.js', 'lib/minimal.js']) {
+for (const path of distributionFiles) {
   const text = readFileSync(join(stageDir, path), 'utf8')
   const found = forbiddenDistributionReference(text, root)
   if (found !== undefined) throw new Error(`${path} 泄漏了禁止的分发引用：${found}`)
 }
+
+// 发布卫生门：esbuild 把内部包打进了 lib/*.js，它们的字符串都会随包发出去。
+// 站点名单只在设了 HYGIENE_SITE_LIST 的机器上参与。
+const siteListPath = process.env['HYGIENE_SITE_LIST']
+const hygiene = scanStagedDistribution(stageDir, distributionFiles, { siteListPath })
+if (hygiene.length !== 0) throw new Error(`最小分发出现卫生门命中：\n${hygiene.map(formatFinding).join('\n')}`)
+console.log(`卫生门：暂存分发包通过（${siteListPath ? '通用规则与站点名单' : '只跑通用规则，未设 HYGIENE_SITE_LIST'}）`)
 
 mkdirSync(artifactsDir, { recursive: true })
 const npmCommand = process.platform === 'win32' ? process.env.ComSpec : 'npm'
@@ -152,9 +162,14 @@ const packed = execFileSync(npmCommand, npmArgs, {
   cwd: root,
   encoding: 'utf8',
 })
-const packResult = JSON.parse(packed) as Array<{ filename: string }>
+const packResult = JSON.parse(packed) as Array<{ filename: string; files: Array<{ path: string }> }>
 const filename = packResult[0]?.filename
 if (filename === undefined) throw new Error(`npm pack 未返回产物名：${packed}`)
+// npm 会按自己的规则自动带上 README、LICENSE 等文件；tgz 里必须恰好是扫过的那四个。
+const packedFiles = (packResult[0]?.files ?? []).map((file) => file.path).sort()
+if (packedFiles.join('\n') !== [...distributionFiles].sort().join('\n')) {
+  throw new Error(`最小分发包的文件与暂存时扫过的不一致：${packedFiles.join(', ')}`)
+}
 const tgzPath = join(artifactsDir, filename)
 const inputs = Object.keys(result.metafile.inputs)
   .map((path) => {
