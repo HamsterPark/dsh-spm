@@ -14,7 +14,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from 'dsh-spm-compat'
 import { InstrumentService, type CallOptions, type CallRecord, type LinkFactory, type Role } from 'dsh-spm-instrument'
 import { SkillKernel, emptyHardwareState, type Skill } from 'dsh-spm-kernel'
-import { NANONIS_METHODS, RoleLink } from 'dsh-spm-nanonis-wire'
+import { NANONIS_METHODS, RoleLink, RoleLinkError } from 'dsh-spm-nanonis-wire'
+import { ConfigureSTS } from 'dsh-spm-stm-skills'
 import { createInstrumentCalls } from './instrument-calls.js'
 
 /** 先登记的后清理：服务要先关，服务器才等得到连接都断开。 */
@@ -201,5 +202,50 @@ describe('模块首次加载的宽限 · 缩比的真 TCP', () => {
     expect(next.error).toBeUndefined()
     expect(third.error).toMatch(/^Timeout:/)
     expect(third.transport).toEqual({ kind: 'Timeout', maybeDelivered: true })
+  })
+})
+
+describe('传输失败标记从仪器层一路传到技能', () => {
+  it('E1 ConfigureSTS 的 LimitsSet 第一次超时、第二次成功 ⇒ 技能成功，LimitsSet 发了两次', async () => {
+    const sent: string[] = []
+    let limitsSeen = 0
+    const svc = serviceWith(
+      () =>
+        ({
+          connected: true,
+          connect: async () => {},
+          close: async () => {},
+          request: async (command: string) => {
+            sent.push(command)
+            if (command === 'BiasSpectr.LimitsSet' && limitsSeen++ === 0) {
+              throw new RoleLinkError('BiasSpectr.LimitsSet 超过 5000ms 未收到回复', 'Timeout')
+            }
+            return new Uint8Array(8) // 成功、没有返回字段
+          },
+        }) as never,
+    )
+    const { safeCall, budgetedCall } = createInstrumentCalls({
+      send: (method, args, opts) => svc.call(method, args, opts),
+      abortLatched: () => false,
+    })
+    const sleeps: number[] = []
+    const kernel = new SkillKernel({
+      snapshot: () => emptyHardwareState('T0'),
+      safeCall,
+      budgetedCall,
+      sleep: async (ms) => {
+        sleeps.push(ms)
+      },
+    })
+    const out = await kernel.run(ConfigureSTS, { start_v: -1, end_v: 1, num_points: 128 })
+    expect(out.kind, out.text).toBe('ok')
+    expect(sent).toEqual([
+      'BiasSpectr.Open',
+      'BiasSpectr.LimitsSet',
+      'BiasSpectr.LimitsSet',
+      'BiasSpectr.PropsSet',
+      'BiasSpectr.AdvPropsSet',
+    ])
+    expect(sleeps).toEqual([1_000])
   })
 })
