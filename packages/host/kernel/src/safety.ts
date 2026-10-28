@@ -9,6 +9,7 @@ import {
   ABORT_SAFE_WRITES,
   CAP_BIAS_PULSE,
   CAP_TIP_SHAPING,
+  FLOAT_SLACK,
   GLOBAL_CHECKS,
   PHYSICAL_ABSURD,
   SEMI_DEPTH_NAME_PATTERNS,
@@ -330,7 +331,11 @@ export interface EnvelopeViolation {
   readonly max: number
 }
 
-/** 可调包络检查。**名字（子串）与单位都要匹配**才触发。 */
+/**
+ * 可调包络检查。**名字（子串）与单位都要匹配**才触发。
+ * 比较带相对容差（{@link FLOAT_SLACK}）；违规里的 `min` / `max` 仍是配置里的**原界**，
+ * 消息打印的也是它，不是放宽后的那个。
+ */
 export function envelopeViolations(
   meta: SkillMetaLike,
   params: Readonly<Record<string, unknown>>,
@@ -349,7 +354,7 @@ export function envelopeViolations(
       if (!nameL.includes(pat) || unitPat !== unitL) continue
       const min = limits[minKey]
       const max = limits[maxKey]
-      if (value < min || value > max) out.push({ param: name, value, min, max })
+      if (value < min - FLOAT_SLACK * Math.abs(min) || value > max + FLOAT_SLACK * Math.abs(max)) out.push({ param: name, value, min, max })
       break
     }
   }

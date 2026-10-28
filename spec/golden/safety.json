@@ -394,6 +394,180 @@
     ],
     "SEMI_TIP_LIFT_MAX_M": 5e-09
   },
+  "envelope_cases": [
+    {
+      "args": {
+        "setpoint_a": "100n"
+      },
+      "case": "setpoint_100n_at_ceiling",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "setpoint_a": 1e-07
+      },
+      "case": "setpoint_ceiling_as_float",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "setpoint_a": "100.5n"
+      },
+      "case": "setpoint_100p5n_over",
+      "sides": [
+        "maximum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'setpoint_a' = 1.005e-07 violates global safety maximum 1e-07"
+      ]
+    },
+    {
+      "args": {
+        "setpoint_a": "101n"
+      },
+      "case": "setpoint_101n_over",
+      "sides": [
+        "maximum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'setpoint_a' = 1.01e-07 violates global safety maximum 1e-07"
+      ]
+    },
+    {
+      "args": {
+        "setpoint_a": "1p"
+      },
+      "case": "setpoint_1p_at_floor",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "setpoint_a": "0.9p"
+      },
+      "case": "setpoint_0p9p_below_floor",
+      "sides": [
+        "minimum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'setpoint_a' = 9e-13 violates global safety minimum 1e-12"
+      ]
+    },
+    {
+      "args": {
+        "tip_lift_m": "-100n"
+      },
+      "case": "tip_lift_neg_100n_at_floor",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "tip_lift_m": "-100.5n"
+      },
+      "case": "tip_lift_neg_100p5n_under",
+      "sides": [
+        "minimum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'tip_lift_m' = -1.005e-07 violates global safety minimum -1e-07"
+      ]
+    },
+    {
+      "args": {
+        "bias_v": -10.000000000000002
+      },
+      "case": "bias_neg10_one_ulp_below",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "bias_v": -10.0000001
+      },
+      "case": "bias_neg_over_slack",
+      "sides": [
+        "minimum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'bias_v' = -10.0000001 violates global safety minimum -10.0"
+      ]
+    },
+    {
+      "args": {
+        "bias_v": 10.000000000000002
+      },
+      "case": "bias_pos10_one_ulp_above",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "bias_v": 10.0000001
+      },
+      "case": "bias_pos_over_slack",
+      "sides": [
+        "maximum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'bias_v' = 10.0000001 violates global safety maximum 10.0"
+      ]
+    },
+    {
+      "args": {
+        "z_pos": 0.0
+      },
+      "case": "z_pos_zero",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "z_pos": -1e-30
+      },
+      "case": "z_pos_just_below_zero",
+      "sides": [
+        "minimum"
+      ],
+      "violated": true,
+      "violations": [
+        "Parameter 'z_pos' = -1e-30 violates global safety minimum 0.0"
+      ]
+    },
+    {
+      "args": {
+        "z_offset_m": "1600n"
+      },
+      "case": "z_offset_1600n_at_ceiling",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    },
+    {
+      "args": {
+        "z_offset_m": "-1600n"
+      },
+      "case": "z_offset_neg_1600n_at_floor",
+      "sides": [],
+      "violated": false,
+      "violations": []
+    }
+  ],
   "global_checks": [
     [
       "bias_v",
@@ -2593,5 +2767,54 @@
   "sample_gate_messages": {
     "no_experiment": "[sample_gate] no_active_experiment: 当前没有进行中的实验，'StartScan' 未执行——扫描/谱学产生的数据必须归属到一个实验和样品，否则以后没人能定位这条记录测的是什么。\n出路：(1) 调用 start_experiment(\"实验名\") 开一个实验，再 start_sample(\"样品名\")；(2) 请用户在右栏「实验 → 样品」里选择。\nDo NOT retry this call unchanged — 在实验和样品选定前它会以完全相同的方式失败。",
     "no_sample": "[sample_gate] no_active_sample: 当前没有选定样品，'StartScan' 未执行——扫描/谱学产生的数据必须归属到一个样品，否则以后没人能定位这条记录属于哪块样品。\n出路：(1) 调用 start_sample(\"样品名\") 新建一个样品；(2) 请用户在右栏「实验 → 样品」里选一个已有样品；(3) 若不确定用哪个样品，先问用户——不要重试本次调用。\nDo NOT retry this call unchanged — 在样品选定前它会以完全相同的方式失败。"
-  }
+  },
+  "spec_bound_cases": [
+    {
+      "case": "100n_at_ceiling",
+      "guard": [],
+      "validate_params": [
+        "Parameter 'setpoint_a' = 1.0000000000000001e-07 is above maximum 1e-07"
+      ],
+      "value": "100n"
+    },
+    {
+      "case": "100p5n_over",
+      "guard": [
+        "Parameter 'setpoint_a' = 1.005e-07 above maximum 1e-07",
+        "Parameter 'setpoint_a' = 1.005e-07 violates global safety maximum 1e-07"
+      ],
+      "validate_params": [
+        "Parameter 'setpoint_a' = 1.005e-07 is above maximum 1e-07"
+      ],
+      "value": "100.5n"
+    },
+    {
+      "case": "101n_over",
+      "guard": [
+        "Parameter 'setpoint_a' = 1.01e-07 above maximum 1e-07",
+        "Parameter 'setpoint_a' = 1.01e-07 violates global safety maximum 1e-07"
+      ],
+      "validate_params": [
+        "Parameter 'setpoint_a' = 1.01e-07 is above maximum 1e-07"
+      ],
+      "value": "101n"
+    },
+    {
+      "case": "1p_at_floor",
+      "guard": [],
+      "validate_params": [],
+      "value": "1p"
+    },
+    {
+      "case": "0p9p_below_floor",
+      "guard": [
+        "Parameter 'setpoint_a' = 9e-13 below minimum 1e-12",
+        "Parameter 'setpoint_a' = 9e-13 violates global safety minimum 1e-12"
+      ],
+      "validate_params": [
+        "Parameter 'setpoint_a' = 9e-13 is below minimum 1e-12"
+      ],
+      "value": "0.9p"
+    }
+  ]
 }
