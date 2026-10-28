@@ -8199,10 +8199,10 @@ function physicallyAbsurdViolations_unused(`,
   },
   {
     id: 'native-setbias-failure-text-keeps-the-message-only',
-    why: '子技能的失败文本是一行说明加每层一行的 JSON 数据；斜坡失败时那些数据里的 bias_v 是子技能的目标值，偏压其实停在半路。拆掉 ⇒ 模型先读到 bias_v 是目标值，之后才看到顶层那一行里的实际值',
+    why: '子技能的失败文本是说明加每层一行的 JSON 数据；斜坡失败时那些数据里的 bias_v 是子技能的目标值，偏压其实停在半路。拆掉 ⇒ 模型先读到 bias_v 是目标值，之后才看到顶层那一行里的实际值',
     file: 'packages/bundle/dsh-spm/src/native-skills.ts',
-    find: "          error: firstLine(res.error ?? 'BiasSettleChange failed'),",
-    replace: "          error: (void firstLine, res.error ?? 'BiasSettleChange failed'),",
+    find: "          error: withoutDataLines(res.error ?? 'BiasSettleChange failed'),",
+    replace: "          error: (void withoutDataLines, res.error ?? 'BiasSettleChange failed'),",
     scope: 'packages/bundle/dsh-spm',
   },
   {

@@ -44,11 +44,13 @@ async function refreshCache(ctx: SkillContext): Promise<void> {
 }
 
 /**
- * 子技能的失败文本是一行说明，后面每一层跟一行 JSON 数据。只留说明：斜坡失败时那几行数据里的 `bias_v` 是
- * 子技能的目标值，而偏压其实停在半路，模型会先读到它。子技能的字段已经经 `...res.data` 并进顶层数据，不会丢。
+ * 子技能的失败文本是说明，后面每一层跟一行 JSON 数据（`\n{...}`）。只留说明：斜坡失败时那几行数据里的 `bias_v`
+ * 是子技能的目标值，而偏压其实停在半路，模型会先读到它。子技能的字段已经经 `...res.data` 并进顶层数据，不会丢。
+ * 说明本身可以有多行（Nanonis 的错误描述就有），所以截在第一行数据之前，不是第一个换行处。
  */
-function firstLine(text: string): string {
-  return text.split('\n', 1)[0] ?? text
+function withoutDataLines(text: string): string {
+  const at = text.indexOf('\n{')
+  return at < 0 ? text : text.slice(0, at)
 }
 
 function unexpectedParams(params: Readonly<Record<string, unknown>>, allowed: readonly string[]): string[] {
@@ -123,7 +125,7 @@ export const NativeSetBias: Skill = {
         if (typeof actual === 'number') await refreshCache(ctx)
         return {
           success: false,
-          error: firstLine(res.error ?? 'BiasSettleChange failed'),
+          error: withoutDataLines(res.error ?? 'BiasSettleChange failed'),
           data: {
             ...res.data,
             path,

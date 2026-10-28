@@ -394,6 +394,20 @@ describe('native SetBias routing', () => {
     expect(JSON.parse(lines[1]!)).toMatchObject({ bias_v: 0.6, command_sent: true, strategy: 'ramp_through_zero' })
   })
 
+  it('keeps a multi-line instrument error description whole and still drops the sub-skill data lines', async () => {
+    // Nanonis 的错误描述可以有多行：截在第一个换行处会把后面的丢掉，要截的只是 `\n{...}` 数据行
+    const description = 'Nanonis error 7: bias out of range\nCheck the limits and try again'
+    const { kernel } = fixture({ Bias_Get: [[1], [1], [0.6]], Bias_Set: [[], [], description] })
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 })
+    expect(result.kind).toBe('failed')
+    expect(result.text).toContain(description)
+    expect(result.text).toContain('[SetBiasRamp] failed')
+    expect(result.text).not.toContain('slew_rate_v_per_s')
+    const lines = result.text.split('\n')
+    expect(lines).toHaveLength(3) // 说明的两行 + 顶层那一行数据
+    expect(JSON.parse(lines[2]!)).toMatchObject({ bias_v: 0.6, command_sent: true })
+  })
+
   it('does not claim a voltage when the readback after a failed ramp also fails', async () => {
     const { kernel, refreshCount } = fixture(
       { Bias_Get: [[1], [1], 'connection_closed'], Bias_Set: [[], 'write_rejected'] }, {}, { live: true },
