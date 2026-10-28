@@ -72,7 +72,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 
 ### 3.1 dsh 侧（逐条事实随版本重核，正本在 `docs/dsh/facts.md` §6；这里只留与版本无关的**设计后果**，编号与 facts.md 对齐）
 
-1. **API 会漂**（0.1.2 系列平均一天一版，官方预告若干破坏性重构；prerelease 的 caret 还会跨 alpha→rc 通道）⇒ `dsh-spm-compat` 是全仓唯一 import `@deepseek-ai/*` 的包；整套 `@deepseek-ai/*` 用 pnpm overrides 钉同一精确版本，`check-dsh-pin` 让混装当场变红；contract 测试对真实 dsh 包断言；升级按 `docs/dsh/upgrades.md` 清单小步跟、我们的插件随之做破坏性重构（D11）；**持久真源放 SQLite 不放 session log**（dsh 自己的 alpha.5 就是修「升级后起不来、会话标题消失」）。
+1. **API 会漂**（0.1.2 系列平均一天一版，官方预告若干破坏性重构；prerelease 的 caret 还会跨 alpha→rc 通道）⇒ `dsh-spm-compat` 是全仓唯一 import `@deepseek-ai/*` 的包；整套 `@deepseek-ai/*` 用 pnpm overrides 钉同一精确版本，钉版契约测试（`compat/contract/pin.test.ts`）让混装当场变红；contract 测试对真实 dsh 包断言；升级按 `docs/dsh/upgrades.md` 清单小步跟、我们的插件随之做破坏性重构（D11）；**持久真源放 SQLite 不放 session log**（dsh 自己的 alpha.5 就是修「升级后起不来、会话标题消失」）。
 2. **审批请求不带工具参数、`tools/pre-execute` 不能改写参数、无应答者 fail-closed** ⇒ `reason` 放确定性 `ApprovalDigest`（含 `args#hash6`），执行时重算 hash 不等即拒。
 3. **`ctx.tools.guard()` 单调不可翻转** ⇒ 中止闩挂 `tools/pre-execute` + 内核 K2（D9）。
 4. **jobs 不跨重启、归属启动它的 session** ⇒ 过夜 conduct 自己持久 journal；扫描类 job 重启后标 `interrupted`；只有 conduct 从最后一个已确认步续跑。
@@ -140,7 +140,7 @@ MAST（LLM 驱动的自主 STM/SPM 实验系统，Python/LangGraph，**498 个�
 ```
 dsh-spm/
 ├── package.json  pnpm-workspace.yaml  tsconfig.base.json  tsconfig.client.json  vitest.workspace.ts  .github/workflows/ci.yml
-├── scripts/       gen-nanonis.ts（协议表→typed façade）  stmsim.ts（起停模拟器）  check-dsh-surface.ts  check-boundaries.ts  gen-skill-cards.ts
+├── scripts/       gen-nanonis.ts（协议表→typed façade）
 ├── spec/          nanonis_commands.json（拷自 STM-Bench，附 provenance）  nanonis_wire_fixtures/（Python 客户端录的字节金样）
 │                  golden/（§8.6 导出）  deviations.md（有意与 Python 不同的行为，每条带测试名）  progress.json
 ├── tools/spec-export/export_mast_spec.py  record-traces.py（Python，只读旧仓，用旧 venv 跑）
@@ -186,7 +186,7 @@ dsh-spm/
 ### 6.3 bundle / profile / 防腐层 / 开发约定
 - **一个总 bundle + profile 组合**：bundle 是安装单位（`dsh plugin add dsh-spm`），profile 是组合单位；安全件必须随技能一起装。`cordis.patch.yml` 只 `insert` 我们的行（id `mast-instrument / mast-instrument-state / mast-safety / mast-records / mast-skill-runtime / mast-skills / mast-knowledge / mast-presets / mast-ui …`，每行 `inject` 写全）。`profiles/mast-sim`（插 `mast-instrument-stmsim`，端口 16501–16504，`mode: AUTO`，`rigGuard.allowRealRig: false`）、`profiles/mast-offline`（无仪器）；**`profiles/mast-rig`（`allowRealRig: true`、`mode: SAFE`、approval `ask`）Phase 8 才入仓**——真机 0 次是仓库结构不是纪律。
 - 需按 id 覆盖/裁剪的 dsh-base 行（实施时以 `dsh --profile web --dump-config` 逐行核对）：默认模型行 → `kimi-k3` 经 llm-providers；`tool-bash/pwsh` **不从 profile 删**（连锁不装载），在 IC/conduct preset 用 `restrict({deny})`；`approval` policy `ask`（rig 下 `never` 被 selfcheck 拒绝）；`permission` 加 `mast-rig` 预设防「全部允许」绕过；`subagent/tool-subagent` config `maxDepth: 2`、`enableRunInBackground: true`；`compaction-basic`/`tool-result-pruner` 保持。
-- **防腐层与版本锁**：全仓只有 `packages/host/compat/src/` 出现 `from '@deepseek-ai/`（oxlint `no-restricted-imports` + 结构测试）；根 `package.json` 的 pnpm `overrides` 把**整套** `@deepseek-ai/dsh*` 钉成同一精确版本（Cordis 系 `@deepseek-ai/cordis*`、`cosmokit` 各钉各的精确版本），compat 的 `peerDependencies` 同样精确；`scripts/check-dsh-pin.ts` 断言安装树里 `@deepseek-ai/dsh*` 只有一个版本；`scripts/check-dsh-surface.ts` 把依赖的 dsh 符号清单 + slot 名写成 `dsh-surface.lock.json`；`scripts/check-dsh-latest.ts` 比对 npm `alpha` dist-tag 与锁定版本（有新版就报，CI 只警告不红）；vitest `contract` project 对真实 dsh 包断言签名与行为；升级按 `docs/dsh/upgrades.md` 清单走，单独提交 `chore(dsh): bump a → b`，先在 compat 内适配，适配不了就随 dsh 一起重构（D11）。
+- **防腐层与版本锁**：全仓只有 `packages/host/compat/src/` 出现 `from '@deepseek-ai/`（oxlint `no-restricted-imports` + 结构测试）；`pnpm-workspace.yaml` 的 `overrides`（逐包精确）把**整套** `@deepseek-ai/dsh*` 钉成同一精确版本（Cordis 系 `@deepseek-ai/cordis*`、`cosmokit` 各钉各的精确版本），compat 的 `dependencies` 同样精确；`packages/host/compat/contract/pin.test.ts` 读锁文件，断言每个 `@deepseek-ai/dsh*` 恰好是锁定版本（独立的 `check-dsh-pin.ts` 与 `check-dsh-surface.ts` 按消融原则没有写，见 EXECUTION 0.3 一节）；`scripts/check-dsh-latest.ts` 比对 `latest` / `next` 稳定通道与锁定版本（有新版就报，只是提示，不进 CI；alpha 另行提示）；vitest `contract` project 对真实 dsh 包断言签名与行为；升级按 `docs/dsh/upgrades.md` 清单走，单独提交 `chore(dsh): bump a → b`，先在 compat 内适配，适配不了就随 dsh 一起重构（D11）。
 - **开发约定**：TS strict + `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess`、ESM/NodeNext；只有 client 包用 tsdown `clientBundle`（host/client 双面），其余 `tsc -b`；vitest 三 project `unit`/`contract`/`integration(stmsim)`；覆盖率：kernel/safety/nanonis-wire/instrument/skill-runtime/conduct **逐文件 100%**（一个没测到的分支就是一次物理风险），skills 100% 行，numerics/vision 90%，UI 组件 80%；`/* v8 ignore */` 必须带 reason；lint oxlint；边界规则（skills 互不 import、agents 不 import skills、kernel 禁 I/O）落 `check-boundaries.ts`；CI `windows-latest` + `ubuntu-latest` × Node 22.19/24，两端都跑 stmsim 集成（`setup-python@3.13` + `pip install numpy scipy pyyaml` + STM-Bench 钉 commit）；`.gitattributes` 钉 LF；commit 中文首行 `feat(pkg): …`。
 
 ## 7. 能力接缝（Service Definition / Provider / Consumer）
