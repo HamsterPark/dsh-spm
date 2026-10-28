@@ -994,6 +994,21 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 本仓现在退回的正是出厂默认 `xy_max_m = 1.5e-6`，而**那就是 2026-08-16 事故里的那个数**；
 宿主把生效限值接上之后这里自动跟着对。
 
+## D-LIMITS-? · 技能规格级上下界也带 1e-9 的相对容差（参考实现的 agent 路径上它是严格的）
+
+| | |
+|---|---|
+| **Python** | 全局包络（`SafetyGate`、`SafetyGuard`）带 `_FLOAT_SLACK = 1e-9` 的相对容差；规格级上下界只在 `SafetyGuard.check_parameter_bounds` 里带，而 agent 路径与子步骤路径随后还会跑 `BaseSkill.validate_params`，它严格比较（`value > spec.max_value`）。于是规格上界恰好等于全局上界的技能（`SetSetpoint` 等）收到 `'100n'`（解析成 `1.0000000000000001e-07`）仍被拒 |
+| **TS** | K6 对规格级上下界同样带容差 `FLOAT_SLACK × abs(界)`，向外放；文案仍印原界 |
+| **测试** | `packages/host/kernel/src/skill-kernel.test.ts` →「K6 · 技能规格级上下界带 1e-9 的相对容差」；金样 `safety.json` 的 `spec_bound_cases`（记录参考实现两层各自的结论：`100n` 一行 guard 为空、`validate_params` 非空）；变异 `k6-upper-slack-removed`、`k6-lower-slack-removed` |
+
+**为什么有意**：写成 `'100n'` 的人要的就是上限本身，被拒的原因是浮点噪声，不是量级；1e-9 的相对容差
+远小于任何物理分辨率，方向只是放宽 1 ulp 量级。本仓的全局包络已经按参考实现带了同样的容差，若 K6
+仍然严格，同一个值会被包络放行、被技能内核拒绝，两层的答案相反。**这条是放宽，不是移植。**
+
+**重新考虑所需证据**：参考实现把 `validate_params` 也改成带容差（那时这条不再是偏差，只是对齐）；
+或者决定保持严格比较（那时撤掉 K6 的容差，保留 `spec_bound_cases` 的结论，把「保持严格比较」写进本条）。
+
 ## D-NUM-1 · 一个仓里只能有一个 `sum`，而它不是 numpy 的那个
 
 | | |

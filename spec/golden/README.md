@@ -62,7 +62,7 @@ python tools/spec-export/<脚本>.py
 |---|---|---|
 | `skills.json` | `export_mast_spec.py` | 568 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
 | `si_cases.json` | 同上 | 执行 `parse_si`、strict／loose `parse_quantity`、`needs_strict_prefix`、`format_si`，包含异常类型与完整消息 |
-| `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本 |
+| `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本；重发分类（`resend_safe`：全部 671 个动词在无实参时能否重发；`resend_arg0_cases`：按第一个实参判的 `Scan_Action` 与 `AutoApproach_OnOffSet`，13 格）；包络边界 16 格（`envelope_cases`：恰在界上的写法、真越界、负下界、界为 0，含 `1600n` 两格）；规格界 5 格（`spec_bound_cases`：同一个值过参考实现的 `SafetyGuard` 与 `validate_params` 两层，记两层各自的结论） |
 | `preconditions.json` | `export_preconditions.py` | 词表与 10 个前置条件 × 14 个夹具的 140 格网格，逐格记录违反消息，覆盖子串匹配及否定形式 |
 | `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 568 个技能的模型 schema；保存模型可见范围及文字 |
 | `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明，用于执行建表后逐表、逐对象比较 |
@@ -77,7 +77,7 @@ python tools/spec-export/<脚本>.py
 | `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,802 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
 | `watchdog.json` | `export_watchdog_trace.py` | 用可控时钟驱动 `SafetyWatchdog.run()`，覆盖武装状态与动作触发条件 |
 | `state.json` | `export_state_spec.py` | `InstrumentState` 的调用、读数转换与状态：21 个转换用例、14 条脚本共 29 步、7 个实时提示块 |
-| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步 |
+| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步；另有熔断提示原文 2 条（`_down_message`、`_down_message_half`，键以下划线开头，不是脚本；后者剩余冷却恰为 18.5 s，钉住 `{:.0f}` 的取整） |
 | `graph_executor.json` | `export_graph_executor.py` | `GraphExecutor` 的执行与恢复守卫 |
 | `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | `AutoApproach`、`safety_escalation`、`ApproachTip._approach` |
 | `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | `scan_policy`、`imaging` 判据，以及 `WaitScanComplete` 和回复解析 |

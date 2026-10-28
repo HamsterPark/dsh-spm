@@ -42,6 +42,8 @@ from mast.core.connection import resend_is_safe  # noqa: E402
 from mast.core import execution_context as ec  # noqa: E402
 from mast.core import sample_gate as sg  # noqa: E402
 from mast.core.types import OperatingMode, ParameterSpec, SkillMetadata  # noqa: E402
+from mast.core.si_quantity import parse_quantity  # noqa: E402
+from mast.skills.builtins.zcontrol import SetSetpoint  # noqa: E402
 
 
 def meta(params: list[tuple[str, str]], **kw) -> SkillMetadata:
@@ -72,6 +74,44 @@ ABSURD_CASES: list[dict] = [
     {"case": "unknown_param", "params": [("bias_v", "V")], "args": {"没这个参数": 1e9}},
     {"case": "non_numeric", "params": [("label", "")], "args": {"label": "abc"}},
     {"case": "bool_not_number", "params": [("flag", "")], "args": {"flag": True}},
+]
+
+
+# ── 全局包络的边界：相对容差 1e-9 ───────────────────────────────────────────
+# `parse_quantity('100n')` 是 100 * 1e-9 = 1.0000000000000001e-07，比 1e-07 的上限大 1 ulp；
+# 参考实现的 `_FLOAT_SLACK` 就是为它存在的。这些格子专卡：恰在界上的写法放行、真越界仍拒、
+# **负下界也向外放**（`min * (1 - slack)` 会把它向内收）、界为 0 时容差为 0。
+# 探针 `meta()` 没有规格级的界，所以这里只验全局包络。
+ENVELOPE_CASES: list[dict] = [
+    {"case": "setpoint_100n_at_ceiling", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "100n"}},
+    {"case": "setpoint_ceiling_as_float", "params": [("setpoint_a", "A")], "args": {"setpoint_a": 1e-07}},
+    {"case": "setpoint_100p5n_over", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "100.5n"}},
+    {"case": "setpoint_101n_over", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "101n"}},
+    {"case": "setpoint_1p_at_floor", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "1p"}},
+    {"case": "setpoint_0p9p_below_floor", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "0.9p"}},
+    {"case": "tip_lift_neg_100n_at_floor", "params": [("tip_lift_m", "m")], "args": {"tip_lift_m": "-100n"}},
+    {"case": "tip_lift_neg_100p5n_under", "params": [("tip_lift_m", "m")], "args": {"tip_lift_m": "-100.5n"}},
+    {"case": "bias_neg10_one_ulp_below", "params": [("bias_v", "V")], "args": {"bias_v": -10.000000000000002}},
+    {"case": "bias_neg_over_slack", "params": [("bias_v", "V")], "args": {"bias_v": -10.0000001}},
+    {"case": "bias_pos10_one_ulp_above", "params": [("bias_v", "V")], "args": {"bias_v": 10.000000000000002}},
+    {"case": "bias_pos_over_slack", "params": [("bias_v", "V")], "args": {"bias_v": 10.0000001}},
+    {"case": "z_pos_zero", "params": [("z_pos", "m")], "args": {"z_pos": 0.0}},
+    # 下界为 0 ⇒ 容差为 0：哪怕只差 1e-30 也是越界
+    {"case": "z_pos_just_below_zero", "params": [("z_pos", "m")], "args": {"z_pos": -1e-30}},
+    # `1600n` 解析成 1.6000000000000001e-06，也比 1.6e-06 的 z_offset 界大 1 ulp
+    {"case": "z_offset_1600n_at_ceiling", "params": [("z_offset_m", "m")], "args": {"z_offset_m": "1600n"}},
+    {"case": "z_offset_neg_1600n_at_floor", "params": [("z_offset_m", "m")], "args": {"z_offset_m": "-1600n"}},
+]
+
+# 规格级上下界：同一个值过参考实现的两层。`SetSetpoint.setpoint_a` 的规格界是 [1e-12, 100e-9]，
+# `SafetyGuard.check_parameter_bounds` 带 1e-9 的相对容差，而 agent 路径与子步骤路径随后还会跑
+# `BaseSkill.validate_params`，它是严格比较。两层给不给同一个答案，决定技能内核的规格级检查该学谁。
+SPEC_BOUND_CASES: list[tuple[str, str]] = [
+    ("100n_at_ceiling", "100n"),
+    ("100p5n_over", "100.5n"),
+    ("101n_over", "101n"),
+    ("1p_at_floor", "1p"),
+    ("0p9p_below_floor", "0.9p"),
 ]
 
 
@@ -332,6 +372,34 @@ def main() -> int:
         for c in ABSURD_CASES
     ]
 
+    guard = sf.SafetyGuard(SafetyLimits())
+    envelope_rows = []
+    for c in ENVELOPE_CASES:
+        violations = guard.check_parameter_bounds(meta(c["params"]), c["args"])
+        envelope_rows.append({
+            "case": c["case"],
+            "args": c["args"],
+            "violations": violations,
+            "violated": bool(violations),
+            # 哪一侧越界，由违规文本里的 minimum / maximum 派生
+            "sides": sorted({side for side in ("minimum", "maximum") if any(side in v for v in violations)}),
+        })
+    out["envelope_cases"] = envelope_rows
+
+    set_setpoint = SetSetpoint()
+    setpoint_meta = set_setpoint.metadata()
+    out["spec_bound_cases"] = [
+        {
+            "case": label,
+            "value": value,
+            "guard": guard.check_parameter_bounds(setpoint_meta, {"setpoint_a": value}),
+            "validate_params": set_setpoint.validate_params(
+                {"setpoint_a": parse_quantity(value, strict=False, what="setpoint_a")}
+            ),
+        }
+        for label, value in SPEC_BOUND_CASES
+    ]
+
     out["hard_gate_cases"] = [
         {"fn": c["fn"], "case": c["case"], "skill": c["skill"], "params": c["params"],
          "result": getattr(sf, c["fn"])(c["skill"], c["params"])}
@@ -388,6 +456,7 @@ def main() -> int:
           f"abort {len(out['abort_cases'])} · abort_safe_writes {len(out['abort_safe_writes'])} 条")
     print(f"       sample_gate 四表 {sum(len(v) for v in out['sample_gate'].values())} 项 / "
           f"{len(out['sample_gate_cases'])} 条用例")
+    print(f"       envelope {len(out['envelope_cases'])} 格 · spec_bound {len(out['spec_bound_cases'])} 格")
     return 0
 
 

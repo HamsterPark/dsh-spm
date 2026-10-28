@@ -19,6 +19,7 @@ import { isStateChangingSkill } from './act-gate.js'
 import { argsHash } from './args-hash.js'
 import type { HardwareState } from './hardware-state.js'
 import { checkStatePreconditions, type ComputedCheck } from './preconditions.js'
+import { FLOAT_SLACK } from './safety-tables.js'
 import { SIParseError, parseQuantity } from './si.js'
 import { isStrictParam, siParams } from './tool-schema.js'
 import type { TransportInfo } from './transport-policy.js'
@@ -828,9 +829,14 @@ export class SkillKernel {
         }
       }
       if (typeof v === 'number') {
-        if (p.minValue !== null && p.minValue !== undefined && v < p.minValue) {
+        // 界带 FLOAT_SLACK 的相对容差，向外放：'100n' 解析成 1.0000000000000001e-07，要能通过
+        // 1e-07 的上限。参考实现里技能自己的检查是严格的，所以这是放宽，不是移植——
+        // 见 spec/deviations.md D-LIMITS-?。文案仍印原界。
+        const lo = p.minValue
+        const hi = p.maxValue
+        if (lo !== null && lo !== undefined && v < lo - FLOAT_SLACK * Math.abs(lo)) {
           out.push(explainValidation(p, v, 'min'))
-        } else if (p.maxValue !== null && p.maxValue !== undefined && v > p.maxValue) {
+        } else if (hi !== null && hi !== undefined && v > hi + FLOAT_SLACK * Math.abs(hi)) {
           out.push(explainValidation(p, v, 'max'))
         }
       }
