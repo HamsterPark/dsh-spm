@@ -118,7 +118,7 @@ export function encodeArgs(args: readonly ArgValue[]): Uint8Array {
  * 参考客户端解 `*-c` / `*+c` / `**c` 的回复就是这么做的（latin-1：`nanonis_patch.py` 注明换成
  * UTF-8 会让字符数小于字节数；同一个文件里 `+*c` 用 UTF-8，也注明了不许「统一」）。UTF-8 解码会把
  * 非法字节换成 U+FFFD：信息在这一层就丢了，下游无从还原，而仪器按哪个代码页发，这一层并不知道。
- * 要还原成真字符的地方（比如会话路径）自己拿字节去试。见 spec/deviations.md D-WIRE-?。
+ * 要还原成真字符的地方（比如会话路径）自己拿字节去试。见 spec/deviations.md D-WIRE-4。
  *
  * ⚠️ 必须用 Buffer 的 `'latin1'`。WHATWG 的 `new TextDecoder('latin1')` 其实是 windows-1252，
  * 0x80–0x9F 会变成 €、Ÿ 之类的字符，往返不保真。
@@ -172,7 +172,7 @@ class Reader {
     this.pos += len
     return s
   }
-  /** 二进制串（见 {@link binaryString}）。`*-c` / `*+c` / `**c` 走这一条。见 spec/deviations.md D-WIRE-?。 */
+  /** 二进制串（见 {@link binaryString}）。`*-c` / `*+c` / `**c` 走这一条。见 spec/deviations.md D-WIRE-4。 */
   bstr(len: number): string {
     this.need(len)
     const s = binaryString(this.body.subarray(this.pos, this.pos + len))
@@ -213,7 +213,7 @@ function starStride(elem: string): number {
  * 字符串的解法**分格式**，与参考客户端一致，不许「统一」：
  *   `*-c` `*+c` `**c`            → 二进制串，逐字节一字符
  *   `+*c` `*2c`                  → UTF-8
- * 前缀说多少字节就读多少字节，计数与解法无关。见 spec/deviations.md D-WIRE-?。
+ * 前缀说多少字节就读多少字节，计数与解法无关。见 spec/deviations.md D-WIRE-4。
  */
 export function decodeReturns(
   body: Uint8Array,

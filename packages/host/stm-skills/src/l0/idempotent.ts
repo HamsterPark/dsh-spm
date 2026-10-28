@@ -7,7 +7,7 @@
  *
  * 只重做仪器层标了 `transport` 的失败：控制器答的错误（参数被锁、越界）重做一万次也一样；
  * 中止门的拒绝与测试替身的记录不带标记，原样放行。连接层对任何命令都不重发，
- * 这里是本仓唯一的一次重做（见 spec/deviations.md D-CONN-?）。两次尝试都经 `ctx.safeCall`，
+ * 这里是本仓唯一的一次重做（见 spec/deviations.md D-CONN-1）。两次尝试都经 `ctx.safeCall`，
  * 所以都进宿主的调用留痕。
  */
 import { resendIsSafe, type SkillCallRecord, type SkillContext } from 'dsh-spm-kernel'

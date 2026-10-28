@@ -277,7 +277,7 @@ describe('包络边界的相对容差 1e-9', () => {
   })
 })
 
-describe('D-LIMITS-? 的前提：参考实现的两层对「写成上限本身」的值给不同的答案', () => {
+describe('D-LIMITS-2 的前提：参考实现的两层对「写成上限本身」的值给不同的答案', () => {
   it('规格界 [1e-12, 100e-9] 的 `SetSetpoint`：只有 `100n` 一格 guard 放行而 validate_params 拒', () => {
     expect(golden.spec_bound_cases.map((c) => c.value)).toEqual(['100n', '100.5n', '101n', '1p', '0.9p'])
     const split = golden.spec_bound_cases.filter((c) => (c.guard.length === 0) !== (c.validate_params.length === 0))

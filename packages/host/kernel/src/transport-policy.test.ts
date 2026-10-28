@@ -15,7 +15,7 @@ import {
  * T1–T3、G1–G5 的语义搬自旧仓 `tests/v2/unit/core/test_connection_no_double_action.py` 与
  * `test_connection_open_grace_and_root_cause.py` 的宽限五格；同一批动词与实参，好逐条对。
  * 那两份文件里属于连接池内部的部分（重发的次数、根因优先的文案、机会型锁拒绝）本仓不搬：
- * 本仓的连接层不重发（D-CONN-?）。
+ * 本仓的连接层不重发（D-CONN-1）。
  */
 
 const safety = JSON.parse(

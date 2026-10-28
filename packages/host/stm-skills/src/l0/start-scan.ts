@@ -188,7 +188,7 @@ export const StartScan: Skill = {
     // 读到的是二进制串（逐字节一字符），而请求侧把字符串按 UTF-8 编码：不先还原成真字符，
     // 带非 ASCII 字符的前缀每个字节都会被编成两个字节（参考实现在这里就是这样双重编码的）。
     // 限制：请求侧仍只会发 UTF-8，所以控制器若按别的代码页收发，写回去的是同样的字符、
-    // 不是同样的字节——字节保真要请求侧接受原始字节，不在这里。见 spec/deviations.md D-WIRE-?。
+    // 不是同样的字节——字节保真要请求侧接受原始字节，不在这里。见 spec/deviations.md D-WIRE-4。
     const basename = decodeWireText(seriesName)
     const propsWritten = moduleNamesSource === 'read' || moduleNamesSource === 'read_empty'
     if (propsWritten) {

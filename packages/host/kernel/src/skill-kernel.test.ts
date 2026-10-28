@@ -211,7 +211,7 @@ describe('K6 · 参数校验', () => {
   })
 })
 
-describe('K6 · 技能规格级上下界带 1e-9 的相对容差（D-LIMITS-?）', () => {
+describe('K6 · 技能规格级上下界带 1e-9 的相对容差（D-LIMITS-2）', () => {
   /** 只有一个有量纲参数、带规格界的探针：规格界与全局包络的界相同，正是 `SetSetpoint` 的形状。 */
   const bounded = (minValue: number, maxValue: number): Skill =>
     probe({

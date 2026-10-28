@@ -12,7 +12,7 @@
  * ⇒ 修法不是提醒大家别复制，是**把复制的诱因去掉**。
  *
  * 旧仓的 `LocateStepEdge` 仍有一份自己的换算（拆 `scan_offset`、用 `nm_per_px`、**不旋转**），
- * 旧仓那条「唯一一份」的守卫测试没认出它。本仓那一份已改走这里（D-ROT-?）。
+ * 旧仓那条「唯一一份」的守卫测试没认出它。本仓那一份已改走这里（D-ROT-1）。
  *
  * ## `sxmFrameMeta` **不是**它（这一条是本批核出来的）
  *
@@ -99,7 +99,7 @@ export function parseXyMeta(header: Readonly<Record<string, unknown>>): XyMeta |
  *
  * 参考实现到 v7.1.0 为止用的是 R(+θ) —— 与「压电 → 帧内」**同向**而非互逆，θ≠0 时
  * 目标绕帧心多转 2θ（θ=90° 时正好落到中心对称点）。参考仓之后的修复改成 R(−θ)，
- * 依据是一组真机转角系列的统计；本仓照这次修复走（D-ROT-?）。
+ * 依据是一组真机转角系列的统计；本仓照这次修复走（D-ROT-1）。
  * `xy-meta-rotation.test.ts` 用「pxToM ∘ toFrame = 恒等」与 θ=90° 的具体值钉住：
  * 谁把符号翻回去，那里当场变红。
  *
@@ -124,6 +124,6 @@ export function pxToM(
   const sa = Math.sin((angleDeg * Math.PI) / 180)
   const dx = ((pxX + 0.5) / opts.nx) * opts.wM - opts.wM * 0.5
   const dy = opts.hM * 0.5 - ((pxY + 0.5) / opts.ny) * opts.hM
-  // R(−θ)：正 SCAN_ANGLE = 扫描框相对压电坐标**顺时针**转（D-ROT-?）。
+  // R(−θ)：正 SCAN_ANGLE = 扫描框相对压电坐标**顺时针**转（D-ROT-1）。
   return [opts.cxM + dx * ca + dy * sa, opts.cyM - dx * sa + dy * ca]
 }

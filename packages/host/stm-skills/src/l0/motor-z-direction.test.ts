@@ -1,5 +1,5 @@
 /**
- * MotorMove 的两个 Z 标签按本机声明的退针方向换算（D-MOTORZ）—— 判定表逐格钉住。
+ * MotorMove 的两个 Z 标签按本机声明的退针方向换算（D-MOTORZ-1）—— 判定表逐格钉住。
  *
  * | 档案 | `z-retract` | `z-approach` | `z_direction_basis` | `warning` 与 `summary` | 下发 |
  * |---|---|---|---|---|---|

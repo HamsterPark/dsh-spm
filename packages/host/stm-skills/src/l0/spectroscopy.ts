@@ -528,7 +528,7 @@ export const ConfigureSTS: Skill = {
     if (failed(limits)) return fail(limits.error ?? '')
 
     // 扫掠数（PropsSet 的第 2 个实参）没有「不改」的哨兵值：要保持操作员在 Nanonis 里设的
-    // 平均次数，就得先读回来再原样写。读不到时退回 1，并在 data 里说出来（D-STS-?）。
+    // 平均次数，就得先读回来再原样写。读不到时退回 1，并在 data 里说出来（D-STS-6）。
     const current = await readCurrentNumSweeps(ctx)
     const effectiveSweeps = current ?? 1
     const sweepsSource = current === null ? 'fallback_unreadable' : 'preserved'

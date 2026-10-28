@@ -100,7 +100,7 @@ describe('几何：parse_xy_meta / px_to_m', () => {
         expectTree(got, c.result, sumRelTol(3), scales)
         continue
       }
-      // **D-ROT-?**：θ≠0 的格两件事都断言。
+      // **D-ROT-1**：θ≠0 的格两件事都断言。
       // ① 金样 = R(+θ)：参考 v7.1.0 的旧值还在。参考重钉到修复之后这一条会红 ——
       //    那时删掉这个分支与登记，回到上面那一行。
       // ② 本仓 = R(−θ)。两个公式都在这里独立写，不调 `pxToM`。
@@ -112,7 +112,7 @@ describe('几何：parse_xy_meta / px_to_m', () => {
 })
 
 /**
- * `px_to_m` 的两种旋转方向，**测试里独立写**（D-ROT-?）。
+ * `px_to_m` 的两种旋转方向，**测试里独立写**（D-ROT-1）。
  * `sign = +1`：R(+θ)，参考 v7.1.0；`sign = −1`：R(−θ)，本仓（正角 = 顺时针）。
  */
 function pxToMBySign(k: Record<string, number>, sign: 1 | -1): [number, number] {

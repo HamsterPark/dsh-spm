@@ -198,7 +198,7 @@ describe('作为 Cordis Service 挂到 ctx 上', () => {
 // ── 传输层：失败标记、不重发、可能已执行的提示、模块加载宽限 ──────────────────
 //
 // 语义搬自旧仓 `test_connection_no_double_action.py` 与 `test_connection_open_grace_and_root_cause.py`
-// 里与连接池接线有关的那几格；重发次数与「根因优先」的文案属于旧仓的连接池，本仓不重发（D-CONN-?）。
+// 里与连接池接线有关的那几格；重发次数与「根因优先」的文案属于旧仓的连接池，本仓不重发（D-CONN-1）。
 // 动词与实参格式一律取 `NANONIS_METHODS`，不手写 fmt。
 
 const RL = (kind: RoleLinkError['kind']): RoleLinkError => new RoleLinkError('测试注入', kind)

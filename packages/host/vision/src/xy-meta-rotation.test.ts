@@ -1,5 +1,5 @@
 /**
- * `pxToM` 的旋转方向：正 `angleDeg` = 扫描框相对压电坐标**顺时针**转（D-ROT-?）。
+ * `pxToM` 的旋转方向：正 `angleDeg` = 扫描框相对压电坐标**顺时针**转（D-ROT-1）。
  *
  * 这里不重新判断「哪个方向对」——那是参考实现用真机转角系列定下的约定——而是把
  * **`pxToM` 必须是「压电 → 帧内」的逆**钉住：谁把符号翻回去，这里当场变红。
@@ -42,7 +42,7 @@ function frameToPx(xp: number, yp: number): [number, number] {
 
 const geom = (angleDeg: number) => ({ nx: NX, ny: NY, cxM: CX, cyM: CY, wM: W, hM: H, angleDeg })
 
-describe('pxToM 的旋转方向（D-ROT-?）', () => {
+describe('pxToM 的旋转方向（D-ROT-1）', () => {
   const ANGLES = [0, 15, 30, 90, -45, 137]
   const POINTS: readonly [number, number][] = [
     [10e-9, -20e-9],

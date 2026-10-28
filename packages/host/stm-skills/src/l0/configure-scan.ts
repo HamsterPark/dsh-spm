@@ -179,7 +179,7 @@ export const ConfigureScan: Skill = {
     }
 
     // ── ④ 通道：有一个对不上就**整组不设**，保持操作员当前的通道 ──────────
-    // 这一发对采集通道做了什么（D-SCAN-?）：set（整组设好）/ set_failed（仪器拒了）/
+    // 这一发对采集通道做了什么（D-SCAN-6）：set（整组设好）/ set_failed（仪器拒了）/
     // unchanged（没请求）/ unchanged_partial_match（请求里有名字没匹配上，整组不设）/
     // unchanged_read_failed（读不到信号名清单）。
     const requestedChannels = channelsStr

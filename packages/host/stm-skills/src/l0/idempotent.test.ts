@@ -76,7 +76,7 @@ describe('谱学技能的幂等重做', () => {
       'BiasSpectr_Open',
       'BiasSpectr_LimitsSet',
       'BiasSpectr_LimitsSet',
-      'BiasSpectr_PropsGet', // 读当前扫掠数（D-STS-?）
+      'BiasSpectr_PropsGet', // 读当前扫掠数（D-STS-6）
       'BiasSpectr_PropsSet',
       'BiasSpectr_AdvPropsSet',
     ])

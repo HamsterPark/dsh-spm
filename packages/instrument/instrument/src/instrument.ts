@@ -219,7 +219,7 @@ export class InstrumentService extends Service {
       return done({ values })
     } catch (e) {
       const message = (e as Error).message
-      // 这一层对任何命令都不重发（见 spec/deviations.md D-CONN-?）。命令可能已经送达、而它每到
+      // 这一层对任何命令都不重发（见 spec/deviations.md D-CONN-1）。命令可能已经送达、而它每到
       // 一次就做一次事时，在错误里说清楚，让调用方先读状态再决定。只有 `RoleLinkError` 带标记：
       // 编码出错之类的异常重做也没用。
       const transport = e instanceof RoleLinkError ? transportOfKind(e.kind) : undefined
