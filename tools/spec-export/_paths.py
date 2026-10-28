@@ -37,29 +37,32 @@ def require_vista_spm_root() -> Path:
     return require_directory("VISTA_SPM_ROOT", "read-only VISTA-SPM source root")
 
 
-def _reference_trees() -> list[Path]:
+def _reference_trees(mast_root: Path | None = None) -> list[Path]:
     """Directories that must not hold the reference's project root, at any depth.
 
-    `MAST_ROOT` holds the `mast` package; its parent is the checkout or the runner's snapshot, and that
-    parent is where the reference keeps its data when `MAST2_PROJECT_ROOT` is empty (`project_root()`
-    in `mast/_runtime_paths.py`). `MAST_REPO` names the checkout the runner archives.
+    A `MAST_ROOT` holds the `mast` package; its parent is the checkout or the runner's snapshot, and that
+    parent is where the reference keeps its data when `MAST2_PROJECT_ROOT` is unset or empty
+    (`project_root()` in `mast/_runtime_paths.py`). The one given and the one in the environment both
+    count. `MAST_REPO` names the checkout the runner archives.
     """
-    trees = []
-    mast_root = os.environ.get("MAST_ROOT", "").strip()
-    if mast_root:
-        trees.append(Path(mast_root).expanduser().resolve().parent)
+    roots = [] if mast_root is None else [Path(mast_root)]
+    env_root = os.environ.get("MAST_ROOT", "").strip()
+    if env_root:
+        roots.append(Path(env_root).expanduser())
+    trees = [root.resolve().parent for root in roots]
     repo = os.environ.get("MAST_REPO", "").strip()
     if repo:
         trees.append(Path(repo).expanduser().resolve())
     return trees
 
 
-def project_root_refusal() -> str | None:
+def project_root_refusal(mast_root: Path | None = None) -> str | None:
     """Why the reference must not run with the current `MAST2_PROJECT_ROOT`, or `None` when it may.
 
     Unset, empty or blank, the reference finds nothing (it strips the value) and falls back to its own
     tree, where exporters clear the reference's progress files; `os.environ.setdefault` keeps an empty
-    value. A value is resolved the way the reference resolves it.
+    value. A value is resolved the way the reference resolves it. `mast_root`, when given, is a
+    reference tree in addition to the environment's.
     """
     raw = os.environ.get("MAST2_PROJECT_ROOT")
     if raw is None:
@@ -67,7 +70,7 @@ def project_root_refusal() -> str | None:
     if not raw.strip():
         return "MAST2_PROJECT_ROOT is empty or blank, so the reference would fall back to its own tree"
     root = Path(raw.strip()).resolve()
-    for tree in _reference_trees():
+    for tree in _reference_trees(mast_root):
         if root.is_relative_to(tree):
             return f"MAST2_PROJECT_ROOT {root} is inside the reference tree {tree}"
     return None
@@ -117,29 +120,24 @@ class ProjectConfigFile:
     """A file under the reference's `<project root>/config/` that an exporter rewrites before each case.
 
     The reference takes its project root from `MAST2_PROJECT_ROOT`, and without it from its own source
-    tree, which is where a real machine's config lives. An exporter's `setdefault` only fills a variable
-    that is absent: an empty value, or one that points into the reference tree, still gets through. So
-    every write and delete first proves that the target is inside the isolated root and that the root is
-    outside the reference tree, and only a file this object wrote itself is ever deleted. Anything else
-    found at the target stops the run (exit status 1, message on stderr) with nothing touched.
+    tree, which is where a real machine's config lives. So every write and delete first asks
+    `project_root_refusal`, with this exporter's `mast_root` as a reference tree, whether the root may be
+    used, then proves that the target is inside it, and only a file this object wrote itself is ever
+    deleted. Anything else found at the target stops the run (exit status 1, message on stderr) with
+    nothing touched.
     """
 
     def __init__(self, path: Callable[[], Path], reset: Callable[[], None], mast_root: Path) -> None:
         self._path = path  # where the reference looks for the file
         self._reset = reset  # drops the reference's cached read of it
-        self._trees = (mast_root.resolve(), mast_root.resolve().parent)
+        self._mast_root = mast_root
         self._written: Path | None = None
 
     def _target(self) -> Path:
-        raw = os.environ.get("MAST2_PROJECT_ROOT", "").strip()
-        if not raw:
-            raise SystemExit("MAST2_PROJECT_ROOT is empty: the reference would use its own tree, "
-                             "not writing its config")
-        root = Path(raw).resolve()
-        for tree in self._trees:
-            if root == tree or tree in root.parents:
-                raise SystemExit(f"MAST2_PROJECT_ROOT {root} is inside the reference tree {tree}: "
-                                 "not writing its config")
+        reason = project_root_refusal(self._mast_root)
+        if reason is not None:
+            raise SystemExit(f"{reason}: not writing its config")
+        root = Path(os.environ["MAST2_PROJECT_ROOT"].strip()).resolve()
         target = self._path().resolve()
         if root not in target.parents:
             raise SystemExit(f"{target} is outside MAST2_PROJECT_ROOT {root}: not touching it")

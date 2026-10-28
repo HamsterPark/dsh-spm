@@ -111,6 +111,15 @@ class RefusalTests(_Trees):
         os.chdir(self.repo)
         self.assertIn("inside the reference tree", self.refusal("experiments", mast_root=self.repo / "MASTv2") or "")
 
+    def test_a_given_mast_root_counts_as_well_as_the_environments(self) -> None:
+        # `ProjectConfigFile` 传自己的 mast_root：环境里的那个照样算，取并集
+        os.environ["MAST_ROOT"] = str(self.snapshot / "MASTv2")
+        for root, tree in ((self.repo / "experiments", self.repo), (self.snapshot / "experiments", self.snapshot)):
+            with self.subTest(root=root.relative_to(self.tmp).as_posix()):
+                os.environ["MAST2_PROJECT_ROOT"] = str(root)
+                reason = _paths.project_root_refusal(self.repo / "MASTv2")
+                self.assertIn(f"inside the reference tree {tree}", reason or "")
+
     def test_temporary_directories_outside_both_trees_are_fine(self) -> None:
         runner_pr = self.tmp / "stage" / "runs" / "45e3e806-1" / "pr" / "safety_spec"  # 运行器的布局
         for root, mast_root in ((self.elsewhere, self.repo / "MASTv2"),
@@ -148,6 +157,19 @@ class IsolatedProjectRootTests(_Trees):
         with self.assertRaises(SystemExit) as stop:
             _paths.isolated_project_root(str(self.repo / "scratch"))
         self.assertIn("inside the reference tree", str(stop.exception.code))
+
+
+class ProjectConfigFileTests(_Trees):
+    def test_an_unset_root_is_refused_before_anything_is_written(self) -> None:
+        # 写配置时变量没设：参考实现会落到自己的树上。与空串同一个判定，说法是 not set
+        target = self.repo / "config" / "nanonis_motor_groups.json"
+        resets: list[int] = []
+        cfg = _paths.ProjectConfigFile(lambda: target, lambda: resets.append(1), self.repo / "MASTv2")
+        with self.assertRaises(SystemExit) as stop:
+            cfg.apply({"stm_coarse_group": 2})
+        self.assertIn("not set", str(stop.exception.code))
+        self.assertFalse(target.parent.exists())
+        self.assertEqual(resets, [])
 
 
 def _child_env(**set_: str) -> dict[str, str]:
