@@ -3654,7 +3654,10 @@ function physicallyAbsurdViolations_unused(`,
     why: '没声明退针方向时结果里不再警告 ⇒ 按出厂 Z+ 走的那一步看起来和声明过的一样，没人会被提醒去声明',
     file: `${SK}/l0/writes-gated.ts`,
     find: "      if (z.basis === 'undeclared_nanonis_standard') zInfo['warning'] = RETRACT_DIR_UNDECLARED_WARNING",
-    replace: "      if (false && z.basis === 'undeclared_nanonis_standard') zInfo['warning'] = RETRACT_DIR_UNDECLARED_WARNING",
+    // ⚠️ 不能写成 `false && …`：TS 把 `&&` 右边当成走不到，走不到的地方不做收窄，`z` 退回整个
+    // `ZCodes`，`z.basis` 编不过（TS2339），而编不过的变异等于没验。`Math.PI < 0` 恒假但类型是 boolean，
+    // 右边仍然走得到，`z` 保持收窄。
+    replace: "      if (Math.PI < 0 && z.basis === 'undeclared_nanonis_standard') zInfo['warning'] = RETRACT_DIR_UNDECLARED_WARNING",
     scope: 'packages/host/stm-skills',
   },
   {
