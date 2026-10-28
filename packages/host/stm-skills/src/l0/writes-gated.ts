@@ -210,7 +210,12 @@ export const MotorMove: Skill = {
       }
     }
 
-    const rec = await ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)
+    // STM 粗动是 Nanonis 的哪一组由仪器档案说了算（缺省 0）；档案坏了就不知道该驱动哪一组，
+    // 一个 Motor_* 动词也不发。排在 Z 分支与「针没退」之后、下发之前，与参考实现同序。
+    const grp = stmCoarseGroup()
+    if (!grp.ok) return fail(stmGroupRefusal(grp.why))
+
+    const rec = await ctx.safeCall('Motor_StartMove', dirCode, steps, grp.group, 1)
     if (rec.error !== undefined && rec.error !== '') return fail(rec.error)
     return ok(
       { direction, steps, ...zInfo },

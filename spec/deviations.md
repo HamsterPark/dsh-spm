@@ -2687,8 +2687,8 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 | | |
 |---|---|
 | **参考实现（7.1.0）** | 两项配置在独立文件 `nanonis_motor_groups.json`：无文件 ⇒ 组 0、不保留口；文件存在但读不了 ⇒ 拒绝粗动、拒写所有数字口；保留口列表里任何一项畸形 ⇒ 整个列表作废、拒写所有数字口，不逐项丢 |
-| **本仓** | 同一语义，来源换成宿主注入的仪器档案对象（D-PROF-1）：读口返回的对象里的 `stm_coarse_group`（0–5 的整数，缺省 0）与 `reserved_digital_ports`（`[{port, reason}]`，缺省不保留任何口）。「宿主没接」按「无配置」处理；读口抛出按「配置存在但读不了」处理，读粗动位置、粗动与数字口写入一律不发（参考实现里退针方向与接线配置是两个来源，本仓是同一个读口）。`kernel/src/motor-wiring.ts` 直接按键读读口的原始返回值，不经 `sanitizeProfile`（未登记的键会被整键丢弃）。报错文案去掉文件名与解析器原话。取组的调用点：`MotorGetPos`、`MotorMoveClosedLoop`；三个数字口写技能在下发前问保留口，读（`GetDigitalLineTTL`）不设闸。`MotorGetPos` 出错时的文案与 `data` 逐字同 7.1.0 |
-| **测试** | `kernel/src/motor-wiring.test.ts`；`l0/motor-groups.test.ts`；`l0/traces.test.ts` 的 `MotorGetPos/err@0`；变异 `wiring-*`、`closedloop-*`、`getpos-*`、`digital-port-reserved-*` |
+| **本仓** | 同一语义，来源换成宿主注入的仪器档案对象（D-PROF-1）：读口返回的对象里的 `stm_coarse_group`（0–5 的整数，缺省 0）与 `reserved_digital_ports`（`[{port, reason}]`，缺省不保留任何口）。「宿主没接」按「无配置」处理；读口抛出按「配置存在但读不了」处理，读粗动位置、粗动与数字口写入一律不发（参考实现里退针方向与接线配置是两个来源，本仓是同一个读口）。`kernel/src/motor-wiring.ts` 直接按键读读口的原始返回值，不经 `sanitizeProfile`（未登记的键会被整键丢弃）。报错文案去掉文件名与解析器原话。取组的调用点共六处：`MotorMove`、`MotorMoveClosedLoop`、`MotorGetPos`、`RelocateCoarseXY` 的清障与横移（预检先问一次并缓存，整次运行只解析一次；清障与横移取缓存，同一次移动不会被拆到两个组）、`RetractForSampleChange`（每一级开头各问一次，与参考实现同）；三个数字口写技能在下发前问保留口，读（`GetDigitalLineTTL`）不设闸。`MotorGetPos` 出错时的文案与 `data` 逐字同 7.1.0 |
+| **测试** | `kernel/src/motor-wiring.test.ts`；`l0/motor-groups.test.ts`；`composite/coarse-composites.test.ts`；`l0/traces.test.ts` 的 `MotorGetPos/err@0`；`batch5b.json` 的 `motor_group/*` 格（15 格：单步粗动、闭环粗动、读位置、三个数字口写技能；配置损坏的各种形态不进金样）；变异 `wiring-*`、`closedloop-*`、`getpos-*`、`digital-port-reserved-*`、`motor-group-*`、`relocate-*`、`retract-sample-change-group-from-wiring` |
 
 **比参考实现更严的几处**（都在拒绝的方向上）：
 

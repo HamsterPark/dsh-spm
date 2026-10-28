@@ -72504,6 +72504,550 @@
       ]
     }
   },
+  "motor_group/closed_loop/default_group_two": {
+    "calls": [
+      {
+        "args": [
+          0,
+          1e-09,
+          1e-09,
+          1e-09,
+          1,
+          2
+        ],
+        "error": "",
+        "verb": "Motor_StartClosedLoop"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "target_x_m": 1e-09,
+      "target_y_m": 1e-09,
+      "target_z_m": 1e-09
+    },
+    "result": {
+      "data": {
+        "absolute": false,
+        "target_x_m": 1e-09,
+        "target_y_m": 1e-09,
+        "target_z_m": 1e-09
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMoveClosedLoop",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/closed_loop/explicit_other_group": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "group": 1,
+      "target_x_m": 1e-09,
+      "target_y_m": 1e-09,
+      "target_z_m": 1e-09
+    },
+    "result": {
+      "data": {},
+      "error": "group 1 不是 STM 粗动组（stm_coarse_group=2）—— STM 粗动技能不驱动其他电机组；光学组请用 NanonisMotorGroupMove。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMoveClosedLoop",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/closed_loop/explicit_same_group": {
+    "calls": [
+      {
+        "args": [
+          0,
+          1e-09,
+          1e-09,
+          1e-09,
+          1,
+          2
+        ],
+        "error": "",
+        "verb": "Motor_StartClosedLoop"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "group": 2,
+      "target_x_m": 1e-09,
+      "target_y_m": 1e-09,
+      "target_z_m": 1e-09
+    },
+    "result": {
+      "data": {
+        "absolute": false,
+        "target_x_m": 1e-09,
+        "target_y_m": 1e-09,
+        "target_z_m": 1e-09
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMoveClosedLoop",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/closed_loop/no_config_other_group": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "group": 1,
+      "target_x_m": 1e-09,
+      "target_y_m": 1e-09,
+      "target_z_m": 1e-09
+    },
+    "result": {
+      "data": {},
+      "error": "group 1 不是 STM 粗动组（stm_coarse_group=0）—— STM 粗动技能不驱动其他电机组；光学组请用 NanonisMotorGroupMove。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMoveClosedLoop",
+    "verbs": {}
+  },
+  "motor_group/digital/configure_port_a": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "direction": 1,
+      "line": 1,
+      "polarity": 1,
+      "port": 0
+    },
+    "result": {
+      "data": {},
+      "error": "拒绝写 Port A（port=0）：本机配置把它列为保留数字口 —— 测试用的保留口。误写它的方向位、电平或脉冲可能让接在上面的设备误动作；不会截断，也不会改用别的口。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "ConfigureDigitalLine",
+    "state": {
+      "motor_groups": {
+        "reserved_digital_ports": [
+          {
+            "port": 0,
+            "reason": "测试用的保留口"
+          }
+        ]
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/digital/no_config_port_a": {
+    "calls": [
+      {
+        "args": [
+          0,
+          [
+            1,
+            2
+          ],
+          0.01,
+          0.001,
+          1,
+          1
+        ],
+        "error": "",
+        "verb": "DigLines_Pulse"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "lines": "1,2",
+      "port": 0,
+      "pulse_width_s": 0.01
+    },
+    "result": {
+      "data": {
+        "lines": [
+          1,
+          2
+        ],
+        "n_pulses": 1,
+        "port": 0,
+        "port_name": "A",
+        "pulse_pause_s": 0.001,
+        "pulse_width_s": 0.01
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "PulseDigitalLine",
+    "verbs": {}
+  },
+  "motor_group/digital/pulse_port_a": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "lines": "1,2",
+      "port": 0,
+      "pulse_width_s": 0.01
+    },
+    "result": {
+      "data": {},
+      "error": "拒绝写 Port A（port=0）：本机配置把它列为保留数字口 —— 测试用的保留口。误写它的方向位、电平或脉冲可能让接在上面的设备误动作；不会截断，也不会改用别的口。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "PulseDigitalLine",
+    "state": {
+      "motor_groups": {
+        "reserved_digital_ports": [
+          {
+            "port": 0,
+            "reason": "测试用的保留口"
+          }
+        ]
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/digital/pulse_port_b": {
+    "calls": [
+      {
+        "args": [
+          1,
+          [
+            1,
+            2
+          ],
+          0.01,
+          0.001,
+          1,
+          1
+        ],
+        "error": "",
+        "verb": "DigLines_Pulse"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "lines": "1,2",
+      "port": 1,
+      "pulse_width_s": 0.01
+    },
+    "result": {
+      "data": {
+        "lines": [
+          1,
+          2
+        ],
+        "n_pulses": 1,
+        "port": 1,
+        "port_name": "B",
+        "pulse_pause_s": 0.001,
+        "pulse_width_s": 0.01
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "PulseDigitalLine",
+    "state": {
+      "motor_groups": {
+        "reserved_digital_ports": [
+          {
+            "port": 0,
+            "reason": "测试用的保留口"
+          }
+        ]
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/digital/status_port_a": {
+    "calls": [],
+    "clock_keys": [],
+    "params": {
+      "line": 1,
+      "port": 0,
+      "status": true
+    },
+    "result": {
+      "data": {},
+      "error": "拒绝写 Port A（port=0）：本机配置把它列为保留数字口 —— 测试用的保留口。误写它的方向位、电平或脉冲可能让接在上面的设备误动作；不会截断，也不会改用别的口。",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "SetDigitalLineStatus",
+    "state": {
+      "motor_groups": {
+        "reserved_digital_ports": [
+          {
+            "port": 0,
+            "reason": "测试用的保留口"
+          }
+        ]
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/digital/status_port_b": {
+    "calls": [
+      {
+        "args": [
+          1,
+          1,
+          1
+        ],
+        "error": "",
+        "verb": "DigLines_OutStatusSet"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "line": 1,
+      "port": 1,
+      "status": true
+    },
+    "result": {
+      "data": {
+        "line": 1,
+        "port": 1,
+        "status": true
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "SetDigitalLineStatus",
+    "state": {
+      "motor_groups": {
+        "reserved_digital_ports": [
+          {
+            "port": 0,
+            "reason": "测试用的保留口"
+          }
+        ]
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/get_pos/err_group_two": {
+    "calls": [
+      {
+        "args": [
+          2,
+          500
+        ],
+        "error": "模拟故障：这台粗动控制器不提供位置",
+        "verb": "Motor_PosGet"
+      }
+    ],
+    "clock_keys": [],
+    "params": {},
+    "result": {
+      "data": {
+        "group": 2,
+        "position_feedback": false
+      },
+      "error": "无位置反馈：Motor_PosGet(group 2) 报错 —— 这台粗动控制器不提供位置（回包里的 0 不是位置）。Nanonis: 模拟故障：这台粗动控制器不提供位置",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorGetPos",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {
+      "Motor_PosGet": [
+        {
+          "error": "模拟故障：这台粗动控制器不提供位置"
+        }
+      ]
+    }
+  },
+  "motor_group/get_pos/err_no_config": {
+    "calls": [
+      {
+        "args": [
+          0,
+          500
+        ],
+        "error": "模拟故障：这台粗动控制器不提供位置",
+        "verb": "Motor_PosGet"
+      }
+    ],
+    "clock_keys": [],
+    "params": {},
+    "result": {
+      "data": {
+        "group": 0,
+        "position_feedback": false
+      },
+      "error": "无位置反馈：Motor_PosGet(group 0) 报错 —— 这台粗动控制器不提供位置（回包里的 0 不是位置）。Nanonis: 模拟故障：这台粗动控制器不提供位置",
+      "success": false,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorGetPos",
+    "verbs": {
+      "Motor_PosGet": [
+        {
+          "error": "模拟故障：这台粗动控制器不提供位置"
+        }
+      ]
+    }
+  },
+  "motor_group/get_pos/ok_group_two": {
+    "calls": [
+      {
+        "args": [
+          2,
+          500
+        ],
+        "error": "",
+        "verb": "Motor_PosGet"
+      }
+    ],
+    "clock_keys": [],
+    "params": {},
+    "result": {
+      "data": {
+        "x_m": 1e-06,
+        "y_m": 2e-06,
+        "z_m": 3e-06
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorGetPos",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {
+      "Motor_PosGet": [
+        {
+          "body": [
+            1e-06,
+            2e-06,
+            3e-06
+          ]
+        }
+      ]
+    }
+  },
+  "motor_group/move/group_two": {
+    "calls": [
+      {
+        "args": [
+          0,
+          20,
+          2,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "x+",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "x+",
+        "steps": 20
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "state": {
+      "motor_groups": {
+        "stm_coarse_group": 2
+      }
+    },
+    "verbs": {}
+  },
+  "motor_group/move/no_config": {
+    "calls": [
+      {
+        "args": [
+          0,
+          20,
+          0,
+          1
+        ],
+        "error": "",
+        "verb": "Motor_StartMove"
+      }
+    ],
+    "clock_keys": [],
+    "params": {
+      "direction": "x+",
+      "steps": 20
+    },
+    "result": {
+      "data": {
+        "direction": "x+",
+        "steps": 20
+      },
+      "error": "",
+      "success": true,
+      "summary": ""
+    },
+    "run_log": [],
+    "runs": {},
+    "skill": "MotorMove",
+    "verbs": {}
+  },
   "motor_z/approach/declared_z_minus": {
     "calls": [
       {

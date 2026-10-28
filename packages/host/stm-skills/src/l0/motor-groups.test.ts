@@ -22,7 +22,7 @@ import {
   PulseDigitalLine,
   SetDigitalLineStatus,
 } from './user-output.js'
-import { MotorMoveClosedLoop } from './writes-gated.js'
+import { MotorMove, MotorMoveClosedLoop, Z_DIR_UNREADABLE } from './writes-gated.js'
 
 const S0 = emptyHardwareState('T0')
 
@@ -31,8 +31,11 @@ interface Call {
   readonly args: unknown[]
 }
 
-/** 按动词脚本化的回包；`null` = 报错。 */
-function rig(replies: Record<string, unknown[] | null> = {}): { ctx: SkillContext; calls: Call[] } {
+/** 按动词脚本化的回包；`null` = 报错。`state` 是技能看到的硬件状态快照。 */
+function rig(
+  replies: Record<string, unknown[] | null> = {},
+  state = S0,
+): { ctx: SkillContext; calls: Call[] } {
   const calls: Call[] = []
   const safeCall = (m: string, ...a: unknown[]): Promise<SkillCallRecord> => {
     calls.push({ verb: m, args: a })
@@ -46,8 +49,8 @@ function rig(replies: Record<string, unknown[] | null> = {}): { ctx: SkillContex
     emergencyCall: safeCall,
     now: () => 0,
     sleep: () => Promise.resolve(),
-    state: () => S0,
-    refreshState: () => Promise.resolve(S0),
+    state: () => state,
+    refreshState: () => Promise.resolve(state),
     markers: { emit: () => {} },
     runSkill: () => Promise.resolve({ success: false, error: 'n/a' }),
     depth: 0,
@@ -84,6 +87,98 @@ const BROKEN: readonly (readonly [string, () => void])[] = [
   ],
   ['读口返回数组', () => wire([])],
 ]
+
+describe('MotorMove · 下发的组号是配置的 STM 粗动组', () => {
+  const STEPS = { steps: 20 }
+
+  it('接了读口、对象里没有 stm_coarse_group ⇒ 组 0，结果与以前逐字相同', async () => {
+    wire({})
+    const r = rig()
+    const got = await MotorMove.execute(r.ctx, { direction: 'x+', ...STEPS })
+    expect(r.calls).toEqual([{ verb: 'Motor_StartMove', args: [0, 20, 0, 1] }])
+    expect(got).toEqual({ success: true, data: { direction: 'x+', steps: 20 } })
+  })
+
+  it('宿主没接读口 ⇒ 也是组 0（与以前一样）', async () => {
+    wire(null)
+    const r = rig()
+    await MotorMove.execute(r.ctx, { direction: 'x+', ...STEPS })
+    expect(r.calls).toEqual([{ verb: 'Motor_StartMove', args: [0, 20, 0, 1] }])
+  })
+
+  it.each([
+    ['x+', 0],
+    ['x-', 1],
+    ['y+', 2],
+    ['y-', 3],
+  ])('配置组 2、横向 %s ⇒ 方向码 %i，组号 2', async (direction, code) => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    await MotorMove.execute(r.ctx, { direction, ...STEPS })
+    expect(r.calls).toEqual([{ verb: 'Motor_StartMove', args: [code, 20, 2, 1] }])
+  })
+
+  it.each([
+    ['z-retract', 4],
+    ['z-approach', 5],
+  ])('配置组 2、%s（退针方向没声明）⇒ 方向码 %i，组号也是 2', async (direction, code) => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    const got = await MotorMove.execute(r.ctx, { direction, ...STEPS })
+    expect(got.success).toBe(true)
+    expect(r.calls).toEqual([{ verb: 'Motor_StartMove', args: [code, 20, 2, 1] }])
+  })
+
+  it.each(BROKEN)('配置损坏（%s）⇒ 拒绝，文案同 stmGroupRefusal，一次 Motor_* 都不发', async (_name, breakIt) => {
+    breakIt()
+    const r = rig()
+    const got = await MotorMove.execute(r.ctx, { direction: 'x+', ...STEPS })
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('无法使用')
+    expect(got.error).toContain('拒绝粗动')
+    expect(r.calls).toEqual([])
+  })
+
+  it('组坏了、退针方向照常可读 ⇒ Z 方向也被组拒（Z 分支先过，组在下发之前）', async () => {
+    wire({ stm_coarse_group: 9, retract_motor_dir: 'z-' })
+    for (const direction of ['z-retract', 'z-approach']) {
+      const r = rig()
+      const got = await MotorMove.execute(r.ctx, { direction, ...STEPS })
+      expect(got).toEqual({ success: false, error: stmGroupRefusal('stm_coarse_group=9 不是 0..5 的整数') })
+      expect(r.calls).toEqual([])
+    }
+  })
+
+  it('整个读口抛出 ⇒ 横向被组拒；Z 方向仍先被方向拒（Z 分支在取组之前）', async () => {
+    processInstrumentProfile.source = () => {
+      throw new Error('profile unreadable')
+    }
+    const lateral = rig()
+    const refused = await MotorMove.execute(lateral.ctx, { direction: 'x+', ...STEPS })
+    expect(refused.error).toContain('拒绝粗动')
+    expect(lateral.calls).toEqual([])
+    const vertical = rig()
+    const z = await MotorMove.execute(vertical.ctx, { direction: 'z-retract', ...STEPS })
+    expect(z).toEqual({ success: false, error: Z_DIR_UNREADABLE })
+    expect(vertical.calls).toEqual([])
+  })
+
+  it('知道针没退的横向移动先被「针没退」拒，不问组', async () => {
+    // 配置损坏也一样：拒绝的是更早的那一道。
+    wire({ stm_coarse_group: 9 })
+    const r = rig({}, { ...S0, withdrawn: false })
+    const got = await MotorMove.execute(r.ctx, { direction: 'x+', ...STEPS })
+    expect(got.error).toContain('tip is not withdrawn')
+    expect(r.calls).toEqual([])
+  })
+
+  it('控制器报错 ⇒ 原样透传', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig({ Motor_StartMove: null })
+    const got = await MotorMove.execute(r.ctx, { direction: 'x+', ...STEPS })
+    expect(got).toEqual({ success: false, error: '模拟故障：连接被对端关闭' })
+  })
+})
 
 describe('MotorGetPos · 问的是配置的 STM 粗动组', () => {
   it('接了读口、对象里没有 stm_coarse_group ⇒ 组 0；成功路径只有 x_m/y_m/z_m，不带 group 与 position_feedback', async () => {

@@ -45,6 +45,8 @@ interface Script {
   readonly byVerb?: Record<string, Reply[]>
   readonly sub?: Record<string, { success: boolean; error?: string; data?: Record<string, unknown> }>
   readonly abortAfter?: number
+  /** 每次动词调用（先记账、再回包之前）的钩子：用来在运行中途改档案。 */
+  readonly onCall?: (method: string) => void
 }
 
 /**
@@ -104,6 +106,7 @@ class Rig {
       safeCall: (method: string, ...args: unknown[]): Promise<SkillCallRecord> => {
         this.calls.push({ method, args })
         this.#steps += 1
+        this.s.onCall?.(method)
         const i = this.#seen.get(method) ?? 0
         this.#seen.set(method, i + 1)
         const list = this.s.byVerb?.[method] ?? (method === 'ZCtrl_ZPosGet' ? Z_STAIRS : undefined)
@@ -500,6 +503,136 @@ describe('读不到退针方向 ⇒ 两条粗动组合在第一级之前拒绝',
       expect(coarseStarts(rig)).toEqual([])
     })
   }
+})
+
+// ── STM 粗动组（D-GROUP）────────────────────────────────────────────────────
+
+/** 在 `PROFILE` 上加一个 `stm_coarse_group`（可以是任何值，包括写坏的）。 */
+const withGroup = (group: unknown): Record<string, unknown> => ({ ...PROFILE, stm_coarse_group: group })
+
+/** 每一次 `Motor_StartMove` 的 `[方向码, 步数, 组, 等待]`。 */
+const startArgs = (rig: Rig): unknown[][] => coarseStarts(rig).map((c) => c.args)
+
+describe('STM 粗动组 · RelocateCoarseXY', () => {
+  it('配置组 2 ⇒ 清障与横移的**每一次**下发末二位实参都是 2, 1，预检结果带 checks.motor_group', async () => {
+    install(withGroup(2), DRIVE)
+    processVacuum.config = { mode: 'off' }
+    const rig = new Rig()
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(true)
+    const moves = startArgs(rig)
+    // 清障 z−（5）与横移 x+（0）两路都下发过，否则下面的断言没有验到缺的那一路
+    expect(new Set(moves.map((a) => a[0]))).toEqual(new Set([5, 0]))
+    expect(moves.map((a) => a.slice(2))).toEqual(moves.map(() => [2, 1]))
+    expect((res.data?.['checks'] as Record<string, unknown>)['motor_group']).toBe(2)
+  })
+
+  it('档案里没写组 ⇒ 组 0，checks.motor_group 是 0', async () => {
+    install(PROFILE, DRIVE)
+    processVacuum.config = { mode: 'off' }
+    const rig = new Rig()
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(true)
+    const moves = startArgs(rig)
+    expect(moves.length).toBeGreaterThan(0)
+    expect(moves.map((a) => a.slice(2))).toEqual(moves.map(() => [0, 1]))
+    expect((res.data?.['checks'] as Record<string, unknown>)['motor_group']).toBe(0)
+  })
+
+  it('stm_coarse_group 写坏了 ⇒ 预检在驱动读回之前拒绝，一个 Motor_* 动词都不发', async () => {
+    install(withGroup(9), DRIVE)
+    processVacuum.config = { mode: 'off' }
+    const rig = new Rig()
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(false)
+    expect(res.error).toContain('stm_coarse_group=9 不是 0..5 的整数')
+    expect(res.error).toContain('拒绝粗动')
+    expect(rig.calls.filter((c) => c.method.startsWith('Motor_'))).toEqual([])
+  })
+
+  it('整次运行只解析一次：清障迈出第一步之后档案改了，其余各步仍用原来的组', async () => {
+    let group = 2
+    install(PROFILE, DRIVE)
+    processInstrumentProfile.source = () => withGroup(group)
+    processVacuum.config = { mode: 'off' }
+    const rig = new Rig({
+      onCall: (method) => {
+        if (method === 'Motor_StartMove') group = 3
+      },
+    })
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(true)
+    const moves = startArgs(rig)
+    expect(moves.length).toBeGreaterThan(2) // 清障不止一级，横移也不止一块
+    expect(moves.map((a) => a[2])).toEqual(moves.map(() => 2))
+  })
+
+  it('组与退针方向同时读不出 ⇒ 预检的组先说话（它排在清障的方向检查之前）', async () => {
+    install(retractDirUnreadable(withGroup(9)), DRIVE)
+    processVacuum.config = { mode: 'off' }
+    const rig = new Rig()
+    const res = await RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    expect(res.success).toBe(false)
+    expect(res.error).toContain('stm_coarse_group=9')
+    expect(res.error).not.toContain(Z_DIR_UNREADABLE)
+    expect(coarseStarts(rig)).toEqual([])
+  })
+})
+
+describe('STM 粗动组 · RetractForSampleChange', () => {
+  it('配置组 2 ⇒ 每一级的下发末二位实参都是 2, 1', async () => {
+    install(withGroup(2), DRIVE)
+    const rig = new Rig()
+    const res = await RetractForSampleChange.execute(rig.ctx(), {})
+    expect(res.success).toBe(true)
+    const moves = startArgs(rig)
+    expect(moves.length).toBeGreaterThan(1) // 不止一级
+    expect(moves.map((a) => a.slice(2))).toEqual(moves.map(() => [2, 1]))
+  })
+
+  it('档案里没写组 ⇒ 组 0', async () => {
+    install(PROFILE, DRIVE)
+    const rig = new Rig()
+    await RetractForSampleChange.execute(rig.ctx(), {})
+    const moves = startArgs(rig)
+    expect(moves.length).toBeGreaterThan(0)
+    expect(moves.map((a) => a.slice(2))).toEqual(moves.map(() => [0, 1]))
+  })
+
+  it('stm_coarse_group 写坏了 ⇒ 第一级就拒绝，零个 Motor_StartMove', async () => {
+    install(withGroup(9), DRIVE)
+    const rig = new Rig()
+    const res = await RetractForSampleChange.execute(rig.ctx(), {})
+    expect(res.success).toBe(false)
+    expect(res.error).toContain('stm_coarse_group=9 不是 0..5 的整数')
+    expect(res.error).toContain('拒绝粗动')
+    expect(coarseStarts(rig)).toEqual([])
+  })
+
+  it('每一级都重新问：第一级之后档案写坏了，第二级在迈步之前被拒', async () => {
+    let group: unknown = 2
+    install(PROFILE, DRIVE)
+    processInstrumentProfile.source = () => withGroup(group)
+    const rig = new Rig({
+      onCall: (method) => {
+        if (method === 'Motor_StartMove') group = 9
+      },
+    })
+    const res = await RetractForSampleChange.execute(rig.ctx(), {})
+    expect(res.success).toBe(false)
+    expect(res.error).toContain('拒绝粗动')
+    expect(startArgs(rig)).toEqual([[5, 1, 2, 1]]) // 只有第一级，用的是当时的组 2
+  })
+
+  it('组与退针方向同时读不出 ⇒ 方向先说话（先方向、后组）', async () => {
+    install(retractDirUnreadable(withGroup(9)), DRIVE)
+    const rig = new Rig()
+    const res = await RetractForSampleChange.execute(rig.ctx(), {})
+    expect(res.success).toBe(false)
+    expect(res.error).toContain(Z_DIR_UNREADABLE)
+    expect(res.error).not.toContain('stm_coarse_group')
+    expect(coarseStarts(rig)).toEqual([])
+  })
 })
 
 // ── settleAndReadZ ──────────────────────────────────────────────────────────
