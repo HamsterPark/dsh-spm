@@ -27,6 +27,8 @@ import {
   AcquireZSpectr,
   ConfigureSTS,
   ConfigureSTSTiming,
+  ConfigureZSpectr,
+  ConfigureZSpectrTiming,
   GetSTSChannels,
   GetSTSLimits,
   GetSTSTiming,
@@ -175,6 +177,54 @@ describe('对真 stmsim：谱数据块的形状', () => {
     expect(names.length).toBeGreaterThan(0)
     expect(d['z'], `通道名 ${JSON.stringify(names)} 里没解出 z`).toBeDefined()
     expect((d['z'] as number[]).length).toBe(d['num_points'])
+  })
+
+  // Z-1：Z 谱的 recv 预算，读口形状 + 预算值。
+  //
+  // ⚠️ 验不到「回复晚于缺省 5 s 超时」：stmsim 把 `ZSpectr_Start` 的真实回复时延封顶在 4 s
+  // （`spectr_module.py` 里 `time.sleep(min(duration, 4.0))`），`stmsim serve` 也没有注入延迟的开关。
+  // 那一半由 bundle 里进程内的缩比真 TCP 用例钉住（`instrument-calls.test.ts`）。
+  // 这一格验的是真东西才答得了的两件事：`ZSpectr_PropsGet` / `ZSpectr_TimingGet` 的回包形状
+  // 能被读出来（下标 0 / 1 / 7+），以及从它们算出的预算真的下发给了传输层。
+  //
+  // 若将来 STM-Bench 放开 4 s 封顶：把点数加到真实回复 > 5 s，再加一句
+  // `expect(rig.budgets[0]).toBeGreaterThan(5)`。
+  it('Z-1 `AcquireZSpectr` 的预算从仪器自己的设定算出来，并真的下发给了传输层', async () => {
+    const rig = await instrument()
+    const cfg = await ConfigureZSpectr.execute(rig.ctx, {
+      z_offset_m: 0,
+      z_sweep_distance_m: 5e-10,
+      num_points: 4000,
+      backward_sweep: true,
+    })
+    if (!cfg.success) return // 模块没装，这一格没验到
+    await ConfigureZSpectrTiming.execute(rig.ctx, {
+      z_avg_time_s: 0,
+      init_settling_s: 0.001,
+      max_slew_rate_v_s: 10,
+      settling_s: 0.001,
+      integration_s: 0.001,
+      end_settling_s: 0,
+      z_ctrl_time_s: 0,
+    })
+
+    const r = await AcquireZSpectr.execute(rig.ctx, {})
+    const d = (r.data ?? {}) as Record<string, unknown>
+    if (d['acquisition_complete'] !== true) {
+      expect(r.error ?? '').not.toBe('')
+      return
+    }
+    // 手算：4000 点 × (0.001 + 0.001) × 2（往返）× 1 sweep + 1 × 0.001 = 16.001 s；
+    // ×1.35 + 45 = 66.60135 s。
+    expect(d['sweep_estimate_s']).toBe(16)
+    expect(d['recv_timeout_s']).toBe(66.6)
+    expect(rig.budgets).toHaveLength(1)
+    expect(rig.budgets[0]).toBeCloseTo(66.60135, 3)
+    const s = d['sweep_settings'] as Record<string, unknown>
+    expect(s['npts']).toBe(4000)
+    expect(s['backward']).toBe(true)
+    // ⚠️ 不断言 `nsweeps`：stmsim 的 `ZSpectr_PropsGet` 在下标 8 回的是 autosave，不是 sweep 数，
+    // 所以这里读到的恒为 max(autosave, 1) = 1，与配置无关。
   })
 })
 

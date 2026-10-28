@@ -291,6 +291,53 @@ async function readSweepBudget(ctx: SkillContext): Promise<{
   return sweepDuration(sweep, t)
 }
 
+/**
+ * Z 谱的 {@link readSweepBudget}（旧仓 `_zsweep_duration_s`）：同一个模型，读的是另外两个口。
+ *
+ * `ZSpectr_Start`（`Get data = 1`）和 `BiasSpectr_Start` 一样，要阻塞整条扫掠才回话；
+ * recv 预算盖不住它的后果见 `skill-kernel.ts` 里「批 3l」那一段（整条连接报废）。
+ * `AcquireZSpectr` 与 `AcquireDeltaFCurve` 共用这一个读法。
+ *
+ * 两个口的回包形状，**下标和偏压谱的不一样**，别照抄 {@link readSweepBudget}：
+ *   · `ZSpectr_PropsGet` = [反扫, 点数, 参数区大小, 参数个数, 参数, 固定参数区大小,
+ *     固定参数个数, 固定参数, sweep 数, 全存]，至少 9 项；反扫在 **0**、点数在 **1**、
+ *     sweep 数在 **8**（偏压谱的 sweep 数在 1、点数在 3）。
+ *   · `ZSpectr_TimingGet` = 七个 float：z 平均、初始建立、最大压摆率、建立、积分、结束建立、
+ *     Z 控制 —— 没有 `z_offset_m`，所以键表是 `ZSPECTR_TIMING_READ_KEYS`，不是偏压谱那八项。
+ *
+ * 任何一步读不到都退到 `SWEEP_BUDGET_FALLBACK_S`（「读不到」不是「很快」），并交出旧仓逐字的
+ * 那句 `读不到 Z 谱扫掠设定，退回保守上限`（偏压谱那句少了「Z 谱」两个字）。
+ */
+export async function readZSweepBudget(ctx: SkillContext): Promise<{
+  coreS: number
+  detail: Readonly<Record<string, unknown>>
+}> {
+  const props = await ctx.safeCall('ZSpectr_PropsGet')
+  let sweep: SweepProps = { numPoints: null, numSweeps: null, backward: true }
+  if (hasAtLeast(props, 9)) {
+    const bwd = at(props, 0)
+    const npts = at(props, 1)
+    const nsw = at(props, 8)
+    // 点数与 sweep 数缺一不可；反扫位读不到按「往返」算（偏大的一侧，与回退同一个方向）
+    if (npts !== null && nsw !== null) {
+      sweep = {
+        numPoints: Math.max(Math.trunc(npts), 1),
+        numSweeps: Math.max(Math.trunc(nsw), 1),
+        backward: bwd === null ? true : Math.trunc(bwd) !== 0,
+      }
+    }
+  }
+
+  const timing = await ctx.safeCall('ZSpectr_TimingGet')
+  const t: Record<string, number> = {}
+  const tb = body(timing)
+  for (let k = 0; k < ZSPECTR_TIMING_READ_KEYS.length && k < tb.length; k += 1) {
+    const v = scalarFloat(tb[k])
+    if (v !== null) t[ZSPECTR_TIMING_READ_KEYS[k] as string] = v
+  }
+  return sweepDuration(sweep, t, { why: '读不到 Z 谱扫掠设定，退回保守上限' })
+}
+
 /** 谱 → `data` 的那几个键。两个采集技能共用（别名按**名字**认，不按列号）。 */
 function spectrumFields(
   channels: Readonly<Record<string, number[]>>,
@@ -389,10 +436,21 @@ export const AcquireZSpectr: Skill = {
     await ctx.safeCall('ZSpectr_Open')
     await ctx.safeCall('ZSpectr_PropsSet', 0, 0, 0, 1, 2, 1)
 
-    const record = await ctx.safeCall('ZSpectr_Start', 1, '')
+    // `ZSpectr_Start` 阻塞整条扫掠才回话：recv 预算要盖住它，和 `AcquireSTS` 是同一件事。
+    // 读两个设定口在 Start **之前**，读不到不早退（退到上限那一侧，Start 照发）。
+    const budget = await readZSweepBudget(ctx)
+    const requested = budget.coreS * SWEEP_BUDGET_FACTOR + SWEEP_BUDGET_PAD_S
+    const { record, recvTimeoutS } = await ctx.slowCall('ZSpectr_Start', requested, 1, '')
     if (failed(record)) return fail(record.error ?? '')
 
-    const data: Record<string, unknown> = { acquisition_complete: true }
+    // 记账：按仪器设定算出来要多久、recv 预算**真的**抬到了多少（报用上的那个数，
+    // 宿主没接这条口时是 `null`；理由同 `AcquireSTS`，见 spec/deviations.md D-STS-3）。
+    const data: Record<string, unknown> = {
+      acquisition_complete: true,
+      sweep_estimate_s: pyRound(budget.coreS, 1),
+      recv_timeout_s: recvTimeoutS === null ? null : pyRound(recvTimeoutS, 1),
+      sweep_settings: budget.detail,
+    }
     const spec = reshapeSpectrum(body(record))
     const parsed = Object.keys(spec.channels).length > 0
     data['spectrum_parsed'] = parsed

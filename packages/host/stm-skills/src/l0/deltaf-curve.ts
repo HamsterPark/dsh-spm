@@ -42,7 +42,10 @@
 import { statSync } from 'node:fs'
 import { basename as pathBasename } from 'node:path'
 import {
+  SWEEP_BUDGET_FACTOR,
+  SWEEP_BUDGET_PAD_S,
   pyFixed,
+  pyRound,
   reshapeSpectrum,
   type Skill,
   type SkillCallRecord,
@@ -53,6 +56,7 @@ import * as S from '../generated/specs.js'
 import { body, fail, ok } from './common.js'
 import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
 import { lastString } from './reads-hw.js'
+import { readZSweepBudget } from './spectroscopy.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 
@@ -293,12 +297,19 @@ export function makeAcquireDeltaFCurve(deps: DeltaFDeps = {}): Skill {
       const dirsBefore = existingDirs(await candidateDirs(ctx))
       const watermark = watermarkOf(dirsBefore, nowS())
 
-      const rec = await ctx.safeCall('ZSpectr_Start', 1, saveBasename)
+      // `ZSpectr_Start` 阻塞整条扫掠才回话：recv 预算要盖住它，与 `AcquireZSpectr` 是同一个预算
+      // （同一个 `readZSweepBudget`）。读设定口在水位线**之后**、Start **之前**；读不到不早退。
+      const budget = await readZSweepBudget(ctx)
+      const requested = budget.coreS * SWEEP_BUDGET_FACTOR + SWEEP_BUDGET_PAD_S
+      const { record: rec, recvTimeoutS } = await ctx.slowCall('ZSpectr_Start', requested, 1, saveBasename)
       if (failed(rec)) return fail(`Δf(z) 采集失败: ${rec.error ?? ''}`)
 
       const data: Record<string, unknown> = {
         acquisition_complete: true,
         num_points: n,
+        sweep_estimate_s: pyRound(budget.coreS, 1),
+        recv_timeout_s: recvTimeoutS === null ? null : pyRound(recvTimeoutS, 1),
+        sweep_settings: budget.detail,
         z_sweep_distance_m: distance,
         z_offset_m: zOff,
         f0_hz: f0,

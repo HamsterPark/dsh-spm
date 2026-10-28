@@ -17,7 +17,13 @@
  *
  * 读一律放行 —— 中止之后最该做的事就是搞清楚现在是什么状况。
  */
-import { isAbortSafe, isReadVerb, type SafeCall, type SkillCallRecord } from 'dsh-spm-kernel'
+import {
+  isAbortSafe,
+  isReadVerb,
+  type BudgetedCall,
+  type SafeCall,
+  type SkillCallRecord,
+} from 'dsh-spm-kernel'
 
 export interface GatedCallOptions {
   /** 底层的调用出口（通常是 `ctx.instrument.call` 的适配）。 */
@@ -44,4 +50,25 @@ export function gatedSafeCall(opts: GatedCallOptions): SafeCall {
         `退针（ZCtrl_Withdraw）与停扫（Scan_Action(1,…)）仍然可发。`,
     })
   }
+}
+
+export interface GatedBudgetedCallOptions {
+  /** 底层收得下 recv 预算的出口（宿主接的那一条，通常是 `ctx.instrument.call` 加 `timeoutMs` 的适配）。 */
+  readonly call: BudgetedCall
+  /** 中止闩上了吗。 */
+  readonly abortLatched: () => boolean
+}
+
+/**
+ * {@link gatedSafeCall} 的 recv 预算版 —— `ctx.slowCall` 走的那条路。
+ *
+ * `budgetedCall` 是绕过 `safeCall` 的第二条路（`skill-kernel.ts` 里 `budgetedCall` 那一项的警告）：
+ * 一条抬高了 recv 预算的 `ZSpectr_Start` 如果不过这道门，中止闩上之后它照样发得出去，
+ * 而它要占住连接好几分钟。所以这里**不写第二份判据**，直接套 {@link gatedSafeCall}：
+ * 预算只是被闭包带着走，门看到的仍是 `(method, args)`，放行谁拒绝谁与 `safeCall` 逐条一致。
+ * 拒绝记录里的 `args` 不含预算（预算不是实参）。
+ */
+export function gatedBudgetedCall(opts: GatedBudgetedCallOptions): BudgetedCall {
+  return (method: string, recvTimeoutS: number, ...args: unknown[]): Promise<SkillCallRecord> =>
+    gatedSafeCall({ abortLatched: opts.abortLatched, call: (m, ...a) => opts.call(m, recvTimeoutS, ...a) })(method, ...args)
 }
