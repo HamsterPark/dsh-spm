@@ -139,6 +139,8 @@ node tools/mutate/run.ts <mutation-id> [<another-id>]
 3. 变异后的代码构建成功；编译错误不算判据抓住了缺陷。
 4. 声明范围覆盖目标文件，测试实际执行，并出现失败。
 
+每一趟（基线与变异）都排除规则体检 [mutation-registry.test.ts](../packages/bundle/dsh-spm/contract/mutation-registry.test.ts)：它数的是每条规则的替换串在文件里命中几次，任何一条变异落地它都必然变红，与被变异的判据有没有人看无关；它在默认契约套件里照常运行。不排除的话，scope 落在 `packages/bundle/dsh-spm` 的规则按构造永远判 `red`。
+
 输出有 `red`、`green`、`inconclusive`、`narrow-scope` 四种；另有基线失败整趟拒跑。`green` 要调查断言是否有效，`narrow-scope` 要检查测试范围，`inconclusive` 不能算通过。历史案例见 [green-8.md](handoff/green-8.md)。
 
 `MUTATE=1` 仅用于在 Vitest 配置中启用 `mutation` 项目。当前 [元测试](../tools/mutate/meta/mutation.test.ts) 直接调用 `runOne`，没有经过 CLI 的整趟基线检查，不能将它当作满足上述四项的等价入口。
