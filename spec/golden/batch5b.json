@@ -73533,24 +73533,28 @@
           {
             "cumulative": 20,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "",
             "ok": true,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 20
+            "steps": 20,
+            "z_direction_basis": null
           },
           {
             "cumulative": 50,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "",
             "ok": true,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 30
+            "steps": 30,
+            "z_direction_basis": null
           }
         ]
       },
-      "error": "退了 50 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 继续退之前先确认 z-retract 方向配置是对的：方向反了的话，每一步都在往样品里扎。",
+      "error": "退了 50 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 MotorMove 没报方向 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
       "success": false,
       "summary": ""
     },
@@ -73687,29 +73691,35 @@
           {
             "cumulative": 20,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "",
             "ok": true,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 20
+            "steps": 20,
+            "z_direction_basis": null
           },
           {
             "cumulative": 50,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "",
             "ok": true,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 30
+            "steps": 30,
+            "z_direction_basis": null
           },
           {
             "cumulative": 100,
             "current_a": 4e-11,
+            "direction_code": null,
             "error": "",
             "ok": true,
             "saturated": false,
             "stage": "coarse_z",
-            "steps": 50
+            "steps": 50,
+            "z_direction_basis": null
           }
         ]
       },
@@ -73990,42 +74000,50 @@
           {
             "cumulative": 0,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "粗动被拒：本机粗动耐压未声明",
             "ok": false,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 20
+            "steps": 20,
+            "z_direction_basis": null
           },
           {
             "cumulative": 0,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "粗动被拒：本机粗动耐压未声明",
             "ok": false,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 30
+            "steps": 30,
+            "z_direction_basis": null
           },
           {
             "cumulative": 0,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "粗动被拒：本机粗动耐压未声明",
             "ok": false,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 50
+            "steps": 50,
+            "z_direction_basis": null
           },
           {
             "cumulative": 0,
             "current_a": 1.00036e-08,
+            "direction_code": null,
             "error": "粗动被拒：本机粗动耐压未声明",
             "ok": false,
             "saturated": true,
             "stage": "coarse_z",
-            "steps": 100
+            "steps": 100,
+            "z_direction_basis": null
           }
         ]
       },
-      "error": "退了 0 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 继续退之前先确认 z-retract 方向配置是对的：方向反了的话，每一步都在往样品里扎。",
+      "error": "退了 0 步仍未脱离饱和（最后读数 1e-08 A）。**没有假装恢复** —— 这几步按 MotorMove 没报方向 走；继续退之前先确认本机声明的粗动退针方向（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。",
       "success": false,
       "summary": ""
     },

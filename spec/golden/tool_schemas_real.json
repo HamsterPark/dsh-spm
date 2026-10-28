@@ -405,6 +405,79 @@
     },
     "required": []
   },
+  "AcquireSpectrum": {
+    "properties": {
+      "current_interval_s": {
+        "default": 0.25,
+        "description": "电流采样间隔 (unit: s) 范围 0.05 … 10 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Current Interval S",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "**试跑**：检查限值、读状态与 STM 快照，不曝光、不存盘",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "exposure_ms": {
+        "default": null,
+        "description": "曝光时间（毫秒）；不给 = 用当前设置 (unit: ms) 范围 0.001 … 3.6M ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": null,
+        "description": "帧数；不给 = 用当前设置",
+        "maximum": 100000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "live_stream": {
+        "default": "",
+        "description": "LiveHub 流 id；留空 = local/spectra/<device_id>",
+        "title": "Live Stream",
+        "type": "string"
+      },
+      "meta_json": {
+        "default": "",
+        "description": "附加元数据（JSON 对象），原样写进 sidecar 的 extra，例如组合技能的 {\"step_id\":…, \"ix\":3, \"iy\":7, \"mode\":\"near\"}",
+        "title": "Meta Json",
+        "type": "string"
+      },
+      "sample_current": {
+        "default": true,
+        "description": "曝光期间采样隧道电流（Current_Get），记均值与标准差",
+        "title": "Sample Current",
+        "type": "boolean"
+      },
+      "save_raw": {
+        "default": true,
+        "description": "让卫星同时存原始 .spe（<satellite-data-dir>，之后由 spe_watcher 传回枢纽）",
+        "title": "Save Raw",
+        "type": "boolean"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名上的标签",
+        "title": "Tag",
+        "type": "string"
+      },
+      "timeout_s": {
+        "default": null,
+        "description": "采集时限；不给 = 曝光×帧数×1.5 + 30 s (unit: s) 范围 1 … 7200 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "AcquireZSpectr": {
     "properties": {},
     "required": []
@@ -2331,6 +2404,45 @@
       "scan_paths"
     ]
   },
+  "CameraSnapshot": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      },
+      "tag": {
+        "default": null,
+        "description": "写进文件名和元数据的简短标记，例如 'after_lens_z+20'",
+        "title": "Tag",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "CameraStartLive": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "CameraStopLive": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "CaptureSignalBuffer": {
     "properties": {
       "channel": {
@@ -4101,6 +4213,133 @@
       "channel_b"
     ]
   },
+  "ConfigureSpectrometer": {
+    "properties": {
+      "adc_mhz": {
+        "default": null,
+        "description": "ADC 读出速率（PyLoN 常用 1 或 4 MHz） (unit: MHz) 范围 0.01 … 100 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": null,
+        "description": "ADC 模式",
+        "enum": [
+          "LowNoise",
+          "HighCapacity",
+          "HighSpeed",
+          "ElectronMultiplied"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "exposure_ms": {
+        "default": null,
+        "description": "曝光时间（毫秒）；本机限值见 GetSpectrometerStatus.limits (unit: ms) 范围 0.001 … 3.6M ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "file_attach_increment": {
+        "default": null,
+        "description": "文件名附加自增序号",
+        "title": "File Attach Increment",
+        "type": "boolean"
+      },
+      "file_base_name": {
+        "default": null,
+        "description": "卫星端 .spe 文件的基名（只改基名，不改目录）",
+        "title": "File Base Name",
+        "type": "string"
+      },
+      "frame_tracking": {
+        "default": null,
+        "description": "记录帧计数（发现丢帧）",
+        "title": "Frame Tracking",
+        "type": "boolean"
+      },
+      "frames": {
+        "default": null,
+        "description": "每次采集的帧数",
+        "maximum": 100000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "output_signal": {
+        "default": null,
+        "description": "相机 Logic Out 输出的信号（可接回 Nanonis 输入记录曝光窗口）",
+        "enum": [
+          "NotReadingOut",
+          "ShutterOpen",
+          "Busy",
+          "AlwaysLow",
+          "AlwaysHigh",
+          "Acquiring",
+          "ShiftingUnderMask",
+          "Exposing",
+          "EffectivelyExposing",
+          "ReadingOut",
+          "WaitingForTrigger"
+        ],
+        "title": "Output Signal",
+        "type": "string"
+      },
+      "roi": {
+        "default": null,
+        "description": "ROI：'full'、'line:<行数>'（行传感器，例如 'line:50'）或 JSON（例如 '{\"x\":0,\"width\":1340,\"y\":40,\"height\":20}'）",
+        "title": "Roi",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": null,
+        "description": "光谱仪入口快门模式（只挡进光谱仪的光，**不挡照到样品上的激光**）",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "timestamps": {
+        "default": null,
+        "description": "记录每帧曝光起止时间戳（1 µs，ExposureStarted+ExposureEnded）",
+        "title": "Timestamps",
+        "type": "boolean"
+      },
+      "trigger_edge": {
+        "default": null,
+        "description": "外触发沿",
+        "enum": [
+          "RisingEdge",
+          "FallingEdge"
+        ],
+        "title": "Trigger Edge",
+        "type": "string"
+      },
+      "trigger_response": {
+        "default": null,
+        "description": "外触发响应（Nanonis Port B Line 2 → PyLoN Ext Trigger）",
+        "enum": [
+          "NoResponse",
+          "ReadoutPerTrigger",
+          "ShiftPerTrigger",
+          "ExposeDuringTriggerPulse",
+          "StartOnSingleTrigger"
+        ],
+        "title": "Trigger Response",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "ConfigureSpectrumAnalyzer": {
     "properties": {
       "ac_coupling": {
@@ -4316,6 +4555,17 @@
       "settling_s",
       "z_avg_time_s"
     ]
+  },
+  "ConnectCamera": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      }
+    },
+    "required": []
   },
   "ContinuousImaging_Auto": {
     "properties": {
@@ -4835,6 +5085,29 @@
     "required": [
       "scan_a_path",
       "scan_b_path"
+    ]
+  },
+  "DisconnectCamera": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "DisconnectOpticalDevice": {
+    "properties": {
+      "device_id": {
+        "description": "设备 id，取自 ListOpticalDevices",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "device_id"
     ]
   },
   "DrawScanMarker": {
@@ -5722,6 +5995,17 @@
       "output_index"
     ]
   },
+  "GetCameraStatus": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "GetChamberPressure": {
     "properties": {},
     "required": []
@@ -6014,6 +6298,30 @@
     "properties": {},
     "required": []
   },
+  "GetOpticalStageStatus": {
+    "properties": {
+      "axis": {
+        "default": "",
+        "description": "只读这一条轴；留空 = 所有轴",
+        "title": "Axis",
+        "type": "string"
+      },
+      "connect": {
+        "default": false,
+        "description": "设备还没连上时打开它（串口 / USB）并做连接初始化：PI 伺服开、PDXC2 使能并把外触发设为 Manual、PZTC 写编码器方向与 PID1。这些都不移动台子。默认 false = 只读已连接的设备",
+        "title": "Connect",
+        "type": "boolean"
+      },
+      "device_id": {
+        "description": "设备 id，取自 ListOpticalDevices",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "device_id"
+    ]
+  },
   "GetOsciTimebases": {
     "properties": {},
     "required": []
@@ -6196,6 +6504,17 @@
       "controller_index"
     ]
   },
+  "GetPicomotorSteps": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "开环台设备 id；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "GetPiezoConfig": {
     "properties": {},
     "required": []
@@ -6262,6 +6581,17 @@
   },
   "GetPointShootProps": {
     "properties": {},
+    "required": []
+  },
+  "GetPolarizerAngle": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "旋转台设备 id；留空 = 唯一一台 role=polarizer 的旋转台",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
     "required": []
   },
   "GetPreamp": {
@@ -6392,6 +6722,24 @@
     "properties": {},
     "required": []
   },
+  "GetSatelliteDeviceStatus": {
+    "properties": {
+      "device": {
+        "description": "卫星上的设备 id（例如 pol、pico）",
+        "title": "Device",
+        "type": "string"
+      },
+      "satellite": {
+        "description": "卫星 id（satellites.json 里登记的 id）",
+        "title": "Satellite",
+        "type": "string"
+      }
+    },
+    "required": [
+      "device",
+      "satellite"
+    ]
+  },
   "GetScanBuffer": {
     "properties": {},
     "required": []
@@ -6511,6 +6859,17 @@
   },
   "GetSignalsAddRT": {
     "properties": {},
+    "required": []
+  },
+  "GetSpectrometerStatus": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
     "required": []
   },
   "GetSpectroscopyConfig": {
@@ -6840,9 +7199,44 @@
       "device_id"
     ]
   },
+  "HomePolarizer": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "旋转台设备 id；留空 = 唯一一台 role=polarizer 的旋转台",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "timeout_s": {
+        "default": 90.0,
+        "description": "回零时限 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "HomeZController": {
     "properties": {},
     "required": []
+  },
+  "IdentifySatelliteDevice": {
+    "properties": {
+      "device": {
+        "description": "卫星上的设备 id（例如 pol、pico）",
+        "title": "Device",
+        "type": "string"
+      },
+      "satellite": {
+        "description": "卫星 id（satellites.json 里登记的 id）",
+        "title": "Satellite",
+        "type": "string"
+      }
+    },
+    "required": [
+      "device",
+      "satellite"
+    ]
   },
   "IdentifyTopology_CARP": {
     "properties": {
@@ -6940,6 +7334,417 @@
     },
     "required": [
       "dat_path"
+    ]
+  },
+  "LaserFocusMap": {
+    "properties": {
+      "adc_index": {
+        "default": -1,
+        "description": "adc_channel 的 Nanonis 信号槽位（必填）。",
+        "maximum": 127,
+        "minimum": -1,
+        "title": "Adc Index",
+        "type": "integer"
+      },
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "algorithm": {
+        "default": "grid",
+        "description": "栅格扫描 / 爬山。本轮只实现 grid（hill_climb = OptimizeOpticalSignal，P2）。",
+        "enum": [
+          "grid",
+          "hill_climb"
+        ],
+        "title": "Algorithm",
+        "type": "string"
+      },
+      "axes": {
+        "default": "",
+        "description": "爬山轴列表（hill_climb 用；本轮未实现）。",
+        "title": "Axes",
+        "type": "string"
+      },
+      "axis1": {
+        "description": "栅格第一轴：'device_id:axis'（ListOpticalDevices）或 'nanonis:<组>:<轴>'。",
+        "title": "Axis1",
+        "type": "string"
+      },
+      "axis2": {
+        "default": "",
+        "description": "栅格第二轴；空 = 一维。",
+        "title": "Axis2",
+        "type": "string"
+      },
+      "band_cm1": {
+        "default": "",
+        "description": "raman_band 的积分区间 'lo-hi'（cm⁻¹）；stml_total 时按 nm 理解；空 = 总计数。【INF：待专家定】",
+        "title": "Band Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "go_to_best": {
+        "default": true,
+        "description": "结束后移到最优点并验 3 次；false = 只出图，结束回起点。",
+        "title": "Go To Best",
+        "type": "boolean"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "margin_sigma": {
+        "default": 2.0,
+        "description": "「最优显著优于起点」所需的改进（σ_J 的倍数）；不够 ⇒ restore_on_fail。【INF：待专家定】",
+        "maximum": 10.0,
+        "minimum": 0.5,
+        "title": "Margin Sigma",
+        "type": "number"
+      },
+      "max_evals": {
+        "default": 60,
+        "description": "爬山最大评估次数（hill_climb）。",
+        "maximum": 500,
+        "minimum": 5,
+        "title": "Max Evals",
+        "type": "integer"
+      },
+      "max_excursion": {
+        "default": "",
+        "description": "各轴相对起点的最大位移 'device:axis:value,…'（或 'nanonis:组:轴:value'）；空 = 只受配置软限位约束。【INF：待专家定】",
+        "title": "Max Excursion",
+        "type": "string"
+      },
+      "max_noise_cv": {
+        "default": 0.5,
+        "description": "σ_J / J_start 超过它 ⇒ 拒绝继续（目标函数不稳定，对准无意义；M12.9）。规格没给阈值，这是实现加的。【INF：待专家定】",
+        "maximum": 10.0,
+        "minimum": 0.01,
+        "title": "Max Noise Cv",
+        "type": "number"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "n1": {
+        "default": 9,
+        "description": "第一轴点数。【INF：待专家定】",
+        "maximum": 51,
+        "minimum": 3,
+        "title": "N1",
+        "type": "integer"
+      },
+      "n2": {
+        "default": 9,
+        "description": "第二轴点数（axis2 为空时忽略）。【INF：待专家定】",
+        "maximum": 51,
+        "minimum": 1,
+        "title": "N2",
+        "type": "integer"
+      },
+      "n_noise": {
+        "default": 3,
+        "description": "起点噪声估计的评估次数 ⇒ J_start、σ_J。【INF：待专家定】",
+        "maximum": 20,
+        "minimum": 2,
+        "title": "N Noise",
+        "type": "integer"
+      },
+      "objective": {
+        "default": "raman_band",
+        "description": "目标函数：拉曼谱带面积 / STML 积分强度 / Nanonis AI 均值 / 电流均值。【INF：待专家定】",
+        "enum": [
+          "raman_band",
+          "stml_total",
+          "adc_channel",
+          "current_mean"
+        ],
+        "title": "Objective",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "repeats_per_eval": {
+        "default": 2,
+        "description": "每个位置的重复评估次数（谱目标函数 = 一次采 repeats 帧取平均；电信号 = 读 repeats×10 次）。【INF：待专家定】",
+        "maximum": 20,
+        "minimum": 1,
+        "title": "Repeats Per Eval",
+        "type": "integer"
+      },
+      "restore_on_fail": {
+        "default": true,
+        "description": "最优不显著优于起点、或根本没有有效峰值 ⇒ 回起点；false = 停在原处（报「未还原」）。",
+        "title": "Restore On Fail",
+        "type": "boolean"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（这里 = 轴运动后的整定时间） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "span1": {
+        "description": "第一轴相对起点的 ± 范围（轴原生单位：mm / µm / 步）。【INF：待专家定】",
+        "maximum": 1000000.0,
+        "minimum": 0.0,
+        "title": "Span1",
+        "type": "number"
+      },
+      "span2": {
+        "default": 0.0,
+        "description": "第二轴 ± 范围。【INF：待专家定】",
+        "maximum": 1000000.0,
+        "minimum": 0.0,
+        "title": "Span2",
+        "type": "number"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "step_shrink": {
+        "default": 0.5,
+        "description": "爬山失败后步长收缩因子（hill_climb）。",
+        "maximum": 0.9,
+        "minimum": 0.1,
+        "title": "Step Shrink",
+        "type": "number"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "tip_state_policy": {
+        "default": "withdrawn",
+        "description": "运动期间针尖状态要求：withdrawn = 已撤针；feedback_on_ok = 隧穿态，只许 tunnel_safe 的轴，移动后重新判稳；any = 不检查（只记录）。【INF：待专家定】",
+        "enum": [
+          "withdrawn",
+          "feedback_on_ok",
+          "any"
+        ],
+        "title": "Tip State Policy",
+        "type": "string"
+      },
+      "unidirectional": {
+        "default": true,
+        "description": "每行都从低端单向趋近（先退一格再走过来），吃掉开环台的反向间隙。",
+        "title": "Unidirectional",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "axis1",
+      "span1"
     ]
   },
   "LevelLines_Median": {
@@ -7124,11 +7929,26 @@
     "properties": {},
     "required": []
   },
+  "ListNanonisMotorGroups": {
+    "properties": {
+      "read_drive": {
+        "default": true,
+        "description": "同时读回当前驱动频率/幅度（Motor_FreqAmpGet，只读）",
+        "title": "Read Drive",
+        "type": "boolean"
+      }
+    },
+    "required": []
+  },
   "ListNanonisScripts": {
     "properties": {},
     "required": []
   },
   "ListOpticalDevices": {
+    "properties": {},
+    "required": []
+  },
+  "ListSatellites": {
     "properties": {},
     "required": []
   },
@@ -7774,8 +8594,8 @@
         "type": "boolean"
       },
       "group": {
-        "default": 0,
-        "description": "马达组（0-5）",
+        "default": null,
+        "description": "马达组（0-5）。不给 = 配置的 STM 粗动组（nanonis_motor_groups.json，缺省 0）；给了别的组会被拒绝 —— 光学组请用 NanonisMotorGroupMove",
         "maximum": 5,
         "minimum": 0,
         "title": "Group",
@@ -7955,6 +8775,89 @@
       "y_m"
     ]
   },
+  "MoveXYZStage": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "XYZ 台设备 id；留空 = 唯一一台 role=focus_xyz 的",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "relative": {
+        "default": false,
+        "description": "True = 相对当前位置移动",
+        "title": "Relative",
+        "type": "boolean"
+      },
+      "timeout_s": {
+        "default": 60.0,
+        "description": "每个轴的动作时限 (unit: s) 范围 0.5 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      },
+      "x": {
+        "default": null,
+        "description": "X 目标（或位移） (unit: mm) 范围 -50 … 50 mm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 mm)。",
+        "title": "X",
+        "type": "string"
+      },
+      "y": {
+        "default": null,
+        "description": "Y 目标（或位移） (unit: mm) 范围 -50 … 50 mm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 mm)。",
+        "title": "Y",
+        "type": "string"
+      },
+      "z": {
+        "default": null,
+        "description": "Z 目标（或位移） (unit: mm) 范围 -50 … 50 mm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 mm)。",
+        "title": "Z",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "NanonisMotorGroupMove": {
+    "properties": {
+      "axis": {
+        "description": "轴：配置里的轴名（例如 mirror_x）或 X / Y / Z",
+        "title": "Axis",
+        "type": "string"
+      },
+      "direction": {
+        "description": "方向",
+        "enum": [
+          "+",
+          "-"
+        ],
+        "title": "Direction",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "**试跑**：校验组/轴/步数/针尖与驱动读回，不写任何 Nanonis 参数、不走步",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "group": {
+        "description": "组号（0-based，与 Motor_StartMove 的 Group 一致）或组名",
+        "title": "Group",
+        "type": "string"
+      },
+      "steps": {
+        "description": "步数；该组的上限见 ListNanonisMotorGroups",
+        "maximum": 10000,
+        "minimum": 1,
+        "title": "Steps",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "axis",
+      "direction",
+      "group",
+      "steps"
+    ]
+  },
   "OpenPatternExperiment": {
     "properties": {},
     "required": []
@@ -8080,7 +8983,7 @@
       },
       "return_to_start": {
         "default": true,
-        "description": "结束后把两条轴都移回起点",
+        "description": "结束后把两条轴都移回起点；被中止时不回（中止之后不再发起新的运动），结果里 return_to_start 写明",
         "title": "Return To Start",
         "type": "boolean"
       },
@@ -8151,18 +9054,18 @@
         "type": "boolean"
       },
       "trigger_line": {
-        "default": 1,
-        "description": "触发用的数字线 1-8",
+        "default": 2,
+        "description": "触发用的数字线 1-8（TERS 机器的相机触发在 B2）",
         "maximum": 8,
         "minimum": 1,
         "title": "Trigger Line",
         "type": "integer"
       },
       "trigger_port": {
-        "default": 0,
-        "description": "触发用的数字端口（0=A…）",
+        "default": 1,
+        "description": "触发用的数字端口（1=B，2=C…）。Port A（0）被拒绝：PMD4 机器上它是粗动控制器的控制口",
         "maximum": 8,
-        "minimum": 0,
+        "minimum": 1,
         "title": "Trigger Port",
         "type": "integer"
       },
@@ -8179,6 +9082,30 @@
       "points1",
       "start1",
       "stop1"
+    ]
+  },
+  "OpticalStageServo": {
+    "properties": {
+      "axis": {
+        "description": "该设备上的轴名",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "description": "设备 id，取自 ListOpticalDevices",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "on": {
+        "description": "true = 伺服开，false = 伺服关",
+        "title": "On",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "axis",
+      "device_id",
+      "on"
     ]
   },
   "OpticalStageWiggle": {
@@ -8397,6 +9324,99 @@
     },
     "required": [
       "pause"
+    ]
+  },
+  "PicomotorAbort": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "PicomotorJog": {
+    "properties": {
+      "axis": {
+        "description": "轴名（GetPicomotorSteps 列出的，例如 '2' 或 'pico_x'）",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "开环台设备 id；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "steps": {
+        "description": "步数（带符号）；单次上限见 GetPicomotorSteps",
+        "maximum": 100000,
+        "minimum": -100000,
+        "title": "Steps",
+        "type": "integer"
+      },
+      "timeout_s": {
+        "default": 30.0,
+        "description": "动作时限 (unit: s) 范围 0.5 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      }
+    },
+    "required": [
+      "axis",
+      "steps"
+    ]
+  },
+  "PicomotorMoveAbs": {
+    "properties": {
+      "axis": {
+        "description": "轴名（GetPicomotorSteps 列出的）",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "steps": {
+        "description": "目标累计计数",
+        "maximum": 1000000,
+        "minimum": -1000000,
+        "title": "Steps",
+        "type": "integer"
+      },
+      "timeout_s": {
+        "default": 30.0,
+        "description": "动作时限 (unit: s) 范围 0.5 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      }
+    },
+    "required": [
+      "axis",
+      "steps"
+    ]
+  },
+  "PicomotorSetZero": {
+    "properties": {
+      "axis": {
+        "description": "轴名（GetPicomotorSteps 列出的）",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "axis"
     ]
   },
   "PokeConditionTip": {
@@ -8955,7 +9975,7 @@
       },
       "return_to_start": {
         "default": true,
-        "description": "扫完之后回到 delay_start_ps",
+        "description": "扫完之后回到 delay_start_ps；被中止时不回（中止之后不再发起新的运动），结果里 return_to_start 写明",
         "title": "Return To Start",
         "type": "boolean"
       },
@@ -9036,24 +10056,578 @@
         "type": "boolean"
       },
       "trigger_line": {
-        "default": 1,
-        "description": "要打脉冲的数字线，1..8（VI 里的 'Trigger line 1-8'）",
+        "default": 2,
+        "description": "要打脉冲的数字线，1..8（VI 里的 'Trigger line 1-8'；TERS 机器的相机触发在 B2）",
         "maximum": 8,
         "minimum": 1,
         "title": "Trigger Line",
         "type": "integer"
       },
       "trigger_port": {
-        "default": 0,
-        "description": "触发用的数字端口：0=A,1=B,2=C,3=D,4+=DIO",
+        "default": 1,
+        "description": "触发用的数字端口：1=B,2=C,3=D,4+=DIO。Port A（0）被拒绝：PMD4 机器上它是粗动控制器的控制口",
         "maximum": 8,
-        "minimum": 0,
+        "minimum": 1,
         "title": "Trigger Port",
         "type": "integer"
       },
       "trigger_width_s": {
         "default": 0.0001,
         "description": "触发脉冲宽度（s） (unit: s) 范围 1u … 1 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Trigger Width S",
+        "type": "string"
+      }
+    },
+    "required": [
+      "delay_start_ps",
+      "delay_stop_ps",
+      "points"
+    ]
+  },
+  "PumpProbeSpectral": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "在线强度用的谱带 '名称:lo-hi,…'（cm⁻¹）；空 = 总计数。【INF：待专家定】",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "delay_offset_ps": {
+        "default": 0.0,
+        "description": "加到所有延迟上的偏移（t0 修正，M10-Q2 待专家定）。【INF：待专家定】 (unit: ps) 范围 -1000 … 1000 ps **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ps)。",
+        "title": "Delay Offset Ps",
+        "type": "string"
+      },
+      "delay_start_ps": {
+        "description": "起始延迟（同 PumpProbeScan）。 (unit: ps) 范围 -100k … 100k ps **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Delay Start Ps",
+        "type": "string"
+      },
+      "delay_stop_ps": {
+        "description": "终止延迟。 (unit: ps) 范围 -100k … 100k ps **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Delay Stop Ps",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "directions": {
+        "default": "forward",
+        "description": "扫描方向；both = 往返，检验滞后与漂移。【INF：待专家定】",
+        "enum": [
+          "forward",
+          "backward",
+          "both"
+        ],
+        "title": "Directions",
+        "type": "string"
+      },
+      "drop_frames": {
+        "default": 5,
+        "description": "连续多少点低于阈值才算衰减。",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Drop Frames",
+        "type": "integer"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 100.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】（本模式默认 100.0） (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "extra_signal_indices": {
+        "default": "",
+        "description": "每点另读的 Nanonis 信号槽位（逗号分隔，如 '14' = Z）。",
+        "title": "Extra Signal Indices",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "lockin_demod": {
+        "default": 1,
+        "description": "自动发现用的解调器编号。",
+        "maximum": 8,
+        "minimum": 1,
+        "title": "Lockin Demod",
+        "type": "integer"
+      },
+      "lockin_signal_index": {
+        "default": -1,
+        "description": "锁相输出所在信号槽位；-1 = 自动发现。",
+        "maximum": 127,
+        "minimum": -1,
+        "title": "Lockin Signal Index",
+        "type": "integer"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "move_timeout_s": {
+        "default": 60.0,
+        "description": "每点运动时限。 (unit: s) 范围 0.1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Move Timeout S",
+        "type": "string"
+      },
+      "on_count_mismatch": {
+        "default": "truncate",
+        "description": "帧数 ≠ 触发数：truncate = 保留错位点之前的点；abort = 整次作废。【INF：待专家定】",
+        "enum": [
+          "truncate",
+          "abort"
+        ],
+        "title": "On Count Mismatch",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "pdxc2_trigger_unwired": {
+        "default": false,
+        "description": "操作员已确认 PDXC2 的 Trigger In 没有接线（覆盖设置为「上升沿走 1 mm」，接着线时任何数字线上升沿都会让延迟台跳 1 mm）。software_pulse 时必须为 true。",
+        "title": "Pdxc2 Trigger Unwired",
+        "type": "boolean"
+      },
+      "pixel_margin_s": {
+        "default": 0.05,
+        "description": "点周期裕量：点周期 = 曝光 + 读出（22.4 ms）+ 裕量。【INF：待专家定】 (unit: s) 范围 0 … 5 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Pixel Margin S",
+        "type": "string"
+      },
+      "points": {
+        "description": "延迟点数（含首尾）。",
+        "maximum": 10000,
+        "minimum": 2,
+        "title": "Points",
+        "type": "integer"
+      },
+      "read_current": {
+        "default": true,
+        "description": "电读出：隧穿电流（Current_Get）。",
+        "title": "Read Current",
+        "type": "boolean"
+      },
+      "read_lockin": {
+        "default": false,
+        "description": "电读出：锁相解调（需锁相调制开启；本模式前置检查对此例外）。",
+        "title": "Read Lockin",
+        "type": "boolean"
+      },
+      "readout": {
+        "default": "both",
+        "description": "读出：谱 / 电（电流、锁相；等价于现有 PumpProbeScan，直接交给它）/ 两者。【INF：待专家定】",
+        "enum": [
+          "spectrum",
+          "electrical",
+          "both"
+        ],
+        "title": "Readout",
+        "type": "string"
+      },
+      "repeats": {
+        "default": 1,
+        "description": "整条扫描的重复次数。【INF：待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Repeats",
+        "type": "integer"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "return_to_start": {
+        "default": true,
+        "description": "扫完回到 delay_start_ps（中止之后不回）。",
+        "title": "Return To Start",
+        "type": "boolean"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "sample_interval_s": {
+        "default": 0.01,
+        "description": "电读出两次读数间隔。 (unit: s) 范围 0 … 1 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Sample Interval S",
+        "type": "string"
+      },
+      "samples_per_point": {
+        "default": 10,
+        "description": "电读出每点平均次数。",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Samples Per Point",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "secondary_axis": {
+        "default": "",
+        "description": "第二台台子的轴名。",
+        "title": "Secondary Axis",
+        "type": "string"
+      },
+      "secondary_device_id": {
+        "default": "",
+        "description": "第二台台子（2D 延迟图）。只支持 readout=electrical（转交 PumpProbeScan）。",
+        "title": "Secondary Device Id",
+        "type": "string"
+      },
+      "secondary_points": {
+        "default": 2,
+        "description": "第二台台子点数。",
+        "maximum": 1000,
+        "minimum": 2,
+        "title": "Secondary Points",
+        "type": "integer"
+      },
+      "secondary_position": {
+        "default": 0.0,
+        "description": "secondary_scan=false 时停在哪里（原生单位）。",
+        "maximum": 1000000.0,
+        "minimum": -1000000.0,
+        "title": "Secondary Position",
+        "type": "number"
+      },
+      "secondary_scan": {
+        "default": false,
+        "description": "把第二台台子当第二条延迟轴扫。",
+        "title": "Secondary Scan",
+        "type": "boolean"
+      },
+      "secondary_start": {
+        "default": 0.0,
+        "description": "第二台台子扫描起点（原生单位）。",
+        "maximum": 1000000.0,
+        "minimum": -1000000.0,
+        "title": "Secondary Start",
+        "type": "number"
+      },
+      "secondary_stop": {
+        "default": 0.0,
+        "description": "第二台台子扫描终点（原生单位）。",
+        "maximum": 1000000.0,
+        "minimum": -1000000.0,
+        "title": "Secondary Stop",
+        "type": "number"
+      },
+      "settle_extra_s": {
+        "default": 0.1,
+        "description": "台子报到位后的额外驻留（stick-slip 振动建议 0.1–0.2）。 (unit: s) 范围 0 … 10 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle Extra S",
+        "type": "string"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（只在 tip_state=tunneling 判稳时用） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "AlwaysOpen",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。（本模式默认 AlwaysOpen）",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "signal_drop_frac": {
+        "default": 0.0,
+        "description": "信号衰减监视（M09 同款）：低于滚动中位数 ×(1 − frac) 连续 drop_frames 点 ⇒ 标记；0 = 关闭。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "title": "Signal Drop Frac",
+        "type": "number"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "stm_check_every": {
+        "default": 20,
+        "description": "每 n 个延迟点判稳一次（0 = 不判；只在 tunneling 时）。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Stm Check Every",
+        "type": "integer"
+      },
+      "stop_on_drop": {
+        "default": false,
+        "description": "衰减时是否停下（needs_operator）。【INF：待专家定】",
+        "title": "Stop On Drop",
+        "type": "boolean"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "tip_state": {
+        "default": "tunneling",
+        "description": "STM 状态要求：隧穿 / 已撤针（纯光学）/ 不检查。【INF：待专家定】",
+        "enum": [
+          "tunneling",
+          "retracted",
+          "ignore"
+        ],
+        "title": "Tip State",
+        "type": "string"
+      },
+      "trigger_edge": {
+        "default": "rising",
+        "description": "相机触发沿。PP_ 用 Rising；PyLoN 默认 Falling（A4 待核）。",
+        "enum": [
+          "rising",
+          "falling"
+        ],
+        "title": "Trigger Edge",
+        "type": "string"
+      },
+      "trigger_level_verified": {
+        "default": false,
+        "description": "操作员已核对 Nanonis DIO 电平与 PyLoN TRIGGER IN（3.3 V 逻辑）的匹配及触发沿（规格 M03-Q1 / A4）。未核对时本模式只允许 dry_run。",
+        "title": "Trigger Level Verified",
+        "type": "boolean"
+      },
+      "trigger_line": {
+        "default": 2,
+        "description": "触发数字线（编号起点待真机核实，见 trigger_line_verified）。",
+        "maximum": 8,
+        "minimum": 1,
+        "title": "Trigger Line",
+        "type": "integer"
+      },
+      "trigger_line_verified": {
+        "default": false,
+        "description": "操作员已在真机上核实 DigLines 的线号起点（从 1 还是从 0 数、相机触发 B2 对应哪个编号）。未核实时本模式只允许 dry_run。",
+        "title": "Trigger Line Verified",
+        "type": "boolean"
+      },
+      "trigger_port": {
+        "default": 1,
+        "description": "触发数字端口：1 = Port B（相机触发在 B 第 2 线）。Port A（0）不可选：它接着 PMD4 粗动控制器；本机配置登记的保留口同样拒绝。",
+        "maximum": 3,
+        "minimum": 1,
+        "title": "Trigger Port",
+        "type": "integer"
+      },
+      "trigger_response": {
+        "default": "ReadoutPerTrigger",
+        "description": "LightField TriggerResponse。ReadoutPerTrigger 在光谱电脑的 LightField 上用过。",
+        "enum": [
+          "ReadoutPerTrigger",
+          "ExposeDuringTriggerPulse",
+          "StartOnSingleTrigger"
+        ],
+        "title": "Trigger Response",
+        "type": "string"
+      },
+      "trigger_scheme": {
+        "default": "software_pulse",
+        "description": "software_pulse = S+TTL（Nanonis 数字线逐点触发相机，一次 N 帧采集）；software_acquire = S（每点一次 AcquireSpectrum，无需触发接线，较慢）。",
+        "enum": [
+          "software_pulse",
+          "software_acquire"
+        ],
+        "title": "Trigger Scheme",
+        "type": "string"
+      },
+      "trigger_width_s": {
+        "default": 0.005,
+        "description": "脉冲宽度（现有会话 5 ms）。 (unit: s) 范围 1u … 60 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
         "title": "Trigger Width S",
         "type": "string"
       }
@@ -9155,6 +10729,29 @@
         "default": "",
         "description": "只返回不低于此严重度的事件:info / warn / critical。留空返回全部。",
         "title": "Min Severity",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "ReadPmt": {
+    "properties": {
+      "device": {
+        "default": "",
+        "description": "卫星上的设备 id；留空 = 唯一一台该类设备",
+        "title": "Device",
+        "type": "string"
+      },
+      "integration_ms": {
+        "default": 100.0,
+        "description": "积分时间（毫秒） (unit: ms) 范围 1 … 60k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Integration Ms",
+        "type": "string"
+      },
+      "satellite": {
+        "default": "",
+        "description": "卫星 id；留空 = 唯一提供该设备的卫星",
+        "title": "Satellite",
         "type": "string"
       }
     },
@@ -10343,6 +11940,49 @@
       "signal_2"
     ]
   },
+  "SetAotfWavelength": {
+    "properties": {
+      "amplitude_pct": {
+        "default": null,
+        "description": "射频幅度（满量程百分比） (unit: %) 范围 0 … 100 % **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 %)。",
+        "title": "Amplitude Pct",
+        "type": "string"
+      },
+      "channel": {
+        "default": 1,
+        "description": "AOTF 通道",
+        "maximum": 8,
+        "minimum": 1,
+        "title": "Channel",
+        "type": "integer"
+      },
+      "device": {
+        "default": "",
+        "description": "卫星上的设备 id；留空 = 唯一一台该类设备",
+        "title": "Device",
+        "type": "string"
+      },
+      "frequency_mhz": {
+        "default": null,
+        "description": "射频频率（MHz） (unit: MHz) 范围 1 … 1000 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Frequency Mhz",
+        "type": "string"
+      },
+      "satellite": {
+        "default": "",
+        "description": "卫星 id；留空 = 唯一提供该设备的卫星",
+        "title": "Satellite",
+        "type": "string"
+      },
+      "wavelength_nm": {
+        "default": null,
+        "description": "透过波长（nm） (unit: nm) 范围 200 … 5000 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Wavelength Nm",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "SetBias": {
     "properties": {
       "bias_v": {
@@ -10422,6 +12062,96 @@
     },
     "required": [
       "range_index"
+    ]
+  },
+  "SetCameraExposure": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      },
+      "exposure_us": {
+        "description": "曝光时间；实际可用范围以相机报告的为准 (unit: µs)",
+        "maximum": 60000000,
+        "minimum": 1,
+        "title": "Exposure Us",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "exposure_us"
+    ]
+  },
+  "SetCameraGain": {
+    "properties": {
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      },
+      "gain_db": {
+        "description": "增益；实际可用范围以相机报告的为准 (unit: dB) 范围 0 … 100 dB **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 dB)。",
+        "title": "Gain Db",
+        "type": "string"
+      }
+    },
+    "required": [
+      "gain_db"
+    ]
+  },
+  "SetCameraROI": {
+    "properties": {
+      "binning": {
+        "default": 1,
+        "description": "合并（两个方向相同）；实际可用范围以相机报告的为准",
+        "maximum": 16,
+        "minimum": 1,
+        "title": "Binning",
+        "type": "integer"
+      },
+      "camera_id": {
+        "default": null,
+        "description": "cameras.json 里的 camera_id；只配了一台相机时可以省略",
+        "title": "Camera Id",
+        "type": "string"
+      },
+      "h": {
+        "description": "高 (unit: px)",
+        "maximum": 100000,
+        "minimum": 1,
+        "title": "H",
+        "type": "integer"
+      },
+      "w": {
+        "description": "宽 (unit: px)",
+        "maximum": 100000,
+        "minimum": 1,
+        "title": "W",
+        "type": "integer"
+      },
+      "x": {
+        "description": "左上角列号（传感器像素，从 0 起） (unit: px)",
+        "maximum": 100000,
+        "minimum": 0,
+        "title": "X",
+        "type": "integer"
+      },
+      "y": {
+        "description": "左上角行号（传感器像素，从 0 起） (unit: px)",
+        "maximum": 100000,
+        "minimum": 0,
+        "title": "Y",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "h",
+      "w",
+      "x",
+      "y"
     ]
   },
   "SetCurrentCalibration": {
@@ -10830,6 +12560,31 @@
     },
     "required": [
       "on"
+    ]
+  },
+  "SetOpticalStageVelocity": {
+    "properties": {
+      "axis": {
+        "description": "该设备上的轴名",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "description": "设备 id，取自 ListOpticalDevices",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "velocity": {
+        "description": "速度，轴原生单位 / 秒（必须 > 0）",
+        "minimum": 0.0,
+        "title": "Velocity",
+        "type": "number"
+      }
+    },
+    "required": [
+      "axis",
+      "device_id",
+      "velocity"
     ]
   },
   "SetOsciTimebase": {
@@ -11253,6 +13008,58 @@
       "on"
     ]
   },
+  "SetPicomotorAccel": {
+    "properties": {
+      "axis": {
+        "description": "轴名（GetPicomotorSteps 列出的）",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "steps_s2": {
+        "description": "加速度 (unit: steps/s²)",
+        "maximum": 200000,
+        "minimum": 1,
+        "title": "Steps S2",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "axis",
+      "steps_s2"
+    ]
+  },
+  "SetPicomotorVelocity": {
+    "properties": {
+      "axis": {
+        "description": "轴名（GetPicomotorSteps 列出的）",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=beam_steer 的",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "steps_s": {
+        "description": "步速 (unit: steps/s)",
+        "maximum": 2000,
+        "minimum": 1,
+        "title": "Steps S",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "axis",
+      "steps_s"
+    ]
+  },
   "SetPiezoHysteresisOnOff": {
     "properties": {
       "enable": {
@@ -11451,6 +13258,30 @@
       "modulator"
     ]
   },
+  "SetPmtHighVoltage": {
+    "properties": {
+      "device": {
+        "default": "",
+        "description": "卫星上的设备 id；留空 = 唯一一台该类设备",
+        "title": "Device",
+        "type": "string"
+      },
+      "satellite": {
+        "default": "",
+        "description": "卫星 id；留空 = 唯一提供该设备的卫星",
+        "title": "Satellite",
+        "type": "string"
+      },
+      "volts": {
+        "description": "高压（V）；0 = 关 (unit: V) 范围 0 … 1500 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Volts",
+        "type": "string"
+      }
+    },
+    "required": [
+      "volts"
+    ]
+  },
   "SetPointShootExperiment": {
     "properties": {
       "experiment_index": {
@@ -11510,6 +13341,60 @@
     },
     "required": [
       "auto_resume"
+    ]
+  },
+  "SetPolarizerAngle": {
+    "properties": {
+      "angle_deg": {
+        "description": "目标角度（绝对）或转角（relative=true） (unit: deg) 范围 -1.08k … 1.08k deg **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Angle Deg",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "旋转台设备 id；留空 = 唯一一台 role=polarizer 的旋转台",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "relative": {
+        "default": false,
+        "description": "True = 从当前角度转 angle_deg",
+        "title": "Relative",
+        "type": "boolean"
+      },
+      "timeout_s": {
+        "default": 60.0,
+        "description": "转动时限（90° 约 5–10 s） (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Timeout S",
+        "type": "string"
+      }
+    },
+    "required": [
+      "angle_deg"
+    ]
+  },
+  "SetPolarizerVelocity": {
+    "properties": {
+      "accel_deg_s2": {
+        "default": null,
+        "description": "加速度；留空 = 不改 (unit: deg/s²) 范围 0.01 … 25 deg/s² **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg/s²)。",
+        "title": "Accel Deg S2",
+        "type": "string"
+      },
+      "deg_s": {
+        "description": "最大速度 (unit: deg/s) 范围 0.01 … 25 deg/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg/s)。",
+        "title": "Deg S",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "设备 id（ListOpticalDevices）；留空 = 唯一一台 role=polarizer 的",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "deg_s"
     ]
   },
   "SetProbeBias": {
@@ -11961,6 +13846,64 @@
     },
     "required": [
       "setpoint_a"
+    ]
+  },
+  "SetSpectrometerCenter": {
+    "properties": {
+      "center_nm": {
+        "description": "中心波长（nm） (unit: nm) 范围 100 … 3000 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Center Nm",
+        "type": "string"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "center_nm"
+    ]
+  },
+  "SetSpectrometerExitPort": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "port": {
+        "description": "出口",
+        "enum": [
+          "front",
+          "side"
+        ],
+        "title": "Port",
+        "type": "string"
+      }
+    },
+    "required": [
+      "port"
+    ]
+  },
+  "SetSpectrometerGrating": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的光谱仪",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "grating": {
+        "description": "光栅名（见 GetSpectrometerStatus 的 status.grating 与 limits.gratings）",
+        "title": "Grating",
+        "type": "string"
+      }
+    },
+    "required": [
+      "grating"
     ]
   },
   "SetSpectroscopyPulseSync": {
@@ -12979,8 +14922,60 @@
     "properties": {},
     "required": []
   },
+  "StopSatelliteDevice": {
+    "properties": {
+      "axis": {
+        "default": "",
+        "description": "只停这一个轴（开环台的轴号）；留空 = 整台设备",
+        "title": "Axis",
+        "type": "string"
+      },
+      "device": {
+        "description": "卫星上的设备 id（例如 pol、pico）",
+        "title": "Device",
+        "type": "string"
+      },
+      "satellite": {
+        "description": "卫星 id（satellites.json 里登记的 id）",
+        "title": "Satellite",
+        "type": "string"
+      }
+    },
+    "required": [
+      "device",
+      "satellite"
+    ]
+  },
+  "StopSatelliteDevices": {
+    "properties": {
+      "device": {
+        "default": "",
+        "description": "卫星上的设备 id（例如 pol）；留空 = 该卫星全部设备",
+        "title": "Device",
+        "type": "string"
+      },
+      "satellite": {
+        "default": "",
+        "description": "卫星 id（satellites.json 里登记的 id）；留空 = 全部",
+        "title": "Satellite",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
   "StopScan": {
     "properties": {},
+    "required": []
+  },
+  "StopSpectrometer": {
+    "properties": {
+      "device_id": {
+        "default": "",
+        "description": "只停这一台；留空 = 全部",
+        "title": "Device Id",
+        "type": "string"
+      }
+    },
     "required": []
   },
   "StopTcpLog": {
@@ -13114,6 +15109,3312 @@
         "default": 180.0,
         "description": "单个瓦片扫描的等待上限。 (unit: s) 范围 10 … 3600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
         "title": "Wait Timeout S",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSBiasSeries": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "allow_over_cutoff": {
+        "default": false,
+        "description": "允许 |V| > bias_abs_max_v；仅当 laser_off_pass = true 时有效。【INF：待专家定】",
+        "title": "Allow Over Cutoff",
+        "type": "boolean"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "分析用谱带 '名称:lo-hi,…'。",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "bias_abs_max_v": {
+        "default": 1.75,
+        "description": "|V| 上限。635–693 nm ↔ 1.79–1.95 eV，|V| < 1.79 V 时单电子过程无窗内发射（R21）；越过需 allow_over_cutoff 且 laser_off_pass。 (unit: V) 范围 0.1 … 4 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Bias Abs Max V",
+        "type": "string"
+      },
+      "bias_settle_s": {
+        "default": 10.0,
+        "description": "偏压变化后额外等待（Z 蠕变）。【INF：待专家定】 (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Bias Settle S",
+        "type": "string"
+      },
+      "biases_v": {
+        "default": "0.3,0.6,0.9,1.2,1.5,-0.3,-0.6,-0.9,-1.2,-1.5",
+        "description": "偏压列表（逗号分隔，V）。正负都给才看得出电子态差别。【INF：待专家定】 (unit: V)",
+        "title": "Biases V",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "hold_mode": {
+        "default": "constant_resistance",
+        "description": "保持量：constant_resistance = 设定点随 V 缩放使 R = V/I 不变；constant_current = 设定点固定；constant_height = 在 V0 处关反馈后只改偏压。",
+        "enum": [
+          "constant_resistance",
+          "constant_current",
+          "constant_height"
+        ],
+        "title": "Hold Mode",
+        "type": "string"
+      },
+      "junction_r_ohm": {
+        "default": null,
+        "description": "目标结阻；不给 = V0 / I0（当前）。 (unit: Ω) 范围 100M … 1e+13 Ω **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Junction R Ohm",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_off_pass": {
+        "default": false,
+        "description": "主序列之后追加一遍「激光遮挡」的 STML 背景对照：要操作员确认已遮光（只在有人工确认通道的路径上能做）。【INF：待专家定】",
+        "title": "Laser Off Pass",
+        "type": "boolean"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_current_a": {
+        "default": 2e-09,
+        "description": "设定点 / 实测电流上限（裁剪会记录）。【INF：待专家定】 (unit: A) 范围 100p … 20n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Max Current A",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "min_current_a": {
+        "default": 1e-11,
+        "description": "设定点下限（低 |V| 时裁剪，裁剪会记录）。【INF：待专家定】 (unit: A) 范围 1p … 1n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Min Current A",
+        "type": "string"
+      },
+      "nf_drift_max_frac": {
+        "default": 0.3,
+        "description": "参考谱强度相对 REF_0 变化的容限（超过只标记 tip_changed）。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Nf Drift Max Frac",
+        "type": "number"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "order": {
+        "default": "as_given",
+        "description": "偏压顺序；random 用 shuffle_seed 打乱，把漂移与偏压解耦。【INF：待专家定】",
+        "enum": [
+          "as_given",
+          "random"
+        ],
+        "title": "Order",
+        "type": "string"
+      },
+      "ref_bias_v": {
+        "default": null,
+        "description": "参考偏压；不给 = V0。【INF：待专家定】 (unit: V) 范围 -4 … 4 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Ref Bias V",
+        "type": "string"
+      },
+      "ref_every_n": {
+        "default": 4,
+        "description": "每 n 点回参考偏压取一条参考谱；0 = 不取。【INF：待专家定】",
+        "maximum": 100,
+        "minimum": 0,
+        "title": "Ref Every N",
+        "type": "integer"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（本模式默认 1.0） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shuffle_seed": {
+        "default": 0,
+        "description": "random 的种子（记录进元数据）。",
+        "maximum": 2147483647,
+        "minimum": 0,
+        "title": "Shuffle Seed",
+        "type": "integer"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】（本模式默认 1.0） (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "stml_check_min_v": {
+        "default": 1.5,
+        "description": "激光关闭对照只对 |V| ≥ 该值的点做。【INF：待专家定】 (unit: V) 范围 0.5 … 4 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Stml Check Min V",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "zero_deadband_v": {
+        "default": 0.05,
+        "description": "穿零死区半宽（BiasSettleChange 默认 50 mV）；反馈闭合时 |V| 小于它的点不走。 (unit: V) 范围 0 … 0.5 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Zero Deadband V",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSGridMap": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "angle_deg": {
+        "default": 0.0,
+        "description": "网格相对扫描坐标的旋转角。 (unit: deg) 范围 -180 … 180 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Deg",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "地图显示与参考相关用的谱带 '名称:lo-hi,…'，如 'ring:1540-1620'；空 = 总计数。【INF：待专家定】",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "center_x_m": {
+        "default": null,
+        "description": "网格中心 X；不给 = 当前位置。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Center X M",
+        "type": "string"
+      },
+      "center_y_m": {
+        "default": null,
+        "description": "网格中心 Y；不给 = 当前位置。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Center Y M",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "drift_every_n": {
+        "default": 0,
+        "description": "每 n 个像素补偿一次；0 = 不补偿。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Drift Every N",
+        "type": "integer"
+      },
+      "drift_mode": {
+        "default": "none",
+        "description": "漂移补偿方式。本轮只实现 none（atom_track / reference_scan 的做法待专家定，M02-Q2，选了会被拒绝）；扫描前后形貌仍给出漂移报告。【INF：待专家定】",
+        "enum": [
+          "none",
+          "atom_track",
+          "reference_scan"
+        ],
+        "title": "Drift Mode",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 1000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】（本模式默认 1000.0） (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "height_m": {
+        "default": 5e-09,
+        "description": "网格高。 (unit: m) 范围 100p … 200n m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Height M",
+        "type": "string"
+      },
+      "hold_mode": {
+        "default": "feedback",
+        "description": "同 M01：feedback = 恒流；hold = 每个像素关反馈恒高曝光，曝光后立即重新闭合（像素之间一定先闭合反馈再移动）。恒高在起伏大的分子上有撞针风险。",
+        "enum": [
+          "feedback",
+          "hold"
+        ],
+        "title": "Hold Mode",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_pixels": {
+        "default": 4096,
+        "description": "像素数硬上限。【INF：待专家定】",
+        "maximum": 65536,
+        "minimum": 1,
+        "title": "Max Pixels",
+        "type": "integer"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "nx": {
+        "default": 16,
+        "description": "X 方向像素数（像素间距 = width / nx）。先例 32×32，0.22 nm / 像素。",
+        "maximum": 64,
+        "minimum": 2,
+        "title": "Nx",
+        "type": "integer"
+      },
+      "ny": {
+        "default": 16,
+        "description": "Y 方向像素数。",
+        "maximum": 64,
+        "minimum": 2,
+        "title": "Ny",
+        "type": "integer"
+      },
+      "on_reference_fail": {
+        "default": "stop",
+        "description": "参考相关不达标：停止（needs_operator）或仅标记。【INF：待专家定】",
+        "enum": [
+          "stop",
+          "flag"
+        ],
+        "title": "On Reference Fail",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "order": {
+        "default": "serpentine",
+        "description": "像素顺序；蛇形减少空程与回滞。【INF：待专家定】",
+        "enum": [
+          "raster",
+          "serpentine"
+        ],
+        "title": "Order",
+        "type": "string"
+      },
+      "pre_post_scan": {
+        "default": true,
+        "description": "运行前后各扫一幅形貌（ScanAt + SaveScan），结束时 MeasureFrameDrift 报漂移。【INF：待专家定】",
+        "title": "Pre Post Scan",
+        "type": "boolean"
+      },
+      "reference_corr_min": {
+        "default": 0.7,
+        "description": "参考谱与首条参考谱在谱带内的皮尔逊相关下限。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "title": "Reference Corr Min",
+        "type": "number"
+      },
+      "reference_every_n": {
+        "default": 50,
+        "description": "每 n 个像素回参考点一次；0 = 不做。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Reference Every N",
+        "type": "integer"
+      },
+      "reference_x_m": {
+        "default": null,
+        "description": "参考像素 X；不给 = 第一个像素。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference X M",
+        "type": "string"
+      },
+      "reference_y_m": {
+        "default": null,
+        "description": "参考像素 Y。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference Y M",
+        "type": "string"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "scan_line_time_s": {
+        "default": 0.1,
+        "description": "形貌图每行时间。【INF：待专家定】 (unit: s) 范围 0.01 … 2 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Scan Line Time S",
+        "type": "string"
+      },
+      "scan_pixels": {
+        "default": 64,
+        "description": "形貌图像素数。【INF：待专家定】",
+        "maximum": 256,
+        "minimum": 32,
+        "title": "Scan Pixels",
+        "type": "integer"
+      },
+      "settle_s": {
+        "default": 0.3,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（本模式默认 0.3） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 10.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】（本模式默认 10.0） (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 0.2,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】（本模式默认 0.2） (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "width_m": {
+        "default": 5e-09,
+        "description": "网格宽（先例 7 nm，R3）。 (unit: m) 范围 100p … 200n m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Width M",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSLineProfile": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "地图显示与参考相关用的谱带 '名称:lo-hi,…'，如 'ring:1540-1620'；空 = 总计数。【INF：待专家定】",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "drift_every_n": {
+        "default": 0,
+        "description": "每 n 个像素补偿一次；0 = 不补偿。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Drift Every N",
+        "type": "integer"
+      },
+      "drift_mode": {
+        "default": "none",
+        "description": "漂移补偿方式。本轮只实现 none（atom_track / reference_scan 的做法待专家定，M02-Q2，选了会被拒绝）；扫描前后形貌仍给出漂移报告。【INF：待专家定】",
+        "enum": [
+          "none",
+          "atom_track",
+          "reference_scan"
+        ],
+        "title": "Drift Mode",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 1000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】（本模式默认 1000.0） (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "hold_mode": {
+        "default": "feedback",
+        "description": "同 M01：feedback = 恒流；hold = 每个像素关反馈恒高曝光，曝光后立即重新闭合（像素之间一定先闭合反馈再移动）。恒高在起伏大的分子上有撞针风险。",
+        "enum": [
+          "feedback",
+          "hold"
+        ],
+        "title": "Hold Mode",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_pixels": {
+        "default": 4096,
+        "description": "像素数硬上限。【INF：待专家定】",
+        "maximum": 65536,
+        "minimum": 1,
+        "title": "Max Pixels",
+        "type": "integer"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "on_reference_fail": {
+        "default": "stop",
+        "description": "参考相关不达标：停止（needs_operator）或仅标记。【INF：待专家定】",
+        "enum": [
+          "stop",
+          "flag"
+        ],
+        "title": "On Reference Fail",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "points": {
+        "default": 32,
+        "description": "线扫点数（含两端）。【INF：待专家定】",
+        "maximum": 512,
+        "minimum": 2,
+        "title": "Points",
+        "type": "integer"
+      },
+      "pre_post_scan": {
+        "default": true,
+        "description": "运行前后各扫一幅形貌（ScanAt + SaveScan），结束时 MeasureFrameDrift 报漂移。【INF：待专家定】",
+        "title": "Pre Post Scan",
+        "type": "boolean"
+      },
+      "reference_corr_min": {
+        "default": 0.7,
+        "description": "参考谱与首条参考谱在谱带内的皮尔逊相关下限。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "title": "Reference Corr Min",
+        "type": "number"
+      },
+      "reference_every_n": {
+        "default": 50,
+        "description": "每 n 个像素回参考点一次；0 = 不做。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Reference Every N",
+        "type": "integer"
+      },
+      "reference_x_m": {
+        "default": null,
+        "description": "参考像素 X；不给 = 第一个像素。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference X M",
+        "type": "string"
+      },
+      "reference_y_m": {
+        "default": null,
+        "description": "参考像素 Y。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference Y M",
+        "type": "string"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "scan_line_time_s": {
+        "default": 0.1,
+        "description": "形貌图每行时间。【INF：待专家定】 (unit: s) 范围 0.01 … 2 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Scan Line Time S",
+        "type": "string"
+      },
+      "scan_pixels": {
+        "default": 64,
+        "description": "形貌图像素数。【INF：待专家定】",
+        "maximum": 256,
+        "minimum": 32,
+        "title": "Scan Pixels",
+        "type": "integer"
+      },
+      "settle_s": {
+        "default": 0.3,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（本模式默认 0.3） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 10.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】（本模式默认 10.0） (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 0.2,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】（本模式默认 0.2） (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "x0_m": {
+        "description": "线扫起点 X。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "X0 M",
+        "type": "string"
+      },
+      "x1_m": {
+        "description": "线扫终点 X。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "X1 M",
+        "type": "string"
+      },
+      "y0_m": {
+        "description": "线扫起点 Y。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Y0 M",
+        "type": "string"
+      },
+      "y1_m": {
+        "description": "线扫终点 Y。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Y1 M",
+        "type": "string"
+      }
+    },
+    "required": [
+      "x0_m",
+      "x1_m",
+      "y0_m",
+      "y1_m"
+    ]
+  },
+  "TERSNearFarPair": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "description": "用于计算对比度的谱带 '名称:lo-hi,…'（cm⁻¹，必填），如 'ring:1540-1620'。",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "bare_x_m": {
+        "default": null,
+        "description": "lateral_bare / both 时的裸衬底位置 X。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Bare X M",
+        "type": "string"
+      },
+      "bare_y_m": {
+        "default": null,
+        "description": "裸衬底位置 Y。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Bare Y M",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口 'lo-hi,lo-hi'；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "cycles": {
+        "default": 3,
+        "description": "NF–FF 循环次数（最后另加一次 NF_post）。【INF：待专家定】",
+        "maximum": 20,
+        "minimum": 1,
+        "title": "Cycles",
+        "type": "integer"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "ff_noise_sigma": {
+        "default": 3.0,
+        "description": "FF 低于 N σ 时只报对比度下限。【INF：待专家定】",
+        "maximum": 10.0,
+        "minimum": 1.0,
+        "title": "Ff Noise Sigma",
+        "type": "number"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_return_current_a": {
+        "default": 5e-09,
+        "description": "回针过程中允许的最大电流；超过 ⇒ 立即退针（SafeRetract）并停。【INF：待专家定】 (unit: A) 范围 10p … 20n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Max Return Current A",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "nf_drift_max_frac": {
+        "default": 0.3,
+        "description": "|NF_post / NF_pre − 1| 超过该值 ⇒ tip_changed。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Nf Drift Max Frac",
+        "type": "number"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "probe_min_drop_frac": {
+        "default": 0.1,
+        "description": "小步之后 |I| 至少下降的比例（与 3σ0 取大者）；达不到 ⇒ 判方向错。Mimea 实测κ_app ≈ 4.85 nm⁻¹，20 pm 降 15.8 %（余量约 1.6 倍）；κ ≈ 10 nm⁻¹ 的结降约 33 %。【INF：待专家定】",
+        "maximum": 0.9,
+        "minimum": 0.02,
+        "title": "Probe Min Drop Frac",
+        "type": "number"
+      },
+      "probe_settle_s": {
+        "default": 0.7,
+        "description": "关反馈后、以及小步之后，各等这么久再读电流。Mimea 的 Current_Get 约 0.3 s 刷新一次，台阶后第一次刷新只反映约 35 %、第二次（≈ 0.5 s）才完全反映；真机是实时信号，这一等待只是让读数稳定。【INF：待专家定】 (unit: s) 范围 0.01 … 5 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Probe Settle S",
+        "type": "string"
+      },
+      "probe_step_pm": {
+        "default": 20.0,
+        "description": "首个小步自检：关反馈后先沿撤针方向走这么一步，前后各读 5 次电流；电流没按预期下降（或上升）⇒ 判 z_extend_sign 可能填反，退针停下，不走任何 1 nm 步。κ ≈ 1 Å⁻¹ 时 20 pm 约降 33 %，方向反了也只升约 1.5 倍。【INF：待专家定】 (unit: pm) 范围 5 … 100 pm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm)。",
+        "title": "Probe Step Pm",
+        "type": "string"
+      },
+      "reference_kind": {
+        "default": "retract",
+        "description": "远场参考方式：撤针 / 横向移到裸衬底 / 两者都做。【INF：待专家定】",
+        "enum": [
+          "retract",
+          "lateral_bare",
+          "both"
+        ],
+        "title": "Reference Kind",
+        "type": "string"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retract_current_limit_factor": {
+        "default": 1.5,
+        "description": "撤针全程 |I| > 该值 × 撤针开始时的 |I| ⇒ 立即停、SafeRetract（方向错的第二道防线：正确方向上电流只会下降）。【INF：待专家定】",
+        "maximum": 10.0,
+        "minimum": 1.05,
+        "title": "Retract Current Limit Factor",
+        "type": "number"
+      },
+      "retract_nm": {
+        "default": 20.0,
+        "description": "撤针量 Δz。Z 压电量程约 1.5 µm。【INF：待专家定】 (unit: nm) 范围 2 … 500 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Retract Nm",
+        "type": "string"
+      },
+      "retract_settle_s": {
+        "default": 5.0,
+        "description": "撤针后等待（蠕变 + 热平衡）。【INF：待专家定】 (unit: s) 范围 0 … 120 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Retract Settle S",
+        "type": "string"
+      },
+      "retract_speed_nm_s": {
+        "default": 20.0,
+        "description": "撤针 / 回针斜坡速率（单步 ≤ 1 nm、间隔 ≥ 20 ms）。【INF：待专家定】 (unit: nm/s) 范围 1 … 200 nm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm/s)。",
+        "title": "Retract Speed Nm S",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "return_overshoot_guard_nm": {
+        "default": 0.5,
+        "description": "回针时先停在撤针一侧离 z_NF 该值处（z_NF + dir × 该值），再闭合反馈（防止反馈从远处直接冲下来）。【INF：待专家定】 (unit: nm) 范围 0.1 … 5 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Return Overshoot Guard Nm",
+        "type": "string"
+      },
+      "return_settle_s": {
+        "default": 3.0,
+        "description": "回针闭合后等待。【INF：待专家定】 (unit: s) 范围 0 … 120 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Return Settle S",
+        "type": "string"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】 (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "z_return_tol_pm": {
+        "default": 100.0,
+        "description": "回针后 Z 与撤针前差的上限；不满足再等一次 return_settle_s 复核，仍不满足 ⇒ 退针并停。【INF：待专家定】 (unit: pm) 范围 5 … 2000 pm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm)。",
+        "title": "Z Return Tol Pm",
+        "type": "string"
+      }
+    },
+    "required": [
+      "bands_cm1"
+    ]
+  },
+  "TERSPointSpectrum": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "apply_conditions": {
+        "default": false,
+        "description": "True = 先按 bias_v / setpoint_a 设置条件（BiasSettleChange + SetSetpoint，设好的条件留着，不还原）；False = 沿用当前。【INF：待专家定】",
+        "title": "Apply Conditions",
+        "type": "boolean"
+      },
+      "band_cm1": {
+        "default": "",
+        "description": "在线强度 / SNR 用的谱带 'lo-hi'（cm⁻¹），如 '1560-1620'；空 = 全窗口计数。【INF：待专家定】",
+        "title": "Band Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口 'lo-hi,lo-hi'；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "bias_v": {
+        "default": null,
+        "description": "apply_conditions 时的偏压。|V| 高于 ~1.75 V 时 STML 可进入 635–693 nm 窗口，见 M06。【INF：待专家定】 (unit: V) 范围 -3 … 3 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Bias V",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "coord_epoch": {
+        "default": null,
+        "description": "x/y 来自带代次的来源（地图标记 / 已存站位）时传入；发生过横向粗动则拒绝移动（同 MoveToXY）。回读坐标请省略。",
+        "title": "Coord Epoch",
+        "type": "integer"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "drift_tol_pm": {
+        "default": 50.0,
+        "description": "曝光前后 |z_B − z_A| 上限；超限标 drift（数据保留，不重拍）。【INF：待专家定】 (unit: pm) 范围 5 … 1000 pm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm)。",
+        "title": "Drift Tol Pm",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "hold_mode": {
+        "default": "feedback",
+        "description": "曝光期间 Z 反馈：feedback = 保持闭环；hold = 关反馈保持当前 Z（恒高）。hold 前读 tip lift 必须为 0，曝光后立即重新闭合；若中途被中止而无法重新闭合，就退针（不让针尖在恒高下无人看管）。",
+        "enum": [
+          "feedback",
+          "hold"
+        ],
+        "title": "Hold Mode",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "repeats": {
+        "default": 1,
+        "description": "独立重复次数（每次单独判稳、曝光、复核）。【INF：待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Repeats",
+        "type": "integer"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "setpoint_a": {
+        "default": null,
+        "description": "apply_conditions 时的设定点电流。【INF：待专家定】 (unit: A) 范围 1p … 10n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Setpoint A",
+        "type": "string"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】 (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "use_current_position": {
+        "default": true,
+        "description": "True = 不移动，在当前位置采谱；False 时 x_m / y_m 必填。",
+        "title": "Use Current Position",
+        "type": "boolean"
+      },
+      "x_m": {
+        "default": null,
+        "description": "目标 X（范围同 MoveToXY）。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "X M",
+        "type": "string"
+      },
+      "y_m": {
+        "default": null,
+        "description": "目标 Y。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Y M",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSPolarizationSeries": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "angle_offset_deg": {
+        "default": 0.0,
+        "description": "仪器 0° 到实验室 0°（如 p 偏振）的偏移（只用于拟合与元数据）。【INF：待专家定】 (unit: deg) 范围 -360 … 360 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Offset Deg",
+        "type": "string"
+      },
+      "angle_start_deg": {
+        "default": 0.0,
+        "description": "起始角（仪器坐标）。 (unit: deg) 范围 -360 … 720 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Start Deg",
+        "type": "string"
+      },
+      "angle_step_deg": {
+        "default": 15.0,
+        "description": "角度步长（10° 约 2 s）。 (unit: deg) 范围 1 … 90 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Step Deg",
+        "type": "string"
+      },
+      "angle_stop_deg": {
+        "default": 180.0,
+        "description": "终止角；偏振片 / 检偏器 180° 即一周期，半波片 90°。【INF：待专家定】 (unit: deg) 范围 -360 … 720 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Stop Deg",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "分析用谱带 '名称:lo-hi,…'。",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "direction": {
+        "default": "increasing",
+        "description": "单向趋近方向（反向间隙 ±0.3°）。",
+        "enum": [
+          "increasing",
+          "decreasing"
+        ],
+        "title": "Direction",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "element": {
+        "default": "unknown",
+        "description": "PRM1-Z8 上的元件类型（A7 待确认；只用于元数据与拟合：半波片转 θ ⇒ 偏振转 2θ）。",
+        "enum": [
+          "half_wave_plate",
+          "polarizer_excitation",
+          "analyzer_collection",
+          "unknown"
+        ],
+        "title": "Element",
+        "type": "string"
+      },
+      "ensure_homed": {
+        "default": true,
+        "description": "未回零时请求回零（转整圈，最长 36 s；需操作员确认，回零期间不曝光）。",
+        "title": "Ensure Homed",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "fit_model": {
+        "default": "cos2_offset",
+        "description": "拟合模型。",
+        "enum": [
+          "none",
+          "cos2",
+          "cos2_offset"
+        ],
+        "title": "Fit Model",
+        "type": "string"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "normalise": {
+        "default": "none",
+        "description": "功率归一化：malus = 除以拟合的 cos²（消光附近不可靠）；ff_reference = 每个角度另取远场参考（需撤针，本轮未实现，选它会被拒绝）。【INF：待专家定】",
+        "enum": [
+          "none",
+          "malus",
+          "ff_reference"
+        ],
+        "title": "Normalise",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "pol_device_id": {
+        "default": "",
+        "description": "偏振旋转台的设备 id（ListOpticalDevices；规格里叫 device_id，与光谱仪的 device_id 同名，所以改名）；留空 = 唯一一台 role=polarizer 的。",
+        "title": "Pol Device Id",
+        "type": "string"
+      },
+      "ref_every_n": {
+        "default": 0,
+        "description": "每 n 个角度回起始角取参考谱；0 = 不取。【INF：待专家定】",
+        "maximum": 100,
+        "minimum": 0,
+        "title": "Ref Every N",
+        "type": "integer"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "return_check": {
+        "default": true,
+        "description": "序列末尾回到起始角再测一条（光束偏折 / 针尖变化的唯一在线检验）。",
+        "title": "Return Check",
+        "type": "boolean"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "settle_after_move_s": {
+        "default": 0.5,
+        "description": "到位后额外等待。 (unit: s) 范围 0.2 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle After Move S",
+        "type": "string"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】 (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSSetpointSeries": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "分析用谱带 '名称:lo-hi,…'。",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "bias_v": {
+        "default": null,
+        "description": "固定偏压；不给 = 当前。【INF：待专家定】 (unit: V) 范围 -3 … 3 V **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 V)。",
+        "title": "Bias V",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 2000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】 (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "fit_kappa": {
+        "default": true,
+        "description": "运行结束后拟合 κ_app 并把电流轴换算成相对间隙。",
+        "title": "Fit Kappa",
+        "type": "boolean"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_setpoint_a": {
+        "default": 2e-09,
+        "description": "设定点上限（越过即拒绝，不裁剪）。【INF：待专家定】 (unit: A) 范围 10p … 10n A **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Max Setpoint A",
+        "type": "string"
+      },
+      "max_step_ratio": {
+        "default": 3.0,
+        "description": "相邻设定点比值上限；超过自动插入几何中间点（含从当前设定点出发的第一步）。【INF：待专家定】",
+        "maximum": 10.0,
+        "minimum": 1.2,
+        "title": "Max Step Ratio",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "nf_drift_max_frac": {
+        "default": 0.3,
+        "description": "参考谱强度相对 REF_0 的变化容限，越过标 tip_changed（规格未给，取 M04/M05 的 0.3）。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Nf Drift Max Frac",
+        "type": "number"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "order": {
+        "default": "up_down",
+        "description": "up_down = 先升后降，检验滞后。【INF：待专家定】",
+        "enum": [
+          "ascending",
+          "descending",
+          "up_down",
+          "random"
+        ],
+        "title": "Order",
+        "type": "string"
+      },
+      "ref_every_n": {
+        "default": 0,
+        "description": "每 n 点回 I_ref 取参考谱；up_down 已含首尾参考。【INF：待专家定】",
+        "maximum": 100,
+        "minimum": 0,
+        "title": "Ref Every N",
+        "type": "integer"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "setpoints_a": {
+        "default": "2e-11,5e-11,1e-10,2e-10,5e-10,1e-9",
+        "description": "设定点电流列表（逗号分隔，A）。【INF：待专家定】 (unit: A)",
+        "title": "Setpoints A",
+        "type": "string"
+      },
+      "settle_s": {
+        "default": 3.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（本模式默认 3.0） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shuffle_seed": {
+        "default": 0,
+        "description": "order=random 的种子。",
+        "maximum": 2147483647,
+        "minimum": 0,
+        "title": "Shuffle Seed",
+        "type": "integer"
+      },
+      "shutter_mode": {
+        "default": "Normal",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      }
+    },
+    "required": []
+  },
+  "TERSTimeSeries": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "band_cm1": {
+        "default": "",
+        "description": "在线时间轨迹用的谱带 'lo-hi'（cm⁻¹）；空 = 总计数。【INF：待专家定】",
+        "title": "Band Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "block_frames": {
+        "default": 0,
+        "description": "每块帧数；0 = 不分块（一次采完）。块间隙在时间轴上标 gap。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Block Frames",
+        "type": "integer"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "drop_frames": {
+        "default": 5,
+        "description": "连续多少帧低于阈值才算下降。【INF：待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Drop Frames",
+        "type": "integer"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 1000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】（本模式默认 1000.0） (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "n_frames": {
+        "default": 100,
+        "description": "总帧数。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 1,
+        "title": "N Frames",
+        "type": "integer"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "settle_s": {
+        "default": 1.0,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】 (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "AlwaysOpen",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。（本模式默认 AlwaysOpen）",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "signal_drop_frac": {
+        "default": 0.0,
+        "description": "信号下降阈值（相对滚动中位数）；0 = 关闭。【INF：待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "title": "Signal Drop Frac",
+        "type": "number"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 30.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】 (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 1.0,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】 (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "stm_log_hz": {
+        "default": 20.0,
+        "description": "曝光期间 I / Z 的轮询速率（Signals_ValGet 路径上限约 50 Hz）。 (unit: Hz) 范围 1 … 50 Hz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 Hz)。",
+        "title": "Stm Log Hz",
+        "type": "string"
+      },
+      "stop_on_drop": {
+        "default": false,
+        "description": "下降时自动停（停光谱仪，已采帧保留）；需要实时帧（本机设备或真枢纽）。【INF：待专家定】",
+        "title": "Stop On Drop",
+        "type": "boolean"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "time_base": {
+        "default": "camera",
+        "description": "与 STM 对齐的时间基准：camera = 相机帧事件时间戳（经 θ 换算）；mast = 命令时刻均分。",
+        "enum": [
+          "camera",
+          "mast"
+        ],
+        "title": "Time Base",
+        "type": "string"
+      },
+      "tracking_every_blocks": {
+        "default": 0,
+        "description": "每 n 块做一次 atom tracking；本轮未实现（M09-Q4 默认不要），> 0 会被拒绝。",
+        "maximum": 1000,
+        "minimum": 0,
+        "title": "Tracking Every Blocks",
+        "type": "integer"
+      }
+    },
+    "required": []
+  },
+  "TERSTriggeredMap": {
+    "properties": {
+      "adc_mhz": {
+        "default": 1.0,
+        "description": "ADC 速率。4 MHz 读出更快但噪声更高。 (unit: MHz) 范围 1 … 4 MHz **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 MHz)。",
+        "title": "Adc Mhz",
+        "type": "string"
+      },
+      "adc_quality": {
+        "default": "LowNoise",
+        "description": "ADC 质量档。",
+        "enum": [
+          "LowNoise",
+          "HighCapacity"
+        ],
+        "title": "Adc Quality",
+        "type": "string"
+      },
+      "angle_deg": {
+        "default": 0.0,
+        "description": "网格相对扫描坐标的旋转角。 (unit: deg) 范围 -180 … 180 deg **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 deg)。",
+        "title": "Angle Deg",
+        "type": "string"
+      },
+      "bands_cm1": {
+        "default": "",
+        "description": "地图显示与参考相关用的谱带 '名称:lo-hi,…'，如 'ring:1540-1620'；空 = 总计数。【INF：待专家定】",
+        "title": "Bands Cm1",
+        "type": "string"
+      },
+      "baseline_cm1": {
+        "default": "",
+        "description": "基线窗口；空 = 谱带两侧各 20 cm⁻¹。",
+        "title": "Baseline Cm1",
+        "type": "string"
+      },
+      "center_shift_cm1": {
+        "default": 750.0,
+        "description": "窗口中心的拉曼位移。750 cm⁻¹ ↔ 664.55 nm（激发线 633 nm）；1200 g/mm 时覆盖 ≈ ±650 cm⁻¹。 (unit: cm^-1) 范围 0 … 4000 cm^-1 **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 cm^-1)。",
+        "title": "Center Shift Cm1",
+        "type": "string"
+      },
+      "center_x_m": {
+        "default": null,
+        "description": "网格中心 X；不给 = 当前位置。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Center X M",
+        "type": "string"
+      },
+      "center_y_m": {
+        "default": null,
+        "description": "网格中心 Y；不给 = 当前位置。 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Center Y M",
+        "type": "string"
+      },
+      "cosmic_filter": {
+        "default": "flag",
+        "description": "宇宙射线：flag = 只标记尖峰；median_frames = 多帧逐像素取中值；off = 不处理。【INF：占位默认值，待专家定】",
+        "enum": [
+          "off",
+          "flag",
+          "median_frames"
+        ],
+        "title": "Cosmic Filter",
+        "type": "string"
+      },
+      "dark_every_n": {
+        "default": 0,
+        "description": "每 n 个采集点插入一帧暗帧（AlwaysClosed）；0 = 仅开始时一次（本会话已有同参数暗帧则不重拍）。【INF：占位默认值，待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Dark Every N",
+        "type": "integer"
+      },
+      "device_id": {
+        "default": "",
+        "description": "光谱仪设备 id（ListOpticalDevices）；留空 = 唯一一台 role=raman_ccd 的。",
+        "title": "Device Id",
+        "type": "string"
+      },
+      "drift_every_n": {
+        "default": 0,
+        "description": "每 n 个像素补偿一次；0 = 不补偿。【INF：待专家定】",
+        "maximum": 10000,
+        "minimum": 0,
+        "title": "Drift Every N",
+        "type": "integer"
+      },
+      "drift_mode": {
+        "default": "none",
+        "description": "漂移补偿方式。本轮只实现 none（atom_track / reference_scan 的做法待专家定，M02-Q2，选了会被拒绝）；扫描前后形貌仍给出漂移报告。【INF：待专家定】",
+        "enum": [
+          "none",
+          "atom_track",
+          "reference_scan"
+        ],
+        "title": "Drift Mode",
+        "type": "string"
+      },
+      "dry_run": {
+        "default": false,
+        "description": "试跑：只做只读判据，并按限位 / 软限位 / 时间预算把全部目标点规划一遍，不动任何硬件、不曝光、不触发、不写数据；要真走运动再加 dry_run_motion=true。注意与 PumpProbeScan 的 dry_run 不同：那个会真的把延迟线走一遍（相当于这里的 dry_run_motion）。",
+        "title": "Dry Run",
+        "type": "boolean"
+      },
+      "dry_run_motion": {
+        "default": false,
+        "description": "与 dry_run 同用：试跑时**真的走一遍曝光 / 触发 / 存数据以外的全部动作**（MoveToXY、Z 斜坡、撤针 / 回针、hold 的关 / 开反馈、偏压 / 设定点序列、偏振、延迟线、光学台），每个点照样判稳（规格 §1.3-11 的「走完全部运动与判据」）。安全等级、联锁、判稳与守卫（Z 斜坡过流、撤针 / 回针检查）和真跑完全一样，不因为是演练而放宽；仍不曝光、不触发（数字线也不配置）、不写数据。收尾也和真跑一样（偏压 / 设定点照常还原、延迟线按 return_to_start）；LaserFocusMap 演练结束把光学轴送回起点。",
+        "title": "Dry Run Motion",
+        "type": "boolean"
+      },
+      "dwell_s": {
+        "default": 1.2,
+        "description": "H 级每点驻留（本轮不用）。 (unit: s) 范围 0.01 … 60 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Dwell S",
+        "type": "string"
+      },
+      "exposure_guard_current_frac": {
+        "default": 3.0,
+        "description": "曝光期间 |I| > 该倍数 × I_set 持续 > 50 ms ⇒ 取消采集并标 guard_abort（判稳窗口里出现这么大的尖峰也判不稳）。【INF：占位默认值，待专家定】",
+        "maximum": 100.0,
+        "minimum": 1.2,
+        "title": "Exposure Guard Current Frac",
+        "type": "number"
+      },
+      "exposure_ms": {
+        "default": 1000.0,
+        "description": "单帧曝光。日常手动谱 1000 ms；PP_ 系列 1–100 ms；单分子 TERS 常见 1–30 s。【INF：占位默认值，待专家定】（本模式默认 1000.0）（S+TTL 可低至 10 ms） (unit: ms) 范围 1 … 600k ms **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 ms)。",
+        "title": "Exposure Ms",
+        "type": "string"
+      },
+      "frame_tracking": {
+        "default": true,
+        "description": "开启 FrameTracking 与曝光时间戳（对账必需，不能关）。",
+        "title": "Frame Tracking",
+        "type": "boolean"
+      },
+      "frames": {
+        "default": 1,
+        "description": "每点帧数。每帧单独保存，不在卫星端平均；frames ≥ 3 且 cosmic_filter=median_frames 时逐像素取中值。【INF：占位默认值，待专家定】",
+        "maximum": 1000,
+        "minimum": 1,
+        "title": "Frames",
+        "type": "integer"
+      },
+      "grating": {
+        "default": "1200",
+        "description": "光栅 g/mm。只在运行开始前设置（换光栅 10–30 s）。设备上的全名（如 '[500nm,1200][0][0]'）按刻线数匹配。",
+        "enum": [
+          "1200",
+          "600",
+          "150"
+        ],
+        "title": "Grating",
+        "type": "string"
+      },
+      "height_m": {
+        "default": 5e-09,
+        "description": "网格高。 (unit: m) 范围 100p … 200n m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Height M",
+        "type": "string"
+      },
+      "laser_attest": {
+        "default": true,
+        "description": "开始前要求操作员确认激光状态与样品处功率（agent 路径弹人工确认；直调路径须显式给 laser_state）；dry_run 不要求。false = 不确认，元数据记 laser_state=unknown。【INF：占位默认值，待专家定】",
+        "title": "Laser Attest",
+        "type": "boolean"
+      },
+      "laser_line_nm": {
+        "default": 633.0,
+        "description": "波长→位移换算用的激发线。LightField 现设 633；He-Ne 实为 632.8，差 0.2 nm ≈ 5 cm⁻¹【待专家定，G4】。 (unit: nm) 范围 500 … 1100 nm **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 nm)。",
+        "title": "Laser Line Nm",
+        "type": "string"
+      },
+      "laser_note": {
+        "default": "",
+        "description": "自由文本：波长 / ND / 光斑位置 / 超快激光状态。",
+        "title": "Laser Note",
+        "type": "string"
+      },
+      "laser_power_uW": {
+        "default": null,
+        "description": "操作员估计的样品处功率（没有功率计，只记录）；不给 = 未知。【INF：占位默认值，待专家定】 (unit: µW) 范围 0 … 1M µW **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 µW)。",
+        "title": "Laser Power Uw",
+        "type": "string"
+      },
+      "laser_state": {
+        "default": "",
+        "description": "直调路径（界面按钮 / /api/skills/…/execute）上由操作员声明的激光状态：attested_on / attested_off。agent 路径上由人工确认卡片给出，这里留空。外部 agent 不能代为声明。",
+        "enum": [
+          "",
+          "attested_on",
+          "attested_off"
+        ],
+        "title": "Laser State",
+        "type": "string"
+      },
+      "lfe_preset": {
+        "default": "",
+        "description": "要 Load 的 LightField 实验文件名；空 = 保持当前。卫星协议 v1 没有「加载 .lfe」的动作，非空时拒绝（不是参数问题）。【INF：占位默认值，待专家定】",
+        "title": "Lfe Preset",
+        "type": "string"
+      },
+      "max_pixels": {
+        "default": 4096,
+        "description": "像素数硬上限。【INF：待专家定】",
+        "maximum": 65536,
+        "minimum": 1,
+        "title": "Max Pixels",
+        "type": "integer"
+      },
+      "max_saturation_frac": {
+        "default": 0.9,
+        "description": "帧内最大值超过满量程（65535 计数）的该比例 ⇒ 标记 saturated，不自动改曝光。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.1,
+        "title": "Max Saturation Frac",
+        "type": "number"
+      },
+      "max_total_s": {
+        "default": 14400.0,
+        "description": "整次运行的时间上限，超过则停在当前点并保存。【INF：占位默认值，待专家定】 (unit: s) 范围 60 … 86.4k s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Max Total S",
+        "type": "string"
+      },
+      "nx": {
+        "default": 16,
+        "description": "X 方向像素数（像素间距 = width / nx）。先例 32×32，0.22 nm / 像素。",
+        "maximum": 64,
+        "minimum": 2,
+        "title": "Nx",
+        "type": "integer"
+      },
+      "ny": {
+        "default": 16,
+        "description": "Y 方向像素数。",
+        "maximum": 64,
+        "minimum": 2,
+        "title": "Ny",
+        "type": "integer"
+      },
+      "on_count_mismatch": {
+        "default": "truncate",
+        "description": "帧数 ≠ 触发数：truncate = 保留错位点之前的像素；abort = 整幅作废。【INF：待专家定】",
+        "enum": [
+          "truncate",
+          "abort"
+        ],
+        "title": "On Count Mismatch",
+        "type": "string"
+      },
+      "on_unstable": {
+        "default": "skip",
+        "description": "判稳失败的处理：skip = 记空点继续；retry = 重判最多 retry_max 次；abort = 停下等操作员。【INF：占位默认值，待专家定】",
+        "enum": [
+          "skip",
+          "retry",
+          "abort"
+        ],
+        "title": "On Unstable",
+        "type": "string"
+      },
+      "order": {
+        "default": "serpentine",
+        "description": "像素顺序；蛇形减少空程与回滞。【INF：待专家定】",
+        "enum": [
+          "raster",
+          "serpentine"
+        ],
+        "title": "Order",
+        "type": "string"
+      },
+      "pixel_margin_s": {
+        "default": 0.05,
+        "description": "像素周期裕量：周期 = 曝光 + 读出（22.4 ms）+ 裕量。【INF：待专家定】 (unit: s) 范围 0 … 5 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Pixel Margin S",
+        "type": "string"
+      },
+      "pre_post_scan": {
+        "default": true,
+        "description": "运行前后各扫一幅形貌（ScanAt + SaveScan），结束时 MeasureFrameDrift 报漂移。【INF：待专家定】",
+        "title": "Pre Post Scan",
+        "type": "boolean"
+      },
+      "reference_frames": {
+        "default": 0,
+        "description": "开头在参考点额外触发的帧数（同一点重复触发）。【INF：待专家定】",
+        "maximum": 1000,
+        "minimum": 0,
+        "title": "Reference Frames",
+        "type": "integer"
+      },
+      "reference_x_m": {
+        "default": null,
+        "description": "参考像素 X；不给 = 第一个像素。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference X M",
+        "type": "string"
+      },
+      "reference_y_m": {
+        "default": null,
+        "description": "参考像素 Y。【INF：待专家定】 (unit: m) 范围 -1.5u … 1.5u m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Reference Y M",
+        "type": "string"
+      },
+      "resume_run_id": {
+        "default": "",
+        "description": "续跑：从该运行的检查点接着做（先校验针尖 / 坐标代次 / 光谱仪设置，并先取一条参考谱）。",
+        "title": "Resume Run Id",
+        "type": "string"
+      },
+      "retry_max": {
+        "default": 2,
+        "description": "on_unstable = retry 时的最大重试次数。【INF：占位默认值，待专家定】",
+        "maximum": 10,
+        "minimum": 0,
+        "title": "Retry Max",
+        "type": "integer"
+      },
+      "roi_rows": {
+        "default": 50,
+        "description": "垂直 ROI 行数（LineSensor，竖直 bin 成 1 行）；起始行由 LightField 实验文件保存，MAST 不改。 (unit: 行)",
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Roi Rows",
+        "type": "integer"
+      },
+      "save_spe": {
+        "default": true,
+        "description": "让 LightField 同时存 SPE 原始文件（之后由 spe_watcher 传回枢纽）。",
+        "title": "Save Spe",
+        "type": "boolean"
+      },
+      "scan_line_time_s": {
+        "default": 0.1,
+        "description": "形貌图每行时间。【INF：待专家定】 (unit: s) 范围 0.01 … 2 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Scan Line Time S",
+        "type": "string"
+      },
+      "scan_pixels": {
+        "default": 64,
+        "description": "形貌图像素数。【INF：待专家定】",
+        "maximum": 256,
+        "minimum": 32,
+        "title": "Scan Pixels",
+        "type": "integer"
+      },
+      "settle_s": {
+        "default": 0.3,
+        "description": "到位后固定等待（压电蠕变、反馈整定）。【INF：占位默认值，待专家定】（本模式默认 0.3） (unit: s) 范围 0 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Settle S",
+        "type": "string"
+      },
+      "shutter_mode": {
+        "default": "AlwaysOpen",
+        "description": "Normal：每帧开关 Prontor 快门（寿命有限）；触发 / 时间序列用 AlwaysOpen；暗帧用 AlwaysClosed。快门只挡进光谱仪的光，**不挡照到样品上的激光**。（本模式默认 AlwaysOpen：高重复率下 Normal 会快速消耗 Prontor 快门寿命）",
+        "enum": [
+          "Normal",
+          "AlwaysOpen",
+          "AlwaysClosed",
+          "OpenBeforeTrigger"
+        ],
+        "title": "Shutter Mode",
+        "type": "string"
+      },
+      "stable_dz_pm_per_s": {
+        "default": 10.0,
+        "description": "窗口内 |dz/dt| 上限（含激光热漂移）。【INF：占位默认值，待专家定】 (unit: pm/s) 范围 0.1 … 1000 pm/s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 pm/s)。",
+        "title": "Stable Dz Pm Per S",
+        "type": "string"
+      },
+      "stable_timeout_s": {
+        "default": 10.0,
+        "description": "判稳超时 ⇒ unstable_tip，不曝光。【INF：占位默认值，待专家定】（本模式默认 10.0） (unit: s) 范围 1 … 600 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Timeout S",
+        "type": "string"
+      },
+      "stable_tol_frac": {
+        "default": 0.2,
+        "description": "窗口内 σ_I/|⟨I⟩| 与 |⟨I⟩ − I_set|/|I_set| 的上限。【INF：占位默认值，待专家定】",
+        "maximum": 1.0,
+        "minimum": 0.01,
+        "title": "Stable Tol Frac",
+        "type": "number"
+      },
+      "stable_window_s": {
+        "default": 0.2,
+        "description": "判稳窗口长度（窗口内以 ≥ 50 Hz 采电流与 Z）。【INF：占位默认值，待专家定】（本模式默认 0.2） (unit: s) 范围 0.1 … 30 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Stable Window S",
+        "type": "string"
+      },
+      "tag": {
+        "default": "",
+        "description": "附加在文件名与 run 标识上的标签。",
+        "title": "Tag",
+        "type": "string"
+      },
+      "trigger_edge": {
+        "default": "rising",
+        "description": "相机触发沿。PP_ 用 Rising；PyLoN 默认 Falling（A4 待核）。",
+        "enum": [
+          "rising",
+          "falling"
+        ],
+        "title": "Trigger Edge",
+        "type": "string"
+      },
+      "trigger_level_verified": {
+        "default": false,
+        "description": "操作员已核对 Nanonis DIO 电平与 PyLoN TRIGGER IN（3.3 V 逻辑）的匹配及触发沿（规格 M03-Q1 / A4）。未核对时本模式只允许 dry_run。",
+        "title": "Trigger Level Verified",
+        "type": "boolean"
+      },
+      "trigger_line": {
+        "default": 2,
+        "description": "触发数字线（编号起点待真机核实，见 trigger_line_verified）。",
+        "maximum": 8,
+        "minimum": 1,
+        "title": "Trigger Line",
+        "type": "integer"
+      },
+      "trigger_line_verified": {
+        "default": false,
+        "description": "操作员已在真机上核实 DigLines 的线号起点（从 1 还是从 0 数、相机触发 B2 对应哪个编号）。未核实时本模式只允许 dry_run。",
+        "title": "Trigger Line Verified",
+        "type": "boolean"
+      },
+      "trigger_port": {
+        "default": 1,
+        "description": "触发数字端口：1 = Port B（相机触发在 B 第 2 线）。Port A（0）不可选：它接着 PMD4 粗动控制器；本机配置登记的保留口同样拒绝。",
+        "maximum": 3,
+        "minimum": 1,
+        "title": "Trigger Port",
+        "type": "integer"
+      },
+      "trigger_response": {
+        "default": "ReadoutPerTrigger",
+        "description": "LightField TriggerResponse（ExposeDuringTriggerPulse 待核实）。",
+        "enum": [
+          "ReadoutPerTrigger",
+          "ExposeDuringTriggerPulse",
+          "StartOnSingleTrigger"
+        ],
+        "title": "Trigger Response",
+        "type": "string"
+      },
+      "trigger_scheme": {
+        "default": "software_pulse",
+        "description": "software_pulse = S+TTL（本轮实现）；grid_ttl_sync / scan_pixel_pulse = H 级，要重接线（阶段 E），选了会被拒绝。",
+        "enum": [
+          "software_pulse",
+          "grid_ttl_sync",
+          "scan_pixel_pulse"
+        ],
+        "title": "Trigger Scheme",
+        "type": "string"
+      },
+      "trigger_width_s": {
+        "default": 0.005,
+        "description": "脉冲宽度（现有会话 5 ms）。 (unit: s) 范围 1u … 60 s **写成字符串**,如 '0.05'、'5e-3' 或带 SI 前缀的 '5m'(单位 s)。",
+        "title": "Trigger Width S",
+        "type": "string"
+      },
+      "ttl_in_signal_index": {
+        "default": -1,
+        "description": "相机 TTL OUT 回接的 Nanonis 信号槽位；-1 = 未接线（A5）。给了就在曝光窗口里读它记录。",
+        "maximum": 127,
+        "minimum": -1,
+        "title": "Ttl In Signal Index",
+        "type": "integer"
+      },
+      "ttl_out_signal": {
+        "default": "Exposing",
+        "description": "相机 TTL OUT 输出什么（只在 ttl_in_signal_index ≥ 0 时记录）。",
+        "enum": [
+          "None",
+          "WaitingForTrigger",
+          "Exposing",
+          "ReadingOut"
+        ],
+        "title": "Ttl Out Signal",
+        "type": "string"
+      },
+      "ttl_sync_hs_line": {
+        "default": 3,
+        "description": "H 级谱学 TTL Sync 的 HS 输出线（本轮不用）。",
+        "maximum": 4,
+        "minimum": 1,
+        "title": "Ttl Sync Hs Line",
+        "type": "integer"
+      },
+      "ttl_sync_width_s": {
+        "default": 0.0001,
+        "description": "H 级 TTL Sync 脉宽（本轮不用）。 (unit: s) 范围 1u … 10m s **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Ttl Sync Width S",
+        "type": "string"
+      },
+      "width_m": {
+        "default": 5e-09,
+        "description": "网格宽（先例 7 nm，R3）。 (unit: m) 范围 100p … 200n m **写成带 SI 前缀的字符串**,如 '3p'(=3e-12)、'180n'(=1.8e-7)。前缀不可省略 —— 裸数字会被拒绝,因为一个丢了量级的裸数字仍然是合法数字,错一万亿倍也无人察觉。",
+        "title": "Width M",
         "type": "string"
       }
     },

@@ -51,6 +51,13 @@
         "in_engine": true,
         "line": 347,
         "shape": "subscript"
+      },
+      {
+        "expr": "skill_name",
+        "file": "composite/ters_common.py",
+        "in_engine": false,
+        "line": 1133,
+        "shape": "loop_var"
       }
     ],
     "follow_rule": "技能类的方法 + **同模块**基类的方法 → 从那里可达的、`mast/skills/**` 之内的模块级函数与同模块类（跨文件跟 `from … import`）。框架基类（BaseSkill / CompositeSkillGraph / SpecComposite）的方法体不追；`mast/skills/**` 之外的函数（mast.core / mast.io / mast.vision）不追。边认两种形状：`context.run(X, …)`/`ctx.run(X, …)` 与 `CompositeStep(skill_name=X, …)`，其中 X 是字面量、模块级字符串常量，或由这两者拼出来的 f-string（填空那一格写成 {…}）。",
@@ -149,9 +156,9 @@
         "RetractForSampleChange"
       ]
     },
-    "modules_scanned": 211,
+    "modules_scanned": 227,
     "scanned_root": "mast/skills",
-    "skills_indexed": 515,
+    "skills_indexed": 568,
     "unknown_skills": []
   },
   "functions": {
@@ -909,6 +916,12 @@
       ],
       "runs": []
     },
+    "AcquireSpectrum": {
+      "defined_in": [
+        "builtins/optics_spectro.py:AcquireSpectrum"
+      ],
+      "runs": []
+    },
     "AcquireZSpectr": {
       "defined_in": [
         "builtins/spectroscopy.py:AcquireZSpectr"
@@ -1046,59 +1059,59 @@
         "ApplyZCtrlPreset": [
           {
             "file": "composite/_preflight.py",
-            "line": 503
+            "line": 516
           }
         ],
         "AutoApproach": [
           {
             "file": "builtins/approach.py",
-            "line": 1473
+            "line": 1536
           }
         ],
         "ConfigureLockIn": [
           {
             "file": "builtins/approach.py",
-            "line": 1614
+            "line": 1677
           }
         ],
         "GetCurrent": [
           {
             "file": "builtins/approach.py",
-            "line": 1561
+            "line": 1624
           }
         ],
         "GetSetpoint": [
           {
             "file": "builtins/approach.py",
-            "line": 1567
+            "line": 1630
           },
           {
             "file": "composite/_preflight.py",
-            "line": 440
+            "line": 453
           }
         ],
         "GetZCtrlGain": [
           {
             "file": "composite/_preflight.py",
-            "line": 422
+            "line": 435
           }
         ],
         "SetSetpoint": [
           {
             "file": "composite/_preflight.py",
-            "line": 567
+            "line": 580
           }
         ],
         "SetZCtrlGain": [
           {
             "file": "composite/_preflight.py",
-            "line": 546
+            "line": 559
           }
         ],
         "TryEngageController": [
           {
             "file": "builtins/approach.py",
-            "line": 1408
+            "line": 1471
           }
         ]
       }
@@ -1368,31 +1381,31 @@
         "ApplyZCtrlPreset": [
           {
             "file": "composite/_preflight.py",
-            "line": 503
+            "line": 516
           }
         ],
         "GetSetpoint": [
           {
             "file": "composite/_preflight.py",
-            "line": 440
+            "line": 453
           }
         ],
         "GetZCtrlGain": [
           {
             "file": "composite/_preflight.py",
-            "line": 422
+            "line": 435
           }
         ],
         "SetSetpoint": [
           {
             "file": "composite/_preflight.py",
-            "line": 567
+            "line": 580
           }
         ],
         "SetZCtrlGain": [
           {
             "file": "composite/_preflight.py",
-            "line": 546
+            "line": 559
           }
         ]
       },
@@ -1744,6 +1757,24 @@
     "CalibratePiezoMultiAngle": {
       "defined_in": [
         "builtins/atomic_multiframe.py:CalibratePiezoMultiAngle"
+      ],
+      "runs": []
+    },
+    "CameraSnapshot": {
+      "defined_in": [
+        "builtins/optics_camera.py:CameraSnapshot"
+      ],
+      "runs": []
+    },
+    "CameraStartLive": {
+      "defined_in": [
+        "builtins/optics_camera.py:CameraStartLive"
+      ],
+      "runs": []
+    },
+    "CameraStopLive": {
+      "defined_in": [
+        "builtins/optics_camera.py:CameraStopLive"
       ],
       "runs": []
     },
@@ -2229,6 +2260,12 @@
       ],
       "runs": []
     },
+    "ConfigureSpectrometer": {
+      "defined_in": [
+        "builtins/optics_spectro.py:ConfigureSpectrometer"
+      ],
+      "runs": []
+    },
     "ConfigureSpectrumAnalyzer": {
       "defined_in": [
         "builtins/spectrum_analyzer.py:ConfigureSpectrumAnalyzer"
@@ -2256,6 +2293,12 @@
     "ConfigureZSpectrTiming": {
       "defined_in": [
         "builtins/spectroscopy.py:ConfigureZSpectrTiming"
+      ],
+      "runs": []
+    },
+    "ConnectCamera": {
+      "defined_in": [
+        "builtins/optics_camera.py:ConnectCamera"
       ],
       "runs": []
     },
@@ -2504,6 +2547,18 @@
     "DiffScans_ChangeDetect": {
       "defined_in": [
         "paper/scan_diff.py:DiffScans_ChangeDetect"
+      ],
+      "runs": []
+    },
+    "DisconnectCamera": {
+      "defined_in": [
+        "builtins/optics_camera.py:DisconnectCamera"
+      ],
+      "runs": []
+    },
+    "DisconnectOpticalDevice": {
+      "defined_in": [
+        "builtins/optics_stage.py:DisconnectOpticalDevice"
       ],
       "runs": []
     },
@@ -3044,6 +3099,12 @@
       ],
       "runs": []
     },
+    "GetCameraStatus": {
+      "defined_in": [
+        "builtins/optics_camera.py:GetCameraStatus"
+      ],
+      "runs": []
+    },
     "GetChamberPressure": {
       "defined_in": [
         "builtins/chamber.py:GetChamberPressure"
@@ -3236,6 +3297,12 @@
       ],
       "runs": []
     },
+    "GetOpticalStageStatus": {
+      "defined_in": [
+        "builtins/optics_stage.py:GetOpticalStageStatus"
+      ],
+      "runs": []
+    },
     "GetOsciTimebases": {
       "defined_in": [
         "builtins/acquire_osci_trace.py:GetOsciTimebases"
@@ -3350,6 +3417,12 @@
       ],
       "runs": []
     },
+    "GetPicomotorSteps": {
+      "defined_in": [
+        "builtins/optics_alignment.py:GetPicomotorSteps"
+      ],
+      "runs": []
+    },
     "GetPiezoConfig": {
       "defined_in": [
         "builtins/readback.py:GetPiezoConfig"
@@ -3413,6 +3486,12 @@
     "GetPointShootProps": {
       "defined_in": [
         "builtins/folme.py:GetPointShootProps"
+      ],
+      "runs": []
+    },
+    "GetPolarizerAngle": {
+      "defined_in": [
+        "builtins/optics_polarization.py:GetPolarizerAngle"
       ],
       "runs": []
     },
@@ -3536,6 +3615,12 @@
       ],
       "runs": []
     },
+    "GetSatelliteDeviceStatus": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:GetSatelliteDeviceStatus"
+      ],
+      "runs": []
+    },
     "GetScanBuffer": {
       "defined_in": [
         "builtins/scan_extra.py:GetScanBuffer"
@@ -3611,6 +3696,12 @@
     "GetSignalsAddRT": {
       "defined_in": [
         "builtins/signals.py:GetSignalsAddRT"
+      ],
+      "runs": []
+    },
+    "GetSpectrometerStatus": {
+      "defined_in": [
+        "builtins/optics_spectro.py:GetSpectrometerStatus"
       ],
       "runs": []
     },
@@ -3830,9 +3921,21 @@
       ],
       "runs": []
     },
+    "HomePolarizer": {
+      "defined_in": [
+        "builtins/optics_polarization.py:HomePolarizer"
+      ],
+      "runs": []
+    },
     "HomeZController": {
       "defined_in": [
         "builtins/instrument_limits.py:HomeZController"
+      ],
+      "runs": []
+    },
+    "IdentifySatelliteDevice": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:IdentifySatelliteDevice"
       ],
       "runs": []
     },
@@ -3845,6 +3948,12 @@
     "InvertForceSaderJarvis": {
       "defined_in": [
         "builtins/force_inversion.py:InvertForceSaderJarvis"
+      ],
+      "runs": []
+    },
+    "LaserFocusMap": {
+      "defined_in": [
+        "composite/ters_align.py:LaserFocusMap"
       ],
       "runs": []
     },
@@ -3876,6 +3985,12 @@
       ],
       "runs": []
     },
+    "ListNanonisMotorGroups": {
+      "defined_in": [
+        "builtins/optics_motor_groups.py:ListNanonisMotorGroups"
+      ],
+      "runs": []
+    },
     "ListNanonisScripts": {
       "defined_in": [
         "builtins/nanonis_script.py:ListNanonisScripts"
@@ -3885,6 +4000,12 @@
     "ListOpticalDevices": {
       "defined_in": [
         "builtins/optics_stage.py:ListOpticalDevices"
+      ],
+      "runs": []
+    },
+    "ListSatellites": {
+      "defined_in": [
+        "builtins/optics_spectro.py:ListSatellites"
       ],
       "runs": []
     },
@@ -4590,6 +4711,18 @@
       ],
       "runs": []
     },
+    "MoveXYZStage": {
+      "defined_in": [
+        "builtins/optics_alignment.py:MoveXYZStage"
+      ],
+      "runs": []
+    },
+    "NanonisMotorGroupMove": {
+      "defined_in": [
+        "builtins/optics_motor_groups.py:NanonisMotorGroupMove"
+      ],
+      "runs": []
+    },
     "OpenPatternExperiment": {
       "defined_in": [
         "builtins/pattern.py:OpenPatternExperiment"
@@ -4611,6 +4744,12 @@
     "OpticalStageScan": {
       "defined_in": [
         "builtins/optics_scan.py:OpticalStageScan"
+      ],
+      "runs": []
+    },
+    "OpticalStageServo": {
+      "defined_in": [
+        "builtins/optics_stage.py:OpticalStageServo"
       ],
       "runs": []
     },
@@ -4715,6 +4854,30 @@
     "PausePatternExperiment": {
       "defined_in": [
         "builtins/pattern.py:PausePatternExperiment"
+      ],
+      "runs": []
+    },
+    "PicomotorAbort": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:PicomotorAbort"
+      ],
+      "runs": []
+    },
+    "PicomotorJog": {
+      "defined_in": [
+        "builtins/optics_alignment.py:PicomotorJog"
+      ],
+      "runs": []
+    },
+    "PicomotorMoveAbs": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:PicomotorMoveAbs"
+      ],
+      "runs": []
+    },
+    "PicomotorSetZero": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:PicomotorSetZero"
       ],
       "runs": []
     },
@@ -5232,6 +5395,29 @@
       ],
       "runs": []
     },
+    "PumpProbeSpectral": {
+      "defined_in": [
+        "composite/ters_pump_probe.py:PumpProbeSpectral"
+      ],
+      "runs": [
+        "PumpProbeScan"
+      ],
+      "sites": {
+        "PumpProbeScan": [
+          {
+            "file": "composite/ters_pump_probe.py",
+            "line": 331
+          }
+        ]
+      },
+      "unresolved": [
+        {
+          "expr": "skill_name",
+          "file": "composite/ters_common.py",
+          "line": 1133
+        }
+      ]
+    },
     "QueryMonitorHistory": {
       "defined_in": [
         "builtins/history_query.py:QueryMonitorHistory"
@@ -5253,6 +5439,12 @@
     "ReadHardwareEvents": {
       "defined_in": [
         "builtins/hardware_events.py:ReadHardwareEvents"
+      ],
+      "runs": []
+    },
+    "ReadPmt": {
+      "defined_in": [
+        "builtins/optics_aotf_pmt.py:ReadPmt"
       ],
       "runs": []
     },
@@ -5810,6 +6002,12 @@
       ],
       "runs": []
     },
+    "SetAotfWavelength": {
+      "defined_in": [
+        "builtins/optics_aotf_pmt.py:SetAotfWavelength"
+      ],
+      "runs": []
+    },
     "SetBias": {
       "defined_in": [
         "builtins/bias.py:SetBias"
@@ -5847,6 +6045,24 @@
     "SetBiasRange": {
       "defined_in": [
         "builtins/bias.py:SetBiasRange"
+      ],
+      "runs": []
+    },
+    "SetCameraExposure": {
+      "defined_in": [
+        "builtins/optics_camera.py:SetCameraExposure"
+      ],
+      "runs": []
+    },
+    "SetCameraGain": {
+      "defined_in": [
+        "builtins/optics_camera.py:SetCameraGain"
+      ],
+      "runs": []
+    },
+    "SetCameraROI": {
+      "defined_in": [
+        "builtins/optics_camera.py:SetCameraROI"
       ],
       "runs": []
     },
@@ -5976,6 +6192,12 @@
       ],
       "runs": []
     },
+    "SetOpticalStageVelocity": {
+      "defined_in": [
+        "builtins/optics_stage.py:SetOpticalStageVelocity"
+      ],
+      "runs": []
+    },
     "SetOsciTimebase": {
       "defined_in": [
         "builtins/acquire_osci_trace.py:SetOsciTimebase"
@@ -6078,6 +6300,18 @@
       ],
       "runs": []
     },
+    "SetPicomotorAccel": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:SetPicomotorAccel"
+      ],
+      "runs": []
+    },
+    "SetPicomotorVelocity": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:SetPicomotorVelocity"
+      ],
+      "runs": []
+    },
     "SetPiezoHysteresisOnOff": {
       "defined_in": [
         "builtins/piezo.py:SetPiezoHysteresisOnOff"
@@ -6126,6 +6360,12 @@
       ],
       "runs": []
     },
+    "SetPmtHighVoltage": {
+      "defined_in": [
+        "builtins/optics_aotf_pmt.py:SetPmtHighVoltage"
+      ],
+      "runs": []
+    },
     "SetPointShootExperiment": {
       "defined_in": [
         "builtins/folme.py:SetPointShootExperiment"
@@ -6141,6 +6381,18 @@
     "SetPointShootProps": {
       "defined_in": [
         "builtins/misc_setters.py:SetPointShootProps"
+      ],
+      "runs": []
+    },
+    "SetPolarizerAngle": {
+      "defined_in": [
+        "builtins/optics_polarization.py:SetPolarizerAngle"
+      ],
+      "runs": []
+    },
+    "SetPolarizerVelocity": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:SetPolarizerVelocity"
       ],
       "runs": []
     },
@@ -6243,6 +6495,24 @@
     "SetSetpoint": {
       "defined_in": [
         "builtins/zcontrol.py:SetSetpoint"
+      ],
+      "runs": []
+    },
+    "SetSpectrometerCenter": {
+      "defined_in": [
+        "builtins/optics_spectro.py:SetSpectrometerCenter"
+      ],
+      "runs": []
+    },
+    "SetSpectrometerExitPort": {
+      "defined_in": [
+        "builtins/optics_spectro.py:SetSpectrometerExitPort"
+      ],
+      "runs": []
+    },
+    "SetSpectrometerGrating": {
+      "defined_in": [
+        "builtins/optics_spectro.py:SetSpectrometerGrating"
       ],
       "runs": []
     },
@@ -6730,9 +7000,27 @@
       ],
       "runs": []
     },
+    "StopSatelliteDevice": {
+      "defined_in": [
+        "builtins/optics_satellite_manual.py:StopSatelliteDevice"
+      ],
+      "runs": []
+    },
+    "StopSatelliteDevices": {
+      "defined_in": [
+        "builtins/optics_spectro.py:StopSatelliteDevices"
+      ],
+      "runs": []
+    },
     "StopScan": {
       "defined_in": [
         "builtins/imaging.py:StopScan"
+      ],
+      "runs": []
+    },
+    "StopSpectrometer": {
+      "defined_in": [
+        "builtins/optics_spectro.py:StopSpectrometer"
       ],
       "runs": []
     },
@@ -6821,6 +7109,60 @@
           "line": 601
         }
       ]
+    },
+    "TERSBiasSeries": {
+      "defined_in": [
+        "composite/ters_series.py:TERSBiasSeries"
+      ],
+      "runs": []
+    },
+    "TERSGridMap": {
+      "defined_in": [
+        "composite/ters_map.py:TERSGridMap"
+      ],
+      "runs": []
+    },
+    "TERSLineProfile": {
+      "defined_in": [
+        "composite/ters_map.py:TERSLineProfile"
+      ],
+      "runs": []
+    },
+    "TERSNearFarPair": {
+      "defined_in": [
+        "composite/ters_nearfar.py:TERSNearFarPair"
+      ],
+      "runs": []
+    },
+    "TERSPointSpectrum": {
+      "defined_in": [
+        "composite/ters_point.py:TERSPointSpectrum"
+      ],
+      "runs": []
+    },
+    "TERSPolarizationSeries": {
+      "defined_in": [
+        "composite/ters_series.py:TERSPolarizationSeries"
+      ],
+      "runs": []
+    },
+    "TERSSetpointSeries": {
+      "defined_in": [
+        "composite/ters_series.py:TERSSetpointSeries"
+      ],
+      "runs": []
+    },
+    "TERSTimeSeries": {
+      "defined_in": [
+        "composite/ters_series.py:TERSTimeSeries"
+      ],
+      "runs": []
+    },
+    "TERSTriggeredMap": {
+      "defined_in": [
+        "composite/ters_map.py:TERSTriggeredMap"
+      ],
+      "runs": []
     },
     "TiltCalibrate": {
       "defined_in": [
