@@ -156,6 +156,29 @@ describe('错误按前缀分流，不靠解析文案', () => {
   })
 })
 
+describe('recv 预算：超时是按调用设定的', () => {
+  it('回复晚于缺省超时 ⇒ 带 { timeoutMs } 的调用收得到，不带的得 Timeout 并断链', async () => {
+    // 缺省 60 ms，服务器 200 ms 才回 —— 缩比的「一条要在仪器端阻塞很久的扫掠」。
+    // 超时时间在每次请求里自带定时器，所以抬高它只影响这一次，不留要还原的状态。
+    const timers: NodeJS.Timeout[] = []
+    cleanup.push(() => timers.forEach((t) => clearTimeout(t)))
+    const l = await link(
+      (s, f) => {
+        timers.push(setTimeout(() => replyOk(s, f), 200))
+      },
+      { timeoutMs: 60 },
+    )
+    // 带预算：等得到，连接还在
+    await expect(l.request('ZSpectr.Start', new Uint8Array(), { timeoutMs: 1_000 })).resolves.toBeInstanceOf(
+      Uint8Array,
+    )
+    expect(l.connected).toBe(true)
+    // 不带：缺省 60 ms，来不及 —— 断链（迟到的回复落在没人读的 socket 上，所以必须断）
+    await expect(l.request('ZSpectr.Start', new Uint8Array())).rejects.toThrow(/^Timeout:/)
+    expect(l.connected).toBe(false)
+  })
+})
+
 describe('发出的帧就是我们成帧器产的', () => {
   it('服务器收到的字节与 encodeRequestFrame 一致', async () => {
     let seen: Buffer | undefined

@@ -1490,10 +1490,15 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 |---|---|
 | **Python** | `AcquireZSpectr` 与 `AcquireDeltaFCurve` 的 `data["recv_timeout_s"] = round(recv_budget_s, 1)` —— 与 `AcquireSTS` 一样，记的是**请求的**那个数 |
 | **TS** | 记 `ctx.slowCall` 回来的那个数（**已夹到 900 s**）；宿主没接预算口时是 `null`。估算 `sweep_estimate_s` 与明细 `sweep_settings` 照报，不受影响 |
-| **测试** | `l0/spectroscopy.test.ts` 的 Z1（接上 ⇒ 报用上的数）、Z2（没接 ⇒ `null`）、Z3–Z7 与 D1（Δf(z)）；`kernel/src/spectroscopy.test.ts` 的 `opts.why` 四格 |
+| **测试** | `l0/spectroscopy.test.ts` 的 Z1（接上 ⇒ 报用上的数）、Z2（没接 ⇒ `null`）、Z3–Z7 与 D1（Δf(z)）；`kernel/src/spectroscopy.test.ts` 的 `opts.why` 四格；`bundle/dsh-spm/src/instrument-calls.test.ts` ①–⑥（⑥ 是缩比的真 TCP：回复晚于缺省超时）；`stm-skills/src/gated-call.test.ts`（预算路径过同一道中止门）；`nanonis-wire/src/role-link.test.ts` 的 recv 预算一格 |
 
 理由同 D-STS-3 与 D-SCAN-4「回声不是读数」。金样照不出它（夹具里的预算最大 855 s，从来没超过 900 s），
 所以由单测钉住。
+
+最小运行栈现在经 `createInstrumentCalls`（`bundle/dsh-spm/src/instrument-calls.ts`）把预算口接到了
+传输层按调用的 `timeoutMs`，受管与原生两种模式都走它，并且和 `safeCall` 过同一道中止门。
+今天两种入口都不挂谱学技能，所以还没有技能走到这条口；谱学技能一旦挂载，`recv_timeout_s` 在这两种入口上
+是一个数，不是 `null`。
 
 **与偏压谱不同的另一处是回退文案。** Z 谱读不到设定时 `sweep_settings.why` 是
 `读不到 Z 谱扫掠设定，退回保守上限`（逐字照旧仓，多了「Z 谱」两个字），偏压谱仍是
