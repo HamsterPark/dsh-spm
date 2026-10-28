@@ -346,6 +346,8 @@ describe('native SetBias routing', () => {
     expect(result.text).toContain('低偏压死区')
     expect(result.text).toContain(wording)
     expect(biasSets(calls)).toEqual([])
+    // 没有任何写，但读了 3 次：顶层起点、BiasSettleChange 的起点、反馈状态（偏差登记与指南都这么说）
+    expect(methodsOf(calls)).toEqual(['Bias_Get', 'Bias_Get', 'ZCtrl_OnOffGet'])
     expect(result.data).toMatchObject({
       path: 'BiasSettleChange', command_sent: false, verified: false, bias_v: null, requested_bias_v: 0,
     })
@@ -360,7 +362,7 @@ describe('native SetBias routing', () => {
     expect(sleeps).toEqual([500])
   })
 
-  it('sends nothing when the start voltage cannot be read', async () => {
+  it('writes nothing when the start voltage cannot be read', async () => {
     const { kernel, calls } = fixture({ Bias_Get: ['connection_closed'] })
     const result = await kernel.run(NativeSetBias, { bias_v: 0.3 })
     expect(result.kind).toBe('failed')

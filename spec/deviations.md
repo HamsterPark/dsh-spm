@@ -4136,7 +4136,7 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 （[`bias-settle.ts`](../packages/host/kernel/src/bias-settle.ts) 抬头）。参考实现 7.1.0 把这道保护从技能层
 推到模型面的动作入口；原生入口的 `SetBias` 同样让「改偏压」自带它，不指望模型每次都记得。
 判据只有一份，取自内核的 `biasNeedsSafePath`（复用 `planBiasChange`，不再抄一份「穿零」谓词）；
-以后若补全本条的完整形态，也复用它，不另写。
+将来的全量入口挂载 `SetBias` 时，必须复用 `biasNeedsSafePath`。
 
 **用户可见的变化**：
 
@@ -4144,12 +4144,13 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
   结果的 `data.path` 为 `BiasSettleChange`，并带 `bias_v_start`、`strategy`、`crossed_zero`、`settle_s`；
   直写路径 `path` 为 `SetBias`，读得到起点时带 `bias_v_start`。模型看到的文本在走安全路径时多一段
   `via BiasSettleChange <strategy>`，直写的文本一字不变。
-- 目标落在 ±50 mV 死区内而 Z 反馈开着（或读不到）时，**不发任何命令**就拒绝（`command_sent: false`）。原生
-  工具目录里没有关闭反馈的工具，所以模型这一侧这类目标实际上总被拒绝，除非操作者先在模拟器里手动关闭
-  反馈。以前它们会被一步设过去。
+- 目标落在 ±50 mV 死区内而 Z 反馈开着（或读不到）时，**不发任何写命令**就拒绝（`command_sent: false`；
+  仪器上只读了 3 次：`Bias_Get` 两次、`ZCtrl_OnOffGet` 一次）。原生工具目录里没有关闭反馈的工具，所以
+  模型这一侧这类目标实际上总被拒绝，除非操作者先在模拟器里手动关闭反馈。以前它们会被一步设过去。
 - 读不到起点时不再直写：改走 `BiasSettleChange`，它读不到起点同样拒绝，一次 `Bias_Set` 都不发。
-- 斜坡中途失败，或调用在斜坡中途被取消：偏压停在已走到的那一步（斜坡不回退），结果标明 `command_sent: true`
-  并带回读到的偏压，回读也失败则 `bias_v: null`。停下的位置可能落在 ±50 mV 内；这是 `SetBiasRamp` 本身的行为，
+- 斜坡中途失败，或调用在斜坡中途被取消：偏压停在已走到的那一步（斜坡不回退），结果标明 `command_sent: true`。
+  失败时带回读到的偏压，回读也失败则 `bias_v: null`；**取消时不会回读，`bias_v` 为 `null`，停在哪一步要另读一次**
+  （取消之后不会再发任何仪器命令）。停下的位置可能落在 ±50 mV 内；这是 `SetBiasRamp` 本身的行为，
   没有在这里另加处理。
 
 **记录**：
