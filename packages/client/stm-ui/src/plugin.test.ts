@@ -296,7 +296,7 @@ describe('投影注册', () => {
   it('mast.instrumentState 注册进 sessionProjections，卸载时撤销', async () => {
     const h = await host()
     expect(h.pj.registered.map((d) => d.key)).toEqual(['mast.instrumentState'])
-    expect(h.pj.registered[0]!.stateVersion).toBe(1)
+    expect(h.pj.registered[0]!.stateVersion).toBe(2)
     h.ctx.registry.delete(mastUiHostProvider)
     await sleep(50)
     expect(h.pj.registered).toHaveLength(0)

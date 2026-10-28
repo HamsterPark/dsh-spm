@@ -98,6 +98,7 @@ interface ToolExecutionSuccess {
 所以「进不进日志」——**两条都进**。这不是照文档抄的，是读 `dsh-agent-loop/lib/index.js` 里的
 `SystemPromptProjection` 与 `createUserMessage({ source: { kind: 'plugin', form: 'snapshot', sections } })`
 两段实现得到的。
+（dsh 0.1.7 起这条来源改成 `{ kind: 'runtime-context', form: 'snapshot', sections }`，stm-ui 的投影随之改认；`packages/bundle/dsh-spm/contract/runtime-context-projection.test.ts` 用真 AgentLoop 钉住。）
 
 **但把每轮都变的读数放进系统提示是错的**，而这个理由旧仓已经用真金白银买过一次
 （`live_state_mw.py` 的 `_apply` docstring，2026-07-28 审计）：
