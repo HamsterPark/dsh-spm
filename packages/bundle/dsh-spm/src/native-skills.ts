@@ -31,7 +31,8 @@ const ROUTED_FIELDS = ['bias_v_start', 'strategy', 'crossed_zero', 'settle_s'] a
 
 /**
  * 让状态缓存（和随后写进记录的 stateDelta）拿到仪器上的实际值。尽力而为：调用方的失败结果已经确定，
- * 刷新抛什么都不改变它（身份丢失之类下一次调用自己会报）。被取消的调用不再发任何仪器读写。
+ * 刷新抛什么都不改变它（身份丢失之类下一次调用自己会报）。取消之后不再开始刷新；如果取消落在刷新进行中，
+ * 剩下的 monitor 读还会照发，因为它们走的是状态服务自己的通道，不看取消信号。
  */
 async function refreshCache(ctx: SkillContext): Promise<void> {
   if (ctx.signal.aborted) return
@@ -162,9 +163,10 @@ export const NativeSetBias: Skill = {
       ...routed,
     }
     if (verified) return { success: true, data }
-    // 走安全路径时，子步成功后内核已把请求值补进缓存（K12）；回读不符说明它不是实际值，
-    // 刷新一次，缓存和随后写进记录的 stateDelta 才拿到实际值。回读失败的那个分支不刷新：链路多半有问题。
-    if (safe) await refreshCache(ctx)
+    // 回读不符：缓存里的不是实际值 —— 走安全路径时，子步成功后内核已把请求值补进缓存（K12）；直写路径上
+    // 缓存还是改动前的值。刷新一次，缓存和随后写进记录的 stateDelta（K15）才拿到实际值。
+    // 规则统一：回读不符就刷新；回读失败或取消就不刷新（那时链路多半有问题，或不该再发读，缓存不可信）。
+    await refreshCache(ctx)
     return {
       success: false,
       error: `bias_readback_mismatch: 请求 ${target} V，实际回读 ${observed} V；偏压设置未通过验证。`,

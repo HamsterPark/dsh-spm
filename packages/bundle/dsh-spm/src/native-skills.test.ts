@@ -142,27 +142,30 @@ describe('native simulator minimal skills', () => {
     expect(sleeps).toEqual([]) // 直走路径不等稳定时间
   })
 
-  it('fails a materially different voltage and does not patch requested voltage into cached state', async () => {
-    const { kernel, patches, cache, refreshCount } = fixture({ Bias_Get: [[0.1001]] }, {}, { live: true })
+  it('fails a materially different voltage, never patches the request into the cache, and refreshes to the observed one', async () => {
+    const { kernel, records, patches, cache, refreshCount } = fixture({ Bias_Get: [[0.1001]] }, {}, { live: true })
     const result = await kernel.run(NativeSetBias, { bias_v: 0.1 })
     expect(result.kind).toBe('failed')
     expect(result.text).toContain('bias_readback_mismatch')
     expect(result.data).toMatchObject({ requested_bias_v: 0.1, bias_v: 0.1001, verified: false })
-    expect(patches).toEqual([])
-    // 直写路径没有子步，缓存里从来没有请求值，所以也用不着刷新
-    expect(cache().bias_v).toBeNull()
-    expect(refreshCount()).toBe(0)
+    expect(patches).toEqual([]) // 直写路径没有子步，请求值从来没进过缓存
+    // 回读不符就刷新，走哪条路径都一样：缓存和记录的 stateDelta 拿到实际值
+    expect(refreshCount()).toBe(1)
+    expect(cache().bias_v).toBe(0.1001)
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({ bias_v: 0.1001 })
   })
 
   it('reports uncertainty after a successful write followed by a read failure', async () => {
-    // 起点读得到（0.1 → 0.2 走直写），写成功之后的回读失败
-    const { kernel, calls } = fixture({ Bias_Get: [[0.1], 'connection_closed'] })
+    // 起点读得到（0.1 → 0.2 走直写），写成功之后的回读失败：缓存不可信，不刷新
+    const { kernel, calls, cache, refreshCount } = fixture({ Bias_Get: [[0.1], 'connection_closed'] }, {}, { live: true })
     const result = await kernel.run(NativeSetBias, { bias_v: 0.2 })
     expect(result.kind).toBe('failed')
     expect(result.text).toContain('bias_readback_failed')
     expect(result.text).toContain('connection_closed')
     expect(result.data).toMatchObject({ bias_v: null, command_sent: true, verified: false, path: 'SetBias' })
     expect(calls.filter((call) => call.method === 'Bias_Set')).toHaveLength(1)
+    expect(refreshCount()).toBe(0)
+    expect(cache().bias_v).toBeNull()
   })
 
   it.each([
@@ -447,8 +450,8 @@ describe('native SetBias routing', () => {
   })
 
   it('after a cancel mid-ramp: the ramp stops where it is, nothing more is sent, no readback and no refresh', async () => {
-    const { kernel, calls, signal, refreshCount } = fixture(
-      { Bias_Get: [[1], [1], [0.6]] }, {}, { live: true, cancelAfter: { method: 'Bias_Set', count: 2 } },
+    const { kernel, calls, records, signal, cache, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], [0.6]] }, { bias_v: 1 }, { live: true, cancelAfter: { method: 'Bias_Set', count: 2 } },
     )
     const result = await kernel.run(NativeSetBias, { bias_v: -1 }, { signal })
     expect(result.kind).toBe('failed')
@@ -459,17 +462,21 @@ describe('native SetBias routing', () => {
     expect(biasSets(calls)).toEqual([0.8, 0.6])
     expect(methodsOf(calls).at(-1)).toBe('Bias_Set') // 取消之后既没有回读，也没有别的命令
     expect(refreshCount()).toBe(0)
+    // 残留（偏差登记里有一条）：停在半路，缓存却还是改动前的值，记录上看不出偏压动过
+    expect(cache().bias_v).toBe(1)
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({})
   })
 
   it('does not refresh after a cancel that lands right after a mismatching readback', async () => {
     // 第 3 次 Bias_Get 是顶层回读：它返回之后调用被取消，随后的刷新读也不该发
-    const { kernel, signal, refreshCount } = fixture(
-      { Bias_Get: [[1], [1], [-0.9]] }, {}, { live: true, cancelAfter: { method: 'Bias_Get', count: 3 } },
+    const { kernel, signal, cache, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], [-0.9]] }, { bias_v: 1 }, { live: true, cancelAfter: { method: 'Bias_Get', count: 3 } },
     )
     const result = await kernel.run(NativeSetBias, { bias_v: -1 }, { signal })
     expect(result.kind).toBe('failed')
     expect(result.text).toContain('bias_readback_mismatch')
     expect(refreshCount()).toBe(0)
+    expect(cache().bias_v).toBe(-1) // 残留：斜坡已走完的，缓存里是请求值
   })
 })
 
