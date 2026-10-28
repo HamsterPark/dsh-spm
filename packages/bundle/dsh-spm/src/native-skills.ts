@@ -42,6 +42,14 @@ async function refreshCache(ctx: SkillContext): Promise<void> {
   }
 }
 
+/**
+ * 子技能的失败文本是一行说明，后面每一层跟一行 JSON 数据。只留说明：斜坡失败时那几行数据里的 `bias_v` 是
+ * 子技能的目标值，而偏压其实停在半路，模型会先读到它。子技能的字段已经经 `...res.data` 并进顶层数据，不会丢。
+ */
+function firstLine(text: string): string {
+  return text.split('\n', 1)[0] ?? text
+}
+
 function unexpectedParams(params: Readonly<Record<string, unknown>>, allowed: readonly string[]): string[] {
   return Object.keys(params).filter((name) => !allowed.includes(name)).map((name) =>
     `原生模拟器最小工具不支持参数 '${name}'。`,
@@ -114,7 +122,7 @@ export const NativeSetBias: Skill = {
         if (typeof actual === 'number') await refreshCache(ctx)
         return {
           success: false,
-          error: res.error ?? 'BiasSettleChange failed',
+          error: firstLine(res.error ?? 'BiasSettleChange failed'),
           data: {
             ...res.data,
             path,

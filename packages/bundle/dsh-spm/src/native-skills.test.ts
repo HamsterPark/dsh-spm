@@ -379,6 +379,14 @@ describe('native SetBias routing', () => {
       bias_v: 0.6, requested_bias_v: -1,
     })
     expect(biasSets(calls)).toHaveLength(3) // 失败的那一步不重试
+    // 子技能的失败数据里 bias_v 是它的目标值，而偏压其实停在半路：文本里留两层前缀的一行说明，
+    // 数据只有顶层那一行（含实际的 0.6），不出现子技能的数据行
+    expect(result.text).toContain('[BiasSettleChange] failed')
+    expect(result.text).toContain('[SetBiasRamp] failed')
+    expect(result.text).not.toContain('slew_rate_v_per_s')
+    const lines = result.text.split('\n')
+    expect(lines).toHaveLength(2)
+    expect(JSON.parse(lines[1]!)).toMatchObject({ bias_v: 0.6, command_sent: true, strategy: 'ramp_through_zero' })
   })
 
   it('does not claim a voltage when the readback after a failed ramp also fails', async () => {
