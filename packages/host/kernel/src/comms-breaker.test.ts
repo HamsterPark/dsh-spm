@@ -161,9 +161,12 @@ describe('旧仓测试没覆盖、但接线时会撞上的', () => {
  * 精确边界（`>=` 还是 `>`）。这一组补上：金样里 t=30 恰好等于窗口时**仍算连续**（`30 > 30` 为假），
  * t=20 恰好等于冷却终点时**已是 HALF_OPEN**（`>=`）。
  */
-const trace = JSON.parse(
+const goldenFile = JSON.parse(
   readFileSync(new URL('../../../../spec/golden/breaker_trace.json', import.meta.url), 'utf8'),
-) as Record<
+) as Record<string, unknown>
+
+/** 脚本。以下划线开头的键是别的东西（模型读到的原文），不是脚本。 */
+const trace = Object.fromEntries(Object.entries(goldenFile).filter(([k]) => !k.startsWith('_'))) as Record<
   string,
   {
     op: [string, ...unknown[]]
@@ -219,5 +222,25 @@ describe('给模型看的话', () => {
     expect(msg).toContain('请勿逐个工具重试')
     expect(msg).toContain('handoff')
     expect(msg).toContain('≥3 次')
+  })
+
+  it('B1 · 逐字等于参考实现的原文；对象是「用户/上层」，剩余秒数按 Python 的 {:.0f} 取整', () => {
+    // 连失败三次、冷却 20 s 的熔断器，过了 elapsed 秒之后短路回给模型的那句话。
+    const down = (elapsedS: number): string => {
+      const { b, clk } = breaker()
+      for (const reason of ['t1', 't2', 't3']) b.recordFailure(reason)
+      clk.t = elapsedS
+      return formatCommsDown(b)
+    }
+    expect(Object.keys(goldenFile).filter((k) => k.startsWith('_')).sort()).toEqual([
+      '_down_message',
+      '_down_message_half',
+    ])
+    expect(down(0)).toBe(goldenFile['_down_message'])
+    expect(down(0)).toContain('向用户/上层报告并 handoff')
+    expect(down(0)).not.toContain('操作员')
+    // 剩余恰为 18.5 s：Python 的 `{:.0f}` 是四舍六入五成双 ⇒ 18；Math.round 会给 19。
+    expect(down(1.5)).toBe(goldenFile['_down_message_half'])
+    expect(down(1.5)).toContain('~18s')
   })
 })

@@ -77,7 +77,7 @@ python tools/spec-export/<脚本>.py
 | `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,802 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
 | `watchdog.json` | `export_watchdog_trace.py` | 用可控时钟驱动 `SafetyWatchdog.run()`，覆盖武装状态与动作触发条件 |
 | `state.json` | `export_state_spec.py` | `InstrumentState` 的调用、读数转换与状态：21 个转换用例、14 条脚本共 29 步、7 个实时提示块 |
-| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步 |
+| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步；另有熔断提示原文 2 条（`_down_message`、`_down_message_half`，键以下划线开头，不是脚本；后者剩余冷却恰为 18.5 s，钉住 `{:.0f}` 的取整） |
 | `graph_executor.json` | `export_graph_executor.py` | `GraphExecutor` 的执行与恢复守卫 |
 | `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | `AutoApproach`、`safety_escalation`、`ApproachTip._approach` |
 | `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | `scan_policy`、`imaging` 判据，以及 `WaitScanComplete` 和回复解析 |

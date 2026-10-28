@@ -1,4 +1,6 @@
 {
+  "_down_message": "comms_circuit_open: Nanonis TCP 通信连续超时(≥3 次)已熔断,暂停发命令 ~20s 以免反复重连撞坏脆弱的 Nanonis 端口。通信已判定中断——请勿逐个工具重试,应立即停止硬件操作、向用户/上层报告并 handoff,等待连接恢复后再继续。",
+  "_down_message_half": "comms_circuit_open: Nanonis TCP 通信连续超时(≥3 次)已熔断,暂停发命令 ~18s 以免反复重连撞坏脆弱的 Nanonis 端口。通信已判定中断——请勿逐个工具重试,应立即停止硬件操作、向用户/上层报告并 handoff,等待连接恢复后再继续。",
   "app_error_is_success": [
     {
       "cooldown_remaining_s": 0.0,

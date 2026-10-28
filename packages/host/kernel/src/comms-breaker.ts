@@ -17,6 +17,7 @@
  *
  * 纯状态机：注入时钟、零 I/O、零 dsh。四个角色共用**一个**实例（PLAN §7.1）。
  */
+import { pyFixed } from './z-trace.js'
 
 export const CLOSED = 'closed'
 export const OPEN = 'open'
@@ -150,13 +151,17 @@ export class CommsCircuitBreaker {
  * 它必须明说「别逐个工具重试，立刻停手并 handoff」——熔断存在的全部意义就是终结
  * 那场一个工具一个工具的磕头行军。这类**模型会读到的钉住短语**将来集中到
  * `messages.ts`（PLAN §3.2-16），现在先跟着状态机放。
+ *
+ * 秒数按 Python 的 `{:.0f}` 取整（四舍六入五成双），不是 `Math.round`：剩余 18.5 s 时
+ * 参考实现印 `~18s`，`Math.round` 给 `~19s`。整句由金样 `_down_message` /
+ * `_down_message_half` 逐字钉住。
  */
 export function formatCommsDown(breaker: CommsCircuitBreaker): string {
   const snap = breaker.snapshot()
   const cd = snap.cooldownRemainingS || OPEN_COOLDOWN_S
   return (
     `comms_circuit_open: Nanonis TCP 通信连续超时(≥${snap.failThreshold} 次)已熔断,暂停发命令 ` +
-    `~${Math.round(cd)}s 以免反复重连撞坏脆弱的 Nanonis 端口。通信已判定中断——请勿逐个工具` +
-    `重试,应立即停止硬件操作、向操作员/上层报告并 handoff,等待连接恢复后再继续。`
+    `~${pyFixed(cd, 0)}s 以免反复重连撞坏脆弱的 Nanonis 端口。通信已判定中断——请勿逐个工具` +
+    `重试,应立即停止硬件操作、向用户/上层报告并 handoff,等待连接恢复后再继续。`
   )
 }
