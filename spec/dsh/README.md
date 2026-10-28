@@ -14,7 +14,7 @@
 | [0.1.5-rc.1](dump-config.0.1.5-rc.1.yml) | 2026-09-10 | 当次升级的两处配置变更见升级日志 |
 | [0.1.5-rc.2](dump-config.0.1.5-rc.2.yml) | 2026-09-13 | 与 0.1.5-rc.1 快照逐字节相同 |
 | [0.2.1-rc.4](dump-config.0.2.1-rc.4.yml) | 2026-10-28 | web 组合：191 个顶层行、1231 行（0.1.5-rc.2 为 152 个、539 行），逐项变化见 [facts.md](../../docs/dsh/facts.md) §8；相对 0.2.1-rc.2 只多 `entry-customization` 一行 |
-| [0.2.1-rc.4 headless](dump-config.headless.0.2.1-rc.4.yml) | 2026-10-28 | headless 组合：`dsh-base` 加 `dsh-headless`，不含 preset，98 个顶层行、382 行。我们的最小入口 profile 是 `dsh-base` 加 `dsh-spm`，与它相比只差 `headless-runner`、`headless-startup` 两行和我们自己的两行；工具行相同 |
+| [0.2.1-rc.4 headless](dump-config.headless.0.2.1-rc.4.yml) | 2026-10-28 | headless 组合：`dsh-base` 加 `dsh-headless`，不含 preset，98 个顶层行、382 行。我们的最小入口 profile 是 `dsh-base` 加 `dsh-spm`，与它相比，行集合只差 `headless-runner`、`headless-startup` 两行和我们自己的两行，`tool-*` 行相同；但 headless 补丁还禁用了 `credentials`、`authorization`、`deepseek-account`、`hmr`，并改了 `system-prompt` 的 `personaPrefix` 与 `tools` 的 `mode`（取自环境变量 `DSH_TOOLS_MODE`），我们的补丁关掉了 `session-log-deepseek`。模型验收时 profile 会补入 `dsh-headless`（见 [STM-Bench 指南](../../docs/MINIMUM-USABLE.md)与 [Nanonis 指南](../../docs/NANONIS-SIMULATOR.md)） |
 
 文件名标识被导出的版本，日期对应仓库内的升级记录。配置相同说明该快照中的插件名单和默认配置相同，不代表包内部实现没有变化。实际包接触面和测试结果在对应升级记录中核对。
 

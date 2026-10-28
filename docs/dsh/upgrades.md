@@ -46,10 +46,10 @@
 > 把影响记进 `facts.md`，**不实际升级**。（本次 rc.2 在 `next` 上，两段规则指向同一个
 > 版本，所以这次升不受影响。）
 
-**触发**：每个课时开始先跑 `pnpm check:dsh-latest`（0.3 落地 `scripts/check-dsh-latest.ts`：读全部 dist-tags，按 semver 取最大值与锁定版本比）。落地前手工：
+**触发**：每个课时开始先跑 `pnpm check:dsh-latest`（0.3 落地 `scripts/check-dsh-latest.ts`：读 dist-tags，`latest` / `next` 的较大者落后于锁定版本才算该升，`alpha` 领先只提示去读发布说明、把影响记进 `facts.md` §8）。落地前手工：
 
 ```sh
-npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
+npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 都看；latest / next 取较大者与锁定版本比，alpha 领先只读发布说明
 ```
 
 有新版 ⇒ 当前课时先做升级，再继续原课时。
@@ -69,7 +69,7 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
 
 ### 2026-10-28 · 0.1.5-rc.2 → **0.2.1-rc.4**（第四次真升级，一步直达；领域代码改动 1 处）
 
-**触发与目标**：`next` = `0.2.1-rc.4`（10-26 发布），`latest` = `0.2.1-rc.2`，`alpha` = `0.2.2-alpha.2`（10-27 发布）。按「所有 dist-tag 里 semver 最大」取 rc.4。
+**触发与目标**：`next` = `0.2.1-rc.4`（10-26 发布），`latest` = `0.2.1-rc.2`，`alpha` = `0.2.2-alpha.2`（10-27 发布）。按切换点之后的规则（`latest` 与 `next` 里 semver 较大者）取 rc.4。
 `0.2.2-alpha.2` 按切换点规则只读不升，影响记在 [facts.md](facts.md) §8.-13——它是一次迁移（Node 下限 24.9、`dsh-session-projection` 与 `dsh-tools` 的接口、验收 overlay 都要改），不是换版本串。
 
 **一步直达的理由（登记为对「一次一版」的例外）**：
