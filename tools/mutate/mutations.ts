@@ -6693,6 +6693,22 @@ function physicallyAbsurdViolations_unused(`,
     replace: '    v = Number(value)',
     scope: 'packages/host',
   },
+  {
+    id: 'retractdir-undeclared-is-not-declared',
+    why: '没声明的退针方向被当成声明了 z+ ⇒ MotorMove 不再在结果里警告「没声明」，结果里的依据也写成「本机声明」，而那句声明从来没人做过',
+    file: `${K}/instrument-profile.ts`,
+    find: "  return code === undefined ? { state: 'undeclared' } : { state: 'declared', code }",
+    replace: "  return { state: 'declared', code: code ?? 4 }",
+    scope: 'packages/host',
+  },
+  {
+    id: 'retractdir-unreadable-is-not-undeclared',
+    why: '读不到档案（宿主没接读口，或读口抛了）被折成「没声明」⇒ 粗动 Z 按出厂 z+ 照发。z+ 是两个互斥答案之一，在 z− 退针的机器上 `z-retract` 就是朝样品，而它不经人审',
+    file: `${K}/instrument-profile.ts`,
+    find: "  if (!r.ok) return { state: 'unreadable' }",
+    replace: "  if (!r.ok) return { state: 'undeclared' }",
+    scope: 'packages/host',
+  },
   // ── 粗动驱动：四道锁里的两道 ──────────────────────────────────────
   {
     id: 'coarse-undeclared-falls-back-to-a-number',
