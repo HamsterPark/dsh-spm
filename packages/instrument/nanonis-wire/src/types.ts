@@ -111,6 +111,33 @@ export function encodeArgs(args: readonly ArgValue[]): Uint8Array {
 
 // ────────────────────────────── 回复侧 ──────────────────────────────
 
+/**
+ * 「二进制串」：逐字节一字符（U+0000–U+00FF），一个字节都不丢。
+ *
+ * 参考客户端解 `*-c` / `*+c` / `**c` 的回复就是这么做的（latin-1：`nanonis_patch.py` 注明换成
+ * UTF-8 会让字符数小于字节数；同一个文件里 `+*c` 用 UTF-8，也注明了不许「统一」）。UTF-8 解码会把
+ * 非法字节换成 U+FFFD：信息在这一层就丢了，下游无从还原，而仪器按哪个代码页发，这一层并不知道。
+ * 要还原成真字符的地方（比如会话路径）自己拿字节去试。见 spec/deviations.md D-WIRE-?。
+ *
+ * ⚠️ 必须用 Buffer 的 `'latin1'`。WHATWG 的 `new TextDecoder('latin1')` 其实是 windows-1252，
+ * 0x80–0x9F 会变成 €、Ÿ 之类的字符，往返不保真。
+ */
+export function binaryString(bytes: Uint8Array): string {
+  return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('latin1')
+}
+
+/**
+ * {@link binaryString} 的反向。含 >0xFF 的码元就说明它已经是真字符、不是二进制串，返回 `null`。
+ *
+ * ⚠️ 不能直接 `Buffer.from(s, 'latin1')`：对 >0xFF 它静默截成低字节，不报错
+ * （`'数'` 会变成 1 个字节 0x70）。Python 的 `s.encode('latin-1')` 会抛，参考实现靠这个异常认出
+ * 「已经是真字符」；这里得逐码元自己查。漏掉它，一个本来正常的中文串会被「修复」成乱码。
+ */
+export function binaryStringBytes(s: string): Uint8Array | null {
+  for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) > 0xff) return null
+  return new Uint8Array(Buffer.from(s, 'latin1'))
+}
+
 class Reader {
   pos = 0
   private readonly view: DataView
@@ -137,14 +164,24 @@ class Reader {
     if (fmt === 'f') return this.view.getFloat32(p, false)
     return this.view.getFloat64(p, false)
   }
+  /** UTF-8，非法字节换成 U+FFFD。只用于 `+*c` / `*2c`——参考客户端在这两处也是 UTF-8。 */
   str(len: number): string {
     this.need(len)
     const s = new TextDecoder().decode(this.body.subarray(this.pos, this.pos + len))
     this.pos += len
     return s
   }
-  lenPrefixedStr(): string {
-    return this.str(this.scalar('i'))
+  /** 二进制串（见 {@link binaryString}）。`*-c` / `*+c` / `**c` 走这一条。见 spec/deviations.md D-WIRE-?。 */
+  bstr(len: number): string {
+    this.need(len)
+    const s = binaryString(this.body.subarray(this.pos, this.pos + len))
+    this.pos += len
+    return s
+  }
+  /** 4 字节长度前缀 + 内容；`mode` 只决定内容怎么解，长度永远是字节数。 */
+  lenPrefixedStr(mode: 'utf8' | 'binary'): string {
+    const len = this.scalar('i')
+    return mode === 'binary' ? this.bstr(len) : this.str(len)
   }
 }
 
@@ -171,6 +208,11 @@ function starStride(elem: string): number {
  *   `*X` `-*X` `*+X` `*-c` `*+c` → 前一个（或前两个）int 字段
  *   `**X` `**c`                  → **第一个**字段（Variables[0]）
  *   `+*X` `+*c`                  → 自带计数，不看别人
+ *
+ * 字符串的解法**分格式**，与参考客户端一致，不许「统一」：
+ *   `*-c` `*+c` `**c`            → 二进制串，逐字节一字符
+ *   `+*c` `*2c`                  → UTF-8
+ * 前缀说多少字节就读多少字节，计数与解法无关。见 spec/deviations.md D-WIRE-?。
  */
 export function decodeReturns(
   body: Uint8Array,
@@ -192,19 +234,19 @@ export function decodeReturns(
     } else if (fmt === '*2c') {
       const rows = asInt(i - 2)
       const cols = asInt(i - 1)
-      values.push(Array.from({ length: rows }, () => Array.from({ length: cols }, () => r.lenPrefixedStr())))
+      values.push(Array.from({ length: rows }, () => Array.from({ length: cols }, () => r.lenPrefixedStr('utf8'))))
     } else if (fmt.startsWith('2')) {
       const rows = asInt(i - 2)
       const cols = asInt(i - 1)
       values.push(Array.from({ length: rows }, () => Array.from({ length: cols }, () => r.scalar(elem))))
     } else if (fmt === '*-c') {
-      values.push(r.str(asInt(i - 1)))
+      values.push(r.bstr(asInt(i - 1)))
     } else if (fmt === '+*c') {
-      values.push(r.lenPrefixedStr())
+      values.push(r.lenPrefixedStr('utf8'))
     } else if (fmt === '*+c') {
-      values.push(Array.from({ length: asInt(i - 1) }, () => r.lenPrefixedStr()))
+      values.push(Array.from({ length: asInt(i - 1) }, () => r.lenPrefixedStr('binary')))
     } else if (fmt === '**c') {
-      values.push(Array.from({ length: asInt(0) }, () => r.lenPrefixedStr()))
+      values.push(Array.from({ length: asInt(0) }, () => r.lenPrefixedStr('binary')))
     } else if (fmt.startsWith('+*')) {
       values.push(Array.from({ length: r.scalar('i') }, () => r.scalar(elem)))
     } else if (fmt.startsWith('**')) {
