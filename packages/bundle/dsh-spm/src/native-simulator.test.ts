@@ -61,7 +61,7 @@ describe('native simulator identity', () => {
   it('rejects external backend addresses even when a valid simulator connection remains', () => {
     const state = snapshot()
     expect(() => verifyNativeSimulator({ pid: 100 }, { ...state, connections: [...state.connections, {
-      pid: 100, state: 'Established', localAddress: '192.168.1.2', localPort: 60000, remoteAddress: '192.168.1.3', remotePort: 6555,
+      pid: 100, state: 'Established', localAddress: '192.0.2.2', localPort: 60000, remoteAddress: '192.0.2.3', remotePort: 6555,
     }] })).toThrow(/non-loopback/)
   })
 
