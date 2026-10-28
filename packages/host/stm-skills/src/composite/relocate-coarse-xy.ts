@@ -62,15 +62,16 @@
  */
 import {
   GraphExecutor,
+  MOTOR_DIR_CODE,
   checkVacuum,
   clearanceLadder,
   formatG,
   getConfig,
-  getRetractDirCode,
   judgeRecedeClearance,
   noDisplacement,
   progressToDict,
   readbackMatches,
+  readRetractDir,
   verdictDict,
   zSettleDict,
   zSettleMeasuresGap,
@@ -88,6 +89,7 @@ import {
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { num } from '../l0/common.js'
+import { Z_DIR_UNREADABLE } from '../l0/writes-gated.js'
 import { runSubSkill } from './run-sub.js'
 import { captureQplusBaseline, qplusFields, qplusRecovered, qplusSaysCrashed } from './tip-evidence.js'
 import { settleAndReadZ } from './z-settle.js'
@@ -379,7 +381,11 @@ class Relocate {
         }
       }
 
-      const dirCode = getRetractDirCode()
+      // 读不到退针方向就在第一级之前拒绝（D-MOTORZ）。不拦的话方向会按出厂 Z+ 发出去，
+      // 而方向自检要的 `z_extend_sign` 同样读不到，梯子要先迈出第一级才停下。
+      const d = readRetractDir()
+      if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE, data: { rungs } }
+      const dirCode = d.state === 'declared' ? d.code : MOTOR_DIR_CODE['z+']!
       for (const n of clearanceLadder(prewithdrawSteps)) {
         // 粗动马达迈步**之前**先把压电挪开 —— 一个压电还伸着的粗动步正是这条梯子
         // 要防的那次撞针。（下面的 settle 也会退针，但那一次是为了让**测量**

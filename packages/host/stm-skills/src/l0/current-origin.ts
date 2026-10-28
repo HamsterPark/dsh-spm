@@ -259,6 +259,13 @@ export const ClassifyUnexplainedCurrent: Skill = {
   },
 }
 
+/** 失败文案里「这几步按什么方向走」：MotorMove 报的 `z_direction_basis` → 一句话。 */
+const Z_BASIS_WAY: Readonly<Record<string, string>> = {
+  'declared_z-': '本机声明的 Z−（方向码 5）',
+  'declared_z+': '本机声明的 Z+（方向码 4）',
+  undeclared_nanonis_standard: 'Nanonis 标准 Z+（本机没声明退针方向）',
+}
+
 export const RecoverTipFromSaturation: Skill = {
   spec: S.RecoverTipFromSaturationSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
@@ -339,6 +346,7 @@ export const RecoverTipFromSaturation: Skill = {
       await ctx.sleep(RETRACT_SETTLE_MS)
       const now = await medianCurrent(ctx, 3, SETTLE_GAP_MS)
       used += good ? n : 0
+      const moved = res.data ?? {}
       stepsLog.push({
         stage: 'coarse_z',
         steps: n,
@@ -346,6 +354,9 @@ export const RecoverTipFromSaturation: Skill = {
         cumulative: used,
         current_a: now,
         saturated: isSaturated(now),
+        // MotorMove 实际朝哪个方向码走、依据是什么（声明 / 没声明）
+        direction_code: moved['direction_code'] ?? null,
+        z_direction_basis: moved['z_direction_basis'] ?? null,
         error: (res.error ?? '').slice(0, 160),
       })
       if (!good) continue
@@ -366,10 +377,18 @@ export const RecoverTipFromSaturation: Skill = {
 
     const lastRec = stepsLog.length > 0 ? stepsLog[stepsLog.length - 1] : undefined
     const last = (lastRec === undefined ? before : (lastRec['current_a'] as number | null)) ?? null
+    // 这几步按什么方向走的：取**从后往前第一个**报了依据的步（MotorMove 失败时不带 data）
+    const basis = stepsLog
+      .map((s) => s['z_direction_basis'])
+      .reverse()
+      .find((b) => Boolean(b))
+    const way =
+      (typeof basis === 'string' && Object.hasOwn(Z_BASIS_WAY, basis) ? Z_BASIS_WAY[basis] : undefined) ??
+      'MotorMove 没报方向'
     return fail(
       `退了 ${used} 步仍未脱离饱和（最后读数 ${last === null ? '读不到' : `${formatG(last, 4)} A`}）。` +
-        '**没有假装恢复** —— 继续退之前先确认 z-retract 方向配置是对的：方向反了的话，' +
-        '每一步都在往样品里扎。',
+        `**没有假装恢复** —— 这几步按 ${way} 走；继续退之前先确认本机声明的粗动退针方向` +
+        '（设置 → 退针 → 退针方向）是对的：方向反了的话，每一步都在往样品里扎。',
       {
         outcome: 'not_recovered',
         coarse_steps_used: used,
