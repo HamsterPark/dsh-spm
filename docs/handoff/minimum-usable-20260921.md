@@ -33,7 +33,7 @@
 | 拼接 Zstandard 会话日志回归 | 1 文件／1 项通过 | 补充定向 contract 测试，晚于上述完整测试运行 |
 | M4 原生模型会话 | 两个干净 home 均通过 | 模型 `deepseek-official/deepseek-flash`；原生会话、实际请求及磁盘证据对应 |
 
-首次 integration 在测试开始前失败：外部 STM-Bench 已无旧 `polar-spm` 配置。没有跳过测试或修改模拟器；测试入口改用当前公开配置 `reference-stm`，另允许 `STMSIM_PROFILE` 显式选择旧版／自定义名称，之后实际运行通过。
+首次 integration 在测试开始前失败：外部 STM-Bench 已无旧的配置名。没有跳过测试或修改模拟器；测试入口改用当前公开配置 `reference-stm`，另允许 `STMSIM_PROFILE` 显式选择旧版／自定义名称，之后实际运行通过。
 
 首次 M4 的装载守卫拒绝了额外的 `exit_plan_mode` 工具，尚未发起模型请求。随后在验收 overlay 中关闭该基础工具提供者，保持要求的精确工具目录。此类安装／验收脚本修复不改变上述已冻结 tarball。
 

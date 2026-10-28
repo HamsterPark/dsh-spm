@@ -35,7 +35,7 @@
       config:
         # 与真机的 6501–6504 岔开一万。撞上的代价是「以为在打模拟器，其实在打真机」。
         ports: [16501, 16502, 16503, 16504]
-        profile: polar-spm
+        profile: reference-stm
         material: Au(111)
         # 起手就在隧道状态，否则读到的电流没有意义
         approached: true

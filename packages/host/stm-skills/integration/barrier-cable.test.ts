@@ -149,8 +149,8 @@ describe('批 7b-2 对真 stmsim', () => {
   }, 180_000)
 
   /**
-   * ⚠️ **这台模拟器跑的是 `polar-spm`，它没有 PLL 模块**
-   * （globalSetup 里的 `profile: 'polar-spm'`，而 PLL 要 `polar-spm-qplus`）。
+   * ⚠️ **这台模拟器跑的是 `reference-stm`，它没有 PLL 模块**
+   * （globalSetup 里缺省的 `profile: 'reference-stm'`，而 PLL 要 `reference-stm-qplus`）。
    * 换 profile 是改**整组**集成测试共用的那一份 globalSetup —— 不在这一批动。
    *
    * 于是这个技能在真仪器上走到的是**第一道闸**，而那一格正好是它最要紧的一条：
