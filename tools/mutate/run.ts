@@ -33,6 +33,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MUTATIONS, type Mutation } from './mutations.ts'
+import { suiteArgs } from './suite-args.ts'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
@@ -191,19 +192,11 @@ export function runOne(m: Mutation): MutationResult {
 const WIDE_SCOPE = 'packages/host'
 
 /**
- * 每一趟（基线与变异）都**排除**规则体检 `mutation-registry.test.ts`。
- *
- * 它数的是每条规则的 `find` 在目标文件里命中几次。任何一条变异落地，那条规则自己的 `find` 就不再命中，
- * 体检必然变红 —— 与被变异的闸有没有人看无关。它住在 bundle 的 `contract/` 里，于是 scope 落在
- * `packages/bundle/dsh-spm` 的规则按构造永远判 red，等价变异也一样，那样的 red 不是证据。
- * host 范围的规则碰不到它。基线里它本来是绿的，排除它不改变基线的含义。
+ * 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。
+ * 命令行由 `suiteArgs` 拼（排除规则体检，原因见 `suite-args.ts`）；契约测试钉着它。
  */
-const EXCLUDED_FROM_SUITE = ['**/mutation-registry.test.ts']
-
-/** 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。 */
 function suite(scope: string): { failed: number; passed: number } | null {
-  const exclude = EXCLUDED_FROM_SUITE.flatMap((glob) => ['--exclude', glob])
-  const t = run([...PNPM, 'run', '--project', '!integration', ...exclude, scope, '--reporter=dot'], {
+  const t = run([...PNPM, ...suiteArgs(scope)], {
     allowFail: true,
   })
   const line = /^\s+Tests\s+(?:(\d+) failed \| )?(\d+) passed/m.exec(t.out)

@@ -8,12 +8,13 @@
  *
  * **不设豁免名单**：失效的规则要修（重新定靶，或写明接替它的断言后退役），不是登记。
  *
- * 演练的运行器每一趟都**排除本文件**（`tools/mutate/run.ts` 的 `EXCLUDED_FROM_SUITE`）：任何一条变异落地，
+ * 演练的运行器每一趟都**排除本文件**（`tools/mutate/suite-args.ts` 的 `EXCLUDED_FROM_SUITE`）：任何一条变异落地，
  * 被改规则自己的 `find` 就不再命中，本体检必然变红，那不是这条变异被抓住的证据。
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { MUTATIONS } from '../../../../tools/mutate/mutations.ts'
+import { suiteArgs } from '../../../../tools/mutate/suite-args.ts'
 
 const ROOT = new URL('../../../../', import.meta.url)
 
@@ -49,10 +50,14 @@ describe('变异规则体检（不跑演练）', () => {
     expect(bad).toEqual([])
   })
 
-  it('演练的运行器排除本体检，且排除的就是这个文件', () => {
+  it('演练的运行器带着排除去跑，排除的就是这个文件', () => {
     // 不排除的话，scope 落在本包的规则按构造永远判 red（本体检在任何一条变异下都红）
-    const runner = readFileSync(new URL('tools/mutate/run.ts', ROOT), 'utf8')
-    expect(runner).toContain("const EXCLUDED_FROM_SUITE = ['**/mutation-registry.test.ts']")
+    const args = suiteArgs('packages/bundle/dsh-spm')
+    const at = args.indexOf('--exclude')
+    expect(at).toBeGreaterThanOrEqual(0)
+    expect(args[at + 1]).toBe('**/mutation-registry.test.ts')
     expect(existsSync(new URL('packages/bundle/dsh-spm/contract/mutation-registry.test.ts', ROOT))).toBe(true)
+    // 运行器的 suite() 确实是用 suiteArgs 拼命令行的，而不是另写了一条
+    expect(readFileSync(new URL('tools/mutate/run.ts', ROOT), 'utf8')).toContain('...suiteArgs(scope)')
   })
 })
