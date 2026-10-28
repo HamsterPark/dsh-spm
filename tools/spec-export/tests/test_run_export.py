@@ -1,4 +1,4 @@
-"""`run_export.py` 的单测：只用标准库和 git，不需要 MAST。
+"""`run_export.py` 与 `export_mast_spec._reference()` 的单测：只用标准库和 git，不需要 MAST。
 
     python -m unittest discover -s tools/spec-export/tests -v
 
@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import importlib
 import io
 import json
 import ntpath
@@ -417,6 +418,69 @@ class CompareTests(unittest.TestCase):
         self.assertTrue(out.getvalue().rstrip().endswith("identical=3 differ=1 missing=1"))
         with mock.patch("sys.stdout", new_callable=io.StringIO):
             self.assertEqual(rx.main(["compare", str(self.a), str(self.a)]), rx.OK)
+
+
+class ReferenceTests(unittest.TestCase):
+    """`export_mast_spec._reference()`：显式提交号与和行尾无关的源码摘要。"""
+
+    MODULE = "export_mast_spec"
+
+    def setUp(self) -> None:
+        self.root = _tmpdir(self, "reference-") / "MASTv2"
+        (self.root / "mast" / "sub").mkdir(parents=True)
+        (self.root / "mast" / "sub" / "b.py").write_bytes(b"import a\n")
+        env = mock.patch.dict(os.environ, {"MAST_ROOT": str(self.root), "MAST_COMMIT": "a" * 40,
+                                           "MAST_TREE": "b" * 40, "MAST_DESCRIBE": "v9.9.9"})
+        env.start()
+        self.addCleanup(env.stop)
+        versions = {"numpy": "1.0.0", "scipy": "2.0.0"}
+        version = mock.patch("importlib.metadata.version", side_effect=versions.__getitem__)
+        version.start()
+        self.addCleanup(version.stop)
+        sys.modules.pop(self.MODULE, None)
+        self.addCleanup(sys.modules.pop, self.MODULE, None)
+        self.ex = importlib.import_module(self.MODULE)
+
+    def reference(self, a_py: bytes) -> dict:
+        (self.root / "mast" / "a.py").write_bytes(a_py)
+        return self.ex._reference()
+
+    def test_digest_does_not_depend_on_line_endings(self) -> None:
+        lf, crlf = self.reference(LF), self.reference(CRLF)
+        self.assertEqual(lf["py_digest_lf"], crlf["py_digest_lf"])
+        self.assertRegex(lf["py_digest_lf"], r"^[0-9a-f]{16}$")
+        self.assertNotEqual(self.reference(b"x = 1\ny = 3\n")["py_digest_lf"], lf["py_digest_lf"])
+
+    def test_record_fields(self) -> None:
+        (self.root / "mast" / "__pycache__").mkdir()
+        (self.root / "mast" / "__pycache__" / "stray.py").write_bytes(b"skipped\n")
+        ref = self.reference(LF)
+        self.assertEqual(ref["commit"], "a" * 40)
+        self.assertEqual(ref["tree"], "b" * 40)
+        self.assertEqual(ref["describe"], "v9.9.9")
+        self.assertEqual(ref["py_files"], 2)
+        self.assertEqual(ref["environment"], {
+            "python": ".".join(map(str, sys.version_info[:3])), "numpy": "1.0.0", "scipy": "2.0.0"})
+
+    def test_commit_must_be_an_explicit_full_sha(self) -> None:
+        for bad in (None, "", "068c2371", "A" * 40, "g" * 40, "a" * 41):
+            with self.subTest(commit=bad), mock.patch.dict(os.environ):
+                if bad is None:
+                    del os.environ["MAST_COMMIT"]
+                else:
+                    os.environ["MAST_COMMIT"] = bad
+                with self.assertRaises(RuntimeError):
+                    self.reference(LF)
+
+    def test_tree_and_describe_are_optional(self) -> None:
+        with mock.patch.dict(os.environ):
+            del os.environ["MAST_TREE"]
+            os.environ["MAST_DESCRIBE"] = ""
+            ref = self.reference(LF)
+        self.assertIsNone(ref["tree"])
+        self.assertIsNone(ref["describe"])
+        with mock.patch.dict(os.environ, {"MAST_TREE": "not-a-sha"}), self.assertRaises(RuntimeError):
+            self.reference(LF)
 
 
 if __name__ == "__main__":
