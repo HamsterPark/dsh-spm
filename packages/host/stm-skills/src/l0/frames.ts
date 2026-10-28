@@ -17,7 +17,7 @@ import {
   type SkillResultLike,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
-import { lastString } from './reads-hw.js'
+import { lastPath } from './wire-text.js'
 
 const failed = (rec: SkillCallRecord): boolean => rec.error !== undefined && rec.error !== ''
 
@@ -255,7 +255,7 @@ export function makeGetLatestScanFile(deps: LatestScanDeps = {}): Skill {
     deps.candidateDirs ??
     (async (ctx: SkillContext): Promise<string[]> => {
       const rec = await ctx.safeCall('Util_SessionPathGet')
-      const dir = failed(rec) ? null : sessionDir(lastString(rec))
+      const dir = failed(rec) ? null : sessionDir(lastPath(rec))
       return dir === null ? [] : [dir]
     })
   return {

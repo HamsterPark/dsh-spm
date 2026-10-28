@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份；2026-10-28 新增 `wire_decode.json`（字符串回复的非 ASCII 解码，见下表），共 56 份。
 
 ## 来源与复现方式
 
@@ -10,7 +10,7 @@
 | 参考代码执行 | `skill_traces.json`、SI／安全／前置条件、各专用驱动器 | 在指定输入、时钟和上下文下执行 MAST 实现；部分文件同时包含常量或声明 |
 | 公共数值库执行 | `numerics.json`、`interp_edges.json` | NumPy、SciPy、scikit-image 对保存输入的计算结果；无需私有 MAST |
 | 静态源码分析 | `tip_phase_deps.json` | 可能的子技能与函数依赖、非技能依赖和无法解析的边界；不执行仪器流程 |
-| 协议编解码 | `wire_frames.json`、`wire_types.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节 |
+| 协议编解码 | `wire_frames.json`、`wire_types.json`、`wire_decode.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节；`wire_decode.json` 的回复字节手工拼，期望值由参考客户端解出 |
 
 不要手填数值或轨迹来消除测试差异。说明字段、匿名测试标签和已登记标识符的公开清理例外见 [开发指南](../../docs/DEVELOPMENT.md#金样生成物与参考仓) 与 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md)。部分说明来自参考系统观测；去标识化不改变来源类别。
 
@@ -50,7 +50,7 @@ python tools/spec-export/<脚本>.py
 
 `apply` 遇到哈希不符、指针失配或未登记的出现时整体拒绝，不写输出。目前没有工具在这种情况下生成部分替换的草稿：需要人工备好一份审读过的完整公开版本（哈希不符的位置用 `spec_overlay.py show` 查看，输出含私有原文，不外传），再由原始产物和这份公开版本重新 `build`。`apply` 能通过、但扫描或审查发现覆盖层还不认识的私密文本时，在暂存公开目录里改写那几处，用 `build --base <旧覆盖层>` 只为这些差异建条目，新覆盖层另存为新文件，再用它重新 `apply`。
 
-**参考基线** 本目录的 MAST 金样自 2026-10-28 起由运行器从 MAST v7.1.0（提交 `45e3e806`）导出，来源以 `manifest.json` 的 `reference` 为准；同条件导出两次逐字节一致，48 份中 41 份与上一批逐字节相同，其余 7 份由 v7.1.0 改动。上一批金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 在 `git archive` 快照上复核过，提交 `068c2371` 是它们的等价来源：48 份中 42 份逐字节相同，其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。旧 `manifest.json` 里的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。
+**参考基线** 本目录的 MAST 金样自 2026-10-28 起由运行器从 MAST v7.1.0（提交 `45e3e806`）导出，来源以 `manifest.json` 的 `reference` 为准；同条件导出两次逐字节一致，48 份中 41 份与上一批逐字节相同，其余 7 份由 v7.1.0 改动；此后新增的 `wire_decode.json` 同样由运行器从 v7.1.0 导出，上一批没有它，不在这个比较里。上一批金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 在 `git archive` 快照上复核过，提交 `068c2371` 是它们的等价来源：48 份中 42 份逐字节相同，其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。旧 `manifest.json` 里的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。
 
 ## 一、文件与导出器
 
@@ -180,7 +180,8 @@ python tools/spec-export/<脚本>.py
 | `interp_edges.json` | `export_interp_edges.py` | 插值族（`map_coordinates` / `shift`，order 0、1）在帧边、界外坐标与缺测行列上的判别性探针：6×5 帧及其缺测行、缺测列与部分采集变体，另有 1×4、4×1 帧；坐标含界外、整点、半整点、贴边与 NaN，五种边界模式，TS 侧逐位比较。导出时断言这组输入分辨得出四条规则：`nearest` 不折坐标；越界邻点按 scipy 的 `_get_spline_boundary_mode` 延拓（`constant`、`wrap` 用 mirror）；权重为 0 的邻点照样乘进结果；NaN 坐标取 cval。仅需 NumPy 与 SciPy；当前以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1 导出 |
 | `nanonis_files.json` | `export_nanonis_files.py` | 脚本合成字节，由参考读取器给出解析结果；不收入真实仪器文件 |
 | `analysis.json` | `export_analysis.py` | 掩膜、团簇、平面、台阶、原子线与起伏判据。两侧从同一 `.sxm` 字节读帧，避免分别计算闭式输入时因加法结合顺序产生差异；历史 `noiseFloor` 差为 4.4e-14 |
-| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec |
+| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec；回复里的字符串用例全是 ASCII |
+| `wire_decode.json` | `export_wire_decode.py` | 字符串回复的解码：`*-c` / `*+c` / `**c` / `+*c` / `*2c` 五种格式 × 六种内容（ASCII、空串、UTF-8 中文、GBK 中文、256 个字节值全表、一段两种编码都不合法的字节），共 30 格。回复字节按线协议布局手工拼，期望值由 MAST 修改的 `nanonis_spm` 客户端的 `parseGeneralResponse` 解出；无需 STM-Bench。逐字节读出的字符串可能含裸 C1 控制字符（U+0080–U+009F），不是损坏 |
 | `scan_resolver.json` | `export_scan_resolver.py` | `resolve_scan` 的 77 个用例，比较 `trace[*].source`；优先次序为 explicit > 用户档位表 > 偏好 > 出厂档位表 > keep-current |
 | `tip_crash.json` | `export_tip_crash.py` | `TipCrashTracker` 的状态脚本，依次执行 record / count / blocked / points / recover / tick / snapshot |
 | `tip_policy.json` | `export_tip_policy.py` | `resolve_policy` 与 `resolve_conditioning`：12 支针尖 × 23 个请求，共 276 例，111 例拒绝。超上限时拒绝而非夹紧；`shaper_depth_at_limit` 覆盖恰好等于上限 |
