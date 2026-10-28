@@ -29,6 +29,19 @@ const SCAN_VERIFY_INTERVAL_MS = 100
 /** 走安全路径成功时从 `BiasSettleChange` 的结果里带出的字段（参考实现的外部动作面也只带这四个）。 */
 const ROUTED_FIELDS = ['bias_v_start', 'strategy', 'crossed_zero', 'settle_s'] as const
 
+/**
+ * 让状态缓存（和随后写进记录的 stateDelta）拿到仪器上的实际值。尽力而为：调用方的失败结果已经确定，
+ * 刷新抛什么都不改变它（身份丢失之类下一次调用自己会报）。被取消的调用不再发任何仪器读写。
+ */
+async function refreshCache(ctx: SkillContext): Promise<void> {
+  if (ctx.signal.aborted) return
+  try {
+    await ctx.refreshState()
+  } catch {
+    // 见上
+  }
+}
+
 function unexpectedParams(params: Readonly<Record<string, unknown>>, allowed: readonly string[]): string[] {
   return Object.keys(params).filter((name) => !allowed.includes(name)).map((name) =>
     `原生模拟器最小工具不支持参数 '${name}'。`,
@@ -96,6 +109,9 @@ export const NativeSetBias: Skill = {
         const sent = res.data?.['strategy'] !== undefined
         const back = sent ? await GetBias.execute(ctx, {}) : undefined
         const actual = back?.success === true ? back.data?.['bias_v'] : undefined
+        // 读得到实际值，说明链路还活着而偏压已被改动：缓存里还是改动前的值，刷新一次。
+        // 取消之后读不到（也不该再发任何命令），回读和刷新都不做。
+        if (typeof actual === 'number') await refreshCache(ctx)
         return {
           success: false,
           error: res.error ?? 'BiasSettleChange failed',
@@ -137,7 +153,11 @@ export const NativeSetBias: Skill = {
       path,
       ...routed,
     }
-    return verified ? { success: true, data } : {
+    if (verified) return { success: true, data }
+    // 走安全路径时，子步成功后内核已把请求值补进缓存（K12）；回读不符说明它不是实际值，
+    // 刷新一次，缓存和随后写进记录的 stateDelta 才拿到实际值。回读失败的那个分支不刷新：链路多半有问题。
+    if (safe) await refreshCache(ctx)
+    return {
       success: false,
       error: `bias_readback_mismatch: 请求 ${target} V，实际回读 ${observed} V；偏压设置未通过验证。`,
       data,

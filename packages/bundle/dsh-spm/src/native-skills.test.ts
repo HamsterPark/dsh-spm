@@ -17,33 +17,72 @@ function props(continuous = 0): unknown[] {
   return [continuous, 1, 2, 8, 'sample-A', 4, 'note', 8, 1, ['Bias'], 1, [1], 0, 0, [], 2]
 }
 
-function fixture(script: Record<string, Reply[]> = {}, state: Partial<HardwareState> = {}) {
+interface FixtureOptions {
+  /**
+   * 状态缓存是活的：snapshot 读它，applyPatch 只收 bias_v，refreshState 重读一次 Bias_Get 写回它
+   * （与 minimal.ts 里的接法同形）。缺省时快照是常量，也没有 refreshState。
+   */
+  readonly live?: boolean
+  /** 第 count 次 method 返回之后取消这次调用；此后的线上调用像生产里那样直接回取消错误，不记入 calls。 */
+  readonly cancelAfter?: { readonly method: string; readonly count: number }
+}
+
+function fixture(script: Record<string, Reply[]> = {}, state: Partial<HardwareState> = {}, options: FixtureOptions = {}) {
   const replies = new Map(Object.entries(script).map(([method, queue]) => [method, [...queue]]))
   const calls: { method: string; args: readonly unknown[] }[] = []
   const patches: Readonly<Record<string, unknown>>[] = []
   const sleeps: number[] = []
   const records: KernelRecord[] = []
+  const controller = new AbortController()
+  const seen = new Map<string, number>()
+  let refreshes = 0
+  let cache: HardwareState = { ...emptyHardwareState('T0'), z_controller_on: true, ...state }
+  const scripted = (method: string, args: readonly unknown[]): SkillCallRecord => {
+    const queue = replies.get(method)
+    const reply = queue && queue.length > 1 ? queue.shift() : queue?.[0]
+    if (typeof reply === 'string') return { method, args, error: reply }
+    if (reply !== undefined) return { method, args, values: reply }
+    if (method === 'ZCtrl_OnOffGet') return { method, args, values: [1] }
+    if (method === 'Scan_PropsGet') return { method, args, values: props() }
+    if (method === 'Bias_Set' || method === 'Scan_Action' || method === 'Scan_PropsSet') {
+      return { method, args, values: [] }
+    }
+    return { method, args, error: `unscripted: ${method}` }
+  }
   const kernel = new SkillKernel({
-    snapshot: () => ({ ...emptyHardwareState('T0'), z_controller_on: true, ...state }),
-    applyPatch: (patch) => { patches.push(patch) },
+    snapshot: () => options.live === true ? cache : { ...emptyHardwareState('T0'), z_controller_on: true, ...state },
+    applyPatch: (patch) => {
+      patches.push(patch)
+      if (options.live === true && typeof patch['bias_v'] === 'number') cache = { ...cache, bias_v: patch['bias_v'] }
+    },
+    ...(options.live === true ? {
+      refreshState: async () => {
+        refreshes += 1
+        const rec = scripted('Bias_Get', [])
+        const value = rec.error === undefined ? rec.values?.[0] : undefined
+        if (typeof value === 'number') cache = { ...cache, bias_v: value }
+        return cache
+      },
+    } : {}),
     sleep: async (ms) => { sleeps.push(ms) },
     skillByName: (name) => NATIVE_SUBSKILLS.get(name),
     record: (rec) => { records.push(rec) },
     safeCall: async (method, ...args): Promise<SkillCallRecord> => {
-      calls.push({ method, args })
-      const queue = replies.get(method)
-      const reply = queue && queue.length > 1 ? queue.shift() : queue?.[0]
-      if (typeof reply === 'string') return { method, args, error: reply }
-      if (reply !== undefined) return { method, args, values: reply }
-      if (method === 'ZCtrl_OnOffGet') return { method, args, values: [1] }
-      if (method === 'Scan_PropsGet') return { method, args, values: props() }
-      if (method === 'Bias_Set' || method === 'Scan_Action' || method === 'Scan_PropsSet') {
-        return { method, args, values: [] }
+      if (controller.signal.aborted) {
+        return { method, args, error: 'native_simulator_aborted: 本次调用已取消，未发送仪器命令。' }
       }
-      return { method, args, error: `unscripted: ${method}` }
+      calls.push({ method, args })
+      const rec = scripted(method, args)
+      const count = (seen.get(method) ?? 0) + 1
+      seen.set(method, count)
+      if (options.cancelAfter?.method === method && options.cancelAfter.count === count) controller.abort()
+      return rec
     },
   })
-  return { kernel, calls, patches, sleeps, records }
+  return {
+    kernel, calls, patches, sleeps, records, signal: controller.signal,
+    cache: () => cache, refreshCount: () => refreshes,
+  }
 }
 
 const methodsOf = (calls: readonly { method: string }[]): string[] => calls.map((call) => call.method)
@@ -104,12 +143,15 @@ describe('native simulator minimal skills', () => {
   })
 
   it('fails a materially different voltage and does not patch requested voltage into cached state', async () => {
-    const { kernel, patches } = fixture({ Bias_Get: [[0.1001]] })
+    const { kernel, patches, cache, refreshCount } = fixture({ Bias_Get: [[0.1001]] }, {}, { live: true })
     const result = await kernel.run(NativeSetBias, { bias_v: 0.1 })
     expect(result.kind).toBe('failed')
     expect(result.text).toContain('bias_readback_mismatch')
     expect(result.data).toMatchObject({ requested_bias_v: 0.1, bias_v: 0.1001, verified: false })
     expect(patches).toEqual([])
+    // 直写路径没有子步，缓存里从来没有请求值，所以也用不着刷新
+    expect(cache().bias_v).toBeNull()
+    expect(refreshCount()).toBe(0)
   })
 
   it('reports uncertainty after a successful write followed by a read failure', async () => {
@@ -258,9 +300,10 @@ describe('native simulator minimal skills', () => {
 describe('native SetBias routing', () => {
   // Bias_Get 的顺序：顶层读起点 → BiasSettleChange 读起点 → 顶层回读（最后一个值之后重复）
   it('walks a sign change through BiasSettleChange, settles, then reads back once', async () => {
-    const { kernel, calls, sleeps, records } = fixture({ Bias_Get: [[1], [1], [-1]] })
+    const { kernel, calls, sleeps, records, refreshCount } = fixture({ Bias_Get: [[1], [1], [-1]] }, {}, { live: true })
     const result = await kernel.run(NativeSetBias, { bias_v: -1 })
     expect(result.kind).toBe('ok')
+    expect(refreshCount()).toBe(0) // 回读相符，缓存里本来就是实际值
     expect(result.data).toMatchObject({
       path: 'BiasSettleChange', strategy: 'ramp_through_zero', crossed_zero: true, bias_v_start: 1, settle_s: 2,
       requested_bias_v: -1, bias_v: -1, verified: true, command_sent: true,
@@ -339,10 +382,25 @@ describe('native SetBias routing', () => {
   })
 
   it('does not claim a voltage when the readback after a failed ramp also fails', async () => {
-    const { kernel } = fixture({ Bias_Get: [[1], [1], 'connection_closed'], Bias_Set: [[], 'write_rejected'] })
+    const { kernel, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], 'connection_closed'], Bias_Set: [[], 'write_rejected'] }, {}, { live: true },
+    )
     const result = await kernel.run(NativeSetBias, { bias_v: -1 })
     expect(result.kind).toBe('failed')
     expect(result.data).toMatchObject({ path: 'BiasSettleChange', command_sent: true, verified: false, bias_v: null })
+    expect(refreshCount()).toBe(0) // 读不到实际值，说明链路多半有问题，不再发读
+  })
+
+  it('refreshes the cache after a half-way ramp failure once the actual voltage could be read', async () => {
+    // 斜坡失败时没有子步成功，缓存还是改动前的值；偏压其实已经停在 0.6 V
+    const { kernel, records, cache, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], [0.6]], Bias_Set: [[], [], 'write_rejected'] }, { bias_v: 1 }, { live: true },
+    )
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 })
+    expect(result.kind).toBe('failed')
+    expect(refreshCount()).toBe(1)
+    expect(cache().bias_v).toBe(0.6)
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({ bias_v: 0.6 })
   })
 
   it('fails a routed change whose final readback differs, and says what it read', async () => {
@@ -353,13 +411,55 @@ describe('native SetBias routing', () => {
     expect(result.data).toMatchObject({ path: 'BiasSettleChange', requested_bias_v: -1, bias_v: -0.9, verified: false, command_sent: true })
   })
 
-  // 已知限制（偏差登记里有一条）：子步成功后内核把请求值补进缓存；顶层回读不符时，
-  // 缓存在下次刷新前留着未经验证的值。直写路径没有这个现象（上面「does not patch requested voltage」）。
-  it('known limitation: a successful sub-step patches the requested voltage into the cache even if the top-level readback differs', async () => {
-    const { kernel, patches } = fixture({ Bias_Get: [[1], [1], [-0.9]] })
-    await kernel.run(NativeSetBias, { bias_v: -1 })
-    expect(patches.some((patch) => patch['bias_v'] === -1)).toBe(true)
-    expect(patches.some((patch) => patch['bias_v'] === -0.9)).toBe(false)
+  // 子步成功时内核已把请求值补进缓存（K12）。回读不符说明它不是实际值：不刷新的话，缓存会一直留着它，
+  // 而 stateDelta（写进 SQLite 记录）也是用这份缓存算的。
+  it('refreshes the cache after a routed readback mismatch, so the cache and the recorded delta carry the actual voltage', async () => {
+    const { kernel, records, cache, refreshCount } = fixture({ Bias_Get: [[1], [1], [-0.9]] }, { bias_v: 1 }, { live: true })
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 })
+    expect(result.kind).toBe('failed')
+    expect(result.text).toContain('bias_readback_mismatch')
+    expect(refreshCount()).toBe(1)
+    expect(cache().bias_v).toBe(-0.9)
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({ bias_v: -0.9 })
+  })
+
+  // 已知限制（偏差登记里有一条）：回读本身失败时不刷新（链路多半有问题），缓存和 stateDelta 留着请求值。
+  it('known limitation: when the readback itself fails, the cache and the recorded delta keep the requested voltage', async () => {
+    const { kernel, records, cache, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], 'connection_closed'] }, { bias_v: 1 }, { live: true },
+    )
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 })
+    expect(result.kind).toBe('failed')
+    expect(result.text).toContain('bias_readback_failed')
+    expect(refreshCount()).toBe(0)
+    expect(cache().bias_v).toBe(-1)
+    expect(records.at(-1)?.outcome.stateDelta).toEqual({ bias_v: -1 })
+  })
+
+  it('after a cancel mid-ramp: the ramp stops where it is, nothing more is sent, no readback and no refresh', async () => {
+    const { kernel, calls, signal, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], [0.6]] }, {}, { live: true, cancelAfter: { method: 'Bias_Set', count: 2 } },
+    )
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 }, { signal })
+    expect(result.kind).toBe('failed')
+    expect(result.data).toMatchObject({
+      path: 'BiasSettleChange', strategy: 'ramp_through_zero', command_sent: true, verified: false,
+      bias_v: null, requested_bias_v: -1,
+    })
+    expect(biasSets(calls)).toEqual([0.8, 0.6])
+    expect(methodsOf(calls).at(-1)).toBe('Bias_Set') // 取消之后既没有回读，也没有别的命令
+    expect(refreshCount()).toBe(0)
+  })
+
+  it('does not refresh after a cancel that lands right after a mismatching readback', async () => {
+    // 第 3 次 Bias_Get 是顶层回读：它返回之后调用被取消，随后的刷新读也不该发
+    const { kernel, signal, refreshCount } = fixture(
+      { Bias_Get: [[1], [1], [-0.9]] }, {}, { live: true, cancelAfter: { method: 'Bias_Get', count: 3 } },
+    )
+    const result = await kernel.run(NativeSetBias, { bias_v: -1 }, { signal })
+    expect(result.kind).toBe('failed')
+    expect(result.text).toContain('bias_readback_mismatch')
+    expect(refreshCount()).toBe(0)
   })
 })
 
