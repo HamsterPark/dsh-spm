@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份；2026-10-28 新增 `wire_decode.json`（字符串回复的非 ASCII 解码，见下表），共 56 份。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份；2026-10-28 新增 `wire_decode.json`（字符串回复的非 ASCII 解码，见下表），共 56 份；同日新增 `bias_routing.json`（模型面改偏压的分流真值表），共 57 份。
 
 ## 来源与复现方式
 
@@ -82,6 +82,7 @@ python tools/spec-export/<脚本>.py
 | `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | `AutoApproach`、`safety_escalation`、`ApproachTip._approach` |
 | `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | `scan_policy`、`imaging` 判据，以及 `WaitScanComplete` 和回复解析 |
 | `bias_ramp.json` | `export_bias_ramp.py` | `SetBiasRamp` |
+| `bias_routing.json` | `export_bias_routing.py` | 参考实现外部动作面 `set_bias` 的分流：20 个起点（含「读不到」）× 19 个目标共 380 格，逐格记录走 `BiasSettleChange` 还是直写 `SetBias`。执行器换成只记录被请求技能的替身，起点读得到的格另调 `_bias_needs_safe_path` 核对一致；附外部动作面与 `bias_settle` 里的两组常量 |
 | `tip_park.json` | `export_tip_park.py` | `tip_park` 判定机 |
 | `claim_audit.json` | `export_claim_audit.py` | 声明、技能运行与文件证据的交叉核对 |
 | `advanced_ops.json` | `export_advanced_ops.py` | `QuitNanonis`、`WaitForScanEndBlocking` |

@@ -4120,6 +4120,69 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 理由：原迁移 SetBias/StopScan 只确认发送，StartScan 还会请求改变 autosave；直接用于本机交互会扩大副作用或误报完成。判据在 `native-skills.test.ts`、`native-runtime.test.ts`、`native-simulator.test.ts`，实际安装态与模型证据见本次 Nanonis 交接。通用技能、金样及生成规格未因此改写。若以后统一到通用技能，应先验证回读失败、连续扫描、属性保留与既有参考契约后再移除局部适配。
 
+## D-NATIVE-? · 原生入口的 SetBias 先读起点再分流，几类改动改走 BiasSettleChange
+
+> 编号暂缺；并入主线时按当时的序号补上。`D-NATIVE-1` 里「此入口不提供未实现的偏压 ramp 参数」一句仍然成立（参数没有），
+> 但改动现在会自动走斜坡，并入时在那一句后面指向本条。
+
+| | |
+|---|---|
+| **改动前**（`D-NATIVE-1`） | `SetBias` 一步 `Bias_Set`，写后回读。任何改动都立即生效，包括 +1 V → −1 V 这种一步跨零 |
+| **现在**（`native-skills.ts::NativeSetBias`） | 先读起点，按 `biasNeedsSafePath(start, target)` 分流：变号、变化量超过 0.5 V、目标落在 ±50 mV 死区、起点读不到，走 `BiasSettleChange`（斜坡加稳定等待）；其余仍一步 `Bias_Set`。两条路径写后都回读核对 |
+| **参考实现**（7.1.0 外部动作面，`vista/actions.py` 的 `_set_bias` / `_bias_needs_safe_path`） | 同一条分流 |
+| **判据** | 金样 `spec/golden/bias_routing.json`（`export_bias_routing.py`，380 格 = 20 个起点 × 19 个目标，由参考实现自己的动作代码录成），`kernel/bias-settle.test.ts` 逐格比；接线在 `native-skills.test.ts`、`native-runtime.test.ts`、`minimal-persistence.test.ts` |
+
+**为什么有意**：Z 反馈是恒流的，偏压穿过零附近时隧道电流塌向 0，反馈只会把针尖往表面推
+（[`bias-settle.ts`](../packages/host/kernel/src/bias-settle.ts) 抬头）。参考实现 7.1.0 把这道保护从技能层
+推到模型面的动作入口；原生入口的 `SetBias` 同样让「改偏压」自带它，不指望模型每次都记得。
+判据只有一份，取自内核的 `biasNeedsSafePath`（复用 `planBiasChange`，不再抄一份「穿零」谓词）；
+将来的全量入口挂载 `SetBias` 时，必须复用 `biasNeedsSafePath`。
+
+**用户可见的变化**：
+
+- 走安全路径的调用要几秒：变号或大幅改动是斜坡时间加 2 s 稳定等待；反馈已关、落进死区的小幅改动是 0.5 s。
+  结果的 `data.path` 为 `BiasSettleChange`，并带 `bias_v_start`、`strategy`、`crossed_zero`、`settle_s`；
+  直写路径 `path` 为 `SetBias`，读得到起点时带 `bias_v_start`。模型看到的文本在走安全路径时多一段
+  `via BiasSettleChange <strategy>`，直写的文本一字不变。
+- 目标落在 ±50 mV 死区内而 Z 反馈开着（或读不到）时，**不发任何写命令**就拒绝（`command_sent: false`；
+  仪器上只读了 3 次：`Bias_Get` 两次、`ZCtrl_OnOffGet` 一次）。原生工具目录里没有关闭反馈的工具，所以
+  模型这一侧这类目标实际上总被拒绝，除非操作者先在模拟器里手动关闭反馈。以前它们会被一步设过去。
+- 读不到起点时不再直写：改走 `BiasSettleChange`，它读不到起点同样拒绝，一次 `Bias_Set` 都不发。
+- 斜坡中途失败，或调用在斜坡中途被取消：偏压停在已走到的那一步（斜坡不回退），结果标明 `command_sent: true`。
+  失败时带回读到的偏压，回读也失败则 `bias_v: null`；**取消时不会回读，`bias_v` 为 `null`，停在哪一步要另读一次**
+  （取消之后，技能这一层不会再发任何仪器命令）。停下的位置可能落在 ±50 mV 内；这是 `SetBiasRamp` 本身的行为，
+  没有在这里另加处理。
+
+**记录**：
+
+- 安全路径上的子步（`BiasSettleChange`、`SetBiasRamp`，或反馈已关时死区目标的直写子步）走完整内核，
+  各在 SQLite 里记一行，与顶层共用同一个 `tool_call_id`；没有深度列，也没有父子链接。子步先于顶层完成，
+  按调用 id 取行时，最后完成的一行（`hlc` 最大）是顶层。
+- JSONL 与模型文本只留顶层那一行（`minimal-persistence.ts` 里 `rec.depth > 0` 就不写）；子步在仪器上做过什么，
+  都在顶层那一行的 `instrumentCalls` 里。
+- 子步的 SQLite 写失败会把整次调用判为「没有完整落盘」，顶层随后成功也不翻回成功。
+- 回读不符、或斜坡中途失败而实际偏压读得到时，会刷新一次状态缓存（见下一条）。刷新用的 11 个读走状态服务
+  自己的通道（`role: 'monitor'`），不在顶层那一行的 `instrumentCalls` 里，SQLite 里也没有它们：这 11 个读不在任何证据里。
+
+**已知限制（缓存与记录）**：走安全路径时，子步一成功，内核（K12）就把请求值 `bias_v` 补进状态缓存，而写进
+SQLite 的 `stateDelta`（K15）是用这份缓存算的。所以：
+
+- 顶层回读**不符**时，会再调一次 `ctx.refreshState()`，缓存和 `stateDelta` 因此拿到实际值（回读 −0.9 V 就记
+  −0.9 V，不记请求的 −1 V）。走哪条路径都一样：直写路径没有子步，请求值从来没进过缓存，但缓存里仍是改动前的值，
+  同样要刷。斜坡中途失败、而实际偏压读得到时也刷新：那时没有子步成功，缓存还是改动前的值。
+- 规则是「回读不符就刷新；回读失败或取消就不刷新，那时缓存不可信」。**残留**：命令已发出、却既没回读成功也没刷新的
+  两种情况——回读本身失败、调用被取消——缓存都不是实际值：安全路径上，斜坡已走完的是请求值，停在半路的是改动前的值；
+  直写路径则是改动前的值（它从来没有补进过请求值）。凡是改动前的值，`stateDelta` 都是空的，记录上看不出偏压动过。
+  不刷新的原因：回读失败时链路多半有问题，刷新大概率也读不到；取消之后不再开始刷新（取消若落在刷新进行中，
+  剩下的 monitor 读还会照发，它们走状态服务自己的通道，不看取消信号）。
+- 这个值不会自己消失：原生入口的状态服务不定时刷新，要等下一次成功的 `SetBias` 或一次刷新。SQLite 的
+  `state_delta_json` 是现有读者，它会把请求值（或空增量）记成这次调用的结果。`native-skills.test.ts` 里有用例钉着这两种。
+
+若以后有前置条件或状态读取依赖缓存里的 `bias_v`，这两种情况也要处理，再撤掉这条限制。
+
+**重新考虑的条件**：原生目录增加关闭反馈的工具（那时 ±50 mV 内的目标有了可走的路）；`SetBiasRamp` 在零点
+附近的行为经真机验证后调整；参考实现的外部动作面改了分流条件（重导金样后 `bias-settle.test.ts` 会变红）。
+
 ## D-VMEM-1 · 观测图一律写 8 位 RGB PNG（参考实现无缺测时写灰度）
 
 | | |

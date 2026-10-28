@@ -57,6 +57,10 @@ export class MinimalPersistence {
       this.status.set(callId, false)
       return
     }
+    // 子步（depth ≥ 1，例如 BiasSettleChange 里的 SetBias / SetBiasRamp）与顶层共用同一个调用 id，
+    // 并且先于顶层完成。SQLite 照记（审计），JSONL 与结果只留顶层那一行：验收脚本按调用 id 取第一行，
+    // 子步的行排在前面就会取错。子步在仪器上做过什么，都在顶层那一行的 instrumentCalls 里。
+    if (rec.depth > 0) return
     const line: MinimalResultRecord = {
       version: 1,
       at: new Date().toISOString(),
@@ -68,13 +72,16 @@ export class MinimalPersistence {
       ...(rec.outcome.data === undefined ? {} : { data: rec.outcome.data }),
       ...(rec.outcome.observation === undefined ? {} : { observation: rec.outcome.observation }),
     }
+    let stored = false
     try {
       appendFileSync(this.resultsPath, JSON.stringify(line) + '\n', 'utf8')
       this.results.set(callId, line)
-      this.status.set(callId, true)
+      stored = true
     } catch {
-      this.status.set(callId, false)
+      // 落盘失败：stored 保持 false
     }
+    // 累积而不是覆盖：子步先写，它的 SQLite 失败已经把状态置为 false，顶层成功不能把它盖回 true
+    this.status.set(callId, this.status.get(callId) !== false && stored)
   }
 
   /**

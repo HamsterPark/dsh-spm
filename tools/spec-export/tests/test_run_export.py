@@ -39,7 +39,7 @@ def _tmpdir(case: unittest.TestCase, prefix: str) -> Path:
 class ClassifyTests(unittest.TestCase):
     def test_real_exporter_directory(self) -> None:
         mast, other = rx.classify_exporters(EXPORTER_DIR)
-        self.assertEqual(len(mast), 45)
+        self.assertEqual(len(mast), 46)
         self.assertEqual(set(other), rx.NON_LANE_EXPORTERS)
         self.assertEqual(rx.unclassified(other), [])
         self.assertEqual(rx.run_order(mast)[0], rx.FIRST)

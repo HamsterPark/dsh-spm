@@ -82,6 +82,8 @@ async function main(): Promise<void> {
     initialBias = await probe.read('Bias.Get')
     report.initialBiasV = initialBias
     if (Math.abs(initialBias) > 10) throw new Error('原偏压超出 SetBias 恢复范围，拒绝写入')
+    // 0.05 = kernel 的 ZERO_DEADBAND_V。收尾要把偏压设回起点；起点在死区内而反馈开着（上面已要求）时，SetBias 会被死区拒绝，宁可不开始。
+    if (Math.abs(initialBias) < 0.05) throw new Error(`原偏压 ${initialBias} V 落在 ±50 mV 死区内：收尾恢复会被死区拒绝，拒绝开始。请先把偏压设到死区之外`)
     await dispatch('stm_hello')
     for (const [name, field] of [['GetBias', 'bias_v'], ['GetCurrent', 'current_a'], ['GetZPosition', 'z_pos_m']]) {
       const data = await dispatch(name!)
