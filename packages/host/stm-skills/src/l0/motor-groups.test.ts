@@ -1,0 +1,283 @@
+/**
+ * 粗动组与保留数字口的**技能层接线**：配置的组真的传到了下发的实参里，
+ * 损坏的配置真的拦住了整趟（一次 `Motor_*` 都不发）。
+ *
+ * 判据本身（两张语义表）在内核的 `motor-wiring.test.ts`。这里验的是接线 ——
+ * 那些判据真的被问到了、拒绝发生在下发**之前**、而没有配置时行为与以前逐字相同。
+ * 参考实现没有轨迹的部分（配置损坏的各种形态、`source` 抛、宿主没接）也在这里，
+ * 因为它们的报错文本带 Python/JSON 解析器的原话，金样无法也不该逐字对。
+ */
+import { afterEach, describe, expect, it } from 'vitest'
+import {
+  emptyHardwareState,
+  processInstrumentProfile,
+  stmGroupRefusal,
+  type SkillCallRecord,
+  type SkillContext,
+} from 'dsh-spm-kernel'
+import { MotorGetPos } from './reads-hw.js'
+import { MotorMoveClosedLoop } from './writes-gated.js'
+
+const S0 = emptyHardwareState('T0')
+
+interface Call {
+  readonly verb: string
+  readonly args: unknown[]
+}
+
+/** 按动词脚本化的回包；`null` = 报错。 */
+function rig(replies: Record<string, unknown[] | null> = {}): { ctx: SkillContext; calls: Call[] } {
+  const calls: Call[] = []
+  const safeCall = (m: string, ...a: unknown[]): Promise<SkillCallRecord> => {
+    calls.push({ verb: m, args: a })
+    const r = replies[m]
+    if (r === null) return Promise.resolve({ method: m, args: a, error: '模拟故障：连接被对端关闭' })
+    return Promise.resolve({ method: m, args: a, values: r ?? [] })
+  }
+  const ctx = {
+    signal: new AbortController().signal,
+    safeCall,
+    emergencyCall: safeCall,
+    now: () => 0,
+    sleep: () => Promise.resolve(),
+    state: () => S0,
+    refreshState: () => Promise.resolve(S0),
+    markers: { emit: () => {} },
+    runSkill: () => Promise.resolve({ success: false, error: 'n/a' }),
+    depth: 0,
+    owner: 't',
+    rootCallId: 't',
+    approvalSource: 'llm',
+  } as unknown as SkillContext
+  return { ctx, calls }
+}
+
+/** 宿主接上档案读口；`null` = 宿主没接。 */
+function wire(profile: unknown): void {
+  processInstrumentProfile.source = profile === null ? null : () => profile
+}
+
+afterEach(() => {
+  processInstrumentProfile.source = null
+})
+
+const TARGET = { target_x_m: 1e-9, target_y_m: 1e-9, target_z_m: 0.00005 }
+
+/** 配置损坏的几种形态：每一种都该让粗动一个动词都发不出去。 */
+const BROKEN: readonly (readonly [string, () => void])[] = [
+  ['stm_coarse_group 超上界', () => wire({ stm_coarse_group: 9 })],
+  ['stm_coarse_group 是字符串', () => wire({ stm_coarse_group: '2' })],
+  ['stm_coarse_group 是 null', () => wire({ stm_coarse_group: null })],
+  [
+    '读口抛',
+    () => {
+      processInstrumentProfile.source = () => {
+        throw new Error('profile unreadable')
+      }
+    },
+  ],
+  ['读口返回数组', () => wire([])],
+]
+
+describe('MotorGetPos · 问的是配置的 STM 粗动组', () => {
+  it('接了读口、对象里没有 stm_coarse_group ⇒ 组 0；成功路径只有 x_m/y_m/z_m，不带 group 与 position_feedback', async () => {
+    wire({})
+    const r = rig({ Motor_PosGet: [0.25, 0.5, 0.75] })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(r.calls).toEqual([{ verb: 'Motor_PosGet', args: [0, 500] }])
+    expect(got).toEqual({ success: true, data: { x_m: 0.25, y_m: 0.5, z_m: 0.75 } })
+  })
+
+  it('宿主没接读口 ⇒ 也是组 0（与以前一样）', async () => {
+    wire(null)
+    const r = rig({ Motor_PosGet: [1, 2, 3] })
+    await MotorGetPos.execute(r.ctx, {})
+    expect(r.calls).toEqual([{ verb: 'Motor_PosGet', args: [0, 500] }])
+  })
+
+  it('配置组 2 ⇒ Motor_PosGet(2, 500)', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig({ Motor_PosGet: [0.25, 0.5, 0.75] })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(r.calls).toEqual([{ verb: 'Motor_PosGet', args: [2, 500] }])
+    expect(got.data).toEqual({ x_m: 0.25, y_m: 0.5, z_m: 0.75 })
+  })
+
+  it('回包读不出三个数 ⇒ 原样给 raw（成功路径没有变）', async () => {
+    const r = rig({ Motor_PosGet: ['a', 'b'] })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(got).toEqual({ success: true, data: { raw: ['a', 'b'] } })
+  })
+
+  it('报错 ⇒ 逐字的新文案，带 group，data 说明没有位置反馈（组 2）', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig({ Motor_PosGet: null })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(got.success).toBe(false)
+    expect(got.error).toBe(
+      '无位置反馈：Motor_PosGet(group 2) 报错 —— 这台粗动控制器不提供位置（回包里的 0 不是位置）。' +
+        'Nanonis: 模拟故障：连接被对端关闭',
+    )
+    expect(got.data).toEqual({ position_feedback: false, group: 2 })
+  })
+
+  it('报错、对象里没有 stm_coarse_group ⇒ 组 0', async () => {
+    wire({})
+    const r = rig({ Motor_PosGet: null })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(got.error).toContain('Motor_PosGet(group 0)')
+    expect(got.data).toEqual({ position_feedback: false, group: 0 })
+  })
+
+  it.each(BROKEN)('配置损坏（%s）⇒ 拒绝，一次 Motor_* 都不发', async (_name, breakIt) => {
+    breakIt()
+    const r = rig({ Motor_PosGet: [1, 2, 3] })
+    const got = await MotorGetPos.execute(r.ctx, {})
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('无法使用')
+    expect(got.error).toContain('拒绝粗动')
+    expect(r.calls).toEqual([])
+  })
+
+  it('retract_motor_dir 一读就抛的档案，不影响取组', async () => {
+    const profile: Record<string, unknown> = { stm_coarse_group: 2 }
+    Object.defineProperty(profile, 'retract_motor_dir', {
+      enumerable: true,
+      get(): never {
+        throw new Error('profile unreadable')
+      },
+    })
+    wire(profile)
+    const r = rig({ Motor_PosGet: [1, 2, 3] })
+    await MotorGetPos.execute(r.ctx, {})
+    expect(r.calls).toEqual([{ verb: 'Motor_PosGet', args: [2, 500] }])
+  })
+})
+
+describe('MotorMoveClosedLoop · group 缺省是配置的组，给了别的组就拒', () => {
+  it('接了读口、对象里没有 stm_coarse_group，不给 group ⇒ 组 0，data 与以前逐字相同（不含 group）', async () => {
+    wire({})
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
+    expect(r.calls).toEqual([{ verb: 'Motor_StartClosedLoop', args: [0, 1e-9, 1e-9, 0.00005, 1, 0] }])
+    expect(got).toEqual({
+      success: true,
+      data: { absolute: false, target_x_m: 1e-9, target_y_m: 1e-9, target_z_m: 0.00005 },
+    })
+  })
+
+  it('宿主没接读口 ⇒ 也是组 0（与以前一样）', async () => {
+    wire(null)
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
+    expect(got.success).toBe(true)
+    expect(r.calls).toEqual([{ verb: 'Motor_StartClosedLoop', args: [0, 1e-9, 1e-9, 0.00005, 1, 0] }])
+  })
+
+  it('absolute / wait 照旧传（group 之外的实参没有变）', async () => {
+    wire({ stm_coarse_group: 3 })
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, absolute: true, wait: false })
+    expect(r.calls).toEqual([{ verb: 'Motor_StartClosedLoop', args: [1, 1e-9, 1e-9, 0.00005, 0, 3] }])
+    expect(got.data).toMatchObject({ absolute: true })
+  })
+
+  it('配置组 2、不给 group ⇒ 末位实参是 2', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
+    expect(r.calls[0]?.args.at(-1)).toBe(2)
+  })
+
+  it('group 是 null ⇒ 当没给', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: null })
+    expect(got.success).toBe(true)
+    expect(r.calls[0]?.args.at(-1)).toBe(2)
+  })
+
+  it('显式 group 等于配置组 ⇒ 成功，末位实参是该组', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 2 })
+    expect(got.success).toBe(true)
+    expect(r.calls[0]?.args.at(-1)).toBe(2)
+  })
+
+  it('没配组时显式 group 0 ⇒ 成功（模型照旧缺省传 0 不该被拒）', async () => {
+    wire({})
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 0 })
+    expect(got.success).toBe(true)
+    expect(r.calls[0]?.args.at(-1)).toBe(0)
+  })
+
+  it('显式给了别的组 ⇒ 拒绝，文案逐字，一次下发都没有', async () => {
+    wire({ stm_coarse_group: 2 })
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 1 })
+    expect(got.success).toBe(false)
+    expect(got.error).toBe(
+      'group 1 不是 STM 粗动组（stm_coarse_group=2）—— ' +
+        'STM 粗动技能不驱动其他电机组；光学组请用 NanonisMotorGroupMove。',
+    )
+    expect(r.calls).toEqual([])
+  })
+
+  it('没配组时给了别的组 ⇒ 拒绝，配置组报 0', async () => {
+    wire({})
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 1 })
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('stm_coarse_group=0')
+    expect(r.calls).toEqual([])
+  })
+
+  it('整数但超范围（直接 execute 绕过了 K6）⇒ 同样按「不是 STM 粗动组」拒', async () => {
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 7 })
+    expect(got.error).toContain('group 7 不是 STM 粗动组')
+    expect(r.calls).toEqual([])
+  })
+
+  it.each([
+    ['字符串 "1"', '1', '"1"'],
+    ['小数', 1.5, '1.5'],
+    ['布尔', true, 'true'],
+    ['对象', { g: 1 }, '{"g":1}'],
+    // 它们的 JSON 都是 "null"，不能照 JSON 印
+    ['NaN', Number.NaN, 'NaN'],
+    ['Infinity', Number.POSITIVE_INFINITY, 'Infinity'],
+    ['-Infinity', Number.NEGATIVE_INFINITY, '-Infinity'],
+  ])('group 是%s，不是整数 ⇒ 拒绝，不按「没给」处理', async (_name, group, shown) => {
+    // 内核不做类型转换：字符串 "1" 若被当成「没给」，会静默驱动组 0。
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group })
+    expect(got.success).toBe(false)
+    expect(got.error).toBe(`group 必须是 0..5 的整数，收到 ${shown}`)
+    expect(r.calls).toEqual([])
+  })
+
+  it.each(BROKEN)('配置损坏（%s）⇒ 拒绝，一次 Motor_* 都不发', async (_name, breakIt) => {
+    breakIt()
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
+    expect(got.success).toBe(false)
+    expect(got.error).toContain('拒绝粗动')
+    expect(r.calls).toEqual([])
+  })
+
+  it('配置损坏时先报配置的问题，不先核对 group', async () => {
+    wire({ stm_coarse_group: 9 })
+    const r = rig()
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET, group: 1 })
+    expect(got.error).toBe(stmGroupRefusal('stm_coarse_group=9 不是 0..5 的整数'))
+  })
+
+  it('控制器报错 ⇒ 原样透传（没有 data）', async () => {
+    const r = rig({ Motor_StartClosedLoop: null })
+    const got = await MotorMoveClosedLoop.execute(r.ctx, { ...TARGET })
+    expect(got).toEqual({ success: false, error: '模拟故障：连接被对端关闭' })
+  })
+})
