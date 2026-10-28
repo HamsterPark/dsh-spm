@@ -20,6 +20,10 @@ The recorded local candidate and its verification are described in [HISTORY-CLEA
 
 Publication completed on **2026-09-21** from `980e81acf29a2bf376ff864c695fe160f93c5195`, after all four jobs in [CI 35576212937](https://github.com/HamsterPark/dsh-spm/actions/runs/35576212937) passed. Repository ID `1379303402` is public; archive ID `1372557135` remains private. Anonymous access to the repository, published commit and matching README passed; all 207 original commit routes and the known old file returned 404. The [publication record](handoff/publication-ready-20260921.md) preserves the earlier lifecycle-test failure, its correction and the final verification scope.
 
+## Before each public push
+
+- [ ] Run the contract tests on a machine that has the private site-identity list (`HYGIENE_SITE_LIST`); CI runs only the generic rules of the [release hygiene gate](DEVELOPMENT.md#发布卫生门).
+
 ## Earlier readiness check on 2026-09-21
 
 - The publication checkout is clean at `9aa08bd`, with 210 reachable commits: 207 cleaned development commits and three later preparation/documentation commits. It does not yet include the subsequent simulator runtimes, acceptance records or reader-documentation revision.

@@ -63,6 +63,15 @@ MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属�
 
 **公开文本的例外**：说明字段、匿名测试标签及已登记的标识符可以按公开内容审查的明确范围同步调整；这不授权改动数值、二进制载荷或真实来源类别。涉及可观察标识符的变化须记录兼容影响并验证相关契约。此类公开版本不能再声称所有说明字段都与私有原始导出逐字节一致。后续重导可能恢复私密文本，必须再次审查。
 
+### 发布卫生门
+
+契约测试 [release-hygiene.test.ts](../packages/bundle/dsh-spm/contract/release-hygiene.test.ts) 在 `pnpm test --project contract` 中扫描 `git ls-files` 的文本文件（含未跟踪、未忽略的新文件）与全部 `spec/golden`；`pnpm build:minimal` 在打包前扫描暂存的四个分发文件，并核对 tgz 里恰好是这四个。规则与命令行在 [scripts/release-hygiene.ts](../scripts/release-hygiene.ts)。
+
+- **通用规则入仓**：私有网段地址（网段记法放行）、用户目录路径（正反斜杠与转义写法都算）、疑似密钥、开发过程痕迹；金样里另拦任何盘符绝对路径，带 `reference` 的 `manifest.json` 必须有覆盖层写入的 `public_text` 标记。命中报文件与行号或 JSON 指针；密钥只报前 4 位与长度。
+- **站点身份名单不入仓**：由环境变量 `HYGIENE_SITE_LIST`（或 `--site-list`）指向的 UTF-8 文本文件提供，缺省时只跑通用规则，CI 就是这样。每行一条：`#` 开头为注释，`re:` 开头为不分大小写的正则，其余为不分大小写的子串（至少 4 个字符）；文件读不了、没有条目或条目太宽都报错。命中只报 `文件:位置 [site#序号]`，不回显名单内容。整段是 base64 的 JSON 字符串值（金样里的二进制载荷）不按名单扫，通用规则照扫。
+- **放行只有三种**：规则自带的占位名与网段记法；合成路径登记簿 `SYNTHETIC_ROOTS`，只收导出器自己合成的夹具路径，写明生成它的文件与行，过期项会让测试变红；分发包的 `DISTRIBUTION_EXEMPTIONS`，确认是第三方内联文本时按文件与匹配文本登记。重导带来的新路径不是夹具，走公开文本覆盖层改写。不要为了转绿放宽规则或添加登记。
+- **手动运行**：`node scripts/release-hygiene.ts --tree .`；重导时，复制进 `spec/golden` 之前先扫暂存的公开目录：`node scripts/release-hygiene.ts --golden-dir <暂存公开目录>`。有命中退出码为 1，参数或配置错误为 2。
+
 ### 偏差登记
 
 [spec/deviations.md](../spec/deviations.md) 记录参考与迁移实现的行为差异：现象、理由、影响，以及改变决定所需的证据。保留可定位的测试或样例。
