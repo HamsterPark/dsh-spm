@@ -42,6 +42,8 @@ import {
   progressToDict,
   readRetractDir,
   retractLadder,
+  stmCoarseGroup,
+  stmGroupRefusal,
   zSettleDict,
   zSettleUsable,
   zSettleWhy,
@@ -232,9 +234,13 @@ class Retract {
     const d = readRetractDir()
     if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE }
     const dirCode = d.state === 'declared' ? d.code : MOTOR_DIR_CODE['z+']!
+    // 0. STM 粗动是哪一组（档案里的 stm_coarse_group，缺省 0）。先方向、后组；每一级都问一次，
+    //    与参考实现同。取不到也在这一级的第一步之前拒绝。
+    const grp = stmCoarseGroup()
+    if (!grp.ok) return { success: false, error: stmGroupRefusal(grp.why) }
 
     // 1. 粗动退针（方向来自配置；只往远离方向）。
-    const recMove = await this.#ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)
+    const recMove = await this.#ctx.safeCall('Motor_StartMove', dirCode, steps, grp.group, 1)
     if (recMove.error !== undefined && recMove.error !== '') {
       return {
         success: false,

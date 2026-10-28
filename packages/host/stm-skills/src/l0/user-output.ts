@@ -41,6 +41,19 @@
  * 是同一条判据在两种硬件上给出两个答案。两边留下的东西也因此一样：
  * 放宽合法、CONFIRM 闸、**每一次都连同改前/改后与一个 `widened` 标志留痕**。
  *
+ * ## 保留数字口：写之前先问接线
+ *
+ * 有的控制器把某个数字口用作自己的**控制线**。对那个口改方向、改电平或打脉冲，就是在拨那条控制线，
+ * 接在上面的设备会误动作。哪些口是保留口，是**这台机器**的事实，住在仪器档案里
+ * （`reserved_digital_ports`，见 `kernel/src/motor-wiring.ts`）。
+ *
+ * 三个**写**技能（`PulseDigitalLine`、`SetDigitalLineStatus`、`ConfigureDigitalLine`）在下发**之前**问
+ * `digitalPortRefusal(port)`：保留口拒绝，不截断、不改用别的口；接线配置读不出来就拒写**所有**口
+ * （不知道哪个口被保留，就不知道这一个是自由的）。`ConfigureDigitalLine` 两个方向都拒 ——
+ * 把一条控制线改成输入同样会断开链路。**读不设闸**：`GetDigitalLineTTL` 只读电平，不拨动任何东西。
+ * 问的必须是实际下发的那个 `port`（下面 `int()` 折过之后的那个）：检查一个、发另一个等于没检查。
+ * 没有配置时不保留任何口，行为与以前逐字相同。
+ *
  * ## 中止之后**不清零**
  *
  * 这一族没有一个在中止后的放行清单上，所以操作员一按中止，它们全被拒。
@@ -53,7 +66,13 @@
  * 输出值是**已标定的物理单位，不是伏特**；模式 0=User Output / 1=Monitor /
  * 2=Calc.Signal；端口 0=A…3=D，4+ 是扩展 DIO；数字线是端口内的 1..8。
  */
-import type { Skill, SkillCallRecord, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
+import {
+  digitalPortRefusal,
+  type Skill,
+  type SkillCallRecord,
+  type SkillContext,
+  type SkillResultLike,
+} from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { body, fail, formatG6, ok, pyStr } from './common.js'
 
@@ -406,6 +425,9 @@ export const PulseDigitalLine: Skill = {
     const n = int(params, 'n_pulses', 1) || 1
     const wait = params['wait_until_finished'] !== false ? 1 : 0
 
+    // 放在 lines 的老拒绝之后、下发之前：保留口检查不抢先于「lines 解析失败」这类更早的拒绝
+    const refusal = digitalPortRefusal(port)
+    if (refusal !== '') return fail(refusal)
     const rec = await ctx.safeCall('DigLines_Pulse', port, lines, width, pause, n, wait)
     if (failed(rec)) return fail(rec.error ?? '')
     return ok({
@@ -425,6 +447,8 @@ export const SetDigitalLineStatus: Skill = {
     const port = int(params, 'port')
     const line = int(params, 'line')
     const status = params['status'] === true ? 1 : 0
+    const refusal = digitalPortRefusal(port)
+    if (refusal !== '') return fail(refusal)
     const rec = await ctx.safeCall('DigLines_OutStatusSet', port, line, status)
     if (failed(rec)) return fail(rec.error ?? '')
     return ok({ port, line, status: status !== 0 })
@@ -438,6 +462,9 @@ export const ConfigureDigitalLine: Skill = {
     const port = int(params, 'port')
     const direction = int(params, 'direction')
     const polarity = int(params, 'polarity')
+    // 两个方向都拒：把一条控制线改成输入同样会断开链路
+    const refusal = digitalPortRefusal(port)
+    if (refusal !== '') return fail(refusal)
     const rec = await ctx.safeCall('DigLines_PropsSet', line, port, direction, polarity)
     if (failed(rec)) return fail(rec.error ?? '')
     return ok({

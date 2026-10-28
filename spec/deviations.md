@@ -2680,6 +2680,29 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 所以任何挂载 MotorMove / RecoverTipFromSaturation 的入口必须先接 `processInstrumentProfile.source` 并声明 `retract_motor_dir`。
 重新考虑所需的证据：宿主档案读口落地并经模拟器验收；有人对「未接档案时按 Z+ 走并警告」在仪器上的后果作出判断。
 
+<!-- ── STM 粗动组与保留数字口的登记写在这一行下面；编号留空（`?`），由主线统一编 ── -->
+
+## D-GROUP-? · STM 粗动组与保留数字口住在仪器档案里，不在 nanonis_motor_groups.json
+
+| | |
+|---|---|
+| **参考实现（7.1.0）** | 两项配置在独立文件 `nanonis_motor_groups.json`：无文件 ⇒ 组 0、不保留口；文件存在但读不了 ⇒ 拒绝粗动、拒写所有数字口；保留口列表里任何一项畸形 ⇒ 整个列表作废、拒写所有数字口，不逐项丢 |
+| **本仓** | 同一语义，来源换成宿主注入的仪器档案对象（D-PROF-1）：读口返回的对象里的 `stm_coarse_group`（0–5 的整数，缺省 0）与 `reserved_digital_ports`（`[{port, reason}]`，缺省不保留任何口）。「宿主没接」按「无配置」处理；读口抛出按「配置存在但读不了」处理，读粗动位置、粗动与数字口写入一律不发（参考实现里退针方向与接线配置是两个来源，本仓是同一个读口）。`kernel/src/motor-wiring.ts` 直接按键读读口的原始返回值，不经 `sanitizeProfile`（未登记的键会被整键丢弃）。报错文案去掉文件名与解析器原话。取组的调用点共六处：`MotorMove`、`MotorMoveClosedLoop`、`MotorGetPos`、`RelocateCoarseXY` 的清障与横移（预检先问一次并缓存，整次运行只解析一次；清障与横移取缓存，同一次移动不会被拆到两个组）、`RetractForSampleChange`（每一级开头各问一次，与参考实现同）；三个数字口写技能在下发前问保留口，读（`GetDigitalLineTTL`）不设闸。`MotorGetPos` 出错时的文案与 `data` 逐字同 7.1.0 |
+| **测试** | `kernel/src/motor-wiring.test.ts`；`l0/motor-groups.test.ts`；`composite/coarse-composites.test.ts`；`l0/traces.test.ts` 的 `MotorGetPos/err@0`；`batch5b.json` 的 `motor_group/*` 格（15 格：单步粗动、闭环粗动、读位置、三个数字口写技能；配置损坏的各种形态不进金样）；变异 `wiring-*`、`closedloop-*`、`getpos-*`、`digital-port-reserved-*`、`motor-group-*`、`relocate-*`、`retract-sample-change-group-from-wiring` |
+
+**比参考实现更严的几处**（都在拒绝的方向上）：
+
+- 组号与保留口的端口号只收整数 number。参考实现的 `float()` 还收 `"2"` 这样的字符串（保留口表里 `"1"` 也收）；本仓拒，保留口表里出现一项就整张表作废。
+- 值是 `undefined` 的键（`stm_coarse_group` 与 `reserved_digital_ports` 都一样）算「键在、值非法」⇒ 拒绝。JSON 表达不了 `undefined`，JS 对象可以；静默当成缺席会回落成组 0，或让每个保留口变成可写。
+- 读口返回 Promise 之类的 thenable ⇒ 读不到（`readProfile()` 会把它当成 `{}`）。
+- `digitalPortRefusal(port)` 的 `port` 实参必须是整数（参考实现的 `int(port)` 还收 `1.5`、`"2"`）。三个技能传进来的本来就是折过的整数，这一条只有直接调用才走到。
+- `MotorMoveClosedLoop` 的 `group` 给了非整数同样拒绝，文案「group 必须是 0..5 的整数，收到 …」是本仓新增，参考实现里没有这一句（内核不做类型转换，字符串 `"1"` 若当成「没给」会静默驱动组 0；模型传 `"1"` 就会看到它）。
+
+范围外：驱动锁存（只有光学组会触发）、光学组。`MotorMoveClosedLoop` 拒绝文案提到的 `NanonisMotorGroupMove` 本仓不存在（光学族不迁移），照抄以保持与参考一致。生成规格里 `group` 参数的描述同样沿用参考实现，仍写着 `nanonis_motor_groups.json` 与 `NanonisMotorGroupMove`；本仓没有这两样（配置在仪器档案里），描述照抄以保持规格与参考一致。
+
+**为什么有意**：参考实现里配置文件在不在是文件系统的事实；本仓档案由宿主注入（D-PROF-1），「没接」是可以说出口的状态。组 0 与空保留表就是参考实现的「无文件」缺省，所以宿主没接时按缺省处理，与接线配置出现之前的行为逐字相同。这与 `retract_motor_dir` 的处理**不对称是有意的**：出厂的 Z+ 不中性（它是两个互斥答案里的一个），而组 0 与空保留表是中性的缺省。此刻没有任何生产入口接了档案，所以任何挂载粗动技能或数字口写技能的入口必须先接 `processInstrumentProfile.source`，并声明 `stm_coarse_group` 与 `reserved_digital_ports`。
+**重新考虑的条件**：目标装置有多组粗动或保留口，并经模拟器验收。
+
 ## D-CAL-1 · `ReadCalibrations` 的「标称 f₀/Q」**不移植**，而旧仓那两个字段恒为 `None`
 
 | | |

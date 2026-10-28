@@ -9,7 +9,14 @@
  *   人从命令路径发起才走「问一次」。这里的实现不重复那道闸——
  *   **一道闸只能有一个实现**，两份就会有两个答案。
  */
-import { readRetractDir, type Skill, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
+import {
+  readRetractDir,
+  stmCoarseGroup,
+  stmGroupRefusal,
+  type Skill,
+  type SkillContext,
+  type SkillResultLike,
+} from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { fail, ok } from './common.js'
 import { COARSE_AMP_UNDECLARED } from './reads-hw.js'
@@ -203,7 +210,12 @@ export const MotorMove: Skill = {
       }
     }
 
-    const rec = await ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)
+    // STM 粗动是 Nanonis 的哪一组由仪器档案说了算（缺省 0）；档案坏了就不知道该驱动哪一组，
+    // 一个 Motor_* 动词也不发。排在 Z 分支与「针没退」之后、下发之前，与参考实现同序。
+    const grp = stmCoarseGroup()
+    if (!grp.ok) return fail(stmGroupRefusal(grp.why))
+
+    const rec = await ctx.safeCall('Motor_StartMove', dirCode, steps, grp.group, 1)
     if (rec.error !== undefined && rec.error !== '') return fail(rec.error)
     return ok(
       { direction, steps, ...zInfo },
@@ -214,25 +226,54 @@ export const MotorMove: Skill = {
   },
 }
 
-export const MotorMoveClosedLoop = write(
-  S.MotorMoveClosedLoopSpec,
-  'Motor_StartClosedLoop',
-  // args = [Absolute_relative, X, Y, Z, Wait, Group]
-  (p) => [
-    b(p, 'absolute', false) ? 1 : 0,
-    n(p, 'target_x_m'),
-    n(p, 'target_y_m'),
-    n(p, 'target_z_m'),
-    b(p, 'wait', true) ? 1 : 0,
-    n(p, 'group'),
-  ],
-  (p) => ({
-    absolute: b(p, 'absolute', false),
-    target_x_m: n(p, 'target_x_m'),
-    target_y_m: n(p, 'target_y_m'),
-    target_z_m: n(p, 'target_z_m'),
-  }),
-)
+/**
+ * 闭环粗动。`group` 缺省 = **配置的 STM 粗动组**；给了别的组就拒绝 ——
+ * 这个技能只驱动 STM 粗动，光学组不归它管。
+ *
+ * 内核不做类型转换：字符串 `"1"` 若被当成「没给」，会静默驱动组 0，
+ * 所以 `group` 给了就必须是整数 number，否则拒绝。
+ * 顺序同参考实现：先取组（取不到 ⇒ 拒绝粗动），再核对 `group`，最后才下发 ——
+ * 任何一道拒绝都发生在下发之前，`calls` 为空。
+ */
+export const MotorMoveClosedLoop: Skill = {
+  spec: S.MotorMoveClosedLoopSpec,
+  execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
+    const stm = stmCoarseGroup()
+    if (!stm.ok) return fail(stmGroupRefusal(stm.why))
+    const asked = params['group']
+    if (asked !== undefined && asked !== null) {
+      if (typeof asked !== 'number' || !Number.isInteger(asked)) {
+        // 数字走 String：NaN 与 ±Infinity 的 JSON 都是 "null"，会把收到的值印错
+        const shown = typeof asked === 'number' ? String(asked) : JSON.stringify(asked)
+        return fail(`group 必须是 0..5 的整数，收到 ${shown}`)
+      }
+      if (asked !== stm.group) {
+        return fail(
+          `group ${asked} 不是 STM 粗动组（stm_coarse_group=${stm.group}）—— ` +
+            'STM 粗动技能不驱动其他电机组；光学组请用 NanonisMotorGroupMove。',
+        )
+      }
+    }
+    const absolute = b(params, 'absolute', false)
+    // args = [Absolute_relative, X, Y, Z, Wait, Group]
+    const rec = await ctx.safeCall(
+      'Motor_StartClosedLoop',
+      absolute ? 1 : 0,
+      n(params, 'target_x_m'),
+      n(params, 'target_y_m'),
+      n(params, 'target_z_m'),
+      b(params, 'wait', true) ? 1 : 0,
+      stm.group,
+    )
+    if (rec.error !== undefined && rec.error !== '') return fail(rec.error)
+    return ok({
+      absolute,
+      target_x_m: n(params, 'target_x_m'),
+      target_y_m: n(params, 'target_y_m'),
+      target_z_m: n(params, 'target_z_m'),
+    })
+  },
+}
 
 export const EnableSafeTip = write(
   S.EnableSafeTipSpec,

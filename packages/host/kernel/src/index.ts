@@ -66,6 +66,7 @@ export * from './batch-regions.js'
 
 // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面 export ──
 export * from './instrument-profile.js'
+export * from './motor-wiring.js' // STM 粗动组与保留数字口：读 instrument-profile 读口的原始返回值
 export * from './coarse-drive.js'
 export * from './z-settle.js'
 export * from './tip-evidence.js'
