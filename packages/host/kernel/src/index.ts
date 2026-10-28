@@ -97,3 +97,6 @@ export * from './map-scope.js'
 // ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）在这一行下面加 export ──
 
 // ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）在这一行下面加 export ──
+
+// ── 传输层策略（重发分类、模块加载宽限、传输失败标记）在这一行下面加 export ──
+export * from './transport-policy.js'
