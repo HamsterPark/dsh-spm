@@ -82,6 +82,7 @@ describe('几何：parse_xy_meta / px_to_m', () => {
   })
 
   it('pxToM 的旋转与 y 翻转', () => {
+    const scales = scalesOf(GOLDEN['xy_meta']['px_to_m'])
     for (const c of GOLDEN['xy_meta']['px_to_m'] as any[]) {
       const k = c.kwargs
       const got = pxToM(k.px_x as number, k.px_y as number, {
@@ -95,10 +96,39 @@ describe('几何：parse_xy_meta / px_to_m', () => {
       })
       // `cos/sin` 在两边都是 libm 的同一条路，而余下是三次乘加 ⇒ 容差按
       // `sumRelTol(3)` 给（三项求和的界），归一化按该字段的全批尺度。
-      expectTree(got, c.result, sumRelTol(3), scalesOf(GOLDEN['xy_meta']['px_to_m']))
+      if (k.angle_deg === 0) {
+        expectTree(got, c.result, sumRelTol(3), scales)
+        continue
+      }
+      // **D-ROT-?**：θ≠0 的格两件事都断言。
+      // ① 金样 = R(+θ)：参考 v7.1.0 的旧值还在。参考重钉到修复之后这一条会红 ——
+      //    那时删掉这个分支与登记，回到上面那一行。
+      // ② 本仓 = R(−θ)。两个公式都在这里独立写，不调 `pxToM`。
+      expect(c.key).toMatch(/^rotated/)
+      expectTree(pxToMBySign(k, +1), c.result, sumRelTol(3), scales)
+      expectTree(got, pxToMBySign(k, -1), sumRelTol(3), scales)
     }
   })
 })
+
+/**
+ * `px_to_m` 的两种旋转方向，**测试里独立写**（D-ROT-?）。
+ * `sign = +1`：R(+θ)，参考 v7.1.0；`sign = −1`：R(−θ)，本仓（正角 = 顺时针）。
+ */
+function pxToMBySign(k: Record<string, number>, sign: 1 | -1): [number, number] {
+  const a = ((k['angle_deg'] as number) * Math.PI) / 180
+  const ca = Math.cos(a)
+  const sa = Math.sin(a)
+  const w = k['w_m'] as number
+  const h = k['h_m'] as number
+  const dx = (((k['px_x'] as number) + 0.5) / (k['nx'] as number)) * w - w * 0.5
+  const dy = h * 0.5 - (((k['px_y'] as number) + 0.5) / (k['ny'] as number)) * h
+  const cx = k['cx_m'] as number
+  const cy = k['cy_m'] as number
+  return sign === 1
+    ? [cx + dx * ca - dy * sa, cy + dx * sa + dy * ca]
+    : [cx + dx * ca + dy * sa, cy - dx * sa + dy * ca]
+}
 
 describe('帧有效性', () => {
   it('acquiredRowMask —— 两种未扫形态 + 多帧取交集（容差 0）', () => {

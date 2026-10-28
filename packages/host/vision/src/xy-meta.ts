@@ -88,6 +88,20 @@ export function parseXyMeta(header: Readonly<Record<string, unknown>>): XyMeta |
  * * 先算相对帧中心的偏移，**再绕中心转** `angleDeg`，最后加回中心。
  *   少了旋转这一步，一张转过 30° 的图上算出的坐标会落在别处 ——
  *   而调用方拿着它去移动针尖。
+ *
+ * ## 旋转方向：正 `angleDeg` = **顺时针**，所以这里是 R(−θ)
+ *
+ * 扫描框相对压电坐标顺时针转 θ 时，帧内向右的单位矢量在压电系里是 (cosθ, −sinθ)，
+ * 向上的是 (sinθ, cosθ)。「压电 → 帧内」是 R(+θ)·(p − c)，本函数是它的**逆**。
+ *
+ * 参考实现到 v7.1.0 为止用的是 R(+θ) —— 与「压电 → 帧内」**同向**而非互逆，θ≠0 时
+ * 目标绕帧心多转 2θ（θ=90° 时正好落到中心对称点）。参考仓之后的修复改成 R(−θ)，
+ * 依据是一组真机转角系列的统计；本仓照这次修复走（D-ROT-?）。
+ * `xy-meta-rotation.test.ts` 用「pxToM ∘ toFrame = 恒等」与 θ=90° 的具体值钉住：
+ * 谁把符号翻回去，那里当场变红。
+ *
+ * ⚠️ 视觉线束（`dsh-spm-visual-memory` 的 `nativeToScanNm`）跟随 VISTA-SPM，仍是
+ * R(+θ)；STM-Bench 模拟器也按 R(+θ) 渲染。θ≠0 的帧上它们与本函数不一致。
  */
 export function pxToM(
   pxX: number,
@@ -107,5 +121,6 @@ export function pxToM(
   const sa = Math.sin((angleDeg * Math.PI) / 180)
   const dx = ((pxX + 0.5) / opts.nx) * opts.wM - opts.wM * 0.5
   const dy = opts.hM * 0.5 - ((pxY + 0.5) / opts.ny) * opts.hM
-  return [opts.cxM + dx * ca - dy * sa, opts.cyM + dx * sa + dy * ca]
+  // R(−θ)：正 SCAN_ANGLE = 扫描框相对压电坐标**顺时针**转（D-ROT-?）。
+  return [opts.cxM + dx * ca + dy * sa, opts.cyM - dx * sa + dy * ca]
 }
