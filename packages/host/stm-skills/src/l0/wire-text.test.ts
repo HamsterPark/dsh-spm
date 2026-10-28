@@ -187,6 +187,13 @@ describe('读真文件系统：临时目录里一个带中文名的子目录', (
     expect(lastPath(rec)).toBe(dir)
   })
 
+  it('哪里都不存在：默认探针不抛，取第一个能解出来的', () => {
+    const ghost = join(tmpdir(), 'dsh-wire-no-such-dir', '数据')
+    const wire = utf8Bin(ghost)
+    const rec = { method: 'Util_SessionPathGet', args: [], values: [wire.length, wire] } as SkillCallRecord
+    expect(lastPath(rec)).toBe(ghost)
+  })
+
   it('GetSessionPath 交出真字符的路径', async () => {
     const { dir, wire } = session()
     const { ctx } = scripted({ Util_SessionPathGet: [wire.length, wire] })

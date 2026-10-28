@@ -88,7 +88,7 @@
 | **参考实现** | 只有「读保存目录」那一处把会话路径还原成真字符（`_repair_nanonis_path`：依次按 UTF-8、本机 ANSI 代码页、GBK 试，取第一个存在或其上级是目录的）；`GetSessionPath` 技能与其余字符串交出的仍是二进制串。`StartScan` 把读到的系列名原样传回请求侧，而 `nanonis_spm` 把字符串按 UTF-8 编码 ⇒ 每个非 ASCII 字节被编成两个字节 |
 | **本仓此前** | 五种格式一律宽松 UTF-8 解码：非法字节在线协议层就换成 U+FFFD，往上无从还原 |
 | **TS** | ① `nanonis-wire` 分格式解码，与参考客户端一致；前缀说多少字节就读多少字节，计数的读法不变。② `repairWirePath`：UTF-8、GBK、windows-1252 逐个试，取第一个「路径存在或上级是目录」的，否则取第一个能解出来的；`GetSessionPath`、`SetSessionPath` 的回读和各处找文件的目录共用同一个入口 `lastPath`。③ `StartScan` 写回前把系列名交给 `decodeWireText`（严格 UTF-8 → 严格 GBK → 原样），不照抄双重编码 |
-| **测试** | `packages/instrument/nanonis-wire/src/types.test.ts` → 「字符串回复：二进制串与 UTF-8 分格式解码」（256 个字节值全表、计数仍按字节、`+*c` / `*2c` 仍是 UTF-8）；`packages/host/stm-skills/src/l0/wire-text.test.ts`（逐档与回退、严格解码、真文件系统、源码扫描）；`packages/host/stm-skills/src/l0/scan-skills.test.ts` → 「序列名写回前还原成真字符」 |
+| **测试** | 金样 `spec/golden/wire_decode.json`（五种格式 × 六种内容，期望值由参考客户端解出）与 `packages/instrument/nanonis-wire/src/types.test.ts` → 「字符串回复的解法与真实客户端逐格一致」；同文件 →「字符串回复：二进制串与 UTF-8 分格式解码」（256 个字节值全表、计数仍按字节、`+*c` / `*2c` 仍是 UTF-8）；`packages/host/stm-skills/src/l0/wire-text.test.ts`（逐档与回退、严格解码、真文件系统、源码扫描）；`packages/host/stm-skills/src/l0/scan-skills.test.ts` → 「序列名写回前还原成真字符」 |
 
 **与参考实现不同的三处**：
 

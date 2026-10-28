@@ -2,7 +2,8 @@
  * Nanonis 类型码表：请求参数编码 + 回复字段解码。
  *
  * 镜像的是**真实客户端** `nanonis_spm`（经 MAST 的 `nanonis_patch.py` 打补丁）——
- * 就是跟真机说话的那份代码。字节金样在 `spec/golden/wire_types.json`。
+ * 就是跟真机说话的那份代码。字节金样在 `spec/golden/wire_types.json`；非 ASCII 的字符串回复
+ * 参考客户端怎么解，录在 `spec/golden/wire_decode.json`。
  *
  * 671 个方法里真实用到的码（其余不实现，用到时会明确抛错而不是猜）：
  *   请求 i I H h f d b · *f *i *I · +*i +*b · 2f · +*c *+c

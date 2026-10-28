@@ -33,6 +33,30 @@ describe('回复字段解码与服务端编码往返一致', () => {
   )
 })
 
+/**
+ * 字符串回复的解法，对**真实客户端**（D-WIRE-?）。回复字节手工拼，期望值由客户端的
+ * `parseGeneralResponse` 解出来；上面那份的字符串用例全是 ASCII，分不出五种格式各自怎么解。
+ * 每种格式 × ASCII、空串、UTF-8 中文、GBK 中文、256 个字节值全表、两种编码都不合法的字节。
+ */
+const decodeGolden = JSON.parse(
+  readFileSync(new URL('../../../../spec/golden/wire_decode.json', import.meta.url), 'utf8'),
+) as { decode_reference: Record<string, { body: string; fmts: string[]; reference: unknown[] }> }
+
+describe('字符串回复的解法与真实客户端逐格一致（wire_decode.json）', () => {
+  it('五种格式 × 六种内容，用例数没有悄悄缩水', () => {
+    const cells = Object.entries(decodeGolden.decode_reference)
+    expect(cells.length).toBeGreaterThanOrEqual(30)
+    const formats = new Set(cells.map(([, c]) => c.fmts.at(-1)))
+    expect([...formats].sort()).toEqual(['**c', '*+c', '*-c', '*2c', '+*c'])
+  })
+
+  it.each(Object.entries(decodeGolden.decode_reference))('decodeReturns(%s)', (_label, c) => {
+    const { values, errorSection } = decodeReturns(b(c.body), c.fmts)
+    expect(values).toEqual(c.reference)
+    expect(errorSection.length).toBe(0)
+  })
+})
+
 describe('c 的二义：同一个格式串，字符串与数组产出不同的字节', () => {
   it('+*c 给 str 是「长度+内容」，给数组是「总字节+个数+逐条」', () => {
     expect(hex(encodeArg('hello', '+*c'))).toBe('0000000568656c6c6f')
@@ -101,8 +125,9 @@ describe('body 不够读时报清楚，不静默截断', () => {
 /**
  * 字符串回复分格式解码（D-WIRE-?）：`*-c` / `*+c` / `**c` 是二进制串（逐字节一字符），
  * `+*c` / `*2c` 仍是 UTF-8——与参考客户端一致（`nanonis_patch.py`），不许统一。
- * 现有 `wire_types.json` 的字符串用例全是 ASCII，latin-1 与 UTF-8 给同一个答案，所以
- * 非 ASCII 的回复得在这里自己钉。
+ * `wire_types.json` 的字符串用例全是 ASCII，latin-1 与 UTF-8 给同一个答案；非 ASCII 的回复由
+ * 上面的 `wire_decode.json` 逐格对参考客户端，下面几条是手拼字节的补充（256 个字节值的全表、
+ * 计数按字节、两个辅助函数互为反函数），不依赖金样。
  */
 describe('字符串回复：二进制串与 UTF-8 分格式解码', () => {
   const i32 = (n: number): number[] => [(n >>> 24) & 0xff, (n >>> 16) & 0xff, (n >>> 8) & 0xff, n & 0xff]
