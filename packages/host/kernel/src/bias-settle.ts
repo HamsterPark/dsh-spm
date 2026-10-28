@@ -131,7 +131,8 @@ export function deadbandRefused(
  * - 起点读不到（`null`）。参考的 `_set_bias` 不经谓词、直接走安全路径，随后
  *   `BiasSettleChange` 自己读不到起点而拒绝——不知道起点，就判不出这次改变会不会穿零。
  *
- * 真值表在 `bias-settle.test.ts`，由参考实现自己的动作代码跑出，不是手写。
+ * 真值表是金样 `spec/golden/bias_routing.json`（`tools/spec-export/export_bias_routing.py` 用参考实现
+ * 自己的动作代码录成，不是手写），逐格比在 `bias-settle.test.ts`。
  */
 export function biasNeedsSafePath(startV: number | null, targetV: number): boolean {
   if (startV === null) return true

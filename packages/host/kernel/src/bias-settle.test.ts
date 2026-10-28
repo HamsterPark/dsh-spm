@@ -9,8 +9,10 @@
  * 2. 两条阈值线（`>` 与 `<=`）**必须在同一个点上分**，否则会出现
  *    「走 `direct` 却等 2 s」这种谁都解释不了的组合。
  *
- * 另有 `biasNeedsSafePath`（模型面改偏压的分流判据）的真值表，文件末尾，由参考实现跑出。
+ * 另有 `biasNeedsSafePath`（模型面改偏压的分流判据）对金样 `spec/golden/bias_routing.json` 的逐格比，在文件末尾。
  */
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   CROSS_ZERO_SLEW_V_PER_S,
@@ -75,132 +77,42 @@ describe('deadbandRefused：**三态**，「不知道」与「开着」做同一
   })
 })
 
-// ── 真值表（参考实现跑出来的，不是手写的）──────────────────────────────────────────────
+// ── 分流判据：对 `spec/golden/bias_routing.json` 逐格比 ──────────────────────────────────
 //
-// 来源：参考实现 7.1.0 的外部动作面（`vista/actions.py`），在参考项目的 Python 3.13.13 环境里、用该版本的
-// 提交快照逐格跑出。对每个（起点，目标）调用它的 `_set_bias`（执行器换成只记录「被请求了哪个技能」的替身）：
-// 第二个被请求的技能是 `BiasSettleChange` 记 true、是 `SetBias` 记 false；起点为 null 是「读不到」，走的是
-// `_set_bias` 自己的那一支，不经谓词。起点读得到时另调 `_bias_needs_safe_path`，两者逐格一致才收录；
-// 参考实现自己的路由测试的 11 例也在格点里，并与它的期望对过。
-//
-// 格点：20 个起点 × 19 个目标 = 380 格。**格点可增不可减，不要手改这张表**——要改就按上面的做法对着
-// 参考实现重新跑一遍再贴。`0.3 → 0.8` 这类变化量恰在 0.5 附近的格，浮点的最后一位决定真假，只有参考实现的
-// IEEE 结果可信。
-const REFERENCE_TABLE: ReadonlyArray<
-  readonly [start: number | null, cells: ReadonlyArray<readonly [target: number, safe: boolean]>]
-> = [
-  [null, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-1, [
-    [-1, false], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-0.3, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-0.06, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-0.05, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-0.02, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [0, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.02, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.05, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.06, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.3, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, false], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [1, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, false], [1, false], [1.5, false], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [1.5, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, false], [1.5, false], [2, false], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-1.2, [
-    [-1, false], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [-0.1, [
-    [-1, true], [-0.3, false], [-0.06, false], [-0.05, false], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, false], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-  [0.03, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.1, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.2, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, true], [1, true], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [0.5, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, false], [0.06, false], [0.3, false], [0.8, false], [1, false], [1.5, true], [2, true], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, false],
-  ]],
-  [2, [
-    [-1, true], [-0.3, true], [-0.06, true], [-0.05, true], [-0.0499, true], [0, true], [0.0499, true],
-    [0.05, true], [0.06, true], [0.3, true], [0.8, true], [1, true], [1.5, false], [2, false], [-2, true],
-    [-0.5, true], [-0.04, true], [0.02, true], [0.4, true],
-  ]],
-]
+// 金样由参考实现 7.1.0 的外部动作面录成（`tools/spec-export/export_bias_routing.py`）：对每个（起点，目标）
+// 跑它的 `_set_bias`（执行器换成只记录「被请求了哪个技能」的替身），第二个被请求的技能是 `BiasSettleChange`
+// 记真、是 `SetBias` 记假；起点为 null 是「读不到」，走的是 `_set_bias` 自己的那一支，不经谓词。起点读得到时
+// 导出器另调 `_bias_needs_safe_path`，两者逐格一致才写出。不手改这张表：参考实现换了分流条件，重导金样后
+// 这里就会红。`0.3 → 0.8` 这类变化量恰在 0.5 附近的格，浮点的最后一位决定真假，只有参考实现的 IEEE 结果可信。
+const G = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../../../../spec/golden/bias_routing.json', import.meta.url)), 'utf8'),
+) as {
+  constants: {
+    actions: { BIAS_DEADBAND_V: number; BIAS_RAMP_THRESHOLD_V: number }
+    bias_settle: { RAMP_THRESHOLD_V: number; ZERO_DEADBAND_V: number }
+  }
+  targets: number[]
+  rows: { start_v: number | null; safe_path: boolean[] }[]
+}
 
-describe('biasNeedsSafePath：真值表逐格等于参考实现', () => {
-  it.each(REFERENCE_TABLE)('起点 %s', (start, cells) => {
-    for (const [target, safe] of cells) {
-      expect(biasNeedsSafePath(start, target), `${String(start)} → ${target}`).toBe(safe)
-    }
+describe('biasNeedsSafePath：对参考实现的金样逐格相等', () => {
+  it.each(G.rows)('起点 $start_v', ({ start_v, safe_path }) => {
+    expect(safe_path).toHaveLength(G.targets.length)
+    G.targets.forEach((target, j) => {
+      expect(biasNeedsSafePath(start_v, target), `${String(start_v)} → ${target}`).toBe(safe_path[j])
+    })
   })
 
-  it('格点没有被悄悄缩小，且含「读不到起点」一行', () => {
-    expect(REFERENCE_TABLE.reduce((n, [, cells]) => n + cells.length, 0)).toBeGreaterThanOrEqual(380)
-    expect(REFERENCE_TABLE.some(([start]) => start === null)).toBe(true)
+  it('网格没有被悄悄缩小，且含「读不到起点」一行', () => {
+    expect(G.rows.length * G.targets.length).toBeGreaterThanOrEqual(380)
+    expect(G.rows.some((row) => row.start_v === null)).toBe(true)
+  })
+
+  it('两个常量与参考实现里的原件、镜像都相等', () => {
+    expect(ZERO_DEADBAND_V).toBe(G.constants.bias_settle.ZERO_DEADBAND_V)
+    expect(ZERO_DEADBAND_V).toBe(G.constants.actions.BIAS_DEADBAND_V)
+    expect(RAMP_THRESHOLD_V).toBe(G.constants.bias_settle.RAMP_THRESHOLD_V)
+    expect(RAMP_THRESHOLD_V).toBe(G.constants.actions.BIAS_RAMP_THRESHOLD_V)
   })
 
   it('三类改动走安全路径，其余直写（读得出来的几个例子）', () => {

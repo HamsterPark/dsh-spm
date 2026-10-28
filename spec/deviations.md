@@ -4130,7 +4130,7 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 | **改动前**（`D-NATIVE-1`） | `SetBias` 一步 `Bias_Set`，写后回读。任何改动都立即生效，包括 +1 V → −1 V 这种一步跨零 |
 | **现在**（`native-skills.ts::NativeSetBias`） | 先读起点，按 `biasNeedsSafePath(start, target)` 分流：变号、变化量超过 0.5 V、目标落在 ±50 mV 死区、起点读不到，走 `BiasSettleChange`（斜坡加稳定等待）；其余仍一步 `Bias_Set`。两条路径写后都回读核对 |
 | **参考实现**（7.1.0 外部动作面，`vista/actions.py` 的 `_set_bias` / `_bias_needs_safe_path`） | 同一条分流 |
-| **判据** | `kernel/bias-settle.test.ts`：380 格真值表（20 个起点 × 19 个目标），由参考实现自己的动作代码跑出，逐格相等；接线在 `native-skills.test.ts`、`native-runtime.test.ts`、`minimal-persistence.test.ts` |
+| **判据** | 金样 `spec/golden/bias_routing.json`（`export_bias_routing.py`，380 格 = 20 个起点 × 19 个目标，由参考实现自己的动作代码录成），`kernel/bias-settle.test.ts` 逐格比；接线在 `native-skills.test.ts`、`native-runtime.test.ts`、`minimal-persistence.test.ts` |
 
 **为什么有意**：Z 反馈是恒流的，偏压穿过零附近时隧道电流塌向 0，反馈只会把针尖往表面推
 （[`bias-settle.ts`](../packages/host/kernel/src/bias-settle.ts) 抬头）。参考实现 7.1.0 把这道保护从技能层
@@ -4167,7 +4167,7 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 `refreshState`，再撤掉这条限制。
 
 **重新考虑的条件**：原生目录增加关闭反馈的工具（那时 ±50 mV 内的目标有了可走的路）；`SetBiasRamp` 在零点
-附近的行为经真机验证后调整；参考实现的外部动作面改了分流条件（重新对着它跑一遍真值表即可发现）。
+附近的行为经真机验证后调整；参考实现的外部动作面改了分流条件（重导金样后 `bias-settle.test.ts` 会变红）。
 
 ## D-VMEM-1 · 观测图一律写 8 位 RGB PNG（参考实现无缺测时写灰度）
 
