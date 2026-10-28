@@ -1,5 +1,5 @@
 /**
- * DoD ② 的**真考场**：`parametersFromSpec` 对旧仓 515 个真技能、1642 个参数。
+ * DoD ② 的**真考场**：`parametersFromSpec` 对旧仓 568 个真技能、2336 个参数。
  *
  * 合成用例（`tool-schema.test.ts`，21 条）钉的是**生成规则**——一条规则一个最小
  * 用例，一条失败能立刻说出是哪条规则错了。这一份钉的是**那些规则跑在真实组合上
@@ -85,7 +85,36 @@ const stripTitle = (p: Record<string, unknown>): Record<string, unknown> => {
   return rest
 }
 
-describe('DoD ② · 515 个真技能的模型面 parity', () => {
+/**
+ * D-SCHEMA-1 的已知差异，逐条列出。参考实现只在 `allowed_values` 里没有浮点时才给枚举，
+ * 含浮点的有量纲参数走字符串通道；JSON 不分 int/float，`1.0` 到这里就是 `1`，于是我们给出
+ * 整数枚举。参考实现 7.1.0 起第一次有这种参数：11 个 TERS 组合技能的 `adc_mhz`（声明 float，
+ * 可选 1.0 / 4.0 MHz），它们属于不迁移的排除族。差异必须恰好是这 11 处、恰好是这个形状；
+ * 多一处、少一处或换了形状都会红。TERS 进入迁移范围时按偏差登记里写的条件重新考虑。
+ */
+const FLOAT_CHOICES = [
+  'LaserFocusMap.adc_mhz',
+  'PumpProbeSpectral.adc_mhz',
+  'TERSBiasSeries.adc_mhz',
+  'TERSGridMap.adc_mhz',
+  'TERSLineProfile.adc_mhz',
+  'TERSNearFarPair.adc_mhz',
+  'TERSPointSpectrum.adc_mhz',
+  'TERSPolarizationSeries.adc_mhz',
+  'TERSSetpointSeries.adc_mhz',
+  'TERSTimeSeries.adc_mhz',
+  'TERSTriggeredMap.adc_mhz',
+]
+
+/** 一处差异的形状：哪几个键不同、类型与枚举各从什么变成什么。描述原文不进断言。 */
+function differenceShape(got: unknown, want: unknown): string {
+  const g = (got ?? {}) as Record<string, unknown>
+  const w = (want ?? {}) as Record<string, unknown>
+  const keys = [...new Set([...Object.keys(g), ...Object.keys(w)])].filter((k) => canon(g[k]) !== canon(w[k]))
+  return `${keys.sort().join('+')} ${String(g['type'])}→${String(w['type'])} enum=${String(canon(g['enum']))}→${String(canon(w['enum']))}`
+}
+
+describe('DoD ② · 568 个真技能的模型面 parity', () => {
   it('金样覆盖了 skills.json 里的每一个名字', () => {
     expect(skills.filter((s) => real[s.name] === undefined).map((s) => s.name)).toEqual([])
   })
@@ -95,8 +124,9 @@ describe('DoD ② · 515 个真技能的模型面 parity', () => {
     expect(broken.map(([n, v]) => `${n}: ${v.error}`)).toEqual([])
   })
 
-  it('1642 个参数的 properties 与 required 逐字相等（只剥 title）', () => {
+  it('2336 个参数的 properties 与 required 逐字相等（只剥 title；D-SCHEMA-1 的 11 处单独断言）', () => {
     const mismatched: string[] = []
+    const known: string[] = []
     for (const s of skills) {
       const want = real[s.name]!
       const got = parametersFromSpec(toSpec(s))
@@ -104,11 +134,13 @@ describe('DoD ② · 515 个真技能的模型面 parity', () => {
         Object.entries(want.properties ?? {}).map(([k, v]) => [k, stripTitle(v)]),
       )
       if (canon(got.properties) !== canon(wantProps)) {
-        // 报**第一个不一样的参数**，而不是整个技能——515 个技能的 diff 没法读
+        // 报**第一个不一样的参数**，而不是整个技能——几百个技能的 diff 没法读
         for (const key of new Set([...Object.keys(got.properties), ...Object.keys(wantProps)])) {
-          const a = canon(got.properties[key])
-          const b = canon(wantProps[key])
-          if (a !== b) mismatched.push(`${s.name}.${key}\n  got  ${a}\n  want ${b}`)
+          const a = got.properties[key]
+          const b = wantProps[key]
+          if (canon(a) === canon(b)) continue
+          if (FLOAT_CHOICES.includes(`${s.name}.${key}`)) known.push(`${s.name}.${key} ${differenceShape(a, b)}`)
+          else mismatched.push(`${s.name}.${key}\n  got  ${canon(a)}\n  want ${canon(b)}`)
         }
       }
       if (canon(got.required) !== canon(want.required ?? [])) {
@@ -119,5 +151,8 @@ describe('DoD ② · 515 个真技能的模型面 parity', () => {
     }
     expect(mismatched.slice(0, 8).join('\n')).toBe('')
     expect(mismatched).toHaveLength(0)
+    expect(known.sort()).toEqual(
+      FLOAT_CHOICES.map((k) => `${k} description+enum+type integer→string enum=[1,4]→undefined`).sort(),
+    )
   })
 })

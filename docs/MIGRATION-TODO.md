@@ -1,6 +1,6 @@
 # 技能迁移范围与剩余工作
 
-本清单供继续迁移技能或评审迁移范围时使用。**2026-09-21 按当前 [progress.json](../spec/progress.json) 复核数量与技能名单**；依赖分析来自 2026-09-20 的三份分族盘点，未在本次重新执行私有参考实现。
+本清单供继续迁移技能或评审迁移范围时使用。**2026-10-28 按当前 [progress.json](../spec/progress.json) 复核数量与技能名单，规格按 MAST v7.1.0 重导**；依赖分析仍来自 2026-09-20 的三份分族盘点。
 
 视觉线束（[VISUAL-HARNESS.md](VISUAL-HARNESS.md)，决策 D12）是迁移之外的新增能力，不计入本清单的分母。
 
@@ -10,19 +10,21 @@
 
 | 范围 | 当前统计 | 当前目标 | 目标内剩余 |
 |---|---|---|---|
-| 技能 | 442 / 515 | 502 | 60 |
-| 全部技能均为 `done` 的模块 | 112 / 165 | 160 | 48 |
+| 技能 | 442 / 568 | 502 | 60 |
+| 全部技能均为 `done` 的模块 | 112 / 178 | 160 | 48 |
 
-`progress.json` 的 `done` 表示实现已注册、规格与模型 schema 存在且至少有一条参考轨迹；它不读取完整验收结果。原始清单尚有 **73 个技能**未标为 `done`，其中 **60 个在当前迁移范围内，13 个明确排除**：
+`progress.json` 的 `done` 表示实现已注册、规格与模型 schema 存在且至少有一条参考轨迹；它不读取完整验收结果。原始清单尚有 **126 个技能**未标为 `done`，其中 **60 个在当前迁移范围内，66 个明确排除**：
 
 | 排除范围 | 技能数 | 原因 |
 |---|---|---|
-| `builtins.optics_stage` | 8 | 依赖不属于本项目范围的光学台驱动层 |
+| `builtins.optics_stage` | 12 | 依赖不属于本项目范围的光学台驱动层 |
 | `builtins.optics_scan` | 1 | 排除光学台扫描；同模块的 `AcquireSignalPoint` 已迁移 |
 | `builtins.optics_pump_probe` | 1 | 依赖同一光学台驱动层 |
+| `builtins.optics_alignment` / `optics_aotf_pmt` / `optics_camera` / `optics_motor_groups` / `optics_polarization` / `optics_satellite_manual` / `optics_spectro` | 38 | 参考实现 7.1.0 新增的光学原子技能（相机、光谱仪、偏振、卫星远程设备等），依赖同一光学驱动层 |
+| `composite.ters_*`（6 个模块） | 11 | 参考实现 7.1.0 新增的光学组合技能，依赖上一行的原子技能，参数声明尚未定稿 |
 | `paper.imspec` / `paper.region_analysis` | 3 | `PredictSpectrumFromTopo`、`PredictStructure_ASD`、`IdentifyTopology_CARP` 的 `model_path` 必填，参考实现直接加载深模型且无回退路径；当前不迁移这些模型依赖 |
 
-因此，在当前范围下，上述五个模块不能达到“原始模块全部技能完成”。报告进度时同时保留原始范围 **515 / 165** 与迁移目标 **502 / 160**，不要改写生成文件的分母。
+因此，在当前范围下，上述 18 个模块不能达到“原始模块全部技能完成”。报告进度时同时保留原始范围 **568 / 178** 与迁移目标 **502 / 160**，不要改写生成文件的分母。
 
 `ComposePanelMontage` 仍在迁移范围内：迁移判据与数据处理层，排除 matplotlib 呈现层。分层方式可参考 [scan-prep-skills.ts](../packages/host/stm-skills/src/l0/scan-prep-skills.ts)。
 

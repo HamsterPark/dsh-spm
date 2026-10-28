@@ -267,7 +267,7 @@ describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的�
 
   it('规模与追法本身录在金样里', () => {
     expect(L.scanned_root).toBe('mast/skills')
-    expect(L.modules_scanned).toBe(211)
+    expect(L.modules_scanned).toBe(227)
     // 索引到的 = 注册的：数量与名字集合都对着 `skills.json`，不再写死一个数。
     // 导出器自己也会对账（对不上就不出金样）；这一条是仓里这一侧的同一道判据，
     // 防的是手改金样、或只重导了其中一份。
@@ -306,7 +306,7 @@ describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的�
     expect([...GOLDEN.skill_runs['AutoTilt']!.runs]).toEqual(['TiltProbeCircle'])
   })
 
-  it('追不动的七处**逐条列出来**，连形状一起', () => {
+  it('追不动的八处**逐条列出来**，连形状一起', () => {
     // 全量（不限于闭包之内）：这个数必须与起点无关，否则读的人分不清
     // 「闭包里没有」与「这套追法看不见」。
     expect(L.dynamic_run_sites.map((s) => `${s.shape}${s.in_engine ? '/engine' : ''} ${s.file}:${s.line} ${s.expr}`)).toEqual([
@@ -314,7 +314,7 @@ describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的�
       'loop_var builtins/characterise_noise.py:345 skill',
       'loop_var builtins/characterise_noise.py:762 skill',
       // ④ 编排引擎自己：`CompositeSkillGraph.step` 的动词是它的形参。
-      // 追进去会给每个继承者各记一条同样的 `<dynamic>` —— 那不是七处，是五百处。
+      // 追进去会给每个继承者各记一条同样的 `<dynamic>` —— 那不是八处，是五百处。
       'loop_var/engine composite/_base.py:75 skill_name',
       'loop_var composite/achieve_atomic.py:805 skill',
       // ④ 真正下发 `CompositeStep` 的那两行 —— 所有 299 条边最后都从这里出去。
@@ -322,6 +322,9 @@ describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的�
       'Attribute/engine composite/graph_executor.py:601 step.skill_name',
       // ④ 声明式 composite：步骤表来自 YAML，静态读不到。
       "subscript/engine composite/interpreter.py:347 node['skill']",
+      // 参考实现 7.1.0 新增：TERS 组合技能共用的 `step()` 把形参 `skill_name` 原样下发，
+      // 名字由各流程传进来。和 `_base.py:75` 同一种情形，但它不在编排引擎里。
+      'loop_var composite/ters_common.py:1133 skill_name',
     ])
     // 四型里的 ④ 单独标出来：它不是「我们照不到这个名字」，是「这里本来就没有
     // 一个固定的名字」。两件事混成一句「追不动」，那张清单就不能用了。

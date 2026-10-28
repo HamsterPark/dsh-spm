@@ -134,12 +134,17 @@
 |---|---|
 | **Python** | `isinstance(v,(str,int,bool)) and not isinstance(v,float)` —— 含浮点的集合**整条失效**，schema 里既没有 `enum` 也没有 `minimum` |
 | **TS** | `Number.isInteger(v)` —— JSON 里 `1.0` 解析出来就是 `1`，于是 Python 会拒的 `[1.0, 2.0]` 在我们这边成立 |
-| **可观测处** | **只有一处**：`explainValidationError` 的枚举行。Python 印 `{0.5, 1.0}`，我们印 `{0.5, 1}` |
-| **测试** | `tool-schema.test.ts` → `D-SCHEMA-1 在这里**变得可观测**` |
+| **可观测处** | ① `explainValidationError` 的枚举行：Python 印 `{0.5, 1.0}`，我们印 `{0.5, 1}`。② 参考实现 7.1.0 起的模型 schema：11 个 TERS 组合技能的 `adc_mhz`（声明 float，可选 1.0 / 4.0，单位 MHz）在 Python 侧走「有量纲的浮点写成字符串」，schema 是 `string`、没有 `enum`；我们给出整数枚举 `[1, 4]` |
+| **测试** | `tool-schema.test.ts` → `D-SCHEMA-1 在这里**变得可观测**`；`tool-schema-real.test.ts` 逐条断言 ② 的 11 处差异及其形状，其余任何差异照样失败 |
 
-**为什么有意**：信息在 JSON 边界就丢了，TS 侧无从恢复。影响面实测为 **0**——1642 个真参数里
-没有一个含浮点 `allowed_values`。金样用例 `enum_float_rejected` 是合成的，它存在的意义是
-**把这条分支钉住**，不是它有现役调用方。
+**为什么有意**：信息在 JSON 边界就丢了，按值无从恢复。影响面：参考实现 7.1.0 之前为 **0**，
+1642 个真参数里没有一个含浮点 `allowed_values`；7.1.0 起是上面 11 个参数。它们所在的技能属于
+不迁移的排除族（[MIGRATION-TODO §0](../docs/MIGRATION-TODO.md)），没有注册为工具，运行时不受影响。
+金样用例 `enum_float_rejected` 是合成的，它存在的意义是**把这条分支钉住**，不是它有现役调用方。
+
+**重新考虑的条件**：TERS 组合技能进入迁移范围时做精确修复。生成规格与对等测试都借 JSON 原文
+分辨 `1.0` 和 `1`（`JSON.parse` 的 reviver 能拿到 `context.source`），给 `ParameterSpec` 记下
+「可选值含浮点」，`parametersFromSpec` 据此不生成枚举。
 
 顺带记一笔旧仓自身的不一致（我们照抄）：schema 那边把含浮点的枚举整条丢掉，而
 `_explain_validation` 那边**不过滤**——于是同一个参数，模型在 schema 里看不到合法值，
@@ -2878,7 +2883,7 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 `AutoProcessScanBatch` 的描述里写着「**它会渲染出这些 PNG**，并写一份 `_report.md`」，
 参数表里还有 `render`（缺省 true）与 `save_png`。而本仓只做得到后半句。
 
-**DoD ② 要求 515 个技能 / 1642 个参数与旧仓逐字比**，所以那句话不能改 ——
+**DoD ② 要求 568 个技能 / 2336 个参数与旧仓逐字比**，所以那句话不能改 ——
 它只能是一条**响亮的** deviation，外加两条断言把「报告在、图不在」两面都钉住
 （`scan-prep-skills.test.ts` 的 `save_png=true` 与 `render=true` 两格）。
 
@@ -3109,7 +3114,7 @@ if name in _seen or len(_seen) > 8:
 它那么写有它的道理（那台是**运行时**跑的，要对付声明式 spec 与动态注册）。
 本仓 `tip-phase-closure.ts` 的 `skillClosure` **没有深度上限**：这一批修的正是
 「追一层就停」，抄一个「追八层就停」过来只是把同一个 bug 的阈值调大。
-这里的图是静态有限的（515 个技能，金样 `skill_runs`），完整不动点一定收敛；
+这里的图是静态有限的（568 个技能，金样 `skill_runs`），完整不动点一定收敛；
 环由 `seen` 挡，挡掉了什么由 `closure_limits.cycles` 说出来（今天空表，有测试盯着）。
 
 ⚠️ 记这一条是因为：**一处刻意的不一致，没写下理由就等于一处疏忽** ——

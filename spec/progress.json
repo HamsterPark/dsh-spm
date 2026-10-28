@@ -1,5 +1,5 @@
 {
-  "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
+  "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的全部条目，不是任何一份手写清单。",
   "totals": {
     "skills": 568,
     "done": 442,

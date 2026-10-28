@@ -26,9 +26,9 @@ describe('进度表', () => {
     })
   })
 
-  it('**分母是 515**，不是任何一份手写清单', () => {
-    // 「已完成 69 个」在分母是 515 还是 73 的时候是两件事。
-    expect(progress.totals.skills).toBe(515)
+  it('**分母是 568**，不是任何一份手写清单', () => {
+    // 「已完成 69 个」在分母是 568 还是 73 的时候是两件事。
+    expect(progress.totals.skills).toBe(568)
     expect(
       progress.totals.done + progress.totals.partial + progress.totals.todo,
     ).toBe(progress.totals.skills)

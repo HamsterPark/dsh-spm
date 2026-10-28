@@ -134,11 +134,12 @@ export function siParams(
  * Python 的判据是 `isinstance(v, (str, int, bool)) and not isinstance(v, float)`——
  * 含浮点的集合**整条失效**，于是 schema 里既没有 `enum` 也没有 `minimum`，
  * 那个约束对模型完全不可见（`validate_params` 仍在执行侧拦，所以不是安全洞，
- * 但模型是撞上去才知道的）。真技能里 0 个参数走这条，照抄不动它。
+ * 但模型是撞上去才知道的）。真技能里走这条的只有参考实现 7.1.0 新增的 11 个排除技能的
+ * `adc_mhz`，照抄不动它。
  *
  * D-SCHEMA-1：JSON 没有 int/float 之分，`1.0` 到了这里就是 `1`。所以 Python 会拒的
- * `[1.0, 2.0]` 在 TS 侧成立。这个差异**不可消除也不可观测**——信息在 JSON 边界就
- * 已经丢了，而 1642 个真参数里 0 个含浮点枚举。
+ * `[1.0, 2.0]` 在 TS 侧成立。按值已经无从分辨——信息在 JSON 边界就丢了。参考实现 7.1.0
+ * 起这个差异可观测：上面那 11 个参数，`tool-schema-real.test.ts` 逐条断言。
  */
 function isRealEnum(vals: readonly (string | number | boolean)[] | undefined): boolean {
   if (vals === undefined || vals.length === 0) return false
@@ -347,7 +348,7 @@ export function explainValidationError(
  *
  * 字符串带单引号、布尔是 `True`/`False`——这两条能对上。**数字对不上**：
  * Python 的 `1.0` 印成 `1.0`，而 JSON 里它到了这边就是 `1`（D-SCHEMA-1）。
- * 信息在 JSON 边界就丢了，这里无从恢复。1642 个真参数里 0 个含浮点枚举。
+ * 信息在 JSON 边界就丢了，这里无从恢复。参考实现 7.1.0 起只有 11 个排除技能的参数含浮点枚举（见 D-SCHEMA-1）。
  */
 function pyRepr(v: string | number | boolean): string {
   if (typeof v === 'string') return `'${v}'`

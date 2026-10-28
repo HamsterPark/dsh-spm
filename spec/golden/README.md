@@ -48,9 +48,9 @@ python tools/spec-export/<脚本>.py
 3. `node scripts/release-hygiene.ts --golden-dir <暂存公开目录>` 过一遍[发布卫生门](../../docs/DEVELOPMENT.md#发布卫生门)（站点名单由 `HYGIENE_SITE_LIST` 指定），有命中先处理；再按 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md) 检查暂存公开目录；
 4. 通过后复制进本目录，`spec_overlay.py verify --dir spec/golden` 确认不动点，再执行 `pnpm gen:skills` → `pnpm build` → `pnpm gen:progress`。
 
-`apply` 遇到哈希不符时，用 `spec_overlay.py show` 查看该位置（输出含私有原文，不外传），定下公开文本后，由原始产物和审读过的公开版本重新 `build` 覆盖层；旧条目都还适用、只多了新位置时，可加 `--base <旧覆盖层>` 只为剩余差异建条目。
+`apply` 遇到哈希不符、指针失配或未登记的出现时整体拒绝，不写输出。目前没有工具在这种情况下生成部分替换的草稿：需要人工备好一份审读过的完整公开版本（哈希不符的位置用 `spec_overlay.py show` 查看，输出含私有原文，不外传），再由原始产物和这份公开版本重新 `build`。`apply` 能通过、但扫描或审查发现覆盖层还不认识的私密文本时，在暂存公开目录里改写那几处，用 `build --base <旧覆盖层>` 只为这些差异建条目，新覆盖层另存为新文件，再用它重新 `apply`。
 
-**参考基线（历史说明）** 本目录现有的 MAST 金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 用运行器在 `git archive` 快照上复核：在提交 `068c2371` 上重导（同条件两次，48 份逐字节一致），48 份 MAST 金样中 42 份与本目录逐字节相同；其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。所以该提交是这批金样的等价来源。`manifest.json` 里旧的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。今后重导按 `manifest.json` 的 `reference` 记录。
+**参考基线** 本目录的 MAST 金样自 2026-10-28 起由运行器从 MAST v7.1.0（提交 `45e3e806`）导出，来源以 `manifest.json` 的 `reference` 为准；同条件导出两次逐字节一致，48 份中 41 份与上一批逐字节相同，其余 7 份由 v7.1.0 改动。上一批金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 在 `git archive` 快照上复核过，提交 `068c2371` 是它们的等价来源：48 份中 42 份逐字节相同，其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。旧 `manifest.json` 里的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。
 
 ## 一、文件与导出器
 
@@ -60,13 +60,13 @@ python tools/spec-export/<脚本>.py
 
 | 文件 | 导出器 | 内容 |
 |---|---|---|
-| `skills.json` | `export_mast_spec.py` | 515 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
+| `skills.json` | `export_mast_spec.py` | 568 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
 | `si_cases.json` | 同上 | 执行 `parse_si`、strict／loose `parse_quantity`、`needs_strict_prefix`、`format_si`，包含异常类型与完整消息 |
 | `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本 |
 | `preconditions.json` | `export_preconditions.py` | 词表与 10 个前置条件 × 14 个夹具的 140 格网格，逐格记录违反消息，覆盖子串匹配及否定形式 |
-| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 515 个技能的模型 schema；保存模型可见范围及文字 |
+| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 568 个技能的模型 schema；保存模型可见范围及文字 |
 | `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明，用于执行建表后逐表、逐对象比较 |
-| `manifest.json` | `export_mast_spec.py` | 导出所用的参考提交、标签、树对象号、与行尾无关的源码摘要和环境（`reference`），以及该导出器各 collector 的成功状态与条数。经运行器完整导出时，`reference` 适用于同一次运行的全部 MAST 通道金样，不涉及其余导出器的产物。现有文件仍是旧格式 `spec_source`，下次经运行器重导时换成 `reference` |
+| `manifest.json` | `export_mast_spec.py` | 导出所用的参考提交、标签、树对象号、与行尾无关的源码摘要和环境（`reference`），以及该导出器各 collector 的成功状态与条数。经运行器完整导出时，`reference` 适用于同一次运行的全部 MAST 通道金样，不涉及其余导出器的产物。经覆盖层写出时另有 `public_text` 标记 |
 
 ### ② 通用轨迹与状态机
 
@@ -74,7 +74,7 @@ python tools/spec-export/<脚本>.py
 
 | 文件 | 导出器 | 执行范围 |
 |---|---|---|
-| `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,798 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
+| `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,802 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
 | `watchdog.json` | `export_watchdog_trace.py` | 用可控时钟驱动 `SafetyWatchdog.run()`，覆盖武装状态与动作触发条件 |
 | `state.json` | `export_state_spec.py` | `InstrumentState` 的调用、读数转换与状态：21 个转换用例、14 条脚本共 29 步、7 个实时提示块 |
 | `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步 |
@@ -135,7 +135,7 @@ python tools/spec-export/<脚本>.py
 | 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
 | `batch7b1.json` | `export_batch7b1.py` | 12 个闭式合成、仅含正扫的 `.sxm`；26 个 `AssessAtomicPhase` 用例与 10 个 `resolve_substrate` 用例。覆盖 `_MIN_COVERAGE=0.5`、`expected_a_nm` 的正值／0／未提供三态，以及请求 Z 通道不可用时回落到首个通道。覆盖率 0.25、0.4375（内部判据通过）与 0.5 分别区分拒绝、最终通过值受覆盖率限制及严格小于边界。<br>`expected_zero_with_substrate` 区分“0 禁用比较”和“未提供则查衬底”。`SURFACE_LATTICE_NM` 七个面全部进入用例；参考只认四个洁净金属面，`HOPG` / `NaCl(100)` / `Si(111)-1x1` 为 `available=false`。Pt(111) 的 `2.775/10` 与 `0.2775` 差 1 ULP，见 D-ROWSPACING-1 |
-| `tip_phase_deps.json`（扩展） | `export_tip_phase_deps.py` | `skill_runs` 覆盖 515 个技能，追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)` 两种边。当前 `closure_limits` 保存 7 处动态调用、31 个非技能的内部阶段目标，`unknown_skills` 与 `cycles` 均为空；具体追踪深度以 `follow_rule` 为准。函数级 `non_skill_deps` 另列地图写侧与 `noble_tip_workflow` 等组件；没有未迁移子技能不等于其他依赖已具备 |
+| `tip_phase_deps.json`（扩展） | `export_tip_phase_deps.py` | `skill_runs` 覆盖 568 个技能，追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)` 两种边。当前 `closure_limits` 保存 8 处动态调用、31 个非技能的内部阶段目标，`unknown_skills` 与 `cycles` 均为空；具体追踪深度以 `follow_rule` 为准。函数级 `non_skill_deps` 另列地图写侧与 `noble_tip_workflow` 等组件；没有未迁移子技能不等于其他依赖已具备 |
 
 <!-- ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的驱动器写在这一行下面 ── -->
 

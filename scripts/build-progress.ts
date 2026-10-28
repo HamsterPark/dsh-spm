@@ -5,7 +5,7 @@
  *     node scripts/build-progress.ts --check    # 只比对，有 diff 就非零退出
  *
  * PLAN §11 第四条：「**每个 Phase 开头先补该 Phase 要用的 golden，分母先定，
- * 进度才有意义**」。一个「已完成 69 个技能」的说法，在分母是 515 还是 73 的时候
+ * 进度才有意义**」。一个「已完成 69 个技能」的说法，分母是全部技能还是某一批的时候
  * 是两件事；而没有这份文件时，那个分母只存在于我的记忆里。
  *
  * 每个技能记四项 DoD 的**实测状态**，不是我的判断：
@@ -13,14 +13,15 @@
  * | 项 | 怎么判 |
  * |---|---|
  * | `spec` | `generated/specs.ts` 里有没有它 —— 有就是**结构性成立**（生成的，见那个文件的抬头） |
- * | `model` | `tool_schemas_real.json` 里有没有它的 schema（`tool-schema-real.test.ts` 逐字比过全部 515 个） |
+ * | `model` | `tool_schemas_real.json` 里有没有它的 schema（`tool-schema-real.test.ts` 逐字比过全部技能，D-SCHEMA-1 登记的已知差异除外） |
  * | `traces` | `skill_traces.json` 里有几条轨迹 |
  * | `impl` | `IMPLEMENTED` 里有没有它 |
  *
  * `status` 只有三种：
  * - `done` —— 四项齐全（`impl` + `spec` + `model` + `traces ≥ 1`）；
  * - `partial` —— 有金样没实现，或有实现没轨迹；
- * - `todo` —— 只有 spec 与 model（那两项对 515 个技能全都成立）。
+ * - `todo` —— 既没有实现也没有轨迹。`model` 对全部技能都成立；`spec` 只为迁移批次生成，
+ *   所以 `todo` 的技能通常没有 `spec`。
  *
  * **不设「差不多完成」这一档**：一个技能要么这四样齐了，要么没齐。
  */
@@ -104,7 +105,7 @@ function main(): number {
 
   const out = {
     _note:
-      '由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，' +
+      '由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的全部条目，' +
       '不是任何一份手写清单。',
     totals: { skills: skills.length, ...counts },
     modules_complete: Object.values(byModule).filter((m) => m.complete).length,

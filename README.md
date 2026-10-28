@@ -100,7 +100,7 @@ The [review guide](docs/REVIEW-GUIDE.md) connects these choices to specific impl
 
 ## Migration scope
 
-A skill here is an executable operation with a parameter schema, preconditions and a result contract. The generated inventory currently marks **442 / 515 skills** and **112 / 165 modules** complete. Thirteen skills are intentionally excluded, leaving 60 in scope and reachable targets of 502 skills / 160 modules. See [progress.json](spec/progress.json) and the [remaining migration work](docs/MIGRATION-TODO.md).
+A skill here is an executable operation with a parameter schema, preconditions and a result contract. The generated inventory currently marks **442 / 568 skills** and **112 / 178 modules** complete. Sixty-six skills are intentionally excluded, leaving 60 in scope and reachable targets of 502 skills / 160 modules. See [progress.json](spec/progress.json) and the [remaining migration work](docs/MIGRATION-TODO.md).
 
 `done` means a registered implementation, a generated specification, a reference model schema and at least one reference trace exist. It is a migration classification; the running profiles expose the explicit tool sets listed above. Full migration acceptance is defined in the [development guide](docs/DEVELOPMENT.md).
 
