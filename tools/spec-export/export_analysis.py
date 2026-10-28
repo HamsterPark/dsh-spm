@@ -25,10 +25,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 from typing import Any
 
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-analysis-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-analysis-export-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "analysis.json"

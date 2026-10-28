@@ -23,15 +23,14 @@ import struct
 import sys
 from pathlib import Path
 
-from _paths import require_mast_root, require_stmsim_root
+from _paths import isolated_project_root, require_mast_root, require_stmsim_root
 
-import os
 import tempfile
 
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
 # 2026-09-10 踩到过一次——一个「只读」的导出脚本因为 import 拉起了管理员覆写机制，
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
-os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
+isolated_project_root(tempfile.mkdtemp(prefix='mast-spec-export-'))
 
 MAST_ROOT = require_mast_root()
 STMBENCH_ROOT = require_stmsim_root()

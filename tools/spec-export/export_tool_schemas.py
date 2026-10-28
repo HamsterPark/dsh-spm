@@ -19,19 +19,18 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 
 # ⚠️ **必须在 import mast 之前**把项目根指到临时目录（PLAN §8.6 的「隔离」就是这个意思）。
 # 2026-09-10 踩到：直接 import skill_adapter 会拉起管理员覆写机制，它把
 # config/overrides 从旧位置**迁移**到 MAST2_PROJECT_ROOT/config/overrides ——
 # 于是一个「只读」的导出脚本在旧仓里新建了一个目录。原文件没被动，但红线是
 # 「只读旧仓」，不是「不弄坏旧仓」。
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-spec-export-"))
 
 MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "tool_schemas.json"

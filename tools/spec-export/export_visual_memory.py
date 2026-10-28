@@ -56,10 +56,11 @@ import tempfile  # noqa: E402
 from pathlib import Path  # noqa: E402
 from typing import Any  # noqa: E402
 
+# Before anything outside the standard library: importing `_paths` refuses an unsafe MAST2_PROJECT_ROOT.
+from _paths import require_mast_root, require_vista_spm_root  # noqa: E402
+
 import numpy as np  # noqa: E402
 import scipy  # noqa: E402
-
-from _paths import require_mast_root, require_vista_spm_root  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "visual_memory.json"
