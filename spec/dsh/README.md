@@ -1,6 +1,6 @@
 # dsh 配置与依赖快照
 
-本目录保存历次升级时导出的 dsh web profile 配置，以及当时的安装树清单。它们用于比较上游变化；当前锁版以 [compat/package.json](../../packages/host/compat/package.json) 和锁文件为准，版本决策见 [facts.md](../../docs/dsh/facts.md) 与 [upgrades.md](../../docs/dsh/upgrades.md)。
+本目录保存历次升级时导出的 dsh web 与 headless 组合配置（headless 自 0.2.1-rc.4 起才有），以及当时的安装树清单。它们用于比较上游变化；当前锁版以 [compat/package.json](../../packages/host/compat/package.json) 和锁文件为准，版本决策见 [facts.md](../../docs/dsh/facts.md) 与 [upgrades.md](../../docs/dsh/upgrades.md)。
 
 ## 配置快照
 
@@ -13,6 +13,8 @@
 | [0.1.5-alpha.1](dump-config.0.1.5-alpha.1.yml) | 2026-09-09 | 当次升级基线；后续由 rc 版本替代 |
 | [0.1.5-rc.1](dump-config.0.1.5-rc.1.yml) | 2026-09-10 | 当次升级的两处配置变更见升级日志 |
 | [0.1.5-rc.2](dump-config.0.1.5-rc.2.yml) | 2026-09-13 | 与 0.1.5-rc.1 快照逐字节相同 |
+| [0.2.1-rc.4](dump-config.0.2.1-rc.4.yml) | 2026-10-28 | web 组合：191 个顶层行、1231 行（0.1.5-rc.2 为 152 个、539 行），逐项变化见 [facts.md](../../docs/dsh/facts.md) §8；相对 0.2.1-rc.2 只多 `entry-customization` 一行 |
+| [0.2.1-rc.4 headless](dump-config.headless.0.2.1-rc.4.yml) | 2026-10-28 | headless 组合：`dsh-base` 加 `dsh-headless`，不含 preset，98 个顶层行、382 行。我们的最小入口 profile 是 `dsh-base` 加 `dsh-spm`，与它相比只差 `headless-runner`、`headless-startup` 两行和我们自己的两行；工具行相同 |
 
 文件名标识被导出的版本，日期对应仓库内的升级记录。配置相同说明该快照中的插件名单和默认配置相同，不代表包内部实现没有变化。实际包接触面和测试结果在对应升级记录中核对。
 
@@ -21,18 +23,20 @@
 - [pkglist.0.1.2-alpha.4.txt](pkglist.0.1.2-alpha.4.txt)：早期 npx 缓存中的包清单。
 - [pkglist.0.1.3-alpha.2.txt](pkglist.0.1.3-alpha.2.txt)：该次安装的包名与版本。
 - [pkglist.0.1.5-alpha.1.txt](pkglist.0.1.5-alpha.1.txt)：该次安装的包名与版本，包含独立版本线的 Cordis 包。
+- [pkglist.0.2.1-rc.4.txt](pkglist.0.2.1-rc.4.txt)：从 `pnpm-lock.yaml` 导出的 314 行，其中 dsh 系 296、Cordis 系 7、`libreoffice-kit` 系 6、`node-addon-system` 系 5。
 
 这些是历史环境记录。当前依赖约束由 manifest、`pnpm-workspace.yaml` 和 `pnpm-lock.yaml` 共同表达；[pin.test.ts](../../packages/host/compat/contract/pin.test.ts) 检查锁文件中的 dsh 版本及真实包契约。
 
 ## 更新快照
 
-仅在核查或升级 dsh 时导出。先按升级指南准备独立的临时 `DSH_HOME`，确认目标版本和输出位置；不要使用读者正在工作的个人 profile。命令模板如下，`<版本>` 必须替换为明确版本：
+仅在核查或升级 dsh 时导出，并且只在仓外的临时目录里操作；不要使用读者正在工作的个人 profile。**不要用 `npx`**：`npx` 只钉住启动器，子包照样被 caret 拉到最新（见 [facts.md](../../docs/dsh/facts.md) §8.-2），还会读写真实的 `~/.dsh`。方法：
 
-```text
-npx -y @deepseek-ai/dsh@<版本> --profile web --dump-config
-```
+1. 在仓外建一个只依赖 `@deepseek-ai/dsh@<版本>` 的项目：逐个向 registry 解析闭包里的 `@deepseek-ai/dsh*` 包，用 `pnpm-workspace.yaml` 的 `overrides` 把它们和 Cordis 系包都钉成确切版本，`allowBuilds` 全部设为 `false`（不跑任何构建脚本），然后 `pnpm install`。
+2. 运行 `node node_modules/@deepseek-ai/dsh/lib/bin.js --profile <web|headless> --dump-config`。不带 `--patch`，也不用已装了 `dsh-spm` 的 profile，否则输出里会出现带本机路径的 `patched by` 标题。运行时把 `DSH_HOME`、`DSH_AGENTS_HOME`、`HOME`、`USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`TEMP` 都指到该临时目录，网络代理指向不可用地址；每个组合用各自的新目录，因为 `--dump-config` 会在 `DSH_HOME` 里建 profile 目录。
+3. 确认 stderr 为空；运行前后各取一份真实 `~/.dsh`、`~/.agents` 的元数据快照（只读路径、类型、大小、时间，不读内容），逐字节比对相同。
+4. 把 stdout 保存为 `dump-config.<版本>.yml`（web）和 `dump-config.headless.<版本>.yml`；包清单 `pkglist.<版本>.txt` 取自该项目 `pnpm-lock.yaml` 里去重排序后的 `@deepseek-ai/*@<版本>`。提交前扫描本机用户名、盘符路径和临时目录名。
 
-确认命令成功后，将输出保存为 `dump-config.<版本>.yml`，与前一版比较，并在升级日志记录日期、配置差异、包差异和验证结果。导出配置不代表完成插件启动、安装态或模型验收。
+与前一版比较后，在升级日志记录日期、配置差异、包差异和验证结果。导出配置不代表完成插件启动、安装态或模型验收。
 
 快照中的 `!!js` 表达式属于 dsh patch 配置语法。阅读时将其作为配置内容；不要为了查看快照而执行其中表达式。
 

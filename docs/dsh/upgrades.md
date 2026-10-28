@@ -14,10 +14,12 @@
 
 1. `pnpm build`（`tsc -b`）过 —— 我们依赖的类型面还在
 2. `pnpm test` 全绿 —— 含打**真包**的 contract 测试
-3. 端到端探针 —— `dsh plugin --profile web add` 后 `apply()` 在真实运行时里执行、注入的服务是活的
+3. 端到端探针 —— `pnpm probe:compose` 对每个组合通过：`dsh-spm` 真的进了组合树（bundle 段在、期望的行在）、stderr 为空、该 profile 没有版本豁免。**不看退出码**：dsh 的兼容闸遇到不兼容时退出码仍是 0，只留一行 stderr，授予豁免之后连这一行都没有。启动级的检查——真启动 profile、看 stderr 里有没有 `did not activate`、`apply()` 在真实运行时里执行、注入的服务是活的——留给验收阶段
 
 **dsh 自己有多少 bug 不是判据。** 0.1.5-alpha.1 有六条已知问题而一条都碰不到我们时，它对我们等同于零条。
 反过来，一条正中我们接触面的 bug 就足以让我们停在原地。
+
+**应急豁免**：`dsh plugin --profile <p> allow-version <包@版本> --dsh-version <运行时版本> --accept-risk` 只在空窗期使用——上游新版已经发布、我们的 `engines.dsh` 还没跟上、又必须先让某个 profile 跑起来的那几天；用完立刻 `revoke-version`。**验收 profile 不得带豁免**：豁免一旦授予，不兼容就彻底静默（stderr 空、行都在），`pnpm probe:compose` 把 `version-exemptions` 非空判为红，就是为了抓这个。豁免存在该 profile 自己的 `compatibility.json`，只对确切的包版本与确切的 dsh 版本有效，细节见 [facts.md](facts.md) §4。
 
 **两段式跟踪通道**：
 
@@ -52,18 +54,60 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
 
 有新版 ⇒ 当前课时先做升级，再继续原课时。
 
-**升级清单**（一次一版，单独提交 `chore(dsh): bump <a> → <b>`）：
+**升级清单**（一次一版，单独提交 `chore(dsh): bump <a> → <b>`；例外须在日志里写明理由，见 2026-10-28 条）：
 
-1. 改钉版：`pnpm-workspace.yaml` 的 `overrides`（逐包精确；键不支持通配，写了也是静默无效）和 `minimumReleaseAgeExclude`（两张表成员必须一致），以及各 `package.json` 里 `@deepseek-ai/*` 的精确版本（`packages/host/compat` 在 `dependencies`，其余包在 `devDependencies` / `peerDependencies`；脚本和测试里也有字面量。用 `git grep -l '<旧版本>' -- ':!pnpm-lock.yaml' ':!docs'` 找全），然后 `pnpm install`。再跑 `pnpm test --project contract`：`packages/host/compat/contract/pin.test.ts` 读 `pnpm-lock.yaml`，断言每个 `@deepseek-ai/dsh*` 恰好是锁定版本。仓库里没有独立的 `check:dsh-pin` 脚本，这个断言就是那条契约测试（理由见 [EXECUTION](../EXECUTION.md) 里「按消融原则没有写」那张表）。
-2. `npx -y @deepseek-ai/dsh@<b> --profile web --dump-config > spec/dsh/dump-config.<b>.yml`，与上一版 diff；我们覆盖过的 dsh-base 行（PLAN §6.3 表）逐行对。
-3. 两版 npm 包的 `.md` / `.d.ts` / `.yml` 对比，只读 compat 依赖的包（`packages/host/compat/package.json` 的 `dependencies`）。没有现成脚本：对每个包分别 `npm pack @deepseek-ai/<包>@<旧版> --pack-destination old` 与 `…@<新版> --pack-destination new`，解开后 `diff -r`。不要用 `npx @deepseek-ai/dsh@<旧版>` 代替：它只钉住启动器，子包的 caret 范围会漂到新版，比不出两个版本（见下面 2026-09-13 日志的「坑二」）。发布说明逐条对 `docs/dsh/facts.md` §5–§7。
-4. `pnpm test --project contract`（含 spike 十条）；红了先在 compat 内适配，适配不了就重构我们的接缝（同一提交或紧随其后的 `refactor(dsh): …`）。
-5. `pnpm -r build && pnpm test`；`dsh plugin --profile web add ./packages/bundle/dsh-spm` 冒烟，会话里 `stm_hello` / `stm_selfcheck`。
-6. **拿既有 `~/.dsh` 冒烟**（不是干净 home）：旧会话能打开、标题还在、设置与凭据还在。alpha.5 就是专门修「从 rc.2 / alpha.3 升级后起不来、会话标题消失」的——升级会损坏既有数据是实证过的。备份 `~/.dsh` 再升。
-7. 更新 `docs/dsh/facts.md` 首行版本号与受影响条目、README 命令里的版本号；本文件追加一条日志（发布说明要点 + 影响 + 适配点）。
+1. 改钉版：`pnpm-workspace.yaml` 的 `overrides`（逐包精确；键不支持通配，写了也是静默无效）和 `minimumReleaseAgeExclude`——**不是**根 `package.json`；以及各工作区 `package.json` 里 `@deepseek-ai/*` 与 `zod` 的声明（共 10 个：`packages/host/compat` 写在 `dependencies`，其余在 `devDependencies` / `peerDependencies`；Cordis 系取目标版本 `~` 范围内的确切版本，`zod` 取 dsh 自己钉的版本；脚本和测试里也有字面量，用 `git grep -l '<旧版本>' -- ':!pnpm-lock.yaml' ':!docs'` 找全）。先 `pnpm install`，再 `pnpm gen:dsh-pins` 按锁文件**生成**两张表（不手抄），然后 `pnpm install --frozen-lockfile` 与 `pnpm gen:dsh-pins --check`。`scripts/dsh-pins.ts` 里的 `VENDOR_PINS`（Cordis 系等独立版本线）同步更新。仓库里没有独立的 `check:dsh-pin` 脚本，执法者是 `packages/host/compat/contract/pin.test.ts`：锁文件里每个 `@deepseek-ai/dsh*` 恰好是锁定版本、两张表与锁一致、各 manifest 与表一致、`zod` 只有一个版本、`VENDOR_PINS` 与锁一致、`engines.dsh` 与 dsh peer 都是锁定版本（理由见 [EXECUTION](../EXECUTION.md) 里「按消融原则没有写」那张表）。
+2. 导出 web **和 headless** 两份组合快照，与上一版逐行 diff，**stderr 必须为空**；方法见 [spec/dsh/README.md](../../spec/dsh/README.md)（仓外临时项目、整套精确钉、隔离 home、**不用 `npx`**），存为 `spec/dsh/dump-config.<b>.yml`、`dump-config.headless.<b>.yml` 与 `pkglist.<b>.txt`。我们覆盖过的 dsh-base 行（PLAN §6.3 表）逐行对。
+3. 两版 npm 包的 `.md` / `.d.ts` / `.yml` 对比，只读 compat 依赖的包（`packages/host/compat/package.json` 的 `dependencies`）。没有现成脚本：对每个包分别 `npm pack @deepseek-ai/<包>@<旧版> --pack-destination old` 与 `…@<新版> --pack-destination new`，解开后 `diff -r`。不要用 `npx @deepseek-ai/dsh@<旧版>` 代替：它只钉住启动器，子包的 caret 范围会漂到新版，比不出两个版本（见下面 2026-09-13 日志的「坑二」）。发布说明逐条对 `docs/dsh/facts.md` §5–§7、§9。比对对象除 compat 的 12 个接触面包（`dsh-agent`、`dsh-agent-loop`、`dsh-attachment`、`dsh-commands`、`dsh-host-webserver`、`dsh-llm`、`dsh-session`、`dsh-session-persistence`、`dsh-session-projection`、`dsh-settings`、`dsh-system-prompt`、`dsh-tools`）外，还要加 `dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek`——组合树和隐私默认值就在它们里面；版本串归一后逐文件比。
+4. **先 `pnpm clean && pnpm build`**：换依赖后增量 `tsc -b` 可能把项目判为 up to date、不对着新的 `.d.ts` 重检，升级验证一律从干净构建开始。然后 `pnpm test --project contract`（含 spike 十条）；红了先在 compat 内适配，适配不了就重构我们的接缝（同一提交或紧随其后的 `refactor(dsh): …`）。
+5. `pnpm build`，`pnpm test --project unit --project contract`，`pnpm probe:compose`（对 minimal、验收 overlay、mast-sim 各跑一遍，参数见脚本头注释）；`dsh plugin --profile web add ./packages/bundle/dsh-spm` 冒烟，会话里 `stm_hello` / `stm_selfcheck`。不带筛选的 `pnpm test` 含 STM-Bench 集成测试、会启动模拟器，不属于这一步。
+6. **拿既有 `~/.dsh` 冒烟**（不是干净 home）：旧会话能打开、标题还在、设置与凭据还在。alpha.5 就是专门修「从 rc.2 / alpha.3 升级后起不来、会话标题消失」的——升级会损坏既有数据是实证过的。备份 `~/.dsh` 再升。**会话格式的迁移是单向的**：V4 里 0.2.1 新增的事件让 0.2.0 读不了（facts §1、§8.-9），所以回退靠升级前的备份，不靠降版本。2026-10-28 那次没有做这一步，归验收阶段（见该日志条）。
+7. 更新 `docs/dsh/facts.md` 首行版本号与受影响条目、`spec/dsh/` 的 web 与 headless 快照和 `pkglist`、`scripts/dsh-pins.ts` 的 `VENDOR_PINS`、运行指南和 README 里的版本号；本文件追加一条日志（发布说明要点 + 影响 + 适配点）。
 8. 升级不改领域代码；若必须改，拆成第二个提交。
 
 ## 日志
+
+### 2026-10-28 · 0.1.5-rc.2 → **0.2.1-rc.4**（第四次真升级，一步直达；领域代码改动 1 处）
+
+**触发与目标**：`next` = `0.2.1-rc.4`（10-26 发布），`latest` = `0.2.1-rc.2`，`alpha` = `0.2.2-alpha.2`（10-27 发布）。按「所有 dist-tag 里 semver 最大」取 rc.4。
+`0.2.2-alpha.2` 按切换点规则只读不升，影响记在 [facts.md](facts.md) §8.-13——它是一次迁移（Node 下限 24.9、`dsh-session-projection` 与 `dsh-tools` 的接口、验收 overlay 都要改），不是换版本串。
+
+**一步直达的理由（登记为对「一次一版」的例外）**：
+1. 每处破损都已对照发布说明和包差异定位到首次出现的版本，逐版二分的价值已经拿到：`session-log-deepseek` 缺省开启、`code-runtime` 删除、`agent/session-start` 改 `agent/created` 在 0.1.6-alpha.1；会话 V4 与快照来源改名 `runtime-context` 在 0.1.7-alpha.1；dsh 系精确互钉在 0.1.7-alpha.2；`working_directory` 在 0.2.1-alpha.2；`zod` 精确钉、headless 不读已保存凭据、事件 `job/registered` 在 0.2.1-alpha.3。
+2. 中间版本要另钉一套从未被它们测过的 Cordis 组合：0.1.7-rc.2 与 0.2.0-rc.2 声明的是 `cordis ~4.0.4`，今天解析到 4.0.5，逐版升级测到的不是当年那个版本。
+3. 先例：2026-09-09 的升级一次跨三个 minor，领域代码改动 0。
+4. 全程隔离 `DSH_HOME`、`DSH_AGENTS_HOME` 等，真实 `~/.dsh` 与 `~/.agents` 的元数据快照（只读路径、类型、大小、时间）前后逐字节相同。
+
+**判据三条全过**：
+- `pnpm clean && pnpm build`：0 个 TS 错误 ✅
+- `pnpm test --project unit --project contract`：177 个文件、8270 条全绿（升级前基线 173 个文件、8244 条）✅；生成物的五个 `--check`（`gen:dsh-pins`、`gen:skills`、`gen:progress`、`gen:nanonis`、`gen:records`）和覆盖率门槛也通过 ✅
+- `pnpm probe:compose`：对最小分发、最小分发加验收 overlay、mast-sim（带 `--patch`，以及把补丁装成 profile 补丁两种）通过；对旧 overlay（引用了已删除的 `tool-ralph`）和不带补丁的 mast-sim（找不到 `mast-instrument-stmsim`）变红并点名原因 ✅
+
+| 清单步 | 结果 |
+|---|---|
+| 1 钉版 + `pin.test.ts` | ✅ 10 个 manifest 与 `pnpm-workspace.yaml` 的两张表换到 rc.4，表里的 dsh 包从 21 个变 30 个（删 `dsh-code-runtime`、`dsh-invariants`）；Cordis 系跟升（`cordis` 4.0.5 等，见 facts §1）；`zod` 对齐为精确 4.4.3 |
+| 2 web 与 headless 快照 | ✅ 191 与 98 个顶层行；stderr 为空；与 rc.3 上导出的逐字节相同 |
+| 3 包树 diff | ✅ rc.3 → rc.4：296 个 dsh 包里 290 个相同，6 个有改动，都不在 compat 接触面和本仓钉的 30 个之内；rc.2 → rc.4：21 个有改动、新增 1 个。0.1.5-rc.2 → 0.2.1-rc.4 的接触面变化见 facts §8.-9 至 §8.-5 |
+| 4 contract 测试 | ✅ 契约测试按 V4 读工具结果（独立的 `role: 'tool'` 消息）；一动一观的时间线断言一字未改 |
+| 5 构建、测试、探针、冒烟 | ✅ 构建、单元与契约测试、`probe:compose`（见上）。最小分发的隔离安装：`install-minimal` 在隔离 home 里 2 分 13 秒装完，296 个 dsh 包全是 rc.4，独立版本线的 9 个 vendor 包逐个等于 `VENDOR_PINS`，宿主与插件解析到同一物理文件（4 项模块身份）。`dsh plugin --profile web add` 的会话冒烟没做 |
+| 6 **既有 `~/.dsh` 冒烟** | ❌ 没做，归验收阶段；V4 迁移单向，真做之前先备份 |
+| 7 文档 | ✅ `facts.md`（首行、§1–§7、新增 §8.-13 至 §8.-5、§9 逐条重核）、本文件、`spec/dsh/README.md` 与三份快照、运行指南、README |
+| 8 领域代码 | ✅ 一处：`stm-ui` 的投影按新的快照来源 `runtime-context` 认，单独提交 |
+
+**新增的守卫**：① 钉版表由 `pnpm gen:dsh-pins` 从锁文件生成并核对（同名包在锁里有两个版本时导出器拒绝）；② `pin.test.ts` 核对 `zod` 单版本、manifest 与表一致、`VENDOR_PINS` 与锁一致、`engines.dsh` 与 dsh peer 都是锁定版本；③ `pnpm probe:compose` 判定 `dsh-spm` 是否真的进了组合树，并把非空的 `version-exemptions` 判为红；④ `install-minimal` 在 `pnpm install` 之前就校验独立版本线的钉版表，缺项立即失败；⑤ 契约测试 `session-v4-reads.test.ts` 对真包钉住 V4 下工具结果的读法。
+
+**隐私默认值**：`session-log-deepseek` 自 0.1.6-alpha.1 起缺省开启，会随官方 API 的请求附带含工具结果（仪器读数）的会话日志增量，`DSH_TELEMETRY_DISABLED` 管不到它（facts §2）。验收 overlay、最小 bundle 的补丁和 mast-sim 的补丁都显式关闭它；mast-sim 另关 `session-telemetry-otel`（Web 里点一次反馈就会外发整段会话前缀）。
+
+#### 新踩的坑
+
+1. **`pnpm test` 在 `pnpm-workspace.yaml` 与 manifest 对不上时，预检会静默改写 `pnpm-lock.yaml`。** 做变异演练（故意改 manifest 或 yaml 看守卫红不红）时，直接用 `node node_modules/vitest/vitest.mjs run --project contract <文件>`，别经 `pnpm test`；演练完用 `git status` 确认锁文件没被动过。
+2. **`overrides` 会顶掉 manifest，没有任何命令报错。** 6 个只写了 cordis 版本的 manifest 一直被 `overrides` 压着，换版本时没人发现；现在由 `pin.test.ts` 核对 manifest 与表一致。
+3. **增量 `tsc -b` 可能不对着新的 `.d.ts` 重检**（清单第 4 步现在先 `pnpm clean`）。两份 `zod` 会让 `tsc` 吃满堆内存后崩溃，却不报任何 TS 错误——`zod` 因此对齐为 dsh 钉的 4.4.3。
+4. **`verify-minimal` 里的 Cordis 版本校验是字面量**，漏改会让验收脚本对着旧版本断言；现在 `install-minimal`、`verify-minimal`、`verify-native` 的版本都取自 `scripts/dsh-pins.ts`。
+5. **兼容闸的失败是退出码 0 加一行 stderr**，不看输出的脚本会把「`dsh-spm` 被整个跳过」当成通过——这是 `probe:compose` 存在的理由。
+6. 隔离 home 里的 `dsh plugin add` 会让 corepack 现场下载 pnpm（这次是 12.15.0，不是我们 `packageManager` 钉的 11.7.0）：隔离安装需要联网，也不能据此说 `packageManager` 的版本在用。
+
+**未做（如实记录）**：既有 `~/.dsh` 的升级冒烟（清单第 6 步）；真实模型会话与 Nanonis 模拟器验收——旧验收记录对应 0.1.5-rc.2 下构建的包，对新包不适用；Node 22.19 与 Ubuntu 的单元格交 CI（本次只在 Windows 和 Node 24.14.0 上跑过）；三类守卫尚未覆盖：验收组合里没有模型可见工具能绕开动作闸、实时状态块不被 preset 压掉、视觉工具回复的体积。
 
 ### 2026-09-13 · 0.1.5-rc.1 → **0.1.5-rc.2**（第三次真升级；13 个包 2193 条测试）
 
