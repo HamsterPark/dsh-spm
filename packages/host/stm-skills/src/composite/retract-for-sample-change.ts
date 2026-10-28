@@ -36,10 +36,11 @@
  */
 import {
   GraphExecutor,
+  MOTOR_DIR_CODE,
   getConfig,
-  getRetractDirCode,
   judgeRecedeLadder,
   progressToDict,
+  readRetractDir,
   retractLadder,
   zSettleDict,
   zSettleUsable,
@@ -53,6 +54,7 @@ import {
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { num } from '../l0/common.js'
+import { Z_DIR_UNREADABLE } from '../l0/writes-gated.js'
 import { captureQplusBaseline } from './tip-evidence.js'
 import { settleAndReadZ } from './z-settle.js'
 
@@ -225,7 +227,11 @@ class Retract {
    * （Z 压电伸长方向），在逼近 / 电流跳变上跳闸。
    */
   async #retractVerify(steps: number, level: number, cumulative: number): Promise<StepResult> {
-    const dirCode = getRetractDirCode()
+    // 读不到退针方向就在这一级之前拒绝（D-MOTORZ）：此前还没发过任何粗动。不拦的话方向会按
+    // 出厂 Z+ 发出去，而方向自检要的 `z_extend_sign` 同样读不到，要赔掉这一级的步数才停下。
+    const d = readRetractDir()
+    if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE }
+    const dirCode = d.state === 'declared' ? d.code : MOTOR_DIR_CODE['z+']!
 
     // 1. 粗动退针（方向来自配置；只往远离方向）。
     const recMove = await this.#ctx.safeCall('Motor_StartMove', dirCode, steps, 0, 1)

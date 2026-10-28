@@ -2600,8 +2600,8 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 | | |
 |---|---|
 | **参考实现（7.1.0）** | 7.1.0 之前 `z-retract` 固定为 Z+（码 4）。7.1.0 起按档案声明换算；未声明时按 Z+ 并在结果里警告；读档案抛异常时不发 Z |
-| **本仓** | 声明与未声明同参考实现。**读不到档案（宿主没有接档案读口，或读口抛出）时不发任何粗动 Z**，横向照走 |
-| **测试** | `l0/motor-z-direction.test.ts`；`batch5b.json` 的 `motor_z/*`、`recover/*`（「读不到」格对应参考实现的异常路径，用只有退针方向读不出的档案对象重放；「宿主没接」与「整个读口抛出」只由单元测试覆盖）；`stm-safety` 的 `plugin.test.ts`（人闸与档案状态无关）；变异 `motor-z-*`、`retractdir-*`、`recover-step-log-reports-the-z-basis`、`recover-message-names-the-way` |
+| **本仓** | 声明与未声明同参考实现。**读不到档案（宿主没有接档案读口，或读口抛出）时不发任何粗动 Z**，横向照走。同一条规则也用于清障退针（`RelocateCoarseXY`）与换样退针（`RetractForSampleChange`）：这两处在参考实现里直接取方向码（未声明时取出厂的 Z+，由随后的方向自检停下），没有「读不到」这一态；本仓多出这一态，在第一级之前拒绝 |
+| **测试** | `l0/motor-z-direction.test.ts`；`composite/coarse-composites.test.ts`；`batch5b.json` 的 `motor_z/*`、`recover/*`（「读不到」格对应参考实现的异常路径，用只有退针方向读不出的档案对象重放；「宿主没接」与「整个读口抛出」只由单元测试覆盖）；`stm-safety` 的 `plugin.test.ts`（人闸与档案状态无关）；变异 `motor-z-*`、`retractdir-*`、`recover-step-log-reports-the-z-basis`、`recover-message-names-the-way`、`relocate-clearance-refuses-unreadable-dir`、`retract-sample-change-refuses-unreadable-dir` |
 
 理由：参考实现里档案永远存在，空档案等于「未声明」；本仓档案由宿主注入（D-PROF-1），「没接」是可以说出口的状态。
 出厂 z+ 是两个互斥答案之一，猜错的方向是朝样品，而 `z-retract` 不经人审。此刻没有任何生产入口接了档案，

@@ -19,6 +19,7 @@ import {
   type SkillResultLike,
 } from 'dsh-spm-kernel'
 import { processQPlusBaseline } from '../l0/qplus.js'
+import { Z_DIR_UNREADABLE } from '../l0/writes-gated.js'
 import { RelocateCoarseXY } from './relocate-coarse-xy.js'
 import { RetractForSampleChange } from './retract-for-sample-change.js'
 import { NUDGE_MAX_STEPS, StepCoarseXY } from './step-coarse-xy.js'
@@ -425,6 +426,80 @@ describe('RelocateCoarseXY · 清障与横移', () => {
     const prog = res.data?.['_progress'] as Record<string, unknown>
     expect(JSON.stringify(prog)).toContain('verify')
   })
+})
+
+// ── 读不到退针方向（D-MOTORZ）──────────────────────────────────────────────
+
+/**
+ * 只有取 `retract_motor_dir` 时抛的档案对象。先展开普通对象、再装 getter；
+ * **不要**再展开它的返回值（展开会调用 getter 而抛）。
+ */
+function retractDirUnreadable(base: Record<string, unknown>): Record<string, unknown> {
+  const o: Record<string, unknown> = { ...base }
+  Object.defineProperty(o, 'retract_motor_dir', {
+    enumerable: true,
+    get(): never {
+      throw new Error('profile unreadable')
+    },
+  })
+  return o
+}
+
+const coarseStarts = (rig: Rig): { method: string; args: unknown[] }[] =>
+  rig.calls.filter((c) => c.method === 'Motor_StartMove')
+
+/** 两条粗动组合各自的一次完整调用（Relocate 照旁边的写法关掉真空闸，否则走不到清障）。 */
+const COMPOSITES: [string, (rig: Rig) => Promise<SkillResultLike>][] = [
+  ['RetractForSampleChange', (rig) => RetractForSampleChange.execute(rig.ctx(), {})],
+  [
+    'RelocateCoarseXY',
+    (rig) => {
+      processVacuum.config = { mode: 'off' }
+      return RelocateCoarseXY.execute(rig.ctx(), RELOCATE)
+    },
+  ],
+]
+
+describe('读不到退针方向 ⇒ 两条粗动组合在第一级之前拒绝', () => {
+  // 顶层错误带着执行器加的 `_phase_… failed: ` 前缀，所以用 toContain。
+  for (const [skill, run] of COMPOSITES) {
+    it(`${skill} · 宿主没接档案：拒绝，一步粗动都不发`, async () => {
+      install(null, DRIVE)
+      const rig = new Rig()
+      const res = await run(rig)
+      expect(res.success).toBe(false)
+      expect(res.error).toContain(Z_DIR_UNREADABLE)
+      expect(coarseStarts(rig)).toEqual([])
+    })
+
+    it(`${skill} · 只有退针方向读不出：拒绝，一步粗动都不发`, async () => {
+      install(retractDirUnreadable(PROFILE), DRIVE)
+      const rig = new Rig()
+      const res = await run(rig)
+      expect(res.success).toBe(false)
+      expect(res.error).toContain(Z_DIR_UNREADABLE)
+      expect(coarseStarts(rig)).toEqual([])
+    })
+
+    it(`${skill} · 对照：档案读得到但没声明 ⇒ 第一级照发 Z+（4）`, async () => {
+      install({}, DRIVE)
+      const rig = new Rig()
+      await run(rig)
+      expect(coarseStarts(rig)[0]?.args[0]).toBe(4)
+    })
+
+    it(`${skill} · 整个读口抛出：一步粗动都不发`, async () => {
+      install(PROFILE, DRIVE)
+      processInstrumentProfile.source = () => {
+        throw new Error('profile unreadable')
+      }
+      const rig = new Rig()
+      const res = await run(rig)
+      // 这一格不断言文案：哪一道闸先拦下取决于前面的预检怎么读档案，「什么都没发」不变。
+      expect(res.success).toBe(false)
+      expect(coarseStarts(rig)).toEqual([])
+    })
+  }
 })
 
 // ── settleAndReadZ ──────────────────────────────────────────────────────────
