@@ -1316,6 +1316,17 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
   'ConfigureSTS/empty@0': { calls: withSweepsRead('empty@0', 4), extra: SWEEPS_PRESERVED_4 },
   'ConfigureSTS/err@2': { faultAt: 3, calls: withSweepsRead('err@2', 4) },
   'ConfigureSTS/err@3': { faultAt: 4, calls: withSweepsRead('err@3', 4), extra: SWEEPS_PRESERVED_4 },
+
+  // ── D-SCAN-?：ConfigureScan 有一个通道对不上就整组不设，并报 channels_source ──
+  //
+  // 夹具的 Signals_NamesGet 合成回包是 ['Sig2A', 'Sig2B']，请求的 'Z,Current' 一个都对不上，
+  // 金样与本仓都不发 Scan_BufferSet，动词序列相同；本仓多报一个 channels_source。
+  // err@5 那一格注错打在 Signals_NamesGet 本身上，名字表读不到。
+  'ConfigureScan/ok': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@3': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@4': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@5': { extra: { channels_source: 'unchanged_read_failed' } },
+  'ConfigureScan/err@6': { extra: { channels_source: 'unchanged_partial_match' } },
 }
 
 /**

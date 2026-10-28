@@ -211,16 +211,52 @@ describe('ConfigureScan ③ 伸出压电量程就拒 —— 那 15 % 不是数�
 })
 
 describe('ConfigureScan ④ 通道与速度', () => {
-  it('通道对不上就**跳过**，不猜，也不让整件事失败', async () => {
+  const bufferSets = (rig: Rig): unknown[][] => rig.calls.filter((c) => c.verb === 'Scan_BufferSet').map((c) => c.args)
+  const source = (res: SkillResultLike): unknown => (res.data as Record<string, unknown>)['channels_source']
+
+  it('请求的通道有一个对不上 ⇒ **整组不设**，保持操作员当前的通道，并说出来（D-SCAN-?）', async () => {
+    // 只设对上的那部分，等于把操作员要的其它通道悄悄砍掉
     const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Nope' })
     expect(res.success).toBe(true)
-    const buf = rig.calls.find((c) => c.verb === 'Scan_BufferSet')
-    expect(buf?.args[0]).toEqual([1]) // 只有 Z 对上了（索引 1）
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged_partial_match')
   })
 
-  it('一个都对不上 ⇒ **不发** `Scan_BufferSet`', async () => {
-    const { rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Nope' })
-    expect(rig.calls.some((c) => c.verb === 'Scan_BufferSet')).toBe(false)
+  it('一个都对不上 ⇒ 同样不设，同样说出来', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Nope' })
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged_partial_match')
+  })
+
+  it('全部对上 ⇒ 整组设好，`set`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Current' })
+    expect(bufferSets(rig)).toEqual([[[1, 0], 0, 0]])
+    expect(source(res)).toBe('set')
+  })
+
+  it('全部对上而仪器拒了 `Scan_BufferSet` ⇒ 整件事照样成功，但报 `set_failed`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Current' }, {
+      errors: { Scan_BufferSet: 'NanonisError: buffer locked' },
+    })
+    expect(res.success).toBe(true)
+    expect(bufferSets(rig)).toEqual([[[1, 0], 0, 0]])
+    expect(source(res)).toBe('set_failed')
+  })
+
+  it('读不到信号名清单（读失败，或回包里没有名字表）⇒ 不设，`unchanged_read_failed`', async () => {
+    for (const signals of [null, []]) {
+      const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z' }, { signals })
+      expect(res.success, JSON.stringify(signals)).toBe(true)
+      expect(bufferSets(rig), JSON.stringify(signals)).toEqual([])
+      expect(source(res), JSON.stringify(signals)).toBe('unchanged_read_failed')
+    }
+  })
+
+  it('没请求通道 ⇒ 名字表都不读，`unchanged`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: '' })
+    expect(rig.calls.some((c) => c.verb === 'Signals_NamesGet')).toBe(false)
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged')
   })
 
   it('速度由档位表推导，`line_time_source` 说得出是谁定的', async () => {

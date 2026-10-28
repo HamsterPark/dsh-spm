@@ -699,6 +699,32 @@ function physicallyAbsurdViolations_unused(`,
     scope: 'packages/host/stm-skills',
   },
   {
+    id: 'configure-scan-refuses-partial-channel-set',
+    why: '通道只匹配上一部分时照设那一部分 ⇒ 操作员要的其它通道被悄悄砍掉（请求 Z,Current 而 Z 没对上时，缓冲只剩 Current）',
+    file: `${SK}/l0/configure-scan.ts`,
+    find: '        if (missing.length > 0) {',
+    replace: '        if (missing.length > 0 && idx.length === 0) {',
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'configure-scan-reports-buffer-set-failure',
+    why: '仪器拒了 Scan_BufferSet 也报 set ⇒ 采集通道没设上，而结果说设好了，扫出来少了通道没人知道为什么',
+    file: `${SK}/l0/configure-scan.ts`,
+    find: "          channelsSource = failed(recBuf) ? 'set_failed' : 'set'",
+    // ⚠️ 不能直接写成 `= 'set'`：`recBuf` 就没人读了，`noUnusedLocals` 让变异编不过，
+    // 而编不过的变异等于没验。`void recBuf` 留着那次读，被拒也报 set。
+    replace: "          channelsSource = (void recBuf, 'set')",
+    scope: 'packages/host/stm-skills',
+  },
+  {
+    id: 'configure-scan-says-it-could-not-read-names',
+    why: '读不到信号名清单时报 unchanged ⇒「没请求通道」和「想设却读不到名字」看起来一样，后者要去查的是信号名那一发',
+    file: `${SK}/l0/configure-scan.ts`,
+    find: "        channelsSource = 'unchanged_read_failed'",
+    replace: "        channelsSource = 'unchanged'",
+    scope: 'packages/host/stm-skills',
+  },
+  {
     id: 'start-scan-continuous-gate',
     why: '只有回读确认 continuous 关着才起扫。拆掉 ⇒ 一次 start 不再等于一帧，WaitScanComplete 只能等满超时而 SaveScan 拿到的可能是第 N+2 帧',
     file: `${SK}/l0/start-scan.ts`,

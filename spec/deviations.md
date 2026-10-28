@@ -513,6 +513,16 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 `before=None` 的那几趟：读得到值的那几趟两边一字不差，给它们挂一条「偏差」等于登记
 一条不存在的差异。
 
+## D-SCAN-? · `ConfigureScan` 请求的通道有一个没匹配上，就**整组不设**（参考 v7.1.0 设匹配到的那部分）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | 请求 "Z,Current" 而 "Z" 没匹配上信号名时，照样把采集缓冲设成匹配到的那部分（只剩 "Current"），操作员要的其它通道被悄悄砍掉；`Scan_BufferSet` 被拒只写日志。参考仓之后的提交 `7ae1061b` 改为整组不设、保持操作员当前的通道，并在 `data` 里报 `channels_source` |
+| **本仓** | 照移这次修复：有一个请求的名字没匹配上 ⇒ 不发 `Scan_BufferSet`，`unchanged_partial_match`；全部匹配 ⇒ 设，成功为 `set`、被拒为 `set_failed`（整件事照样成功）；读不到信号名清单 ⇒ `unchanged_read_failed`；没请求通道 ⇒ `unchanged`。参考的第六种取值 `unchanged_error` 对应 Python 的 `except Exception`，本仓的 `safeCall` 不抛，这一态走不到，不移 |
+| **测试** | `l0/scan-skills.test.ts` 的 ConfigureScan ④；`l0/traces.test.ts` 的 `ConfigureScan/*` 五格登记（`extra`）；变异 `configure-scan-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，轨迹登记一并删掉。
+
 ## D-FRAME-1 · 候选保存目录只留一个来源
 
 | | |
