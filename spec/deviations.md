@@ -1490,7 +1490,7 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 |---|---|
 | **Python** | `AcquireZSpectr` 与 `AcquireDeltaFCurve` 的 `data["recv_timeout_s"] = round(recv_budget_s, 1)` —— 与 `AcquireSTS` 一样，记的是**请求的**那个数 |
 | **TS** | 记 `ctx.slowCall` 回来的那个数（**已夹到 900 s**）；宿主没接预算口时是 `null`。估算 `sweep_estimate_s` 与明细 `sweep_settings` 照报，不受影响 |
-| **测试** | `l0/spectroscopy.test.ts` 的 Z1（接上 ⇒ 报用上的数）、Z2（没接 ⇒ `null`）、Z3–Z7 与 D1（Δf(z)）；`kernel/src/spectroscopy.test.ts` 的 `opts.why` 四格；`bundle/dsh-spm/src/instrument-calls.test.ts` ①–⑥（⑥ 是缩比的真 TCP：回复晚于缺省超时）；`stm-skills/src/gated-call.test.ts`（预算路径过同一道中止门）；`nanonis-wire/src/role-link.test.ts` 的 recv 预算一格 |
+| **测试** | `l0/spectroscopy.test.ts` 的 Z1（接上 ⇒ 报用上的数）、Z2（没接 ⇒ `null`）、Z3–Z7 与 D1（Δf(z)）；`kernel/src/spectroscopy.test.ts` 的 `opts.why` 四格；`bundle/dsh-spm/src/instrument-calls.test.ts` ①–⑥（⑥ 是缩比的真 TCP：回复晚于缺省超时）；`stm-skills/src/gated-call.test.ts`（预算路径过同一道中止门）；`nanonis-wire/src/role-link.test.ts` 的 recv 预算一格；变异 `zsweep-start-uses-slowcall` / `zsweep-deltaf-start-uses-slowcall` / `zsweep-nsweeps-index` / `zsweep-fallback-names-the-z-sweep` / `zsweep-timing-table-has-no-z-offset` / `gated-budgeted-call-same-gate` |
 
 理由同 D-STS-3 与 D-SCAN-4「回声不是读数」。金样照不出它（夹具里的预算最大 855 s，从来没超过 900 s），
 所以由单测钉住。
