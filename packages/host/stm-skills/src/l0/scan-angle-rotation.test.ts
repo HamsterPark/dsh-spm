@@ -17,7 +17,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { SkillContext } from 'dsh-spm-kernel'
+import { locateStepEdge } from 'dsh-spm-vision'
+import { loadSxm, orient } from './analysis-common.js'
 import { runExtractClusters, SelectPokedCluster, VerifyAdatomAt } from './analysis-clusters.js'
+import { LocateStepEdge } from './analysis-frames.js'
 import { FindFlatRegion } from './analysis-flat-region.js'
 
 interface Frame {
@@ -30,6 +33,8 @@ interface Frame {
   readonly angleDeg: number
   /** 行优先，**行 0 = 帧的顶边**（`down` 帧的采集顺序正是这个顺序）。 */
   readonly z: Float64Array
+  /** `false` ⇒ 头里不写 `:SCAN_OFFSET:`（几何读不全的那一支）。 */
+  readonly withOffset?: boolean
 }
 
 function sxmBytes(f: Frame): Buffer {
@@ -39,7 +44,7 @@ function sxmBytes(f: Frame): Buffer {
     ':SCANIT_TYPE:', '              FLOAT            MSBFIRST',
     ':SCAN_PIXELS:', `       ${f.nx}       ${f.ny}`,
     ':SCAN_RANGE:', `           ${e(f.widthM)}           ${e(f.heightM)}`,
-    ':SCAN_OFFSET:', `             ${e(f.offsetXM)}         ${e(f.offsetYM)}`,
+    ...(f.withOffset === false ? [] : [':SCAN_OFFSET:', `             ${e(f.offsetXM)}         ${e(f.offsetYM)}`]),
     ':SCAN_ANGLE:', `            ${f.angleDeg.toFixed(3)}`,
     ':SCAN_DIR:', 'down',
     ':DATA_INFO:', '\tChannel\tName\tUnit\tDirection\tCalibration\tOffset',
@@ -103,6 +108,24 @@ beforeAll(() => {
     writeFileSync(p, sxmBytes({
       nx: n, ny: n, widthM: 48e-9, heightM: 48e-9, offsetXM: 100e-9, offsetYM: -50e-9, angleDeg: 90, z,
     }))
+  }
+
+  // ── 帧 C：一道竖直台阶 ─────────────────────────────────────────────────
+  // 64×64、64 nm，中心 (100, −50) nm，θ=90°。列 ≥ 40 高 200 pm，噪声 ±1 pm。
+  // 另存一份**头里没有 `:SCAN_OFFSET:`** 的，走「几何读不全」那一支。
+  {
+    const n = 64
+    const z = new Float64Array(n * n)
+    for (let r = 0; r < n; r += 1) {
+      for (let c = 0; c < n; c += 1) z[r * n + c] = 1e-9 + (c >= 40 ? 200e-12 : 0) + noise(r * n + c + 3, 1e-12)
+    }
+    const frame = { nx: n, ny: n, widthM: 64e-9, heightM: 64e-9, offsetXM: 100e-9, offsetYM: -50e-9, angleDeg: 90, z }
+    const p = `${DIR}/step.sxm`
+    PATH['step'] = p
+    writeFileSync(p, sxmBytes(frame))
+    const q = `${DIR}/step_no_offset.sxm`
+    PATH['step_no_offset'] = q
+    writeFileSync(q, sxmBytes({ ...frame, withOffset: false }))
   }
 })
 
@@ -219,5 +242,45 @@ describe('θ=90° 帧上 FindFlatRegion 的「避开扎过的点」（D-ROT-?）
     })
     expect(r.success).toBe(true)
     expectCentre(r.data, P1)
+  })
+})
+
+/** 判据在同一帧上给出的边上一点（像素）—— 技能不报它，期望值要从它算。 */
+function edgePointPx(path: string): [number, number] {
+  const load = loadSxm(path)
+  if (!load.ok) throw new Error(load.plain)
+  const img = orient(load.scan, 'Z').forward
+  if (img === null) throw new Error('no forward frame')
+  const res = locateStepEdge(img)
+  if (res.verdict !== 'step_edge' || res.xPx === null || res.yPx === null) throw new Error(`verdict ${res.verdict}`)
+  return [res.xPx, res.yPx]
+}
+
+describe('θ=90° 帧上 LocateStepEdge 的边上一点（D-ROT-?）', () => {
+  it('C1 edge_x_m / edge_y_m 经 R(−θ) 换算，而不是旧仓那个不旋转的式子', async () => {
+    const [xPx, yPx] = edgePointPx(PATH['step'] as string)
+    const r = await LocateStepEdge.execute(CTX, { scan_path: PATH['step'] })
+    expect(r.success).toBe(true)
+    const d = r.data as any
+    expect(d.verdict).toBe('step_edge')
+    // R(−θ)，θ=90°，测试里独立写：帧内 (dx, dy) ⇒ 压电 (cx + dy, cy − dx)。
+    const t = (90 * Math.PI) / 180
+    const dx = ((xPx + 0.5) / 64) * 64e-9 - 32e-9
+    const dy = 32e-9 - ((yPx + 0.5) / 64) * 64e-9
+    const want = [100e-9 + dx * Math.cos(t) + dy * Math.sin(t), -50e-9 - dx * Math.sin(t) + dy * Math.cos(t)]
+    expect(Math.abs(d.edge_x_m - (want[0] as number)) <= WINDOW_TOL || `edge_x_m = ${d.edge_x_m}`).toBe(true)
+    expect(Math.abs(d.edge_y_m - (want[1] as number)) <= WINDOW_TOL || `edge_y_m = ${d.edge_y_m}`).toBe(true)
+    // 旧式（不旋转，`nm_per_px` = 1）：差的是一整段台阶到帧心的距离（这里约 8 nm）。
+    const legacy = [100e-9 + (xPx - 31.5) * 1e-9, -50e-9 - (yPx - 31.5) * 1e-9]
+    expect(Math.abs(d.edge_x_m - (legacy[0] as number))).toBeGreaterThan(1e-9)
+    expect(Math.abs(d.edge_y_m - (legacy[1] as number))).toBeGreaterThan(1e-9)
+  })
+
+  it('C2 头里没有 `:SCAN_OFFSET:` ⇒ 判得出边，但不报坐标（不是「在原点」）', async () => {
+    const r = await LocateStepEdge.execute(CTX, { scan_path: PATH['step_no_offset'] })
+    expect(r.success).toBe(true)
+    const d = r.data as any
+    expect(d.verdict).toBe('step_edge')
+    expect([d.edge_x_m, d.edge_y_m]).toEqual([undefined, undefined])
   })
 })

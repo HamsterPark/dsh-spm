@@ -11,6 +11,9 @@
  *
  * ⇒ 修法不是提醒大家别复制，是**把复制的诱因去掉**。
  *
+ * 旧仓的 `LocateStepEdge` 仍有一份自己的换算（拆 `scan_offset`、用 `nm_per_px`、**不旋转**），
+ * 旧仓那条「唯一一份」的守卫测试没认出它。本仓那一份已改走这里（D-ROT-?）。
+ *
  * ## `sxmFrameMeta` **不是**它（这一条是本批核出来的）
  *
  * `nanonis-files` 的 `sxmFrameMeta`（`sxm.ts`）只吐 `scanOffset` / `scanRange` /
