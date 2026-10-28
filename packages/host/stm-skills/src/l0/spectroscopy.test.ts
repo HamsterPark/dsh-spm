@@ -518,6 +518,60 @@ describe('ConfigureSTS · 四步各自的早退，外加那一步**不致命**�
   })
 })
 
+describe('ConfigureSTS · 扫掠数先读回再原样写，读不到才退回 1（D-STS-?）', () => {
+  const STS = { start_v: -1, end_v: 1, num_points: 128 }
+  const propsGet = (values: unknown[]): SkillCallRecord => ({ method: '', args: [], values })
+  const propsSetArgs = (f: Fixture): unknown[] | undefined =>
+    f.calls.find((c) => c.verb === 'BiasSpectr_PropsSet')?.args
+
+  it('读到操作员设的 8 ⇒ PropsSet 原样写 8，来源 preserved', async () => {
+    const f = fx({ BiasSpectr_PropsGet: propsGet([0, 8, 1, 200]) })
+    const got = await ConfigureSTS.execute(f.ctx, STS)
+    expect(f.calls.map((c) => c.verb)).toEqual([
+      'BiasSpectr_Open',
+      'BiasSpectr_LimitsSet',
+      'BiasSpectr_PropsGet',
+      'BiasSpectr_PropsSet',
+      'BiasSpectr_AdvPropsSet',
+    ])
+    expect(propsSetArgs(f)).toEqual([1, 8, 1, 128, 0, 1, 2])
+    expect(got).toEqual({
+      success: true,
+      data: {
+        start_v: -1,
+        end_v: 1,
+        num_points: 128,
+        z_offset_m: 0,
+        num_sweeps: 8,
+        num_sweeps_source: 'preserved',
+        z_controller_hold: true,
+        reset_bias: true,
+      },
+    })
+  })
+
+  for (const [label, reply] of [
+    ['读回失败', 'error'],
+    ['读到 0（不是合法的扫掠数）', propsGet([0, 0, 1, 200])],
+    ['回包不到两项', propsGet([0])],
+  ] as const) {
+    it(`${label} ⇒ 退回 1，来源 fallback_unreadable（不冒充「保持住了」）`, async () => {
+      const f = fx({ BiasSpectr_PropsGet: reply })
+      const got = await ConfigureSTS.execute(f.ctx, STS)
+      expect(got.success).toBe(true)
+      expect(propsSetArgs(f)).toEqual([1, 1, 1, 128, 0, 1, 2])
+      expect(got.data).toMatchObject({ num_sweeps: 1, num_sweeps_source: 'fallback_unreadable' })
+    })
+  }
+
+  it('读到 7.9 ⇒ 按整数截成 7（参考按 int() 取）', async () => {
+    const f = fx({ BiasSpectr_PropsGet: propsGet([0, 7.9, 1, 200]) })
+    const got = await ConfigureSTS.execute(f.ctx, STS)
+    expect(propsSetArgs(f)?.[1]).toBe(7)
+    expect(got.data).toMatchObject({ num_sweeps: 7, num_sweeps_source: 'preserved' })
+  })
+})
+
 describe('ConfigureZSpectr · 三步的早退', () => {
   for (const verb of ['ZSpectr_Open', 'ZSpectr_RangeSet', 'ZSpectr_PropsSet'] as const) {
     it(`${verb} 失败 ⇒ 原样透传`, async () => {

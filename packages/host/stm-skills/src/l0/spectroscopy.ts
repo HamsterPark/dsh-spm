@@ -499,6 +499,19 @@ export const AcquireZSpectr: Skill = {
 
 // ── 配置：多动词、逐步早退的那几个 ──────────────────────────────────────────
 
+/**
+ * 当前的扫掠数（`BiasSpectr_PropsGet` 的第 1 项，与 {@link readSweepBudget} 同一处取法）。
+ * 读不到、或读到的不是 ≥ 1 的数，给 `null` —— **不是 1**：把「读不到」折成一个具体值，
+ * 正是这次要修的形状。
+ */
+async function readCurrentNumSweeps(ctx: SkillContext): Promise<number | null> {
+  const rec = await callIdempotent(ctx, 'BiasSpectr_PropsGet')
+  const v = failed(rec) ? null : at(rec, 1)
+  if (v === null) return null
+  const n = Math.trunc(v)
+  return n >= 1 ? n : null
+}
+
 export const ConfigureSTS: Skill = {
   spec: S.ConfigureSTSSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
@@ -514,7 +527,13 @@ export const ConfigureSTS: Skill = {
     const limits = await callIdempotent(ctx, 'BiasSpectr_LimitsSet', startV, endV)
     if (failed(limits)) return fail(limits.error ?? '')
 
-    const props = await callIdempotent(ctx, 'BiasSpectr_PropsSet', 1, 1, 1, numPoints, zOffset, 1, 2)
+    // 扫掠数（PropsSet 的第 2 个实参）没有「不改」的哨兵值：要保持操作员在 Nanonis 里设的
+    // 平均次数，就得先读回来再原样写。读不到时退回 1，并在 data 里说出来（D-STS-?）。
+    const current = await readCurrentNumSweeps(ctx)
+    const effectiveSweeps = current ?? 1
+    const sweepsSource = current === null ? 'fallback_unreadable' : 'preserved'
+
+    const props = await callIdempotent(ctx, 'BiasSpectr_PropsSet', 1, effectiveSweeps, 1, numPoints, zOffset, 1, 2)
     if (failed(props)) return fail(props.error ?? '')
 
     // 把两件原本从「操作员上次在 Nanonis 界面里留下的状态」继承来的行为钉死
@@ -534,6 +553,10 @@ export const ConfigureSTS: Skill = {
       end_v: endV,
       num_points: numPoints,
       z_offset_m: zOffset,
+      // 实际设下去的扫掠数，以及它从哪来：preserved = 保持了操作员原来的值，
+      // fallback_unreadable = 读不到、退回了 1
+      num_sweeps: effectiveSweeps,
+      num_sweeps_source: sweepsSource,
       z_controller_hold: advOk ? true : null,
       reset_bias: advOk ? true : null,
     })

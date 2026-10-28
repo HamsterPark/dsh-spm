@@ -269,6 +269,23 @@ interface Deviation {
    */
   readonly absent?: readonly string[]
   /**
+   * 本仓**故意多出**的顶层字段及其值。`absent` 的镜像。
+   *
+   * 测试先断言这些键在金样里**确实不存在**（{@link extraAlreadyInGolden}）——
+   * 旧仓哪天也有了这个键，这条登记会当场变红；然后把它们并进金样的 `data` 去比，
+   * 其余字段照旧逐位比。
+   */
+  readonly extra?: Readonly<Record<string, unknown>>
+  /**
+   * 这一格的注错在本仓落在**第几发**调用（`err@k` 的 `k` 是旧仓那一侧的序号）。
+   *
+   * 本仓比旧仓多发一条调用时，按序号注错会打在另一个动词上 —— 比的就成了另一条分支，
+   * 连 `success` 都会反过来。这里把注错挪回**同一个动词**：测试先断言旧仓第 `k` 发与
+   * 本仓第 `faultAt` 发是同一个动词（{@link faultVerbMismatch}），`success`、`error`、
+   * `data` 照常比；动词序列多出来的那一发仍要用 `calls` 写明。
+   */
+  readonly faultAt?: number
+  /**
    * 动词序列**不比**，附上理由。
    *
    * 只在旧仓那一趟里**有步骤炸了**时才允许（测试会去金样的 `_progress.failed_steps`
@@ -447,6 +464,27 @@ function withoutPhantomArg(name: string, trace: string): Deviation {
   }
 }
 
+/**
+ * D-STS-?：本仓 `ConfigureSTS` 的动词序列 = 金样那一串，只在 PropsSet 之前多读一发
+ * `BiasSpectr_PropsGet`，并把读到的扫掠数写进 PropsSet 的第 2 个实参（金样里是写死的 1）。
+ * 期望**从金样算出来**，差异就是这两处，看得见。
+ */
+function withSweepsRead(trace: string, sweeps: number): [string, unknown[]][] {
+  const out: [string, unknown[]][] = []
+  for (const c of golden['ConfigureSTS']?.traces[trace]?.calls ?? []) {
+    if (c.verb === 'BiasSpectr_PropsSet') {
+      out.push(['BiasSpectr_PropsGet', []])
+      out.push([c.verb, [c.args[0], sweeps, ...c.args.slice(2)]])
+    } else {
+      out.push([c.verb, c.args])
+    }
+  }
+  return out
+}
+
+/** D-STS-?：读回成功时 `ConfigureSTS` 多报的两个键（夹具的合成回包读到 4）。 */
+const SWEEPS_PRESERVED_4 = { num_sweeps: 4, num_sweeps_source: 'preserved' } as const
+
 /** 按点分路径删一个键。返回它原来在不在。 */
 function dropPath(obj: unknown, path: string): boolean {
   const parts = path.split('.')
@@ -459,6 +497,30 @@ function dropPath(obj: unknown, path: string): boolean {
   if (cur === null || typeof cur !== 'object' || !(last in (cur as object))) return false
   delete (cur as Record<string, unknown>)[last]
   return true
+}
+
+/** `extra` 的自检：登记的键里，金样 `data` 已经有的那些。不为空 ⇒ 这条登记过期了。 */
+function extraAlreadyInGolden(
+  wantData: Readonly<Record<string, unknown>>,
+  extra: Readonly<Record<string, unknown>>,
+): string[] {
+  return Object.keys(extra).filter((k) => Object.hasOwn(wantData, k))
+}
+
+/**
+ * `faultAt` 的自检：旧仓第 `goldenAt` 发与本仓第 `faultAt` 发是不是同一个动词。
+ * 是 ⇒ `null`；不是（或其中一边根本没有那一发）⇒ 一句说明。
+ */
+function faultVerbMismatch(
+  goldenCalls: readonly { verb: string }[],
+  goldenAt: number,
+  ourCalls: readonly { verb: string }[],
+  faultAt: number,
+): string | null {
+  const theirs = goldenCalls[goldenAt]?.verb
+  const ours = ourCalls[faultAt]?.verb
+  if (theirs !== undefined && theirs === ours) return null
+  return `旧仓第 ${goldenAt} 发是 ${theirs ?? '（没有这一发）'}，本仓第 ${faultAt} 发是 ${ours ?? '（没有这一发）'}`
 }
 
 /**
@@ -1243,6 +1305,28 @@ const DEVIATIONS: Readonly<Record<string, Deviation>> = {
       ]
     }),
   ),
+
+  // ── D-STS-?：ConfigureSTS 先读回当前扫掠数再原样写（参考仓 v7.1.0 之后的修复） ──
+  //
+  // 金样是 v7.1.0 的：PropsSet 的扫掠数写死 1，没有那一发 PropsGet。夹具的 PropsGet
+  // 合成回包第 1 项是 4，于是本仓读到 4、原样写 4（`preserved`）。多出的那一发让
+  // 按序号注错往后挪一位：`err@2`（PropsSet 失败）在本仓是第 3 发，`err@3`
+  // （AdvPropsSet 被拒、整趟照样成功）是第 4 发。`err@0`、`err@1` 停在读之前，照原样比。
+  'ConfigureSTS/ok': { calls: withSweepsRead('ok', 4), extra: SWEEPS_PRESERVED_4 },
+  'ConfigureSTS/empty@0': { calls: withSweepsRead('empty@0', 4), extra: SWEEPS_PRESERVED_4 },
+  'ConfigureSTS/err@2': { faultAt: 3, calls: withSweepsRead('err@2', 4) },
+  'ConfigureSTS/err@3': { faultAt: 4, calls: withSweepsRead('err@3', 4), extra: SWEEPS_PRESERVED_4 },
+
+  // ── D-SCAN-?：ConfigureScan 有一个通道对不上就整组不设，并报 channels_source ──
+  //
+  // 夹具的 Signals_NamesGet 合成回包是 ['Sig2A', 'Sig2B']，请求的 'Z,Current' 一个都对不上，
+  // 金样与本仓都不发 Scan_BufferSet，动词序列相同；本仓多报一个 channels_source。
+  // err@5 那一格注错打在 Signals_NamesGet 本身上，名字表读不到。
+  'ConfigureScan/ok': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@3': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@4': { extra: { channels_source: 'unchanged_partial_match' } },
+  'ConfigureScan/err@5': { extra: { channels_source: 'unchanged_read_failed' } },
+  'ConfigureScan/err@6': { extra: { channels_source: 'unchanged_partial_match' } },
 }
 
 /**
@@ -1575,10 +1659,23 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
       for (const [traceName, want] of comparable) {
         it(`${traceName}：动词序列与返回都相等`, async () => {
           resetProcessState(name)
-          const { ctx, calls } = fakeCtx({ ...optsOf(traceName), skill: name })
+          const dev = DEVIATIONS[`${name}/${traceName}`]
+          const opts = optsOf(traceName)
+          if (dev?.faultAt !== undefined) {
+            // 只有按序号注错的那一族格（`err@k`）有「注错打在哪一发」这件事
+            expect(opts.errorAt, `${traceName} 不是按序号注错的格，faultAt 不适用`).toBeDefined()
+          }
+          const { ctx, calls } = fakeCtx({
+            ...opts,
+            ...(dev?.faultAt !== undefined ? { errorAt: dev.faultAt } : {}),
+            skill: name,
+          })
           const got = await skill.execute(ctx, want.params ?? entry.params)
 
-          const dev = DEVIATIONS[`${name}/${traceName}`]
+          if (dev?.faultAt !== undefined) {
+            // 挪过的注错必须仍打在旧仓那一发的**同一个动词**上，否则比的是另一条分支
+            expect(faultVerbMismatch(want.calls, opts.errorAt!, calls, dev.faultAt)).toBeNull()
+          }
           if (dev?.calls !== undefined) {
             expect(calls.map((c) => [c.verb, c.args])).toEqual(dev.calls)
             // 旧仓那一侧也钉住 —— 差异消失时这条登记会变红，而不是安静地留着
@@ -1630,6 +1727,13 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
               expect(dropPath(wantData, path), `金样里没有 ${path}，这条 absent 登记过期了`)
                 .toBe(true)
             }
+            if (dev?.extra !== undefined) {
+              // 先钉住「金样里确实没有它」——旧仓哪天也有了这个键，这条登记会当场变红
+              const wantRec = wantData as Record<string, unknown>
+              expect(extraAlreadyInGolden(wantRec, dev.extra), '金样里已经有这些键，这条 extra 登记过期了')
+                .toEqual([])
+              Object.assign(wantRec, dev.extra)
+            }
             // 三档对齐叠着走，顺序无关（各自只碰自己那组键）：
             //   clockApprox —— 时钟派生字段（批 5b/5c）
             //   fitApprox   —— 拟合派生字段（批 7a-1 的 RANSAC / 圆拟合）
@@ -1647,6 +1751,23 @@ describe('轨迹金样：批 1/2 逐条对旧仓', () => {
       }
     })
   }
+})
+
+describe('`Deviation` 的 `faultAt` 与 `extra`：登记错了，自检自己会红', () => {
+  it('`faultAt` 指到另一个动词 ⇒ 自检报出来；指对了 ⇒ 不报', () => {
+    // 旧仓第 2 发是 PropsSet；本仓在它前面多读一发 PropsGet，同一个动词于是落在第 3 发
+    const theirs = [{ verb: 'BiasSpectr_Open' }, { verb: 'BiasSpectr_LimitsSet' }, { verb: 'BiasSpectr_PropsSet' }]
+    const ours = [...theirs.slice(0, 2), { verb: 'BiasSpectr_PropsGet' }, { verb: 'BiasSpectr_PropsSet' }]
+    expect(faultVerbMismatch(theirs, 2, ours, 2)).toContain('BiasSpectr_PropsGet') // 没挪：打在别的动词上
+    expect(faultVerbMismatch(theirs, 2, ours, 4)).toContain('没有这一发') // 挪过了头
+    expect(faultVerbMismatch(theirs, 2, ours, 3)).toBeNull()
+  })
+
+  it('`extra` 列了金样里其实已有的键 ⇒ 自检报出来；真正多出来的键 ⇒ 不报', () => {
+    const data = golden['ConfigureSTS']!.traces['ok']!.data!
+    expect(extraAlreadyInGolden(data, { start_v: 5, only_ours: 1 })).toEqual(['start_v'])
+    expect(extraAlreadyInGolden(data, { only_ours: 1 })).toEqual([])
+  })
 })
 
 describe('D-SKILL-3 · 旧仓会抛 IndexError 的那一格，我们判「读不出」', () => {

@@ -513,6 +513,16 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 `before=None` 的那几趟：读得到值的那几趟两边一字不差，给它们挂一条「偏差」等于登记
 一条不存在的差异。
 
+## D-SCAN-? · `ConfigureScan` 请求的通道有一个没匹配上，就**整组不设**（参考 v7.1.0 设匹配到的那部分）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | 请求 "Z,Current" 而 "Z" 没匹配上信号名时，照样把采集缓冲设成匹配到的那部分（只剩 "Current"），操作员要的其它通道被悄悄砍掉；`Scan_BufferSet` 被拒只写日志。参考仓之后的提交 `7ae1061b` 改为整组不设、保持操作员当前的通道，并在 `data` 里报 `channels_source` |
+| **本仓** | 照移这次修复：有一个请求的名字没匹配上 ⇒ 不发 `Scan_BufferSet`，`unchanged_partial_match`；全部匹配 ⇒ 设，成功为 `set`、被拒为 `set_failed`（整件事照样成功）；读不到信号名清单 ⇒ `unchanged_read_failed`；没请求通道 ⇒ `unchanged`。参考的第六种取值 `unchanged_error` 对应 Python 的 `except Exception`，本仓的 `safeCall` 不抛，这一态走不到，不移 |
+| **测试** | `l0/scan-skills.test.ts` 的 ConfigureScan ④；`l0/traces.test.ts` 的 `ConfigureScan/*` 五格登记（`extra`）；变异 `configure-scan-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，轨迹登记一并删掉。
+
 ## D-FRAME-1 · 候选保存目录只留一个来源
 
 | | |
@@ -1571,6 +1581,16 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 这一条**与旧仓相同**（`True if adv_ok else None`），登记它只是因为它值得被看见：
 **「没设上」不是「设成了 false」。** 一个宣称了 Z-Ctrl Hold、而那个寄存器根本没碰过的
 返回值，正是这一族最想避免的东西（同 D-LOCKIN-1 的 `phase_deg: 0.0`、D-ZERO-1 的反面）。
+
+## D-STS-? · `ConfigureSTS` 不再把扫掠数打回 1：先读回再原样写（参考 v7.1.0 写死 1）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | `BiasSpectr_PropsSet` 的扫掠数写死为 1，操作员在 Nanonis 里设的多次平均每配置一次就被重置一次。参考仓之后的提交 `7ae1061b` 改为：缺省先 `BiasSpectr_PropsGet` 读回当前值（`var[1]`，≥ 1 才算数，读法包在幂等重试里）并原样写回；读不到时退回 1 并标 `num_sweeps_source = fallback_unreadable`；同时新增 `num_sweeps` 参数（≥ 1 时显式覆盖） |
+| **本仓** | 照这次修复的**缺省行为**走：PropsSet 之前读回扫掠数（`BiasSpectr_PropsGet`，传输层失败时与同技能的其它步骤一样隔 1 s 重读一次），读到 ⇒ 原样写、`preserved`；读不到或不是 ≥ 1 的数 ⇒ 写 1、`fallback_unreadable`。`data` 多 `num_sweeps`、`num_sweeps_source`，调用序列多一发 `BiasSpectr_PropsGet`。参考新增的 `num_sweeps` 参数**没有加**：本仓的技能规格由参考金样生成，等重钉时一并进来，所以也没有 `override` 这一种来源 |
+| **测试** | `l0/spectroscopy.test.ts`（保持、读不到、读到 0、回包不到两项、按整数截）；`l0/idempotent.test.ts` R10；`l0/traces.test.ts` 的 `ConfigureSTS/*` 四格登记（`faultAt` / `extra`）；变异 `configure-sts-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，参数随规格进来，轨迹登记一并删掉。
 
 ## D-LANG-2 · `pyRound`：`round(x, n)` 是**银行家舍入、按精确值算**
 
