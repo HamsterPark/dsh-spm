@@ -8,10 +8,12 @@
 
 以下步骤从仓库根目录在 PowerShell 中执行，建议先完成无模型验收，再运行需要密钥的模型验收。
 
-- Node 与 pnpm 版本要求见 [package.json](../package.json)。记录中的 Windows 环境为 Node 24.14.0、pnpm 11.7.0；安装脚本固定使用 dsh `0.1.5-rc.2` 和 Cordis `4.0.2`。
+- Node 与 pnpm 版本要求见 [package.json](../package.json)。记录中的 Windows 环境为 Node 24.14.0、pnpm 11.7.0（当时安装的 dsh 是 `0.1.5-rc.2`、Cordis `4.0.2`）；现在安装脚本取 compat 的钉版——dsh `0.2.1-rc.4`、Cordis `4.0.5`，见 [scripts/dsh-pins.ts](../scripts/dsh-pins.ts)。
 - 另行准备 STM-Bench 源码及已安装其依赖的 Python 解释器；两者不包含在本仓库中。需要解释器的绝对路径，以及包含 `stmsim` 包的 STM-Bench 根目录。本指南的模型验收使用 `reference-stm` 配置。
 - 选择一个仓库之外、尚不存在的安装目录，以及四个未被占用的本地端口。下文目录是示例，先替换为自己的位置；不要在同一组端口上并行运行两轮验收。
 - 无需安装私有 MAST。构建和安装需要下载依赖；模型验收会发送真实模型请求，需要自行提供 DeepSeek 密钥。
+
+> **新包尚未验收**：下文「已记录的验收范围」里 2026-09-21 的记录，对应 dsh `0.1.5-rc.2` 下构建的包；本仓已升到 `0.2.1-rc.4`，**尚未对新包重做真实模型与模拟器验收**。在新记录出现之前，把新包视为「已构建、离线检查通过、未经真实会话验收」。
 
 历史首验使用 Python 3.13.13、STM-Bench 提交 `9e1acb3a9bb95188c53edfcd108050369fd44a3f`（发布前的本地提交，不在公开仓库里；公开仓库中内容相同的提交是根提交 `5a21f19537df97aef9b37c86fdbd7da54353e07f`，两者目录树哈希同为 `bff925edf83f1d6714cceea107791ee4cb9dc5b9`）的 `reference-stm` 配置。公开 main 此后已前进，模拟的物理行为有改动，兼容性应以实际验收结果为准。
 
@@ -76,6 +78,8 @@ node scripts/model-minimal.ts --install-dir $profileDir --dsh-home $dshHome --pr
 `--evidence` 必须位于指定 home 内，重复验收使用新文件名。该脚本启动安装版 dsh，要求模型各调用一次 hello 和 GetBias。验收配置将工具目录限定为这两个工具，关闭自动重试及自动标题请求；默认最多四次 agent 请求、120 秒，可用 `--max-requests` / `--timeout-ms` 调整。
 
 退出后，脚本重新读取原生会话（包括 `.jsonl.zstd`）、SQLite 和 JSONL，核对实际工具调用与结果、请求模型、独立 TCP 偏压和本地记录。模型文字中声称“已调用”不作为验收依据。需要验证重复安装时，在第二个尚不存在的目录重做构建产物安装、非模型验收和模型验收，并分别保留报告。
+
+**随请求发往官方 API 的内容。** 模型请求包含提示词与工具结果（含仪器读数）；dsh 0.2 起还包含本轮安装目录的绝对路径（`Current working directory: "…"` 作为必需上下文进入请求），请选不含用户名的安装目录。dsh 自 0.1.6-alpha.1 起缺省开启「会话日志上传」（`session-log-deepseek`，把含工具结果的会话日志增量附在请求上），本入口的验收补丁已显式关闭；OTel 遥测由 `DSH_TELEMETRY_DISABLED=1` 关闭。官方端点上的 API Key 路线还会先请求一次 `GET /models` 模型列表（只带密钥和 `User-Agent`，没有密钥就不发）。`DSH_AGENTS_HOME` 被指向本轮的空目录，用户全局的 `AGENTS.md` 和技能不会进入请求。
 
 ## 记录、退出与清理
 
