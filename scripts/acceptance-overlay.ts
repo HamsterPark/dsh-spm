@@ -10,7 +10,8 @@
  *
  * 本清单要与 dsh 组合里默认启用的 `tool-*` 行保持一致：组合里每个默认启用的 `tool-*` 行都必须在这里被关掉，
  * 而清单里引用组合中不存在的行 id，只会在 stderr 留一句 `patch: entry … not found`、退出码仍是 0。
- * 把清单对着入仓的 headless 组合快照自动核对的守卫测试另行加入；在那之前靠 `probe:compose` 与 `--dump-config` 人工对照。
+ * 执法者是 `packages/bundle/dsh-spm/contract/acceptance-overlay.test.ts`：它拿本清单对着入仓的 headless 组合快照
+ * （随每次升级重导）核对这两件事，任何一件不成立就红。
  */
 
 /** 能绕过闸门的工具行族。 */
