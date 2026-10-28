@@ -23,6 +23,49 @@
 
 纯函数不必伪造仪器集成场景；同样，统计中标为 `done` 也不会自动补齐上述验收证据。
 
+## 新增模型可调用的元工具之前
+
+有一类动作是在**替操作员陈述仪器旁的物理事实**：补记一次手动粗动、登记／修改／注销针尖。它们不是对仪器的操作，而是闸门判断时所依据的事实——在参考实现里，补记粗动会清空撞针封锁表并推进坐标代次，针尖登记会清掉 qPlus 振幅基线并改变修针缺省剂量。模型若能自己陈述这些事实，就能用一句话解除为它设的封锁（「补记一次假粗动」是清撞针封锁最短的路）。所以这类动作**不进模型工具目录**，只做成操作员命令或界面。
+
+新增工具、元工具或技能覆盖层前先问：这个动作是否改变了某道闸门所依据的事实？是 ⇒ 不进工具目录。当前对应：针尖登记只有宿主能写（`packages/host/kernel/src/tip-registry.ts` 的 `setCurrentTip`，技能代码不调用它）；撞针记录只在技能自己实测到「这个区域扫干净了」之后清除（`packages/host/kernel/src/tip-crash-tracker.ts` 的 `noteRecovery`，现有调用点只有 `packages/host/stm-skills/src/composite/full-scan.ts`），没有让模型直接陈述「已恢复」或「补记一次手动粗动」的工具。参考实现在对外开放面上做了同样的划分。
+
+## 给运行入口挂载技能之前
+
+目前的运行入口只开放了少数工具（清单见[最小版本指南](MINIMUM-USABLE.md)和[本机模拟器指南](NANONIS-SIMULATOR.md)）。新入口、或给现有入口加技能时，先满足下面各条；不满足就不注册对应工具。
+
+### 仪器档案
+
+- **粗动 Z**：`MotorMove`、`RecoverTipFromSaturation`、`RelocateCoarseXY`、`RetractForSampleChange` 依赖仪器档案里的退针方向。宿主必须先接上档案读口（`processInstrumentProfile.source`），并且档案里声明了 `retract_motor_dir`；二者缺一，就不注册这四个技能。读不到档案时这些技能拒发粗动 Z（`D-MOTORZ-1`）；档案接了却没声明时，技能会按 Nanonis 标准 Z+ 走并在结果里警告，而在退针方向与标准相反的装置上，这一步是朝样品走的。所以「已声明」由入口在注册前检查，不留给运行时警告：`readRetractDir().state === 'declared'`（`dsh-spm-kernel`）才注册。档案是每次调用时现读的；入口若允许运行中改档案，改动之后也要重做这一检查。
+- **粗动组**：注册任何会动粗动器的技能之前，档案里必须声明 STM 粗动组 `stm_coarse_group`（`D-GROUP-1`）。没接档案时技能取组 0，与有这项配置之前的行为相同；但目标装置的粗动器在哪一组，只有档案说得清，入口不靠缺省。判断「已声明」不能看 `stmCoarseGroup()`：档案没接或缺这个键时，它同样返回可用的组 0。要直接查读口（`processInstrumentProfile.source`）返回的原始对象里有没有这个键，`readProfile()` 的快照里没有它。
+- **数字口**：注册写数字口的技能之前，档案必须已接，并声明保留数字口 `reserved_digital_ports`（没有要保留的口就写空表）。粗动控制器这类设备占用的数字口必须列为保留；写向保留口的请求在下发之前就被拒绝。`digitalPortRefusal()` 在档案没接、缺这个键或值为 `null` 时同样放行（当作不保留任何口），「已声明」也照上一条直接查原始对象。
+
+### 坐标与扫描角
+
+- **像素到压电的换算**：`ExtractClusters`、`SelectPokedCluster`、`VerifyAdatomAt`、`FindFlatRegion`、`LocateStepEdge`，以及经 `VerifyAdatomAt` 用到同一换算的 `MoveAtomTo`，都按「正扫描角为顺时针」把帧内像素换算成压电坐标（`D-ROT-1`）。这个方向取自参考实现的修复；挂载这些技能之前，先在目标装置或与之同约定的模拟器上，用一帧扫描角不为零的已知特征核对一次正方向。STM-Bench 按逆时针渲染，扫描角不为零时结果在它上面对不上，不要拿它做这项核对。
+- **视觉线束的坐标**：`stm_detect_blobs` 等视觉工具报的扫描系坐标仍按逆时针换算（与 VISTA-SPM 一致）。扫描角不为零的帧上，它们与上一条各技能报的压电坐标差一个绕帧心 2θ 的转动，不得直接用于驱动针尖或扫描框。
+
+### 偏压
+
+- **改偏压**：给模型开放 `SetBias` 的入口，必须让跨零、变化超过 0.5 V、目标落在 ±50 mV 死区或起点读不到的改动走 `BiasSettleChange`，判断复用内核的 `biasNeedsSafePath`（`D-NATIVE-2`）；不要让这类改动直通一次 `Bias_Set`。参考实现后来给 `AcquireSTS` 加了测谱前后的工作点斜坡，每一步直发 `Bias_Set`；移植这类斜坡时同样要过这个判断，不能照抄直发。原生 `SetBias` 回读失败或调用被取消时不刷新状态缓存，那时缓存里不是实际值（见 `D-NATIVE-2` 的「已知限制」）；入口若让前置条件或状态读取依赖缓存里的 `bias_v`，先处理这两种情况。
+
+### 长时命令与组合技能
+
+- **长时命令**：挂谱学技能（`AcquireSTS`、`AcquireZSpectr`、`AcquireDeltaFCurve` 等）的入口，内核必须带 `budgetedCall`，否则整条扫掠仍按缺省 5 s 收超时。挂之前要知道：
+  - 一条长调用最长会占住同一个控制角色 900 s；期间同一角色上的其他调用（包括想停下它的停止类命令）等 30 s 后返回 `RoleBusy`。
+  - 模型一侧的中止结束不了在途的长调用，中止只在发送之前生效。
+  - 卸载要等在途调用结束，退出最长会被拖住 900 s。
+  - 原生模式下工具调用串行，一条长谱会让其他工具一直排队。
+  - 挂载前实测一次超过 5 分钟的工具调用，确认 dsh 这一层没有更短的期限。
+- **组合技能**：经 `ctx.runSkill` 调子技能的技能，内核必须带 `skillByName`，并且注册表里有它要调的子技能；没有注册表时子步一律以 `unknown_skill` 失败。接了注册表的入口要保持「子步只写 SQLite、不写 JSONL」：子步与顶层共用调用 id，JSONL 与结果只留顶层那一行（`minimal-persistence.ts` 里 `rec.depth > 0` 就不写）。
+
+### dsh 组合
+
+- **绕过闸门的工具**：shell、后台任务（jobs）、workflow、子 agent 这四族工具能不经「一动一观」闸门直接连仪器端口，dsh 的 sandbox 只管文件。任何可能连到真仪器的组合，必须把这四族工具全部关掉（web 组合里它们由 agent preset 重新挂载，要在 preset 层关，只关顶层行不够），并把这个组合的关闭清单登记进 `packages/bundle/dsh-spm/contract/acceptance-overlay.test.ts` 的 `COMBINATIONS`，让守卫测试替它检查。web preset 里另有 `persistent-shell`、`tool-plugin-manager`、`tool-plugin-market`、`tool-schedule` 几行同样能绕过闸门，一并关掉。现有的 `profiles/mast-sim` 只连模拟器，没有关，接真仪器之前必须先关。升级 dsh 之后重新盘点这一类工具：新版本可能带来新的工具族。
+- **会话日志与反馈遥测**：给组合写上 `- id: session-log-deepseek` 与 `config: { enabled: false }`。它默认开启，会把会话日志（含仪器读数）随每个官方 API 请求外发，`DSH_TELEMETRY_DISABLED` 关不掉它。`session-telemetry-otel` 在用户提交反馈时会外发整段会话前缀，同样在组合里写成 `disabled: true`，不要依赖启动时设的环境变量。
+- **profile 名**：可能连真仪器的 profile 不要命名为 `desktop`：dsh 对这个名字的 profile 默认开启产品埋点。
+- **提示段**：preset 若把 persona 设为 `complete: true`（例如 web 组合的 minimal preset），本仓注册的提示 section 会整段被替换掉；这个 preset 还设了 `includeRuntimeContext: false`，运行时上下文里只有标了 `required: true` 的留得下，实时状态块（`instrument-state` 的 `systemPrompt.context`）要靠这个标记。选这类 preset 之前，先用 `--dump-config` 或一次不调模型的探针确认 section 与状态块都还在。
+- **绝对路径外发**：web 组合的 `harness-dev-context` 行会把安装根路径和界面地址带进请求，`working-directory` 行会带上工作目录；视觉工具回复里的图像句柄文字带 `DSH_HOME` 下的路径。不想外发这些路径的组合，要关掉对应的行；关 `working-directory` 时要连带关 `agent-instructions`。安装目录选不含用户名的路径。
+
 ## 金样、生成物与参考仓
 
 金样包括声明、行为轨迹、数值判据及源码静态分析结果，入口是 [spec/golden/README.md](../spec/golden/README.md) 和各导出器文件头。数值或轨迹的预期应来自执行参考实现，不要凭印象手写一份看起来合理的答案。
