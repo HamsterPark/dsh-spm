@@ -306,7 +306,9 @@ export function assessAtomicConsistency(
 
   const per = Float64Array.from(obs, (o) => o.periodMeanNm)
   const periodSpread = npStd(per) / Math.max(npMean(per), 1e-12)
-  // 取向要在扣掉各自扫描角之后比 —— 转了台子当然会转
+  // 取向要在扣掉各自扫描角之后比 —— 转了台子当然会转。
+  // `latticeAngleDeg` 按行号朝下量，**加**扫描角才是样品系不变量：这是「正角顺时针」的约定，
+  // 与 `pxToM` 的 R(−θ) 同源（D-ROT-?），`consistent_rotated` 那一格就是按它造的。
   const reArr = new Float64Array(obs.length)
   const imArr = new Float64Array(obs.length)
   for (let i = 0; i < obs.length; i += 1) {

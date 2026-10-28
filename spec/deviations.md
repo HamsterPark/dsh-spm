@@ -4255,3 +4255,41 @@ VISUAL-HARNESS §4.8「不得静默丢图」同一条理由；写到一半的文
 12 755 token；标签全是会被转义放大的 `"` 时约 15 800。降到 12 个以后，最坏组合（局部帧、最长的通道名、highpass、backward、
 整幅 region、clip，标签取满 128 个 `"`，附件只读路径按 MAX_PATH 的 260 个字符计）实测 12 238 token，13 个视图就越过预算。
 **重新考虑的条件**：dsh 提高内联预算、降低图像计价或改变回复格式；VISTA-SPM 若因同样的原因调整上限，本仓跟随。
+
+## D-ROT-? · `pxToM` 用 R(−θ)：正 `SCAN_ANGLE` 是**顺时针**（参考 v7.1.0 仍是 R(+θ)）
+
+| | |
+|---|---|
+| **Python**（`io/mosaic.py::px_to_m`，v7.1.0） | 帧内像素 → 压电坐标用 R(+θ)：`(cx + dx·cosθ − dy·sinθ, cy + dx·sinθ + dy·cosθ)`，与参考自己的「压电 → 帧内」`R(+θ)·(p − c)` **同向**，而不是互逆 |
+| **TS**（vision `xy-meta.ts::pxToM`） | R(−θ)：`(cx + dx·cosθ + dy·sinθ, cy − dx·sinθ + dy·cosθ)`，是「压电 → 帧内」的逆 |
+| **测试** | vision `xy-meta-rotation.test.ts`（往返恒等，`toFrame` 在测试里独立写；θ=90° 时帧内 +x′ 落到压电 −y）；stm-skills `scan-angle-rotation.test.ts`（θ=90° 合成帧上的 `ExtractClusters` / `SelectPokedCluster` / `VerifyAdatomAt`、`FindFlatRegion` 的排除比较、`LocateStepEdge` 的边上一点）；vision `vision.test.ts`、stm-skills `batch7a3-skills.test.ts` 的三格金样双断言 |
+
+**为什么有意**：参考仓在 v7.1.0 之后的提交 `5ca30763` 把这个符号订正为 R(−θ)，依据是一组真机转角系列的统计：
+「帧内晶格角 − SCAN_ANGLE」集中，「+」不集中，即正角 = 扫描框相对压电坐标顺时针转。本仓照这次订正走，不照抄 v7.1.0 的缺陷。
+R(+θ) 算出的位置等于真位置绕帧心再转 2θ，偏差 2·r·|sin θ|（r 是到帧心的距离；θ=90° 时正好是中心对称点）。吃这个坐标的有
+`ExtractClusters`、`SelectPokedCluster`（角度已知时报 `coords_trustworthy: true`）、`VerifyAdatomAt`、`FindFlatRegion`
+（含 `exclude_used_spots` 的距离比较：拿算错的窗心去比真位置，「避开扎过的点」会落空），以及 `MoveAtomTo` 在 `displaced`
+时以 `found_x_m/found_y_m` 重新起拖的那一步。
+
+**金样**：`analysis.json` 的 `xy_meta.px_to_m` 两格（`rotated30`、`rotated_neg`）与 `batch7a3.json` 的 `FindFlatRegion/rotated`
+一格仍是参考的 R(+θ) 值，**不手改**。测试对这三格两件事都断言：金样 = R(+θ) 公式（参考的缺陷还在），本仓 = R(−θ) 公式。
+
+**`LocateStepEdge` 比参考多改一处**：参考在这个技能里自己拆 `scan_offset`、拿 `nm_per_px` **不旋转**地算
+`edge_x_m` / `edge_y_m`（v7.1.0 如此，`5ca30763` 之后仍如此），转过角度的帧上无论哪个方向约定都错，而这对坐标是拿去沿台阶布谱的。本仓改走
+`parseXyMeta` + `pxToM`：θ=0 的方像素帧上只差运算次序带来的末位（金样 8 格照过）；头里读不出偏移或视野时**不报坐标**
+（参考按 `(0, 0)` 算），与 `parseXyMeta`「没有几何不是在原点」一致。`edge_angle_scan_deg` 不变：它是扫描框自己的坐标
+（y 朝上），不含扫描角。
+
+**与本约定一致、因此不改的**：`AssessAtomicConsistency` 的「帧内晶格角（行号朝下量）+ 扫描角」；`AnalyzeFrameTilt` 的斜率旋转
+（读裸块，慢轴斜率沿行号，在 `down` 帧上等价，`up` 帧见 D-TILT-5）；`ConfigureScan` 越界闸的帧包络（矩形关于自身两轴对称，
+两个方向给出同一个包络）。
+
+**仍未对齐的（已知）**：
+- 视觉线束（visual-memory 的 `nativeToScanNm` 一族）跟随 VISTA-SPM，仍是 R(+θ)：θ≠0 的帧上它报的扫描系 nm 与 `pxToM` 不一致，
+  不能拿去驱动运动技能。
+- STM-Bench 模拟器按 R(+θ)（逆时针）渲染并移动针尖：在它上面，θ≠0 帧经 `pxToM` 得到的目标会落在绕帧心转 2θ 的位置。
+- `LocateStepEdge` 的 `edge_angle_scan_deg` 与 `VerifyAdatomAt` 判「目标在不在帧里」的包络都不含扫描角（参考同）。
+
+**重新考虑的条件**：参考重钉到 `5ca30763` 之后的版本并重导：三格金样变成 R(−θ) 值，「金样 = R(+θ)」那条断言变红 ⇒
+删掉测试里的分支与本条。真机或厂商模拟器上测到正角是逆时针（例如 θ=90° 扫描首行的针尖位置读数落在 R(+θ) 预言的一侧）⇒
+回退并重新登记。

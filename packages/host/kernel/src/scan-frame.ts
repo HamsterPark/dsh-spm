@@ -46,6 +46,10 @@ export interface FrameExtent {
  *
  * **必须算角度。** 转了 45° 的框，对角线伸出去 √2 倍；只比 `center ± size/2` 会在
  * 转角的帧上系统性地少算。
+ *
+ * 旋转方向与包络**无关**：这里用 R(+θ) 转四角，而 `pxToM` 用 R(−θ)（D-ROT-?）；矩形关于
+ * 自身两轴对称，±θ 给出同一组极值（w|cosθ| + h|sinθ| 与 w|sinθ| + h|cosθ|）。所以不跟着改，
+ * 也**不该**给这里加翻号变异 —— 那是等价变异，演练里只会判 green。
  */
 export function frameExtent(
   centerXM: number,
