@@ -4,9 +4,12 @@
  * 2. **被拒的调用也记**；
  * 3. **`approval_source` 落库**且读得回来。
  */
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
+import { DatabaseSync } from 'node:sqlite'
 import { afterEach, describe, expect, it } from 'vitest'
 import { RECORDS_DDL } from './generated/schema.js'
 import { HlcClock, ulid } from './ids.js'
@@ -266,5 +269,53 @@ describe('DDL 常量本身', () => {
   it('21 张表 / 53 个索引都在里面', () => {
     expect((RECORDS_DDL.match(/CREATE TABLE IF NOT EXISTS/g) ?? []).length).toBe(21)
     expect((RECORDS_DDL.match(/CREATE INDEX IF NOT EXISTS/g) ?? []).length).toBe(53)
+  })
+})
+
+describe('建库是原子的（文件库）', () => {
+  const dirs: string[] = []
+  afterEach(() => {
+    // vitest 的 afterEach 默认倒序（stack）：这一条先于外层那条跑，所以得自己先关库，
+    // 否则 Windows 上删不掉还开着的库文件（EPERM）。
+    store?.close()
+    store = undefined
+    for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+  })
+  const dbPath = (): string => {
+    const dir = mkdtempSync(join(tmpdir(), 'records-bootstrap-'))
+    dirs.push(dir)
+    return join(dir, 'records.sqlite')
+  }
+  const objectNames = (path: string): string[] => {
+    const db = new DatabaseSync(path)
+    try {
+      return (db.prepare('SELECT name FROM sqlite_master ORDER BY name').all() as { name: string }[]).map((r) => r.name)
+    } finally {
+      db.close()
+    }
+  }
+
+  it('第一次建库落全套对象；重开同一个文件不重复建、哨兵行仍是三行各一', () => {
+    const path = dbPath()
+    new RecordStore({ path }).close()
+    const first = objectNames(path)
+    expect(first.length).toBeGreaterThanOrEqual(99) // 21 表 + 53 索引 + 25 触发器，外加 sqlite_autoindex_*
+    store = new RecordStore({ path })
+    expect(objectNames(path)).toEqual(first)
+    for (const t of ['campaigns', 'samples', 'experiments']) {
+      expect(store.db.prepare(`SELECT count(*) AS n FROM "${t}" WHERE id = ?`).get(UNSCOPED)).toEqual({ n: 1 })
+    }
+  })
+
+  it('建到一半失败：抛出、回滚、不留半个库，也不占着库文件', () => {
+    const path = dbPath()
+    // 一张同名但结构不同的旧表：`CREATE TABLE IF NOT EXISTS campaigns` 照样「成功」（跳过），
+    // 随后 `CREATE INDEX … ON campaigns(status, created_at)` 才炸，那时 schema_versions 已经建过了。
+    const pre = new DatabaseSync(path)
+    pre.exec('CREATE TABLE campaigns (x)')
+    pre.close()
+
+    expect(() => new RecordStore({ path })).toThrow(/no such column/)
+    expect(objectNames(path)).toEqual(['campaigns']) // 事务化之前这里会多出 schema_versions
   })
 })
