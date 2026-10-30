@@ -54,9 +54,9 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 全看，取最大
 
 **升级清单**（一次一版，单独提交 `chore(dsh): bump <a> → <b>`）：
 
-1. 改根 `package.json` 的 pnpm `overrides` 与 `packages/host/compat/package.json` 的 `peerDependencies`，`pnpm install`；`pnpm check:dsh-pin` 确认安装树里 `@deepseek-ai/dsh*` 只有一个版本。
+1. 改钉版：`pnpm-workspace.yaml` 的 `overrides`（逐包精确；键不支持通配，写了也是静默无效）和 `minimumReleaseAgeExclude`（两张表成员必须一致），以及各 `package.json` 里 `@deepseek-ai/*` 的精确版本（`packages/host/compat` 在 `dependencies`，其余包在 `devDependencies` / `peerDependencies`；脚本和测试里也有字面量。用 `git grep -l '<旧版本>' -- ':!pnpm-lock.yaml' ':!docs'` 找全），然后 `pnpm install`。再跑 `pnpm test --project contract`：`packages/host/compat/contract/pin.test.ts` 读 `pnpm-lock.yaml`，断言每个 `@deepseek-ai/dsh*` 恰好是锁定版本。仓库里没有独立的 `check:dsh-pin` 脚本，这个断言就是那条契约测试（理由见 [EXECUTION](../EXECUTION.md) 里「按消融原则没有写」那张表）。
 2. `npx -y @deepseek-ai/dsh@<b> --profile web --dump-config > spec/dsh/dump-config.<b>.yml`，与上一版 diff；我们覆盖过的 dsh-base 行（PLAN §6.3 表）逐行对。
-3. 两版 npm 包树 diff（`.md`/`.d.ts`/`.yml`；`scripts/diff-dsh-trees.sh`），只读 compat 依赖的包；发布说明逐条对 `docs/dsh/facts.md` §5–§7。
+3. 两版 npm 包的 `.md` / `.d.ts` / `.yml` 对比，只读 compat 依赖的包（`packages/host/compat/package.json` 的 `dependencies`）。没有现成脚本：对每个包分别 `npm pack @deepseek-ai/<包>@<旧版> --pack-destination old` 与 `…@<新版> --pack-destination new`，解开后 `diff -r`。不要用 `npx @deepseek-ai/dsh@<旧版>` 代替：它只钉住启动器，子包的 caret 范围会漂到新版，比不出两个版本（见下面 2026-09-13 日志的「坑二」）。发布说明逐条对 `docs/dsh/facts.md` §5–§7。
 4. `pnpm test --project contract`（含 spike 十条）；红了先在 compat 内适配，适配不了就重构我们的接缝（同一提交或紧随其后的 `refactor(dsh): …`）。
 5. `pnpm -r build && pnpm test`；`dsh plugin --profile web add ./packages/bundle/dsh-spm` 冒烟，会话里 `stm_hello` / `stm_selfcheck`。
 6. **拿既有 `~/.dsh` 冒烟**（不是干净 home）：旧会话能打开、标题还在、设置与凭据还在。alpha.5 就是专门修「从 rc.2 / alpha.3 升级后起不来、会话标题消失」的——升级会损坏既有数据是实证过的。备份 `~/.dsh` 再升。

@@ -37,8 +37,8 @@ STM 利用尖锐针尖与邻近样品之间的隧穿电流探测表面。电流�
 
 | 项目 | 主要职责 | 与 dsh-spm 的关系 |
 |---|---|---|
-| [MAST-public](https://github.com/HamsterPark/MAST-public) | MAST 的有限公开版：基于 Python/LangGraph 的仪器运行时、技能、状态反馈与实验工作流 | 为 TypeScript 迁移提供科学与操作基础；MAST 继续作为独立系统发展。 |
-| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | 可复用的显微视觉推理框架：证据档案、标定检查、测量、笔记与可控评估 | 提供 Python 参考设计，以及用于核对 TypeScript 视觉工具的导出参考结果。 |
+| [MAST-public](https://github.com/HamsterPark/MAST-public) | MAST 的有限公开版（MAST 6.5.0 源码快照，2026-09-21）：基于 Python/LangGraph 的仪器运行时、技能、状态反馈与实验工作流 | 为 TypeScript 迁移提供科学与操作基础；MAST 继续作为独立系统发展，不止于这份快照。 |
+| [VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM) | 可复用的显微视觉推理框架：证据档案、标定检查、测量、笔记与可控评估 | 提供 Python 参考设计，以及用于核对 TypeScript 视觉工具的导出参考结果。导出的夹具固定在其标签 `m1-surface`（`3bef5c7`）；其 main 分支此后的修复尚未同步到这里。 |
 | **dsh-spm——本仓库** | DeepSeek Harness 中的 SPM 工具、仪器连接、执行检查、记录与视觉 harness 集成 | 将源自 MAST 的领域能力和 VISTA-SPM 的设计接入 dsh 的 TypeScript 宿主与会话生命周期。 |
 | [STM-Bench](https://github.com/HamsterPark/STM-Bench) | 模拟显微镜、科学场景、采集记录与基于证据的评估 | 为运行时验证提供可控仪器环境，也为研究实验行为提供共同基础。 |
 

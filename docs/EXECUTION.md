@@ -2,7 +2,7 @@
 
 > 本文保存分阶段实施计划、验收设计和推进日志。当前工作入口是 [AGENTS.md](../AGENTS.md) 与 [DEVELOPMENT.md](DEVELOPMENT.md)；运行能力见 [文档导航](README.md)。下文课时流程、版本判断和数字按各自记录日期解读。
 > 版本相关的事实在 `dsh/facts.md`，升级流程与日志在 `dsh/upgrades.md`。
-> 建于 2026-09-07，随每段推进更新「当前位置」与「决策台账」两节。
+> 建于 2026-09-07。「当前位置」一节停更于 2026-09-20，之后的进展见 [文档导航](README.md)、[spec/progress.json](../spec/progress.json) 与 [handoff/](handoff/)；「决策台账」按需更新。
 > **2026-09-10：Phase 2–8 的分段计划一次写全**（§4–§10）。计划写在前面，执行仍然一段一停。
 
 ## 0. 怎么用这份文件
@@ -24,7 +24,9 @@
 
 ---
 
-## 1. 当前位置（2026-09-19）
+## 1. 当前位置（历史快照，截至 2026-09-20）
+
+> 本节没有再更新。2026-09-21 起本仓已公开发布（[发布检查](RELEASE-TODO.md)）；此后的运行验收见 [受管入口](handoff/minimum-usable-20260921.md) 与 [原生入口](handoff/native-nanonis-20260921.md)，迁移进度以 [spec/progress.json](../spec/progress.json) 为准。
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
@@ -2439,13 +2441,13 @@ attended 无人应答时 deny 不挂起；SpecComposite 全模板跑通。
 |---|---|---|---|
 | **B1** | dsh 版本追踪 | **✅ 2026-09-09 已升到 `0.1.5-alpha.1`**（阻塞解除）。此前 09-08 定的「不升 0.1.3」留档：| 锁留 `0.1.2-rc.1`，每课时照常查版。社区已多方复现同一问题（Discussions #5929/#5882/#5784/#5751/#5638/#5689），且该版还有另外三处独立的启动崩溃（#5881 重复 loader id、#5753 session v2 迁移拒绝老日志、#5889 rpc owner 未声明）与一处发布物缺依赖（#5913），`latest`/`next` 也仍停在 rc.1。**上游反馈渠道是 GitHub Discussions，不是 Issues（该仓 Issues 已关闭）** |
 | B2 | LICENSE 的版权署名 | **✅ 2026-09-08 定** | `Copyright (c) 2026 HamsterPark`（用户昵称，真名在其 GitHub 主页备注）。`LICENSE` 已落盘；0.2 建包时各 `package.json` 的 `author` 用同一署名 |
-| B3 | 仓库挂哪、何时公开 | 半定 | 署名与账号都是 **HamsterPark**（本机 `gh` 已登录该账号）。**何时公开仍未定**：建议先私有，Phase 1 联调通过后再公开（用户「一点点重新开源」） |
+| B3 | 仓库挂哪、何时公开 | **✅ 2026-09-21 已公开** | 署名与账号都是 **HamsterPark**。2026-09-21 起 `HamsterPark/dsh-spm` 公开（发布提交 `980e81a`，四格 CI 全过）；原仓库已改名为私有归档，历史清理与发布边界见 [HISTORY-CLEANUP](HISTORY-CLEANUP.md) 与 [RELEASE-TODO](RELEASE-TODO.md)。原先「先私有，Phase 1 联调通过后再公开」的建议已被取代 |
 | B4 | pnpm `overrides` 能否按 `@deepseek-ai/*` 通配 | **✅ 2026-09-08 实测：不能，而且是静默无效** | 拿 `overrides: {'@types/*': '22.20.0'}` 跑真安装：`@types/semver` 原样停在 7.7.1，**无报错、无警告，pnpm 就是什么都没做**。⇒ 若写 `'@deepseek-ai/*': '<版本>'`，我们会以为钉住了 223 个包，实际钉住 **0 个**。0.3 必须用脚本从安装树生成**逐包** overrides 表；**`check-dsh-pin.ts` 不是冗余保险，它是唯一能抓住这种静默失效的东西** |
 | B5 | 插件版本号怎么表达「对应哪个 dsh」 | **✅ 2026-09-08 定：只用 `peerDependencies`，不加自定义字段** | 查了 dsh 自家包（`dsh-base` / `dsh-web-app` / `dsh-session-persistence-jsonl`）：`package.json` 的 `dsh` 段**只有** `bundle.patch`，没有任何版本声明字段；版本对应关系**全靠 `peerDependencies`**（它们用 `^` 范围，我们按 D11 用精确钉）。再加一个 `dshVersion` 字段就是第二份真源、还没人校验——正是 PLAN §5 记的 MAST「两处双真源」老毛病。peer 到底会不会被硬性执行，由 B7 在 0.4 实测 |
 | B6 | 我们注册的工具是否自动进 agent preset 目录 | **半结清（2026-09-08）** | 已证：插件在真实 dsh 里被装载、`apply` 执行、`inject:['tools']` 得到满足、工具进了**宿主** `tools` 注册表（探针实测 `ctx.tools=object`）。**未证**：模型是否真能看见它——那需要一次真实的模型调用（要 API key 与花钱）。facts.md §3 抄的 preset 注释说「合并后的目录也包含部署全局注册的工具」，倾向于会看见。留到第一次有理由跑真模型时顺带确认 |
 | **B7** | `dsh plugin add` 遇到子包漂移是硬失败还是静默混装 | **✅ 2026-09-08 实测：问题本身问错了** | `dsh plugin add <本地目录>` 用 **`link:`**，pnpm **完全不解析我们的 dependencies**——`workspace:*` 从没被求值，peer 精确钉也没执行，所以既不硬失败也不混装：**它压根没参与**。探针实测：运行时我们的 compat 解析到的是**本仓**那份 `dsh-tools`，于是一个进程里活着**两份模块实例**。今天两份同版所以没事；`defineTool` 是纯工厂也不在乎。**会出事的是依赖模块身份的东西（`instanceof`、模块级单例、Cordis `Service` 类身份）——课时 1.6 定义 `ctx.instrument` Service 时必须先验**。详见 `dsh/facts.md` §6-17 |
-| **B10** | 开发态（`link:`）与安装态（npm/tarball）走两条不同解析路径 | **新开，Phase 0 结束前** | B7 引出的。发布路径上 profile 的 pnpm 会真的解析依赖、执行 peer 钉，只剩一份实例——和我们每天跑的**不是同一件事**。至少用 `pnpm pack` 出的 tarball 走一次安装态冒烟，否则重演 facts.md §1「npx 缓存是冻结快照」那个教训 |
-| **B11** | **CI 跑不了 integration**：它要真 stmsim，而 stmsim 在 STM-Bench 仓库里，那个仓库**没有远端**（09-09 核实 `git remote -v` 为空） | **新开，1.7**。CI 暂时只跑 `--project unit --project contract` | 三条路：① 给 STM-Bench 建个远端（私有也行），CI 加 `setup-python` + 钉住 commit 的 checkout；② 把 stmsim 打成 wheel 发到某处，CI `pip install`；③ 一直只在本地跑 integration。**①最省事也最诚实**——差分测试（B8）迟早也要 CI 上有 STM-Bench。在解决之前，「CI 绿」不等于「对着真模拟器绿」，这个差别必须记着 |
+| **B10** | 开发态（`link:`）与安装态（npm/tarball）走两条不同解析路径 | **✅ 最小 bundle 范围内已结清（2026-09-21）** | 安装态路径已走通：`build:minimal` 出 tarball，`install:minimal` 在隔离 `DSH_HOME` 里真执行 `dsh plugin add`，并核对宿主与插件解析到同一份关键外部模块（[MINIMUM-USABLE](MINIMUM-USABLE.md) 第 32 行）；受管 STM-Bench（包 `8c510e…`，两个独立 home）与 Nanonis 原生入口（包 `b5a7ab…`）各有记录。**范围**：只覆盖最小 bundle 与这两个包哈希；完整 bundle、客户端包仍受 B12 约束，之后重建的包须另记自己的验收 |
+| **B11** | **CI 跑不了 integration**：它要真 stmsim，而 stmsim 在 STM-Bench 仓库里 | **路线 ① 现已可行，尚未实施** | STM-Bench 已公开（[HamsterPark/STM-Bench](https://github.com/HamsterPark/STM-Bench)）。三条路中的 ① 因此成立：CI 加 `setup-python` + 按 SHA 钉住的公开 checkout，把 `STMSIM_PYTHON` / `STMSIM_ROOT` 喂给 `pnpm test --project integration`。本仓历次验收所用的 STM-Bench 提交，公开等价物是根提交 `5a21f19`。**还没接上**：CI 现在仍只跑 unit + contract，「CI 绿」不等于「对着真模拟器绿」。原三条路：① 给 STM-Bench 建个远端；② 把 stmsim 打成 wheel 发到某处；③ 一直只在本地跑 integration |
 | **B12** | **本地开发时客户端包进不了 profile**：客户端模块必须经由一个 bundle 进来（实测警告 `declares no dsh.bundle — installed as a plain dependency, not a profile layer`），而 dev 态 `link:` 下 profile 的 pnpm 不解析我们的 workspace 依赖（B7）。子路径导出那招也不适用——客户端模块要有自己的 `package.json` 与 `dsh.client` 元数据 | **新开，1.10**。**与 B10 同根**，先解决 B10 | 三条路：① `pnpm pack` 走一次安装态；② 把 `ui-core` 本身做成 bundle；③ 读上游 `packages/client/AGENTS.md`（我手上只有 npm 包内文件）。**在这之前 1.10c 做出来的东西只在「我这台机器的某种摆法」下能跑** |
 | B8 | 差分测试要对 STM-Bench 做 ~60 行小改（`--trace`/truth 端点） | 未定（PLAN §16） | 退路 B：在线双跑 |
 | B9 | ONNX 权重放哪（不入仓） | 未定（PLAN §16） | 建议 `E:\dsh-spm-models\` + manifest |

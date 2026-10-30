@@ -10,6 +10,8 @@
 
 目前有两种经过 Windows 安装态与真实模型验收的模拟器入口：受管 STM-Bench 提供 `stm_hello` / `GetBias`；已打开的 Nanonis Mimea 模拟器另支持电流、Z、扫描状态读取，以及偏压设置和扫描启停。两组验收对应不同包哈希，详见运行指南。迁移清单中的实现数量与运行入口实际注册的工具数量分别统计；完整客户端、完整图像采集和真实仪器验证仍在上述验收范围之外。
 
+视觉线束（决策 D12，设计见 [视觉线束](docs/VISUAL-HARNESS.md)）由 `dsh-spm-visual-memory` 包（`packages/host/visual-memory/`）实现：会话内帧档案、`stm_inspect` / `stm_read_values`、测量与笔记工具；一动一观闸门在 `packages/host/kernel` 与 `packages/host/stm-skills` 的 `act-gate.ts`。最小运行栈经 `packages/bundle/dsh-spm/src/visual-harness.ts` 的 `visualHarness` 开关挂载，缺省不挂。它有单元、契约和参考一致性测试，但还没有真实模型验收，不在上述两组模拟器验收范围内。
+
 ## 按任务选择入口
 
 | 任务 | 阅读路径 |
@@ -17,6 +19,7 @@
 | 了解、评审或总结项目 | [README](README.md) → [代码与证据](docs/REVIEW-GUIDE.md) → 对应实现／测试 |
 | 运行受管 STM-Bench | [最小版本指南](docs/MINIMUM-USABLE.md)：独立安装、只读模型工具、运行记录 |
 | 连接已打开的 Nanonis 模拟器 | [本机模拟器指南](docs/NANONIS-SIMULATOR.md)：身份检查、有限读写、连接生命周期 |
+| 了解或修改视觉线束 | [视觉线束](docs/VISUAL-HARNESS.md) → `packages/host/visual-memory/` 与 `packages/bundle/dsh-spm/src/visual-harness.ts` → 对应单元／契约／一致性测试；金样导出前提见 [金样目录](spec/golden/README.md) |
 | 修改代码或迁移技能 | [开发指南](docs/DEVELOPMENT.md) → 改动附近的测试；迁移另看 [剩余范围](docs/MIGRATION-TODO.md) |
 | 升级 dsh | [版本事实](docs/dsh/facts.md) + [升级策略](docs/dsh/upgrades.md) |
 | 准备公开发布 | [发布清单](docs/RELEASE-TODO.md) + [来源说明](docs/SOURCES.md) |
@@ -45,7 +48,7 @@ Node 与 pnpm 版本以 [package.json](package.json) 为准；已有依赖时无
 
 ## 修改约束
 
-1. **参考仓只读。** `MAST_ROOT` 定位参考源码，`MAST2_PROJECT_ROOT` 定位隔离运行目录。执行导出前检查对应脚本，运行后检查参考目录未被写入。私有参考源码、研究资料、凭据和原始仪器数据不得进入本仓历史。
+1. **参考仓只读。** `MAST_ROOT` 定位 MAST 参考源码，`STMSIM_ROOT` 定位 STM-Bench 源码，`VISTA_SPM_ROOT` 定位 VISTA-SPM 源码（视觉金样的导出前提；四份视觉金样当前钉在其 `3bef5c7`，见 [金样目录](spec/golden/README.md)），`MAST2_PROJECT_ROOT` 定位隔离运行目录，不得指向参考仓。执行导出前检查对应脚本，运行后检查参考目录未被写入。私有参考源码、研究资料、凭据和原始仪器数据不得进入本仓历史。
 2. **Phase 8 前不连接真实仪器，不创建 `profiles/mast-rig`。** 模拟器连接必须经过对应身份检查；仅凭回环地址、端口号或目录名不能确认设备性质。受管进程和用户已打开的模拟器使用各自的关闭流程。
 3. **上游 API 经 compat。** 除 `packages/host/compat/src/` 自身外，生产代码通过 `dsh-spm-compat` 使用 `@deepseek-ai/*`；`contract/` 测试可直接验证真实上游包。类型增补及元数据字符串不是运行时导入，检查见 [boundary.test.ts](packages/host/compat/src/boundary.test.ts)。
 4. **保持可观察契约。** 参数、单位、返回字段、状态和拒绝文案都是接口。有意改变参考行为时，在 [偏差登记](spec/deviations.md) 中记录原因、判据与重新考虑所需的证据；不要照抄已确认的参考缺陷。
