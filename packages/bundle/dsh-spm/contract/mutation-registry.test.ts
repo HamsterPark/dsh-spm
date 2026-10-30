@@ -1,0 +1,48 @@
+/**
+ * 变异规则体检 —— **不跑演练**，只数每条规则的 `find` 在目标文件里命中几次。
+ *
+ * 演练（`MUTATE=1 pnpm vitest run --project mutation`）要逐条重新构建，默认套件不跑。
+ * 于是一条规则盯着的那一行被改了（缩进漂移、名单改成由别处算出），平时没有任何东西会红；
+ * 运行器遇到命中次数不是 1 的规则只会判 `inconclusive`，而下一次演练可能在几周之后。
+ * 这里把「恰好命中一次」提前到每次提交都跑的契约项目里。
+ *
+ * **不设豁免名单**：失效的规则要修（重新定靶，或写明接替它的断言后退役），不是登记。
+ */
+import { existsSync, readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { MUTATIONS } from '../../../../tools/mutate/mutations.ts'
+
+const ROOT = new URL('../../../../', import.meta.url)
+
+/** 与运行器（`tools/mutate/run.ts` 的判据①）同一种数法：不重叠、按子串。 */
+const hits = (text: string, find: string): number => text.split(find).length - 1
+
+describe('变异规则体检（不跑演练）', () => {
+  it('至少登记了 800 条（防空转）', () => {
+    expect(MUTATIONS.length).toBeGreaterThanOrEqual(800)
+  })
+
+  it('id 不重复', () => {
+    const ids = MUTATIONS.map((m) => m.id)
+    expect(ids.filter((x, i) => ids.indexOf(x) !== i)).toEqual([])
+  })
+
+  it('每条规则的 find 在目标文件里恰好命中一次', () => {
+    // 规则数远多于被指向的文件数，每个文件读一次就够
+    const texts = new Map<string, string | undefined>()
+    const textOf = (file: string): string | undefined => {
+      if (!texts.has(file)) {
+        const path = new URL(file, ROOT)
+        texts.set(file, existsSync(path) ? readFileSync(path, 'utf8') : undefined)
+      }
+      return texts.get(file)
+    }
+    const bad = MUTATIONS.flatMap((m) => {
+      const text = textOf(m.file)
+      if (text === undefined) return [`${m.id}: 文件不存在 ${m.file}`]
+      const n = hits(text, m.find)
+      return n === 1 ? [] : [`${m.id}: ${m.file} 命中 ${n} 次`]
+    })
+    expect(bad).toEqual([])
+  })
+})
