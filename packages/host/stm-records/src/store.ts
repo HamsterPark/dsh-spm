@@ -103,11 +103,36 @@ export class RecordStore {
     this.random = opts.random ?? Math.random
     this.hlc = new HlcClock(opts.nodeId ?? 'IC', this.clock)
     this.db = new DatabaseSync(opts.path ?? ':memory:')
+    try {
+      this.bootstrap()
+    } catch (e) {
+      this.db.close() // 构造抛错时调用方拿不到实例，没有别人能替我们关；Windows 上不关就删不掉库文件
+      throw e
+    }
+  }
+
+  /**
+   * 建库：外键、整套 DDL、三行哨兵。
+   *
+   * DDL 与哨兵放进**同一个事务**。`RECORDS_DDL` 有 99 条语句，逐条自动提交就是 99 次
+   * 「建日志文件、刷盘、删日志文件」；文件库上这是每个测试的主要耗时（Windows CI 上每次 6–13 s，
+   * 本机 0.9 s），事务化后只提交一次。表、索引、触发器与哨兵行一字不变（sqlite_master 与金样
+   * 逐条相等的测试照旧）；中途失败整段回滚，不留半个库。
+   */
+  private bootstrap(): void {
     // 外键**开着**（旧仓 repos.py 也开）：关着的话一个指向不存在实验的
     // action 会安静地写进去，而「有行但连不上」比没行更难查。
+    // 事务里改不了这个 PRAGMA，必须在 BEGIN 之前。
     this.db.exec('PRAGMA foreign_keys = ON')
-    this.db.exec(RECORDS_DDL)
-    this.seedUnscoped()
+    this.db.exec('BEGIN')
+    try {
+      this.db.exec(RECORDS_DDL)
+      this.seedUnscoped()
+      this.db.exec('COMMIT')
+    } catch (e) {
+      if (this.db.isTransaction) this.db.exec('ROLLBACK')
+      throw e
+    }
   }
 
   /**

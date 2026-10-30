@@ -121,11 +121,13 @@ export default defineConfig({
         test: {
           name: 'contract',
           include: ['packages/*/*/contract/**/*.test.ts'],
-          // 有几条契约测试启动整个最小运行栈（SQLite 与 JSONL 每一条都落盘同步）。
+          // 有几条契约测试启动整个最小运行栈，每条都新建一个文件库的记录库。
           // 2026-10-13（PR #5）实测：本机每条约 1 s、Ubuntu CI 整个文件 1 s 上下，
           // Windows CI 每条 6–13 s，缺省 5 s 必超时。单元项目里同一类的
           // minimal-persistence / native-runtime 在 Windows CI 上也要 9–14 s，靠的是上面的 20 s。
-          // 所以这里取同一个显式的 20 s，理由同上：仍能照出分钟级的真挂住。
+          // 根因是建库：RECORDS_DDL 的 99 条语句逐条自动提交，每次提交都要建、刷、删一个日志文件；
+          // RecordStore 现在把建库放进一个事务（store.ts 的 bootstrap），本机每条降到约 0.1 s。
+          // 这里仍取显式的 20 s：仍能照出分钟级的真挂住，也给 Windows runner 的 2 倍抖动留余量。
           testTimeout: 20_000,
         },
       },
