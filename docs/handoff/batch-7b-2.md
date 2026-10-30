@@ -340,7 +340,7 @@ node tools/mutate/run.ts <101 个 id>   # 清单 = mutations.ts 里「批 7b-2�
 
 两条「有意做不到」的：
 
-* **模拟器没有 PLL 模块**（globalSetup 跑的是 `polar-spm`，PLL 要 `polar-spm-qplus`；
+* **模拟器没有 PLL 模块**（globalSetup 跑的是基础配置，公开名 `reference-stm`；PLL 要 qPlus 变体 `reference-stm-qplus`；
   换 profile 是改整组集成测试共用的那一份，不在这一批动）。于是
   `AcquireDeltaFCurve` 在真仪器上走到的是**第一道闸**（「读不到 PLL 输出状态」＋
   真文案里那个 `NeedModule` 子串，同 `lockin.test.ts`），而且**一条 `ZSpectr_*` 都不发**。

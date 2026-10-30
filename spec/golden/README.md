@@ -45,7 +45,7 @@ python tools/spec-export/<脚本>.py
 
 1. `run_export.py run --rev <标签> --repeat 2`，原始产物留在暂存区；
 2. `spec_overlay.py apply --in <暂存产物> --out <暂存公开目录>`；`manifest.json` 带 `reference` 时同时写入 `public_text` 标记；
-3. 按 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md) 检查暂存公开目录；
+3. `node scripts/release-hygiene.ts --golden-dir <暂存公开目录>` 过一遍[发布卫生门](../../docs/DEVELOPMENT.md#发布卫生门)（站点名单由 `HYGIENE_SITE_LIST` 指定），有命中先处理；再按 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md) 检查暂存公开目录；
 4. 通过后复制进本目录，`spec_overlay.py verify --dir spec/golden` 确认不动点，再执行 `pnpm gen:skills` → `pnpm build` → `pnpm gen:progress`。
 
 `apply` 遇到哈希不符时，用 `spec_overlay.py show` 查看该位置（输出含私有原文，不外传），定下公开文本后，由原始产物和审读过的公开版本重新 `build` 覆盖层；旧条目都还适用、只多了新位置时，可加 `--base <旧覆盖层>` 只为剩余差异建条目。
