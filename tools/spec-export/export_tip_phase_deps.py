@@ -4,6 +4,9 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 
     python tools/spec-export/export_tip_phase_deps.py
 
+Run `export_mast_spec.py` against the same source tree first: the skill names indexed here are reconciled
+with the `skills.json` it writes, and the export fails when they differ.
+
 ## 为什么要单开一台，而且是**静态**的
 
 这六个流程（`PrepareNobleTip` · `PokeConditionTip` · `PulseConditionTip` ·
@@ -60,6 +63,8 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 | 从那里可达的、`mast/skills/**` 之内的模块级函数（跨文件跟 `from … import`） | `mast/skills/**` **之外**的函数（`mast.core` / `mast.io` / `mast.vision`）|
 | `context.run("X", …)` / `ctx.run("X", …)` 的**字面量**第一参 | 第一参是变量的（逐条记进 `dynamic_run_sites`）|
 | `CompositeStep(skill_name="X", …)` 的**字面量** | 同上，记 `<dynamic>` |
+| 技能名取自 `SkillMetadata(name=…)` 与 TERS 工厂 `ters_metadata(name=…)` 的 `name=`：字面量、模块级常量、f-string，或 `self.NAME` / `cls.NAME`（取类体里的 `NAME = "…"`、`NAME, PARAM = "…", "…"`，沿**同模块**基类向上找） | 别的元数据工厂 · 基类在**别的模块**里的 `NAME` · 声明式 `SpecComposite`（名字来自 YAML，不是类声明）—— 追不到的名字由下一行的对账报出来 |
+| 索引到的名字与**同一次导出**写下的 `skills.json` 逐名对账，`skills_indexed` 因此等于注册表的技能数 | 对不上就导出失败；确属静态追不到的技能登记进 `KNOWN_UNINDEXED` 并写理由（目标是空），登记后进金样的 `unindexed_skills` |
 
 **一个说不清自己追到哪儿的闭包，比一层还坏。** 所以三样东西显式落进金样：
 `unknown_skills`（被叫到、而本表里找不到定义的名字）·
@@ -73,6 +78,7 @@ import ast
 import json
 import os
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 
 from _paths import require_mast_root
@@ -354,12 +360,87 @@ def _index_skill_modules() -> tuple[dict[str, _Module], dict[str, str]]:
     return mods, by_dotted
 
 
+#: 其 `name=` 关键字就是技能名的元数据构造器。`ters_metadata`（`composite/ters_common.py:2492`，
+#: 7.1.0）是 TERS 组合技能共用的工厂，11 个技能经它声明名字。工厂名是显式常量，不做自动探测：
+#: 新出现的工厂不会被认出来，但 `check_index_complete` 的对账会把漏掉的技能报出来，到时再把工厂名加进来。
+METADATA_FACTORIES = frozenset({"SkillMetadata", "ters_metadata"})
+
+#: 静态追不到、且已确认的例外：技能名 → 理由。空 = 注册表里的每个技能都被索引。目标是保持为空。
+KNOWN_UNINDEXED: dict[str, str] = {}
+
+
+def _assigned_str(stmt: ast.stmt, attr: str) -> str | None:
+    """这条类体语句有没有把 `attr` 赋成字符串字面量？有就返回它（可以是空串），没有返回 `None`。
+
+    认三种写法：`attr = "…"`、`attr: str = "…"`、`a, attr = "x", "…"`（元组/列表拆包，逐位对应）。
+    """
+    if isinstance(stmt, ast.AnnAssign):
+        if isinstance(stmt.target, ast.Name) and stmt.target.id == attr \
+                and isinstance(stmt.value, ast.Constant) and isinstance(stmt.value.value, str):
+            return stmt.value.value
+        return None
+    if not isinstance(stmt, ast.Assign):
+        return None
+    for target in stmt.targets:
+        if isinstance(target, ast.Name):
+            if target.id == attr and isinstance(stmt.value, ast.Constant) \
+                    and isinstance(stmt.value.value, str):
+                return stmt.value.value
+        elif isinstance(target, (ast.Tuple, ast.List)) \
+                and isinstance(stmt.value, (ast.Tuple, ast.List)) \
+                and len(target.elts) == len(stmt.value.elts):
+            for t, v in zip(target.elts, stmt.value.elts):
+                if isinstance(t, ast.Name) and t.id == attr \
+                        and isinstance(v, ast.Constant) and isinstance(v.value, str):
+                    return v.value
+    return None
+
+
+def _class_str_attr(classes: dict[str, ast.ClassDef], cname: str, attr: str,
+                    seen: frozenset[str] = frozenset()) -> str | None:
+    """类体里 `attr = "…"`、`attr: str = "…"`、`a, attr = "x", "…"`（元组拆包）的字符串值；
+    沿**同模块**基类向上找（跨模块的基类不追）。空串不算 —— `_SettingSkill.NAME = ""` 只是占位。
+
+    和 Python 的属性查找同一个顺序：本类自己赋过值（同一个类体里以最后一次为准）就以它为准，
+    不再看基类；本类没赋过才往基类找。只认字面量 —— 再多一层静态推理，推错就是新的静默漏索引；
+    认不出来返回 `None`，由 `check_index_complete` 对着注册表把漏掉的技能报出来。
+    """
+    cnode = classes.get(cname)
+    if cnode is None or cname in seen:
+        return None
+    assigned: str | None = None
+    for stmt in cnode.body:
+        got = _assigned_str(stmt, attr)
+        if got is not None:
+            assigned = got
+    if assigned is not None:
+        return assigned or None
+    for base in cnode.bases:
+        bname = base.id if isinstance(base, ast.Name) else (
+            base.attr if isinstance(base, ast.Attribute) else "")
+        if bname:
+            found = _class_str_attr(classes, bname, attr, seen | {cname})
+            if found is not None:
+                return found
+    return None
+
+
 def _skill_classes(mods: dict[str, _Module]) -> dict[str, list[tuple[str, str]]]:
-    """技能名 → `[(rel, 类名), …]`。名字从 `SkillMetadata(name=…)` 取。
+    """技能名 → `[(rel, 类名), …]`。名字从元数据构造器（`METADATA_FACTORIES`）的 `name=` 取，
+    认三种写法：
+
+    1. 字面量 · 模块级常量 · 两者拼出来的 f-string（`_as_str`）；
+    2. `self.NAME` / `cls.NAME` —— 取类体里的 `NAME = "…"`、`NAME, PARAM = "…", "…"`，
+       沿同模块基类向上找（`_class_str_attr`）；
+    3. 工厂调用：`ters_metadata(name="…", …)`，TERS 组合技能这么声明。
 
     ⚠️ `name=` 也可能是模块级常量（`adatom_verify.py:31 _NAME = "VerifyAdatomAt"`）——
     只认字面量的话这个技能会「有人叫、没人定义」，在 `unknown_skills` 里挂一条**假**的。
     一条假的边界比没有边界更坏：它把「我们追不到」和「旧仓真的没有」混成一句话。
+
+    反过来，**认不全**的代价更隐蔽：没被索引的技能连「被谁叫到」都查不出来，而
+    `unknown_skills` 只报「被叫到、却找不到定义」—— 一个既没人叫、也没被索引的技能，
+    哪张表里都没有它。所以名字索引完要和注册表对账（`check_index_complete`），对不上就失败。
     """
     out: dict[str, list[tuple[str, str]]] = {}
     for rel, mod in sorted(mods.items()):
@@ -368,13 +449,17 @@ def _skill_classes(mods: dict[str, _Module]) -> dict[str, list[tuple[str, str]]]
                 if not isinstance(node, ast.Call):
                     continue
                 fn = node.func
-                if not (isinstance(fn, ast.Name) and fn.id == "SkillMetadata"):
+                if not (isinstance(fn, ast.Name) and fn.id in METADATA_FACTORIES):
                     continue
                 for kw in node.keywords:
                     if kw.arg != "name":
                         continue
                     got = _as_str(kw.value, mod.strs)
-                    if got is None:
+                    if got is None and isinstance(kw.value, ast.Attribute) \
+                            and isinstance(kw.value.value, ast.Name) \
+                            and kw.value.value.id in ("self", "cls"):
+                        got = _class_str_attr(mod.classes, cname, kw.value.attr)
+                    if not got:
                         continue
                     pair = (rel, cname)
                     if pair not in out.setdefault(got, []):
@@ -636,10 +721,59 @@ def _cycles(runs: dict[str, list[str]]) -> list[list[str]]:
     return [list(c) for c in sorted(found)]
 
 
+def _registered_names() -> set[str]:
+    """同一次导出里 `export_mast_spec.py` 写下的 `skills.json` —— 注册表的真值。键是 `名字@版本`。
+
+    必须来自**同一次导出**：在公开仓里单独跑这台导出器，读到的是已提交的旧 `skills.json`，
+    和手上这棵旧仓对不上 —— 对账会失败，这是故意的。
+    """
+    path = OUT.parent / "skills.json"
+    if not path.is_file():
+        raise SystemExit(
+            "缺少 skills.json：先在同一次导出里跑 export_mast_spec.py（或用 run_export.py）")
+    return {k.split("@", 1)[0] for k in json.loads(path.read_text(encoding="utf-8"))}
+
+
+def check_index_complete(
+    indexed: set[str], registered: set[str], known: Mapping[str, str]
+) -> list[str]:
+    """索引到的技能名与注册表对账。返回问题清单，空 = 通过。四类问题分开报，不混成一句。
+
+    `unknown_skills` 只报「被叫到、却找不到定义」的名字；一个**既没人叫、也没被索引**的技能
+    哪张表里都没有它，封锁账会给出「已闭包」的错觉。这一道对账补的就是这一格。
+    """
+    problems: list[str] = []
+    missing = sorted(registered - indexed - set(known))
+    if missing:
+        problems.append(
+            f"{len(missing)} 个注册技能没有被索引：{', '.join(missing)}。"
+            "若确属静态追不到，登记进 KNOWN_UNINDEXED 并写理由")
+    extra = sorted(indexed - registered)
+    if extra:
+        problems.append(
+            f"{len(extra)} 个名字索引到了、注册表里没有：{', '.join(extra)}"
+            "（skills.json 是不是另一次导出的？）")
+    stale = sorted(set(known) & indexed)
+    if stale:
+        problems.append(
+            f"{len(stale)} 个已登记为追不到的技能其实已经能索引了：{', '.join(stale)}。"
+            "从 KNOWN_UNINDEXED 里删掉")
+    unknown = sorted(set(known) - registered)
+    if unknown:
+        problems.append(
+            f"{len(unknown)} 个 KNOWN_UNINDEXED 里的名字注册表里没有：{', '.join(unknown)}")
+    return problems
+
+
 def build_skill_runs() -> tuple[dict[str, Any], dict[str, Any]]:
     """`(skill_runs, closure_limits)`。"""
     mods, _by_dotted = _index_skill_modules()
     defs = _skill_classes(mods)
+
+    problems = check_index_complete(set(defs), _registered_names(), KNOWN_UNINDEXED)
+    if problems:
+        raise SystemExit(
+            "export_tip_phase_deps: 技能索引与注册表对不上\n  " + "\n  ".join(problems))
 
     skill_runs: dict[str, Any] = {}
     phase_users: dict[str, list[str]] = {}
@@ -697,6 +831,9 @@ def build_skill_runs() -> tuple[dict[str, Any], dict[str, Any]]:
             p: sorted(set(phase_users[p])) for p in sorted(phase_users)},
         "cycles": _cycles(runs_only),
     }
+    # 只有名单非空时才落这个键 —— 为空时不加，金样的字节才和对账之前逐字相同。
+    if KNOWN_UNINDEXED:
+        limits["unindexed_skills"] = dict(sorted(KNOWN_UNINDEXED.items()))
     return skill_runs, limits
 
 
@@ -846,6 +983,7 @@ def main() -> int:
           f"{limits['modules_scanned']} 个模块 · "
           f"追不动 {len(limits['dynamic_run_sites'])} 处 · "
           f"找不到定义 {len(limits['unknown_skills'])} 个 · "
+          f"未索引 {len(limits.get('unindexed_skills', {}))} 个 · "
           f"内部相位 {len(limits['internal_phase_targets'])} 个 · "
           f"环 {len(limits['cycles'])} 个")
     return 0

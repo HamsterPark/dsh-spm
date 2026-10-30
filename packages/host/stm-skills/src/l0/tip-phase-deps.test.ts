@@ -93,6 +93,11 @@ const GOLDEN = JSON.parse(
   closure_limits: ClosureLimits
 }
 
+/** 注册表的真值：导出器与它在同一次导出里写出，键是 `名字@版本`。 */
+const SKILLS = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../../../../../spec/golden/skills.json', import.meta.url)), 'utf8'),
+) as Readonly<Record<string, unknown>>
+
 /** 这个自检替哪几个技能背书 —— 依赖表 = 它们出发的**闭包**（批 7b-1 之前是一层）。 */
 const NOBLE = ['PrepareNobleTip', 'PokeConditionTip', 'PulseConditionTip'] as const
 const SPECIAL = ['MakeSpectroscopyTip', 'MakeAtomicResolutionTip'] as const
@@ -263,7 +268,12 @@ describe('批 7b-1：这套追法**追到哪儿为止** —— 缺这一组的�
   it('规模与追法本身录在金样里', () => {
     expect(L.scanned_root).toBe('mast/skills')
     expect(L.modules_scanned).toBe(211)
-    expect(L.skills_indexed).toBe(515)
+    // 索引到的 = 注册的：数量与名字集合都对着 `skills.json`，不再写死一个数。
+    // 导出器自己也会对账（对不上就不出金样）；这一条是仓里这一侧的同一道判据，
+    // 防的是手改金样、或只重导了其中一份。
+    const registered = [...new Set(Object.keys(SKILLS).map((k) => k.split('@')[0]!))].sort()
+    expect(L.skills_indexed).toBe(registered.length)
+    expect(Object.keys(GOLDEN.skill_runs).sort()).toEqual(registered)
     expect(L.follow_rule).toContain('框架基类')
     expect(L.follow_rule).toContain('mast/skills/**` 之外的函数')
   })
