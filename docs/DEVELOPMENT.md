@@ -58,6 +58,7 @@ MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属�
 - **隔离由入口负责**：参考仓保持只读，入口对它只读对象库，导出器只看得见快照。每个导出器单独的 `MAST2_PROJECT_ROOT` 与 `TEMP`，一律原生路径写法（Windows 上写成正斜杠会让导出器的 `<project-root>` 替换静默失效）；清除 `PYTHON*` 与参考源码变量，`-B` 与 `PYTHONDONTWRITEBYTECODE=1`，单个导出器限时。导出器在导入 MAST 前用 `os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(...))`，入口预设的目录因此优先。运行前后比对参考仓 `MASTv2/` 下的文件（出现新文件算失败；已有文件的变化只告警，`--strict-mast` 下也算失败），运行后再核一遍快照；产物里扫描暂存路径、参考仓路径与用户目录。单独运行其余导出器时（`export_visual_memory.py` 也读 `MAST_ROOT`），同样设置 `PYTHONDONTWRITEBYTECODE=1`，并检查参考目录没有新写入的文件，包括被忽略的配置与数据目录。
 - **来源记录**：`manifest.json` 的 `reference` 记录被导出的提交（完整 SHA）、标签、`MASTv2/` 的树对象号、与行尾无关的源码摘要，以及 Python、NumPy 与 SciPy 版本。
 - JSON 序列化使用 `allow_nan=False`、`sort_keys=True` 和 LF。`--repeat 2` 把同条件的两次导出逐字节比较。
+- **公开文本覆盖层**：重导的原始产物不得直接进入本仓。`tools/spec-export/spec_overlay.py apply` 按一份仓外的覆盖层数据（`SPEC_OVERLAY` 指向）把已审读过的公开文本替换回去：每条记录以（文件、JSON 指针、原文 SHA-256）定位，原文哈希对不上、原文出现在没登记的位置都会失败，交人工复核，失败时不写任何输出；覆盖层数据本身不入仓。`apply` 会在 `manifest.json` 写入 `public_text` 记录，供检查发现「未经覆盖层就提交了原始导出」。已入仓的金样是覆盖层的不动点，由 `verify` 检查；`build` 由原始产物与审读过的公开版本求覆盖层。工具输出只含位置、哈希前缀与长度，`show` 除外（它打印原文，只供人工复核）。
 - 私有源码、实验数据与凭据不进入本仓。已获准保留的派生规格／夹具仍需检查公开内容和来源，见 [SOURCES.md](SOURCES.md) 与 [PUBLIC-CODE-REVIEW.md](PUBLIC-CODE-REVIEW.md)。
 
 **公开文本的例外**：说明字段、匿名测试标签及已登记的标识符可以按公开内容审查的明确范围同步调整；这不授权改动数值、二进制载荷或真实来源类别。涉及可观察标识符的变化须记录兼容影响并验证相关契约。此类公开版本不能再声称所有说明字段都与私有原始导出逐字节一致。后续重导可能恢复私密文本，必须再次审查。
