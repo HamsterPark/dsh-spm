@@ -36,7 +36,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import project_root_forms, require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-7b3-export-"))
@@ -81,7 +81,7 @@ from mast.skills.composite.grid_sts import GridSTS  # noqa: E402
 from mast.skills.composite.move_atom_to import MoveAtomTo  # noqa: E402
 
 TMP = tempfile.mkdtemp(prefix="mast-7b3-files-")
-_PROJECT_ROOT = os.environ["MAST2_PROJECT_ROOT"]
+_ROOT_FORMS = project_root_forms(os.environ["MAST2_PROJECT_ROOT"])
 
 
 def _plain(v: Any) -> Any:
@@ -574,13 +574,14 @@ case(MoveAtomTo, "explicit_manip_conditions_give_a_resistance",
 def _norm(v: Any) -> Any:
     """临时目录与项目根 → 占位符，分隔符一律正斜杠。
 
-    没有它，「重跑逐字节相同」是假的 —— 两处临时目录每跑一次都换名字。
+    没有它，「重跑逐字节相同」是假的 —— 两处临时目录每跑一次都换名字。项目根的几种写法都认
+    （见 `project_root_forms`）；`TMP` 由 tempfile 生成，本来就是原生写法。
     """
     if isinstance(v, str):
-        s = (v.replace(_PROJECT_ROOT, "<project-root>")
-              .replace(_PROJECT_ROOT.replace("\\", "/"), "<project-root>")
-              .replace(TMP, "<tmp>")
-              .replace(TMP.replace("\\", "/"), "<tmp>"))
+        s = v
+        for form in _ROOT_FORMS:
+            s = s.replace(form, "<project-root>")
+        s = s.replace(TMP, "<tmp>").replace(TMP.replace("\\", "/"), "<tmp>")
         return s.replace("\\", "/") if ("<tmp>" in s or "<project-root>" in s) else s
     if isinstance(v, dict):
         return {k: _norm(x) for k, x in v.items()}

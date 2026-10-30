@@ -6,6 +6,9 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 
     python tools/spec-export/export_mast_spec.py
 
+`manifest.json` 的 `reference` 另需 `MAST_COMMIT`（被导出提交的 40 位 SHA）。受支持的重导方式是
+`run_export.py`：它在 `git archive` 快照上运行本脚本，并设好 `MAST_COMMIT` / `MAST_TREE` / `MAST_DESCRIBE`。
+
 为什么分母必须从真源导出而不是手抄：PLAN §8.5 的 DoD ① 要求 `skill.spec` 与本文件
 产出的条目 deep-equal，②要求工具 schema 的 description **逐字相等**。手抄的分母会
 把「我们抄错了」伪装成「实现对了」。
@@ -17,11 +20,14 @@ override_store / models（API key 目录解析）都认这个变量，指走了�
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 import traceback
+from importlib import metadata
 from pathlib import Path
 
 from _paths import require_mast_root
@@ -138,38 +144,54 @@ def collect_si_cases() -> dict:
     }
 
 
-def _spec_source() -> dict:
-    """记下**这份金样是从旧仓的哪个状态导出的**。
+_SHA = re.compile(r"[0-9a-f]{40}")
 
-    2026-09-10 踩到：重跑导出，skills.json 和 safety.json 无缘无故变了 123+5 行。
-    查了半天才发现旧仓**工作区**当天被改了词（「操作员」→「用户」）。
 
-    关键教训是 **git HEAD 号在这件事上完全没用**：那天旧仓工作区比它最后一次提交
-    超前 1183 个文件 / 25886 行，而 HEAD 一步没挪。金样导的是**工作区**，不是提交。
-    所以真正能回答「规格源动没动」的，只有对导入的那些源文件做内容摘要。
+def _env_sha(name: str, *, required: bool) -> str | None:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        if required:
+            raise RuntimeError(f"{name} 未设置：经 tools/spec-export/run_export.py 运行，或手工设成被导出提交的 40 位 SHA")
+        return None
+    if not _SHA.fullmatch(raw):
+        raise RuntimeError(f"{name} 必须是 40 位小写十六进制：{raw!r}")
+    return raw
 
-    摘要变了不代表金样一定变（多数改动碰不到我们抽的字段）；但金样变而摘要没变，
-    那就是导出脚本自己不确定——两种情况的处理完全不同，所以两个数都记。
+
+def _reference() -> dict:
+    """记下**这份金样是从参考仓的哪个提交导出的**。
+
+    2026-09-10 踩到：重跑导出，skills.json 和 safety.json 无缘无故变了 123+5 行——旧仓**工作区**
+    当天被改了词，而 HEAD 一步没挪。那时导的是工作区，只能记源码摘要和「近 HEAD」，而「近 HEAD」
+    恰恰答不了「导的是什么」。现在由 run_export.py 从 `git archive` 快照导出，提交号经 `MAST_COMMIT`
+    显式传进来，不再猜；没有它就不导。
+
+    摘要按 LF 计：同一个提交在 `core.autocrlf=true` 的检出里是 CRLF，按原始字节求的摘要（旧的
+    `digest`）因此任何提交都复现不了。摘要变了不代表金样一定变（多数改动碰不到我们抽的字段）；
+    金样变而摘要没变，就是导出脚本自己不确定——两种情况处理完全不同，所以摘要仍然要记。
     """
-    import hashlib
-    import subprocess
-
+    commit = _env_sha("MAST_COMMIT", required=True)
+    tree = _env_sha("MAST_TREE", required=False)
     h = hashlib.sha256()
     n = 0
-    for f in sorted((MAST_ROOT / "mast").rglob("*.py")):
-        h.update(str(f.relative_to(MAST_ROOT)).replace("\\", "/").encode())
-        h.update(f.read_bytes())
+    files = [f for f in (MAST_ROOT / "mast").rglob("*.py") if "__pycache__" not in f.parts]
+    # 按相对 POSIX 路径的字符串序：与平台、文件系统的列目录顺序无关
+    for rel, f in sorted((f.relative_to(MAST_ROOT).as_posix(), f) for f in files):
+        h.update(rel.encode("utf-8") + b"\0")
+        h.update(f.read_bytes().replace(b"\r\n", b"\n") + b"\0")
         n += 1
-    head = "?"
-    try:
-        # --no-optional-locks：旧仓是只读的，连它的 index 都不许刷
-        head = subprocess.run(
-            ["git", "--no-optional-locks", "-C", str(MAST_ROOT), "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, timeout=30,
-        ).stdout.strip() or "?"
-    except Exception:
-        pass
-    return {"py_files": n, "digest": h.hexdigest()[:16], "near_commit": head}
+    return {
+        "commit": commit,
+        "describe": os.environ.get("MAST_DESCRIBE", "").strip() or None,
+        "tree": tree,
+        "py_files": n,
+        "py_digest_lf": h.hexdigest()[:16],
+        "environment": {
+            "python": ".".join(map(str, sys.version_info[:3])),
+            "numpy": metadata.version("numpy"),
+            "scipy": metadata.version("scipy"),
+        },
+    }
 
 
 def main() -> int:
@@ -181,7 +203,7 @@ def main() -> int:
     # 于是「已完成比例」凭空变好看（PLAN §8.6）。
     # 不记沙箱路径：它每次跑都不同，会让 golden 的 diff 全是噪声。金样最重要的性质是
     # **重跑产出逐字节相同**，否则「有没有变」这个问题就没法用 diff 回答。
-    manifest: dict = {"mast_root": "<MAST_ROOT>", "spec_source": _spec_source(), "collectors": {}}
+    manifest: dict = {"mast_root": "<MAST_ROOT>", "reference": _reference(), "collectors": {}}
     # 每个 collector 自报怎么数——skills.json 数技能，si_cases.json 数用例（它是分组
     # 结构，数顶层键会报「5」）。用一个启发式去猜两种形状，只会两边都数错。
     for filename, collector, count in [
@@ -211,8 +233,8 @@ def main() -> int:
         encoding="utf-8",
         newline="\n",
     )
-    src = manifest["spec_source"]
-    print(f'[src]  规格源 {src["py_files"]} 个 .py，摘要 {src["digest"]}，近 {src["near_commit"]}（旧仓工作区，非提交）')
+    ref = manifest["reference"]
+    print(f'[src]  参考 {ref["commit"][:12]}（{ref["describe"] or "无标签"}），{ref["py_files"]} 个 .py，摘要 {ref["py_digest_lf"]}')
     return 0 if all(c["ok"] for c in manifest["collectors"].values()) else 1
 
 

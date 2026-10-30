@@ -29,7 +29,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import project_root_forms, require_mast_root
 from typing import Any
 
 os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
@@ -1230,8 +1230,9 @@ class _FakeContext:
 #: 于是「重跑逐字节相同」会因为一个**与判据无关**的随机目录名而失效。
 #: 抹成占位符，而不是把项目根钉死：钉死等于让两次导出共用状态，那才是真的会
 #: 污染金样的东西。（2026-09-11：`2f` 合成改成 ndarray 之后 `GrabScanFrameData`
-#: 第一次真的写出了 `.npy`，这条才暴露出来。）
-_PROJECT_ROOT = os.environ["MAST2_PROJECT_ROOT"]
+#: 第一次真的写出了 `.npy`，这条才暴露出来。）原值、原生、正斜杠几种写法都要抹：变量写成正斜杠
+#: 而技能经 pathlib 写出反斜杠时，只认原值的替换会静默失效。
+_ROOT_FORMS = project_root_forms(os.environ["MAST2_PROJECT_ROOT"])
 
 
 #: 抓帧的文件名里嵌了**毫秒钟**（`frame_ch0_dir1_<hex>.npy`）。它和临时项目根一样
@@ -1250,8 +1251,8 @@ _TRACE_STAMP = re.compile(
 
 
 def _scrub(s: str) -> str:
-    s = s.replace(_PROJECT_ROOT, "<project-root>").replace(
-        _PROJECT_ROOT.replace("\\", "/"), "<project-root>")
+    for form in _ROOT_FORMS:
+        s = s.replace(form, "<project-root>")
     s = _STAMP.sub(lambda m: m.group(1) + "<stamp>", s)
     return _TRACE_STAMP.sub(lambda m: m.group(1) + "_<stamp>", s)
 

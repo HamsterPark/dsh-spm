@@ -21,15 +21,25 @@
 - `VISTA_SPM_ROOT`：包含 `vista_spm/` 的只读 VISTA-SPM 源码目录（视觉线束的 Python 参考实现，独立仓库 [HamsterPark/VISTA-SPM](https://github.com/HamsterPark/VISTA-SPM)），`export_visual_memory.py`、`export_measure_profile.py`、`export_measure_fft_blobs.py` 与 `export_measure_diff.py` 需要。这四份金样导出自 VISTA-SPM 的 3bef5c7（标签 `m1-surface`），VISTA-SPM 此后的参考实现修复尚未重导进来；`export_visual_memory.py` 自 2026-10-12 起另需 `MAST_ROOT`（参考实现经 MAST 的 `read_dat` 读 `.dat` 谱文件）。
 - `MAST2_PROJECT_ROOT`：隔离运行目录，不得指向参考仓；它不是 `MAST_ROOT` 的别名。
 
-缺少所需源码变量、变量为空或指向非目录时，入口会报错。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
+缺少所需源码变量、变量为空或指向非目录时，入口会报错。
+
+MAST 通道的金样（调用 `require_mast_root()`、不需要 STM-Bench 或 VISTA-SPM 的导出器）经运行器 `tools/spec-export/run_export.py` 重导：它从参考仓的 `git archive` 快照、在仓外暂存区运行这些导出器，产物留在暂存区，不直接写入本目录。隔离方式与自检见 [开发指南](../../docs/DEVELOPMENT.md#从-mast-重导)。
+
+```text
+MAST_REPO=<参考仓> SPEC_EXPORT_STAGE=<暂存目录> <python> -B tools/spec-export/run_export.py run --rev <标签或提交号> --repeat 2
+```
+
+其余导出器（STM-Bench、VISTA-SPM 或只用公共数值库）仍单独运行，直接更新本目录的对应产物，并可能在隔离目录写入运行文件。下面脚本名是占位符；执行前读对应脚本的依赖、输出路径和开发指南中的只读检查要求。
 
 ```text
 python tools/spec-export/<脚本>.py
 ```
 
-导出会更新本目录的对应产物，并可能在隔离目录写入运行文件。导出前隔离配置与数据目录、禁用参考目录中的字节码写入；导出后检查参考目录未被修改。同条件导出两次并比较完整字节，记录参考版本与环境。历史逐字节复现结果不代替新一轮检查。
+导出前隔离配置与数据目录、禁用参考目录中的字节码写入；导出后检查参考目录未被修改。同条件导出两次并比较完整字节，记录参考版本与环境。历史逐字节复现结果不代替新一轮检查。
 
 2026-09-20 的公开文本清理没有重导金样；当前说明与匿名标识不保证与私有原始导出逐字一致。重导后应再次检查公开内容。`manifest.json` 的源码位置记录为 `<MAST_ROOT>`，不得恢复开发者的实际目录。
+
+**参考基线（历史说明）** 本目录现有的 MAST 金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 用运行器在 `git archive` 快照上复核：在提交 `068c2371` 上重导（同条件两次，48 份逐字节一致），48 份 MAST 金样中 42 份与本目录逐字节相同；其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。所以该提交是这批金样的等价来源。`manifest.json` 里旧的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。今后重导按 `manifest.json` 的 `reference` 记录。
 
 ## 一、文件与导出器
 
@@ -45,7 +55,7 @@ python tools/spec-export/<脚本>.py
 | `preconditions.json` | `export_preconditions.py` | 词表与 10 个前置条件 × 14 个夹具的 140 格网格，逐格记录违反消息，覆盖子串匹配及否定形式 |
 | `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 515 个技能的模型 schema；保存模型可见范围及文字 |
 | `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明，用于执行建表后逐表、逐对象比较 |
-| `manifest.json` | `export_mast_spec.py` | 该导出器各 collector 的成功状态与条数；不是本目录全部专用导出器的运行记录 |
+| `manifest.json` | `export_mast_spec.py` | 导出所用的参考提交、标签、树对象号、与行尾无关的源码摘要和环境（`reference`），以及该导出器各 collector 的成功状态与条数。经运行器完整导出时，`reference` 适用于同一次运行的全部 MAST 通道金样，不涉及其余导出器的产物。现有文件仍是旧格式 `spec_source`，下次经运行器重导时换成 `reference` |
 
 ### ② 通用轨迹与状态机
 

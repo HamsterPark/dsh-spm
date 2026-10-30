@@ -54,9 +54,10 @@ node scripts/build-progress.ts --check
 
 MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属于公开仓库的基本构建／单测前置条件。并非所有导出器都有此依赖，例如 `export_numerics.py` 使用 NumPy、SciPy 和 scikit-image，无需 MAST。先检查实际脚本入口及依赖：`MAST_ROOT` 必须设置为包含 `mast/` 包的只读源码目录（可能是参考项目的 `MASTv2/` 子目录）；涉及 STM-Bench 的导出器另需将 `STMSIM_ROOT` 设置为包含 `stmsim/` 的目录；视觉记忆导出器 `export_visual_memory.py` 需将 `VISTA_SPM_ROOT` 设置为包含 `vista_spm/` 的 VISTA-SPM 源码目录，并自 2026-10-12 起（谱）将 `MAST_ROOT` 设置为包含 `mast/` 的目录：参考实现经 MAST 的 `read_dat` 读 `.dat`，导出器只导入 `mast/io/nanonis_files.py` 及其上两级 `__init__`，仅需 NumPy，另需 matplotlib（参考实现用它画谱图，图像尺寸进入标签）；测量工具导出器 `export_measure_profile.py` 同样读 `VISTA_SPM_ROOT`、也需 matplotlib（参考实现用它画剖面图，金样只记图的尺寸），不需 `MAST_ROOT`。缺少变量或指向非目录时，入口明确报错。它们与隔离运行目录 `MAST2_PROJECT_ROOT` 用途不同；文档中的 `<MAST_ROOT>` 是占位符，不是可直接执行的路径。
 
-- 参考仓保持只读。导出器须在导入 MAST 前设置 `os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(...))`；同时确认进程中已有的同名变量没有指回参考仓，因为 `setdefault` 不会覆盖它。
-- 防止导入过程在参考仓写 `__pycache__`，例如设置 `PYTHONDONTWRITEBYTECODE=1`。记录运行前后文件状态，并扫描参考目录中开跑后写入的文件；PowerShell 可用 `Get-ChildItem` 配合 `LastWriteTimeUtc`。不要只检查 Git 跟踪文件而漏掉配置或数据目录。
-- JSON 序列化使用 `allow_nan=False`、`sort_keys=True` 和 LF。相同输入重导两次，比较完整字节；记录所用参考版本与条件。
+- **统一入口**：`tools/spec-export/run_export.py run --rev <标签或提交号>`，用带 NumPy 与 SciPy 的 Python 环境启动（`<python> -B tools/spec-export/run_export.py …`）。它用 `git archive` 取参考仓该修订的快照，逐个 blob 与提交核对，不读工作树；在公开仓之外的暂存区运行全部 MAST 通道导出器（调用 `require_mast_root()`、不需要 STM-Bench 或 VISTA-SPM 的那些），产物留在暂存区，不写 `spec/golden`。需要环境变量 `MAST_REPO`（参考仓的 git 目录）与 `SPEC_EXPORT_STAGE`（暂存目录：短路径、不含用户名，不在任一仓内）。`--rev` 只接受标签或提交号；`--only` 只用于调试，部分运行的产物不得提升进仓。`compare <A> <B>` 逐字节比较两个金样目录。
+- **隔离由入口负责**：参考仓保持只读，入口对它只读对象库，导出器只看得见快照。每个导出器单独的 `MAST2_PROJECT_ROOT` 与 `TEMP`，一律原生路径写法（Windows 上写成正斜杠会让导出器的 `<project-root>` 替换静默失效）；清除 `PYTHON*` 与参考源码变量，`-B` 与 `PYTHONDONTWRITEBYTECODE=1`，单个导出器限时。导出器在导入 MAST 前用 `os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(...))`，入口预设的目录因此优先。运行前后比对参考仓 `MASTv2/` 下的文件（出现新文件算失败；已有文件的变化只告警，`--strict-mast` 下也算失败），运行后再核一遍快照；产物里扫描暂存路径、参考仓路径与用户目录。单独运行其余导出器时（`export_visual_memory.py` 也读 `MAST_ROOT`），同样设置 `PYTHONDONTWRITEBYTECODE=1`，并检查参考目录没有新写入的文件，包括被忽略的配置与数据目录。
+- **来源记录**：`manifest.json` 的 `reference` 记录被导出的提交（完整 SHA）、标签、`MASTv2/` 的树对象号、与行尾无关的源码摘要，以及 Python、NumPy 与 SciPy 版本。
+- JSON 序列化使用 `allow_nan=False`、`sort_keys=True` 和 LF。`--repeat 2` 把同条件的两次导出逐字节比较。
 - 私有源码、实验数据与凭据不进入本仓。已获准保留的派生规格／夹具仍需检查公开内容和来源，见 [SOURCES.md](SOURCES.md) 与 [PUBLIC-CODE-REVIEW.md](PUBLIC-CODE-REVIEW.md)。
 
 **公开文本的例外**：说明字段、匿名测试标签及已登记的标识符可以按公开内容审查的明确范围同步调整；这不授权改动数值、二进制载荷或真实来源类别。涉及可观察标识符的变化须记录兼容影响并验证相关契约。此类公开版本不能再声称所有说明字段都与私有原始导出逐字节一致。后续重导可能恢复私密文本，必须再次审查。
