@@ -4054,11 +4054,16 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 |---|---|
 | **Python** | 无上限（Claude Code 一侧由 `MAX_MCP_OUTPUT_TOKENS` 限制） |
 | **TS** | 回复文本超过 48 000 UTF-8 字节时返回错误值，请模型减少视图或样点、分几次读 |
-| **测试** | `tools.test.ts`「refuses a reply larger than dsh shows in full」 |
+| **测试** | `tools.test.ts`「refuses a reply larger than dsh shows in full」；`packages/bundle/dsh-spm/contract/reply-budget.test.ts`（上限与 dsh 预算的关系） |
 
-**为什么有意**：dsh 默认组合的 spill 策略把超过 50 000 字节的纯文本工具结果换成首尾预览加定位符
-（facts.md §9.1），从中间截断的读值比一次拒绝更糟。实测 64 个视图 × 64 个样点的回复约 59–67 KB，
-单个视图 4096 个样点约 37 KB。
+**为什么有意**：dsh 默认组合的 spill 策略把超过预算的工具结果换成首尾预览加定位符（facts.md §9.1），
+从中间截断的读值比一次拒绝更糟。预算在 dsh 0.1.5 是 50 000 字节纯文本；0.1.7 起是 12 500 个估算 token，
+文字按每 4 个字符一个 token、每块另加 4，**与图像共用**，按单个工具结果计。纯文本时两者都折合约 50 000 字符，
+所以 48 000 字节的上限继续成立。含图的回复靠视图数上限留在预算内（D-VMEM-17）：`stm_inspect` 取满 12 个视图的
+最坏组合实测 12 238 token（每张 768×768 的图按 382 计，另加句柄文字，附件只读路径按 MAX_PATH 的 260 个字符计）。
+实测 64 个视图 × 64 个样点的回复约 59–67 KB，单个视图 4096 个样点约 37 KB。
+**重新考虑的条件**：dsh 改变预算或估算规则（`reply-budget.test.ts` 先红）；显示尺寸缺省值、视图数或标签长度的上限变大；
+DSH_HOME 很长（附件路径进每张图的句柄文字）。
 
 ## D-VMEM-5 · 领域失败是成功的工具结果
 
@@ -4197,3 +4202,18 @@ VISUAL-HARNESS §4.8「不得静默丢图」同一条理由；写到一半的文
 （参考实现的运行器）没有这种卸载。
 **重新考虑的条件**：消融显示状态回显或预算放进动作回执有可测收益；`not_archived` 在长会话里成了噪声；dsh 的卸载文案改成指向工具，
 或本仓接管卸载文案。
+
+## D-VMEM-17 · `stm_inspect` 一次最多 12 个视图（参考实现 16）
+
+| | |
+|---|---|
+| **Python**（VISTA-SPM `vista_spm/protocol.py`） | `MAX_INSPECT_VIEWS = 16`，`3bef5c7` 与 `70780dcd` 相同；MAST 7.1.0 的视觉线束也是 16 |
+| **TS**（`views.ts`） | `MAX_INSPECT_VIEWS = 12`：13 个及以上返回 `inspect: at most 12 views per call (got N)`；工具描述写 `1 to 12 views per call` |
+| **测试** | `views.test.ts`（拒绝文案）、`tools.test.ts`（工具描述）、`packages/bundle/dsh-spm/contract/reply-budget.test.ts`（取满视图数的最坏回复在 dsh 的预算内） |
+
+**为什么有意**：dsh 0.2 给一个工具结果的内联预算是 12 500 个估算 token（0.1.7 起如此），文字与图像共用（D-VMEM-4）；越过预算
+的回复由 dsh 转存到文件，模型拿到首尾保留的部分和文件引用，中间的图整张省掉。参考实现的 16 个视图在常用选项下就会越过：
+16 个视图、标签取满 128 个字符、附件只读路径按 200 个字符计时，实测加 highpass 12 507、局部帧 12 552、局部帧加 highpass
+12 755 token；标签全是会被转义放大的 `"` 时约 15 800。降到 12 个以后，最坏组合（局部帧、最长的通道名、highpass、backward、
+整幅 region、clip，标签取满 128 个 `"`，附件只读路径按 MAX_PATH 的 260 个字符计）实测 12 238 token，13 个视图就越过预算。
+**重新考虑的条件**：dsh 提高内联预算、降低图像计价或改变回复格式；VISTA-SPM 若因同样的原因调整上限，本仓跟随。

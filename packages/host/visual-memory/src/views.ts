@@ -62,7 +62,11 @@ import { type Direction } from './scan-data.js'
 import { inRange, nanExtent } from './spectrum.js'
 import { formatKey, formatValues, unitKey, type ChannelFormat } from './units.js'
 
-export const MAX_INSPECT_VIEWS = 16
+/**
+ * Views per stm_inspect call. The reference allows 16; at 12 the largest reply still fits dsh's
+ * inline budget for one tool result (spec/deviations.md D-VMEM-17).
+ */
+export const MAX_INSPECT_VIEWS = 12
 export const MAX_READ_VIEWS = 64
 export const MAX_READ_SAMPLES = 4096
 

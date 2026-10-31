@@ -113,9 +113,11 @@ export class InstrumentStateService extends Service {
 }
 
 /**
- * 实时状态块在提示里的位置。dsh 自己的 runtime context 占 110/115/120
- * （sandbox / approval / subagent delegation），我们排在它们之后：
- * 这块是**最易变**的，放最后离问题最近。
+ * 实时状态块在提示里的位置。dsh 自己的 runtime context 占 100–125（工作目录、sandbox、approval、
+ * subagent delegation、team identity）；Web 组合另有 200（`harness:source`）与 210（`app:web-surface`）。
+ * 我们取 200：headless 组合里排在 dsh 所有 context 之后；Web 组合里与 `harness:source` 同号
+ * （同号按注册先后排，不按名字），在 `app:web-surface` 之前。这块是**最易变**的，
+ * 想在 Web 组合里也排到最后（离问题最近），要取大于 210 的数。
  */
 const LIVE_STATE_ORDER = 200
 
@@ -128,6 +130,11 @@ export function apply(ctx: Context, config: Config = {}): void {
     ctx.systemPrompt.context({
       name: LIVE_STATE_NAME,
       order: LIVE_STATE_ORDER,
+      // 关掉「可选运行时上下文」的组合（Web 的 minimal preset、sdk-minimal）仍要留住实时状态：它是安全相关内容。
+      required: true,
+      // 块里有仪器回报的字符串（Z 控制器名）。dsh 缺省会对 context 文本做 `{{变量}}` 插值：
+      // 名字里碰巧有 `{{…}}` 时，要么被换成别的值，要么让每一轮组装都抛错。原样送出。
+      interpolate: false,
       // 空快照渲染成空串，dsh 那侧空文本的 context 不贡献任何东西——不用自己判空。
       text: () => formatLiveState(svc.snapshot()),
     }),

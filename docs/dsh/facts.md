@@ -213,8 +213,8 @@
 | `dsh-session-projection`：`SessionProjectionStateMap` 删除；`register()` 改为返回 `Promise<ProjectionHandle>` | 破坏 `packages/host/compat/src/index.ts` 的类型重导出、`packages/client/stm-ui/src/projection.ts` 的模块增补，以及 `packages/client/stm-ui/src/plugin.ts` 里 `ctx.effect(() => ctx.sessionProjections.register(…))` 的写法 |
 | `dsh-tools`：`ToolRuntime` 成为 `ToolsService` 的别名；`execute` 改收 `ToolBatchInput`、返回 `ToolBatchResult`；删除 16 个导出 | 本仓生产代码不调 `execute`，也没引用被删的 16 个；22 处测试调用（17 个测试文件）要改；`register` 与 `guard` 保留 |
 | `dsh-agent` / `dsh-agent-loop`：`ModelSelectionRef` 删除、`turnBoundaryProjectionDefinition` 移位；模型在 pre-step 之前就定下，`agent/request` 不能再改路由 | 一动一观闸门的契约（`act-gate-loop.test.ts`）要重新验证 |
-| `dsh-base`：`tool-subagent-list-agents` 行删除，新增 `tool-executor-native`、`tool-executor-ptc` 两行 | `scripts/acceptance-overlay.ts` 的行清单引用了已删的行，会让 `probe:compose` 变红（组合里不存在的行 id 只在 stderr 留一句 `patch: entry … not found`）；`DSH_TOOLS_MODE`（`ACCEPTANCE_CHILD_ENV`）要迁移到新的执行器行 |
-| 新增实验性插件 `subagent_oar`（发布说明），把子任务交给本机 Codex / Claude CLI | 又一个可能绕开动作闸的工具族；默认组合里没有，但验收组合与将来的 IC / conduct 组合要把它算进「必须关掉的族」 |
+| `dsh-base`：`tool-subagent-list-agents` 行删除，新增 `tool-executor-native`、`tool-executor-ptc` 两行 | `scripts/acceptance-overlay.ts` 的行清单引用了已删的行，会让 `probe:compose` 变红（组合里不存在的行 id 只在 stderr 留一句 `patch: entry … not found`），重导快照后 `acceptance-overlay.test.ts` 也会红；`DSH_TOOLS_MODE`（`ACCEPTANCE_CHILD_ENV`）要迁移到新的执行器行。`acceptance-overlay.test.ts` 要求组合里每个默认启用的 `tool-*` 行都被关掉，而 `tool-executor-native` 是原生函数调用的执行器、不是模型可见的工具：守卫要为两条执行器行改判（native 开、ptc 关，取代现在核对 `DSH_TOOLS_MODE=native` 的那一格），不能照规则把它关掉 |
+| 新增实验性插件 `subagent_oar`（发布说明），把子任务交给本机 Codex / Claude CLI | 又一个可能绕开动作闸的工具族；默认组合里没有，但验收组合与将来的 IC / conduct 组合要把它算进「必须关掉的族」（`scripts/acceptance-overlay.ts` 的 `GATE_BYPASS_ROWS`） |
 
 不受影响（本仓不导入这些名字，或行 id 与配置不变）：`dsh-system-prompt` 的 `PromptPresentation` 拆分、`dsh-app-boot` 删的 7 个导出（bundle 清单搬进了 `dsh-official-bundles`）、`session-log-deepseek` 与 `session-telemetry-otel`（隐私默认值的处置不变，§2）。发布说明里另有三条要在真机组合前评估：pi-ai 1.3.0（工具参数畸形的响应会在任何工具执行前中止整轮）、Web Fetch 接受非公网地址、关闭时的 Auto-permission 修复。
 

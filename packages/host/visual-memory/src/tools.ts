@@ -160,11 +160,13 @@ export function renderViewValue(value: { readonly text: string; readonly images:
 }
 
 /**
- * Largest reply text a view tool returns. dsh's spill policy replaces a
- * text-only tool result above 50,000 UTF-8 bytes with a head/tail preview
+ * Largest reply text a view tool returns. dsh's spill policy replaces a tool
+ * result above its inline budget (an estimated 12,500 tokens shared by text
+ * and images; about 50,000 characters of plain text) with a head/tail preview
  * (facts.md §9.1); a readout cut in the middle is worse than a refusal that
  * says to ask for less. The margin leaves room for the trailing newline
- * (spec/deviations.md D-VMEM-4).
+ * (spec/deviations.md D-VMEM-4; the contract test reply-budget.test.ts keeps
+ * this cap and a full stm_inspect reply inside the budget).
  */
 export const MAX_REPLY_BYTES = 48_000
 

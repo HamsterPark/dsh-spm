@@ -120,7 +120,7 @@ describe('inspect', () => {
       [{ question: ' ', views: [{}] }, /question must be a non-empty string/],
       [{ question: 'x'.repeat(1025), views: [{}] }, /question is longer than 1024 characters/],
       [{ question: 'q', views: [] }, /views must be a non-empty list/],
-      [{ question: 'q', views: Array.from({ length: 17 }, () => ({ label: 'v', frame: 't0000.s0' })) }, /at most 16 views per call \(got 17\)/],
+      [{ question: 'q', views: Array.from({ length: 13 }, () => ({ label: 'v', frame: 't0000.s0' })) }, /at most 12 views per call \(got 13\)/],
       [{ question: 'q', views: ['t0000.s0'] }, /views\[1\] must be an object/],
       [v({ zoom: 2 }), /views\[1\]: unknown field\(s\) \['zoom'\]; allowed: \['channel', 'clip_pct', 'direction', 'flatten', 'frame', 'highpass_nm', 'label', 'region', 'x_col', 'x_range', 'y_col'\]$/],
       [{ question: 'q', views: [{ frame: 't0000.s0' }] }, /views\[1\]: missing required field\(s\) \['label'\]/],
