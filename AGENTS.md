@@ -8,7 +8,7 @@
 
 本插件处于持续开发迭代的实验阶段，接口、配置和开放工具仍可能变化。公开源码与稳定版本、真实仪器验收分别判断；概述项目时应保留这一成熟度说明。
 
-目前有两种经过 Windows 安装态与真实模型验收的模拟器入口：受管 STM-Bench 提供 `stm_hello` / `GetBias`；已打开的 Nanonis Mimea 模拟器另支持电流、Z、扫描状态读取，以及偏压设置和扫描启停。两组验收对应不同包哈希，详见运行指南。这些记录对应 dsh `0.1.5-rc.2` 下构建的包；锁定版本已升到 `0.2.1-rc.4`，新包尚未重做验收。迁移清单中的实现数量与运行入口实际注册的工具数量分别统计；完整客户端、完整图像采集和真实仪器验证仍在上述验收范围之外。
+目前有两种经过 Windows 安装态与真实模型验收的模拟器入口：受管 STM-Bench 提供 `stm_hello` / `GetBias`；已打开的 Nanonis Mimea 模拟器另支持电流、Z、扫描状态读取，以及偏压设置和扫描启停。两组验收对应不同包哈希，详见运行指南。这些记录对应 dsh `0.1.5-rc.2` 下构建的包；锁定版本已升到 `0.2.1-rc.5`，新包尚未重做验收。迁移清单中的实现数量与运行入口实际注册的工具数量分别统计；完整客户端、完整图像采集和真实仪器验证仍在上述验收范围之外。
 
 视觉线束（决策 D12，设计见 [视觉线束](docs/VISUAL-HARNESS.md)）由 `dsh-spm-visual-memory` 包（`packages/host/visual-memory/`）实现：会话内帧档案、`stm_inspect` / `stm_read_values`、测量与笔记工具；一动一观闸门在 `packages/host/kernel` 与 `packages/host/stm-skills` 的 `act-gate.ts`。最小运行栈经 `packages/bundle/dsh-spm/src/visual-harness.ts` 的 `visualHarness` 开关挂载，缺省不挂。它有单元、契约和参考一致性测试，但还没有真实模型验收，不在上述两组模拟器验收范围内。
 

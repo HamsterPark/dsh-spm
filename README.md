@@ -79,7 +79,7 @@ flowchart LR
 
 **Status: active development · experimental.** APIs, configuration and supported tools continue to evolve. Current acceptance covers the simulator workflows below; real-instrument validation is scheduled for Phase 8. Development priorities and evidence are collected in the [remaining work](docs/MIGRATION-TODO.md) and [review guide](docs/REVIEW-GUIDE.md).
 
-The following Windows acceptance records were produced on **2026-09-21**. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify. Those packages were built under dsh `0.1.5-rc.2`; the pinned version is now `0.2.1-rc.4` and the new packages have not been through acceptance yet.
+The following Windows acceptance records were produced on **2026-09-21**. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify. Those packages were built under dsh `0.1.5-rc.2`; the pinned version is now `0.2.1-rc.5` and the new packages have not been through acceptance yet.
 
 | Runtime | Model-visible tools | Recorded result |
 |---|---|---|
