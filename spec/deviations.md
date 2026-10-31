@@ -88,12 +88,18 @@
 | **参考实现** | 只有「读保存目录」那一处把会话路径还原成真字符（`_repair_nanonis_path`：依次按 UTF-8、本机 ANSI 代码页、GBK 试，取第一个存在或其上级是目录的）；`GetSessionPath` 技能与其余字符串交出的仍是二进制串。`StartScan` 把读到的系列名原样传回请求侧，而 `nanonis_spm` 把字符串按 UTF-8 编码 ⇒ 每个非 ASCII 字节被编成两个字节 |
 | **本仓此前** | 五种格式一律宽松 UTF-8 解码：非法字节在线协议层就换成 U+FFFD，往上无从还原 |
 | **TS** | ① `nanonis-wire` 分格式解码，与参考客户端一致；前缀说多少字节就读多少字节，计数的读法不变。② `repairWirePath`：UTF-8、GBK、windows-1252 逐个试，取第一个「路径存在或上级是目录」的，否则取第一个能解出来的；`GetSessionPath`、`SetSessionPath` 的回读和各处找文件的目录共用同一个入口 `lastPath`。③ `StartScan` 写回前把系列名交给 `decodeWireText`（严格 UTF-8 → 严格 GBK → 原样），不照抄双重编码 |
-| **测试** | 金样 `spec/golden/wire_decode.json`（五种格式 × 六种内容，期望值由参考客户端解出）与 `packages/instrument/nanonis-wire/src/types.test.ts` → 「字符串回复的解法与真实客户端逐格一致」；同文件 →「字符串回复：二进制串与 UTF-8 分格式解码」（256 个字节值全表、计数仍按字节、`+*c` / `*2c` 仍是 UTF-8）；`packages/host/stm-skills/src/l0/wire-text.test.ts`（逐档与回退、严格解码、真文件系统、源码扫描）；`packages/host/stm-skills/src/l0/scan-skills.test.ts` → 「序列名写回前还原成真字符」 |
+| **测试** | 金样 `spec/golden/wire_decode.json`（五种格式 × 六种内容，期望值由参考客户端解出）与 `packages/instrument/nanonis-wire/src/types.test.ts` → 「字符串回复的解法与真实客户端逐格一致」；同文件 →「字符串回复：二进制串与 UTF-8 分格式解码」（256 个字节值全表、计数仍按字节、`+*c` / `*2c` 仍是 UTF-8）；`packages/host/stm-skills/src/l0/wire-text.test.ts`（逐档与回退、严格解码、GBK 档按结构判、windows-1252 档的码表（P10）、真文件系统、源码扫描）；`packages/host/stm-skills/src/l0/scan-skills.test.ts` → 「序列名写回前还原成真字符」；变异规则 `wire-text-gbk-structure-is-checked-here`（拆掉 GBK 档的结构判断时变红）、`wire-path-cp1252-table-is-ours`（拆掉 windows-1252 档的码表时变红） |
 
 **与参考实现不同的三处**：
 
 1. **第二档。** 参考实现试的是本机 ANSI 代码页；Node 取不到它，这里用 GBK 顶（中文 Windows 上两者相同），
    再加 windows-1252 作最后一档——它对任何字节都能解，所以总有一个候选。
+
+   GBK 档认哪些字节由本仓按结构判：单字节 0x00–0x80，双字节首字节 0x81–0xFE、尾字节 0x40–0x7E 或 0x80–0xFE；
+   单独的 0xFF 和 GB18030 的四字节序列不算。不交给运行时的解码器，是因为两个受支持的 Node 版本给 `gbk` 的不是
+   同一个：Node 22.19（ICU 77.1）用 CP936 表，把 0xFF 解成私用区的 U+F8F5、四字节序列报错；Node 24（ICU 78.2）
+   用 gb18030，0xFF 报错、四字节序列照解。windows-1252 档的码表也在本仓（0x80–0x9F 的 32 个码位照 WHATWG 的表）：
+   Node 22.19 的 `TextDecoder('windows-1252')` 把这一段当 Latin-1 解成 C1 控制字符，Node 24 的按 WHATWG。
 2. **范围。** `GetSessionPath` 的返回值和 `SetSessionPath` 的回读也还原。回读若还是二进制串，就是拿
    真字符的请求去比一串字节：带中文的路径永远「未生效」。
 3. **系列名写回不双重编码。** 这是已确认的参考缺陷，不照抄。
@@ -113,6 +119,8 @@ Nanonis 自带的名字都是 ASCII，受影响的是用户自己起的非 ASCII
   STM-Bench 按 UTF-8。GBK 这一档因此是备用读法，不是已验证的行为。
 - `decodeWireText` 没有 windows-1252 这一档：它对任何字节都「成功」，会把读不懂的字节硬解成别的字符
   再写回仪器。两样都读不通就原样交出，此时写回的仍是双重编码，与参考实现一致。
+- 合法的双字节码里有 101 个，两个 Node 版本解出的码点不同：Node 22 给 CP936 的私用区码点，Node 24 给 GB18030 的
+  标准码点（例如 A2E3 是 U+E76C 与 U+20AC）。认不认相同，解出的字符不同。
 
 **重新考虑的条件**：请求侧能发原始字节时，系列名应按字节写回，`decodeWireText` 这一步随之可以去掉；
 真机上确认了控制器的代码页后，GBK / windows-1252 两档可以改成读控制器声明的那一个。

@@ -99,8 +99,18 @@ describe('repairWirePath · 路径按字节逐个代码页试，取指向真实�
   })
 
   it('P9 · windows-1252 不是 Latin-1：0x80–0x9F 落在它自己的位置上', () => {
-    // 这一档存在的理由是「总能解」，不是「解得对」——但它得是 Node 里 windows-1252 的那一份。
+    // 这一档存在的理由是「总能解」，不是「解得对」——但它得是 windows-1252（WHATWG 的表），不是 Latin-1。
     expect(repairWirePath(bin([...ASCII('D:\\'), 0x80, 0xff]), fakeDisk([]))).toBe('D:\\€ÿ')
+  })
+
+  it('P10 · windows-1252 档的码表在本仓：0x80–0x9F 整段与 WHATWG 的表逐个相同', () => {
+    // Node 22 的 TextDecoder('windows-1252') 把这一段当 Latin-1 解成 C1 控制字符，Node 24 的按 WHATWG。
+    // 末尾的 0xFF 让 GBK 档不成立（0x9F 后面没有合法的尾字节），只剩这一档。
+    const c1 = Array.from({ length: 32 }, (_, i) => 0x80 + i)
+    expect(repairWirePath(bin([...c1, 0xff]), fakeDisk([]))).toBe(
+      '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f' +
+        '\u0090‘’“”•–—˜™š›œ\u009džŸÿ',
+    )
   })
 })
 
@@ -120,6 +130,16 @@ describe('decodeWireText · 写回仪器之前，不看文件系统', () => {
     expect(decodeWireText('Au111')).toBe('Au111')
     expect(decodeWireText('')).toBe('')
     expect(decodeWireText('文件')).toBe('文件')
+  })
+
+  it('S2c · GBK 档按 GBK 自己的字节结构判合法：单独的 0xFF、GB18030 的四字节序列都不算，0x80 算', () => {
+    // 认不认不交给运行时：Node 22 的 gbk 解码器把 0xFF 解成私用区的 U+F8F5，Node 24 的把 81 30 81 30 解成 U+0080
+    for (const bytes of [[0x41, 0xff], [0x41, 0x81, 0x30, 0x81, 0x30], [0xca, 0xfd, 0xff, 0x41]]) {
+      const odd = bin(bytes)
+      expect(decodeWireText(odd)).toBe(odd)
+    }
+    // 0x80 单独一个字节在 GBK（CP936）里是「€」，两个 Node 版本都这么解
+    expect(decodeWireText(bin([0x41, 0x80]))).toBe('A€')
   })
 })
 

@@ -54,13 +54,51 @@ function bytesToRepair(s: string): Uint8Array | null {
   return raw === null || raw.every((b) => b < 0x80) ? null : raw
 }
 
+/**
+ * GBK 的字节结构：单字节 0x00–0x80（0x80 是「€」），双字节的首字节 0x81–0xFE、尾字节 0x40–0x7E 或 0x80–0xFE。
+ * 单独的 0xFF、GB18030 的四字节序列都不算。
+ *
+ * 认不认在这里判，不交给运行时的解码器：Node 22 的 `gbk` 是 ICU 的 CP936 表，把 0xFF 解成私用区的
+ * U+F8F5、四字节序列报错；Node 24 的是 WHATWG 的 gb18030，0xFF 报错、四字节序列照解。按这个结构判，
+ * 两边认的字节串相同。
+ */
+function isGbkStructure(raw: Uint8Array): boolean {
+  for (let i = 0; i < raw.length; i++) {
+    const lead = raw[i]!
+    if (lead <= 0x80) continue
+    const trail = raw[++i]
+    if (lead === 0xff || trail === undefined || trail < 0x40 || trail === 0x7f || trail === 0xff) return false
+  }
+  return true
+}
+
 /** 严格解码：字节不合法就给 `null`，不换成 U+FFFD。 */
 function decodeStrict(raw: Uint8Array, label: 'utf-8' | 'gbk'): string | null {
+  if (label === 'gbk' && !isGbkStructure(raw)) return null
   try {
     return new TextDecoder(label, { fatal: true }).decode(raw)
   } catch {
     return null
   }
+}
+
+/**
+ * windows-1252 在 0x80–0x9F 的码点（WHATWG 的表；0x81、0x8D、0x8F、0x90、0x9D 未定义，留作 C1 控制字符）。
+ * 其余字节的码点就是字节值本身，与 Latin-1 相同。
+ */
+const CP1252_80_9F = [
+  0x20ac, 0x0081, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021, 0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008d, 0x017d, 0x008f,
+  0x0090, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0x009d, 0x017e, 0x0178,
+] as const
+
+/**
+ * windows-1252 解码，对任何字节都成功。码表在本仓：Node 22 的 `TextDecoder('windows-1252')` 把 0x80–0x9F
+ * 当 Latin-1 解成 C1 控制字符，Node 24 的按 WHATWG 的表解。
+ */
+function decodeWindows1252(raw: Uint8Array): string {
+  let s = ''
+  for (const b of raw) s += String.fromCharCode(b >= 0x80 && b <= 0x9f ? CP1252_80_9F[b - 0x80]! : b)
+  return s
 }
 
 /**
@@ -79,7 +117,7 @@ export function repairWirePath(s: string, probe: PathProbe = fsProbe): string {
   const candidates = [
     decodeStrict(raw, 'utf-8'),
     decodeStrict(raw, 'gbk'),
-    new TextDecoder('windows-1252').decode(raw),
+    decodeWindows1252(raw),
   ].filter((c): c is string => c !== null)
   return candidates.find((c) => probe.exists(c) || probe.parentIsDirectory(c)) ?? candidates[0]!
 }
