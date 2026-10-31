@@ -15,6 +15,8 @@
 | [0.1.5-rc.2](dump-config.0.1.5-rc.2.yml) | 2026-09-13 | 与 0.1.5-rc.1 快照逐字节相同 |
 | [0.2.1-rc.4](dump-config.0.2.1-rc.4.yml) | 2026-10-28 | web 组合：191 个顶层行、1231 行（0.1.5-rc.2 为 152 个、539 行），逐项变化见 [facts.md](../../docs/dsh/facts.md) §8；相对 0.2.1-rc.2 只多 `entry-customization` 一行 |
 | [0.2.1-rc.4 headless](dump-config.headless.0.2.1-rc.4.yml) | 2026-10-28 | headless 组合：`dsh-base` 加 `dsh-headless`，不含 preset，98 个顶层行、382 行。我们的最小入口 profile 是 `dsh-base` 加 `dsh-spm`，与它相比，行集合只差 `headless-runner`、`headless-startup` 两行和我们自己的两行，`tool-*` 行相同；但 headless 补丁还禁用了 `credentials`、`authorization`、`deepseek-account`、`hmr`，并改了 `system-prompt` 的 `personaPrefix` 与 `tools` 的 `mode`（取自环境变量 `DSH_TOOLS_MODE`），我们的补丁关掉了 `session-log-deepseek`。模型验收时 profile 会补入 `dsh-headless`（见 [STM-Bench 指南](../../docs/MINIMUM-USABLE.md)与 [Nanonis 指南](../../docs/NANONIS-SIMULATOR.md)） |
+| [0.2.1-rc.5](dump-config.0.2.1-rc.5.yml) | 2026-11-01 | web 组合：与 0.2.1-rc.4 的快照逐字节相同（191 个顶层行、1231 行） |
+| [0.2.1-rc.5 headless](dump-config.headless.0.2.1-rc.5.yml) | 2026-11-01 | headless 组合：与 0.2.1-rc.4 的 headless 快照逐字节相同（98 个顶层行、382 行）。内容没变也存一份新名字：`acceptance-overlay.test.ts` 与 `reply-budget.test.ts` 按锁定版本读它 |
 
 文件名标识被导出的版本，日期对应仓库内的升级记录。配置相同说明该快照中的插件名单和默认配置相同，不代表包内部实现没有变化。实际包接触面和测试结果在对应升级记录中核对。
 
@@ -24,6 +26,7 @@
 - [pkglist.0.1.3-alpha.2.txt](pkglist.0.1.3-alpha.2.txt)：该次安装的包名与版本。
 - [pkglist.0.1.5-alpha.1.txt](pkglist.0.1.5-alpha.1.txt)：该次安装的包名与版本，包含独立版本线的 Cordis 包。
 - [pkglist.0.2.1-rc.4.txt](pkglist.0.2.1-rc.4.txt)：从 `pnpm-lock.yaml` 导出的 314 行，其中 dsh 系 296、Cordis 系 7、`libreoffice-kit` 系 6、`node-addon-system` 系 5。
+- [pkglist.0.2.1-rc.5.txt](pkglist.0.2.1-rc.5.txt)：同样的 314 行，去掉版本串后与 rc.4 的逐行相同。
 
 这些是历史环境记录。当前依赖约束由 manifest、`pnpm-workspace.yaml` 和 `pnpm-lock.yaml` 共同表达；[pin.test.ts](../../packages/host/compat/contract/pin.test.ts) 检查锁文件中的 dsh 版本及真实包契约。
 
@@ -33,8 +36,8 @@
 
 1. 在仓外建一个只依赖 `@deepseek-ai/dsh@<版本>` 的项目：逐个向 registry 解析闭包里的 `@deepseek-ai/dsh*` 包，用 `pnpm-workspace.yaml` 的 `overrides` 把它们和 Cordis 系包都钉成确切版本，`allowBuilds` 全部设为 `false`（不跑任何构建脚本），然后 `pnpm install`。
 2. 运行 `node node_modules/@deepseek-ai/dsh/lib/bin.js --profile <web|headless> --dump-config`。不带 `--patch`，也不用已装了 `dsh-spm` 的 profile，否则输出里会出现带本机路径的 `patched by` 标题。运行时把 `DSH_HOME`、`DSH_AGENTS_HOME`、`HOME`、`USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`TEMP` 都指到该临时目录，网络代理指向不可用地址；每个组合用各自的新目录，因为 `--dump-config` 会在 `DSH_HOME` 里建 profile 目录。
-3. 确认 stderr 为空；运行前后各取一份真实 `~/.dsh`、`~/.agents` 的元数据快照（只读路径、类型、大小、时间，不读内容），逐字节比对相同。
-4. 把 stdout 保存为 `dump-config.<版本>.yml`（web）和 `dump-config.headless.<版本>.yml`；包清单 `pkglist.<版本>.txt` 取自该项目 `pnpm-lock.yaml` 里去重排序后的 `@deepseek-ai/*@<版本>`。提交前扫描本机用户名、盘符路径和临时目录名。
+3. 确认 stderr 为空。隔离靠第 2 步的环境构造来保证；不要读取真实的 `~/.dsh`、`~/.agents`，元数据也不读。
+4. 把 stdout 保存为 `dump-config.<版本>.yml`（web）和 `dump-config.headless.<版本>.yml`；包清单 `pkglist.<版本>.txt` 取自该项目 `pnpm-lock.yaml` 里去重排序后的 `@deepseek-ai/*@<版本>`（该项目没有给第三方 `zod` 写 override，锁里可以有两份，所以不要拿 `scripts/gen-dsh-pins.ts` 的导出器处理它，按 `@deepseek-ai/*` 自己去重）。提交前扫描本机用户名、盘符路径和临时目录名。与上一版逐字节相同时也存新名字的文件。
 
 与前一版比较后，在升级日志记录日期、配置差异、包差异和验证结果。导出配置不代表完成插件启动、安装态或模型验收。
 

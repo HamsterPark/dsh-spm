@@ -57,8 +57,8 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 都看；latest / ne
 **升级清单**（一次一版，单独提交 `chore(dsh): bump <a> → <b>`；例外须在日志里写明理由，见 2026-10-28 条）：
 
 1. 改钉版：`pnpm-workspace.yaml` 的 `overrides`（逐包精确；键不支持通配，写了也是静默无效）和 `minimumReleaseAgeExclude`——**不是**根 `package.json`；以及各工作区 `package.json` 里 `@deepseek-ai/*` 与 `zod` 的声明（共 10 个：`packages/host/compat` 写在 `dependencies`，其余在 `devDependencies` / `peerDependencies`；Cordis 系取目标版本 `~` 范围内的确切版本，`zod` 取 dsh 自己钉的版本；脚本和测试里也有字面量，用 `git grep -l '<旧版本>' -- ':!pnpm-lock.yaml' ':!docs'` 找全）。先 `pnpm install`，再 `pnpm gen:dsh-pins` 按锁文件**生成**两张表（不手抄），然后 `pnpm install --frozen-lockfile` 与 `pnpm gen:dsh-pins --check`。`scripts/dsh-pins.ts` 里的 `VENDOR_PINS`（Cordis 系等独立版本线）同步更新。仓库里没有独立的 `check:dsh-pin` 脚本，执法者是 `packages/host/compat/contract/pin.test.ts`：锁文件里每个 `@deepseek-ai/dsh*` 恰好是锁定版本、两张表与锁一致、各 manifest 与表一致、`zod` 只有一个版本、`VENDOR_PINS` 与锁一致、`engines.dsh` 与 dsh peer 都是锁定版本（理由见 [EXECUTION](../EXECUTION.md) 里「按消融原则没有写」那张表）。
-2. 导出 web **和 headless** 两份组合快照，与上一版逐行 diff，**stderr 必须为空**；方法见 [spec/dsh/README.md](../../spec/dsh/README.md)（仓外临时项目、整套精确钉、隔离 home、**不用 `npx`**），存为 `spec/dsh/dump-config.<b>.yml`、`dump-config.headless.<b>.yml` 与 `pkglist.<b>.txt`。我们覆盖过的 dsh-base 行（PLAN §6.3 表）逐行对。
-3. 两版 npm 包的 `.md` / `.d.ts` / `.yml` 对比，只读 compat 依赖的包（`packages/host/compat/package.json` 的 `dependencies`）。没有现成脚本：对每个包分别 `npm pack @deepseek-ai/<包>@<旧版> --pack-destination old` 与 `…@<新版> --pack-destination new`，解开后 `diff -r`。不要用 `npx @deepseek-ai/dsh@<旧版>` 代替：它只钉住启动器，子包的 caret 范围会漂到新版，比不出两个版本（见下面 2026-09-13 日志的「坑二」）。发布说明逐条对 `docs/dsh/facts.md` §5–§7、§9。比对对象除 compat 的 12 个接触面包（`dsh-agent`、`dsh-agent-loop`、`dsh-attachment`、`dsh-commands`、`dsh-host-webserver`、`dsh-llm`、`dsh-session`、`dsh-session-persistence`、`dsh-session-projection`、`dsh-settings`、`dsh-system-prompt`、`dsh-tools`）外，还要加 `dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek`——组合树和隐私默认值就在它们里面；版本串归一后逐文件比。`packages/bundle/dsh-spm/contract/reply-budget.test.ts` 用到四项 dsh 事实：spill 预算取自入仓 headless 快照里 `spill-policy` 行的 `maxInlineTokens`，句柄文字由 `@deepseek-ai/dsh-llm` 的 `requestImageHandleText` 现场生成，这两项随快照与锁定版本跟上；文字估算（`dsh-token-meter`：每块 `ceil(字符数 / 4) + 4`）与 DeepSeek 路线 768×768 图像的价格（`@deepseek-ai/dsh-llm-deepseek` 的 `deepSeekImageTokens(768, 768)` = 382；该包不在本仓依赖树里）是测试里的常量，升级时对新版本的包重核，图像价格用该函数重算。
+2. 导出 web **和 headless** 两份组合快照，与上一版逐行 diff，**stderr 必须为空**；方法见 [spec/dsh/README.md](../../spec/dsh/README.md)（仓外临时项目、整套精确钉、隔离 home、**不用 `npx`**），存为 `spec/dsh/dump-config.<b>.yml`、`dump-config.headless.<b>.yml` 与 `pkglist.<b>.txt`。我们覆盖过的 dsh-base 行（PLAN §6.3 表）逐行对。快照与上一版逐字节相同时，也要存一份以新版本命名的文件：`acceptance-overlay.test.ts` 与 `reply-budget.test.ts` 按锁定版本读 `dump-config.headless.<版本>.yml`，缺了就是 ENOENT 红，所以快照和换钉放进同一个提交。
+3. 两版 npm 包的 `.md` / `.d.ts` / `.yml` 对比，只读 compat 依赖的包（`packages/host/compat/package.json` 的 `dependencies`）。没有现成脚本：对每个包分别 `npm pack @deepseek-ai/<包>@<旧版> --pack-destination old` 与 `…@<新版> --pack-destination new`，解开后 `diff -r`。不要用 `npx @deepseek-ai/dsh@<旧版>` 代替：它只钉住启动器，子包的 caret 范围会漂到新版，比不出两个版本（见下面 2026-09-13 日志的「坑二」）。发布说明逐条对 `docs/dsh/facts.md` §5–§7、§9。比对对象除 compat 的 12 个接触面包（`dsh-agent`、`dsh-agent-loop`、`dsh-attachment`、`dsh-commands`、`dsh-host-webserver`、`dsh-llm`、`dsh-session`、`dsh-session-persistence`、`dsh-session-projection`、`dsh-settings`、`dsh-system-prompt`、`dsh-tools`）外，还要加 `dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek`——组合树和隐私默认值就在它们里面；版本串归一后逐文件比。`packages/bundle/dsh-spm/contract/reply-budget.test.ts` 用到四项 dsh 事实：spill 预算取自入仓 headless 快照里 `spill-policy` 行的 `maxInlineTokens`，句柄文字由 `@deepseek-ai/dsh-llm` 的 `requestImageHandleText` 现场生成，这两项随快照与锁定版本跟上；文字估算（`dsh-token-meter`：每块 `ceil(字符数 / 4) + 4`）与 DeepSeek 路线 768×768 图像的价格（`@deepseek-ai/dsh-llm-deepseek` 的 `deepSeekImageTokens(768, 768)` = 382；该包不在本仓依赖树里）是测试里的常量，升级时对新版本的包重核，图像价格用该函数重算（在第 2 步的快照项目里按绝对路径导入 `@deepseek-ai/dsh-llm-deepseek`，用不联网的环境调用；估算常量读 `dsh-token-meter` 的 `lib/types/estimate.js`）。
 4. **先 `pnpm clean && pnpm build`**：换依赖后增量 `tsc -b` 可能把项目判为 up to date、不对着新的 `.d.ts` 重检，升级验证一律从干净构建开始。然后 `pnpm test --project contract`（含 spike 十条）；红了先在 compat 内适配，适配不了就重构我们的接缝（同一提交或紧随其后的 `refactor(dsh): …`）。
 5. `pnpm build`，`pnpm test --project unit --project contract`，`pnpm probe:compose`（对 minimal、验收 overlay、mast-sim 各跑一遍，参数见脚本头注释）；`dsh plugin --profile web add ./packages/bundle/dsh-spm` 冒烟，会话里 `stm_hello` / `stm_selfcheck`。不带筛选的 `pnpm test` 含 STM-Bench 集成测试、会启动模拟器，不属于这一步。
 6. **拿既有 `~/.dsh` 冒烟**（不是干净 home）：旧会话能打开、标题还在、设置与凭据还在。alpha.5 就是专门修「从 rc.2 / alpha.3 升级后起不来、会话标题消失」的——升级会损坏既有数据是实证过的。备份 `~/.dsh` 再升。**会话格式的迁移是单向的**：V4 里 0.2.1 新增的事件让 0.2.0 读不了（facts §1、§8.-9），所以回退靠升级前的备份，不靠降版本。2026-10-28 那次没有做这一步，归验收阶段（见该日志条）。
@@ -66,6 +66,38 @@ npm view @deepseek-ai/dsh dist-tags --json     # 三个 tag 都看；latest / ne
 8. 升级不改领域代码；若必须改，拆成第二个提交。
 
 ## 日志
+
+### 2026-11-01 · 0.2.1-rc.4 → **0.2.1-rc.5**（第五次真升级；领域代码零改动）
+
+**触发与目标**：`latest` 与 `next` 都是 `0.2.1-rc.5`（10-29 发布），`alpha` 仍是 `0.2.2-alpha.2`（10-27）。取 rc.5；`0.2.2-alpha.2` 照旧只读不升，[facts.md](facts.md) §8.-13 的迁移清单对 rc.5 同样成立。
+
+**发布说明与包差异**：发布说明一条（思考内容的展示）。全闭包 296 个 dsh 系包、5,902 个文件逐个对比（版本串归一）：291 个相同，5 个有改动，都是 web 客户端包；compat 的 12 个接触面包、`dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek` 与本仓钉的 30 个 dsh 包全部相同。依赖闭包结构不变（686 个包），非 dsh 系的版本一个没动。要点与影响见 facts §8.-14：唯一的行为改动是 `dsh-client-ui-chat` 整理推理文本、插槽 `conversation.chat.reasoning.body` 多一个 `rawText` 字段，本仓不注册客户端插槽，不受影响。
+
+**判据三条全过**：
+- `pnpm clean && pnpm build`：0 个 TS 错误 ✅
+- `pnpm test --project unit --project contract`：190 个文件、8811 条全绿，Node 24.14.0 与官方 Node 22.19.0 二进制各跑一遍（测试文件相对 master 没有增删，只有三个文件改了注释）✅；`pnpm test:coverage` 的覆盖率门槛通过（kernel 97.14 / 91.63 / 99.22 / 98.69；bump 没有改动任何 `src`）；生成物的五个 `--check`（`gen:dsh-pins`、`gen:skills`、`gen:progress`、`gen:nanonis`、`gen:records`）、发布卫生门（通用规则，813 个文件、0 命中；另带站点名单再扫一遍，也是 0 命中）与导出工具的 103 条 Python 单测（Python 3.13）也通过 ✅
+- `pnpm probe:compose`：对最小分发、最小分发加验收 overlay、mast-sim（带 `--patch`，以及把补丁装成 profile 补丁两种）通过；三个反例变红并点名原因：期望一个不存在的行、overlay 引用组合里不存在的行、把已装插件的 `engines.dsh` 写成 rc.4（rc.5 运行时静默跳过整个 bundle，退出码仍是 0，stderr 含 `skipping profile bundle` 与 `incompatible`）✅
+
+| 清单步 | 结果 |
+|---|---|
+| 1 钉版 + `pin.test.ts` | ✅ 4 个 `package.json` 与 `pnpm-workspace.yaml` 的两张表换到 rc.5，成员不变（30 个 dsh 包加 7 个 Cordis 系/zod）；`pnpm gen:dsh-pins` 按新锁文件重新导出，与替换结果逐字节相同；锁文件只变 30 条 integrity 和几处 peer 哈希后缀，integrity 与逐包下载、按 sha512 校验过的 tarball 一致 |
+| 2 web 与 headless 快照 | ✅ 191 与 98 个顶层行；stderr 为空；与 rc.4 的逐字节相同；pkglist 去掉版本串后与 rc.4 的相同。导出在隔离环境里做 |
+| 3 包树 diff | ✅ rc.4 → rc.5 见上。`reply-budget.test.ts` 的四项 dsh 事实重核：预算 12,500 取自新快照；估算常量（每 4 个字符一个 token、每块另加 4）读源码，该文件与 rc.4 逐字节相同；`deepSeekImageTokens(768, 768)` 在隔离安装的 rc.5 包里重算仍是 382（另三个尺寸 724、994、968 也不变）；句柄文字由 `requestImageHandleText` 现场生成，该包与 rc.4 相同。最坏回复用测试的临时副本重测：文字 5,842 加图像 6,396，合计 12,238，余量 262，与 rc.4 时相同 |
+| 4 contract 测试 | ✅ contract 项目 20 个文件、146 条全绿（含 spike 十条）。快照缺失时 `acceptance-overlay.test.ts` 与 `reply-budget.test.ts` 红（ENOENT），补上 rc.5 快照后绿 |
+| 5 构建、测试、探针、冒烟 | ✅ 构建、单元与契约测试、`probe:compose`（见上；探针在换钉提交上跑，其后 rebase 到的 master 没有改动探针依赖的清单、补丁和脚本，rebase 后只重建了最小分发包，构建与卫生门通过，没有重装）。最小分发的隔离安装：`install-minimal` 在隔离 home（`HOME`、`USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`TEMP`、`DSH_HOME`、`DSH_AGENTS_HOME` 全指向新目录）里装完，296 个 dsh 包全是 rc.5，独立版本线的 9 个 vendor 包逐个等于 `VENDOR_PINS`，宿主与插件解析到同一物理文件（4 项模块身份）。完整 bundle 以 `link:` 装进隔离的 mast-sim profile 做探针；没有开会话，`stm_hello` / `stm_selfcheck` 没跑 |
+| 6 **既有 `~/.dsh` 冒烟** | ❌ 没做，归验收阶段；V4 迁移单向，真做之前先备份 |
+| 7 文档 | ✅ `facts.md`（首行、横幅、§1、§3、§8.-14、§9 说明）、本文件、`spec/dsh/README.md` 与三份快照、两份运行指南、README、AGENTS |
+| 8 领域代码 | ✅ 零改动；改动只有钉版、快照、文档和几处写着 rc.4 的出处注释 |
+
+**三类守卫对 rc.5 的读数**：验收组合没有模型可见工具能绕开动作闸（`acceptance-overlay.test.ts`，对着 rc.5 的 headless 快照）✅；实时状态块不被 preset 压掉（`instrument-state` 的 `plugin.test.ts`）✅；视觉工具回复的体积（`reply-budget.test.ts`）✅，余量不变。三个守卫都没有因为 rc.5 的行为变化而红；唯一的红是第一次跑契约测试时快照文件还没存（见下）。
+
+#### 新踩的坑
+
+1. **两道守卫按锁定版本取快照文件名**：快照内容与上一版相同也要存一份新名字的文件，缺了是 ENOENT（不是语义上的红）。快照要和换钉放进同一个提交，否则换钉提交本身是红的。
+2. **覆盖率运行在机器被占满时会撞上 20 s 的显式超时**：第一次 `pnpm test:coverage` 里 `batch7b1-skills.test.ts` 的 `expected_a_nm` 三态那条超时（同一条在同样的负载下单独裸跑也要 16.6 s，离限制只差一点，插桩再慢一点就超）；机器空闲后同一条命令一遍通过。这是负载问题，不是回归；判断覆盖率时要在机器不忙的时候跑，并拿同机同基线的读数对照。
+3. **快照项目里第三方 `zod` 可以有两份**（4.4.3 与 4.6.7）：那个项目没有给 `zod` 写 override。`scripts/gen-dsh-pins.ts` 的导出器会因此拒绝它的锁文件，所以快照项目的 pkglist 要自己按 `@deepseek-ai/*` 去重排序，不要拿导出器处理它。
+
+**未做（如实记录）**：既有 `~/.dsh` 的升级冒烟（清单第 6 步）与会话冒烟；真实模型会话与 Nanonis 模拟器验收——旧验收记录对应 0.1.5-rc.2 下构建的包，对新包不适用；Ubuntu 的单元格交 CI（本次只在 Windows 上跑过，Node 24.14.0 与 22.19.0 两版都有）。
 
 ### 2026-10-28 · 0.1.5-rc.2 → **0.2.1-rc.4**（第四次真升级，一步直达；领域代码改动 1 处）
 

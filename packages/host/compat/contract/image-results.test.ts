@@ -1,6 +1,6 @@
 /**
  * Contract: how an image travels from a tool result to a model request in
- * dsh 0.2.1-rc.4 (VISUAL-HARNESS §7, facts.md §9). Real upstream packages,
+ * dsh 0.2.1-rc.5 (VISUAL-HARNESS §7, facts.md §9). Real upstream packages,
  * no stand-ins for dsh itself; only the attachment store and the model
  * adapter are minimal subclasses of dsh's own abstract classes.
  *

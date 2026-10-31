@@ -1,12 +1,17 @@
-# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.2.1-rc.4**（2026-10-28 升级并核实）
+# dsh 事实速查 —— 对照 `@deepseek-ai/dsh` **0.2.1-rc.5**（2026-11-01 升级并核实）
 
 > **阅读方式**：本文按调查与升级日期累积，早期章节中的“当前”“本次”指该节记录时点。实际依赖以 [compat manifest](../../packages/host/compat/package.json) 和锁文件为准；版本决定按 [升级策略](upgrades.md) 的最新修订理解。项目当前可运行范围见 [文档导航](../README.md)，不从某次上游探针结果推断全部插件能力。
 
+> **2026-11-01 升级到 `0.2.1-rc.5`**（`latest` 与 `next` 同指它；`alpha` 仍是 `0.2.2-alpha.2`）。
+> 相对 rc.4 只改了 web 客户端里推理（思考）内容的展示：全闭包 296 个 dsh 系包里 291 个逐文件相同，5 个有改动，都是客户端包。
+> compat 的 12 个接触面包、`dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek` 和本仓钉的 30 个 dsh 包与 rc.4 逐文件相同，
+> web 与 headless 组合快照与 rc.4 的逐字节相同；领域代码零改动。见 §8.-14 与 [升级日志](upgrades.md) 的 2026-11-01 条。
+>
 > **2026-10-28 升级到 `0.2.1-rc.4`**（`next` 通道；同日 `latest` = `0.2.1-rc.2`，`alpha` = `0.2.2-alpha.2`）。
 > 这是一步直达：从 `0.1.5-rc.2` 越过 0.1.6、0.1.7、0.2.0 与 0.2.1 的全部预发布版；理由与逐项结果见 [升级日志](upgrades.md) 的 2026-10-28 条。
 > **compat 接触面**：12 个包（`dsh-agent` / `dsh-agent-loop` / `dsh-attachment` / `dsh-commands` / `dsh-host-webserver` / `dsh-llm`
 > / `dsh-session` / `dsh-session-persistence` / `dsh-session-projection` / `dsh-settings` / `dsh-system-prompt` / `dsh-tools`）
-> 在 0.2.1-rc.2、rc.3、rc.4 之间**逐文件相同**，但相对 0.1.5-rc.2 有实质变化：会话 V4、工具结果独立成 `role: 'tool'` 消息、快照来源改名等，见 §8.-9 至 §8.-5。
+> 在 0.2.1-rc.2、rc.3、rc.4、rc.5 之间**逐文件相同**，但相对 0.1.5-rc.2 有实质变化：会话 V4、工具结果独立成 `role: 'tool'` 消息、快照来源改名等，见 §8.-9 至 §8.-5。
 > 组合树：web 组合 **191** 个顶层行（0.1.5-rc.2 为 152），headless 组合 98 个。领域代码只动了 **1 处**（`stm-ui` 的投影来源判定，单独提交）。
 > **`0.2.2-alpha.2`（10-27）按切换点规则只读不升，影响记在 §8.-13**——它不是版本串替换，而是一次迁移。
 >
@@ -39,17 +44,18 @@
 | 0.1.7-rc.1 / rc.2 | 09-23 / 09-24 | 发布说明在 rc.1 里汇总了自 0.1.5-rc.3 以来的全部变化 |
 | 0.2.0-rc.1 / rc.2 | 09-28 / 09-29 | 对 compat 接触面很小，见 §8.-8 |
 | 0.2.1-alpha.1 … alpha.5 | 10-03 / 10-09 / 10-14 / 10-15 / 10-16 | 见 §8.-9、§8.-10 |
-| 0.2.1-rc.1 / rc.2 | 10-17 03:17 / 08:36 | rc.2 是今天 `latest` 所指 |
+| 0.2.1-rc.1 / rc.2 | 10-17 03:17 / 08:36 | rc.2 在 10-28 是 `latest` 所指，10-29 起 `latest` 移到 rc.5 |
 | 0.2.1-rc.3 | 10-23 | 见 §8.-11 |
-| **0.2.1-rc.4** | **10-26** | **当前锁定**（10-28 升）。相对 rc.3 只有 ACP 诊断输出与界面提示的修复，见 §8.-12 |
+| 0.2.1-rc.4 | 10-26 | 10-28 至 11-01 的锁。相对 rc.3 只有 ACP 诊断输出与界面提示的修复，见 §8.-12 |
 | 0.2.2-alpha.2 | 10-27 | 目前 0.2.2 只有这一个版本；只读不升，见 §8.-13 |
+| **0.2.1-rc.5** | **10-29** | **当前锁定**（11-01 升）。相对 rc.4 只有 web 客户端里推理内容展示的改动，见 §8.-14 |
 
-- **dist-tags（2026-10-28 实测）**：`latest` = `0.2.1-rc.2`，`next` = **`0.2.1-rc.4`**，`alpha` = `0.2.2-alpha.2`。**追踪对象是 `latest` 与 `next` 两条稳定通道里 semver 较大的那个，`alpha` 只读不升**（`upgrades.md` 切换点，2026-09-13 起；此前是所有 dist-tag 里的最大值，PLAN D11）：09-04 时 rc.1 比 alpha.5 新、盯 `alpha` 会落后；09-07 反过来；今天 `latest` 又落后 `next` 两个 rc。按版本号比大小，别信标签名。裸 `npx @deepseek-ai/dsh` 会装到 `latest`，但仍然**所有命令必须带版本**，而且光带版本也不够（见下两条）。
+- **dist-tags（2026-11-01 实测）**：`latest` = `next` = **`0.2.1-rc.5`**，`alpha` = `0.2.2-alpha.2`。**追踪对象是 `latest` 与 `next` 两条稳定通道里 semver 较大的那个，`alpha` 只读不升**（`upgrades.md` 切换点，2026-09-13 起；此前是所有 dist-tag 里的最大值，PLAN D11）：09-04 时 rc.1 比 alpha.5 新、盯 `alpha` 会落后；09-07 反过来；10-28 时 `latest` 又落后 `next` 两个 rc（rc.2 对 rc.4），10-29 起两者同指 rc.5。按版本号比大小，别信标签名。裸 `npx @deepseek-ai/dsh` 会装到 `latest`，但仍然**所有命令必须带版本**，而且光带版本也不够（见下两条）。
 - **prerelease 上的 caret 会跨通道，但只在同一 `x.y.z` 元组之内**：启动器 `dsh` 对自己的 `@deepseek-ai/*` 依赖声明 `^0.1.2-<pre>`（`dsh-base` 84 个、`dsh-web-app` 70 个、`dsh-tools` 的 peer 同样是 `^`），而 `^0.1.2-alpha.4` 的语义是 `>=0.1.2-alpha.4 <0.2.0`，**同一 `0.1.2` 元组下 `rc.1` > `alpha.5` > `alpha.4`，所以 alpha 范围会吃进 rc**。09-04 实测：全新 `npm i @deepseek-ai/dsh@0.1.2-alpha.4` 装出 **1 个 alpha.4 启动器 + 213 个 `0.1.2-rc.1` 子包**。
   **但它不会跨到 `0.1.3`**（09-07 实测确认）：semver 规定预发布版本只匹配范围里**元组相同**的比较符，`0.1.3-alpha.2` 的元组 `[0,1,3]` 既不等于 `>=0.1.2-rc.1` 的 `[0,1,2]` 也不等于 `<0.2.0` 的 `[0,2,0]` ⇒ 钉 `0.1.3-alpha.2` 装出的树里 **223 个 `@deepseek-ai/dsh*` 全部恰好是 `0.1.3-alpha.2`，零例外**（`spec/dsh/pkglist.0.1.3-alpha.2.txt`）。**结论不变**：仍然必须整套精确钉（PLAN D11、§6.3），[`pin.test.ts`](../../packages/host/compat/contract/pin.test.ts) 断言锁文件里每个 `@deepseek-ai/dsh*` 恰好是锁定版本——minor 之间干净不代表 patch 之内干净，而 dsh 大部分时间都在同一个 patch 元组里滚。
 - **npx 缓存是冻结快照，会掩盖漂移**：09-02 建的 alpha.4 缓存树里 214 个子包都还是 alpha.4，同一天建的 alpha.3 树里 213 个子包是 alpha.4；rc.1 树 214 个全是 rc.1。本地跑着「没事」不代表 CI 或别人装我们的插件时没事——**漂移只在全新安装时发作**。
-- **0.1.7-alpha.2 起，dsh 系的内部依赖是精确版本**【实测 2026-10-28】：在空目录里解析 `@deepseek-ai/dsh@0.2.1-rc.4`，296 个 dsh 系包恰为同一版本，零例外（`spec/dsh/pkglist.0.2.1-rc.4.txt`）。漂移转到了独立版本线：Cordis 系与 `node-addon-system` 声明的是 `~` 补丁范围，`libreoffice-kit` 是 `^0.1.5`，`zod` 自 0.2.1-alpha.3 起被精确钉在 4.4.3（此前是 `^4.4.3`，发布说明没提）。所以整套精确钉的理由变了：不再是「dsh 系子包会漂」，而是「独立版本线会漂，而两份 zod 会让 `tsc` 吃满堆内存后崩溃、却不报任何 TS 错误」。成员表由 `pnpm gen:dsh-pins` 从锁文件生成，`pin.test.ts` 核对表、各 manifest 与锁文件三者一致。「npx 缓存是冻结快照」那一条对 dsh 系已不再成立，对独立版本线仍成立。**停在旧锁也会腐化**：今天全新解析 `@deepseek-ai/dsh@0.1.5-rc.2` 得到 1 个 rc.2 启动器加 230 个 rc.3 子包，并同时出现两份 cordis（4.0.2 与 4.0.5）【实测 2026-10-28，见 §8.-5】。
-- Cordis 系是独立版本线。0.2.1-rc.4 所用：`@deepseek-ai/cordis` 4.0.5、`cordis-plugin-include` 1.0.10、`cordis-plugin-loader` 1.0.6、`cordis-plugin-timer` 1.1.7、`cordis-plugin-group` 1.0.5（新增）、`cosmokit` 1.8.6、`schemastery` 3.18.5；`cordis-plugin-hmr` 已由 `dsh-hmr` 取代。0.1.5-rc.2 时是 `cordis` 4.0.2、loader 1.0.3、include 1.0.7、timer 1.1.4、`cosmokit` 1.8.3、`schemastery` 3.18.2。
+- **0.1.7-alpha.2 起，dsh 系的内部依赖是精确版本**【实测 2026-10-28】：在空目录里解析 `@deepseek-ai/dsh@0.2.1-rc.4`，296 个 dsh 系包恰为同一版本，零例外（`spec/dsh/pkglist.0.2.1-rc.4.txt`）；11-01 对 `0.2.1-rc.5` 重做，同样是 296 个、零例外（`spec/dsh/pkglist.0.2.1-rc.5.txt`），独立版本线的解析结果与 rc.4 时逐项相同。漂移转到了独立版本线：Cordis 系与 `node-addon-system` 声明的是 `~` 补丁范围，`libreoffice-kit` 是 `^0.1.5`，`zod` 自 0.2.1-alpha.3 起被精确钉在 4.4.3（此前是 `^4.4.3`，发布说明没提）。所以整套精确钉的理由变了：不再是「dsh 系子包会漂」，而是「独立版本线会漂，而两份 zod 会让 `tsc` 吃满堆内存后崩溃、却不报任何 TS 错误」。成员表由 `pnpm gen:dsh-pins` 从锁文件生成，`pin.test.ts` 核对表、各 manifest 与锁文件三者一致。「npx 缓存是冻结快照」那一条对 dsh 系已不再成立，对独立版本线仍成立。**停在旧锁也会腐化**：今天全新解析 `@deepseek-ai/dsh@0.1.5-rc.2` 得到 1 个 rc.2 启动器加 230 个 rc.3 子包，并同时出现两份 cordis（4.0.2 与 4.0.5）【实测 2026-10-28，见 §8.-5】。
+- Cordis 系是独立版本线。0.2.1-rc.4 与 rc.5 所用（rc.5 的声明范围没变，11-01 全新解析得到同一组版本）：`@deepseek-ai/cordis` 4.0.5、`cordis-plugin-include` 1.0.10、`cordis-plugin-loader` 1.0.6、`cordis-plugin-timer` 1.1.7、`cordis-plugin-group` 1.0.5（新增）、`cosmokit` 1.8.6、`schemastery` 3.18.5；`cordis-plugin-hmr` 已由 `dsh-hmr` 取代。0.1.5-rc.2 时是 `cordis` 4.0.2、loader 1.0.3、include 1.0.7、timer 1.1.4、`cosmokit` 1.8.3、`schemastery` 3.18.2。
 - `SESSION_FORMAT_VERSION` 在 rc.1 里**仍是 0**（包内实测），源码注释 "Remove at the first tagged release"。**09-07 兑现了**：`0.1.3-alpha.1` 把会话格式升到 **v2**，带「相邻代不可变迁移」，v0/v1 自动转换（§8.0）。预测对了，但落点不是 0.1.2 正式版而是下一个 minor 的 alpha。⇒ 升级清单第 6 步（拿**既有** `~/.dsh` 冒烟、先备份）在升 0.1.3 那次必须一步不省。
   **现在是 4**【包 2026-10-28，`dsh-session` 的 `SESSION_FORMAT_VERSION`：0.1.5-rc.2 与 0.1.6-alpha.2 为 3，0.1.7-alpha.1 起为 4（alpha.1、alpha.2、rc.1、rc.2 逐个核过；发布说明同样把 V4 记在 alpha.1）】：V4 的工具结果是独立的 `role: 'tool'` 消息；0.2.1-alpha.3 起事件目录里多了 `job/registered`、`job/settled`，**0.2.0 读不了含它们的会话**，所以升级之后不能无损回退（§8.-9）。迁移链 v0→v1→v2→v3→v4 各是一个 `dsh-session-format-v<N>-to-v<N+1>` 包。升级清单第 6 步仍然一步不能省，而且迁移单向。
 
@@ -70,8 +76,8 @@
 
 ## 3. web profile 组合树（实测 `--dump-config`）
 
-> **当前锁定的 0.2.1-rc.4：web 组合 191 个顶层行（23 个无条件 `disabled: true`）、1231 行；headless 组合（`dsh-base` 加 `dsh-headless`，不含 preset）98 个、382 行**
-> （0.1.5-rc.2 是 152 个、539 行、26 个 disabled）。行数与名单以 `spec/dsh/dump-config.0.2.1-rc.4.yml` 与 `dump-config.headless.0.2.1-rc.4.yml` 为准。
+> **当前锁定的 0.2.1-rc.5（与 rc.4 逐字节相同）：web 组合 191 个顶层行（23 个无条件 `disabled: true`）、1231 行；headless 组合（`dsh-base` 加 `dsh-headless`，不含 preset）98 个、382 行**
+> （0.1.5-rc.2 是 152 个、539 行、26 个 disabled）。行数与名单以 `spec/dsh/dump-config.0.2.1-rc.5.yml` 与 `dump-config.headless.0.2.1-rc.5.yml` 为准。
 > 下面按 0.1.2 写的分组与结构大体仍成立；**已失效的细节在条目里直接改写**，逐版变化见 §8。
 
 - 0.1.2 三版（alpha.3 / alpha.4 / rc.1）**逐行相同**：**145 行插件行**，27 行 `disabled: true`；来源三段：`dsh-base`（约 90 行）→ `dsh-base, patched by dsh-web-app`（9 组被 web-app 改写）→ `dsh-web-app`（宿主 API 控制器、webserver、约 45 个 `dsh-client-ui-*` 客户端模块）。导出件已入仓 `spec/dsh/dump-config.<version>.yml`（alpha.3 / alpha.4 / rc.1 三份，逐字节相同；见该目录 README）。
@@ -188,7 +194,7 @@
 
 ## 8. 逐版本变更与对本计划的影响
 
-> 8.-13 至 8.-5 是 2026-10-28 从 0.1.5-rc.2 一步升到 0.2.1-rc.4 时补记的，沿用「新版在上」的排法。每条的出处标在事实后面：【实测】= 本次在本机比对或运行得到，【包】= 读 npm 包内文件，【发布说明】= GitHub 发布说明，【讨论】= 上游 Discussions 帖子。
+> 8.-13 至 8.-5 是 2026-10-28 从 0.1.5-rc.2 一步升到 0.2.1-rc.4 时补记的，8.-14 是 2026-11-01 升 0.2.1-rc.5 时新增的，沿用「新版在上」的排法。每条的出处标在事实后面：【实测】= 本次在本机比对或运行得到，【包】= 读 npm 包内文件，【发布说明】= GitHub 发布说明，【讨论】= 上游 Discussions 帖子。
 >
 > **compat 的 12 个接触面包在各检查点之间的变化量**【实测：每个检查点各取这 12 个包，逐文件比较，数的是 `.d.ts` 与 `lib/index.js` 里新增行数与删除行数之和】：
 >
@@ -199,8 +205,29 @@
 > | 0.1.7-rc.2 → 0.2.0-rc.2 | 3 | 62 | 251 |
 > | 0.2.0-rc.2 → 0.2.1-alpha.1 | 6 | 22 | 46 |
 > | 0.2.1-alpha.1 → 0.2.1-rc.4 | 17 | 424 | 1,385 |
+> | 0.2.1-rc.4 → 0.2.1-rc.5 | 0 | 0 | 0 |
 >
-> 变化集中在 0.1.6–0.1.7，以及 0.2.1 的 alpha.2 之后（`dsh-tools` 实现 692 行、`dsh-host-webserver` 类型 110 行是大头）；0.2.0 对接触面近乎为零。
+> 变化集中在 0.1.6–0.1.7，以及 0.2.1 的 alpha.2 之后（`dsh-tools` 实现 692 行、`dsh-host-webserver` 类型 110 行是大头）；0.2.0 对接触面近乎为零，rc.4 到 rc.5 为零。
+
+### 8.-14 **0.2.1-rc.5 —— 本次锁定**（10-29 发布；2026-11-01 升级并核实）
+
+`latest` 与 `next` 同指它（npm 10-29 14:15 UTC）；`alpha` 仍是 `0.2.2-alpha.2`。按切换点之后的规则（`latest` 与 `next` 里 semver 较大者）取 rc.5。
+
+| 查什么 | 结果 |
+|---|---|
+| 发布说明 | 一条：「优化对话中思考内容的展示效果」。GitHub 比较 rc.4…rc.5 共 4 个提交：一个功能提交（web 客户端自定义思考块渲染，连带升级指南、测试和插槽目录）、发布提交（各包 `package.json` 的版本串）与两个合并【发布说明 + GitHub 比较】 |
+| 全闭包 296 个 dsh 系包，rc.4 与 rc.5 逐文件对比（版本串归一，5,902 个文件） | 291 个相同；5 个有改动，都是 web 客户端包：`client-ui-chat`（见下）、`cordis-client-runner`（插槽目录里该插槽的说明与行号）、`experimental-client-ui-cot-translation`（一处注释），以及只换了构建提交号的 `client-modules`、`client-ui-sidebar`【实测】 |
+| 依赖闭包 | 在空目录里分别解析 `@deepseek-ai/dsh@0.2.1-rc.4` 与 `@0.2.1-rc.5`：都是 686 个包，没有增删；296 个 dsh 系包全部由 rc.4 变 rc.5，非 dsh 系的版本（Cordis 系、`cosmokit`、`schemastery`、`libreoffice-kit`、`node-addon-system`、第三方）一个都没动【实测：`npm install --package-lock-only`】 |
+| 本仓接触面 | compat 的 12 个包、`dsh-base`、`dsh-headless`、`dsh-web-app`、`dsh-session-log-deepseek`、`dsh-app-boot`、`dsh`，以及本仓钉的 30 个 dsh 包，与 rc.4 逐文件相同【实测】 |
+| 快照 | `spec/dsh/dump-config.0.2.1-rc.5.yml`、`dump-config.headless.0.2.1-rc.5.yml`、`pkglist.0.2.1-rc.5.txt`；两份配置快照与 rc.4 的逐字节相同（隔离环境导出，stderr 为空），pkglist 去掉版本串后与 rc.4 的相同【实测】 |
+
+要点：
+- **唯一的行为改动在 web 客户端的 `dsh-client-ui-chat`**：推理（思考）文本先经 `reasoningText` 整理再显示。以 `<signature>` 开头的文本，只显示 `</signature>` 之后的部分（跳过紧随其后的换行）；流式过程中开头标记还没写完、或结束标记还没到时显示为空；整理后为空的推理块不再占一行。对话分组（`process-activity`）里从推理块取实时详情的逻辑也改用整理后的文本【包】。
+- **插槽 `conversation.chat.reasoning.body` 的属性变了**：贡献者收到 `rawText`（模型的原始输出）和 `text`（整理后的显示文本），`running` 不变；内容工厂 `conversation.chat.reasoning.content` 仍收 `text`、`running` 与可选的 `labels`。受影响的是自定义推理渲染器和翻译包装器，上游为此在 `docs/upgrade-guide/v0.2.1-rc.4/reasoning-body-props` 写了迁移说明（目录名带 rc.4，随 rc.5 发布）【包 + 上游仓库的升级指南】。
+- **对本仓没有影响**：本仓不注册任何客户端插槽（`stm-ui` 是宿主侧的投影与推送），验收走 headless 与模型会话，不渲染推理文本。
+- 守卫对 rc.5 的读数：`acceptance-overlay.test.ts` 对着新的 headless 快照通过（组合里默认启用的 `tool-*` 行仍全被验收 overlay 关掉）；`reply-budget.test.ts` 通过，最坏回复重测为文字 5,842 加图像 6,396，合计 12,238 token，余量 262（与 rc.4 时相同），`deepSeekImageTokens` 在 768×768、1536×768、1302×1302、1708×961 上仍是 382、724、994、968，`dsh-token-meter` 的估算常量仍是每 4 个字符一个 token、每块另加 4；`instrument-state` 的实时状态块守卫通过【实测：最坏回复用测试的临时副本重测；`deepSeekImageTokens` 在仓外隔离安装的 rc.5 包里调用；估算常量读源码，该文件与 rc.4 逐字节相同】。
+- 已知问题【讨论，只核对了标题，未读内容】：#11667（Windows x64 上 0.2.1-rc.5 的会话无法改动虚拟磁盘 vhd / vhdx 里的工作区）、#11645（桌面端 0.2.1-rc.5 窗口切走再切回时整页重绘、明显卡顿）。按标题判断都不在本仓用到的路径上：验收组合关掉了文件工具，也不用桌面端。
+- 升级当天对本仓做的检查和结果（构建、测试、`pnpm probe:compose`、隔离安装）记在 [升级日志](upgrades.md)。
 
 ### 8.-13 **0.2.2-alpha.2 —— 只读不升；它是一次迁移，不是换版本串**（2026-10-28 记录）
 
@@ -218,9 +245,9 @@
 
 不受影响（本仓不导入这些名字，或行 id 与配置不变）：`dsh-system-prompt` 的 `PromptPresentation` 拆分、`dsh-app-boot` 删的 7 个导出（bundle 清单搬进了 `dsh-official-bundles`）、`session-log-deepseek` 与 `session-telemetry-otel`（隐私默认值的处置不变，§2）。发布说明里另有三条要在真机组合前评估：pi-ai 1.3.0（工具参数畸形的响应会在任何工具执行前中止整轮）、Web Fetch 接受非公网地址、关闭时的 Auto-permission 修复。
 
-⇒ 要升，就是一次带迁移清单的单独升级，不是 `chore(dsh): bump`。
+⇒ 要升，就是一次带迁移清单的单独升级，不是 `chore(dsh): bump`。（11-01 补注：rc.5 相对 rc.4 只动 web 客户端，上表对 rc.5 同样成立；0.2.2 线此时仍只有 alpha.2。）
 
-### 8.-12 **0.2.1-rc.4 —— 本次锁定**（10-26 发布；2026-10-28 升级并核实）
+### 8.-12 **0.2.1-rc.4**（10-26 发布；2026-10-28 升级并核实，11-01 起由 rc.5 接替）
 
 `next` 通道，10-26 15:28 UTC 发布；同日 `latest` 是 `0.2.1-rc.2`。按切换点之后的规则（`latest` 与 `next` 里 semver 较大者）选 rc.4。
 
@@ -607,7 +634,7 @@ stderr 空、端口正常释放。
 
 - **核实记录**：web profile `--dump-config` alpha.3 vs alpha.4 逐行相同（145 行 / 27 disabled）；npx 缓存两棵树的 `.md/.d.ts/.yml` 逐文件相同（原因见 §1：alpha.3 启动器已浮动到 alpha.4 子包）。因此 09-01 按 alpha.3 时代文档核实的 §5 能力表与 §6 陷阱在 alpha.4 上未发现失效项；逐条 API 级复核由 0.6 spike 的 contract 测试承担。
 
-## 9. 视觉线束：工具结果里的图像、各适配器的送达方式、压缩钩子与「一动一观」（2026-10-09，对照 0.1.5-rc.2；2026-10-13 补 §9.5 复核与 §9.7；2026-10-28 对照 0.2.1-rc.4 逐条重核）
+## 9. 视觉线束：工具结果里的图像、各适配器的送达方式、压缩钩子与「一动一观」（2026-10-09，对照 0.1.5-rc.2；2026-10-13 补 §9.5 复核与 §9.7；2026-10-28 对照 0.2.1-rc.4 逐条重核；2026-11-01 升到 rc.5，见本节首的说明）
 
 > 回答 [VISUAL-HARNESS](../VISUAL-HARNESS.md) §7 前三条开放问题。**来源分三种**：
 > **实测（契约）** = 本仓 `packages/host/compat/contract/image-results.test.ts`（§9.1–9.3）与
@@ -616,6 +643,10 @@ stderr 空、端口正常释放。
 > **包** = 读 npm 包内的 `lib/*.js`、`.d.ts` 与 README。2026-10-28 起不再写行号（`dsh-agent-loop` 等包在 0.2 里整体挪了位），改写函数名、导出名与 README 小节。
 >
 > 每一条落在三种结论之一：「**0.2.1-rc.4 已核：未变**」、新事实（附依据）、「**未重核**」（说明为什么）。
+>
+> **2026-11-01 升到 0.2.1-rc.5**：本节涉及的包——compat 的 12 个，加 `dsh-llm-deepseek`、`dsh-llm-pi-ai`、`dsh-token-meter`、`dsh-compaction*`、`dsh-spill*`、`dsh-attachment-local`、`dsh-base`、`dsh-headless`——与 rc.4 逐文件相同（rc.4 → rc.5 只有 5 个 web 客户端包有改动，见 §8.-14），
+> 所以下面标【0.2.1-rc.4 已核】的条目在 rc.5 上结论照旧，不逐条改标签。rc.5 上重做的：契约测试（随单元与契约测试重跑，全部通过）；`deepSeekImageTokens` 重算（§9.3，结果不变）；`dsh-token-meter` 的估算常量重读（结果不变）；
+> `reply-budget` 的最坏回复重测（数字不变）。标「探针·未重核」的条目仍然没有重核。
 > 适配器（`dsh-llm-pi-ai`、`dsh-llm-deepseek`）、`dsh-compaction*`、`dsh-attachment-local` **不在本仓依赖树里**；它们的结论都属后两种。要在 CI 里钉住适配器行为，得把它们加成 compat 的
 > devDependencies —— 那是新依赖，留给维护者决定。`dsh-agent-loop`（连同 peer `dsh-session-persistence`、
 > `dsh-settings`）2026-10-13 起是 stm-skills 的 devDependency，§9.5 的「先提交、后 pre-step」由契约测试钉住。
@@ -704,7 +735,7 @@ stderr 空、端口正常释放。
   §4.8 要求的「本轮有 N 张图像未送达」只能由我们按模型声明的 `inputModalities` 自己算。反应式卸载则会写 `image/offload` 事件（见上）。
 - **尺寸**【改变】：DeepSeek 路线现在按 token 计价而不是按像素预算缩放。用包里导出的 `deepSeekImageTokens`（`@deepseek-ai/dsh-llm-deepseek`）原样算（**不要手算近似式**：近似式给 768² 得 344，真函数得 382）：
   768×768 = **382** token，1536×768 = **724**，1302×1302 = 994，1708×961 = 968，都 ≤ 1024 ⇒ 这两个尺寸**都不缩放**（0.1.5 时 1536×768 在 DeepSeek 路线被缩成 1130×565）。
-  坐标换算依赖图像不被缩放 ⇒ DeepSeek 路线上 `D = 768` 仍然安全；pi-ai 路线未重核。[包；本文在隔离安装的 rc.4 包里调用其导出的 `deepSeekImageTokens` 实算，本仓依赖树里没有它]
+  坐标换算依赖图像不被缩放 ⇒ DeepSeek 路线上 `D = 768` 仍然安全；pi-ai 路线未重核。[包；本文在隔离安装的 rc.4 包里调用其导出的 `deepSeekImageTokens` 实算，11-01 在 rc.5 包里对这四个尺寸重算，结果相同；本仓依赖树里没有它]
 
 ### 9.4 压缩：没有压缩前钩子
 
