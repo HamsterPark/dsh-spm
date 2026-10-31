@@ -427,6 +427,12 @@ export function assessSteps(image: Mat, opts: AssessStepsOptions = {}): StepVerd
  * 扫描框相对压电坐标系转了 `angleDeg`，斜率向量随之转回去。**符号约定未在真机上
  * 核实** —— 所以调平例程自己扫的探察帧一律用 `scan_angle = 0`，把这个未知量从闭环里
  * 彻底消掉；这里的旋转只用于解释既有的、非零角度的帧。
+ *
+ * 与「正角顺时针」（`pxToM` 的 R(−θ)，D-ROT-1）的关系：`slopeSlow` 沿**行号**，而
+ * `AnalyzeFrameTilt` 读的是裸块，`down` 帧行 0 在顶、行号朝下，于是输入是 M·g
+ * （M = diag(1, −1)，g 是帧内 y′ 朝上的梯度）。R(+θ)·M = M·R(−θ)，所以输出 = M·(压电系
+ * 梯度)：与那个约定一致，只是 y 分量取反 —— θ=0 时同样取反，前后一致。`up` 帧的裸块
+ * 行 0 在底，这条推导不成立（D-TILT-5）。
  */
 export function rotateSlope(slopeFast: number, slopeSlow: number, angleDeg: number): [number, number] {
   const theta = (angleDeg * Math.PI) / 180

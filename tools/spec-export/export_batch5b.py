@@ -36,20 +36,32 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 两侧的假钟摆在不同量级上（那边 1e6 **秒**、这边 1e6 **毫秒**），差在第 10 位。
 每个用例带一个 `clock_keys`：这几个叶子按相对 1e-6 比，**其余逐位**。
 判据字段一个都不在里面。
+
+## 档案状态（`state`）
+
+`MotorMove` 不在那九个里。它的两个 Z 标签按档案里声明的退针方向换算，每格要带一份档案，
+而这台导出器的格本来就自带输入，所以放在这里（`motor_z/*`）。那几格要带的档案：
+`state.profile` 是一份档案对象（`set_profile` 进去，`{}` = 没声明），或者 `"unreadable"`
+（读退针方向的那个函数抛异常 —— 参考实现里档案模块永远在，「读不到」只有这一条路）。
+每格执行前后都复位（`_apply_state`），没有 `state` 的格等于空档案；输出里只有带 `state`
+的格才有这个键，老格的字节不变。
+
+`state.motor_groups`（`motor_group/*`）是参考实现的另一个配置来源：独立的接线配置文件
+`nanonis_motor_groups.json`（STM 粗动组、保留数字口）。字典 = 写成那个文件，没有这个键 = 没有文件。
+文件只写在隔离的 `MAST2_PROJECT_ROOT` 里，写之前先证明这一点（`_paths.ProjectConfigFile`）。
 """
 
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import ProjectConfigFile, isolated_project_root, require_mast_root
 from typing import Any
 
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-b5b-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-b5b-"))
 
 MAST_ROOT = require_mast_root()
 REPO = Path(__file__).resolve().parents[2]
@@ -81,8 +93,28 @@ _time.perf_counter = _fake_monotonic  # type: ignore[assignment]
 
 sys.path.insert(0, str(MAST_ROOT))
 import numpy as np  # noqa: E402
+import mast.core.instrument_profile as _ip  # noqa: E402
+import mast.instruments.motor_groups as _mg  # noqa: E402
 from mast.core.types import NanonisCallRecord, SkillResult  # noqa: E402
 from mast.core.registry import SkillRegistry  # noqa: E402
+
+_ORIG_RETRACT_DIR = _ip.retract_dir_code_or_none
+#: 参考实现按 mtime 缓存这个文件，同一秒内改写会读到旧的，所以写前写后都清缓存（`reset_for_tests`）。
+_WIRING = ProjectConfigFile(_mg.config_path, _mg.reset_for_tests, MAST_ROOT)
+
+
+def _apply_state(state: dict | None) -> None:
+    """把一格的档案状态装进进程（见抬头「档案状态」）。每格前后各调一次，不漏到下一格。"""
+    _WIRING.apply((state or {}).get("motor_groups"))
+    _ip.set_profile({})
+    _ip.retract_dir_code_or_none = _ORIG_RETRACT_DIR
+    prof = (state or {}).get("profile")
+    if prof == "unreadable":
+        def _boom() -> int | None:
+            raise RuntimeError("profile unreadable")
+        _ip.retract_dir_code_or_none = _boom  # motor.py 在函数里取这个属性，补丁生效
+    elif isinstance(prof, dict):
+        _ip.set_profile(dict(prof))
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -615,6 +647,60 @@ def _cases() -> list[dict]:
         },
         "clock_keys": [],
     })
+    # 每一步记下 MotorMove 报的方向码与依据，失败文案按依据说「这几步按什么方向走的」。
+    # MotorMove 在这里是脚本化的子技能，回包里的方向码与依据由用例给。
+    for label, code, basis in (("declared_z_minus", 5, "declared_z-"),
+                               ("declared_z_plus", 4, "declared_z+"),
+                               ("undeclared", 4, "undeclared_nanonis_standard")):
+        cases.append({
+            "name": f"recover/not_recovered_{label}",
+            "skill": "RecoverTipFromSaturation",
+            "params": {"max_coarse_steps": 60},
+            "verbs": {},
+            "runs": {
+                "MotorMove": [{"success": True, "data": {}},
+                              {"success": True,
+                               "data": {"direction_code": code, "z_direction_basis": basis}}],
+                "GetCurrent": [_cur(sat)],
+                "SetBias": [{"success": True, "data": {}}],
+                "WithdrawTip": [{"success": True, "data": {}}],
+            },
+            "clock_keys": [],
+        })
+    cases.append({
+        "name": "recover/basis_from_last_good_step",
+        "skill": "RecoverTipFromSaturation",
+        "params": {"max_coarse_steps": 100},
+        "verbs": {},
+        "runs": {
+            # 查锁成功；第 1 级成功并报了依据；之后每一级都失败、不带 data ⇒
+            # 文案要从后往前找到第 1 级的依据，而不是看最后一步
+            "MotorMove": [{"success": True, "data": {}},
+                          {"success": True,
+                           "data": {"direction_code": 5, "z_direction_basis": "declared_z-"}},
+                          {"success": False, "error": "粗动被拒：本机粗动耐压未声明"}],
+            "GetCurrent": [_cur(sat)],
+            "SetBias": [{"success": True, "data": {}}],
+            "WithdrawTip": [{"success": True, "data": {}}],
+        },
+        "clock_keys": [],
+    })
+    cases.append({
+        "name": "recover/recovered_declared_z_minus",
+        "skill": "RecoverTipFromSaturation",
+        "params": {"max_coarse_steps": 60},
+        "verbs": {},
+        "runs": {
+            "MotorMove": [{"success": True, "data": {}},
+                          {"success": True,
+                           "data": {"direction_code": 5, "z_direction_basis": "declared_z-"}}],
+            # 预检 3 次饱和 → 压电后 3 次仍饱和 → 第 1 级（20 步）后脱离
+            "GetCurrent": [_cur(sat)] * 3 + [_cur(sat)] * 3 + [_cur(4e-11)],
+            "SetBias": [{"success": True, "data": {}}],
+            "WithdrawTip": [{"success": True, "data": {}}],
+        },
+        "clock_keys": [],
+    })
 
     # ── WaitForThermalSettle ─────────────────────────────────────────────
     cases.append({
@@ -959,10 +1045,84 @@ def _cases() -> list[dict]:
             "verbs": {}, "runs": ok_runs, "clock_keys": [],
         })
 
+    # ── MotorMove 的两个 Z 标签：按档案声明的退针方向换算 ─────────────────
+    # 这几格真跑 MotorMove（不是脚本化的子技能），档案由 `state` 给：声明 z+ / z−、
+    # 没声明（`{}`，以及值不在表里被 sanitize 丢掉）、读不到。横向一格看读不到时照走。
+    # 放在最后：横向那一格成功后会碰进程级的撞针记录，别让它落在别的格前面。
+    unreadable = {"profile": "unreadable"}
+    for label, direction in (("retract", "z-retract"), ("approach", "z-approach")):
+        states = [
+            ("declared_z_plus", {"profile": {"retract_motor_dir": "z+"}}),
+            ("declared_z_minus", {"profile": {"retract_motor_dir": "z-"}}),
+            ("undeclared", {"profile": {}}),
+        ]
+        if label == "retract":
+            states.append(("junk_value", {"profile": {"retract_motor_dir": "x+"}}))
+        states.append(("unreadable", unreadable))
+        for state_name, state in states:
+            cases.append({
+                "name": f"motor_z/{label}/{state_name}",
+                "skill": "MotorMove",
+                "params": {"direction": direction, "steps": 20},
+                "verbs": {}, "runs": {}, "clock_keys": [],
+                "state": state,
+            })
+    cases.append({
+        "name": "motor_z/x_plus/unreadable",
+        "skill": "MotorMove",
+        "params": {"direction": "x+", "steps": 20},
+        "verbs": {}, "runs": {}, "clock_keys": [],
+        "state": unreadable,
+    })
+
+    # ── STM 粗动组与保留数字口：接线配置由 `state.motor_groups` 给 ─────────────
+    # 参考实现里这两项住在 `nanonis_motor_groups.json`：没有文件 = 组 0、不保留任何口。
+    # 配置损坏的各种形态不进金样（报错文本带解析器原话与文件名），只由 TS 单测覆盖。
+    # 理由文本用中性措辞，不写任何真机的事。
+    group_two = {"motor_groups": {"stm_coarse_group": 2}}
+    port_a_reserved = {"motor_groups": {"reserved_digital_ports": [{"port": 0, "reason": "测试用的保留口"}]}}
+    targets = {"target_x_m": 1e-9, "target_y_m": 1e-9, "target_z_m": 1e-9}
+    no_position = {"Motor_PosGet": [{"error": "模拟故障：这台粗动控制器不提供位置"}]}
+    for name, skill, params, verbs, state in (
+        ("move/no_config", "MotorMove", {"direction": "x+", "steps": 20}, {}, None),
+        ("move/group_two", "MotorMove", {"direction": "x+", "steps": 20}, {}, group_two),
+        ("closed_loop/default_group_two", "MotorMoveClosedLoop", dict(targets), {}, group_two),
+        ("closed_loop/explicit_same_group", "MotorMoveClosedLoop", {**targets, "group": 2}, {}, group_two),
+        ("closed_loop/explicit_other_group", "MotorMoveClosedLoop", {**targets, "group": 1}, {}, group_two),
+        ("closed_loop/no_config_other_group", "MotorMoveClosedLoop", {**targets, "group": 1}, {}, None),
+        ("get_pos/ok_group_two", "MotorGetPos", {}, {"Motor_PosGet": [{"body": [1e-6, 2e-6, 3e-6]}]}, group_two),
+        ("get_pos/err_group_two", "MotorGetPos", {}, no_position, group_two),
+        ("get_pos/err_no_config", "MotorGetPos", {}, no_position, None),
+        ("digital/pulse_port_a", "PulseDigitalLine",
+         {"port": 0, "lines": "1,2", "pulse_width_s": 0.01}, {}, port_a_reserved),
+        ("digital/status_port_a", "SetDigitalLineStatus",
+         {"port": 0, "line": 1, "status": True}, {}, port_a_reserved),
+        ("digital/configure_port_a", "ConfigureDigitalLine",
+         {"line": 1, "port": 0, "direction": 1, "polarity": 1}, {}, port_a_reserved),
+        ("digital/pulse_port_b", "PulseDigitalLine",
+         {"port": 1, "lines": "1,2", "pulse_width_s": 0.01}, {}, port_a_reserved),
+        ("digital/status_port_b", "SetDigitalLineStatus",
+         {"port": 1, "line": 1, "status": True}, {}, port_a_reserved),
+        ("digital/no_config_port_a", "PulseDigitalLine",
+         {"port": 0, "lines": "1,2", "pulse_width_s": 0.01}, {}, None),
+    ):
+        case = {
+            "name": f"motor_group/{name}",
+            "skill": skill,
+            "params": params,
+            "verbs": verbs, "runs": {}, "clock_keys": [],
+        }
+        if state is not None:
+            case["state"] = state
+        cases.append(case)
+
     return cases
 
 
 def main() -> int:
+    # 先证明隔离，再碰任何东西：`MAST2_PROJECT_ROOT` 为空串时 `setdefault` 不会替换它，
+    # 参考实现落到自己的树上，而下面清断点的循环删的正是那个根下面的文件。
+    _WIRING.apply(None)
     reg = SkillRegistry()
     reg.discover()
     by_name = {n: list(v.values())[-1] for n, v in reg.snapshot_names().items()}
@@ -986,11 +1146,14 @@ def main() -> int:
             pass
         ctx = _ScriptedContext(case.get("verbs", {}), case.get("runs", {}))
         skill = cls()
+        _apply_state(case.get("state"))
         try:
             res = skill.execute(ctx, dict(case["params"]))
             rec = _result(res)
         except Exception as exc:  # noqa: BLE001 —— 抛出来本身就是一条判据
             rec = {"raised": f"{type(exc).__name__}: {exc}"}
+        finally:
+            _apply_state(None)
         print(f"  … {name}", file=sys.stderr, flush=True)
         out[name] = {
             "skill": case["skill"],
@@ -1002,6 +1165,8 @@ def main() -> int:
             "run_log": ctx.run_log,
             "result": rec,
         }
+        if "state" in case:  # 只给带档案状态的格加这个键：老格的字节不变
+            out[name]["state"] = _jsonable(case["state"])
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(

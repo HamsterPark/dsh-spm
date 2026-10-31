@@ -166,6 +166,32 @@ describe('sweepDuration · 时长从仪器自己的设定算', () => {
     expect(got.coreS).toBeGreaterThan(sweepDuration({ numPoints: 6, numSweeps: 4, backward: true }, timing).coreS)
   })
 
+  // 回退时交出去的那句话，三种入参各一格（kernel 分支余量只有 0.41，新增的 `opts?.why ?? …` 要全覆盖）：
+  // 偏压谱不传 opts；Z 谱传 `{ why }`；`{}` 是「opts 在场而 why 缺席」那一支。
+  it('回退的那句话 · 不传 opts ⇒ 偏压谱那一句', () => {
+    const got = sweepDuration({ numPoints: null, numSweeps: 4, backward: true }, timing)
+    expect(got.detail['why']).toBe('读不到扫掠设定，退回保守上限')
+  })
+
+  it('回退的那句话 · opts 在场而没有 why（{}）⇒ 仍是偏压谱那一句', () => {
+    const got = sweepDuration({ numPoints: null, numSweeps: 4, backward: true }, timing, {})
+    expect(got.detail['why']).toBe('读不到扫掠设定，退回保守上限')
+  })
+
+  it('回退的那句话 · opts.why ⇒ 换成调用方的那一句（Z 谱），回退的数与其余明细不变', () => {
+    const props = { numPoints: null, numSweeps: 4, backward: true }
+    const plain = sweepDuration(props, timing)
+    const z = sweepDuration(props, timing, { why: '读不到 Z 谱扫掠设定，退回保守上限' })
+    expect(z.detail['why']).toBe('读不到 Z 谱扫掠设定，退回保守上限')
+    expect(z.coreS).toBe(SWEEP_BUDGET_FALLBACK_S)
+    expect({ ...z.detail, why: plain.detail['why'] }).toEqual(plain.detail)
+  })
+
+  it('读得到时 opts.why 不出现在明细里（它只管回退那一句）', () => {
+    const got = sweepDuration({ numPoints: 6, numSweeps: 4, backward: true }, timing, { why: 'x' })
+    expect('why' in got.detail).toBe(false)
+  })
+
   it('少了积分时间 ⇒ 同样退回（那一项没有合理的缺省）', () => {
     const got = sweepDuration({ numPoints: 6, numSweeps: 4, backward: true }, {})
     expect(got.coreS).toBe(SWEEP_BUDGET_FALLBACK_S)

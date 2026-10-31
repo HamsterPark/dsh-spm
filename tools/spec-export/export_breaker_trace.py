@@ -17,21 +17,20 @@ import json
 import sys
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 
-import os
 import tempfile
 
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
 # 2026-09-10 踩到过一次——一个「只读」的导出脚本因为 import 拉起了管理员覆写机制，
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
-os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
+isolated_project_root(tempfile.mkdtemp(prefix='mast-spec-export-'))
 
 MAST_ROOT = require_mast_root()
 OUT = Path(__file__).resolve().parents[2] / "spec" / "golden" / "breaker_trace.json"
 
 sys.path.insert(0, str(MAST_ROOT))
-from mast.core.comms_health import CommsCircuitBreaker  # noqa: E402
+from mast.core.comms_health import CommsCircuitBreaker, format_comms_down  # noqa: E402
 
 
 class Clock:
@@ -107,15 +106,32 @@ def run(name: str, ops: list) -> list[dict]:
     return trace
 
 
+def down_message(elapsed_s: float) -> str:
+    """连失败三次、冷却 20 s 的熔断器，过了 `elapsed_s` 秒之后，短路时回给模型的那句话。"""
+    clk = Clock()
+    b = CommsCircuitBreaker(clock=clk, open_cooldown_s=20.0, streak_window_s=30.0)
+    for reason in ("t1", "t2", "t3"):
+        b.record_failure(reason)
+    clk.t = elapsed_s
+    return format_comms_down(b)
+
+
 def main() -> int:
-    out = {name: run(name, ops) for name, ops in SCRIPTS.items()}
+    out: dict = {name: run(name, ops) for name, ops in SCRIPTS.items()}
+    # 模型读到的原文。键以下划线开头，测试里按脚本迭代时要滤掉它们。
+    # 剩余冷却恰为 18.5 s 的那一条钉住取整：Python 的 `{:.0f}` 是四舍六入五成双（18.5 → 18），
+    # JS 的 `Math.round` 是 19。
+    out["_down_message"] = down_message(0.0)
+    out["_down_message_half"] = down_message(1.5)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(
         json.dumps(out, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
         newline="\n",
     )
-    print(f"[ok]   breaker_trace.json: {len(out)} 条脚本 / {sum(len(v) for v in out.values())} 步")
+    scripts = {k: v for k, v in out.items() if not k.startswith("_")}
+    print(f"[ok]   breaker_trace.json: {len(scripts)} 条脚本 / {sum(len(v) for v in scripts.values())} 步 · "
+          f"熔断提示原文 {len(out) - len(scripts)} 条")
     return 0
 
 

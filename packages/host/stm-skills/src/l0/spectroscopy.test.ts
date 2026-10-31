@@ -33,6 +33,7 @@ import {
   makeSetSTSMLSVals,
   strictIntList,
 } from './spectroscopy.js'
+import { makeAcquireDeltaFCurve } from './deltaf-curve.js'
 
 const S0 = emptyHardwareState('T0')
 
@@ -213,8 +214,15 @@ describe('AcquireZSpectr · 与 STS **相反**的那条结论', () => {
     const got = await AcquireZSpectr.execute(f.ctx, {})
     expect(got.success).toBe(false)
     expect(got.error).toContain('这个技能不落盘,内联返回是唯一的一份')
-    // 而且它**不去找 .dat**（`ZSpectr_Start(1, "")` 不给 basename）
-    expect(f.calls.map((c) => c.verb)).toEqual(['ZSpectr_Open', 'ZSpectr_PropsSet', 'ZSpectr_Start'])
+    // 而且它**不去找 .dat**（`ZSpectr_Start(1, "")` 不给 basename）；
+    // Start 之前多了两次读（算 recv 预算用的 PropsGet / TimingGet），读失败也照样起扫
+    expect(f.calls.map((c) => c.verb)).toEqual([
+      'ZSpectr_Open',
+      'ZSpectr_PropsSet',
+      'ZSpectr_PropsGet',
+      'ZSpectr_TimingGet',
+      'ZSpectr_Start',
+    ])
   })
 
   it('解开了 ⇒ z / current / dIdV 三个别名按名字认', async () => {
@@ -243,6 +251,236 @@ describe('AcquireZSpectr · 与 STS **相反**的那条结论', () => {
     })
     const got = await AcquireZSpectr.execute(f.ctx, {})
     expect((got.data as Record<string, unknown>)['z']).toEqual([7, 8])
+  })
+})
+
+// ── Z 谱的 recv 预算（Z1–Z7），以及 Δf(z) 用的同一份（D1）───────────────────────
+//
+// `ZSpectr_PropsGet` 的 sweep 数在下标 **8**（偏压谱版在 1、点数在 3）。下面的数刻意让
+// 点数（下标 1 = 200）与 sweep 数（下标 8 = 2）不同：下标照抄偏压谱会让估算变成另一个数，
+// 而不是碰巧相等。
+
+/** 反扫=1、点数=200、sweep 数=2（下标 0 / 1 / 8）。 */
+const Z_PROPS_VALUES: readonly unknown[] = [1, 200, 0, 0, [], 0, 0, [], 2, 0]
+const Z_PROPS: SkillCallRecord = { method: '', args: [], values: Z_PROPS_VALUES }
+/** z 平均 0.1、初始建立 0.2、压摆 1.0、建立 0.01、积分 0.02、结束建立 0.1、Z 控制 0.2。 */
+const Z_TIMING_VALUES: readonly unknown[] = [0.1, 0.2, 1.0, 0.01, 0.02, 0.1, 0.2]
+const Z_TIMING: SkillCallRecord = { method: '', args: [], values: Z_TIMING_VALUES }
+/** 一块能解开的 Z 谱：三个通道 × 两个点。 */
+const Z_SPECTRUM: SkillCallRecord = {
+  method: '',
+  args: [],
+  values: [0, 3, ['Z (m)', 'Current (A)', 'LIX 1 omega (A)'], 3, 2, [[1, 2], [3, 4], [5, 6]], 0, []],
+}
+const Z_VERBS = ['ZSpectr_Open', 'ZSpectr_PropsSet', 'ZSpectr_PropsGet', 'ZSpectr_TimingGet', 'ZSpectr_Start']
+const Z_FALLBACK_WHY = '读不到 Z 谱扫掠设定，退回保守上限'
+
+describe('AcquireZSpectr · recv 预算盖住整条扫掠', () => {
+  const READS_OK = { ZSpectr_PropsGet: Z_PROPS, ZSpectr_TimingGet: Z_TIMING, ZSpectr_Start: Z_SPECTRUM }
+
+  it('Z1 接上预算口 ⇒ Start 在两次读之后、带预算，结果报**真的用上的那个数**', async () => {
+    const f = fx(READS_OK, { wireBudget: true })
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    expect(got.success).toBe(true)
+    const d = got.data as Record<string, unknown>
+    // 200 点 × (0.01 + 0.02) × 2（往返）× 2 sweep = 24；再加 2 × (0.2 + 0.1 + 0.2 + 0.1) = 1.2
+    expect(d['sweep_estimate_s']).toBe(25.2)
+    // 25.2 × 1.35 + 45 = 79.02；`data` 里是一位小数
+    expect(d['recv_timeout_s']).toBe(79)
+    expect(f.budgets).toHaveLength(1)
+    expect(f.budgets[0]).toBeCloseTo(79.02, 9) // 浮点乘积不做精确相等
+    expect(d['sweep_settings']).toEqual({ npts: 200, nsweeps: 2, backward: true, per_point_s: 0.03, core_s: 25.2 })
+    expect(f.calls.map((c) => c.verb)).toEqual(Z_VERBS)
+    expect(f.calls.at(-1)?.args).toEqual([1, ''])
+    // 键序：旧仓先落这四个，再并入通道
+    expect(Object.keys(d).slice(0, 4)).toEqual([
+      'acquisition_complete',
+      'sweep_estimate_s',
+      'recv_timeout_s',
+      'sweep_settings',
+    ])
+  })
+
+  it('Z2 没接预算口 ⇒ `recv_timeout_s` 是 null（不声称抬过），估算照报，Start 照发', async () => {
+    const f = fx(READS_OK)
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    expect(got.success).toBe(true)
+    const d = got.data as Record<string, unknown>
+    expect(d['recv_timeout_s']).toBeNull()
+    expect(d['sweep_estimate_s']).toBe(25.2)
+    expect(f.budgets).toEqual([])
+    expect(f.calls.map((c) => c.verb)).toEqual(Z_VERBS)
+  })
+
+  it('Z3 两个读都失败 ⇒ 退到 600 s 档（预算 855），说清为什么，Start 照发 —— 「读不到」不是「很快」', async () => {
+    const f = fx(
+      { ZSpectr_PropsGet: 'error', ZSpectr_TimingGet: 'error', ZSpectr_Start: Z_SPECTRUM },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    expect(got.success).toBe(true)
+    const d = got.data as Record<string, unknown>
+    expect(d['sweep_estimate_s']).toBe(600)
+    expect(d['recv_timeout_s']).toBe(855)
+    expect((d['sweep_settings'] as Record<string, unknown>)['why']).toBe(Z_FALLBACK_WHY)
+    expect(f.calls.map((c) => c.verb)).toEqual(Z_VERBS)
+    expect(f.budgets).toHaveLength(1)
+    expect(f.budgets[0]).toBeCloseTo(855, 9)
+  })
+
+  it('Z4 数被一元素包裹（线协议的数组字段常这样到）⇒ 与裸数同一个结果', async () => {
+    const f = fx(
+      {
+        ZSpectr_PropsGet: { method: '', args: [], values: [[1], [200], 0, 0, [], 0, 0, [], [2], 0] },
+        ZSpectr_TimingGet: { method: '', args: [], values: [[0.1], [0.2], [1.0], [0.01], [0.02], [0.1], [0.2]] },
+        ZSpectr_Start: Z_SPECTRUM,
+      },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    const d = got.data as Record<string, unknown>
+    expect(d['sweep_estimate_s']).toBe(25.2)
+    expect(d['recv_timeout_s']).toBe(79)
+  })
+
+  // 边界：每一条都落在「读不到」的一侧，退到 600 s 档，而不是退回一个小数字。
+  it.each([
+    ['PropsGet 只有 8 项（sweep 数那一格不存在）', Z_PROPS_VALUES.slice(0, 8), Z_TIMING_VALUES],
+    ['点数读不出（下标 1 不是数）', [1, 'x', 0, 0, [], 0, 0, [], 2, 0], Z_TIMING_VALUES],
+    ['sweep 数读不出（下标 8 不是数）', [1, 200, 0, 0, [], 0, 0, [], 'x', 0], Z_TIMING_VALUES],
+    ['TimingGet 缺积分时间（只有前 4 项）', Z_PROPS_VALUES, Z_TIMING_VALUES.slice(0, 4)],
+  ] as const)('Z5 边界 · %s ⇒ 退到 600 s 档', async (_name, propsValues, timingValues) => {
+    const f = fx(
+      {
+        ZSpectr_PropsGet: { method: '', args: [], values: propsValues },
+        ZSpectr_TimingGet: { method: '', args: [], values: timingValues },
+        ZSpectr_Start: Z_SPECTRUM,
+      },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    expect(got.success).toBe(true)
+    const d = got.data as Record<string, unknown>
+    expect(d['sweep_estimate_s']).toBe(600)
+    expect(d['recv_timeout_s']).toBe(855)
+    expect((d['sweep_settings'] as Record<string, unknown>)['why']).toBe(Z_FALLBACK_WHY)
+  })
+
+  it('Z5 边界 · 缺的时序项列在 timing_keys 里（读到哪几项，一目了然）', async () => {
+    const f = fx(
+      {
+        ZSpectr_PropsGet: Z_PROPS,
+        ZSpectr_TimingGet: { method: '', args: [], values: Z_TIMING_VALUES.slice(0, 4) },
+        ZSpectr_Start: Z_SPECTRUM,
+      },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    const s = (got.data as Record<string, unknown>)['sweep_settings'] as Record<string, unknown>
+    expect(s['timing_keys']).toEqual([
+      'initial_settling_time_s',
+      'max_slew_rate_v_per_s',
+      'settling_time_s',
+      'z_averaging_time_s',
+    ])
+    expect(s['npts']).toBe(200)
+  })
+
+  it('Z5 边界 · 反扫位读不出 ⇒ 按往返算（偏大的一侧，与回退同一个方向）', async () => {
+    const f = fx(
+      {
+        ZSpectr_PropsGet: { method: '', args: [], values: ['x', 200, 0, 0, [], 0, 0, [], 2, 0] },
+        ZSpectr_TimingGet: Z_TIMING,
+        ZSpectr_Start: Z_SPECTRUM,
+      },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    const d = got.data as Record<string, unknown>
+    expect(d['sweep_estimate_s']).toBe(25.2)
+    expect((d['sweep_settings'] as Record<string, unknown>)['backward']).toBe(true)
+  })
+
+  it('Z6 反扫位为 0 ⇒ 核心时长减半（单程）', async () => {
+    const f = fx(
+      {
+        ZSpectr_PropsGet: { method: '', args: [], values: [0, 200, 0, 0, [], 0, 0, [], 2, 0] },
+        ZSpectr_TimingGet: Z_TIMING,
+        ZSpectr_Start: Z_SPECTRUM,
+      },
+      { wireBudget: true },
+    )
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    const d = got.data as Record<string, unknown>
+    // 200 × 0.03 × 1 × 2 = 12；再加 1.2
+    expect(d['sweep_estimate_s']).toBe(13.2)
+    expect((d['sweep_settings'] as Record<string, unknown>)['backward']).toBe(false)
+  })
+
+  it('Z7 起扫失败 ⇒ 错误**原样透传**，不带 data', async () => {
+    const f = fx({ ZSpectr_PropsGet: Z_PROPS, ZSpectr_TimingGet: Z_TIMING, ZSpectr_Start: 'error' }, { wireBudget: true })
+    const got = await AcquireZSpectr.execute(f.ctx, {})
+    expect(got.success).toBe(false)
+    expect(got.error).toBe('模拟故障：ZSpectr_Start')
+    expect(got.data).toBeUndefined()
+  })
+})
+
+describe('AcquireDeltaFCurve · 与 AcquireZSpectr 同一个 recv 预算', () => {
+  /** 一块能解开的 Δf 曲线：Z rel 与频移两个通道 × 三个点。 */
+  const DELTAF_BLOCK: SkillCallRecord = {
+    method: '',
+    args: [],
+    values: [0, 0, ['Z rel (m)', 'OC M1 Freq. Shift (Hz)'], 2, 3, [[0, -1e-11, -2e-11], [-2.0, -5.0, -3.0]], 0, []],
+  }
+
+  it('D1 预算读在水位线之后、Start 之前；Start 走预算口；`data` 键序按旧仓', async () => {
+    const f = fx(
+      {
+        PLL_OutOnOffGet: { method: '', args: [], values: [1] },
+        PLL_CenterFreqGet: { method: '', args: [], values: [30000] },
+        PLL_FreqShiftGet: { method: '', args: [], values: [-1] },
+        PLL_AmpCtrlSetpntGet: { method: '', args: [], values: [5e-11] },
+        ZSpectr_PropsGet: Z_PROPS,
+        ZSpectr_TimingGet: Z_TIMING,
+        ZSpectr_Start: DELTAF_BLOCK,
+      },
+      { wireBudget: true },
+    )
+    const got = await makeAcquireDeltaFCurve().execute(f.ctx, {
+      z_sweep_distance_m: 5e-10,
+      channel_indexes: '3,0',
+      save_basename: 'Fe_atom',
+    })
+    expect(f.calls.map((c) => c.verb)).toEqual([
+      'PLL_OutOnOffGet',
+      'PLL_CenterFreqGet',
+      'PLL_FreqShiftGet',
+      'PLL_AmpCtrlSetpntGet',
+      'ZSpectr_Open',
+      'ZSpectr_ChsSet',
+      'ZSpectr_RangeSet',
+      'ZSpectr_PropsSet',
+      'Util_SessionPathGet', // 水位线：要在起扫之前
+      'ZSpectr_PropsGet', // 预算读：水位线之后、Start 之前
+      'ZSpectr_TimingGet',
+      'ZSpectr_Start',
+      'Util_SessionPathGet', // 归属
+    ])
+    expect(f.calls.find((c) => c.verb === 'ZSpectr_Start')?.args).toEqual([1, 'Fe_atom'])
+    expect(f.budgets).toHaveLength(1)
+    expect(f.budgets[0]).toBeCloseTo(79.02, 9)
+    const d = got.data as Record<string, unknown>
+    expect(d['sweep_estimate_s']).toBe(25.2)
+    expect(d['recv_timeout_s']).toBe(79)
+    expect(Object.keys(d).slice(0, 6)).toEqual([
+      'acquisition_complete',
+      'num_points',
+      'sweep_estimate_s',
+      'recv_timeout_s',
+      'sweep_settings',
+      'z_sweep_distance_m',
+    ])
   })
 })
 
@@ -277,6 +515,60 @@ describe('ConfigureSTS · 四步各自的早退，外加那一步**不致命**�
     const got = await ConfigureSTS.execute(f.ctx, { start_v: -1, end_v: 1, num_points: 128 })
     expect((got.data as Record<string, unknown>)['z_controller_hold']).toBe(true)
     expect(f.calls.map((c) => c.args).at(-1)).toEqual([1, 1, 0, 0])
+  })
+})
+
+describe('ConfigureSTS · 扫掠数先读回再原样写，读不到才退回 1（D-STS-6）', () => {
+  const STS = { start_v: -1, end_v: 1, num_points: 128 }
+  const propsGet = (values: unknown[]): SkillCallRecord => ({ method: '', args: [], values })
+  const propsSetArgs = (f: Fixture): unknown[] | undefined =>
+    f.calls.find((c) => c.verb === 'BiasSpectr_PropsSet')?.args
+
+  it('读到操作员设的 8 ⇒ PropsSet 原样写 8，来源 preserved', async () => {
+    const f = fx({ BiasSpectr_PropsGet: propsGet([0, 8, 1, 200]) })
+    const got = await ConfigureSTS.execute(f.ctx, STS)
+    expect(f.calls.map((c) => c.verb)).toEqual([
+      'BiasSpectr_Open',
+      'BiasSpectr_LimitsSet',
+      'BiasSpectr_PropsGet',
+      'BiasSpectr_PropsSet',
+      'BiasSpectr_AdvPropsSet',
+    ])
+    expect(propsSetArgs(f)).toEqual([1, 8, 1, 128, 0, 1, 2])
+    expect(got).toEqual({
+      success: true,
+      data: {
+        start_v: -1,
+        end_v: 1,
+        num_points: 128,
+        z_offset_m: 0,
+        num_sweeps: 8,
+        num_sweeps_source: 'preserved',
+        z_controller_hold: true,
+        reset_bias: true,
+      },
+    })
+  })
+
+  for (const [label, reply] of [
+    ['读回失败', 'error'],
+    ['读到 0（不是合法的扫掠数）', propsGet([0, 0, 1, 200])],
+    ['回包不到两项', propsGet([0])],
+  ] as const) {
+    it(`${label} ⇒ 退回 1，来源 fallback_unreadable（不冒充「保持住了」）`, async () => {
+      const f = fx({ BiasSpectr_PropsGet: reply })
+      const got = await ConfigureSTS.execute(f.ctx, STS)
+      expect(got.success).toBe(true)
+      expect(propsSetArgs(f)).toEqual([1, 1, 1, 128, 0, 1, 2])
+      expect(got.data).toMatchObject({ num_sweeps: 1, num_sweeps_source: 'fallback_unreadable' })
+    })
+  }
+
+  it('读到 7.9 ⇒ 按整数截成 7（参考按 int() 取）', async () => {
+    const f = fx({ BiasSpectr_PropsGet: propsGet([0, 7.9, 1, 200]) })
+    const got = await ConfigureSTS.execute(f.ctx, STS)
+    expect(propsSetArgs(f)?.[1]).toBe(7)
+    expect(got.data).toMatchObject({ num_sweeps: 7, num_sweeps_source: 'preserved' })
   })
 })
 

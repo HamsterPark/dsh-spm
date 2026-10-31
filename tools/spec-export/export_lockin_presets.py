@@ -20,15 +20,14 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 from __future__ import annotations
 
 import json
-import os
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 from typing import Any
 
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-spec-export-"))
 
 # 相位对齐要在取样窗里转几圈。真时间上那是 3 秒 × 每格 —— 假钟让它按自己的逻辑
 # 走完、按自己的次数调用，只是不占墙钟（同 `export_skill_traces.py`）。

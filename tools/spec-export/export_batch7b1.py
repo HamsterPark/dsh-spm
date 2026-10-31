@@ -48,17 +48,16 @@ from __future__ import annotations
 import base64
 import json
 import math
-import os
 import re
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 from typing import Any
 
 #: 红线：旧仓只读。真有哪一行要写盘，也只会写进这个空临时目录。
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="dsh-spm-7b1-root-"))
+isolated_project_root(tempfile.mkdtemp(prefix="dsh-spm-7b1-root-"))
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "spec" / "golden" / "batch7b1.json"

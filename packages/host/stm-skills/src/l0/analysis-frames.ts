@@ -27,8 +27,10 @@ import {
   levelsOf,
   locateStepEdge,
   nanStd,
+  parseXyMeta,
   planeSubtractRobust,
   ptpFinite,
+  pxToM,
   rowBigJumps,
   rowJumpMadPm,
   rowJumpSigmaPm,
@@ -294,18 +296,10 @@ export const LocateStepEdge: Skill = {
     })
 
     const nmPerPx = fr.nm_per_px
-    const offRaw = scan.header['scan_offset'] ?? scan.header['SCAN_OFFSET']
-    let cxM = 0
-    let cyM = 0
-    {
-      const parts = typeof offRaw === 'string' ? offRaw.trim().split(/\s+/) : Array.isArray(offRaw) ? offRaw : []
-      const a = Number(parts[0])
-      const b = Number(parts[1])
-      if (Number.isFinite(a) && Number.isFinite(b)) {
-        cxM = a
-        cyM = b
-      }
-    }
+    // 像素 → 米走 `parseXyMeta` + `pxToM`（全仓唯一一份，带扫描角；D-ROT-1）。旧仓这里自己拆
+    // `scan_offset`、拿 `nm_per_px` **不旋转**地换算 —— 转过角度的帧上整个错位，而这对坐标
+    // 正是拿去沿台阶布谱的。头里读不出偏移或视野 ⇒ 不报坐标（「没有几何」不是「在原点」）。
+    const meta = parseXyMeta(scan.header as Readonly<Record<string, unknown>>)
     const data: Record<string, unknown> = {
       verdict: res.verdict,
       step_height_pm: res.stepHeightM === null ? null : res.stepHeightM * 1e12,
@@ -320,13 +314,13 @@ export const LocateStepEdge: Skill = {
       scan_path: path,
       channel,
     }
-    if (res.xPx !== null && nmPerPx !== null && nmPerPx !== 0) {
-      const ny = arr.rows
-      const nx = arr.cols
-      // 图像像素 → 扫描坐标：列号随 +x 增大，而行 0 是窗口的高 y 边，
-      // 所以行号沿 −y 走。
-      data['edge_x_m'] = cxM + (res.xPx - (nx - 1) / 2) * nmPerPx * 1e-9
-      data['edge_y_m'] = cyM - ((res.yPx as number) - (ny - 1) / 2) * nmPerPx * 1e-9
+    if (res.xPx !== null && res.yPx !== null && meta !== null) {
+      // 行 0 是窗口的高 y 边（帧已归位），`pxToM` 的约定正是这个。
+      const [x, y] = pxToM(res.xPx, res.yPx, {
+        nx: arr.cols, ny: arr.rows, cxM: meta.cx, cyM: meta.cy, wM: meta.w, hM: meta.h, angleDeg: meta.angle,
+      })
+      data['edge_x_m'] = x
+      data['edge_y_m'] = y
     }
     let summary: string
     if (res.verdict === 'step_edge') {

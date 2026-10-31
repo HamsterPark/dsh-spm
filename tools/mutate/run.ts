@@ -33,6 +33,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { MUTATIONS, type Mutation } from './mutations.ts'
+import { suiteArgs } from './suite-args.ts'
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 
@@ -190,9 +191,12 @@ export function runOne(m: Mutation): MutationResult {
 /** 绿了之后用来复问的全包范围。 */
 const WIDE_SCOPE = 'packages/host'
 
-/** 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。 */
+/**
+ * 跑一趟某个 scope 的非集成测试，回 `{failed, passed}`；汇总行读不到就 `null`。
+ * 命令行由 `suiteArgs` 拼（排除规则体检，原因见 `suite-args.ts`）；契约测试钉着它。
+ */
 function suite(scope: string): { failed: number; passed: number } | null {
-  const t = run([...PNPM, 'run', '--project', '!integration', scope, '--reporter=dot'], {
+  const t = run([...PNPM, ...suiteArgs(scope)], {
     allowFail: true,
   })
   const line = /^\s+Tests\s+(?:(\d+) failed \| )?(\d+) passed/m.exec(t.out)

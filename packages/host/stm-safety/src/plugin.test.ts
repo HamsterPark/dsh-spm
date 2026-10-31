@@ -3,8 +3,8 @@
  * **顺序对不对、拒绝走的是 guard（单调）、硬闸对模型来源是拒不是问**。
  */
 import { Context, Service } from 'dsh-spm-compat'
-import { CAP_BIAS_PULSE, CAP_TIP_SHAPING, argsHash } from 'dsh-spm-kernel'
-import { describe, expect, it } from 'vitest'
+import { CAP_BIAS_PULSE, CAP_TIP_SHAPING, argsHash, processInstrumentProfile } from 'dsh-spm-kernel'
+import { afterEach, describe, expect, it } from 'vitest'
 import * as records from 'dsh-spm-stm-records'
 import { ApproachRefusalLatch } from 'dsh-spm-kernel'
 import { stmSafetyProvider, type SkillDeclaration } from './plugin.js'
@@ -168,6 +168,33 @@ describe('硬闸对模型来源是**拒**，不是问', () => {
     // 一个从没 registerSkill 过的名字，照样闸得住
     expect(svc.decide('SetZLimitsEnabled', { enabled: 'false' }).kind).toBe('deny')
   })
+})
+
+describe('粗动 Z 的人闸只看标签，不看档案里声明的退针方向', () => {
+  // MotorMove 把 `z-approach` 换算成「声明的退针方向的反方向」，所以被闸的永远是朝样品那一步；
+  // 闸本身不读档案。四种档案状态下判定一字不变 —— 闸的正确性只依赖「标签 → 方向码」那张表。
+  afterEach(() => {
+    processInstrumentProfile.source = null
+  })
+  const states: [string, (() => unknown) | null][] = [
+    ['宿主没接档案', null],
+    ['没声明', () => ({})],
+    ['声明 z+', () => ({ retract_motor_dir: 'z+' })],
+    ['声明 z−', () => ({ retract_motor_dir: 'z-' })],
+  ]
+  for (const [label, source] of states) {
+    it(label, async () => {
+      processInstrumentProfile.source = source
+      const { svc } = await host()
+      const approach = { direction: 'z-approach', steps: 10 }
+      const llm = svc.decide('MotorMove', approach, { approvalSource: 'llm' })
+      expect(llm.kind === 'deny' && llm.code).toBe('hard_gate')
+      const human = svc.decide('MotorMove', approach, { approvalSource: 'human' })
+      expect(human.kind === 'ask' && human.gate).toBe('coarse_sample_approach')
+      const retract = { direction: 'z-retract', steps: 10 }
+      expect(svc.decide('MotorMove', retract, { approvalSource: 'llm' }).kind).toBe('allow')
+    })
+  }
 })
 
 describe('拒绝走 guard（单调），要人审走 pre-execute', () => {

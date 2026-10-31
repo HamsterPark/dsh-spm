@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { parseQuantity } from './si.js'
 import {
   envelopeViolations,
   isAbortSafe,
@@ -48,6 +49,8 @@ interface Golden {
   capability_cases: { fn: string; case: string; caps: string[]; params: Record<string, unknown>; result: boolean }[]
   mode_refusal_cases: { case: string; mode: string; kind: string; args: Record<string, unknown>; refusal: string | null }[]
   abort_cases: { method: string; args: unknown[]; allowed: boolean }[]
+  envelope_cases: { case: string; args: Record<string, unknown>; violations: string[]; violated: boolean; sides: string[] }[]
+  spec_bound_cases: { case: string; value: string; guard: string[]; validate_params: string[] }[]
 }
 
 const golden = JSON.parse(
@@ -74,6 +77,26 @@ const ABSURD_INPUTS: Record<string, [string, string][]> = {
   unknown_param: [['bias_v', 'V']],
   non_numeric: [['label', '']],
   bool_not_number: [['flag', '']],
+}
+
+/** 与导出脚本里的 ENVELOPE_CASES 一一对应：只重复**输入**。 */
+const ENVELOPE_INPUTS: Record<string, [string, string][]> = {
+  setpoint_100n_at_ceiling: [['setpoint_a', 'A']],
+  setpoint_ceiling_as_float: [['setpoint_a', 'A']],
+  setpoint_100p5n_over: [['setpoint_a', 'A']],
+  setpoint_101n_over: [['setpoint_a', 'A']],
+  setpoint_1p_at_floor: [['setpoint_a', 'A']],
+  setpoint_0p9p_below_floor: [['setpoint_a', 'A']],
+  tip_lift_neg_100n_at_floor: [['tip_lift_m', 'm']],
+  tip_lift_neg_100p5n_under: [['tip_lift_m', 'm']],
+  bias_neg10_one_ulp_below: [['bias_v', 'V']],
+  bias_neg_over_slack: [['bias_v', 'V']],
+  bias_pos10_one_ulp_above: [['bias_v', 'V']],
+  bias_pos_over_slack: [['bias_v', 'V']],
+  z_pos_zero: [['z_pos', 'm']],
+  z_pos_just_below_zero: [['z_pos', 'm']],
+  z_offset_1600n_at_ceiling: [['z_offset_m', 'm']],
+  z_offset_neg_1600n_at_floor: [['z_offset_m', 'm']],
 }
 
 const KIND_TO_META: Record<string, { params: [string, string][]; caps: string[] }> = {
@@ -204,5 +227,66 @@ describe('可调包络（金样只给表，行为在这里钉）', () => {
     const m = meta([['setpoint_a', 'A']])
     expect(envelopeViolations(m, { setpoint_a: '100p' }, DEFAULT_SAFETY_LIMITS)).toHaveLength(0)
     expect(envelopeViolations(m, { setpoint_a: '1' }, DEFAULT_SAFETY_LIMITS)).toHaveLength(1)
+  })
+})
+
+describe('包络边界的相对容差 1e-9', () => {
+  it('E0 · 前提：`100n` 解析出来比 1e-7 大——这个浮点陷阱存在', () => {
+    // 它是下面所有格子的前提。要是 si.ts 哪天改成十进制精确解析，这条红了，说明那些格子
+    // 已经不再证明任何东西，得回来重审。
+    expect(parseQuantity('100n', { strict: false })).toBeGreaterThan(1e-7)
+    expect(parseQuantity('1600n', { strict: false })).toBeGreaterThan(1.6e-6)
+  })
+
+  describe('E1 · 金样：每一格都与参考实现的结论一致', () => {
+    it('输入表与金样的用例一一对应——少一边都会让一格悄悄没人测', () => {
+      expect(Object.keys(ENVELOPE_INPUTS).sort()).toEqual(golden.envelope_cases.map((c) => c.case).sort())
+    })
+
+    for (const c of golden.envelope_cases) {
+      it(`${c.case} ⇒ ${c.violated ? `越界 ${c.sides.join('/')}` : '放行'}`, () => {
+        const params = ENVELOPE_INPUTS[c.case]
+        expect(params, `用例 ${c.case} 没有对应输入`).toBeDefined()
+        const got = envelopeViolations(meta(params!), c.args, DEFAULT_SAFETY_LIMITS)
+        expect(got.length > 0).toBe(c.violated)
+        // 参考实现的消息里是 minimum / maximum；这里的违规带着值与界，哪一侧由大小关系看出来
+        const sides = [...new Set(got.map((v) => (v.value < v.min ? 'minimum' : 'maximum')))].sort()
+        expect(sides).toEqual(c.sides)
+      })
+    }
+  })
+
+  it('E2 · 容差向外放、按界的绝对值算；界为 0 时容差为 0；违规里是原界', () => {
+    const bias = meta([['bias_v', 'V']])
+    // 负下界：-10 的下沿是 -10.00000001。写成 min * (1 - slack) 会把它向内收到 -9.99999999，
+    // 于是合法的 -10 反而被拒。
+    expect(envelopeViolations(bias, { bias_v: -10 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(0)
+    expect(envelopeViolations(bias, { bias_v: -10.000000001 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(0)
+    expect(envelopeViolations(bias, { bias_v: -10.00000002 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(1)
+    expect(envelopeViolations(bias, { bias_v: 10.00000002 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(1)
+    // 界为 0：abs(0) = 0，没有容差。别「修」成加一个绝对下限。
+    const z = meta([['z_pos', 'm']])
+    expect(envelopeViolations(z, { z_pos: 0 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(0)
+    expect(envelopeViolations(z, { z_pos: -1e-30 }, DEFAULT_SAFETY_LIMITS)).toHaveLength(1)
+    // 相对容差：1e-7 的界，容差只有 1e-16。绝对容差 1e-9 会把 101n 也放过去。
+    const sp = meta([['setpoint_a', 'A']])
+    expect(envelopeViolations(sp, { setpoint_a: '100.5n' }, DEFAULT_SAFETY_LIMITS)).toHaveLength(1)
+    // 违规里带的是配置里的原界，不是放宽后的
+    const [v] = envelopeViolations(bias, { bias_v: 11 }, DEFAULT_SAFETY_LIMITS)
+    expect(v).toEqual({ param: 'bias_v', value: 11, min: -10, max: 10 })
+  })
+})
+
+describe('D-LIMITS-2 的前提：参考实现的两层对「写成上限本身」的值给不同的答案', () => {
+  it('规格界 [1e-12, 100e-9] 的 `SetSetpoint`：只有 `100n` 一格 guard 放行而 validate_params 拒', () => {
+    expect(golden.spec_bound_cases.map((c) => c.value)).toEqual(['100n', '100.5n', '101n', '1p', '0.9p'])
+    const split = golden.spec_bound_cases.filter((c) => (c.guard.length === 0) !== (c.validate_params.length === 0))
+    expect(split.map((c) => c.case)).toEqual(['100n_at_ceiling'])
+    expect(split[0]!.guard).toEqual([])
+    expect(split[0]!.validate_params[0]).toContain('above maximum')
+    // 真越界两层都拒，恰在下限两层都放行——容差只吸收浮点噪声
+    for (const c of golden.spec_bound_cases.filter((c) => c.case !== '100n_at_ceiling')) {
+      expect(c.guard.length > 0, c.case).toBe(c.validate_params.length > 0)
+    }
   })
 })

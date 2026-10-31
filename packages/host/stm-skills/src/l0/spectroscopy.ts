@@ -63,7 +63,8 @@ import {
 import * as S from '../generated/specs.js'
 import { body, fail, ok } from './common.js'
 import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
-import { lastString } from './reads-hw.js'
+import { callIdempotent } from './idempotent.js'
+import { lastPath } from './wire-text.js'
 
 type Params = Readonly<Record<string, unknown>>
 
@@ -157,17 +158,26 @@ const CHANNEL_REFUSAL = (raw: unknown): string =>
 
 // ── 单动词直通的那一批 ──────────────────────────────────────────────────────
 
-/** `执行 → 有 error 就原样透传 → 否则把 body 映成 data` 的工厂。 */
+/**
+ * `执行 → 有 error 就原样透传 → 否则把 body 映成 data` 的工厂。
+ *
+ * `opts.idempotent` 只给「把属性设成绝对值」的那两个 Timing 技能：传输层失败后停 1 s 再做一次
+ * （`idempotent.ts`）。其余照旧只发一次。
+ */
 function verbSkill(
   spec: SkillSpec,
   verb: string,
   args: (p: Params) => unknown[],
   map: (rec: SkillCallRecord, p: Params) => Record<string, unknown>,
+  opts: { readonly idempotent?: boolean } = {},
 ): Skill {
   return {
     spec,
     execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
-      const rec = await ctx.safeCall(verb, ...args(params))
+      const rec =
+        opts.idempotent === true
+          ? await callIdempotent(ctx, verb, ...args(params))
+          : await ctx.safeCall(verb, ...args(params))
       if (failed(rec)) return fail(rec.error ?? '')
       return ok(map(rec, params))
     },
@@ -241,7 +251,7 @@ function defaultLatestSavedDat(nowS: () => number) {
   return async (ctx: SkillContext): Promise<string | null> => {
     const rec = await ctx.safeCall('Util_SessionPathGet')
     if (failed(rec)) return null
-    const dir = sessionDir(lastString(rec))
+    const dir = sessionDir(lastPath(rec))
     if (dir === null) return null
     const found = findLatestSaved(existingDirs([dir]), '.dat', nowS(), SAVED_DAT_MAX_AGE_S)
     return found === null ? null : found.path
@@ -253,7 +263,7 @@ async function readSweepBudget(ctx: SkillContext): Promise<{
   coreS: number
   detail: Readonly<Record<string, unknown>>
 }> {
-  const props = await ctx.safeCall('BiasSpectr_PropsGet')
+  const props = await callIdempotent(ctx, 'BiasSpectr_PropsGet')
   // BiasSpectr.PropsGet body = [Save all, Number of sweeps, Backward sweep,
   //                             Number of points, …]
   let sweep: SweepProps = { numPoints: null, numSweeps: null, backward: true }
@@ -271,7 +281,7 @@ async function readSweepBudget(ctx: SkillContext): Promise<{
           }
   }
 
-  const timing = await ctx.safeCall('BiasSpectr_TimingGet')
+  const timing = await callIdempotent(ctx, 'BiasSpectr_TimingGet')
   const keys = [
     'z_averaging_time_s',
     'z_offset_m',
@@ -289,6 +299,53 @@ async function readSweepBudget(ctx: SkillContext): Promise<{
     if (v !== null) t[keys[k] as string] = v
   }
   return sweepDuration(sweep, t)
+}
+
+/**
+ * Z 谱的 {@link readSweepBudget}（旧仓 `_zsweep_duration_s`）：同一个模型，读的是另外两个口。
+ *
+ * `ZSpectr_Start`（`Get data = 1`）和 `BiasSpectr_Start` 一样，要阻塞整条扫掠才回话；
+ * recv 预算盖不住它的后果见 `skill-kernel.ts` 里「批 3l」那一段（整条连接报废）。
+ * `AcquireZSpectr` 与 `AcquireDeltaFCurve` 共用这一个读法。
+ *
+ * 两个口的回包形状，**下标和偏压谱的不一样**，别照抄 {@link readSweepBudget}：
+ *   · `ZSpectr_PropsGet` = [反扫, 点数, 参数区大小, 参数个数, 参数, 固定参数区大小,
+ *     固定参数个数, 固定参数, sweep 数, 全存]，至少 9 项；反扫在 **0**、点数在 **1**、
+ *     sweep 数在 **8**（偏压谱的 sweep 数在 1、点数在 3）。
+ *   · `ZSpectr_TimingGet` = 七个 float：z 平均、初始建立、最大压摆率、建立、积分、结束建立、
+ *     Z 控制 —— 没有 `z_offset_m`，所以键表是 `ZSPECTR_TIMING_READ_KEYS`，不是偏压谱那八项。
+ *
+ * 任何一步读不到都退到 `SWEEP_BUDGET_FALLBACK_S`（「读不到」不是「很快」），并交出旧仓逐字的
+ * 那句 `读不到 Z 谱扫掠设定，退回保守上限`（偏压谱那句少了「Z 谱」两个字）。
+ */
+export async function readZSweepBudget(ctx: SkillContext): Promise<{
+  coreS: number
+  detail: Readonly<Record<string, unknown>>
+}> {
+  const props = await callIdempotent(ctx, 'ZSpectr_PropsGet')
+  let sweep: SweepProps = { numPoints: null, numSweeps: null, backward: true }
+  if (hasAtLeast(props, 9)) {
+    const bwd = at(props, 0)
+    const npts = at(props, 1)
+    const nsw = at(props, 8)
+    // 点数与 sweep 数缺一不可；反扫位读不到按「往返」算（偏大的一侧，与回退同一个方向）
+    if (npts !== null && nsw !== null) {
+      sweep = {
+        numPoints: Math.max(Math.trunc(npts), 1),
+        numSweeps: Math.max(Math.trunc(nsw), 1),
+        backward: bwd === null ? true : Math.trunc(bwd) !== 0,
+      }
+    }
+  }
+
+  const timing = await callIdempotent(ctx, 'ZSpectr_TimingGet')
+  const t: Record<string, number> = {}
+  const tb = body(timing)
+  for (let k = 0; k < ZSPECTR_TIMING_READ_KEYS.length && k < tb.length; k += 1) {
+    const v = scalarFloat(tb[k])
+    if (v !== null) t[ZSPECTR_TIMING_READ_KEYS[k] as string] = v
+  }
+  return sweepDuration(sweep, t, { why: '读不到 Z 谱扫掠设定，退回保守上限' })
 }
 
 /** 谱 → `data` 的那几个键。两个采集技能共用（别名按**名字**认，不按列号）。 */
@@ -315,7 +372,8 @@ export function makeAcquireSTS(deps: SpectroscopyDeps = {}): Skill {
   return {
     spec: S.AcquireSTSSpec,
     execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
-      await ctx.safeCall('BiasSpectr_Open')
+      // 结果照旧不看（旧仓同）：Open 失败时下面的读会把它暴露出来
+      await callIdempotent(ctx, 'BiasSpectr_Open')
 
       // ⚠️ **刻意不发 `BiasSpectr_PropsSet`。** 它的 Z-offset 实参没有「不改」的
       // 哨兵值，而 `BiasSpectr_PropsGet` 根本不回这一项 —— 于是老代码里那句写死的
@@ -386,13 +444,24 @@ export const AcquireSTS: Skill = makeAcquireSTS()
 export const AcquireZSpectr: Skill = {
   spec: S.AcquireZSpectrSpec,
   execute: async (ctx: SkillContext): Promise<SkillResultLike> => {
-    await ctx.safeCall('ZSpectr_Open')
-    await ctx.safeCall('ZSpectr_PropsSet', 0, 0, 0, 1, 2, 1)
+    await callIdempotent(ctx, 'ZSpectr_Open')
+    await callIdempotent(ctx, 'ZSpectr_PropsSet', 0, 0, 0, 1, 2, 1)
 
-    const record = await ctx.safeCall('ZSpectr_Start', 1, '')
+    // `ZSpectr_Start` 阻塞整条扫掠才回话：recv 预算要盖住它，和 `AcquireSTS` 是同一件事。
+    // 读两个设定口在 Start **之前**，读不到不早退（退到上限那一侧，Start 照发）。
+    const budget = await readZSweepBudget(ctx)
+    const requested = budget.coreS * SWEEP_BUDGET_FACTOR + SWEEP_BUDGET_PAD_S
+    const { record, recvTimeoutS } = await ctx.slowCall('ZSpectr_Start', requested, 1, '')
     if (failed(record)) return fail(record.error ?? '')
 
-    const data: Record<string, unknown> = { acquisition_complete: true }
+    // 记账：按仪器设定算出来要多久、recv 预算**真的**抬到了多少（报用上的那个数，
+    // 宿主没接这条口时是 `null`；理由同 `AcquireSTS`，见 spec/deviations.md D-STS-3）。
+    const data: Record<string, unknown> = {
+      acquisition_complete: true,
+      sweep_estimate_s: pyRound(budget.coreS, 1),
+      recv_timeout_s: recvTimeoutS === null ? null : pyRound(recvTimeoutS, 1),
+      sweep_settings: budget.detail,
+    }
     const spec = reshapeSpectrum(body(record))
     const parsed = Object.keys(spec.channels).length > 0
     data['spectrum_parsed'] = parsed
@@ -430,6 +499,19 @@ export const AcquireZSpectr: Skill = {
 
 // ── 配置：多动词、逐步早退的那几个 ──────────────────────────────────────────
 
+/**
+ * 当前的扫掠数（`BiasSpectr_PropsGet` 的第 1 项，与 {@link readSweepBudget} 同一处取法）。
+ * 读不到、或读到的不是 ≥ 1 的数，给 `null` —— **不是 1**：把「读不到」折成一个具体值，
+ * 正是这次要修的形状。
+ */
+async function readCurrentNumSweeps(ctx: SkillContext): Promise<number | null> {
+  const rec = await callIdempotent(ctx, 'BiasSpectr_PropsGet')
+  const v = failed(rec) ? null : at(rec, 1)
+  if (v === null) return null
+  const n = Math.trunc(v)
+  return n >= 1 ? n : null
+}
+
 export const ConfigureSTS: Skill = {
   spec: S.ConfigureSTSSpec,
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
@@ -438,13 +520,20 @@ export const ConfigureSTS: Skill = {
     const numPoints = params['num_points']
     const zOffset = params['z_offset_m'] ?? 0.0
 
-    const open = await ctx.safeCall('BiasSpectr_Open')
+    // 这几步都是「把属性设成绝对值」：传输层失败后隔 1 s 再做一次（`idempotent.ts`）
+    const open = await callIdempotent(ctx, 'BiasSpectr_Open')
     if (failed(open)) return fail(open.error ?? '')
 
-    const limits = await ctx.safeCall('BiasSpectr_LimitsSet', startV, endV)
+    const limits = await callIdempotent(ctx, 'BiasSpectr_LimitsSet', startV, endV)
     if (failed(limits)) return fail(limits.error ?? '')
 
-    const props = await ctx.safeCall('BiasSpectr_PropsSet', 1, 1, 1, numPoints, zOffset, 1, 2)
+    // 扫掠数（PropsSet 的第 2 个实参）没有「不改」的哨兵值：要保持操作员在 Nanonis 里设的
+    // 平均次数，就得先读回来再原样写。读不到时退回 1，并在 data 里说出来（D-STS-6）。
+    const current = await readCurrentNumSweeps(ctx)
+    const effectiveSweeps = current ?? 1
+    const sweepsSource = current === null ? 'fallback_unreadable' : 'preserved'
+
+    const props = await callIdempotent(ctx, 'BiasSpectr_PropsSet', 1, effectiveSweeps, 1, numPoints, zOffset, 1, 2)
     if (failed(props)) return fail(props.error ?? '')
 
     // 把两件原本从「操作员上次在 Nanonis 界面里留下的状态」继承来的行为钉死
@@ -453,7 +542,7 @@ export const ConfigureSTS: Skill = {
     //   · Z-Controller Hold = On ⇒ 扫掠期间**挂起反馈**（等高 STS）。不挂起的话，
     //     扫掠越过 0 V 时反馈会把针尖往表面里驱。
     //   · Reset Bias = On ⇒ 扫完把偏压还回成像值（别把结停在扫掠终点电压上）。
-    const adv = await ctx.safeCall('BiasSpectr_AdvPropsSet', 1, 1, 0, 0)
+    const adv = await callIdempotent(ctx, 'BiasSpectr_AdvPropsSet', 1, 1, 0, 0)
     // **不致命**：有的控制器/固件会拒 AdvPropsSet，而扫掠仍然跑得起来。
     // 报进 `data` 而不是让整条配置失败 —— 但也**不谎称它成了**：拒掉时这两个键
     // 是 `null`（「没设上」不是「设成了 false」）。
@@ -464,6 +553,10 @@ export const ConfigureSTS: Skill = {
       end_v: endV,
       num_points: numPoints,
       z_offset_m: zOffset,
+      // 实际设下去的扫掠数，以及它从哪来：preserved = 保持了操作员原来的值，
+      // fallback_unreadable = 读不到、退回了 1
+      num_sweeps: effectiveSweeps,
+      num_sweeps_source: sweepsSource,
       z_controller_hold: advOk ? true : null,
       reset_bias: advOk ? true : null,
     })
@@ -478,13 +571,14 @@ export const ConfigureZSpectr: Skill = {
     const numPoints = params['num_points']
     const backward = params['backward_sweep'] ?? true
 
-    const open = await ctx.safeCall('ZSpectr_Open')
+    const open = await callIdempotent(ctx, 'ZSpectr_Open')
     if (failed(open)) return fail(open.error ?? '')
 
-    const range = await ctx.safeCall('ZSpectr_RangeSet', zOffset, zDistance)
+    const range = await callIdempotent(ctx, 'ZSpectr_RangeSet', zOffset, zDistance)
     if (failed(range)) return fail(range.error ?? '')
 
-    const props = await ctx.safeCall(
+    const props = await callIdempotent(
+      ctx,
       'ZSpectr_PropsSet',
       pyInt(backward),
       numPoints,
@@ -511,7 +605,7 @@ export const ConfigureSTSChannels: Skill = {
   execute: async (ctx: SkillContext, params): Promise<SkillResultLike> => {
     const indexes = strictIntList(params['channel_indexes'])
     if (indexes === null) return fail(CHANNEL_REFUSAL(params['channel_indexes']))
-    const rec = await ctx.safeCall('BiasSpectr_ChsSet', indexes)
+    const rec = await callIdempotent(ctx, 'BiasSpectr_ChsSet', indexes)
     if (failed(rec)) return fail(rec.error ?? '')
     return ok({ channel_indexes: indexes })
   },
@@ -700,6 +794,7 @@ export const ConfigureSTSTiming: Skill = verbSkill(
   'BiasSpectr_TimingSet',
   (p) => STS_TIMING_KEYS.map((k) => p[k] ?? 0.0),
   (_rec, p) => Object.fromEntries(STS_TIMING_KEYS.map((k) => [k, p[k] ?? 0.0])),
+  { idempotent: true },
 )
 
 export const ConfigureZSpectrTiming: Skill = verbSkill(
@@ -707,6 +802,7 @@ export const ConfigureZSpectrTiming: Skill = verbSkill(
   'ZSpectr_TimingSet',
   (p) => ZSPECTR_TIMING_KEYS.map((k) => p[k] ?? 0.0),
   (_rec, p) => Object.fromEntries(ZSPECTR_TIMING_KEYS.map((k) => [k, p[k] ?? 0.0])),
+  { idempotent: true },
 )
 
 const STS_TIMING_READ_KEYS = [

@@ -1,6 +1,6 @@
 # 技能迁移范围与剩余工作
 
-本清单供继续迁移技能或评审迁移范围时使用。**2026-09-21 按当前 [progress.json](../spec/progress.json) 复核数量与技能名单**；依赖分析来自 2026-09-20 的三份分族盘点，未在本次重新执行私有参考实现。
+本清单供继续迁移技能或评审迁移范围时使用。**2026-10-28 按当前 [progress.json](../spec/progress.json) 复核数量与技能名单，规格按 MAST v7.1.0 重导**；依赖分析仍来自 2026-09-20 的三份分族盘点。
 
 视觉线束（[VISUAL-HARNESS.md](VISUAL-HARNESS.md)，决策 D12）是迁移之外的新增能力，不计入本清单的分母。
 
@@ -10,19 +10,21 @@
 
 | 范围 | 当前统计 | 当前目标 | 目标内剩余 |
 |---|---|---|---|
-| 技能 | 442 / 515 | 502 | 60 |
-| 全部技能均为 `done` 的模块 | 112 / 165 | 160 | 48 |
+| 技能 | 442 / 568 | 502 | 60 |
+| 全部技能均为 `done` 的模块 | 112 / 178 | 160 | 48 |
 
-`progress.json` 的 `done` 表示实现已注册、规格与模型 schema 存在且至少有一条参考轨迹；它不读取完整验收结果。原始清单尚有 **73 个技能**未标为 `done`，其中 **60 个在当前迁移范围内，13 个明确排除**：
+`progress.json` 的 `done` 表示实现已注册、规格与模型 schema 存在且至少有一条参考轨迹；它不读取完整验收结果。原始清单尚有 **126 个技能**未标为 `done`，其中 **60 个在当前迁移范围内，66 个明确排除**：
 
 | 排除范围 | 技能数 | 原因 |
 |---|---|---|
-| `builtins.optics_stage` | 8 | 依赖不属于本项目范围的光学台驱动层 |
+| `builtins.optics_stage` | 12 | 依赖不属于本项目范围的光学台驱动层 |
 | `builtins.optics_scan` | 1 | 排除光学台扫描；同模块的 `AcquireSignalPoint` 已迁移 |
 | `builtins.optics_pump_probe` | 1 | 依赖同一光学台驱动层 |
+| `builtins.optics_alignment` / `optics_aotf_pmt` / `optics_camera` / `optics_motor_groups` / `optics_polarization` / `optics_satellite_manual` / `optics_spectro` | 38 | 参考实现 7.1.0 新增的光学原子技能（相机、光谱仪、偏振、卫星远程设备等），依赖同一光学驱动层；其中 `optics_motor_groups` 的两个技能经 Nanonis 粗动控制器，STM 侧的粗动组号与保留数字口约束由仪器档案实现（见偏差 `D-GROUP-1`），不在这里的排除范围内 |
+| `composite.ters_*`（6 个模块） | 11 | 参考实现 7.1.0 新增的光学组合技能，依赖上一行的原子技能，参数声明尚未定稿 |
 | `paper.imspec` / `paper.region_analysis` | 3 | `PredictSpectrumFromTopo`、`PredictStructure_ASD`、`IdentifyTopology_CARP` 的 `model_path` 必填，参考实现直接加载深模型且无回退路径；当前不迁移这些模型依赖 |
 
-因此，在当前范围下，上述五个模块不能达到“原始模块全部技能完成”。报告进度时同时保留原始范围 **515 / 165** 与迁移目标 **502 / 160**，不要改写生成文件的分母。
+因此，在当前范围下，上述 18 个模块不能达到“原始模块全部技能完成”。报告进度时同时保留原始范围 **568 / 178** 与迁移目标 **502 / 160**，不要改写生成文件的分母。
 
 `ComposePanelMontage` 仍在迁移范围内：迁移判据与数据处理层，排除 matplotlib 呈现层。分层方式可参考 [scan-prep-skills.ts](../packages/host/stm-skills/src/l0/scan-prep-skills.ts)。
 
@@ -39,7 +41,7 @@ atomic_lattice            CalibratePiezoFromLattice      — 3×3 非线性求�
 atomic_multiframe         CalibratePiezoMultiAngle       — 与上一项共用 solve_affine
 best_frame                TrackBestFrame                — DEFAULT_MIN_CONCENTRATION=300.0 的统一来源
 characterise_noise        CharacteriseCurrentNoise      — 循环变量形式的动态 context.run，需声明闭包限制
-coarse_selfcheck          CoarseMotionSelfCheck         — 盘点将其从子系统依赖项调整为可直接迁移
+coarse_selfcheck          CoarseMotionSelfCheck         — 盘点将其从子系统依赖项调整为可直接迁移；7.1.0 起粗动组读档案，见本节末「粗动组」
 dispersion_fit            FitDispersion                 — curveFit 的 box bounds 与 scipy.special.j0
 domain_assess             AssessDomainPhase             — 参考快照缺少参照系目录，相关分支需明确处理
 envelope_reconcile_skill  ReconcileSafetyEnvelope       — 参考 fail-open 分支需修正并登记
@@ -100,6 +102,10 @@ tip_assessment    AssessTip_ResNet  AssessTip_VGG — 参考 execute 在归一�
 ```
 
 `AssessTip_ResNet` 和 `AssessTip_VGG` 按两个接口计数。盘点记录的实现并无对应的 VGG / ResNet 网络，不应由技能名称推断已具备深模型能力。
+
+**粗动组（参考实现 7.1.0 起）。** `CoarseMotionSelfCheck` 的 `Motor_PosGet` 不再写死组号 0，而是读仪器档案里的 STM 粗动组（本仓：`stmCoarseGroup()`，见偏差 `D-GROUP-1`）。迁移它时：组配置读不出（`stmCoarseGroup()` 返回 `ok: false`）就返回 `supported: null`（不是 `false`），结果多一个 `group` 字段；它的分级不变。参考实现的模块预检（`_preflight`）里另有一个电机探测 `PROBE_MOTOR`，读不出组时有意回落到组 0（它只问模块在不在运行，各组答案相同）；v7.1.0 里还没有技能用它，将来迁移预检时照这个约定。会动粗动的技能读不出组则拒绝，本仓已迁移的调用点见 `D-GROUP-1`。
+
+**扫描角（参考实现 7.1.0 之后）。** `ShapeTipOnSurface`、`PokeConditionTip`／`PrepareNobleTip`／`PulseConditionTip`、`AchieveAtomicResolution`、`MakeAtomicResolutionTip`／`MakeSpectroscopyTip` 用 `FindFlatRegion` 等技能给出的坐标去扎针或移动。本仓的像素→压电换算是「正扫描角为顺时针」（偏差 `D-ROT-1`），参考实现 v7.1.0 的换算是旧方向。迁移它们时，扫描角不为零的参考轨迹要按 `D-ROT-1` 处理，不要照抄旧方向。
 
 ## 2. 贵金属针尖流程：先补非技能依赖
 
@@ -172,3 +178,22 @@ publication_frame.py:211 → v.get("passed")
 - [未检出变异分析](handoff/green-8.md)：幸存变异的输入、断言和测试范围问题。
 - [偏差登记](../spec/deviations.md)：参考差异、理由与重新考虑条件。
 - [实施日志](EXECUTION.md)：按时间记录的工作与验证结果。
+
+## 9. 电流监测服务：尚未迁移，移植时必须带上的行为
+
+`CharacteriseCurrentNoise`、`QueryMonitorHistory`、`CharacteriseQuietDrift`、`ReadHardwareEvents`（§1 builtins）依赖一个后台采集与告警服务（参考实现：`mast/monitoring/`），本仓还没有对应实现。开工前把下面几条写进规格；它们是参考实现近期修过的行为，现有金样里都没有。
+
+1. **技能结束事件。** 服务的「余辉期」——进针、退针、谱学这类技能刚结束的几秒里，电流瞬态不算告警（缺省 5 s，阈值项 `cm_afterglow_s`；这个缺省是参考实现自己声明的占位值，不是测量值）——只听这一个事件。本仓由内核的 `finish` 在技能**真正执行过之后**发一次（技能名、是否成功），发在释放仪器令牌之后；所有入口共用这一个点（模型工具入口、将来的外部直调入口），不要各发各的。入口就被拒的不发：`outcome.kind` 为 `refused`（SI 解析、样品门控、安全闸、参数校验、前置条件、中止闩）或 `busy`。**待决**：执行中抛异常的情形，参考实现的两条入口不一致（内部 agent 入口不发，外部直调入口把异常转成失败结果后会发）；余辉的物理原因与技能怎么结束无关，建议发，但要在规格里明说。
+2. **抑制表。** 按持有仪器令牌的技能名子串（不区分大小写）压制告警。表里需要有 `biassettle`：`BiasSettleChange` 的斜坡在令牌上记的是外层技能名，不加会让跨零斜坡报出多类告警。**有意不加** `movetoxy`：这张表连同 CRITICAL 规则一起压，针尖横移时撞进团簇正要靠 CRITICAL 规则报。
+3. **扫描边沿。** 「是否在扫描」标签取自段尾的 1 Hz 状态缓存，含扫描最后一行的那一段会被标成「没在扫描」。紧跟扫描段 1.5 s 内（一个段长 `cm_segment_s` = 1 s 加缓存滞后）的那一段，对**只对扫描敏感的规则**（`jump_burst`、`spike_warn`）按「扫描中」判，行里标 `suppressed_by: "scan_edge"`；CRITICAL 规则不动，库里存的 `ctx_scanning` 仍是实测值，阈值不改。
+4. **告警上下文。** 告警载荷带段窗口（`seg_t_start`、`seg_t_end`）、测量值（σ、突跳率、最大台阶／均值／RMS 的 pA 值、RTN 分数）与仪器上下文（是否在扫描、距上一段扫描几秒、持有仪器的技能、最近一次看到的技能及几秒前、偏压、设定点 pA、`scan_id`）。这些只给读告警的人看，不参与任何判据，告警何时响不变；载荷只放标量与短字符串（事件总线约定）；构造过程永不抛。
+5. **回包不可用时的采集。** 参考实现 7.1.0 之后又修了一处：控制器回包判为不可用时，按原因类别每小时记一次，并附上原始字节；因坏回包而触发的重新配置，间隔从 30 s 起逐次翻倍、封顶 10 min；连续坏满 10 份之后，把轮询降到每秒一次；服务状态里带上最近的判坏原因；滚动清理不放在采集线程上做，否则一次清掉大量旧文件会让采集长时间停下。
+
+## 10. 接真仪器（Phase 8）之前
+
+下面几项不挡模拟器上的工作，但第一次连接真实仪器之前要做完或定下来。它们与[开发指南](DEVELOPMENT.md)「给运行入口挂载技能之前」不是一回事：那一节是挂载工具的前置条件，这里是还没做的事。
+
+1. **`Scan_PropsGet` 短回包。** 某些固件回的 `Scan_PropsGet` 比声明的 16 字段布局短，整条解码越界。本仓此时读不到 continuous，`StartScan` 拒绝扫描（偏安全，但这类固件上扫不了）。参考实现 7.1.0 之后的修复，是在这种情况下从回包开头 12 字节救回 continuous、bouncy、autosave 三个标志，三个值都须在 0..2 内。本仓尚未移植；若参考实现先在实机上核实或改写了这处修复，以它的最新形态为准。
+2. **参考实现的驱动锁存。** 参考实现在光学电机组上写入粗动驱动参数、事后恢复又核验不过时，会留下一个持久化的锁存（存放在它的配置文件旁），锁存解除之前连 STM 粗动也拒绝。本仓不迁移光学电机组，也不读这份锁存。若同一台装置上参考实现仍在驱动光学电机组，挂载粗动技能之前要先定下由谁检查这份锁存。
+3. **扫描角正方向。** `D-ROT-1` 的「正扫描角为顺时针」取自参考实现的修复，还没有在 Nanonis 模拟器上用一帧扫描角不为零的已知特征核对过；这项核对需要操作员授权后进行。
+4. **两处旋转约定。** 视觉线束报的扫描系坐标仍按逆时针换算，STM-Bench 也按逆时针渲染；二者是否改成与 `D-ROT-1` 一致，尚未决定。

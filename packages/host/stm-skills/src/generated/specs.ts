@@ -639,7 +639,7 @@ export const SetCurrentGainSpec: SkillSpec = {
 
 export const MotorMoveSpec: SkillSpec = {
   name: "MotorMove",
-  description: "驱动粗动马达（pan 型步进）。x±/y± 为横向；'z-approach' 朝**样品方向**走步（DANGEROUS —— 需要人工批准）；'z-retract' 朝**远离样品**走步（安全）。",
+  description: "驱动粗动马达（pan 型步进）。x±/y± 为横向；'z-approach' 朝**样品方向**走步（DANGEROUS —— 需要人工批准）；'z-retract' 朝**远离样品**走步（安全）。Z 的这两个方向按本机声明的退针方向（设置 → 退针 → 退针方向）换算成 Z+ / Z−；没声明时按 Nanonis 标准 Z+ 视为远离样品，结果里带警告。",
   parameters: [
     { name: "direction", type: "str", description: "马达方向：'x+','x-','y+','y-'（横向）、'z-approach'（朝样品）、'z-retract'（远离样品）", required: true, allowedValues: ["x+","x-","y+","y-","z-approach","z-retract"] },
     { name: "steps", type: "int", description: "马达走步数", required: true, minValue: 1, maxValue: 1000 },
@@ -659,7 +659,7 @@ export const MotorMoveClosedLoopSpec: SkillSpec = {
     { name: "target_y_m", type: "float", description: "目标 Y 位置，单位米", unit: "m", required: true },
     { name: "target_z_m", type: "float", description: "目标 Z 位置，单位米", unit: "m", required: true, minValue: -0.0001, maxValue: 0.0001 },
     { name: "wait", type: "bool", description: "等到移动结束再返回", required: false, default: true },
-    { name: "group", type: "int", description: "马达组（0-5）", required: false, minValue: 0, maxValue: 5, default: 0 },
+    { name: "group", type: "int", description: "马达组（0-5）。不给 = 配置的 STM 粗动组（nanonis_motor_groups.json，缺省 0）；给了别的组会被拒绝 —— 光学组请用 NanonisMotorGroupMove", required: false, minValue: 0, maxValue: 5 },
   ],
   preconditions: ["z_controller_off"],
   tags: ["motor","coarse","closed_loop","dangerous"],

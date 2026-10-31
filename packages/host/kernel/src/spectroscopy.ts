@@ -196,7 +196,7 @@ export function matchSpectrumChannel(
   return null
 }
 
-/** `_sweep_duration_s` 的入参：从 `BiasSpectr_PropsGet` 读到的三项。 */
+/** `_sweep_duration_s` / `_zsweep_duration_s` 的入参：从 `BiasSpectr_PropsGet` / `ZSpectr_PropsGet` 读到的三项。 */
 export interface SweepProps {
   /** 扫描点数；读不到给 `null`。 */
   readonly numPoints: number | null
@@ -224,10 +224,15 @@ export interface SweepBudget {
  *
  * `timing` 少了 `integration_time_s`、或者点数/ sweep 数读不出来 ⇒ 退到
  * {@link SWEEP_BUDGET_FALLBACK_S}，并把「为什么退」一起交出去。
+ *
+ * 偏压谱（`_sweep_duration_s`）与 Z 谱（`_zsweep_duration_s`）是同一个模型，
+ * 区别只在读哪两个口、下标在哪；回退时交出去的那句话也各写各的，所以 `opts.why`
+ * 让 Z 谱传自己的（旧仓逐字：`读不到 Z 谱扫掠设定，退回保守上限`），不传仍是偏压谱那句。
  */
 export function sweepDuration(
   props: SweepProps,
   timing: Readonly<Record<string, number>>,
+  opts?: { readonly why?: string },
 ): SweepBudget {
   const npts = props.numPoints
   const nsw = props.numSweeps
@@ -236,7 +241,7 @@ export function sweepDuration(
     return {
       coreS: SWEEP_BUDGET_FALLBACK_S,
       detail: {
-        why: '读不到扫掠设定，退回保守上限',
+        why: opts?.why ?? '读不到扫掠设定，退回保守上限',
         npts,
         nsweeps: nsw,
         timing_keys: Object.keys(timing).sort(),

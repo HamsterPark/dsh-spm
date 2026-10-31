@@ -19,11 +19,12 @@ import { SkillKernel, type Skill } from 'dsh-spm-kernel'
 import { NANONIS_METHODS } from 'dsh-spm-nanonis-wire'
 import { RecordsService } from 'dsh-spm-stm-records'
 import { StmSafetyService } from 'dsh-spm-stm-safety'
-import { GetBias, defineSkillTool, gatedSafeCall } from 'dsh-spm-stm-skills'
+import { GetBias, defineSkillTool } from 'dsh-spm-stm-skills'
 import type { ViewToolValue } from 'dsh-spm-visual-memory'
+import { createInstrumentCalls } from './instrument-calls.js'
 import { MinimalPersistence, type MinimalResultRecord } from './minimal-persistence.js'
 import { NativeSimulatorConnection, NativeSimulatorInstrument, type NativeSimulatorOptions } from './native-simulator.js'
-import { NATIVE_SKILLS, formatNativeToolText } from './native-skills.js'
+import { NATIVE_SKILLS, NATIVE_SUBSKILLS, formatNativeToolText } from './native-skills.js'
 import {
   NATIVE_VISUAL_PROMPT,
   formatObservedToolText,
@@ -171,18 +172,21 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
     const callScope = new AsyncLocalStorage<{ id: string; signal: AbortSignal }>()
     let nativeTail: Promise<unknown> = Promise.resolve()
 
-    const call = gatedSafeCall({
+    // 一次仪器调用的唯一出口：原生模式的中止分支与留痕都在这里。缺省路径与慢命令
+    // （带 recv 预算）共用它，只差 `opts`；两条路都过 `createInstrumentCalls` 里的同一道中止门。
+    const send = async (method: string, args: readonly unknown[], opts?: CallOptions): Promise<CallRecord> => {
+      const scope = callScope.getStore()
+      const result: CallRecord = native && scope?.signal.aborted ? {
+        method, command: method, role: 'main', args: [],
+        error: 'native_simulator_aborted: 本次调用已取消，未发送仪器命令。',
+        at: Date.now(), elapsedMs: 0, simulated: true,
+      } : await connectedInstrument.call(method, args, opts)
+      persistence.trace(scope?.id, result)
+      return result
+    }
+    const { safeCall: call, budgetedCall } = createInstrumentCalls({
+      send,
       abortLatched: () => watchdog?.latched ?? false,
-      call: async (method, ...args) => {
-        const scope = callScope.getStore()
-        const result: CallRecord = native && scope?.signal.aborted ? {
-          method, command: method, role: 'main', args: [],
-          error: 'native_simulator_aborted: 本次调用已取消，未发送仪器命令。',
-          at: Date.now(), elapsedMs: 0, simulated: true,
-        } : await connectedInstrument.call(method, args)
-        persistence.trace(scope?.id, result)
-        return result
-      },
     })
 
     // 视觉线束：在建内核之前挂（观察者是内核的构造参数）。闸门拒掉的调用内核不跑，
@@ -203,9 +207,13 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
         return verdict.kind === 'allow' ? null : verdict.reason
       },
       safeCall: call,
+      budgetedCall,
       emergencyCall: (method, ...args) => connectedInstrument.urgentCall(method, args),
       record: persistence.record,
       ...(visual === undefined ? {} : { observer: visual.observer }),
+      // 原生入口的 SetBias 对跨零、大幅或落进死区的改动走 BiasSettleChange，它要跑子技能；
+      // 受管入口只挂 GetBias，没有子技能，不接注册表。
+      ...(native ? { skillByName: (name: string) => NATIVE_SUBSKILLS.get(name) } : {}),
     })
 
     if (native) {

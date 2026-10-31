@@ -1,6 +1,6 @@
 # 参考金样与导出器索引
 
-本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份。
+本目录保存迁移测试使用的参考声明、执行结果、数值输出和静态依赖分析。**2026-09-21 按当前 JSON 结构复核：50 份 JSON，另有 `records_schema.sql`。** 下列数量统计的是夹具结构，不是测试数或完整运行验收结果；本次没有重新执行导出器。2026-10-09 新增 `visual_memory.json`（视觉线束，见下表），共 51 份 JSON；2026-10-12 新增 `measure_profile.json`（测量工具 `line_profile` / `stats`），共 52 份；2026-10-13 新增 `interp_edges.json`（插值族的帧边探针），共 53 份；2026-10-13 新增 `measure_fft_blobs.json`（测量工具 `fft_peaks` / `detect_blobs`），共 54 份；同日新增 `measure_diff.json`（测量工具 `diff`），共 55 份；2026-10-28 新增 `wire_decode.json`（字符串回复的非 ASCII 解码，见下表），共 56 份；同日新增 `bias_routing.json`（模型面改偏压的分流真值表），共 57 份。
 
 ## 来源与复现方式
 
@@ -10,7 +10,7 @@
 | 参考代码执行 | `skill_traces.json`、SI／安全／前置条件、各专用驱动器 | 在指定输入、时钟和上下文下执行 MAST 实现；部分文件同时包含常量或声明 |
 | 公共数值库执行 | `numerics.json`、`interp_edges.json` | NumPy、SciPy、scikit-image 对保存输入的计算结果；无需私有 MAST |
 | 静态源码分析 | `tip_phase_deps.json` | 可能的子技能与函数依赖、非技能依赖和无法解析的边界；不执行仪器流程 |
-| 协议编解码 | `wire_frames.json`、`wire_types.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节 |
+| 协议编解码 | `wire_frames.json`、`wire_types.json`、`wire_decode.json` | 参考客户端与 STM-Bench codec 产生的请求／回复字节；`wire_decode.json` 的回复字节手工拼，期望值由参考客户端解出 |
 
 不要手填数值或轨迹来消除测试差异。说明字段、匿名测试标签和已登记标识符的公开清理例外见 [开发指南](../../docs/DEVELOPMENT.md#金样生成物与参考仓) 与 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md)。部分说明来自参考系统观测；去标识化不改变来源类别。
 
@@ -48,9 +48,9 @@ python tools/spec-export/<脚本>.py
 3. `node scripts/release-hygiene.ts --golden-dir <暂存公开目录>` 过一遍[发布卫生门](../../docs/DEVELOPMENT.md#发布卫生门)（站点名单由 `HYGIENE_SITE_LIST` 指定），有命中先处理；再按 [公开内容审查](../../docs/PUBLIC-CODE-REVIEW.md) 检查暂存公开目录；
 4. 通过后复制进本目录，`spec_overlay.py verify --dir spec/golden` 确认不动点，再执行 `pnpm gen:skills` → `pnpm build` → `pnpm gen:progress`。
 
-`apply` 遇到哈希不符时，用 `spec_overlay.py show` 查看该位置（输出含私有原文，不外传），定下公开文本后，由原始产物和审读过的公开版本重新 `build` 覆盖层；旧条目都还适用、只多了新位置时，可加 `--base <旧覆盖层>` 只为剩余差异建条目。
+`apply` 遇到哈希不符、指针失配或未登记的出现时整体拒绝，不写输出。目前没有工具在这种情况下生成部分替换的草稿：需要人工备好一份审读过的完整公开版本（哈希不符的位置用 `spec_overlay.py show` 查看，输出含私有原文，不外传），再由原始产物和这份公开版本重新 `build`。`apply` 能通过、但扫描或审查发现覆盖层还不认识的私密文本时，在暂存公开目录里改写那几处，用 `build --base <旧覆盖层>` 只为这些差异建条目，新覆盖层另存为新文件，再用它重新 `apply`。
 
-**参考基线（历史说明）** 本目录现有的 MAST 金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 用运行器在 `git archive` 快照上复核：在提交 `068c2371` 上重导（同条件两次，48 份逐字节一致），48 份 MAST 金样中 42 份与本目录逐字节相同；其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段。所以该提交是这批金样的等价来源。`manifest.json` 里旧的 `near_commit`（`8f226475`）只是当时参考仓的 HEAD，导出的却是工作区，不代表来源。今后重导按 `manifest.json` 的 `reference` 记录。
+**参考基线** 现行金样的来源只以 `manifest.json` 的 `reference` 为准，由运行器从固定修订的 `git archive` 快照导出。导出器跟随所钉的参考版本，不向旧版兼容：现行导出器要求参考实现 v7.1.0 及以上（例如 `export_batch5b.py` 调用的 `retract_dir_code_or_none` 只有 v7.1.0 起才有）。**历史说明**：此前入库的 MAST 金样来自 2026-09-19 前后的 MAST 工作区（约 6.5.0）。2026-10-28 用 `git archive` 快照和当时的导出器复核过：在提交 `068c2371` 上重导，48 份 MAST 金样中 42 份与那批金样逐字节相同；其余 6 份里，5 份 JSON 只差公开文本规范化（共 193 个字符串叶，没有结构或数值差异），`manifest.json` 只差来源字段，所以该提交是那批金样的等价来源。`068c2371` 只作为这一历史基线保留，用现行导出器已不能在它上面整套重导。当时 `manifest.json` 里的 `near_commit`（`8f226475`）只是参考仓的 HEAD，导出的却是工作区，不代表来源。
 
 ## 一、文件与导出器
 
@@ -60,13 +60,13 @@ python tools/spec-export/<脚本>.py
 
 | 文件 | 导出器 | 内容 |
 |---|---|---|
-| `skills.json` | `export_mast_spec.py` | 515 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
+| `skills.json` | `export_mast_spec.py` | 568 条技能的作者声明：category、safety_level、description、ParameterSpec（含 unit、min/max、allowed_values）、preconditions、capabilities、composition_level、模块与 origin |
 | `si_cases.json` | 同上 | 执行 `parse_si`、strict／loose `parse_quantity`、`needs_strict_prefix`、`format_si`，包含异常类型与完整消息 |
-| `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本 |
+| `safety.json` | `export_safety_spec.py` | 包络 14 字段、全局检查 19 项、物理荒谬条件 11 项、中止安全写 24 条、全部 671 个动词的 `_is_read` 判定，以及硬闸、能力和模式拒绝文本；重发分类（`resend_safe`：全部 671 个动词在无实参时能否重发；`resend_arg0_cases`：按第一个实参判的 `Scan_Action` 与 `AutoApproach_OnOffSet`，13 格）；包络边界 16 格（`envelope_cases`：恰在界上的写法、真越界、负下界、界为 0，含 `1600n` 两格）；规格界 5 格（`spec_bound_cases`：同一个值过参考实现的 `SafetyGuard` 与 `validate_params` 两层，记两层各自的结论） |
 | `preconditions.json` | `export_preconditions.py` | 词表与 10 个前置条件 × 14 个夹具的 140 格网格，逐格记录违反消息，覆盖子串匹配及否定形式 |
-| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 515 个技能的模型 schema；保存模型可见范围及文字 |
+| `tool_schemas.json` · `tool_schemas_real.json` | `export_tool_schemas.py` | 21 个合成参数 schema 用例与全部 568 个技能的模型 schema；保存模型可见范围及文字 |
 | `records_schema.json` · `records_schema.sql` | `export_records_schema.py` | 记录层建表语句与声明，用于执行建表后逐表、逐对象比较 |
-| `manifest.json` | `export_mast_spec.py` | 导出所用的参考提交、标签、树对象号、与行尾无关的源码摘要和环境（`reference`），以及该导出器各 collector 的成功状态与条数。经运行器完整导出时，`reference` 适用于同一次运行的全部 MAST 通道金样，不涉及其余导出器的产物。现有文件仍是旧格式 `spec_source`，下次经运行器重导时换成 `reference` |
+| `manifest.json` | `export_mast_spec.py` | 导出所用的参考提交、标签、树对象号、与行尾无关的源码摘要和环境（`reference`），以及该导出器各 collector 的成功状态与条数。经运行器完整导出时，`reference` 适用于同一次运行的全部 MAST 通道金样，不涉及其余导出器的产物。经覆盖层写出时另有 `public_text` 标记 |
 
 ### ② 通用轨迹与状态机
 
@@ -74,14 +74,15 @@ python tools/spec-export/<脚本>.py
 
 | 文件 | 导出器 | 执行范围 |
 |---|---|---|
-| `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,798 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
+| `skill_traces.json` | `export_skill_traces.py` | 442 个技能、1,802 条调用轨迹，其中 20 条记录 `raised` 异常；按每项 `traces` 计数 |
 | `watchdog.json` | `export_watchdog_trace.py` | 用可控时钟驱动 `SafetyWatchdog.run()`，覆盖武装状态与动作触发条件 |
 | `state.json` | `export_state_spec.py` | `InstrumentState` 的调用、读数转换与状态：21 个转换用例、14 条脚本共 29 步、7 个实时提示块 |
-| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步 |
+| `breaker_trace.json` | `export_breaker_trace.py` | 熔断状态机的 6 条脚本，共 50 步；另有熔断提示原文 2 条（`_down_message`、`_down_message_half`，键以下划线开头，不是脚本；后者剩余冷却恰为 18.5 s，钉住 `{:.0f}` 的取整） |
 | `graph_executor.json` | `export_graph_executor.py` | `GraphExecutor` 的执行与恢复守卫 |
 | `approach.json` · `approach_gate.json` · `approach_tip.json` | `export_approach.py` · `export_approach_gate.py` · `export_approach_tip.py` | `AutoApproach`、`safety_escalation`、`ApproachTip._approach` |
 | `scan_chain.json` · `scan_wait.json` | `export_scan_chain.py` · `export_scan_wait.py` | `scan_policy`、`imaging` 判据，以及 `WaitScanComplete` 和回复解析 |
 | `bias_ramp.json` | `export_bias_ramp.py` | `SetBiasRamp` |
+| `bias_routing.json` | `export_bias_routing.py` | 参考实现外部动作面 `set_bias` 的分流：20 个起点（含「读不到」）× 19 个目标共 380 格，逐格记录走 `BiasSettleChange` 还是直写 `SetBias`。执行器换成只记录被请求技能的替身，起点读得到的格另调 `_bias_needs_safe_path` 核对一致；附外部动作面与 `bias_settle` 里的两组常量 |
 | `tip_park.json` | `export_tip_park.py` | `tip_park` 判定机 |
 | `claim_audit.json` | `export_claim_audit.py` | 声明、技能运行与文件证据的交叉核对 |
 | `advanced_ops.json` | `export_advanced_ops.py` | `QuitNanonis`、`WaitForScanEndBlocking` |
@@ -135,7 +136,7 @@ python tools/spec-export/<脚本>.py
 | 文件 | 导出器 | 专门覆盖的内容 |
 |---|---|---|
 | `batch7b1.json` | `export_batch7b1.py` | 12 个闭式合成、仅含正扫的 `.sxm`；26 个 `AssessAtomicPhase` 用例与 10 个 `resolve_substrate` 用例。覆盖 `_MIN_COVERAGE=0.5`、`expected_a_nm` 的正值／0／未提供三态，以及请求 Z 通道不可用时回落到首个通道。覆盖率 0.25、0.4375（内部判据通过）与 0.5 分别区分拒绝、最终通过值受覆盖率限制及严格小于边界。<br>`expected_zero_with_substrate` 区分“0 禁用比较”和“未提供则查衬底”。`SURFACE_LATTICE_NM` 七个面全部进入用例；参考只认四个洁净金属面，`HOPG` / `NaCl(100)` / `Si(111)-1x1` 为 `available=false`。Pt(111) 的 `2.775/10` 与 `0.2775` 差 1 ULP，见 D-ROWSPACING-1 |
-| `tip_phase_deps.json`（扩展） | `export_tip_phase_deps.py` | `skill_runs` 覆盖 515 个技能，追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)` 两种边。当前 `closure_limits` 保存 7 处动态调用、31 个非技能的内部阶段目标，`unknown_skills` 与 `cycles` 均为空；具体追踪深度以 `follow_rule` 为准。函数级 `non_skill_deps` 另列地图写侧与 `noble_tip_workflow` 等组件；没有未迁移子技能不等于其他依赖已具备 |
+| `tip_phase_deps.json`（扩展） | `export_tip_phase_deps.py` | `skill_runs` 覆盖 568 个技能，追踪 `context.run(...)` 与 `CompositeStep(skill_name=...)` 两种边。当前 `closure_limits` 保存 8 处动态调用、31 个非技能的内部阶段目标，`unknown_skills` 与 `cycles` 均为空；具体追踪深度以 `follow_rule` 为准。函数级 `non_skill_deps` 另列地图写侧与 `noble_tip_workflow` 等组件；没有未迁移子技能不等于其他依赖已具备 |
 
 <!-- ── 批 7b-2（势垒链与线缆（8 个技能 / 7 个模块））的驱动器写在这一行下面 ── -->
 
@@ -180,14 +181,15 @@ python tools/spec-export/<脚本>.py
 | `interp_edges.json` | `export_interp_edges.py` | 插值族（`map_coordinates` / `shift`，order 0、1）在帧边、界外坐标与缺测行列上的判别性探针：6×5 帧及其缺测行、缺测列与部分采集变体，另有 1×4、4×1 帧；坐标含界外、整点、半整点、贴边与 NaN，五种边界模式，TS 侧逐位比较。导出时断言这组输入分辨得出四条规则：`nearest` 不折坐标；越界邻点按 scipy 的 `_get_spline_boundary_mode` 延拓（`constant`、`wrap` 用 mirror）；权重为 0 的邻点照样乘进结果；NaN 坐标取 cval。仅需 NumPy 与 SciPy；当前以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1 导出 |
 | `nanonis_files.json` | `export_nanonis_files.py` | 脚本合成字节，由参考读取器给出解析结果；不收入真实仪器文件 |
 | `analysis.json` | `export_analysis.py` | 掩膜、团簇、平面、台阶、原子线与起伏判据。两侧从同一 `.sxm` 字节读帧，避免分别计算闭式输入时因加法结合顺序产生差异；历史 `noiseFloor` 差为 4.4e-14 |
-| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec |
+| `wire_frames.json` · `wire_types.json` | `export_wire_fixtures.py` · `export_wire_types.py` | 请求侧使用 MAST 修改的 `nanonis_spm` 客户端，回复侧使用 STM-Bench codec；回复里的字符串用例全是 ASCII |
+| `wire_decode.json` | `export_wire_decode.py` | 字符串回复的解码：`*-c` / `*+c` / `**c` / `+*c` / `*2c` 五种格式 × 六种内容（ASCII、空串、UTF-8 中文、GBK 中文、256 个字节值全表、一段两种编码都不合法的字节），共 30 格。回复字节按线协议布局手工拼，期望值由 MAST 修改的 `nanonis_spm` 客户端的 `parseGeneralResponse` 解出；无需 STM-Bench。逐字节读出的字符串可能含裸 C1 控制字符（U+0080–U+009F），不是损坏 |
 | `scan_resolver.json` | `export_scan_resolver.py` | `resolve_scan` 的 77 个用例，比较 `trace[*].source`；优先次序为 explicit > 用户档位表 > 偏好 > 出厂档位表 > keep-current |
 | `tip_crash.json` | `export_tip_crash.py` | `TipCrashTracker` 的状态脚本，依次执行 record / count / blocked / points / recover / tick / snapshot |
 | `tip_policy.json` | `export_tip_policy.py` | `resolve_policy` 与 `resolve_conditioning`：12 支针尖 × 23 个请求，共 276 例，111 例拒绝。超上限时拒绝而非夹紧；`shaper_depth_at_limit` 覆盖恰好等于上限 |
 | `instrument_profile.json` | `export_instrument_profile.py` | 22 个配置清理用例、16 个 `get_config` 用例、5 个 `z_extend_sign` 用例、4 个倾斜标定用例；`ablated_keys` 明列当前排除的 29 个参考键 |
 | `coarse_drive.json` | `export_coarse_drive.py` | `authorize` / `readback_matches` 各覆盖 4 种声明状态 × 15 / 12 个用例；完整拒绝文本逐字比较 |
 | `z_settle.json` | `export_z_settle.py` | `ZSettle`、`RetractForSampleChange._judge_recede` 与 `RelocateCoarseXY._judge_recede` 两套不同措辞的方向判定，以及位移与阶梯规则；10 个读数形状、两组各 15 个方向用例、8 个无位移用例 |
-| `batch5b.json` | `export_batch5b.py` | 74 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定与扫描观察 |
+| `batch5b.json` | `export_batch5b.py` | 104 个脚本化上下文用例，覆盖区域批处理、偏压、电流分类／监测、PSD、恢复、热稳定、扫描观察、粗动 Z 方向换算（`motor_z/*` 带档案状态 `state`）与粗动组、保留数字口（`motor_group/*` 带接线配置 `state.motor_groups`） |
 | `lattice.json` | `export_lattice.py` | 晶格、纹理与相关技能；使用合成 `.sxm` 的同一字节输入，保存条件数，按相应算法比较峰值、几何量和判定结果 |
 | `visual_memory.json` | `export_visual_memory.py` | 视觉线束（VISUAL-HARNESS D12）的显示约定：显示尺度、显示↔扫描 nm 换算（含旋转与降采样帧）、五种去衬底、对比度与灰度、精确区域视图的像素、读值的格中心采样、标签与定点数文本、模型单位与小数位、取整（单值 Python `round`、数组 `np.round`）与稳健跨度，以及一个合成档案的帧摘要、观测标签与 `inspect` / `read_values` 解析后回复（连同模型读到的键顺序），和读回的索引记录（存扫描帧、谱帧）的摘要；以及方格纸：格距选择、格线所在像素、带格线视图的像素，和开启方格纸的档案的观测标签、`inspect` 回复与图像像素；以及谱（2026-10-12）：按控制器文本格式合成的 `.dat` 经参考 `Archive.add_spectrum` 入档后的帧摘要、观测标签、`inspect` 谱视图（折线图的标签与图像尺寸，不比像素）与 `read_values` 谱视图的解析后回复（连同键顺序）、谱视图的拒绝文案，以及各宽度与面板数下的图像尺寸。运行 VISTA-SPM 的 `vista_spm` 参考实现（需 NumPy、SciPy、Pillow 与 matplotlib；`.dat` 经 MAST 的 `mast.io.nanonis_files.read_dat` 读取，故另需 `MAST_ROOT`，只导入该模块及两级 `__init__`，仅依赖 NumPy），输入为合成帧与合成谱，档案建在临时目录、用后删除，记录参考文件（含 `viewtools.py` 与 MAST 的 `nanonis_files.py`）的 sha256 与 matplotlib 版本。当前金样以 Python 3.14.3、NumPy 2.4.3、SciPy 1.17.1、matplotlib 3.10.8 导出；换解释器或 NumPy 后须核对旧节逐值不变 |
 | `measure_profile.json` | `export_measure_profile.py` | 测量工具 `stm_line_profile` / `stm_frame_stats` 对应的参考 `line_profile` / `stats`：三个合成档案（`display_max` 768、64 与 803）中按顺序的每次调用（参数、解析后的回复与键顺序、图像标签与尺寸、拒绝文案），每条剖面内部 `change_points` 的精确输入输出（包装模块属性记录，不改调用），`change_points` 单独的参考单测输入与边界情形，以及 CPython `math.hypot`（剖面样点数为 `ceil(L) + 1`）。输入帧为合成、带种子，以 float32 base64 存；需 NumPy、SciPy、Pillow 与 matplotlib（只为参考画图，金样只记图的尺寸）；记录参考文件的 sha256 与库版本 |

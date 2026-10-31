@@ -211,16 +211,52 @@ describe('ConfigureScan ③ 伸出压电量程就拒 —— 那 15 % 不是数�
 })
 
 describe('ConfigureScan ④ 通道与速度', () => {
-  it('通道对不上就**跳过**，不猜，也不让整件事失败', async () => {
+  const bufferSets = (rig: Rig): unknown[][] => rig.calls.filter((c) => c.verb === 'Scan_BufferSet').map((c) => c.args)
+  const source = (res: SkillResultLike): unknown => (res.data as Record<string, unknown>)['channels_source']
+
+  it('请求的通道有一个对不上 ⇒ **整组不设**，保持操作员当前的通道，并说出来（D-SCAN-6）', async () => {
+    // 只设对上的那部分，等于把操作员要的其它通道悄悄砍掉
     const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Nope' })
     expect(res.success).toBe(true)
-    const buf = rig.calls.find((c) => c.verb === 'Scan_BufferSet')
-    expect(buf?.args[0]).toEqual([1]) // 只有 Z 对上了（索引 1）
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged_partial_match')
   })
 
-  it('一个都对不上 ⇒ **不发** `Scan_BufferSet`', async () => {
-    const { rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Nope' })
-    expect(rig.calls.some((c) => c.verb === 'Scan_BufferSet')).toBe(false)
+  it('一个都对不上 ⇒ 同样不设，同样说出来', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Nope' })
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged_partial_match')
+  })
+
+  it('全部对上 ⇒ 整组设好，`set`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Current' })
+    expect(bufferSets(rig)).toEqual([[[1, 0], 0, 0]])
+    expect(source(res)).toBe('set')
+  })
+
+  it('全部对上而仪器拒了 `Scan_BufferSet` ⇒ 整件事照样成功，但报 `set_failed`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z,Current' }, {
+      errors: { Scan_BufferSet: 'NanonisError: buffer locked' },
+    })
+    expect(res.success).toBe(true)
+    expect(bufferSets(rig)).toEqual([[[1, 0], 0, 0]])
+    expect(source(res)).toBe('set_failed')
+  })
+
+  it('读不到信号名清单（读失败，或回包里没有名字表）⇒ 不设，`unchanged_read_failed`', async () => {
+    for (const signals of [null, []]) {
+      const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: 'Z' }, { signals })
+      expect(res.success, JSON.stringify(signals)).toBe(true)
+      expect(bufferSets(rig), JSON.stringify(signals)).toEqual([])
+      expect(source(res), JSON.stringify(signals)).toBe('unchanged_read_failed')
+    }
+  })
+
+  it('没请求通道 ⇒ 名字表都不读，`unchanged`', async () => {
+    const { res, rig } = await run(ConfigureScan, { ...FRAME, angle_deg: 0, channels: '' })
+    expect(rig.calls.some((c) => c.verb === 'Signals_NamesGet')).toBe(false)
+    expect(bufferSets(rig)).toEqual([])
+    expect(source(res)).toBe('unchanged')
   })
 
   it('速度由档位表推导，`line_time_source` 说得出是谁定的', async () => {
@@ -320,6 +356,23 @@ describe('StartScan 的闸：不发起一次停不下来的扫描', () => {
     const { rig } = await run(StartScan, {}, { props: [propsBody({ series: 'Au111' })] })
     const set = rig.calls.find((c) => c.verb === 'Scan_PropsSet')
     expect(set?.args[3]).toBe('Au111')
+  })
+
+  it('序列名写回前还原成真字符：读到的是二进制串，请求侧再按 UTF-8 编一次就双重编码了', async () => {
+    // `*-c` 的回复是逐字节一字符的串。把「数据」的 UTF-8 字节（E6 95 B0 E6 8D AE）原样当文本写回，
+    // 每个字节都会被编成两个字节；参考实现在这里就是这样坏的，我们不照抄（D-WIRE-4）。
+    const utf8 = Buffer.from('数据_Au111', 'utf8').toString('latin1')
+    const gbk = Buffer.from([0xca, 0xfd, 0xbe, 0xdd, 0x5f, 0x41, 0x75, 0x31, 0x31, 0x31]).toString('latin1')
+    const odd = Buffer.from([0x41, 0xff, 0xfe]).toString('latin1')
+    for (const [series, want] of [
+      [utf8, '数据_Au111'],
+      [gbk, '数据_Au111'],
+      [odd, odd], // 两样都读不通：原样，不替字节编一个字符
+    ] as const) {
+      const { rig } = await run(StartScan, {}, { props: [propsBody({ series })] })
+      const set = rig.calls.find((c) => c.verb === 'Scan_PropsSet')
+      expect(set?.args[3]).toBe(want)
+    }
   })
 
   it('方向只能是 down / up，**不猜**', async () => {

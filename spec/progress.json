@@ -1,13 +1,13 @@
 {
-  "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的 515 条，不是任何一份手写清单。",
+  "_note": "由 `node scripts/build-progress.ts` 生成。分母是 spec/golden/skills.json 的全部条目，不是任何一份手写清单。",
   "totals": {
-    "skills": 515,
+    "skills": 568,
     "done": 442,
     "partial": 0,
-    "todo": 73
+    "todo": 126
   },
   "modules_complete": 112,
-  "modules_total": 165,
+  "modules_total": 178,
   "modules": {
     "builtins.acquire_osci_trace": {
       "total": 3,
@@ -319,8 +319,38 @@
       "done": 1,
       "complete": true
     },
+    "builtins.optics_alignment": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_aotf_pmt": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_camera": {
+      "total": 9,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_motor_groups": {
+      "total": 2,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_polarization": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
     "builtins.optics_pump_probe": {
       "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "builtins.optics_satellite_manual": {
+      "total": 9,
       "done": 0,
       "complete": false
     },
@@ -329,8 +359,13 @@
       "done": 1,
       "complete": false
     },
+    "builtins.optics_spectro": {
+      "total": 9,
+      "done": 0,
+      "complete": false
+    },
     "builtins.optics_stage": {
-      "total": 8,
+      "total": 12,
       "done": 0,
       "complete": false
     },
@@ -729,6 +764,36 @@
       "done": 0,
       "complete": false
     },
+    "composite.ters_align": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.ters_map": {
+      "total": 3,
+      "done": 0,
+      "complete": false
+    },
+    "composite.ters_nearfar": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.ters_point": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.ters_pump_probe": {
+      "total": 1,
+      "done": 0,
+      "complete": false
+    },
+    "composite.ters_series": {
+      "total": 4,
+      "done": 0,
+      "complete": false
+    },
     "composite.tip_pulse": {
       "total": 1,
       "done": 1,
@@ -892,7 +957,7 @@
       "safety": "confirm",
       "spec": true,
       "model": true,
-      "traces": 14,
+      "traces": 15,
       "impl": true,
       "status": "done"
     },
@@ -956,13 +1021,23 @@
       "impl": true,
       "status": "done"
     },
+    "AcquireSpectrum": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "AcquireZSpectr": {
       "module": "builtins.spectroscopy",
       "category": "write",
       "safety": "confirm",
       "spec": true,
       "model": true,
-      "traces": 5,
+      "traces": 8,
       "impl": true,
       "status": "done"
     },
@@ -1436,6 +1511,36 @@
       "impl": false,
       "status": "todo"
     },
+    "CameraSnapshot": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CameraStartLive": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "CameraStopLive": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "CaptureSignalBuffer": {
       "module": "builtins.capture_signal_buffer",
       "category": "read",
@@ -1866,6 +1971,16 @@
       "impl": true,
       "status": "done"
     },
+    "ConfigureSpectrometer": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "ConfigureSpectrumAnalyzer": {
       "module": "builtins.spectrum_analyzer",
       "category": "write",
@@ -1915,6 +2030,16 @@
       "traces": 3,
       "impl": true,
       "status": "done"
+    },
+    "ConnectCamera": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "ContinuousImaging_Auto": {
       "module": "paper.autonomous",
@@ -2075,6 +2200,26 @@
       "traces": 1,
       "impl": true,
       "status": "done"
+    },
+    "DisconnectCamera": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "DisconnectOpticalDevice": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "DrawScanMarker": {
       "module": "builtins.marks",
@@ -2345,6 +2490,16 @@
       "traces": 4,
       "impl": true,
       "status": "done"
+    },
+    "GetCameraStatus": {
+      "module": "builtins.optics_camera",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "GetChamberPressure": {
       "module": "builtins.chamber",
@@ -2666,6 +2821,16 @@
       "impl": true,
       "status": "done"
     },
+    "GetOpticalStageStatus": {
+      "module": "builtins.optics_stage",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "GetOsciTimebases": {
       "module": "builtins.acquire_osci_trace",
       "category": "read",
@@ -2856,6 +3021,16 @@
       "impl": true,
       "status": "done"
     },
+    "GetPicomotorSteps": {
+      "module": "builtins.optics_alignment",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "GetPiezoConfig": {
       "module": "builtins.readback",
       "category": "read",
@@ -2965,6 +3140,16 @@
       "traces": 3,
       "impl": true,
       "status": "done"
+    },
+    "GetPolarizerAngle": {
+      "module": "builtins.optics_polarization",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "GetPreamp": {
       "module": "builtins.optional_controllers",
@@ -3166,6 +3351,16 @@
       "impl": true,
       "status": "done"
     },
+    "GetSatelliteDeviceStatus": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "GetScanBuffer": {
       "module": "builtins.scan_extra",
       "category": "read",
@@ -3295,6 +3490,16 @@
       "traces": 3,
       "impl": true,
       "status": "done"
+    },
+    "GetSpectrometerStatus": {
+      "module": "builtins.optics_spectro",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "GetSpectroscopyConfig": {
       "module": "builtins.readback",
@@ -3596,6 +3801,16 @@
       "impl": false,
       "status": "todo"
     },
+    "HomePolarizer": {
+      "module": "builtins.optics_polarization",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "HomeZController": {
       "module": "builtins.instrument_limits",
       "category": "write",
@@ -3605,6 +3820,16 @@
       "traces": 5,
       "impl": true,
       "status": "done"
+    },
+    "IdentifySatelliteDevice": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "IdentifyTopology_CARP": {
       "module": "paper.region_analysis",
@@ -3625,6 +3850,16 @@
       "traces": 1,
       "impl": true,
       "status": "done"
+    },
+    "LaserFocusMap": {
+      "module": "composite.ters_align",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "LevelLines_Median": {
       "module": "paper.data_processing",
@@ -3656,6 +3891,16 @@
       "impl": true,
       "status": "done"
     },
+    "ListNanonisMotorGroups": {
+      "module": "builtins.optics_motor_groups",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "ListNanonisScripts": {
       "module": "builtins.nanonis_script",
       "category": "read",
@@ -3668,6 +3913,16 @@
     },
     "ListOpticalDevices": {
       "module": "builtins.optics_stage",
+      "category": "read",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ListSatellites": {
+      "module": "builtins.optics_spectro",
       "category": "read",
       "safety": "auto",
       "spec": false,
@@ -3936,6 +4191,26 @@
       "impl": true,
       "status": "done"
     },
+    "MoveXYZStage": {
+      "module": "builtins.optics_alignment",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "NanonisMotorGroupMove": {
+      "module": "builtins.optics_motor_groups",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "OpenPatternExperiment": {
       "module": "builtins.pattern",
       "category": "write",
@@ -3968,6 +4243,16 @@
     },
     "OpticalStageScan": {
       "module": "builtins.optics_scan",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "OpticalStageServo": {
+      "module": "builtins.optics_stage",
       "category": "write",
       "safety": "confirm",
       "spec": false,
@@ -4066,6 +4351,46 @@
       "impl": true,
       "status": "done"
     },
+    "PicomotorAbort": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PicomotorJog": {
+      "module": "builtins.optics_alignment",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PicomotorMoveAbs": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "PicomotorSetZero": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "PokeConditionTip": {
       "module": "composite.prepare_noble_tip",
       "category": "composite",
@@ -4156,6 +4481,16 @@
       "impl": false,
       "status": "todo"
     },
+    "PumpProbeSpectral": {
+      "module": "composite.ters_pump_probe",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "QueryMonitorHistory": {
       "module": "builtins.history_query",
       "category": "analysis",
@@ -4190,6 +4525,16 @@
       "module": "builtins.hardware_events",
       "category": "read",
       "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "ReadPmt": {
+      "module": "builtins.optics_aotf_pmt",
+      "category": "read",
+      "safety": "confirm",
       "spec": false,
       "model": true,
       "traces": 0,
@@ -4536,6 +4881,16 @@
       "impl": true,
       "status": "done"
     },
+    "SetAotfWavelength": {
+      "module": "builtins.optics_aotf_pmt",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "SetBias": {
       "module": "builtins.bias",
       "category": "write",
@@ -4575,6 +4930,36 @@
       "traces": 3,
       "impl": true,
       "status": "done"
+    },
+    "SetCameraExposure": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetCameraGain": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetCameraROI": {
+      "module": "builtins.optics_camera",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "SetCurrentCalibration": {
       "module": "builtins.current",
@@ -4786,6 +5171,16 @@
       "impl": true,
       "status": "done"
     },
+    "SetOpticalStageVelocity": {
+      "module": "builtins.optics_stage",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "SetOsciTimebase": {
       "module": "builtins.acquire_osci_trace",
       "category": "write",
@@ -4956,6 +5351,26 @@
       "impl": true,
       "status": "done"
     },
+    "SetPicomotorAccel": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPicomotorVelocity": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "SetPiezoHysteresisOnOff": {
       "module": "builtins.piezo",
       "category": "write",
@@ -5036,6 +5451,16 @@
       "impl": true,
       "status": "done"
     },
+    "SetPmtHighVoltage": {
+      "module": "builtins.optics_aotf_pmt",
+      "category": "write",
+      "safety": "dangerous",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "SetPointShootExperiment": {
       "module": "builtins.folme",
       "category": "write",
@@ -5065,6 +5490,26 @@
       "traces": 5,
       "impl": true,
       "status": "done"
+    },
+    "SetPolarizerAngle": {
+      "module": "builtins.optics_polarization",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetPolarizerVelocity": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "SetProbeBias": {
       "module": "builtins.optional_multiprobe",
@@ -5235,6 +5680,36 @@
       "traces": 6,
       "impl": true,
       "status": "done"
+    },
+    "SetSpectrometerCenter": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSpectrometerExitPort": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "SetSpectrometerGrating": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "SetSpectroscopyPulseSync": {
       "module": "builtins.spectroscopy_sync",
@@ -5696,6 +6171,26 @@
       "impl": true,
       "status": "done"
     },
+    "StopSatelliteDevice": {
+      "module": "builtins.optics_satellite_manual",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "StopSatelliteDevices": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
     "StopScan": {
       "module": "builtins.imaging",
       "category": "write",
@@ -5705,6 +6200,16 @@
       "traces": 3,
       "impl": true,
       "status": "done"
+    },
+    "StopSpectrometer": {
+      "module": "builtins.optics_spectro",
+      "category": "write",
+      "safety": "auto",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
     },
     "StopTcpLog": {
       "module": "builtins.datalog",
@@ -5758,6 +6263,96 @@
     },
     "SurveySurface_TileScan": {
       "module": "composite.survey_surface",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSBiasSeries": {
+      "module": "composite.ters_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSGridMap": {
+      "module": "composite.ters_map",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSLineProfile": {
+      "module": "composite.ters_map",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSNearFarPair": {
+      "module": "composite.ters_nearfar",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSPointSpectrum": {
+      "module": "composite.ters_point",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSPolarizationSeries": {
+      "module": "composite.ters_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSSetpointSeries": {
+      "module": "composite.ters_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSTimeSeries": {
+      "module": "composite.ters_series",
+      "category": "composite",
+      "safety": "confirm",
+      "spec": false,
+      "model": true,
+      "traces": 0,
+      "impl": false,
+      "status": "todo"
+    },
+    "TERSTriggeredMap": {
+      "module": "composite.ters_map",
       "category": "composite",
       "safety": "confirm",
       "spec": false,

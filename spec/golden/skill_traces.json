@@ -1212,12 +1212,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1236,9 +1250,25 @@
           "f0_hz": null,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1332,17 +1362,31 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
             "args": [],
-            "error": "模拟故障：连接被对端关闭",
+            "error": "",
             "kwargs": {
               "role": "main"
             },
@@ -1356,9 +1400,17 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1366,6 +1418,117 @@
           "z_sweep_distance_m": 5.005e-09
         },
         "error": "曲线块解不开,也没找到对应的 .dat",
+        "success": false,
+        "summary": ""
+      },
+      "err@11": {
+        "calls": [
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_OutOnOffGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_CenterFreqGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_FreqShiftGet"
+          },
+          {
+            "args": [
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "PLL_AmpCtrlSetpntGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              [
+                0,
+                14,
+                2
+              ]
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_ChsSet"
+          },
+          {
+            "args": [
+              0.0,
+              5.005e-09
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_RangeSet"
+          },
+          {
+            "args": [
+              1,
+              16,
+              1,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {},
+        "error": "Δf(z) 采集失败: 模拟故障：连接被对端关闭",
         "success": false,
         "summary": ""
       },
@@ -1452,12 +1615,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1476,9 +1653,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1572,12 +1765,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1596,9 +1803,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1692,12 +1915,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1716,9 +1953,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1812,12 +2065,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1836,9 +2103,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -1932,12 +2215,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -1956,9 +2253,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -2052,12 +2365,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 371.70000000000005
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -2076,9 +2403,18 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 371.7,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 242.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 242.0,
+            "npts": 4,
+            "nsweeps": 11,
+            "per_point_s": 2.25
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -2172,12 +2508,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -2196,9 +2546,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -2292,17 +2658,70 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
-            "error": "模拟故障：连接被对端关闭",
-            "kwargs": {},
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {
+              "role": "main"
+            },
+            "verb": "Util_SessionPathGet"
           }
         ],
-        "data": {},
-        "error": "Δf(z) 采集失败: 模拟故障：连接被对端关闭",
+        "data": {
+          "acquisition_complete": true,
+          "amplitude_setpoint_m": 0.25,
+          "df_rest_hz": 0.25,
+          "f0_hz": 0.25,
+          "num_points": 16,
+          "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
+          "save_basename": null,
+          "sign_convention": "z_rel 从 0 起、向表面为负",
+          "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
+          "warnings": [
+            "dat_attribution_failed"
+          ],
+          "z_offset_m": 0.0,
+          "z_sweep_distance_m": 5.005e-09
+        },
+        "error": "曲线块解不开,也没找到对应的 .dat",
         "success": false,
         "summary": ""
       },
@@ -2389,12 +2808,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 371.70000000000005
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -2413,9 +2846,18 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 371.7,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 242.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 242.0,
+            "npts": 4,
+            "nsweeps": 11,
+            "per_point_s": 2.25
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -2509,12 +2951,26 @@
             "verb": "Util_SessionPathGet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           },
           {
@@ -2533,9 +2989,25 @@
           "f0_hz": 0.25,
           "num_points": 16,
           "parse_error": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -4651,19 +5123,49 @@
             "verb": "ZSpectr_PropsSet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           }
         ],
         "data": {
           "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
           "spectrum_parsed": false,
-          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          }
         },
         "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
         "success": false,
@@ -4691,19 +5193,49 @@
             "verb": "ZSpectr_PropsSet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           }
         ],
         "data": {
           "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
           "spectrum_parsed": false,
-          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          }
         },
         "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
         "success": false,
@@ -4731,19 +5263,42 @@
             "verb": "ZSpectr_PropsSet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 371.70000000000005
+            },
             "verb": "ZSpectr_Start"
           }
         ],
         "data": {
           "acquisition_complete": true,
+          "recv_timeout_s": 371.7,
           "spectrum_parsed": false,
-          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 242.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 242.0,
+            "npts": 4,
+            "nsweeps": 11,
+            "per_point_s": 2.25
+          }
         },
         "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
         "success": false,
@@ -4771,17 +5326,226 @@
             "verb": "ZSpectr_PropsSet"
           },
           {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      },
+      "err@3": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "模拟故障：连接被对端关闭",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
+        "success": false,
+        "summary": ""
+      },
+      "err@4": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "模拟故障：连接被对端关闭",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           }
         ],
         "data": {},
         "error": "模拟故障：连接被对端关闭",
+        "success": false,
+        "summary": ""
+      },
+      "mismatch": {
+        "calls": [
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_Open"
+          },
+          {
+            "args": [
+              0,
+              0,
+              0,
+              1,
+              2,
+              1
+            ],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsSet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
+            "args": [
+              1,
+              ""
+            ],
+            "error": "",
+            "kwargs": {
+              "recv_timeout_s": 371.70000000000005
+            },
+            "verb": "ZSpectr_Start"
+          }
+        ],
+        "data": {
+          "acquisition_complete": true,
+          "recv_timeout_s": 371.7,
+          "spectrum_parsed": false,
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 242.0,
+          "sweep_settings": {
+            "backward": true,
+            "core_s": 242.0,
+            "npts": 4,
+            "nsweeps": 11,
+            "per_point_s": 2.25
+          }
+        },
+        "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
         "success": false,
         "summary": ""
       },
@@ -4807,19 +5571,49 @@
             "verb": "ZSpectr_PropsSet"
           },
           {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_PropsGet"
+          },
+          {
+            "args": [],
+            "error": "",
+            "kwargs": {},
+            "verb": "ZSpectr_TimingGet"
+          },
+          {
             "args": [
               1,
               ""
             ],
             "error": "",
-            "kwargs": {},
+            "kwargs": {
+              "recv_timeout_s": 855.0
+            },
             "verb": "ZSpectr_Start"
           }
         ],
         "data": {
           "acquisition_complete": true,
+          "recv_timeout_s": 855.0,
           "spectrum_parsed": false,
-          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)"
+          "spectrum_unparsed_reason": "6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7)",
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "end_settling_time_s",
+              "initial_settling_time_s",
+              "integration_time_s",
+              "max_slew_rate_v_per_s",
+              "settling_time_s",
+              "z_averaging_time_s",
+              "z_control_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          }
         },
         "error": "扫掠跑完了,但返回的数据块解不开(6×7 装不下这段数据: cannot reshape array of size 4 into shape (6,7))。这个技能不落盘,内联返回是唯一的一份 —— 这次采集没有留下任何可用的谱。",
         "success": false,
@@ -92139,8 +92933,11 @@
             "verb": "Motor_PosGet"
           }
         ],
-        "data": {},
-        "error": "模拟故障：连接被对端关闭",
+        "data": {
+          "group": 0,
+          "position_feedback": false
+        },
+        "error": "无位置反馈：Motor_PosGet(group 0) 报错 —— 这台粗动控制器不提供位置（回包里的 0 不是位置）。Nanonis: 模拟故障：连接被对端关闭",
         "success": false,
         "summary": ""
       },
@@ -130553,7 +131350,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130596,7 +131393,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       },
       "err@0": {
         "calls": [
@@ -130616,7 +131413,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130659,7 +131456,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 模块打开）\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 模块打开）\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       },
       "ok": {
         "calls": [
@@ -130678,7 +131475,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130721,7 +131518,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n✅ Tip Shaper 模块：在跑\n❌ 针尖已登记：未登记 —— 安全包络退到保守通用档，流程默认的 10 V 大修脉冲会被拒。先 register_tip。\n❌ 扫描地图可读：读不到（没有活动实验？）—— 换点时无法确认落点是否干净\n✅ 避让半径：脉冲 200 nm / 扎针 30 nm\n⚠ Z 噪声底：未标定（每次从数据现估）。临界浅扎每级 50 pm，真机上先量一下噪声底再跑。\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       }
     }
   },
@@ -130742,7 +131539,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130805,7 +131602,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       },
       "err@0": {
         "calls": [
@@ -130823,7 +131620,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130886,7 +131683,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 打开）\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "❌ 还不能开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n❌ Tip Shaper 模块：读不到: 模拟故障：连接被对端关闭（Nanonis 里把 Tip Shaper 打开）\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       },
       "ok": {
         "calls": [
@@ -130902,7 +131699,7 @@
           "checks": [
             {
               "check": "技能齐全",
-              "detail": "全部就位（本机注册 515 个）",
+              "detail": "全部就位（本机注册 568 个）",
               "ok": true
             },
             {
@@ -130965,7 +131762,7 @@
         },
         "error": "",
         "success": true,
-        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 515 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
+        "summary": "✅ 可以开工\n✅ 技能齐全：全部就位（本机注册 568 个）\n❌ 衬底可解析：读不到当前样品记录，不知道台面上是什么衬底。请显式指定衬底（例如 Au(111)），或先用 start_sample 登记样品。注意：读不到 ≠ 可以按 Au(111) 处理。（配方 1 会直接拒绝执行；配方 2 只是少一项晶格常数核对，仍可跑）\n✅ 评估帧能分辨原子：5 nm / 256 px = 0.0195 nm/px（满权重档）\n✅ 表面态判据自测：合成台阶通过、纯噪声被拒\n✅ 原子相判据自测：合成晶格通过、纯噪声被拒\n✅ 0.3 nm 浅扎在包络内：允许\n✅ 电流监控已豁免锻造流程：三个技能名都被豁免表覆盖\n✅ 修针令牌已覆盖锻造流程：三个技能名都在 TIP_WORK_PATTERNS 里\n✅ 扎针落点记为损伤：两个配方都归入 tip_shape（会生成避让圆）\n✅ Tip Shaper 模块：在跑\n✅ 操作模式：AUTO —— 一次批准跑完整条流程"
       }
     }
   },

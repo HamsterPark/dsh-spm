@@ -19,16 +19,15 @@ Run after setting `MAST_ROOT` to the Python source directory containing the `mas
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 import sys
 import tempfile
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
-os.environ.setdefault("MAST2_PROJECT_ROOT", tempfile.mkdtemp(prefix="mast-spec-export-"))
+isolated_project_root(tempfile.mkdtemp(prefix="mast-spec-export-"))
 
 MAST_ROOT = require_mast_root()
 OUT_SQL = Path(__file__).resolve().parents[2] / "spec" / "golden" / "records_schema.sql"

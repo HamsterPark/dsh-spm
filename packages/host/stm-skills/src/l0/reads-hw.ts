@@ -3,9 +3,18 @@
  *
  * 同 `reads-core.ts`：动词、实参、body 映射与逐字文案都来自轨迹金样。
  */
-import { implausibleReadings, type Skill, type SkillCallRecord, type SkillContext, type SkillResultLike } from 'dsh-spm-kernel'
+import {
+  implausibleReadings,
+  stmCoarseGroup,
+  stmGroupRefusal,
+  type Skill,
+  type SkillCallRecord,
+  type SkillContext,
+  type SkillResultLike,
+} from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { bool, body, fail, int, num, ok, strList } from './common.js'
+import { lastPath } from './wire-text.js'
 
 type Exec = (ctx: SkillContext, params: Readonly<Record<string, unknown>>) => Promise<SkillResultLike>
 
@@ -119,16 +128,32 @@ export const GetMotorFreqAmp = read(
   () => [0],
 )
 
-export const MotorGetPos = read(
-  S.MotorGetPosSpec,
-  'Motor_PosGet',
-  (r) => {
-    const [x, y, z] = [num(r, 0), num(r, 1), num(r, 2)]
-    if (x === null || y === null || z === null) return ok({ raw: [...body(r)] })
+/**
+ * 粗动位置。问的是**配置的 STM 粗动组**（`stmCoarseGroup()`），不是写死的组 0；
+ * 组取不到（接线配置损坏）就不问，一次 `Motor_*` 都不发。
+ *
+ * 出错时的措辞逐字来自参考实现（7.1.0 `motor.py` 的 MotorGetPos）：控制器报错说明它
+ * **不提供位置**，而回包里仍带着的 `[0, 0, 0]` 不是位置，不能当位置交出去。
+ * 成功路径与以前一字不差 —— 不加 `group` / `position_feedback`（只有出错时带）。
+ */
+export const MotorGetPos: Skill = {
+  spec: S.MotorGetPosSpec,
+  execute: async (ctx: SkillContext): Promise<SkillResultLike> => {
+    const stm = stmCoarseGroup()
+    if (!stm.ok) return fail(stmGroupRefusal(stm.why))
+    const rec = await ctx.safeCall('Motor_PosGet', stm.group, 500)
+    if (rec.error !== undefined && rec.error !== '') {
+      return fail(
+        `无位置反馈：Motor_PosGet(group ${stm.group}) 报错 —— 这台粗动控制器不提供位置（回包里的 0 不是位置）。` +
+          `Nanonis: ${rec.error}`,
+        { position_feedback: false, group: stm.group },
+      )
+    }
+    const [x, y, z] = [num(rec, 0), num(rec, 1), num(rec, 2)]
+    if (x === null || y === null || z === null) return ok({ raw: [...body(rec)] })
     return ok({ x_m: x, y_m: y, z_m: z })
   },
-  () => [0, 500],
-)
+}
 
 export const GetMotorStepCounter = read(
   S.GetMotorStepCounterSpec,
@@ -185,22 +210,9 @@ export const GetSafeTipSignal = read(S.GetSafeTipSignalSpec, 'SafeTip_SignalGet'
 
 // ── util / signals ──────────────────────────────────────────────────────────
 
-/**
- * body 里**最后一个字符串**。
- *
- * `Util.SessionPathGet` 的 `ResponseTypes = ["i", "*-c"]` ⇒ body 是
- * `[路径字节数, 路径]`，路径跟在它的长度后面。**一个解析器两处用**
- * （读与 `SetSessionPath` 的回读）——回读若由另一份单独写的解析器来读，
- * 它可以自己和自己一致而两边都是错的。
- */
-export function lastString(rec: SkillCallRecord): string {
-  const b = body(rec)
-  for (let i = b.length - 1; i >= 0; i--) if (typeof b[i] === 'string') return b[i] as string
-  return ''
-}
-
+// 会话路径的解析器在 `wire-text.ts`：读、`SetSessionPath` 的回读和各处找文件的目录共用同一个。
 export const GetSessionPath = read(S.GetSessionPathSpec, 'Util_SessionPathGet', (r) =>
-  ok({ session_path: lastString(r) }),
+  ok({ session_path: lastPath(r) }),
 )
 
 export const GetAcqPeriod = read(S.GetAcqPeriodSpec, 'Util_AcqPeriodGet', (r) =>

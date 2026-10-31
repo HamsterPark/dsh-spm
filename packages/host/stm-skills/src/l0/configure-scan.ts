@@ -178,24 +178,41 @@ export const ConfigureScan: Skill = {
       }
     }
 
-    // ── ④ 通道：对不上就**跳过**，不猜 ────────────────────────────────
+    // ── ④ 通道：有一个对不上就**整组不设**，保持操作员当前的通道 ──────────
+    // 这一发对采集通道做了什么（D-SCAN-6）：set（整组设好）/ set_failed（仪器拒了）/
+    // unchanged（没请求）/ unchanged_partial_match（请求里有名字没匹配上，整组不设）/
+    // unchanged_read_failed（读不到信号名清单）。
     const requestedChannels = channelsStr
       .split(',')
       .map((c) => c.trim())
       .filter((c) => c.length > 0)
+    let channelsSource = 'unchanged'
     if (requestedChannels.length > 0) {
       const recSignals = await ctx.safeCall('Signals_NamesGet')
-      if (!failed(recSignals)) {
-        const names = (recSignals.values ?? []).find(
-          (v): v is string[] => Array.isArray(v) && v.length > 0 && typeof v[0] === 'string',
-        )
-        if (names !== undefined) {
-          const idx = requestedChannels
-            .map((ch) => matchSignal(ch, names))
-            .filter((i): i is number => i !== null)
+      const names = failed(recSignals)
+        ? undefined
+        : (recSignals.values ?? []).find(
+            (v): v is string[] => Array.isArray(v) && v.length > 0 && typeof v[0] === 'string',
+          )
+      if (names === undefined) {
+        channelsSource = 'unchanged_read_failed'
+      } else {
+        const idx: number[] = []
+        const missing: string[] = []
+        for (const ch of requestedChannels) {
+          const i = matchSignal(ch, names)
+          if (i === null) missing.push(ch)
+          else idx.push(i)
+        }
+        if (missing.length > 0) {
+          // 只设匹配上的那部分，等于把操作员要的其它通道悄悄砍掉（请求 "Z,Current" 而 "Z"
+          // 没匹配上时，缓冲会只剩 Current）。宁可不动，也不静默砍。
+          channelsSource = 'unchanged_partial_match'
+        } else {
           // `Scan_BufferSet` 失败**不让整件事失败**：帧已经配好了，通道没设上是
-          // 一个可以继续的降级（旧仓同此）。
-          if (idx.length > 0) await ctx.safeCall('Scan_BufferSet', idx, 0, 0)
+          // 一个可以继续的降级（旧仓同此）—— 但要说出来。
+          const recBuf = await ctx.safeCall('Scan_BufferSet', idx, 0, 0)
+          channelsSource = failed(recBuf) ? 'set_failed' : 'set'
         }
       }
     }
@@ -233,6 +250,8 @@ export const ConfigureScan: Skill = {
         piezo_half_x_m: halfX,
         piezo_half_y_m: halfY,
         channels: channelsStr,
+        // 这一发对采集通道实际做了什么（取值见上面 ④）
+        channels_source: channelsSource,
         scan_speed_set: speedSet,
         line_time_s: setScanSpeed ? lt.lineTimeS : null,
         // 「这个速度是谁定的」必须可查。

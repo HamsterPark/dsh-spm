@@ -241,6 +241,37 @@ describe('_parse_excluded（逐格对金样）', () => {
 // `FindFlatRegion`
 // ──────────────────────────────────────────────────────────────────────────
 
+/**
+ * **D-ROT-1**：`rotated` 那一格（`rot30.sxm`，θ=30°）的窗心坐标。
+ *
+ * 金样是参考 v7.1.0 的 R(+θ)，本仓是 R(−θ)（正角 = 顺时针）。这一格两件事都断言：
+ * ① 金样 = R(+θ) —— 参考的旧值还在；参考重钉到修复之后它会红，那时删掉这一支与登记；
+ * ② 本仓 = R(−θ)，其余字段照常逐字段比。
+ * 窗心像素取金样自己的 `pixel_origin` / `window_side_px`，两种方向都在这里独立写，不调 `pxToM`。
+ */
+const ROTATION_DEVIATIONS: ReadonlySet<string> = new Set(['rotated'])
+
+function windowCentreBySign(d: Record<string, any>, sign: 1 | -1): [number, number] {
+  const [ix, iy] = d['pixel_origin'] as [number, number]
+  const n = d['window_side_px'] as number
+  const pixelM = (d['window_side_m'] as number) / n // 方像素
+  const w = d['scan_width_m'] as number
+  const h = d['scan_height_m'] as number
+  const nx = Math.round(w / pixelM)
+  const ny = Math.round(h / pixelM)
+  const a = ((d['scan_angle_deg'] as number) * Math.PI) / 180
+  const ca = Math.cos(a)
+  const sa = Math.sin(a)
+  // 与技能里 `toM(ix + winPx / 2, iy + winPx / 2)` 同一个像素点。
+  const dx = ((ix + n / 2 + 0.5) / nx) * w - w * 0.5
+  const dy = h * 0.5 - ((iy + n / 2 + 0.5) / ny) * h
+  const cx = d['scan_center_x_m'] as number
+  const cy = d['scan_center_y_m'] as number
+  return sign === 1
+    ? [cx + dx * ca - dy * sa, cy + dx * sa + dy * ca]
+    : [cx + dx * ca + dy * sa, cy - dx * sa + dy * ca]
+}
+
 describe('FindFlatRegion', () => {
   const rows = GOLDEN['skills']['FindFlatRegion'] as any[]
   const scales = scalesOf(rows.map(wantOf))
@@ -248,7 +279,22 @@ describe('FindFlatRegion', () => {
     it(row.case as string, async () => {
       const params = realPath(row.params) as Record<string, unknown>
       const got = await FindFlatRegion.execute({} as SkillContext, params)
-      compare(`FindFlatRegion/${row.case}`, got, row, scales, flatTol(row.leveled_span_m as number | null))
+      let want = row
+      if (ROTATION_DEVIATIONS.has(row.case as string)) {
+        const d = row.data as Record<string, any>
+        expect(d['scan_angle_deg']).not.toBe(0)
+        const ref = windowCentreBySign(d, +1)
+        for (const [i, key] of (['center_x_m', 'center_y_m'] as const).entries()) {
+          const r = ref[i] as number
+          const tol = rel(COORD_REL_TOL)(r, scales.get(`.data.${key}`) ?? 0)
+          expect(Math.abs((d[key] as number) - r) <= tol || `① 金样 ${key} = ${d[key]}，R(+θ) 给 ${r}`).toBe(true)
+        }
+        const [x, y] = windowCentreBySign(d, -1)
+        want = structuredClone(row)
+        want.data.center_x_m = x
+        want.data.center_y_m = y
+      }
+      compare(`FindFlatRegion/${row.case}`, got, want, scales, flatTol(row.leveled_span_m as number | null))
     })
   }
 })

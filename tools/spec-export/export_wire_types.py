@@ -1,8 +1,12 @@
 """Nanonis 类型码表的字节金样。
 
 请求侧的字节由**真实客户端** `nanonis_spm`（经 `mast/core/nanonis_patch.py` 打补丁）
-产出——就是跟真机说话的那份代码。回复侧的字节由 STM-Bench 的服务端 codec 产出，
-期望值再用同一个真实客户端解回来。两侧都不是我手写的镜像。
+产出——就是跟真机说话的那份代码。回复侧的字节由 STM-Bench 的服务端 codec 产出；
+回复用例里的 `values` 是喂给 codec 的值（计数字段已补全），**不是**客户端解出来的——
+客户端怎么解这些字节，这份文件没有录。两侧都不是我手写的镜像。
+
+回复里的字符串用例全是 ASCII，逐字节读与 UTF-8 给同一个答案，分不出各种格式的解法。
+参考客户端对非 ASCII 字符串回复的解法录在 `wire_decode.json`（`export_wire_decode.py`）。
 
 Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package, and `STMSIM_ROOT` to the Python source directory containing the `stmsim` package.
 
@@ -19,15 +23,14 @@ import struct
 import sys
 from pathlib import Path
 
-from _paths import require_mast_root, require_stmsim_root
+from _paths import isolated_project_root, require_mast_root, require_stmsim_root
 
-import os
 import tempfile
 
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
 # 2026-09-10 踩到过一次——一个「只读」的导出脚本因为 import 拉起了管理员覆写机制，
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
-os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
+isolated_project_root(tempfile.mkdtemp(prefix='mast-spec-export-'))
 
 MAST_ROOT = require_mast_root()
 STMBENCH_ROOT = require_stmsim_root()

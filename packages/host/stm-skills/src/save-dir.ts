@@ -8,16 +8,17 @@
  * （与参考实现 VISTA-SPM `host.py::_ingest_new_files` 同一个办法）。
  *
  * 与 `GetLatestScanFile` / `SaveScan` / `AcquireSTS` 走同一条路：同一个解析器
- * （`lastString`）、同一个归一（`sessionDir`：报的是目录就用它，是「目录 + 文件名前缀」
- * 就取上级，两个都不是目录给 `null`）。「控制器存在哪」在本仓只该有一种答案。
+ * （`lastPath`：取出路径并还原成真字符）、同一个归一（`sessionDir`：报的是目录就用它，
+ * 是「目录 + 文件名前缀」就取上级，两个都不是目录给 `null`）。「控制器存在哪」在本仓
+ * 只该有一种答案。
  */
 import type { SafeCall } from 'dsh-spm-kernel'
 import { sessionDir } from './l0/frames.js'
-import { lastString } from './l0/reads-hw.js'
+import { lastPath } from './l0/wire-text.js'
 
 /** 控制器当前的保存目录；问不到、或者报的不是一个目录，就是 `null`。 */
 export async function controllerSaveDir(call: { readonly safeCall: SafeCall }): Promise<string | null> {
   const rec = await call.safeCall('Util_SessionPathGet')
   if (rec.error !== undefined && rec.error !== '') return null
-  return sessionDir(lastString(rec))
+  return sessionDir(lastPath(rec))
 }

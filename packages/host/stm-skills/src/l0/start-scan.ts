@@ -47,6 +47,7 @@ import {
   type SkillResultLike,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
+import { decodeWireText } from './wire-text.js'
 
 /**
  * `Scan_PropsGet` 读几次。
@@ -183,7 +184,12 @@ export const StartScan: Skill = {
     // 序列名取自**上面那一次读**，不再单开一发 —— 两次读可以给出不同的答案，而分歧
     // 不是无害的：第一发成功（于是这一整发会下出去）、第二发失败（于是 basename
     // 变成空串）时，写下去的空串会把用户配的文件名前缀打回 `unnamed####`。
-    const basename = seriesName
+    //
+    // 读到的是二进制串（逐字节一字符），而请求侧把字符串按 UTF-8 编码：不先还原成真字符，
+    // 带非 ASCII 字符的前缀每个字节都会被编成两个字节（参考实现在这里就是这样双重编码的）。
+    // 限制：请求侧仍只会发 UTF-8，所以控制器若按别的代码页收发，写回去的是同样的字符、
+    // 不是同样的字节——字节保真要请求侧接受原始字节，不在这里。见 spec/deviations.md D-WIRE-4。
+    const basename = decodeWireText(seriesName)
     const propsWritten = moduleNamesSource === 'read' || moduleNamesSource === 'read_empty'
     if (propsWritten) {
       await ctx.safeCall(

@@ -8,7 +8,7 @@ import type { Skill, SkillContext, SkillResultLike } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { bool, fail, ok } from './common.js'
 import { existingDirs, findLatestSaved, sessionDir } from './frames.js'
-import { lastString } from './reads-hw.js'
+import { lastPath } from './wire-text.js'
 
 const n = (p: Readonly<Record<string, unknown>>, k: string, dflt = 0): number => {
   const v = p[k]
@@ -79,7 +79,7 @@ export function makeSaveScan(opts: SaveScanOptions = {}): Skill {
       // 会话目录问仪器，不猜。
       const dirRec = await ctx.safeCall('Util_SessionPathGet')
       const dir =
-        dirRec.error === undefined || dirRec.error === '' ? lastString(dirRec) : ''
+        dirRec.error === undefined || dirRec.error === '' ? lastPath(dirRec) : ''
       const latest =
         dir !== '' && opts.findLatestSxm !== undefined
           ? opts.findLatestSxm(dir, 120)

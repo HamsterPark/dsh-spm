@@ -62,15 +62,18 @@
  */
 import {
   GraphExecutor,
+  MOTOR_DIR_CODE,
   checkVacuum,
   clearanceLadder,
   formatG,
   getConfig,
-  getRetractDirCode,
   judgeRecedeClearance,
   noDisplacement,
   progressToDict,
   readbackMatches,
+  readRetractDir,
+  stmCoarseGroup,
+  stmGroupRefusal,
   verdictDict,
   zSettleDict,
   zSettleMeasuresGap,
@@ -84,10 +87,12 @@ import {
   type SkillContext,
   type SkillResultLike,
   type StepResult,
+  type StmGroup,
   type ZSettle,
 } from 'dsh-spm-kernel'
 import * as S from '../generated/specs.js'
 import { num } from '../l0/common.js'
+import { Z_DIR_UNREADABLE } from '../l0/writes-gated.js'
 import { runSubSkill } from './run-sub.js'
 import { captureQplusBaseline, qplusFields, qplusRecovered, qplusSaysCrashed } from './tip-evidence.js'
 import { settleAndReadZ } from './z-settle.js'
@@ -154,6 +159,8 @@ class Relocate {
   #temperatureK: number | null = null
   /** 横移前被本流程降下去的偏压原值；`null` = 没降过 / 已放回。 */
   #biasRestore: number | null = null
+  /** 这一趟所有粗动步共用的 Nanonis 电机组；`null` = 还没解析成功。 */
+  #motorGroup: number | null = null
 
   constructor(ctx: SkillContext, params: Readonly<Record<string, unknown>>) {
     this.#ctx = ctx
@@ -256,6 +263,14 @@ class Relocate {
     if (!verdict.allow) {
       return { success: false, error: `真空互锁拒绝粗动:${verdict.reason}`, data: { checks } }
     }
+
+    // 1b. 哪一组马达是 STM 粗动（一台粗动控制器可以带好几组马达，STM 粗动只是其中一组）。
+    //     解析不出来就在任何东西动起来之前拒绝，排在驱动读回之前：后面每一步都要用这个组号。
+    const grp = this.#stmGroup()
+    if (!grp.ok) {
+      return { success: false, error: stmGroupRefusal(grp.why), data: { checks } }
+    }
+    checks['motor_group'] = grp.group
 
     // 2. 驱动幅度**此刻**是多少。声明约束的是 MAST 写什么，它对有人在 Nanonis 界面上
     //    设成了多少一无所知。**读不到就是拒绝** —— 一道看不见的时候会通过的检查不是检查。
@@ -379,13 +394,21 @@ class Relocate {
         }
       }
 
-      const dirCode = getRetractDirCode()
+      // 读不到退针方向就在第一级之前拒绝（D-MOTORZ-1）。不拦的话方向会按出厂 Z+ 发出去，
+      // 而方向自检要的 `z_extend_sign` 同样读不到，梯子要先迈出第一级才停下。
+      const d = readRetractDir()
+      if (d.state === 'unreadable') return { success: false, error: Z_DIR_UNREADABLE, data: { rungs } }
+      const dirCode = d.state === 'declared' ? d.code : MOTOR_DIR_CODE['z+']!
+      // 先方向、后组：两道读档案的拒绝都在第一级之前。预检已经解析并缓存，这里取缓存；
+      // 下面这条拒绝在当前计划下走不到，留着是因为 `#stmGroup()` 不假设预检先跑过。
+      const grp = this.#stmGroup()
+      if (!grp.ok) return { success: false, error: stmGroupRefusal(grp.why), data: { rungs } }
       for (const n of clearanceLadder(prewithdrawSteps)) {
         // 粗动马达迈步**之前**先把压电挪开 —— 一个压电还伸着的粗动步正是这条梯子
         // 要防的那次撞针。（下面的 settle 也会退针，但那一次是为了让**测量**
         // 从一个可重复的地方开始；这一次是安全不变式，而它必须在这一行成立。）
         await this.#ctx.safeCall('ZCtrl_Withdraw', 1, -1)
-        const rec = await this.#ctx.safeCall('Motor_StartMove', dirCode, n, 0, 1)
+        const rec = await this.#ctx.safeCall('Motor_StartMove', dirCode, n, grp.group, 1)
         if (rec.error !== undefined && rec.error !== '') {
           return { success: false, error: `清障退针失败(${n} 步):${rec.error}`, data: { rungs } }
         }
@@ -582,7 +605,15 @@ class Relocate {
       }
     }
 
-    const rec = await this.#ctx.safeCall('Motor_StartMove', DIR_CODE[direction] as number, n, 0, 1)
+    // 排练（dry_run）不下令，所以不用组号；真下令的才取。预检已经缓存了，这里取缓存。
+    // 下面这条拒绝在当前计划下走不到；哪天接上断点续跑、跳过了预检，前面的块可能已经走了，
+    // 所以先停马达撤针再失败（与参考实现同）。
+    const grp = this.#stmGroup()
+    if (!grp.ok) {
+      await this.#panic()
+      return { success: false, error: stmGroupRefusal(grp.why), data: { moved_steps: this.#movedSteps } }
+    }
+    const rec = await this.#ctx.safeCall('Motor_StartMove', DIR_CODE[direction] as number, n, grp.group, 1)
     if (rec.error !== undefined && rec.error !== '') {
       await this.#panic()
       return {
@@ -734,6 +765,20 @@ class Relocate {
     if (want === null) return
     this.#biasRestore = null
     await this.#ctx.safeCall('Bias_Set', want)
+  }
+
+  /**
+   * 这一趟所有粗动步用的 Nanonis 电机组。
+   *
+   * 整次运行只解析一次：中途改了档案，一次移动不能被拆到两个组。**只缓存成功**
+   * —— 失败不缓存，下一个阶段再问一次得到的仍是拒绝，而不是一个陈旧的成功。
+   * 自己判断缓存里有没有：预检、清障、横移各自调用，谁都不假设预检先跑过。
+   */
+  #stmGroup(): StmGroup {
+    if (this.#motorGroup !== null) return { ok: true, group: this.#motorGroup }
+    const g = stmCoarseGroup()
+    if (g.ok) this.#motorGroup = g.group
+    return g
   }
 
   /**

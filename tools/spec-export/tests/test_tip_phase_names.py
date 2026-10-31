@@ -30,16 +30,18 @@ class _SyntheticTree(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = Path(tempfile.mkdtemp(prefix="tip-phase-names-"))
         self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
-        self.root = self.tmp / "mast_root"
+        # 假树放在 `checkout/` 下：`MAST_ROOT` 的上一级算参考树，而兜底的临时目录建在 `self.tmp`，
+        # 两者重叠的话 `isolated_project_root` 会拒绝那个根。
+        self.root = self.tmp / "checkout" / "mast_root"
         self.skills = self.root / "mast" / "skills"
         (self.skills / "builtins").mkdir(parents=True)
 
-        # 导出器 import 时读 MAST_ROOT，还会 `setdefault` 一个 MAST2_PROJECT_ROOT ——
+        # 导出器 import 时读 MAST_ROOT，还会经 `isolated_project_root` 设一个 MAST2_PROJECT_ROOT ——
         # patch.dict 在用例结束时把环境整个还原。
         env = mock.patch.dict(os.environ, {"MAST_ROOT": str(self.root)})
         env.start()
         self.addCleanup(env.stop)
-        # 同一句 `setdefault` 的实参是 `tempfile.mkdtemp(...)`，不管变量设没设都会建一个目录：
+        # `isolated_project_root` 的实参是 `tempfile.mkdtemp(...)`，不管变量设没设都会建一个目录：
         # 让它建在本用例的临时目录里，一并清掉。
         tmpdir = mock.patch.object(tempfile, "tempdir", str(self.tmp))
         tmpdir.start()

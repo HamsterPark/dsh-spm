@@ -5,6 +5,8 @@ Phase 2 是整个项目的承重墙——后面 400 多个技能全部穿过同�
 
 驱动的是**旧仓真实实现** `mast/core/safety.py` 与 `mast/core/execution_context.py`：
 表直接读出来，判定逐条真跑。TS 侧 `packages/host/kernel/src/safety*.ts` 对着比。
+另录 `mast/core/connection.py` 的重发分类 `resend_is_safe`（TS 侧 `transport-policy.ts`）；
+import 它会连带 import `nanonis_spm`，那是参考实现自己的运行依赖。
 
 Run after setting `MAST_ROOT` to the Python source directory containing the `mast` package.
 
@@ -19,15 +21,14 @@ import json
 import sys
 from pathlib import Path
 
-from _paths import require_mast_root
+from _paths import isolated_project_root, require_mast_root
 
-import os
 import tempfile
 
 # ⚠️ **必须在 import mast 之前**：把项目根指到临时目录（PLAN §8.6 的「隔离」）。
 # 2026-09-10 踩到过一次——一个「只读」的导出脚本因为 import 拉起了管理员覆写机制，
 # 在旧仓里新建了一个目录。红线是「只读旧仓」，不是「不弄坏旧仓」。
-os.environ.setdefault('MAST2_PROJECT_ROOT', tempfile.mkdtemp(prefix='mast-spec-export-'))
+isolated_project_root(tempfile.mkdtemp(prefix='mast-spec-export-'))
 
 MAST_ROOT = require_mast_root()
 SPEC = Path(__file__).resolve().parents[2] / "spec"
@@ -36,9 +37,12 @@ OUT = SPEC / "golden" / "safety.json"
 sys.path.insert(0, str(MAST_ROOT))
 from mast.config import SafetyLimits  # noqa: E402
 from mast.core import safety as sf  # noqa: E402
+from mast.core.connection import resend_is_safe  # noqa: E402
 from mast.core import execution_context as ec  # noqa: E402
 from mast.core import sample_gate as sg  # noqa: E402
 from mast.core.types import OperatingMode, ParameterSpec, SkillMetadata  # noqa: E402
+from mast.core.si_quantity import parse_quantity  # noqa: E402
+from mast.skills.builtins.zcontrol import SetSetpoint  # noqa: E402
 
 
 def meta(params: list[tuple[str, str]], **kw) -> SkillMetadata:
@@ -69,6 +73,44 @@ ABSURD_CASES: list[dict] = [
     {"case": "unknown_param", "params": [("bias_v", "V")], "args": {"没这个参数": 1e9}},
     {"case": "non_numeric", "params": [("label", "")], "args": {"label": "abc"}},
     {"case": "bool_not_number", "params": [("flag", "")], "args": {"flag": True}},
+]
+
+
+# ── 全局包络的边界：相对容差 1e-9 ───────────────────────────────────────────
+# `parse_quantity('100n')` 是 100 * 1e-9 = 1.0000000000000001e-07，比 1e-07 的上限大 1 ulp；
+# 参考实现的 `_FLOAT_SLACK` 就是为它存在的。这些格子专卡：恰在界上的写法放行、真越界仍拒、
+# **负下界也向外放**（`min * (1 - slack)` 会把它向内收）、界为 0 时容差为 0。
+# 探针 `meta()` 没有规格级的界，所以这里只验全局包络。
+ENVELOPE_CASES: list[dict] = [
+    {"case": "setpoint_100n_at_ceiling", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "100n"}},
+    {"case": "setpoint_ceiling_as_float", "params": [("setpoint_a", "A")], "args": {"setpoint_a": 1e-07}},
+    {"case": "setpoint_100p5n_over", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "100.5n"}},
+    {"case": "setpoint_101n_over", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "101n"}},
+    {"case": "setpoint_1p_at_floor", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "1p"}},
+    {"case": "setpoint_0p9p_below_floor", "params": [("setpoint_a", "A")], "args": {"setpoint_a": "0.9p"}},
+    {"case": "tip_lift_neg_100n_at_floor", "params": [("tip_lift_m", "m")], "args": {"tip_lift_m": "-100n"}},
+    {"case": "tip_lift_neg_100p5n_under", "params": [("tip_lift_m", "m")], "args": {"tip_lift_m": "-100.5n"}},
+    {"case": "bias_neg10_one_ulp_below", "params": [("bias_v", "V")], "args": {"bias_v": -10.000000000000002}},
+    {"case": "bias_neg_over_slack", "params": [("bias_v", "V")], "args": {"bias_v": -10.0000001}},
+    {"case": "bias_pos10_one_ulp_above", "params": [("bias_v", "V")], "args": {"bias_v": 10.000000000000002}},
+    {"case": "bias_pos_over_slack", "params": [("bias_v", "V")], "args": {"bias_v": 10.0000001}},
+    {"case": "z_pos_zero", "params": [("z_pos", "m")], "args": {"z_pos": 0.0}},
+    # 下界为 0 ⇒ 容差为 0：哪怕只差 1e-30 也是越界
+    {"case": "z_pos_just_below_zero", "params": [("z_pos", "m")], "args": {"z_pos": -1e-30}},
+    # `1600n` 解析成 1.6000000000000001e-06，也比 1.6e-06 的 z_offset 界大 1 ulp
+    {"case": "z_offset_1600n_at_ceiling", "params": [("z_offset_m", "m")], "args": {"z_offset_m": "1600n"}},
+    {"case": "z_offset_neg_1600n_at_floor", "params": [("z_offset_m", "m")], "args": {"z_offset_m": "-1600n"}},
+]
+
+# 规格级上下界：同一个值过参考实现的两层。`SetSetpoint.setpoint_a` 的规格界是 [1e-12, 100e-9]，
+# `SafetyGuard.check_parameter_bounds` 带 1e-9 的相对容差，而 agent 路径与子步骤路径随后还会跑
+# `BaseSkill.validate_params`，它是严格比较。两层给不给同一个答案，决定技能内核的规格级检查该学谁。
+SPEC_BOUND_CASES: list[tuple[str, str]] = [
+    ("100n_at_ceiling", "100n"),
+    ("100p5n_over", "100.5n"),
+    ("101n_over", "101n"),
+    ("1p_at_floor", "1p"),
+    ("0p9p_below_floor", "0.9p"),
 ]
 
 
@@ -193,6 +235,25 @@ ABORT_CASES: list[tuple[str, list]] = [
 ]
 
 
+# ── 可能已经送达的命令能不能再发一次：按第一个实参判的那两个动词 ────────────────
+# 全部动词在无实参时的判定见 `resend_safe`；这里补第一个实参「读得出 / 读不出」的几格。
+RESEND_ARG0_CASES: list[tuple[str, list]] = [
+    ("Scan_Action", [0, 0]),               # 起扫 ⇒ 不可重发
+    ("Scan_Action", [1, 0]),               # 停
+    ("Scan_Action", [2, 0]),               # 暂停
+    ("Scan_Action", [3, 0]),               # 继续 ⇒ 不可重发
+    ("Scan_Action", []),                   # 实参缺失 ⇒ 读不出 ⇒ 不可重发
+    ("Scan_Action", ["start"]),            # 读不出
+    ("AutoApproach_OnOffSet", [1]),        # 开 ⇒ 不可重发
+    ("AutoApproach_OnOffSet", [True]),     # int(True) == 1
+    ("AutoApproach_OnOffSet", [0]),        # 关
+    ("AutoApproach_OnOffSet", [None]),     # 读不出
+    ("AutoApproach_OnOffSet", [1.9]),      # int(1.9) == 1
+    ("AutoApproach_OnOffSet", ["1"]),      # int("1") == 1
+    ("AutoApproach_OnOffSet", ["1.0"]),    # int("1.0") 是 ValueError ⇒ 读不出
+]
+
+
 
 # ── 样品门控（四张表 + 判定顺序 + 两句拒绝文案） ─────────────────────────────
 # **fail-open**，与 instrument_lock 的 fail-closed 刻意相反：
@@ -293,6 +354,14 @@ def main() -> int:
         "read": sum(1 for m in method_names if ec._is_read(m)),
     }
 
+    # 可能已经送达的命令能不能再发一次：全部动词在无实参时的判定，加上按第一个实参判的那几格。
+    # TS 侧的连接层不重发，这张表只决定「可能已执行」的提示与谱学技能的幂等重做。
+    out["resend_safe"] = {m: resend_is_safe(m, ()) for m in method_names}
+    out["resend_arg0_cases"] = [
+        {"method": m, "args": list(a), "safe": resend_is_safe(m, tuple(a))}
+        for m, a in RESEND_ARG0_CASES
+    ]
+
     out["absurd_cases"] = [
         {
             "case": c["case"],
@@ -300,6 +369,34 @@ def main() -> int:
             "violations": sf.physically_absurd_violations(meta(c["params"]), c["args"]),
         }
         for c in ABSURD_CASES
+    ]
+
+    guard = sf.SafetyGuard(SafetyLimits())
+    envelope_rows = []
+    for c in ENVELOPE_CASES:
+        violations = guard.check_parameter_bounds(meta(c["params"]), c["args"])
+        envelope_rows.append({
+            "case": c["case"],
+            "args": c["args"],
+            "violations": violations,
+            "violated": bool(violations),
+            # 哪一侧越界，由违规文本里的 minimum / maximum 派生
+            "sides": sorted({side for side in ("minimum", "maximum") if any(side in v for v in violations)}),
+        })
+    out["envelope_cases"] = envelope_rows
+
+    set_setpoint = SetSetpoint()
+    setpoint_meta = set_setpoint.metadata()
+    out["spec_bound_cases"] = [
+        {
+            "case": label,
+            "value": value,
+            "guard": guard.check_parameter_bounds(setpoint_meta, {"setpoint_a": value}),
+            "validate_params": set_setpoint.validate_params(
+                {"setpoint_a": parse_quantity(value, strict=False, what="setpoint_a")}
+            ),
+        }
+        for label, value in SPEC_BOUND_CASES
     ]
 
     out["hard_gate_cases"] = [
@@ -351,11 +448,14 @@ def main() -> int:
     print(f"       limits {len(out['limits'])} 字段 · global_checks {len(out['global_checks'])} 行 · "
           f"physical_absurd {len(out['physical_absurd'])} 行")
     print(f"       is_read {out['is_read_summary']['read']}/{out['is_read_summary']['total']} 判为读")
+    print(f"       resend_safe {sum(1 for v in out['resend_safe'].values() if not v)}/{len(out['resend_safe'])} "
+          f"不可重发 · resend_arg0 {len(out['resend_arg0_cases'])} 格")
     print(f"       absurd {len(out['absurd_cases'])} · hard_gate {len(out['hard_gate_cases'])} · "
           f"capability {len(out['capability_cases'])} · mode {len(out['mode_refusal_cases'])} · "
           f"abort {len(out['abort_cases'])} · abort_safe_writes {len(out['abort_safe_writes'])} 条")
     print(f"       sample_gate 四表 {sum(len(v) for v in out['sample_gate'].values())} 项 / "
           f"{len(out['sample_gate_cases'])} 条用例")
+    print(f"       envelope {len(out['envelope_cases'])} 格 · spec_bound {len(out['spec_bound_cases'])} 格")
     return 0
 
 

@@ -80,6 +80,51 @@
 
 与 D-SI-1 同一个道理：一个不表示测量值的东西不该被当成测量值放行。
 
+## D-WIRE-4 · 字符串回复按字节读；路径与写回的串再按字节还原
+
+| | |
+|---|---|
+| **参考客户端**（`nanonis_patch.py`） | `*-c` / `*+c` / `**c` 解成 latin-1（逐字节一字符）；`+*c` / `*2c` / 错误段解成 UTF-8（`errors='replace'`）。文件里两处都注明不许「统一」 |
+| **参考实现** | 只有「读保存目录」那一处把会话路径还原成真字符（`_repair_nanonis_path`：依次按 UTF-8、本机 ANSI 代码页、GBK 试，取第一个存在或其上级是目录的）；`GetSessionPath` 技能与其余字符串交出的仍是二进制串。`StartScan` 把读到的系列名原样传回请求侧，而 `nanonis_spm` 把字符串按 UTF-8 编码 ⇒ 每个非 ASCII 字节被编成两个字节 |
+| **本仓此前** | 五种格式一律宽松 UTF-8 解码：非法字节在线协议层就换成 U+FFFD，往上无从还原 |
+| **TS** | ① `nanonis-wire` 分格式解码，与参考客户端一致；前缀说多少字节就读多少字节，计数的读法不变。② `repairWirePath`：UTF-8、GBK、windows-1252 逐个试，取第一个「路径存在或上级是目录」的，否则取第一个能解出来的；`GetSessionPath`、`SetSessionPath` 的回读和各处找文件的目录共用同一个入口 `lastPath`。③ `StartScan` 写回前把系列名交给 `decodeWireText`（严格 UTF-8 → 严格 GBK → 原样），不照抄双重编码 |
+| **测试** | 金样 `spec/golden/wire_decode.json`（五种格式 × 六种内容，期望值由参考客户端解出）与 `packages/instrument/nanonis-wire/src/types.test.ts` → 「字符串回复的解法与真实客户端逐格一致」；同文件 →「字符串回复：二进制串与 UTF-8 分格式解码」（256 个字节值全表、计数仍按字节、`+*c` / `*2c` 仍是 UTF-8）；`packages/host/stm-skills/src/l0/wire-text.test.ts`（逐档与回退、严格解码、GBK 档按结构判、windows-1252 档的码表（P10）、真文件系统、源码扫描）；`packages/host/stm-skills/src/l0/scan-skills.test.ts` → 「序列名写回前还原成真字符」；变异规则 `wire-text-gbk-structure-is-checked-here`（拆掉 GBK 档的结构判断时变红）、`wire-path-cp1252-table-is-ours`（拆掉 windows-1252 档的码表时变红） |
+
+**与参考实现不同的三处**：
+
+1. **第二档。** 参考实现试的是本机 ANSI 代码页；Node 取不到它，这里用 GBK 顶（中文 Windows 上两者相同），
+   再加 windows-1252 作最后一档——它对任何字节都能解，所以总有一个候选。
+
+   GBK 档认哪些字节由本仓按结构判：单字节 0x00–0x80，双字节首字节 0x81–0xFE、尾字节 0x40–0x7E 或 0x80–0xFE；
+   单独的 0xFF 和 GB18030 的四字节序列不算。不交给运行时的解码器，是因为两个受支持的 Node 版本给 `gbk` 的不是
+   同一个：Node 22.19（ICU 77.1）用 CP936 表，把 0xFF 解成私用区的 U+F8F5、四字节序列报错；Node 24（ICU 78.2）
+   用 gb18030，0xFF 报错、四字节序列照解。windows-1252 档的码表也在本仓（0x80–0x9F 的 32 个码位照 WHATWG 的表）：
+   Node 22.19 的 `TextDecoder('windows-1252')` 把这一段当 Latin-1 解成 C1 控制字符，Node 24 的按 WHATWG。
+2. **范围。** `GetSessionPath` 的返回值和 `SetSessionPath` 的回读也还原。回读若还是二进制串，就是拿
+   真字符的请求去比一串字节：带中文的路径永远「未生效」。
+3. **系列名写回不双重编码。** 这是已确认的参考缺陷，不照抄。
+
+**读类显示与参考实现对等**：其余 `*-c` / `*+c` / `**c` 字符串（信号名、通道名……）交出二进制串，
+非 ASCII 的字节原样在其中（可能含裸 C1 控制字符），不再是此前宽松 UTF-8 解出来的真字符。
+Nanonis 自带的名字都是 ASCII，受影响的是用户自己起的非 ASCII 名字。
+
+**为什么有意**：丢字节发生在线协议这一层，往上无从还原——会话路径知道自己是路径、能去盘上验证
+哪种读法是真的，系列名知道自己要写回，而线协议层两样都不知道。二进制串把判断留给知道上下文的人。
+
+**限制**：
+
+- 请求侧仍把字符串按 UTF-8 编码。控制器若真的按别的代码页收发，系列名写回去的是同样的**字符**、
+  不是同样的**字节**；字节保真要请求侧接受原始字节，不在这里。
+- 「真控制器按系统 ANSI 代码页（中文 Windows 上是 GBK）发」是参考实现的推断，没有经过真机验证；
+  STM-Bench 按 UTF-8。GBK 这一档因此是备用读法，不是已验证的行为。
+- `decodeWireText` 没有 windows-1252 这一档：它对任何字节都「成功」，会把读不懂的字节硬解成别的字符
+  再写回仪器。两样都读不通就原样交出，此时写回的仍是双重编码，与参考实现一致。
+- 合法的双字节码里有 101 个，两个 Node 版本解出的码点不同：Node 22 给 CP936 的私用区码点，Node 24 给 GB18030 的
+  标准码点（例如 A2E3 是 U+E76C 与 U+20AC）。认不认相同，解出的字符不同。
+
+**重新考虑的条件**：请求侧能发原始字节时，系列名应按字节写回，`decodeWireText` 这一步随之可以去掉；
+真机上确认了控制器的代码页后，GBK / windows-1252 两档可以改成读控制器声明的那一个。
+
 ## D-SI-4 · 宽松档拒绝 JS 认而 Python 不认的写法（`0x10`、`Infinity`）
 
 | | |
@@ -134,12 +179,17 @@
 |---|---|
 | **Python** | `isinstance(v,(str,int,bool)) and not isinstance(v,float)` —— 含浮点的集合**整条失效**，schema 里既没有 `enum` 也没有 `minimum` |
 | **TS** | `Number.isInteger(v)` —— JSON 里 `1.0` 解析出来就是 `1`，于是 Python 会拒的 `[1.0, 2.0]` 在我们这边成立 |
-| **可观测处** | **只有一处**：`explainValidationError` 的枚举行。Python 印 `{0.5, 1.0}`，我们印 `{0.5, 1}` |
-| **测试** | `tool-schema.test.ts` → `D-SCHEMA-1 在这里**变得可观测**` |
+| **可观测处** | ① `explainValidationError` 的枚举行：Python 印 `{0.5, 1.0}`，我们印 `{0.5, 1}`。② 参考实现 7.1.0 起的模型 schema：11 个 TERS 组合技能的 `adc_mhz`（声明 float，可选 1.0 / 4.0，单位 MHz）在 Python 侧走「有量纲的浮点写成字符串」，schema 是 `string`、没有 `enum`；我们给出整数枚举 `[1, 4]` |
+| **测试** | `tool-schema.test.ts` → `D-SCHEMA-1 在这里**变得可观测**`；`tool-schema-real.test.ts` 逐条断言 ② 的 11 处差异及其形状，其余任何差异照样失败 |
 
-**为什么有意**：信息在 JSON 边界就丢了，TS 侧无从恢复。影响面实测为 **0**——1642 个真参数里
-没有一个含浮点 `allowed_values`。金样用例 `enum_float_rejected` 是合成的，它存在的意义是
-**把这条分支钉住**，不是它有现役调用方。
+**为什么有意**：信息在 JSON 边界就丢了，按值无从恢复。影响面：参考实现 7.1.0 之前为 **0**，
+1642 个真参数里没有一个含浮点 `allowed_values`；7.1.0 起是上面 11 个参数。它们所在的技能属于
+不迁移的排除族（[MIGRATION-TODO §0](../docs/MIGRATION-TODO.md)），没有注册为工具，运行时不受影响。
+金样用例 `enum_float_rejected` 是合成的，它存在的意义是**把这条分支钉住**，不是它有现役调用方。
+
+**重新考虑的条件**：TERS 组合技能进入迁移范围时做精确修复。生成规格与对等测试都借 JSON 原文
+分辨 `1.0` 和 `1`（`JSON.parse` 的 reviver 能拿到 `context.source`），给 `ParameterSpec` 记下
+「可选值含浮点」，`parametersFromSpec` 据此不生成枚举。
 
 顺带记一笔旧仓自身的不一致（我们照抄）：schema 那边把含浮点的枚举整条丢掉，而
 `_explain_validation` 那边**不过滤**——于是同一个参数，模型在 schema 里看不到合法值，
@@ -427,6 +477,8 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 「健康地停在设定点」的那个状态。旧仓自己的注释写着：两者矛盾时**以更悲观的为准**
 （先退针复查，不要直接扫图）。补 lock-in 链路时必须连它一起补。
 
+**补上 qPlus 旁证时的判据（参考实现 7.1.0 起）。** 旁证段不是对所有装置都附。只有「读到了控制器自己的信号表、并且表里没有任何振荡振幅通道」才判定这台装置没有 qPlus 传感器，进针结果不带 qPlus 段——否则纯 STM 装置上每次进针都会多出一句「读不到 PLL 激励状态 —— 判不了是否撞针」，而它的撞针判据先问 PLL，没有 PLL 的装置答不了。振幅通道 = 名字（不区分大小写、空白归一）里同时含振幅词（`amplitude`、`amp`）与振荡词（`oc `、`ocd`、`osc`、`pll`、`excitation`）。以下任一情况都**按「判不了」保留该段**：仪器档案里记着振幅通道索引、信号表读不到或为空、过程中出现任何异常。判据看的是**硬件**，不看针尖登记的形态：在 qPlus 控制器上登记了 STM 针尖时，振幅通道仍是独立证人，不该因为一条登记被拿掉。本仓 `kernel/src/qplus-amplitude.ts` 已有同一组关键词与 `findAmplitudeChannel`/`rememberedIndex`，补旁证时复用，不要写第三份。
+
 ## D-KERNEL-1 · `ctx.runSkill` 不重写第二份闸门清单
 
 | | |
@@ -470,6 +522,16 @@ Python 元组的字面量，只会让诊断指向一个不存在的数据结构�
 看得见，而旧仓哪天改了那句话，这里会跟着变，不会悄悄过期。而且只登记**真的**含
 `before=None` 的那几趟：读得到值的那几趟两边一字不差，给它们挂一条「偏差」等于登记
 一条不存在的差异。
+
+## D-SCAN-6 · `ConfigureScan` 请求的通道有一个没匹配上，就**整组不设**（参考 v7.1.0 设匹配到的那部分）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | 请求 "Z,Current" 而 "Z" 没匹配上信号名时，照样把采集缓冲设成匹配到的那部分（只剩 "Current"），操作员要的其它通道被悄悄砍掉；`Scan_BufferSet` 被拒只写日志。参考仓之后的提交 `7ae1061b` 改为整组不设、保持操作员当前的通道，并在 `data` 里报 `channels_source` |
+| **本仓** | 照移这次修复：有一个请求的名字没匹配上 ⇒ 不发 `Scan_BufferSet`，`unchanged_partial_match`；全部匹配 ⇒ 设，成功为 `set`、被拒为 `set_failed`（整件事照样成功）；读不到信号名清单 ⇒ `unchanged_read_failed`；没请求通道 ⇒ `unchanged`。参考的第六种取值 `unchanged_error` 对应 Python 的 `except Exception`，本仓的 `safeCall` 不抛，这一态走不到，不移 |
+| **测试** | `l0/scan-skills.test.ts` 的 ConfigureScan ④；`l0/traces.test.ts` 的 `ConfigureScan/*` 五格登记（`extra`）；变异 `configure-scan-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，轨迹登记一并删掉。
 
 ## D-FRAME-1 · 候选保存目录只留一个来源
 
@@ -951,6 +1013,21 @@ Nanonis 在 TCP 上按 **float32** 打包，`3e-12` 回来是 `2.999999988012591
 
 本仓现在退回的正是出厂默认 `xy_max_m = 1.5e-6`，而**那就是 2026-08-16 事故里的那个数**；
 宿主把生效限值接上之后这里自动跟着对。
+
+## D-LIMITS-2 · 技能规格级上下界也带 1e-9 的相对容差（参考实现的 agent 路径上它是严格的）
+
+| | |
+|---|---|
+| **Python** | 全局包络（`SafetyGate`、`SafetyGuard`）带 `_FLOAT_SLACK = 1e-9` 的相对容差；规格级上下界只在 `SafetyGuard.check_parameter_bounds` 里带，而 agent 路径与子步骤路径随后还会跑 `BaseSkill.validate_params`，它严格比较（`value > spec.max_value`）。于是规格上界恰好等于全局上界的技能（`SetSetpoint` 等）收到 `'100n'`（解析成 `1.0000000000000001e-07`）仍被拒 |
+| **TS** | K6 对规格级上下界同样带容差 `FLOAT_SLACK × abs(界)`，向外放；文案仍印原界 |
+| **测试** | `packages/host/kernel/src/skill-kernel.test.ts` →「K6 · 技能规格级上下界带 1e-9 的相对容差」；金样 `safety.json` 的 `spec_bound_cases`（记录参考实现两层各自的结论：`100n` 一行 guard 为空、`validate_params` 非空）；变异 `k6-upper-slack-removed`、`k6-lower-slack-removed` |
+
+**为什么有意**：写成 `'100n'` 的人要的就是上限本身，被拒的原因是浮点噪声，不是量级；1e-9 的相对容差
+远小于任何物理分辨率，方向只是放宽 1 ulp 量级。本仓的全局包络已经按参考实现带了同样的容差，若 K6
+仍然严格，同一个值会被包络放行、被技能内核拒绝，两层的答案相反。**这条是放宽，不是移植。**
+
+**重新考虑所需证据**：参考实现把 `validate_params` 也改成带容差（那时这条不再是偏差，只是对齐）；
+或者决定保持严格比较（那时撤掉 K6 的容差，保留 `spec_bound_cases` 的结论，把「保持严格比较」写进本条）。
 
 ## D-NUM-1 · 一个仓里只能有一个 `sum`，而它不是 numpy 的那个
 
@@ -1479,6 +1556,26 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 理由同 D-SCAN-4「回声不是读数」：**一个「我请求了 3000 s」的记账，在一台上限 900 s
 的台架上是假的** —— 而事后看记录的人没有第二个地方可以查真值。
 
+## D-STS-3 补充 · Z 谱与 Δf(z) 同样报真的用上的 recv 预算
+
+| | |
+|---|---|
+| **Python** | `AcquireZSpectr` 与 `AcquireDeltaFCurve` 的 `data["recv_timeout_s"] = round(recv_budget_s, 1)` —— 与 `AcquireSTS` 一样，记的是**请求的**那个数 |
+| **TS** | 记 `ctx.slowCall` 回来的那个数（**已夹到 900 s**）；宿主没接预算口时是 `null`。估算 `sweep_estimate_s` 与明细 `sweep_settings` 照报，不受影响 |
+| **测试** | `l0/spectroscopy.test.ts` 的 Z1（接上 ⇒ 报用上的数）、Z2（没接 ⇒ `null`）、Z3–Z7 与 D1（Δf(z)）；`kernel/src/spectroscopy.test.ts` 的 `opts.why` 四格；`bundle/dsh-spm/src/instrument-calls.test.ts` ①–⑥（⑥ 是缩比的真 TCP：回复晚于缺省超时）；`stm-skills/src/gated-call.test.ts`（预算路径过同一道中止门）；`nanonis-wire/src/role-link.test.ts` 的 recv 预算一格；变异 `zsweep-start-uses-slowcall` / `zsweep-deltaf-start-uses-slowcall` / `zsweep-nsweeps-index` / `zsweep-fallback-names-the-z-sweep` / `zsweep-timing-table-has-no-z-offset` / `gated-budgeted-call-same-gate` |
+
+理由同 D-STS-3 与 D-SCAN-4「回声不是读数」。金样照不出它（夹具里的预算最大 855 s，从来没超过 900 s），
+所以由单测钉住。
+
+最小运行栈现在经 `createInstrumentCalls`（`bundle/dsh-spm/src/instrument-calls.ts`）把预算口接到了
+传输层按调用的 `timeoutMs`，受管与原生两种模式都走它，并且和 `safeCall` 过同一道中止门。
+今天两种入口都不挂谱学技能，所以还没有技能走到这条口；谱学技能一旦挂载，`recv_timeout_s` 在这两种入口上
+是一个数，不是 `null`。
+
+**与偏压谱不同的另一处是回退文案。** Z 谱读不到设定时 `sweep_settings.why` 是
+`读不到 Z 谱扫掠设定，退回保守上限`（逐字照旧仓，多了「Z 谱」两个字），偏压谱仍是
+`读不到扫掠设定，退回保守上限`。回退的数值两边相同（600 s ⇒ 预算 855 s）。Z3 与 Z5 钉住它。
+
 ## D-STS-4 · `.dat` 候选目录只有一个来源（沿用 D-FRAME-1，不新开）
 
 旧仓 `_attach_saved_dat` 走 `_candidate_save_dirs`（四路）。本仓沿用 `GetLatestScanFile`
@@ -1494,6 +1591,16 @@ Python 的 `%.3f` 在半分点上 round-half-even，ECMA-262 的 `toFixed` 明�
 这一条**与旧仓相同**（`True if adv_ok else None`），登记它只是因为它值得被看见：
 **「没设上」不是「设成了 false」。** 一个宣称了 Z-Ctrl Hold、而那个寄存器根本没碰过的
 返回值，正是这一族最想避免的东西（同 D-LOCKIN-1 的 `phase_deg: 0.0`、D-ZERO-1 的反面）。
+
+## D-STS-6 · `ConfigureSTS` 不再把扫掠数打回 1：先读回再原样写（参考 v7.1.0 写死 1）
+
+| | |
+|---|---|
+| **参考实现（v7.1.0）** | `BiasSpectr_PropsSet` 的扫掠数写死为 1，操作员在 Nanonis 里设的多次平均每配置一次就被重置一次。参考仓之后的提交 `7ae1061b` 改为：缺省先 `BiasSpectr_PropsGet` 读回当前值（`var[1]`，≥ 1 才算数，读法包在幂等重试里）并原样写回；读不到时退回 1 并标 `num_sweeps_source = fallback_unreadable`；同时新增 `num_sweeps` 参数（≥ 1 时显式覆盖） |
+| **本仓** | 照这次修复的**缺省行为**走：PropsSet 之前读回扫掠数（`BiasSpectr_PropsGet`，传输层失败时与同技能的其它步骤一样隔 1 s 重读一次），读到 ⇒ 原样写、`preserved`；读不到或不是 ≥ 1 的数 ⇒ 写 1、`fallback_unreadable`。`data` 多 `num_sweeps`、`num_sweeps_source`，调用序列多一发 `BiasSpectr_PropsGet`。参考新增的 `num_sweeps` 参数**没有加**：本仓的技能规格由参考金样生成，等重钉时一并进来，所以也没有 `override` 这一种来源 |
+| **测试** | `l0/spectroscopy.test.ts`（保持、读不到、读到 0、回包不到两项、按整数截）；`l0/idempotent.test.ts` R10；`l0/traces.test.ts` 的 `ConfigureSTS/*` 四格登记（`faultAt` / `extra`）；变异 `configure-sts-*` |
+
+参考自注该修复未在实际仪器上验证。**重新考虑**：重钉到 `7ae1061b` 之后时，本条销账，参数随规格进来，轨迹登记一并删掉。
 
 ## D-LANG-2 · `pyRound`：`round(x, n)` 是**银行家舍入、按精确值算**
 
@@ -2590,6 +2697,44 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 布尔那一格是主动收紧（同 `scalarFloat` / `pyFloat`）：一个布尔型的 `z_recede_min_nm` 意味着
 宿主发错了东西，把它当成 `1.0 nm` 用比拒绝它更坏。变异 `profile-blank-string-becomes-zero` 钉着前者。
 
+## D-MOTORZ-1 · MotorMove 的 Z 方向按档案声明换算；档案读不到时不发粗动 Z
+
+| | |
+|---|---|
+| **参考实现（7.1.0）** | 7.1.0 之前 `z-retract` 固定为 Z+（码 4）。7.1.0 起按档案声明换算；未声明时按 Z+ 并在结果里警告；读档案抛异常时不发 Z |
+| **本仓** | 声明与未声明同参考实现。**读不到档案（宿主没有接档案读口，或读口抛出）时不发任何粗动 Z**，横向照走。同一条规则也用于清障退针（`RelocateCoarseXY`）与换样退针（`RetractForSampleChange`）：这两处在参考实现里直接取方向码（未声明时取出厂的 Z+，由随后的方向自检停下），没有「读不到」这一态；本仓多出这一态，在第一级之前拒绝 |
+| **测试** | `l0/motor-z-direction.test.ts`；`composite/coarse-composites.test.ts`；`batch5b.json` 的 `motor_z/*`、`recover/*`（「读不到」格对应参考实现的异常路径，用只有退针方向读不出的档案对象重放；「宿主没接」与「整个读口抛出」只由单元测试覆盖）；`stm-safety` 的 `plugin.test.ts`（人闸与档案状态无关）；变异 `motor-z-*`、`retractdir-*`、`recover-step-log-reports-the-z-basis`、`recover-message-names-the-way`、`relocate-clearance-refuses-unreadable-dir`、`retract-sample-change-refuses-unreadable-dir` |
+
+理由：参考实现里档案永远存在，空档案等于「未声明」；本仓档案由宿主注入（D-PROF-1），「没接」是可以说出口的状态。
+出厂 z+ 是两个互斥答案之一，猜错的方向是朝样品，而 `z-retract` 不经人审。此刻没有任何生产入口接了档案，
+所以任何挂载 MotorMove / RecoverTipFromSaturation 的入口必须先接 `processInstrumentProfile.source` 并声明 `retract_motor_dir`。
+重新考虑所需的证据：宿主档案读口落地并经模拟器验收；有人对「未接档案时按 Z+ 走并警告」在仪器上的后果作出判断。
+
+> 警告与失败文案里的「设置 → 退针 → 退针方向」是参考实现设置界面的路径，本仓还没有对应界面；本仓里对应的是仪器档案的 `retract_motor_dir` 键。`MotorMoveClosedLoop` 拒绝文案里的 `NanonisMotorGroupMove` 同理：它属于光学组，本仓不迁移（见 `D-GROUP-1`）。这些文案照抄，以便与参考逐字比对。本仓有了设置界面之后再统一改写，届时另立偏差并调整金样的比对规则；改写前先用 `grep -rn "设置 → 退针\|NanonisMotorGroupMove" packages spec` 找全位置。
+
+<!-- ── STM 粗动组与保留数字口的登记写在这一行下面；编号留空（`?`），由主线统一编 ── -->
+
+## D-GROUP-1 · STM 粗动组与保留数字口住在仪器档案里，不在 nanonis_motor_groups.json
+
+| | |
+|---|---|
+| **参考实现（7.1.0）** | 两项配置在独立文件 `nanonis_motor_groups.json`：无文件 ⇒ 组 0、不保留口；文件存在但读不了 ⇒ 拒绝粗动、拒写所有数字口；保留口列表里任何一项畸形 ⇒ 整个列表作废、拒写所有数字口，不逐项丢 |
+| **本仓** | 同一语义，来源换成宿主注入的仪器档案对象（D-PROF-1）：读口返回的对象里的 `stm_coarse_group`（0–5 的整数，缺省 0）与 `reserved_digital_ports`（`[{port, reason}]`，缺省不保留任何口）。「宿主没接」按「无配置」处理；读口抛出按「配置存在但读不了」处理，读粗动位置、粗动与数字口写入一律不发（参考实现里退针方向与接线配置是两个来源，本仓是同一个读口）。`kernel/src/motor-wiring.ts` 直接按键读读口的原始返回值，不经 `sanitizeProfile`（未登记的键会被整键丢弃）。报错文案去掉文件名与解析器原话。取组的调用点共六处：`MotorMove`、`MotorMoveClosedLoop`、`MotorGetPos`、`RelocateCoarseXY` 的清障与横移（预检先问一次并缓存，整次运行只解析一次；清障与横移取缓存，同一次移动不会被拆到两个组）、`RetractForSampleChange`（每一级开头各问一次，与参考实现同）；三个数字口写技能在下发前问保留口，读（`GetDigitalLineTTL`）不设闸。`MotorGetPos` 出错时的文案与 `data` 逐字同 7.1.0 |
+| **测试** | `kernel/src/motor-wiring.test.ts`；`l0/motor-groups.test.ts`；`composite/coarse-composites.test.ts`；`l0/traces.test.ts` 的 `MotorGetPos/err@0`；`batch5b.json` 的 `motor_group/*` 格（15 格：单步粗动、闭环粗动、读位置、三个数字口写技能；配置损坏的各种形态不进金样）；变异 `wiring-*`、`closedloop-*`、`getpos-*`、`digital-port-reserved-*`、`motor-group-*`、`relocate-*`、`retract-sample-change-group-from-wiring` |
+
+**比参考实现更严的几处**（都在拒绝的方向上）：
+
+- 组号与保留口的端口号只收整数 number。参考实现的 `float()` 还收 `"2"` 这样的字符串（保留口表里 `"1"` 也收）；本仓拒，保留口表里出现一项就整张表作废。
+- 值是 `undefined` 的键（`stm_coarse_group` 与 `reserved_digital_ports` 都一样）算「键在、值非法」⇒ 拒绝。JSON 表达不了 `undefined`，JS 对象可以；静默当成缺席会回落成组 0，或让每个保留口变成可写。
+- 读口返回 Promise 之类的 thenable ⇒ 读不到（`readProfile()` 会把它当成 `{}`）。
+- `digitalPortRefusal(port)` 的 `port` 实参必须是整数（参考实现的 `int(port)` 还收 `1.5`、`"2"`）。三个技能传进来的本来就是折过的整数，这一条只有直接调用才走到。
+- `MotorMoveClosedLoop` 的 `group` 给了非整数同样拒绝，文案「group 必须是 0..5 的整数，收到 …」是本仓新增，参考实现里没有这一句（内核不做类型转换，字符串 `"1"` 若当成「没给」会静默驱动组 0；模型传 `"1"` 就会看到它）。
+
+范围外：驱动锁存（只有光学组会触发）、光学组。`MotorMoveClosedLoop` 拒绝文案提到的 `NanonisMotorGroupMove` 本仓不存在（光学族不迁移），照抄以保持与参考一致。生成规格里 `group` 参数的描述同样沿用参考实现，仍写着 `nanonis_motor_groups.json` 与 `NanonisMotorGroupMove`；本仓没有这两样（配置在仪器档案里），描述照抄以保持规格与参考一致。
+
+**为什么有意**：参考实现里配置文件在不在是文件系统的事实；本仓档案由宿主注入（D-PROF-1），「没接」是可以说出口的状态。组 0 与空保留表就是参考实现的「无文件」缺省，所以宿主没接时按缺省处理，与接线配置出现之前的行为逐字相同。这与 `retract_motor_dir` 的处理**不对称是有意的**：出厂的 Z+ 不中性（它是两个互斥答案里的一个），而组 0 与空保留表是中性的缺省。此刻没有任何生产入口接了档案，所以任何挂载粗动技能或数字口写技能的入口必须先接 `processInstrumentProfile.source`，并声明 `stm_coarse_group` 与 `reserved_digital_ports`。
+**重新考虑的条件**：目标装置有多组粗动或保留口，并经模拟器验收。
+
 ## D-CAL-1 · `ReadCalibrations` 的「标称 f₀/Q」**不移植**，而旧仓那两个字段恒为 `None`
 
 | | |
@@ -2878,7 +3023,7 @@ D-ATOMLINE-1 登记的是「本仓把 `body[2]` 当名字表，于是那条支�
 `AutoProcessScanBatch` 的描述里写着「**它会渲染出这些 PNG**，并写一份 `_report.md`」，
 参数表里还有 `render`（缺省 true）与 `save_png`。而本仓只做得到后半句。
 
-**DoD ② 要求 515 个技能 / 1642 个参数与旧仓逐字比**，所以那句话不能改 ——
+**DoD ② 要求 568 个技能 / 2336 个参数与旧仓逐字比**，所以那句话不能改 ——
 它只能是一条**响亮的** deviation，外加两条断言把「报告在、图不在」两面都钉住
 （`scan-prep-skills.test.ts` 的 `save_png=true` 与 `render=true` 两格）。
 
@@ -3109,7 +3254,7 @@ if name in _seen or len(_seen) > 8:
 它那么写有它的道理（那台是**运行时**跑的，要对付声明式 spec 与动态注册）。
 本仓 `tip-phase-closure.ts` 的 `skillClosure` **没有深度上限**：这一批修的正是
 「追一层就停」，抄一个「追八层就停」过来只是把同一个 bug 的阈值调大。
-这里的图是静态有限的（515 个技能，金样 `skill_runs`），完整不动点一定收敛；
+这里的图是静态有限的（568 个技能，金样 `skill_runs`），完整不动点一定收敛；
 环由 `seen` 挡，挡掉了什么由 `closure_limits.cycles` 说出来（今天空表，有测试盯着）。
 
 ⚠️ 记这一条是因为：**一处刻意的不一致，没写下理由就等于一处疏忽** ——
@@ -4003,9 +4148,69 @@ green-8 §4 的第三种形状。三处都保留代码 + 就地注明，并且**
 
 本机最小工具复用迁移读技能与安全内核，但局部适配三项写技能：SetBias 在写后回读核对 float32 容差，StartScan 和 StopScan 在最多一秒内核对实际运行状态。无法确认时返回失败及 `command_sent`/`verified`，不会把请求值当成测量结果。原生 StartScan 另读实时 Z 反馈，拒绝重启现有扫描；连续扫描已关闭时不写扫描属性，否则仅请求关闭连续扫描，并核对其他保存属性保持一致。返回给模型的文本包含测量值、单位或扫描状态。
 
-此入口不提供未实现的偏压 ramp 参数，也不提供 `allow_continuous_scan` 覆盖；这些差异通过本入口的工具声明和参数拒绝显式表达。新增 GetScanStatus 是本插件的本机工具，不冒充参考迁移技能，不计入生成的迁移进度。
+此入口不提供未实现的偏压 ramp 参数（改动现在会自动走斜坡，见 `D-NATIVE-2`），也不提供 `allow_continuous_scan` 覆盖；这些差异通过本入口的工具声明和参数拒绝显式表达。新增 GetScanStatus 是本插件的本机工具，不冒充参考迁移技能，不计入生成的迁移进度。
 
 理由：原迁移 SetBias/StopScan 只确认发送，StartScan 还会请求改变 autosave；直接用于本机交互会扩大副作用或误报完成。判据在 `native-skills.test.ts`、`native-runtime.test.ts`、`native-simulator.test.ts`，实际安装态与模型证据见本次 Nanonis 交接。通用技能、金样及生成规格未因此改写。若以后统一到通用技能，应先验证回读失败、连续扫描、属性保留与既有参考契约后再移除局部适配。
+
+## D-NATIVE-2 · 原生入口的 SetBias 先读起点再分流，几类改动改走 BiasSettleChange
+
+| | |
+|---|---|
+| **改动前**（`D-NATIVE-1`） | `SetBias` 一步 `Bias_Set`，写后回读。任何改动都立即生效，包括 +1 V → −1 V 这种一步跨零 |
+| **现在**（`native-skills.ts::NativeSetBias`） | 先读起点，按 `biasNeedsSafePath(start, target)` 分流：变号、变化量超过 0.5 V、目标落在 ±50 mV 死区、起点读不到，走 `BiasSettleChange`（斜坡加稳定等待）；其余仍一步 `Bias_Set`。两条路径写后都回读核对 |
+| **参考实现**（7.1.0 外部动作面，`vista/actions.py` 的 `_set_bias` / `_bias_needs_safe_path`） | 同一条分流 |
+| **判据** | 金样 `spec/golden/bias_routing.json`（`export_bias_routing.py`，380 格 = 20 个起点 × 19 个目标，由参考实现自己的动作代码录成），`kernel/bias-settle.test.ts` 逐格比；接线在 `native-skills.test.ts`、`native-runtime.test.ts`、`minimal-persistence.test.ts` |
+
+**为什么有意**：Z 反馈是恒流的，偏压穿过零附近时隧道电流塌向 0，反馈只会把针尖往表面推
+（[`bias-settle.ts`](../packages/host/kernel/src/bias-settle.ts) 抬头）。参考实现 7.1.0 把这道保护从技能层
+推到模型面的动作入口；原生入口的 `SetBias` 同样让「改偏压」自带它，不指望模型每次都记得。
+判据只有一份，取自内核的 `biasNeedsSafePath`（复用 `planBiasChange`，不再抄一份「穿零」谓词）；
+将来的全量入口挂载 `SetBias` 时，必须复用 `biasNeedsSafePath`。
+
+**用户可见的变化**：
+
+- 走安全路径的调用要几秒：变号或大幅改动是斜坡时间加 2 s 稳定等待；反馈已关、落进死区的小幅改动是 0.5 s。
+  结果的 `data.path` 为 `BiasSettleChange`，并带 `bias_v_start`、`strategy`、`crossed_zero`、`settle_s`；
+  直写路径 `path` 为 `SetBias`，读得到起点时带 `bias_v_start`。模型看到的文本在走安全路径时多一段
+  `via BiasSettleChange <strategy>`，直写的文本一字不变。
+- 目标落在 ±50 mV 死区内而 Z 反馈开着（或读不到）时，**不发任何写命令**就拒绝（`command_sent: false`；
+  仪器上只读了 3 次：`Bias_Get` 两次、`ZCtrl_OnOffGet` 一次）。原生工具目录里没有关闭反馈的工具，所以
+  模型这一侧这类目标实际上总被拒绝，除非操作者先在模拟器里手动关闭反馈。以前它们会被一步设过去。
+- 读不到起点时不再直写：改走 `BiasSettleChange`，它读不到起点同样拒绝，一次 `Bias_Set` 都不发。
+- 斜坡中途失败，或调用在斜坡中途被取消：偏压停在已走到的那一步（斜坡不回退），结果标明 `command_sent: true`。
+  失败时带回读到的偏压，回读也失败则 `bias_v: null`；**取消时不会回读，`bias_v` 为 `null`，停在哪一步要另读一次**
+  （取消之后，技能这一层不会再发任何仪器命令）。停下的位置可能落在 ±50 mV 内；这是 `SetBiasRamp` 本身的行为，
+  没有在这里另加处理。
+
+**记录**：
+
+- 安全路径上的子步（`BiasSettleChange`、`SetBiasRamp`，或反馈已关时死区目标的直写子步）走完整内核，
+  各在 SQLite 里记一行，与顶层共用同一个 `tool_call_id`；没有深度列，也没有父子链接。子步先于顶层完成，
+  按调用 id 取行时，最后完成的一行（`hlc` 最大）是顶层。
+- JSONL 与模型文本只留顶层那一行（`minimal-persistence.ts` 里 `rec.depth > 0` 就不写）；子步在仪器上做过什么，
+  都在顶层那一行的 `instrumentCalls` 里。
+- 子步的 SQLite 写失败会把整次调用判为「没有完整落盘」，顶层随后成功也不翻回成功。
+- 回读不符、或斜坡中途失败而实际偏压读得到时，会刷新一次状态缓存（见下一条）。刷新用的 11 个读走状态服务
+  自己的通道（`role: 'monitor'`），不在顶层那一行的 `instrumentCalls` 里，SQLite 里也没有它们：这 11 个读不在任何证据里。
+
+**已知限制（缓存与记录）**：走安全路径时，子步一成功，内核（K12）就把请求值 `bias_v` 补进状态缓存，而写进
+SQLite 的 `stateDelta`（K15）是用这份缓存算的。所以：
+
+- 顶层回读**不符**时，会再调一次 `ctx.refreshState()`，缓存和 `stateDelta` 因此拿到实际值（回读 −0.9 V 就记
+  −0.9 V，不记请求的 −1 V）。走哪条路径都一样：直写路径没有子步，请求值从来没进过缓存，但缓存里仍是改动前的值，
+  同样要刷。斜坡中途失败、而实际偏压读得到时也刷新：那时没有子步成功，缓存还是改动前的值。
+- 规则是「回读不符就刷新；回读失败或取消就不刷新，那时缓存不可信」。**残留**：命令已发出、却既没回读成功也没刷新的
+  两种情况——回读本身失败、调用被取消——缓存都不是实际值：安全路径上，斜坡已走完的是请求值，停在半路的是改动前的值；
+  直写路径则是改动前的值（它从来没有补进过请求值）。凡是改动前的值，`stateDelta` 都是空的，记录上看不出偏压动过。
+  不刷新的原因：回读失败时链路多半有问题，刷新大概率也读不到；取消之后不再开始刷新（取消若落在刷新进行中，
+  剩下的 monitor 读还会照发，它们走状态服务自己的通道，不看取消信号）。
+- 这个值不会自己消失：原生入口的状态服务不定时刷新，要等下一次成功的 `SetBias` 或一次刷新。SQLite 的
+  `state_delta_json` 是现有读者，它会把请求值（或空增量）记成这次调用的结果。`native-skills.test.ts` 里有用例钉着这两种。
+
+若以后有前置条件或状态读取依赖缓存里的 `bias_v`，这两种情况也要处理，再撤掉这条限制。
+
+**重新考虑的条件**：原生目录增加关闭反馈的工具（那时 ±50 mV 内的目标有了可走的路）；`SetBiasRamp` 在零点
+附近的行为经真机验证后调整；参考实现的外部动作面改了分流条件（重导金样后 `bias-settle.test.ts` 会变红）。
 
 ## D-VMEM-1 · 观测图一律写 8 位 RGB PNG（参考实现无缺测时写灰度）
 
@@ -4217,3 +4422,65 @@ VISUAL-HARNESS §4.8「不得静默丢图」同一条理由；写到一半的文
 12 755 token；标签全是会被转义放大的 `"` 时约 15 800。降到 12 个以后，最坏组合（局部帧、最长的通道名、highpass、backward、
 整幅 region、clip，标签取满 128 个 `"`，附件只读路径按 MAX_PATH 的 260 个字符计）实测 12 238 token，13 个视图就越过预算。
 **重新考虑的条件**：dsh 提高内联预算、降低图像计价或改变回复格式；VISTA-SPM 若因同样的原因调整上限，本仓跟随。
+
+## D-ROT-1 · `pxToM` 用 R(−θ)：正 `SCAN_ANGLE` 是**顺时针**（参考 v7.1.0 仍是 R(+θ)）
+
+| | |
+|---|---|
+| **Python**（`io/mosaic.py::px_to_m`，v7.1.0） | 帧内像素 → 压电坐标用 R(+θ)：`(cx + dx·cosθ − dy·sinθ, cy + dx·sinθ + dy·cosθ)`，与参考自己的「压电 → 帧内」`R(+θ)·(p − c)` **同向**，而不是互逆 |
+| **TS**（vision `xy-meta.ts::pxToM`） | R(−θ)：`(cx + dx·cosθ + dy·sinθ, cy − dx·sinθ + dy·cosθ)`，是「压电 → 帧内」的逆 |
+| **测试** | vision `xy-meta-rotation.test.ts`（往返恒等，`toFrame` 在测试里独立写；θ=90° 时帧内 +x′ 落到压电 −y）；stm-skills `scan-angle-rotation.test.ts`（θ=90° 合成帧上的 `ExtractClusters` / `SelectPokedCluster` / `VerifyAdatomAt`、`FindFlatRegion` 的排除比较、`LocateStepEdge` 的边上一点）；vision `vision.test.ts`、stm-skills `batch7a3-skills.test.ts` 的三格金样双断言 |
+
+**为什么有意**：参考仓在 v7.1.0 之后的提交 `5ca30763` 把这个符号订正为 R(−θ)，依据是一组真机转角系列的统计：
+「帧内晶格角 − SCAN_ANGLE」集中，「+」不集中，即正角 = 扫描框相对压电坐标顺时针转。本仓照这次订正走，不照抄 v7.1.0 的缺陷。
+R(+θ) 算出的位置等于真位置绕帧心再转 2θ，偏差 2·r·|sin θ|（r 是到帧心的距离；θ=90° 时正好是中心对称点）。吃这个坐标的有
+`ExtractClusters`、`SelectPokedCluster`（角度已知时报 `coords_trustworthy: true`）、`VerifyAdatomAt`、`FindFlatRegion`
+（含 `exclude_used_spots` 的距离比较：拿算错的窗心去比真位置，「避开扎过的点」会落空），以及 `MoveAtomTo` 在 `displaced`
+时以 `found_x_m/found_y_m` 重新起拖的那一步。
+
+**金样**：`analysis.json` 的 `xy_meta.px_to_m` 两格（`rotated30`、`rotated_neg`）与 `batch7a3.json` 的 `FindFlatRegion/rotated`
+一格仍是参考的 R(+θ) 值，**不手改**。测试对这三格两件事都断言：金样 = R(+θ) 公式（参考的缺陷还在），本仓 = R(−θ) 公式。
+
+**`LocateStepEdge` 比参考多改一处**：参考在这个技能里自己拆 `scan_offset`、拿 `nm_per_px` **不旋转**地算
+`edge_x_m` / `edge_y_m`（v7.1.0 如此，`5ca30763` 之后仍如此），转过角度的帧上无论哪个方向约定都错，而这对坐标是拿去沿台阶布谱的。本仓改走
+`parseXyMeta` + `pxToM`：θ=0 的方像素帧上只差运算次序带来的末位（金样 8 格照过）；头里读不出偏移或视野时**不报坐标**
+（参考按 `(0, 0)` 算），与 `parseXyMeta`「没有几何不是在原点」一致。`edge_angle_scan_deg` 不变：它是扫描框自己的坐标
+（y 朝上），不含扫描角。
+
+**与本约定一致、因此不改的**：`AssessAtomicConsistency` 的「帧内晶格角（行号朝下量）+ 扫描角」；`AnalyzeFrameTilt` 的斜率旋转
+（读裸块，慢轴斜率沿行号，在 `down` 帧上等价，`up` 帧见 D-TILT-5）；`ConfigureScan` 越界闸的帧包络（矩形关于自身两轴对称，
+两个方向给出同一个包络）。
+
+**仍未对齐的（已知）**：
+- 视觉线束（visual-memory 的 `nativeToScanNm` 一族）跟随 VISTA-SPM，仍是 R(+θ)：θ≠0 的帧上它报的扫描系 nm 与 `pxToM` 不一致，
+  不能拿去驱动运动技能。
+- STM-Bench 模拟器按 R(+θ)（逆时针）渲染并移动针尖：在它上面，θ≠0 帧经 `pxToM` 得到的目标会落在绕帧心转 2θ 的位置。
+- `LocateStepEdge` 的 `edge_angle_scan_deg` 与 `VerifyAdatomAt` 判「目标在不在帧里」的包络都不含扫描角（参考同）。
+
+**重新考虑的条件**：参考重钉到 `5ca30763` 之后的版本并重导：三格金样变成 R(−θ) 值，「金样 = R(+θ)」那条断言变红 ⇒
+删掉测试里的分支与本条。真机或厂商模拟器上测到正角是逆时针（例如 θ=90° 扫描首行的针尖位置读数落在 R(+θ) 预言的一侧）⇒
+回退并重新登记。
+
+## D-CONN-1 · 传输层对任何命令都不重发；幂等重试放在谱学技能里
+
+| | |
+|---|---|
+| **Python**（`core/connection.py` 的 `ConnectionPool.safe_call`；`skills/builtins/spectroscopy.py` 的 `_call_idempotent`） | TCP 级失败（超时、连接被重置、空回包）后重连并**原样重发一次**；「每到一次就做一次事」的命令例外（名字以 `Pulse` / `Start` / `_Run` 结尾或含 `_Start` 加大写字母，`Scan_Save`，`AtomTrack_DriftComp`，`Scan_Action` 的起扫与继续，`AutoApproach_OnOffSet` 的开），只重连不重发，错误里说命令可能已经执行；重发也失败时，错误以第一次的原因开头。谱学技能另有 `_call_idempotent`：7 个配置／采集技能里的幂等调用（`Open`、设绝对值的属性、读）传输层失败后停 1 s 再做一次。两层叠起来，同一条命令最多发 4 次 |
+| **TS**（kernel `transport-policy.ts`，instrument `instrument.ts`，stm-skills `l0/idempotent.ts`） | 连接层（`InstrumentService.callRaw`）对任何命令都不重发。同一套分类（`resendIsSafe`）只用于 ① 可能已送达的不可重发命令传输失败时，在错误后面追加「命令可能已被控制器收到并执行……重试之前先读仪器状态」；② 让 `callIdempotent` 拒绝重做不可重发的命令。重做只在同一批谱学技能里（含 Δf 曲线共用的两条 Z 谱预算读），停 1 s，一次；两次都失败时错误以第二次的原因开头，第一次的原因放进英文后缀（文案照参考）。仪器层的调用记录在传输层失败时多一个字段 `transport`（`kind`、`maybeDelivered`），运行记录 results JSONL 的 `instrumentCalls` 里也会带着它 |
+| **测试** | kernel `transport-policy.test.ts`（T1–T6、G1–G5）；instrument `instrument.test.ts`（I1–I4）；stm-skills `l0/idempotent.test.ts`（R1–R9）；bundle `src/instrument-calls.test.ts`（I5、E1）；金样 `safety.json` 的 `resend_safe`、`resend_arg0_cases`；变异 `transport-*`、`idempotent-*`、`module-open-*`、`not-resent-hint-is-added` |
+
+**为什么有意**：重发的决定应当放在读写语义最清楚的地方（技能层）；连接层不知道一条命令是否幂等，而超时之后命令很可能已经送达。
+不重发是 fail-closed 的一侧。**后果**：① 非谱学技能里的读／设在瞬断时直接失败，不会被连接池救回；② 谱学技能里同一条命令最多发
+2 次（参考最多 4 次）；③ 参考连接池「重发也失败时以第一次的原因开头」的文案在这里没有对应物，因为连接层只失败一次。
+**重新考虑的条件**：真机或模拟器上非谱学的读／设技能因瞬断失败的实测频率；把幂等集合上移到连接层的方案（那时这张分类表从
+「提示与兜底」变成「决定重发」，金样 `resend_safe` 照用）。
+
+## D-CONN-2 · 控制器 recv 超时不开放全局配置（缺省 5 s，长时命令按调用抬高）
+
+| | |
+|---|---|
+| **Python** | 环境变量 `MAST_NANONIS_TIMEOUT_S` 可把 recv 超时设为 0.5–600 s；不是数字或超出范围就忽略并保留缺省 5 s（不夹紧） |
+| **TS** | 不提供环境变量或全局配置项（`RoleLink` 的构造参数 `timeoutMs` 能改单条链路的缺省，现有宿主都不传）；缺省 5 s（`DEFAULT_TIMEOUT_MS`），长时命令经 `ctx.slowCall` 按调用抬高（上限缺省 900 s） |
+| **测试** | `nanonis-wire/src/role-link.test.ts` 的超时用例；`bundle/dsh-spm/src/instrument-calls.test.ts` |
+
+**为什么有意**：目前没有需要它的对端——真仪器上 5 s 合适，会超 5 s 的长命令已经按调用处理；开放一个全局开关会让所有命令一起变慢地失败，并且超过约 30 s 后熔断器的连击窗口会失效（两次超时隔得比窗口远就不算连击）。等某个对端（例如同步渲染一帧要数秒的模拟器）实际需要时再加。

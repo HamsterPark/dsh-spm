@@ -27,9 +27,11 @@ import {
   getTiltCalibration,
   processInstrumentProfile,
   readProfile,
+  readRetractDir,
   sanitizeProfile,
   specDefault,
   zExtendSignOrNone,
+  type RetractDirRead,
 } from './instrument-profile.js'
 
 const G = JSON.parse(
@@ -278,6 +280,50 @@ describe('仪器档案 · 退针方向码', () => {
       expect(getRetractDirCode()).toBe(want)
     })
   }
+})
+
+describe('仪器档案 · 退针方向的三态（`readRetractDir`）', () => {
+  it('声明过 ⇒ 带方向码：z+ 是 4，z− 是 5', () => {
+    install({ retract_motor_dir: 'z+' })
+    expect(readRetractDir()).toEqual({ state: 'declared', code: 4 })
+    install({ retract_motor_dir: 'z-' })
+    expect(readRetractDir()).toEqual({ state: 'declared', code: 5 })
+  })
+
+  it('读口返回 `{}` ⇒ 没声明', () => {
+    install({})
+    expect(readRetractDir()).toEqual({ state: 'undeclared' })
+  })
+
+  it('**宿主没接读口 ⇒ 读不到**，不是「没声明」', () => {
+    processInstrumentProfile.source = null
+    expect(readRetractDir()).toEqual({ state: 'unreadable' })
+    // 旧读法把这一态折成 4，于是「不知道」看起来和「本机声明了 z+」一样。
+    expect(getRetractDirCode()).toBe(4)
+  })
+
+  it('读口抛了 ⇒ 也是读不到', () => {
+    processInstrumentProfile.source = () => {
+      throw new Error('profile unreadable')
+    }
+    expect(readRetractDir()).toEqual({ state: 'unreadable' })
+  })
+
+  it('经 `readProfile` 读入：带空白的值洗干净，非法值与 `null` 被丢掉 ⇒ 没声明', () => {
+    // `readRetractDir` 只有两条分支，靠的就是这一步；这里把三种输入各自落在哪儿钉住。
+    const cases: [unknown, string | undefined, RetractDirRead][] = [
+      [' z- ', 'z-', { state: 'declared', code: 5 }],
+      ['x+', undefined, { state: 'undeclared' }],
+      [null, undefined, { state: 'undeclared' }],
+    ]
+    for (const [raw, snapshot, want] of cases) {
+      install({ retract_motor_dir: raw })
+      const r = readProfile()
+      expect(r.ok, JSON.stringify(raw)).toBe(true)
+      expect(r.ok && r.profile['retract_motor_dir'], JSON.stringify(raw)).toBe(snapshot)
+      expect(readRetractDir(), JSON.stringify(raw)).toEqual(want)
+    }
+  })
 })
 
 describe('仪器档案 · 倾斜标定的三态', () => {

@@ -25,6 +25,12 @@
  * with `a` the scan angle. This equals the judge-side
  * `pixel_to_scan_nm(geom, x/k - 0.5, y/k - 0.5)` of the Python reference.
  *
+ * The rotation is counter-clockwise for a positive `a` (R(+a)), as in that
+ * reference. `pxToM` in `dsh-spm-vision` uses the clockwise convention (R(−a),
+ * D-ROT-1 in `spec/deviations.md`). On rotated frames the scan-frame nm reported
+ * here therefore differ from it until this harness is realigned with its
+ * reference, and they must not be used to drive motion.
+ *
  * ## Exactness
  *
  * The operations are written in the same order as the Python reference

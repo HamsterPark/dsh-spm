@@ -217,8 +217,8 @@ describe('生成规则本身的形状', () => {
   })
 
   it('含浮点的 allowed_values **整条失效**：模型既看不到 enum 也看不到范围', () => {
-    // 照抄旧仓行为。真技能里 0 个参数走这条（查过 1642 个参数），
-    // 所以这是一条活着的死分支，不是现役缺陷——但它就在那儿。
+    // 照抄旧仓行为。参考实现 7.1.0 起真技能里有 11 个参数走这条（排除族 TERS 组合技能的
+    // `adc_mhz`，见 D-SCHEMA-1），都不迁移，所以它仍不是现役缺陷——但它就在那儿。
     const p = parametersFromSpec(specOf('enum_float_rejected')).properties['ratio']
     expect(p?.enum).toBeUndefined()
     expect(p?.minimum).toBeUndefined()
@@ -230,7 +230,8 @@ describe('explainValidationError —— 模型读的那段教学文案', () => {
   it('D-SCHEMA-1 在这里**变得可观测**：Python 印 1.0，JSON 到 TS 只剩 1', () => {
     // 别处这条偏差都藏得住（含浮点的 allowed_values 在 schema 里整条失效）。
     // 唯独这段文案会把值印出来，于是差异露头。信息在 JSON 边界就丢了，无从恢复；
-    // 1642 个真参数里 0 个含浮点枚举，所以这是记在账上的差异，不是待修的缺陷。
+    // 参考实现 7.1.0 起有 11 个真参数含浮点枚举，都属于不迁移的排除族，所以这仍是记在账上的
+    // 差异，不是待修的缺陷。
     expect(golden['enum_float_rejected']!.validation_error).toContain('{0.5, 1.0}')
     expect(explainValidationError(specOf('enum_float_rejected'))).toContain('{0.5, 1}')
   })
@@ -290,7 +291,7 @@ describe('effectiveBounds —— 广告与执行的唯一表达式', () => {
 
   it('声明里省略 `required` ⇒ **必填**，广告与执行两侧同一个答案', () => {
     // Python 的 `ParameterSpec.required: bool = True` 是 dataclass 缺省，
-    // schema 侧与 validate 侧读到的都是 True。1642 个真参数全都显式写了 required，
+    // schema 侧与 validate 侧读到的都是 True。2336 个真参数（参考实现 7.1.0）全都显式写了 required，
     // 所以这一格在金样里不可观测 —— 但 TS 里省略是合法的，两侧一旦分头猜就会
     // 出现「广告成必填、却不强制」。这条测试是它唯一的看守。
     const spec: SkillSpec = {

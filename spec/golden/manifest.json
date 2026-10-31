@@ -5,14 +5,26 @@
       "ok": true
     },
     "skills.json": {
-      "entries": 515,
+      "entries": 568,
       "ok": true
     }
   },
   "mast_root": "<MAST_ROOT>",
-  "spec_source": {
-    "digest": "4015a3bf19938071",
-    "near_commit": "8f226475",
-    "py_files": 897
+  "public_text": {
+    "entries": 46,
+    "leaves": 195,
+    "overlay": "520f3c333872"
+  },
+  "reference": {
+    "commit": "45e3e80611cca865d9294b3d0cfe0d5c29be7535",
+    "describe": "v7.1.0",
+    "environment": {
+      "numpy": "2.4.4",
+      "python": "3.13.13",
+      "scipy": "1.17.1"
+    },
+    "py_digest_lf": "45ed729ac47f844c",
+    "py_files": 982,
+    "tree": "266a0f4949eea094edc99eaeecb522a66805c24d"
   }
 }

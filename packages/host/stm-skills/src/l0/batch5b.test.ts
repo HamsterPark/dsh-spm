@@ -1,5 +1,5 @@
 /**
- * 批 5b 的**判据**金样比对 —— `spec/golden/batch5b.json` 的 71 格逐条重放。
+ * 批 5b 的**判据**金样比对 —— `spec/golden/batch5b.json` 的 104 格逐条重放。
  *
  * 与 `traces.test.ts` 的分工：
  *
@@ -56,6 +56,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   emptyHardwareState,
+  processInstrumentProfile,
   slowCallFrom,
   type Skill,
   type SkillCallRecord,
@@ -80,6 +81,14 @@ interface Case {
   readonly verbs: Record<string, VerbReply[]>
   readonly runs: Record<string, RunReply[]>
   readonly clock_keys: string[]
+  /**
+   * 这一格的档案状态。`profile`（`motor_z/*`）：一份档案对象，或 `"unreadable"`；`motor_groups`
+   * （`motor_group/*`）：参考实现里独立的接线配置文件的内容。没有这个键 = 宿主没接档案。
+   */
+  readonly state?: {
+    readonly profile?: Record<string, unknown> | 'unreadable'
+    readonly motor_groups?: Record<string, unknown>
+  }
   readonly calls: { verb: string; args: unknown[]; error: string | null }[]
   readonly run_log: { skill: string; params: Record<string, unknown> }[]
   readonly result: {
@@ -197,6 +206,41 @@ function scriptedCtx(c: Case): Recorded {
  */
 const PSD_IGNORED: Readonly<Record<string, string>> = { 'psd/bad_indices_json': '0,2,5' }
 
+/**
+ * 参考实现的 `"unreadable"` 只是读退针方向的那个函数抛异常，接线配置照常可读。本仓只有一个读口，
+ * 所以用「只在取 `retract_motor_dir` 时抛」的档案对象来对应；整个读口抛出由单元测试覆盖。
+ */
+function retractDirUnreadable(): Record<string, unknown> {
+  const o: Record<string, unknown> = {}
+  Object.defineProperty(o, 'retract_motor_dir', {
+    enumerable: true,
+    get(): never {
+      throw new Error('profile unreadable')
+    },
+  })
+  return o
+}
+
+const WIRING_KEYS = ['stm_coarse_group', 'reserved_digital_ports'] as const
+
+/**
+ * 这一格的读口返回值，`null` = 宿主没接。参考实现里退针方向（`state.profile`）与接线配置
+ * （`state.motor_groups`，独立文件）是两个来源，本仓只有一个读口，所以合成同一个对象。
+ *
+ * 接线键只拷**在场的**（`k in motor_groups`）：缺席的键若写成 `undefined`，在本仓算「键在、值非法」，
+ * 会被拒绝。退针方向读不出的那个对象带着取键就抛的 getter —— 只往上加键，**不展开它**。
+ */
+function profileFor(state: Case['state']): Record<string, unknown> | null {
+  const p = state?.profile
+  const mg = state?.motor_groups
+  if (p === undefined && mg === undefined) return null
+  const o = p === 'unreadable' ? retractDirUnreadable() : { ...p }
+  if (mg !== undefined) {
+    for (const k of WIRING_KEYS) if (k in mg) o[k] = mg[k]
+  }
+  return o
+}
+
 /** 执行器的时刻台账不是判据（两侧的钟本来就不同量级）。 */
 const PROGRESS_VOLATILE = new Set(['started_at', 'last_update_at'])
 
@@ -269,7 +313,15 @@ describe('批 5b 判据金样：脚本化上下文逐格重放', () => {
       const skill = IMPLEMENTED[c.skill] as Skill | undefined
       expect(skill, `${c.skill} 没在 IMPLEMENTED 里`).toBeDefined()
       const { ctx, calls, runs } = scriptedCtx(c)
-      const got = await (skill as Skill).execute(ctx, c.params)
+      // 档案是进程级的：每格自己装、自己复位，否则后一格会因为前一格声明过 z− 而绿。
+      const profile = profileFor(c.state)
+      processInstrumentProfile.source = profile === null ? null : () => profile
+      let got: SkillResultLike
+      try {
+        got = await (skill as Skill).execute(ctx, c.params)
+      } finally {
+        processInstrumentProfile.source = null
+      }
 
       expect(calls.map((x) => [x.verb, x.args])).toEqual(
         c.calls.map((x) => [x.verb, x.args]),

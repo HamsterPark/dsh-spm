@@ -116,3 +116,25 @@ export function deadbandRefused(
 ): boolean {
   return Math.abs(targetV) < ZERO_DEADBAND_V && !allowStopInDeadband && feedbackOn !== false
 }
+
+/**
+ * 模型面改偏压该不该走 `BiasSettleChange` 而不是直接 `SetBias`。参考实现 7.1.0 的外部动作面
+ * （`vista/actions.py` 的 `_set_bias` 与 `_bias_needs_safe_path`）按同一条件分流；
+ * 技能 `SetBias` 与 `BiasSettleChange` 本身没有变。
+ *
+ * 三种改动走安全路径：
+ * - 变号，或变化量超过 {@link RAMP_THRESHOLD_V}——直接取 {@link planBiasChange} 的策略，
+ *   不再抄一份「穿零」谓词（两端都不是 0 才算穿零，见那里的说明）；
+ * - 目标落在 ±{@link ZERO_DEADBAND_V} 的死区里，**不论起点在哪**。`0.3 → 0.0` 的变化量不大，
+ *   但死区正是 `BiasSettleChange` 在反馈开着或状态未知时拒绝停下的地方；只路由大改动，
+ *   这一格就会绕过那道拒绝；
+ * - 起点读不到（`null`）。参考的 `_set_bias` 不经谓词、直接走安全路径，随后
+ *   `BiasSettleChange` 自己读不到起点而拒绝——不知道起点，就判不出这次改变会不会穿零。
+ *
+ * 真值表是金样 `spec/golden/bias_routing.json`（`tools/spec-export/export_bias_routing.py` 用参考实现
+ * 自己的动作代码录成，不是手写），逐格比在 `bias-settle.test.ts`。
+ */
+export function biasNeedsSafePath(startV: number | null, targetV: number): boolean {
+  if (startV === null) return true
+  return planBiasChange(startV, targetV).strategy !== 'direct' || Math.abs(targetV) < ZERO_DEADBAND_V
+}

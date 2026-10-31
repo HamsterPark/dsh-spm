@@ -66,6 +66,7 @@ export * from './batch-regions.js'
 
 // ── 批 6c（批 5b 欠下的数值原语 + 晶格一族剩余）在这一行下面 export ──
 export * from './instrument-profile.js'
+export * from './motor-wiring.js' // STM 粗动组与保留数字口：读 instrument-profile 读口的原始返回值
 export * from './coarse-drive.js'
 export * from './z-settle.js'
 export * from './tip-evidence.js'
@@ -97,3 +98,6 @@ export * from './map-scope.js'
 // ── 批 8a-2（builtins 剩余 A 档：自检 / 对账 / 漂移一族）在这一行下面加 export ──
 
 // ── 批 8a-3（paper 第二批：CheckLineQuality · Bragg 漂移 · 谱拟合 · montage 判据层）在这一行下面加 export ──
+
+// ── 传输层策略（重发分类、模块加载宽限、传输失败标记）在这一行下面加 export ──
+export * from './transport-policy.js'

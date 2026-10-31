@@ -47,6 +47,25 @@
  * 把它做成读口而不是一份快照，是为了让「宿主根本没接」这件事**在类型上存在**：
  * `source === null` 与 `source` 返回 `{}` 是两回事，而前者正是本模块要说出口的那句话。
  *
+ * 读口返回的对象，除下面登记的键之外，还可以带两个**粗动接线键**。它们由 `motor-wiring.ts`
+ * 直接读读口的原始返回值，**不经过 {@link sanitizeProfile}**：
+ *
+ * ```
+ * { retract_motor_dir: 'z-',
+ *   stm_coarse_group: 1,                                         // 0..5 的整数；缺省 = 0
+ *   reserved_digital_ports: [{ port: 0, reason: '……' }] }        // 缺省 = 不保留任何口
+ * ```
+ *
+ * ⚠️ 这两个键有两条线不能碰：
+ *
+ * - **不能登记进** {@link CONFIG_SPEC} / {@link CHOICE_SPEC}：登记了，值就会被夹进区间
+ *   （`stm_coarse_group: 7` 变成 5），一份损坏的配置于是变成「驱动第 5 组」；
+ * - 宿主**不要先把档案过一遍 `sanitizeProfile` 再交给读口**：未登记的键会被**整键丢掉**，
+ *   哪怕值是合法的，结果回落成「组 0、不保留任何口」。
+ *
+ * 「损坏即拒」只能由 `motor-wiring.ts` 的严格校验表达。生产路径此刻没有任何宿主接这条通道，
+ * 所以实际生效的是缺省值，与接线配置出现之前的行为一样。
+ *
  * ### ③ 宿主不接时是什么行为
  *
  * | 谁在问 | 没接时 | 为什么 |
@@ -54,6 +73,7 @@
  * | {@link getConfig} | **出厂默认生效**（spec 默认 → 调用方默认） | 同 D-VAC-1：闸照常关，不是放行。旧仓 `get_config` 在空档案上也正是这个行为 |
  * | {@link readProfile} | `{ ok: false, why }` —— **照实说读不到** | 折成「空档案」就等于宣告「从未标定过」，那是编造一个结论 |
  * | {@link getTiltCalibration} | `{ state: 'unreadable', why }` | 三态。`never` 是**结论**，`unreadable` 是「这个问题答不了」 |
+ * | {@link readRetractDir} | `{ state: 'unreadable' }` ⇒ **一个粗动 Z 都不发** | 与「没声明」分开：出厂 `z+` 也是两个互斥答案之一，猜错的那个方向朝样品，而 `z-retract` 不经人审 |
  * | {@link zExtendSignOrNone} | `null` ⇒ **拒判** | 出厂 `+1` 在这一项上**不中性**：它是两个互斥答案里的一个，而本机实测是 `-1` |
  *
  * 最后一行值得单独说：**猜错的两个方向不对称**。猜成 approaching 只是白撤一次针
@@ -358,6 +378,29 @@ export function getConfigNum(key: string, fallback: number): number {
 export function getRetractDirCode(): number {
   const dir = String(getConfig('retract_motor_dir', 'z+'))
   return MOTOR_DIR_CODE[dir] ?? 4
+}
+
+/** {@link readRetractDir} 的三态：声明过（带方向码）、没声明、读不到。 */
+export type RetractDirRead =
+  | { readonly state: 'declared'; readonly code: number }
+  | { readonly state: 'undeclared' }
+  | { readonly state: 'unreadable' }
+
+/**
+ * `retract_motor_dir` 的三态读法。**不要用 {@link getRetractDirCode}**：它把后两态都折成 4。
+ *
+ * 「宿主没接读口」与「读口抛了」都落在 `unreadable`（{@link readProfile} 的 `!ok`）。
+ * 判据与 {@link zExtendSignOrNone} 相同：值在不在快照里，不是值等不等于出厂默认。
+ *
+ * 只有两条分支，靠的是 {@link sanitizeProfile}：它已经把这个键洗成 `'z+'` / `'z-'`
+ * （去掉首尾空白），值不在表里或是 `null` 时整个键丢掉。所以快照里没有这个键
+ * 就是没声明，`String(undefined)` 查不到方向码。
+ */
+export function readRetractDir(): RetractDirRead {
+  const r = readProfile()
+  if (!r.ok) return { state: 'unreadable' }
+  const code = MOTOR_DIR_CODE[String(r.profile['retract_motor_dir'])]
+  return code === undefined ? { state: 'undeclared' } : { state: 'declared', code }
 }
 
 /**

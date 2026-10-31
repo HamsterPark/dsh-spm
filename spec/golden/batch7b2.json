@@ -28042,6 +28042,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -28152,9 +28162,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -28431,6 +28451,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -28541,9 +28571,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -28894,6 +28934,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -28952,9 +29002,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -29272,6 +29332,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -29330,9 +29400,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -29634,6 +29714,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             "Fe_atom"
@@ -29746,9 +29836,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": "Fe_atom",
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -30039,6 +30139,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -30097,9 +30207,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -30340,6 +30460,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -30451,9 +30581,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -30710,6 +30850,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -30839,6 +30989,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -30865,9 +31025,19 @@
           "f0_hz": 30012.5,
           "num_points": 200,
           "parse_error": "Variables 不足 6 项(实际 5),不是一个谱数据块",
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": false,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],
@@ -30996,6 +31166,16 @@
           "verb": "Util_SessionPathGet"
         },
         {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_PropsGet"
+        },
+        {
+          "args": [],
+          "error": "",
+          "verb": "ZSpectr_TimingGet"
+        },
+        {
           "args": [
             1,
             ""
@@ -31055,9 +31235,19 @@
             -2.000002343
           ],
           "num_points": 24,
+          "recv_timeout_s": 855.0,
           "save_basename": null,
           "sign_convention": "z_rel 从 0 起、向表面为负",
           "spectrum_parsed": true,
+          "sweep_estimate_s": 600.0,
+          "sweep_settings": {
+            "npts": null,
+            "nsweeps": null,
+            "timing_keys": [
+              "z_averaging_time_s"
+            ],
+            "why": "读不到 Z 谱扫掠设定，退回保守上限"
+          },
           "warnings": [
             "dat_attribution_failed"
           ],

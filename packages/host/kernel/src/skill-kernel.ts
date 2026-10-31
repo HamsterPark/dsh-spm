@@ -19,8 +19,10 @@ import { isStateChangingSkill } from './act-gate.js'
 import { argsHash } from './args-hash.js'
 import type { HardwareState } from './hardware-state.js'
 import { checkStatePreconditions, type ComputedCheck } from './preconditions.js'
+import { FLOAT_SLACK } from './safety-tables.js'
 import { SIParseError, parseQuantity } from './si.js'
 import { isStrictParam, siParams } from './tool-schema.js'
+import type { TransportInfo } from './transport-policy.js'
 
 // ── 契约类型 ────────────────────────────────────────────────────────────────
 
@@ -99,6 +101,11 @@ export interface SkillCallRecord {
   readonly args: readonly unknown[]
   readonly values?: readonly unknown[] | undefined
   readonly error?: string | undefined
+  /**
+   * 失败发生在传输层时由仪器层带上（`transport-policy.ts`）。没有它的错误一律不重试：
+   * 控制器的应答、中止门的拒绝、测试替身的记录都不带它。
+   */
+  readonly transport?: TransportInfo | undefined
 }
 
 /** 技能发一次仪器调用。对应旧仓的 `context.safe_call`。 */
@@ -822,9 +829,14 @@ export class SkillKernel {
         }
       }
       if (typeof v === 'number') {
-        if (p.minValue !== null && p.minValue !== undefined && v < p.minValue) {
+        // 界带 FLOAT_SLACK 的相对容差，向外放：'100n' 解析成 1.0000000000000001e-07，要能通过
+        // 1e-07 的上限。参考实现里技能自己的检查是严格的，所以这是放宽，不是移植——
+        // 见 spec/deviations.md D-LIMITS-2。文案仍印原界。
+        const lo = p.minValue
+        const hi = p.maxValue
+        if (lo !== null && lo !== undefined && v < lo - FLOAT_SLACK * Math.abs(lo)) {
           out.push(explainValidation(p, v, 'min'))
-        } else if (p.maxValue !== null && p.maxValue !== undefined && v > p.maxValue) {
+        } else if (hi !== null && hi !== undefined && v > hi + FLOAT_SLACK * Math.abs(hi)) {
           out.push(explainValidation(p, v, 'max'))
         }
       }
