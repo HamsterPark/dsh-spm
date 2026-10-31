@@ -42,7 +42,7 @@ FORMAT = 1
 MANIFEST = "manifest.json"
 #: build 比较 manifest 时只看这两块：来源记录与公开文本标记本来就不同
 MANIFEST_COMPARED = ("collectors", "mast_root")
-#: 与调查时的私有扫描同口径：拉丁词元与两字以上的汉字串
+#: 拉丁词元与两字以上的汉字串
 TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9_₀-₉()\-]{2,}|[一-鿿]{2,}")
 
 
