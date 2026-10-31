@@ -127,6 +127,17 @@ describe('.sxm ingestion through dsh-spm-nanonis-files', () => {
     expect(frameGeometry({ scan_range: '1E-9', scan_offset: '0' , scan_pixels: [8, 4] })).toBeNull()
     expect(frameGeometry({ scan_range: '1E-9 2E-9', scan_offset: '0 0' })).toBeNull()
   })
+
+  it('decodes the header as real Latin-1: 0x80 and 0x9F stay U+0080 and U+009F on every Node version', () => {
+    // `new TextDecoder('latin1')` is windows-1252 in WHATWG (Node 24 gives U+20AC and U+0178 for these two bytes,
+    // Node 22.19 gives the C1 controls). The reference decodes with Python's latin-1, one byte per character.
+    const latin1 = (text: string): Uint8Array => Uint8Array.from(Buffer.from(text, 'latin1'))
+    const header = ':DATA_INFO:\n\t0\tA\u0080\u009fB\tm\u009f\tfwd\n:SCANIT_END:\n:DATA_INFO:\n\t9\tAfterEnd\tm\tfwd\n'
+    expect(sxmChannelUnits(latin1(header))).toEqual({ 'A\u0080\u009fB': 'm\u009f' })
+    // without `:SCANIT_END:` the header ends at the data marker 0x1A 0x04
+    const marker = ':DATA_INFO:\n\t0\tZ\u009f\tm\tfwd\n\u001a\u0004\t9\tAfterMarker\tm\tfwd\n'
+    expect(sxmChannelUnits(latin1(marker))).toEqual({ 'Z\u009f': 'm' })
+  })
 })
 
 describe('arrays of a scan in progress', () => {
