@@ -36,7 +36,7 @@
 
 1. 在仓外建一个只依赖 `@deepseek-ai/dsh@<版本>` 的项目：逐个向 registry 解析闭包里的 `@deepseek-ai/dsh*` 包，用 `pnpm-workspace.yaml` 的 `overrides` 把它们和 Cordis 系包都钉成确切版本，`allowBuilds` 全部设为 `false`（不跑任何构建脚本），然后 `pnpm install`。
 2. 运行 `node node_modules/@deepseek-ai/dsh/lib/bin.js --profile <web|headless> --dump-config`。不带 `--patch`，也不用已装了 `dsh-spm` 的 profile，否则输出里会出现带本机路径的 `patched by` 标题。运行时把 `DSH_HOME`、`DSH_AGENTS_HOME`、`HOME`、`USERPROFILE`、`APPDATA`、`LOCALAPPDATA`、`TEMP` 都指到该临时目录，网络代理指向不可用地址；每个组合用各自的新目录，因为 `--dump-config` 会在 `DSH_HOME` 里建 profile 目录。
-3. 确认 stderr 为空；运行前后各取一份真实 `~/.dsh`、`~/.agents` 的元数据快照（只读路径、类型、大小、时间，不读内容），逐字节比对相同。
+3. 确认 stderr 为空。隔离靠第 2 步的环境构造来保证；不要读取真实的 `~/.dsh`、`~/.agents`，元数据也不读。
 4. 把 stdout 保存为 `dump-config.<版本>.yml`（web）和 `dump-config.headless.<版本>.yml`；包清单 `pkglist.<版本>.txt` 取自该项目 `pnpm-lock.yaml` 里去重排序后的 `@deepseek-ai/*@<版本>`（该项目没有给第三方 `zod` 写 override，锁里可以有两份，所以不要拿 `scripts/gen-dsh-pins.ts` 的导出器处理它，按 `@deepseek-ai/*` 自己去重）。提交前扫描本机用户名、盘符路径和临时目录名。与上一版逐字节相同时也存新名字的文件。
 
 与前一版比较后，在升级日志记录日期、配置差异、包差异和验证结果。导出配置不代表完成插件启动、安装态或模型验收。
