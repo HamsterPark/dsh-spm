@@ -91,10 +91,14 @@ export function frameGeometry(header: SxmHeader): ScanGeometry | null {
   }
 }
 
-/** Header text before `:SCANIT_END:` (or the data marker), decoded as Latin-1. */
+/**
+ * Header text before `:SCANIT_END:` (or the data marker), decoded as Latin-1: one byte, one character, as the
+ * reference does with Python's `decode("latin-1")`. Not `TextDecoder('latin1')`: WHATWG makes that label
+ * windows-1252, so Node 24 turns 0x80 into U+20AC while Node 22.19 keeps U+0080.
+ */
 function headerText(bytes: Uint8Array, maxBytes = 1_048_576): string {
   const chunk = bytes.subarray(0, Math.min(bytes.length, maxBytes))
-  const text = new TextDecoder('latin1').decode(chunk)
+  const text = Buffer.from(chunk).toString('latin1')
   const end = text.indexOf(':SCANIT_END:')
   if (end >= 0) return text.slice(0, end)
   const marker = text.indexOf('\x1a\x04')
