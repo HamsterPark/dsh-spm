@@ -24,10 +24,11 @@
  * dsh 一侧的事实，升级时按 docs/dsh/upgrades.md 第 3 步重核：
  *   - 预算：入仓 headless 组合快照里 `spill-policy` 行的 `maxInlineTokens`；
  *   - 文字估算（dsh-token-meter）：每块 ceil(字符数 / 4) + 4；
- *   - 图像价格：`deepSeekImageTokens(768, 768)` = 382（dsh-llm-deepseek 0.2.1-rc.4 的公式；本仓的依赖里没有这个包，只能写常量）；
+ *   - 图像价格：`deepSeekImageTokens(768, 768)` = 382（dsh-llm-deepseek 的公式，0.2.1-rc.4 与 rc.5 相同；本仓的依赖里没有这个包，只能写常量）；
  *   - 句柄文字：由 `requestImageHandleText`（dsh-llm）真函数生成。
  *
- * 2026-10-28 在 dsh 0.2.1-rc.4 上实测这一组合：文字 5 842 加图像 6 396，合计 12 238 token，余量 262。
+ * 2026-10-28 在 dsh 0.2.1-rc.4 上实测这一组合：文字 5 842 加图像 6 396，合计 12 238 token，余量 262；
+ * 2026-11-01 在 0.2.1-rc.5 上重测，数字相同。
  *
  * 唯一的假设是附件只读路径的长度，见 READONLY_PATH_CHARS。路径更长（DSH_HOME 很深）时，最坏回复可能越过预算：
  * dsh 把它转存到文件，模型拿到的是引用而不是内嵌的全部图。stm_inspect 是只读工具，这只让体验变差，不涉及安全。
@@ -66,7 +67,7 @@ function spillBudget(): number {
 /** dsh-token-meter 对一块文字的估算：每 4 个字符（UTF-16 码元）一个 token，每块另加 4。 */
 const textTokens = (chars: number): number => Math.ceil(chars / 4) + 4
 
-/** 外部事实：`deepSeekImageTokens(768, 768)`，dsh-llm-deepseek 0.2.1-rc.4。 */
+/** 外部事实：`deepSeekImageTokens(768, 768)`，dsh-llm-deepseek 0.2.1-rc.4 与 rc.5。 */
 const IMAGE_TOKENS_AT_DEFAULT_DISPLAY = 382
 
 /**

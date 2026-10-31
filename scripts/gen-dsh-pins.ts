@@ -19,7 +19,7 @@ const root = new URL('../', import.meta.url)
 const LOCK = fileURLToPath(new URL('pnpm-lock.yaml', root))
 const YAML = fileURLToPath(new URL('pnpm-workspace.yaml', root))
 
-/** 只读 `packages:` 段：键形如 `'@deepseek-ai/dsh-tools@0.2.1-rc.4':`；`snapshots:` 段的键带 peer 后缀，不重复数。 */
+/** 只读 `packages:` 段：键形如 `'@deepseek-ai/dsh-tools@<版本>':`；`snapshots:` 段的键带 peer 后缀，不重复数。 */
 export function lockedVersions(lockText: string): Map<string, Set<string>> {
   const start = lockText.indexOf('\npackages:\n')
   const end = lockText.indexOf('\nsnapshots:\n')

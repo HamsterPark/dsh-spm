@@ -4,7 +4,8 @@
  * `status` 都是 0，判定函数必须仍然给出红。
  *
  * 判定函数不比较任何版本号，夹具里的版本串只是那份输出的一部分。产生这些输出的 `dsh-app-boot` 与 `dsh`
- * 包在 rc.4 与 rc.3 逐文件相同（tarball 比对）；夹具没有在 rc.4 上重新抓取。
+ * 包在 rc.3、rc.4、rc.5 之间逐文件相同（tarball 比对）；夹具没有重新抓取，rc.5 上的真实输出
+ * 仍含 `skipping profile bundle` 与 `incompatible` 两个关键词。
  */
 import { describe, expect, it } from 'vitest'
 import { FORBIDDEN_STDERR, judgeCompose, judgeExemptions } from '../../../../scripts/probe-compose.ts'

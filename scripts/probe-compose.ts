@@ -6,8 +6,8 @@
  *
  * 为什么不看退出码：dsh 的插件兼容闸（0.1.5 没有，0.1.7-rc.2 已有）在 bundle 的 `engines.dsh`（没有时是
  * `@deepseek-ai/dsh*` 的 peer）与运行时版本不符时，**整个 bundle 被跳过，只在 stderr 打一行，退出码仍是 0**
- * （2026-10-20/26 在 0.2.1 的 rc.2 与 rc.3 上实测；承担这条行为的 `dsh-app-boot` 与 `dsh` 包在 rc.4 与 rc.3
- * 逐文件相同〔tarball 比对〕，未在 rc.4 上重测）；
+ * （2026-10-20/26 在 0.2.1 的 rc.2 与 rc.3 上实测，11-01 在 rc.5 上用一份把 `engines.dsh` 写成旧版本的已装插件复现；
+ * 承担这条行为的 `dsh-app-boot` 与 `dsh` 包在 rc.3、rc.4、rc.5 之间逐文件相同〔tarball 比对〕）；
  * 带 `--patch` 的 overlay 引用了不存在的行同样只是 stderr 一行。所以判据是：
  *   1. stderr 里没有 `did not activate` / `skipping profile bundle` / `incompatible`，且根本没有别的输出；
  *   2. 组合树里有 `# == dsh-spm` 这一段，期望的行都在；
