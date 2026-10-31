@@ -21,7 +21,7 @@ import {
   type ContentBlock,
   type GenerateOptions,
   type LlmResolvedModelInfo,
-  type Message,
+  type RequestMessage,
   type StreamChunk,
   type ToolCallId,
 } from '@deepseek-ai/dsh-llm'
@@ -40,7 +40,7 @@ type Reply = { readonly calls: readonly (readonly [id: string, name: string])[] 
 
 /** 脚本化的模型：按次序回放，并记下每次请求带的消息。 */
 class ScriptedModel extends LlmAdapter {
-  readonly requests: Message[][] = []
+  readonly requests: RequestMessage[][] = []
   constructor(private readonly script: readonly Reply[]) {
     super()
   }
@@ -63,21 +63,22 @@ class ScriptedModel extends LlmAdapter {
   }
 }
 
-type ToolResultBlock = Extract<ContentBlock, { type: 'tool-result' }>
+// dsh 0.2：工具结果是独立的 `role: 'tool'` 消息（toolCallId / isError 在消息上），
+// 不再是 user 消息里的 `tool-result` 块。
+type ToolResultMessage = Extract<RequestMessage, { role: 'tool' }>
 
-const toolResultsIn = (content: readonly ContentBlock[]): ToolResultBlock[] =>
-  content.filter((b): b is ToolResultBlock => b.type === 'tool-result')
+const toolResultsIn = (messages: readonly RequestMessage[]): ToolResultMessage[] =>
+  messages.filter((m): m is ToolResultMessage => m.role === 'tool')
 
 /** 一次请求里的全部工具结果：`[调用 id, 是否出错]`，按出现顺序。 */
-const resultsOf = (messages: readonly Message[] | undefined): [string, boolean][] =>
-  (messages ?? []).flatMap((m) => toolResultsIn(m.content)).map((b) => [String(b.toolCallId), b.isError === true])
+const resultsOf = (messages: readonly RequestMessage[] | undefined): [string, boolean][] =>
+  toolResultsIn(messages ?? []).map((m) => [String(m.toolCallId), m.isError === true])
 
 /** 被拒结果的正文。 */
-const refusalText = (messages: readonly Message[] | undefined, callId: string): string =>
-  (messages ?? [])
-    .flatMap((m) => toolResultsIn(m.content))
-    .filter((b) => String(b.toolCallId) === callId)
-    .flatMap((b) => b.content)
+const refusalText = (messages: readonly RequestMessage[] | undefined, callId: string): string =>
+  toolResultsIn(messages ?? [])
+    .filter((m) => String(m.toolCallId) === callId)
+    .flatMap((m): readonly ContentBlock[] => m.content)
     .map((c) => (c.type === 'text' ? c.text : `[${c.type}]`))
     .join('')
 
@@ -122,7 +123,7 @@ describe('真 agent-loop 驱动的一动一观', () => {
     })
     ctx.on('session/event', (_session, event) => {
       if (event.type === 'tool/call') timeline.push(`tool/call ${String(event.data.callId)}`)
-      if (event.type === 'tool/result') timeline.push(`tool/result ${toolResultsIn(event.data.message.content).map((b) => String(b.toolCallId)).join(',')}`)
+      if (event.type === 'tool/result') timeline.push(`tool/result ${String(event.data.message.toolCallId)}`)
     })
 
     const handle = await ctx.agents.create({ sessionId: 'act-gate-loop' as SessionId, agentOptions: { provider: 'script', model: 'm' } })

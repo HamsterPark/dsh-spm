@@ -28,6 +28,9 @@ import { z } from 'zod'
 /** 我们那段实时状态块在提示装配里的名字（与 `instrument-state` 里的常量同源）。 */
 export const LIVE_STATE_SECTION = 'stm-live-state'
 
+/** dsh 运行时上下文快照消息的来源 kind（`dsh-agent-loop` 的生产者名）。 */
+export const RUNTIME_CONTEXT_KIND = 'runtime-context'
+
 /** 投影出去的整值。**纯 JSON**——投影缓存要持久化它。 */
 export interface MastInstrumentStateView {
   /** 模型最近一次看到的实时状态块**原文**；从没看到过就是 `null`。 */
@@ -70,7 +73,9 @@ export function applyEvent(
   if (event.type !== 'user/message') return state
   const data = event.data as { source?: SnapshotSource } | undefined
   const src = data?.source
-  if (src === undefined || src.kind !== 'plugin' || src.form !== 'snapshot') return state
+  // dsh 0.1.7 起快照来源是生产者自己的 kind；之前的 `{ kind: 'plugin', plugin: '@deepseek-ai/dsh-system-prompt' }`
+  // 由 dsh 的 V3→V4 会话迁移改写成同一个 kind，所以只认这一个。
+  if (src === undefined || src.kind !== RUNTIME_CONTEXT_KIND || src.form !== 'snapshot') return state
   const sections = src.sections
   if (!Array.isArray(sections)) return state
 
@@ -88,7 +93,7 @@ export function applyEvent(
  * 否则旧版本缓存的行会被继续往前叠加成垃圾。
  */
 export const MAST_INSTRUMENT_STATE_KEY = 'mast.instrumentState'
-export const MAST_INSTRUMENT_STATE_VERSION = 1
+export const MAST_INSTRUMENT_STATE_VERSION = 2
 
 /** 状态与线上视图同形，所以一个 schema 够用。**纯 JSON**——缓存要持久化它。 */
 const viewSchema = z.object({

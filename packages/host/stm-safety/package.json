@@ -13,9 +13,9 @@
     "dsh-spm-stm-records": "workspace:*"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "4.0.2"
+    "@deepseek-ai/cordis": "4.0.5"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "4.0.2"
+    "@deepseek-ai/cordis": "4.0.5"
   }
 }

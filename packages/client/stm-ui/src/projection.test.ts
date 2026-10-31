@@ -14,8 +14,7 @@ function snapshotEvent(seq: number, text: string, extraSections: { name: string;
       role: 'user',
       content: [{ type: 'text', text }],
       source: {
-        kind: 'plugin',
-        plugin: 'runtime-context',
+        kind: 'runtime-context',
         form: 'snapshot',
         sections: [...extraSections, { name: LIVE_STATE_SECTION, text }],
       },
@@ -38,25 +37,50 @@ describe('投影 fold', () => {
   })
 
   it('不关心的事件**返回同一个引用**——不然每个事件都触发一次下游工作', () => {
+    const seen = applyEvent(EMPTY_VIEW, snapshotEvent(0, BLOCK_A))
     for (const e of [
       { type: 'turn/start', seq: 1, data: { turn: 1 } },
       { type: 'assistant/message', seq: 2, data: {} },
-      // 是 user/message 但不是插件快照（真的用户说话）
+      // 是 user/message 但不是运行时上下文快照（真的用户说话）
       { type: 'user/message', seq: 3, data: { role: 'user', content: [], source: { kind: 'user' } } },
-      // 是插件消息但不是 snapshot（比如 model-selection 的 notice）
+      // 别的生产者的消息，也不是 snapshot（比如 model-selection 的 notice）
       {
         type: 'user/message',
         seq: 4,
-        data: { source: { kind: 'plugin', plugin: 'model-selection', form: 'notice', summary: 'x' } },
+        data: { source: { kind: 'model-selection', form: 'notice', summary: 'x' } },
       },
       // 是 snapshot 但里面没有我们那一段
       {
         type: 'user/message',
         seq: 5,
-        data: { source: { kind: 'plugin', form: 'snapshot', sections: [{ name: '别人', text: 'x' }] } },
+        data: { source: { kind: 'runtime-context', form: 'snapshot', sections: [{ name: '别人', text: 'x' }] } },
+      },
+      // dsh 0.1.7 之前的来源形状（迁移前的旧会话日志）不再认
+      {
+        type: 'user/message',
+        seq: 6,
+        data: {
+          source: {
+            kind: 'plugin',
+            plugin: '@deepseek-ai/dsh-system-prompt',
+            form: 'snapshot',
+            sections: [{ name: LIVE_STATE_SECTION, text: 'x' }],
+          },
+        },
+      },
+      // 所有 context 都为空时 dsh 发的「清空」快照：只有 kind，没有 form。不算新的一份——
+      // 模型最近一次看到的实时状态块仍是上一份
+      {
+        type: 'user/message',
+        seq: 7,
+        data: {
+          content: [{ type: 'text', text: 'Current runtime context: none. Earlier runtime-context snapshots no longer apply.' }],
+          source: { kind: 'runtime-context' },
+        },
       },
     ] satisfies FoldableEvent[]) {
       expect(applyEvent(EMPTY_VIEW, e), `${e.type}@${e.seq}`).toBe(EMPTY_VIEW)
+      expect(applyEvent(seen, e), `${e.type}@${e.seq}，已看到过一份之后`).toBe(seen)
     }
   })
 

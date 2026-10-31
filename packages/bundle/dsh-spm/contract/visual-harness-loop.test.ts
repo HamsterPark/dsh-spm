@@ -24,7 +24,7 @@ import {
   type ContentBlock,
   type GenerateOptions,
   type LlmResolvedModelInfo,
-  type Message,
+  type RequestMessage,
   type StreamChunk,
   type ToolCallId,
 } from '@deepseek-ai/dsh-llm'
@@ -88,11 +88,12 @@ class FakeAttachments extends Service {
   }
 }
 
-type ToolResultBlock = Extract<ContentBlock, { type: 'tool-result' }>
-const toolResults = (messages: readonly Message[] | undefined): ToolResultBlock[] =>
-  (messages ?? []).flatMap((m) => m.content).filter((b): b is ToolResultBlock => b.type === 'tool-result')
+// dsh 0.2：工具结果是独立的 `role: 'tool'` 消息，不再是 user 消息里的 `tool-result` 块。
+type ToolResultMessage = Extract<RequestMessage, { role: 'tool' }>
+const toolResults = (messages: readonly RequestMessage[] | undefined): ToolResultMessage[] =>
+  (messages ?? []).filter((m): m is ToolResultMessage => m.role === 'tool')
 const textOf = (blocks: readonly ContentBlock[]): string => blocks.map((b) => (b.type === 'text' ? b.text : `[${b.type}]`)).join('')
-const systemText = (messages: readonly Message[]): string =>
+const systemText = (messages: readonly RequestMessage[]): string =>
   messages.filter((m) => m.role === 'system').map((m) => textOf(m.content)).join('\n')
 
 const dirs: string[] = []

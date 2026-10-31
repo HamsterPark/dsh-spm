@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-/** Native dsh rc.2 M4 acceptance: real headless Agent/Session, then disk replay. */
+/** Native dsh M4 acceptance: real headless Agent/Session, then disk replay. */
 import { randomUUID } from 'node:crypto'
 import { spawn, spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { readSessionRows } from './minimal-session-log.ts'
+import { ACCEPTANCE_CHILD_ENV, acceptanceOverlayRows } from './acceptance-overlay.ts'
+import { pairedToolResult, readSessionRows } from './minimal-session-log.ts'
 
 interface Options {
   installDir: string; dshHome: string; profile: string; credentialFile: string
@@ -97,7 +98,6 @@ async function run(o: Options): Promise<void> {
   const recordsPath = join(dirname(o.evidence), `${runId}.sqlite`)
   const resultsPath = join(dirname(o.evidence), `${runId}.results.jsonl`)
   await mkdir(dirname(overlay), { recursive: true })
-  const disabled = ['tool-bash','tool-pwsh','tool-jobs','tool-fs','tool-fs-search','tool-skill','tool-subagent-control','tool-subagent-list-agents','tool-subagent','tool-subagent-fork','tool-workflow','tool-result-pruner','tool-todo','tool-goal','tool-ralph','tool-web']
   if (!o.inspectExisting) await writeFile(guardPlugin, `
 import { connect } from 'node:net'
 import { writeFileSync } from 'node:fs'
@@ -139,19 +139,21 @@ export async function apply(ctx) {
   if (!o.inspectExisting) await writeFile(overlay, [
     `- id: agent-default-model\n  config:\n    provider: ${JSON.stringify(provider)}\n    model: ${JSON.stringify(model)}`,
     `- id: mast-minimal-runtime\n  config:\n    python: ${JSON.stringify(o.python)}\n    root: ${JSON.stringify(o.simulatorRoot)}\n    ports: [${o.ports.join(', ')}]\n    profile: reference-stm\n    approached: true\n    recordsPath: ${JSON.stringify(recordsPath)}\n    resultsPath: ${JSON.stringify(resultsPath)}\n    runId: ${JSON.stringify(runId)}`,
-    ...disabled.map((id) => `- id: ${id}\n  disabled: true`),
-    `- id: plan-mode\n  disabled: true`,
-    `- id: session-title-llm\n  disabled: true`,
-    `- id: llm-retry\n  disabled: true`,
+    ...acceptanceOverlayRows(),
     `- insert:\n    - id: m4-guard\n      name: ${JSON.stringify(new URL(`file:///${guardPlugin.replace(/\\/g, '/')}`).href)}`,
   ].join('\n'), 'utf8')
 
   const stdout: Buffer[] = [], stderr: Buffer[] = []
   if (!o.inspectExisting) {
+  // agent-instructions 与 skill-filesystem 会读 $DSH_AGENTS_HOME（缺省 ~/.agents）：指向本轮自己的空目录，
+  // 免得用户全局的 AGENTS.md / 技能被带进发给官方 API 的首个请求。
+  const agentsHome = join(o.dshHome, 'agents-home')
+  await mkdir(agentsHome, { recursive: true })
+  if ((await readdir(agentsHome)).length !== 0) throw new Error(`${agentsHome} 必须是空目录（本轮的 DSH_AGENTS_HOME）`)
   const prompt = 'Call stm_hello exactly once. Then call GetBias exactly once. Use the tools; do not infer or invent either result. Report the measured bias with unit V. Do not perform any write or shell action.'
   const child = spawn(process.execPath, [dshBin, '--profile', o.profile, '--patch', overlay, prompt], {
     cwd: o.installDir,
-    env: { ...process.env, DSH_HOME: o.dshHome, DSH_TOOLS_MODE: 'native', DSH_TELEMETRY_DISABLED: '1', DEEPSEEK_API_KEY: apiKey, STMSIM_PYTHON: o.python, STMSIM_ROOT: o.simulatorRoot, STMSIM_PORTS: o.ports.join(','), PYTHONDONTWRITEBYTECODE: '1' },
+    env: { ...process.env, ...ACCEPTANCE_CHILD_ENV, DSH_HOME: o.dshHome, DSH_AGENTS_HOME: agentsHome, DEEPSEEK_API_KEY: apiKey, STMSIM_PYTHON: o.python, STMSIM_ROOT: o.simulatorRoot, STMSIM_PORTS: o.ports.join(','), PYTHONDONTWRITEBYTECODE: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   })
@@ -181,15 +183,14 @@ export async function apply(ctx) {
   if (!chosen) throw new Error(`no durable native session contains GetBias; changed JSONL files: ${changed.join(', ')}`)
   const events = chosen.events
   const calls = events.filter((e) => e.type === 'tool/call')
-  const results = events.filter((e) => e.type === 'tool/result')
   const names = calls.map((e) => e.data?.name)
   if (JSON.stringify(names) !== JSON.stringify(['stm_hello', 'GetBias'])) throw new Error(`native tool calls must be exactly stm_hello,GetBias; got ${names.join(',')}`)
   const getBias = calls[1]
-  const resultCallId = (event: any): unknown => event.data?.message?.content?.find((block: any) => block?.type === 'tool-result')?.toolCallId
-  const result = results.find((e) => resultCallId(e) === getBias.data.callId)
+  // dsh 0.1.7+ (session V4): a tool result is a `role: 'tool'` message carrying toolCallId / isError itself.
+  const result = pairedToolResult(events, getBias.data.callId)
   if (!result) throw new Error(`no durable tool/result paired with GetBias callId ${getBias.data.callId}`)
-  const resultBlock = result.data?.message?.content?.find((block: any) => block?.type === 'tool-result')
-  if (resultBlock?.isError !== false) throw new Error(`durable GetBias tool/result isError is not false: ${JSON.stringify(resultBlock?.isError)}`)
+  const resultMessage = result.data?.message
+  if (resultMessage?.role !== 'tool' || resultMessage.isError !== false) throw new Error(`durable GetBias tool/result is not a successful tool message: ${JSON.stringify({ role: resultMessage?.role, isError: resultMessage?.isError })}`)
   const resultText = JSON.stringify(result.data.message)
   if (!/-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?\s*V\b/i.test(resultText)) throw new Error('durable GetBias tool/result has no numeric V value')
   const requests = events.filter((e) => e.type === 'assistant/message' || e.type === 'assistant/attempt').length

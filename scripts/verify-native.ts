@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { NATIVE_TOOLS, nativePorts, redact } from './native-session.ts'
 import { NativeReadProbe } from './native-probe.ts'
+import { DSH_VERSION } from './dsh-pins.ts'
 
 const HELP = 'node scripts/verify-native.ts --install-dir PROFILE_DIR --pid PID [--ports 6501,6502,6503,6504] --evidence NEW_FILE'
 
@@ -40,7 +41,7 @@ async function main(): Promise<void> {
     if (!isAbsolute(rel) && rel !== '..' && !rel.startsWith(`..${sep}`)) throw new Error('验收必须加载仓库之外的安装包')
     const dshManifest = req.resolve('@deepseek-ai/dsh/package.json'), dshReq = createRequire(dshManifest)
     const version = JSON.parse(await readFile(dshManifest, 'utf8')).version
-    if (version !== '0.1.5-rc.2') throw new Error(`dsh 版本不符：${version}`)
+    if (version !== DSH_VERSION) throw new Error(`dsh 版本不符：${version}`)
     const pluginReq = createRequire(req.resolve('dsh-spm/package.json'))
     if (await realpath(dshReq.resolve('@deepseek-ai/cordis')) !== await realpath(pluginReq.resolve('@deepseek-ai/cordis'))) throw new Error('宿主与插件的 Cordis 模块不是同一实例')
     report.runtime = { pluginPath, dshVersion: version }

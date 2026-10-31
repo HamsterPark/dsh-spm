@@ -6,7 +6,9 @@
 
 ## 准备与安装
 
-已记录的环境为 Windows、Node 24.14.0、pnpm 11.7.0、dsh `0.1.5-rc.2`、Cordis `4.0.2`，模拟器为 Generic 5e / RT Release 15016。Node/pnpm 要求以 [package.json](../package.json) 为准。Nanonis 软件不包含在本仓库中，需自行准备并打开其模拟器。
+已记录的验收环境为 Windows、Node 24.14.0、pnpm 11.7.0，模拟器为 Generic 5e / RT Release 15016（当时安装的 dsh 是 `0.1.5-rc.2`、Cordis `4.0.2`）；现在安装脚本取 compat 的钉版——dsh `0.2.1-rc.4`、Cordis `4.0.5`，见 [scripts/dsh-pins.ts](../scripts/dsh-pins.ts)。Node/pnpm 要求以 [package.json](../package.json) 为准。Nanonis 软件不包含在本仓库中，需自行准备并打开其模拟器。
+
+> **新包尚未验收**：下文「已记录的验收范围」里 2026-09-21 的记录，对应 dsh `0.1.5-rc.2` 下构建的包；本仓已升到 `0.2.1-rc.4`，**尚未对新包重做真实模型与模拟器验收**。在新记录出现之前，把新包视为「已构建、离线检查通过、未经真实会话验收」。
 
 在 Nanonis 中启用 TCP，开放四个不同的控制端口，默认 `6501,6502,6503,6504`。入口会核验 Mimea 与 Sim-Engine 的程序路径、父子关系、启动身份、监听者及实际回环后端连接；只运行一个名字相似的进程不足以通过检查。使用期间不要另开占用同一控制端口的客户端。
 
@@ -55,6 +57,8 @@ node scripts/verify-native.ts --install-dir $profileDir --pid $simulatorPid --po
 ## 用自然语言操作
 
 模型会话需要 DeepSeek 密钥，会发送真实模型请求。启动器优先读取 `DEEPSEEK_API_KEY` 环境变量；也可用 `--credential-file` 指定仅含单个密钥的文本文件，或已有的 dsh `.credentials.yaml`。对于 YAML，仅接受 `version: 1` 并读取 `refs.DEEPSEEK_API_KEY`。密钥只进入本轮 dsh 子进程的环境，不复制到新 home 或报告。
+
+**随请求发往官方 API 的内容。** 模型请求包含提示词与工具结果（含仪器读数）；dsh 0.2 起还包含本轮安装目录的绝对路径（`Current working directory: "…"` 作为必需上下文进入请求），请选不含用户名的安装目录。dsh 自 0.1.6-alpha.1 起缺省开启「会话日志上传」（`session-log-deepseek`，把含工具结果的会话日志增量附在请求上），本入口的验收补丁已显式关闭；OTel 遥测由 `DSH_TELEMETRY_DISABLED=1` 关闭。官方端点上的 API Key 路线还会先请求一次 `GET /models` 模型列表（只带密钥和 `User-Agent`，没有密钥就不发）。`DSH_AGENTS_HOME` 被指向本轮的空目录，用户全局的 `AGENTS.md` 和技能不会进入请求。
 
 沿用之前的目录、PID 和端口变量，把凭据路径改为自己的文件：
 

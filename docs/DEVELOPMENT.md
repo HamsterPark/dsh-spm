@@ -6,8 +6,8 @@
 
 1. 查看 `git status --short` 及相关 diff，保留工作树中的已有改动。
 2. 找到改动对应的实现、测试、金样与偏差记录，明确此次验收命令。阅读 [EXECUTION.md](EXECUTION.md) 和相关交接记录了解历史，但当前行为须回到代码核查。
-3. 修改代码前确认根目录 `package.json` 的运行环境和 pnpm 固定版本。构建使用 `pnpm build`；根目录持有构建脚本，不用 `pnpm -r build` 代替。
-4. 依赖维护或 dsh 升级任务运行 `pnpm check:dsh-latest`。当前策略取 `latest` / `next` 中较大的版本作为升级候选；`alpha` 只读发布说明、记影响，不自动升级。精确锁版与接触面事实见 [facts.md](dsh/facts.md) 和 [upgrades.md](dsh/upgrades.md)。只读审阅和文档修改不因此扩大为升级任务。
+3. 修改代码前确认根目录 `package.json` 的运行环境和 pnpm 固定版本。构建使用 `pnpm build`；根目录持有构建脚本，不用 `pnpm -r build` 代替。换过依赖（尤其是 dsh 升级）之后，先 `pnpm clean` 再 `pnpm build`：增量 `tsc -b` 可能不会对着新的类型重检。
+4. 依赖维护或 dsh 升级任务运行 `pnpm check:dsh-latest`。当前策略取 `latest` / `next` 中较大的版本作为升级候选；`alpha` 只读发布说明、记影响，不自动升级。钉版表由 `pnpm gen:dsh-pins` 从锁文件生成（`--check` 只比对不改写）；装好的 profile 是否真的带上了 `dsh-spm`，用 `pnpm probe:compose` 判定，不看退出码。精确锁版与接触面事实见 [facts.md](dsh/facts.md) 和 [upgrades.md](dsh/upgrades.md)。只读审阅和文档修改不因此扩大为升级任务。
 
 ## 技能迁移的完成定义
 

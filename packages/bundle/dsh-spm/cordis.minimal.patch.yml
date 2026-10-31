@@ -1,5 +1,13 @@
 # 第一版最小可用 bundle：保留 hello 自检，只加载受控的本地 stmsim + GetBias 栈。
 # recordsPath / resultsPath 会由插件按 dsh 启动目录解析；验收时应从独立 DSH_HOME 启动。
+
+# 会话日志上传缺省开启（dsh 0.1.5 缺省关闭，0.1.6-alpha.1 起改为开启）：走官方 DeepSeek API 的请求
+# 会附带会话日志增量，其中含工具结果，也就是仪器读数。`DSH_TELEMETRY_DISABLED` 管不到它
+# （它只管 OTel 遥测那一行）。这个 bundle 默认关掉；要开，在 profile 补丁或 --patch 里覆盖这一行
+# （有 Web 界面时也可以在设置里打开开关）。关闭后再开启会补传积压的会话日志，开之前想清楚。
+- id: session-log-deepseek
+  config:
+    enabled: false
 - insert:
     - id: mast-minimal-hello
       name: dsh-spm
