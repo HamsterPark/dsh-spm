@@ -38,6 +38,23 @@ function instrument(timeoutMs = 10_000): Promise<InstrumentService> {
   })
 }
 
+/**
+ * 前提自己建，不指望前面的文件留下什么：撤着针时 `ZSpectr_Start` 不会睡那 4 s，
+ * 而是立刻回 `no tunnelling junction (tip withdrawn)`，下面的 Timeout 断言就红得莫名其妙
+ * （前面的文件把针退走又没放回去时，整组跑到这一格就是这样红的）。
+ * 合上 Z 反馈，模拟器会从退针轨按 I 增益把 Z 伸出去重新找表面（实测约 2 s），等电流回到设定值附近再往下。
+ */
+async function ensureTunnel(safeCall: ReturnType<typeof createInstrumentCalls>['safeCall']): Promise<void> {
+  const first = async (method: string): Promise<number> => Number(((await safeCall(method)).values ?? [])[0])
+  if ((await first('ZCtrl_OnOffGet')) === 0) await safeCall('ZCtrl_OnOffSet', 1)
+  const setpointA = Math.abs(await first('ZCtrl_SetpntGet'))
+  for (let waitedMs = 0; waitedMs < 10_000; waitedMs += 250) {
+    if (Math.abs(await first('Current_Get')) > 0.5 * setpointA) return
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error('Z 反馈合上 10 s 后电流仍没回到设定值，没有隧道结')
+}
+
 describe('对真 stmsim：budgetedCall 的 timeoutMs 真的落到传输层', () => {
   it('Z-2 1 s 的预算等不到约 4 s 才回的 Z 谱 ⇒ Timeout；等它睡完后 10 s 的预算 ⇒ 成功', async () => {
     const svc = await instrument()
@@ -49,6 +66,7 @@ describe('对真 stmsim：budgetedCall 的 timeoutMs 真的落到传输层', () 
     // 与 stm-skills 集成里 Z-1 同一份配置：4000 点、往返、每点 0.002 s ⇒ 估算 16 s，stmsim 封顶在 4 s
     const open = await safeCall('ZSpectr_Open')
     if (open.error !== undefined) return // 模块没装，这一格没验到
+    await ensureTunnel(safeCall)
     await safeCall('ZSpectr_RangeSet', 0, 5e-10)
     await safeCall('ZSpectr_PropsSet', 1, 4000, 1, 1, 2, 1)
     await safeCall('ZSpectr_TimingSet', 0, 0.001, 10, 0.001, 0.001, 0, 0)

@@ -124,11 +124,16 @@ describe('对真 stmsim：`NeedModule` 那个子串在真文案里吗', () => {
     //
     // 本机 stmsim 实测（2026-09-14）：
     //   NanonisError: NeedModule: Cannot access the 'SpectrumAnlzr' module. …
+    //
+    // ⚠️ 公开的 STM-Bench 快照（2026-11-02 实测）的命令注册表里**没有** SpectrumAnlzr 和 AtomTrack 的动词：
+    // 对它们模拟器回的是 `Command not recognized`，不是 `NeedModule`。要拿到 NeedModule，动词得在注册表里，
+    // 而它所属的模块又得在 profile 的 `modules_not_loaded` 里。两个条件同时成立的有 OsciHR
+    // （两份 profile 都没装）和 PLL（`reference-stm` 没装，`reference-stm-qplus` 装了）。
     const ctx = await instrument()
     let seen = 0
     for (const [verb, args] of [
-      ['SpectrumAnlzr_DCGet', [1]],
-      ['AtomTrack_StatusGet', [0]],
+      ['OsciHR_Run', []],
+      ['PLL_OutOnOffGet', [1]],
     ] as const) {
       const rec = await ctx.safeCall(verb, ...args)
       if ((rec.error ?? '') === '') continue // 装了也是合法结局
