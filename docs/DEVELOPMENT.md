@@ -129,13 +129,26 @@ MAST 专用导出器需要私有参考实现和适配的 Python 环境，不属�
 |---|---|---|
 | 单元 + 契约 | `pnpm test --project unit --project contract` | 已安装依赖、完成构建；契约测试使用真实上游包，不要求模型密钥或外部模拟器 |
 | 定向验证 | `pnpm test --project unit --project contract <test-path>` | 将占位符换成真实测试路径；确认输出确实执行了预期测试 |
-| 模拟器集成 | `pnpm test --project integration` | 显式配置 `STMSIM_PYTHON` / `STMSIM_ROOT`；启动实际模拟器 |
+| 模拟器集成 | `pnpm test --project integration` | 显式配置 `STMSIM_PYTHON` / `STMSIM_ROOT`；启动实际模拟器。CI 的 `integration` job 在 ubuntu 上跑它，见下 |
 | 默认全部项目 | `pnpm test` | 包含 integration，因此也要求上述外部依赖 |
 | 覆盖率 | `pnpm test:coverage --project unit --project contract` | 检查配置中现有门槛；覆盖率不代替行为判据或硬件验证 |
 
 集成测试由 [vitest.stmsim-setup.ts](../vitest.stmsim-setup.ts) 管理 STM-Bench，使用本地 16501–16504 端口。`STMSIM_PROFILE` 可选，默认 `reference-stm`；它选择外部模拟器的配置，不是 dsh profile。不要与使用相同端口的实例同时运行。缺少必需环境变量会明确失败，不会静默跳过。
 
 历史 CI 失败与环境差异在 [RELEASE-TODO.md](RELEASE-TODO.md)。运行时报告本次结果；若基线已有失败，记录具体用例和原因，不能把后续失败都归因于当前修改。
+
+### CI 里的 integration job
+
+[ci.yml](../.github/workflows/ci.yml) 的 `integration` job 对着真模拟器跑 `pnpm test --project integration`（台账 B11），只在 ubuntu 上、与 `build` 并行。它在主仓之后按完整 SHA 检出公开的 [STM-Bench](https://github.com/HamsterPark/STM-Bench)（`STM_BENCH_SHA`，现为 `cfd042949df6e436bdff944ab981935f43729e35`），先用 `rev-parse` 核对检出的提交，再用 Python 3.13 和精确版本的 numpy 2.4.4、scipy 1.17.1、pyyaml 6.0.3 启动 stmsim。三个库的版本取自该提交 `requirements.txt` 括号里「上次跑过的版本」；不要写成不带版本的 `pip install`，否则数值漂移会被当成本仓的回归。这个 job 不是必需检查，也没有任何失败豁免；Windows 没有加。
+
+钉的提交和验收记录里的提交不是一回事。受管 STM-Bench 的模型会话验收绑定包哈希，用的是 `5a21f19`（本仓历次验收所用提交的公开等价物），没有在 `cfd0429` 上重做过，不得外推。
+
+升级 STM-Bench 钉版：
+
+1. `git ls-remote https://github.com/HamsterPark/STM-Bench.git main` 看新提交。
+2. 新旧两个提交各检出一份干净的副本（`git status --porcelain --ignored` 为空）。同一份本仓代码、同一个 Python 环境和三库版本，只换 `STMSIM_ROOT`，各整组跑一遍 `pnpm test --project integration`。每次整组前先删掉 `node_modules/.vite/vitest/*/results.json`：vitest 按上次结果排序（失败的先跑），不删的话两次的运行顺序不同，共用同一台模拟器的用例之间的状态泄漏会被误认成版本差异。
+3. 比较两次的文件数、条数、红的集合和报错文字。有差别时在两个提交之间二分到首个坏提交，再分三类处理：模拟器有意改变了行为、本仓断言写死了旧行为 ⇒ 更新断言并写明理由；模拟器缺陷 ⇒ 到 STM-Bench 提 issue，本仓继续钉旧提交；本仓实现有未声明的假设 ⇒ 修实现并补测试。不靠跳过用例或放宽断言转绿。
+4. 全绿后在一个 PR 里同时改 `ci.yml` 的 `STM_BENCH_SHA`（`requirements.txt` 括号里的版本变了，就连同 pip 那一行）和本节的提交号。
 
 ## 安装态与两种模拟器
 
