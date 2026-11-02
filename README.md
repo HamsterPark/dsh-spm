@@ -79,11 +79,11 @@ flowchart LR
 
 **Status: active development · experimental.** APIs, configuration and supported tools continue to evolve. Current acceptance covers the simulator workflows below; real-instrument validation is scheduled for Phase 8. Development priorities and evidence are collected in the [remaining work](docs/MIGRATION-TODO.md) and [review guide](docs/REVIEW-GUIDE.md).
 
-The following Windows acceptance records were produced on **2026-09-21**. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify. Those packages were built under dsh `0.1.5-rc.2`; the pinned version is now `0.2.1-rc.5` and the new packages have not been through acceptance yet.
+The following Windows acceptance records are dated separately. Each row identifies its own package; rebuilding the same filename produces a new artifact to verify. The managed STM-Bench record was produced on **2026-11-01 and 2026-11-02** for a package built under dsh `0.2.1-rc.5`. The Nanonis record was produced on **2026-09-21** for a package built under dsh `0.1.5-rc.2`; the pinned version is now `0.2.1-rc.5` and the new Nanonis package has not been through acceptance yet.
 
 | Runtime | Model-visible tools | Recorded result |
 |---|---|---|
-| Managed STM-Bench | `stm_hello`, `GetBias` | Package `8c510e…` installed in two independent homes. Real model calls returned bias matching an independent TCP read, with persisted results. A separate dispatcher check recorded failure after simulator disconnection. [Evidence](docs/handoff/minimum-usable-20260921.md) |
+| Managed STM-Bench | `stm_hello`, `GetBias` | Package `b8f7b3…` (dsh `0.2.1-rc.5`) installed in two independent homes. Real model calls returned bias matching an independent TCP read, with persisted results; the sessions ran against STM-Bench `5a21f19` (two) and `cfd0429` (one). A separate dispatcher check recorded failure after simulator disconnection. [Evidence](docs/handoff/reacceptance-managed-20261102.md) |
 | Already-running Nanonis Mimea + STM Simulator | Hello, bias/current/Z/scan-status reads, `SetBias`, `StartScan`, `StopScan` | Package `b5a7ab…` completed installation and a real model workflow: 7 requests, 9 tool calls, verified bias changes and scan start/stop, with session/SQLite/JSONL records linked by call ID. [Evidence](docs/handoff/native-nanonis-20260921.md) |
 
 The recorded Nanonis run covers Generic 5e / RT Release 15016 and verifies bias and scan state. Complete image acquisition, full client integration, other platforms and public npm distribution are further milestones. These dated records identify the packages and workflows evaluated; MAST's instrument experience informs the design, while dsh-spm's hardware acceptance is tracked separately.
