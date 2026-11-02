@@ -41,7 +41,7 @@
 
 ### 坐标与扫描角
 
-- **像素到压电的换算**：`ExtractClusters`、`SelectPokedCluster`、`VerifyAdatomAt`、`FindFlatRegion`、`LocateStepEdge`，以及经 `VerifyAdatomAt` 用到同一换算的 `MoveAtomTo`，都按「正扫描角为顺时针」把帧内像素换算成压电坐标（`D-ROT-1`）。这个方向取自参考实现的修复；挂载这些技能之前，先在目标装置或与之同约定的模拟器上，用一帧扫描角不为零的已知特征核对一次正方向。STM-Bench 按逆时针渲染，扫描角不为零时结果在它上面对不上，不要拿它做这项核对。
+- **像素到压电的换算**：`ExtractClusters`、`SelectPokedCluster`、`VerifyAdatomAt`、`FindFlatRegion`、`LocateStepEdge`，以及经 `VerifyAdatomAt` 用到同一换算的 `MoveAtomTo`，都按「正扫描角为顺时针」把帧内像素换算成压电坐标（`D-ROT-1`）。这个方向取自参考实现的修复；挂载这些技能之前，先在目标装置或与之同约定的模拟器上，用一帧扫描角不为零的已知特征核对一次正方向。STM-Bench 自 `cfd0429` 起也按顺时针渲染，但它的方向是照同一约定选的，不是独立测出来的，拿它核对正方向等于循环论证，所以不要拿它做这项核对；这项核对仍要在目标装置或厂商模拟器上做。
 - **视觉线束的坐标**：`stm_detect_blobs` 等视觉工具报的扫描系坐标仍按逆时针换算（与 VISTA-SPM 一致）。扫描角不为零的帧上，它们与上一条各技能报的压电坐标差一个绕帧心 2θ 的转动，不得直接用于驱动针尖或扫描框。
 
 ### 偏压
