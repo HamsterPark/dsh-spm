@@ -47,11 +47,8 @@ jobs:
       # 本仓是 TS project references 的一棵树，本来也该由根一次 `tsc -b` 全建。
       - run: pnpm build
 
-      # 只跑 unit + contract。**integration 需要真 stmsim**，而 stmsim 在 STM-Bench 仓库里。
-      # STM-Bench 现已公开（HamsterPark/STM-Bench），CI 可以拉取，但这里还没有接上：
-      # 要加 setup-python + 按 SHA 钉住的 checkout，把 STMSIM_PYTHON / STMSIM_ROOT 喂给
-      # `pnpm test --project integration`（台账 B11）。
-      # 本地跑全量：设好那两个变量后 `pnpm test`。
+      # 只跑 unit + contract。integration 要真 stmsim，由下面的 `integration` job 单独跑（台账 B11）。
+      # 本地跑全量：设好 STMSIM_PYTHON / STMSIM_ROOT 后 `pnpm test`。
       - run: pnpm test --project unit --project contract
 
       # 导出工具的单测（tools/spec-export/tests/）：只用标准库和 git，不需要参考仓、NumPy 或 SciPy。
@@ -61,3 +58,53 @@ jobs:
         with:
           python-version: '3.13'
       - run: python -m unittest discover -s tools/spec-export/tests -v
+
+  integration:
+    # 对着真 stmsim 跑 integration 项目（台账 B11）。与 build 并行，不设 needs；只跑 ubuntu 一格，
+    # 标签与上面矩阵里的 ubuntu-latest 相同，随它一起迁到 26.04（两个镜像上都有 Python 3.13）。
+    # 不是必需检查，也没有任何失败豁免：红了就是红了。
+    #
+    # STM-Bench 钉在 STM_BENCH_SHA 这一个完整提交；三个 Python 库钉成该提交 requirements.txt
+    # 括号里「上次跑过的版本」，免得数值漂移被误当成本仓的回归。怎么升钉见
+    # docs/DEVELOPMENT.md「CI 里的 integration job」。
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      STM_BENCH_SHA: cfd042949df6e436bdff944ab981935f43729e35
+    steps:
+      # 三个 action 的钉法同 build job。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # 必须在主仓检出之后：主仓的检出会清理工作区，放在后面会把 stm-bench/ 清掉。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: HamsterPark/STM-Bench
+          ref: ${{ env.STM_BENCH_SHA }}
+          path: stm-bench
+          persist-credentials: false
+      - name: 核对 STM-Bench 提交
+        run: test "$(git -C stm-bench rev-parse HEAD)" = "$STM_BENCH_SHA"
+
+      - run: corepack enable
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: pnpm
+      - id: py
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: 安装 stmsim 的依赖（精确版本）
+        run: |
+          python -m pip install numpy==2.4.4 scipy==1.17.1 pyyaml==6.0.3
+          python -c "import sys, numpy, scipy, yaml; print(sys.version.split()[0], numpy.__version__, scipy.__version__, yaml.__version__)"
+      - run: pnpm install --frozen-lockfile
+
+      # 不需要先 pnpm build：vitest 把工作区包别名到各自的 src（vitest.config.ts）。
+      # 缺 STMSIM_PYTHON / STMSIM_ROOT 时 globalSetup 直接抛错，不会静默跳过。
+      - name: integration
+        env:
+          STMSIM_PYTHON: ${{ steps.py.outputs.python-path }}
+          STMSIM_ROOT: ${{ github.workspace }}/stm-bench
+        run: pnpm test --project integration
