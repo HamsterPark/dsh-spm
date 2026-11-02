@@ -26,7 +26,7 @@
 
 ## 1. 当前位置（历史快照，截至 2026-09-20）
 
-> 本节没有再更新。2026-09-21 起本仓已公开发布（[发布检查](RELEASE-TODO.md)）；此后的运行验收见 [受管入口](handoff/minimum-usable-20260921.md) 与 [原生入口](handoff/native-nanonis-20260921.md)，迁移进度以 [spec/progress.json](../spec/progress.json) 为准。
+> 本节没有再更新。2026-09-21 起本仓已公开发布（[发布检查](RELEASE-TODO.md)）；此后的运行验收见受管入口（[2026-09-21](handoff/minimum-usable-20260921.md)、[2026-11-02](handoff/reacceptance-managed-20261102.md)）与 [原生入口](handoff/native-nanonis-20260921.md)，迁移进度以 [spec/progress.json](../spec/progress.json) 为准。
 
 进度：**0.1 ✅**（09-02 环境与 Windows 冒烟）· **0.1.5 ✅**（版本裁决：不升 0.1.3，锁留 `0.1.2-rc.1`；`LICENSE` 落盘）
 · **0.2 ✅**（仓库骨架）· **0.3 ✅**（防腐层与版本锁）· **0.4 ✅**（总 bundle 与 `stm_hello`，真实 dsh 集成已验）
