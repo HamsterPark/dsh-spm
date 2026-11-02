@@ -7,7 +7,7 @@
 import { Context, Service, SystemPrompt } from 'dsh-spm-compat'
 import { instrumentStateProvider } from 'dsh-spm-instrument-state'
 import { stmsimProvider } from 'dsh-spm-instrument-stmsim'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { watchdogProvider } from '../src/index.js'
 
 const PORTS = [16501, 16502, 16503, 16504]
@@ -63,6 +63,58 @@ function svcOf(ctx: Context, timeoutMs = 10_000): Promise<Context['stmWatchdog']
     })
   })
 }
+
+/** 前后置钩子直接问仪器用的口：只挂 `stmsimProvider`，不带看门狗。 */
+interface Instrument {
+  call(method: string, args: readonly unknown[]): Promise<{ values?: readonly unknown[] }>
+}
+
+async function withInstrument<T>(fn: (inst: Instrument) => Promise<T>): Promise<T> {
+  const ctx = new Context()
+  ctx.plugin(SystemPrompt, {})
+  ctx.plugin(stmsimProvider, { spawn: false, ports: PORTS })
+  try {
+    const inst = await new Promise<Instrument>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('ctx.instrument 没挂上')), 10_000)
+      ctx.inject(['instrument'], (c) => {
+        clearTimeout(timer)
+        resolve(c.instrument as unknown as Instrument)
+      })
+    })
+    return await fn(inst)
+  } finally {
+    ctx.registry.delete(stmsimProvider)
+  }
+}
+
+async function readFirst(inst: Instrument, method: string): Promise<number> {
+  return Number(((await inst.call(method, [])).values ?? [])[0])
+}
+
+/** Z 反馈在这一组跑之前是什么样 —— 跑完放回去。 */
+let zctrlWasOn: boolean | null = null
+
+beforeAll(async () => {
+  zctrlWasOn = await withInstrument(async (inst) => (await readFirst(inst, 'ZCtrl_OnOffGet')) !== 0)
+}, 30_000)
+
+// 后两条测试会退针（`ZCtrl_Withdraw`），而这台模拟器是整组集成测试共用的一台：不放回去，
+// 后面要隧道结的文件读到的就是「针已撤回」（Z 谱的 Z-2 排在最后，正是这样红的）。
+// 放回去的办法同 `coarse-composites.test.ts`：合上反馈，模拟器会从退针轨按 I 增益把 Z 伸出去重新找表面。
+// 那一程实测约 2 s，所以这里等到电流回到设定值附近再走，最多等 20 s。
+afterAll(async () => {
+  if (zctrlWasOn !== true) return
+  await withInstrument(async (inst) => {
+    if ((await readFirst(inst, 'ZCtrl_OnOffGet')) !== 0) return
+    await inst.call('ZCtrl_OnOffSet', [1])
+    const setpointA = Math.abs(await readFirst(inst, 'ZCtrl_SetpntGet'))
+    for (let waitedMs = 0; waitedMs < 20_000; waitedMs += 250) {
+      if (Math.abs(await readFirst(inst, 'Current_Get')) > 0.5 * setpointA) return
+      await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+    throw new Error('合上 Z 反馈 20 s 后电流仍没回到设定值，针没放回去')
+  })
+}, 60_000)
 
 describe('看门狗对真 stmsim', () => {
   it('正常隧道电流下一次都不开火', async () => {
