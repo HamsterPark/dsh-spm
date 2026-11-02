@@ -38,7 +38,7 @@ pnpm build
 pnpm test --project unit --project contract
 ```
 
-Node 与 pnpm 版本以 [package.json](package.json) 为准；已有依赖时无需重复安装。`pnpm build` 写入本地构建产物。当前 CI 配置覆盖 Windows / Ubuntu × Node 22.19 / 24，具体执行结果须对应提交和日期。
+Node 与 pnpm 版本以 [package.json](package.json) 为准；已有依赖时无需重复安装。`pnpm build` 写入本地构建产物。当前 CI 配置覆盖 Windows / Ubuntu × Node 22.19 / 24 的构建、单元与契约测试；另有 ubuntu 上的 integration job，对着钉住的 STM-Bench 提交（见 [ci.yml](.github/workflows/ci.yml)）跑集成测试。具体执行结果须对应提交和日期。
 
 - **文档修改**：核对链接、路径、命令和事实来源；不因此重导金样或运行全套演练。
 - **代码修改**：构建及相关单元／契约测试；涉及仪器交互时补相应模拟器验证。
