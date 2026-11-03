@@ -1,0 +1,342 @@
+{
+  "date": "2026-11-02",
+  "artifactSha256": "b8f7b39a926ee1310a09786ee82c9a5f0314e1c985f30544b8d25cda8b7fb79e",
+  "builtFromCommit": "6030b9a49cfa76f5cc3dd642775a760c60adb878",
+  "driverScriptsCommit": "879a6cd4a70b11ce8e83ea3533a366ad13c23ac8",
+  "dsh": "0.2.1-rc.5",
+  "runs": [
+    {
+      "version": 1,
+      "runId": "m4-c673b98b-72a4-4160-8fac-3649dd91845b",
+      "sessionId": "session-aff4b835-4d0c-4fbd-afe1-183df290bf9d",
+      "home": "A",
+      "stmBench": {
+        "commit": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+        "ports": "16711-16714"
+      },
+      "sessionLog": "sessions/session-aff4b835-4d0c-4fbd-afe1-183df290bf9d/session.v4.jsonl.zstd",
+      "reopenedAfterExit": true,
+      "model": {
+        "provider": "deepseek-official",
+        "model": "deepseek-flash"
+      },
+      "requestCount": 2,
+      "totalObservedModelRequests": 2,
+      "usage": {
+        "requests": [
+          {
+            "inputTokens": 526,
+            "outputTokens": 43,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0,
+            "totalTokens": 569
+          },
+          {
+            "inputTokens": 244,
+            "outputTokens": 95,
+            "cacheReadTokens": 384,
+            "cacheWriteTokens": 0,
+            "totalTokens": 723
+          }
+        ],
+        "knownAgentTotals": {
+          "inputTokens": 770,
+          "outputTokens": 138,
+          "totalTokens": 1292,
+          "cacheReadTokens": 384,
+          "reasoningTokens": null
+        },
+        "auxiliaryTitleRequests": 0,
+        "auxiliaryUsage": "not applicable"
+      },
+      "toolCalls": [
+        {
+          "seq": 14,
+          "callId": "call_00_ET_fQbyxUzFK73Z1zTdNJ5o4121",
+          "name": "stm_hello",
+          "arguments": "{}"
+        },
+        {
+          "seq": 16,
+          "callId": "call_01_ET_KhzELakAf0Xdn9OIyWXf1717",
+          "name": "GetBias",
+          "arguments": "{}"
+        }
+      ],
+      "toolResult": {
+        "seq": 17,
+        "callId": "call_01_ET_KhzELakAf0Xdn9OIyWXf1717",
+        "text": "{\"role\":\"tool\",\"source\":{\"kind\":\"tool\",\"callId\":\"call_01_ET_KhzELakAf0Xdn9OIyWXf1717\"},\"toolCallId\":\"call_01_ET_KhzELakAf0Xdn9OIyWXf1717\",\"content\":[{\"type\":\"text\",\"text\":\"GetBias: 0.10000000149011612 V\"}],\"isError\":false,\"id\":\"76e90cfe-6291-477e-95bf-1f3c1b48a19b\"}"
+      },
+      "toolCatalog": [
+        "GetBias",
+        "stm_hello"
+      ],
+      "independentBiasV": 0.10000000149011612,
+      "localEvidence": {
+        "recordsPath": "<DSH_HOME>/m4-c673b98b-72a4-4160-8fac-3649dd91845b.sqlite",
+        "resultsPath": "<DSH_HOME>/m4-c673b98b-72a4-4160-8fac-3649dd91845b.results.jsonl",
+        "sqliteAction": {
+          "action_type": "GetBias",
+          "status": "succeeded",
+          "tool_call_id": "call_01_ET_KhzELakAf0Xdn9OIyWXf1717"
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1793633223366,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0.10000000149011612
+            ]
+          }
+        ]
+      },
+      "finalText": "Both tool calls completed, one each as requested.\n\n- **stm_hello** self-check: `dsh-spm 0.0.1` (built against dsh `0.2.1-rc.5`)\n- **GetBias** measured bias: **0.10000000149011612 V**\n\nNo writes or shell actions were performed.",
+      "processOutput": null,
+      "replayed": false,
+      "elapsedSeconds": 23.1,
+      "overlay": {
+        "closedRows": 20,
+        "includesToolWorkingDirectory": true,
+        "includesSessionLogUpload": true,
+        "composedTreeCheck": "ALL OK"
+      }
+    },
+    {
+      "version": 1,
+      "runId": "m4-dcd69260-6dff-4a61-b208-c8f8e558157d",
+      "sessionId": "session-6a7140f9-dd17-4a2d-a95c-38f78809a934",
+      "home": "B",
+      "stmBench": {
+        "commit": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+        "ports": "16731-16734"
+      },
+      "sessionLog": "sessions/session-6a7140f9-dd17-4a2d-a95c-38f78809a934/session.v4.jsonl.zstd",
+      "reopenedAfterExit": true,
+      "model": {
+        "provider": "deepseek-official",
+        "model": "deepseek-flash"
+      },
+      "requestCount": 2,
+      "totalObservedModelRequests": 2,
+      "usage": {
+        "requests": [
+          {
+            "inputTokens": 276,
+            "outputTokens": 44,
+            "cacheReadTokens": 256,
+            "cacheWriteTokens": 0,
+            "totalTokens": 576
+          },
+          {
+            "inputTokens": 251,
+            "outputTokens": 82,
+            "cacheReadTokens": 384,
+            "cacheWriteTokens": 0,
+            "totalTokens": 717
+          }
+        ],
+        "knownAgentTotals": {
+          "inputTokens": 527,
+          "outputTokens": 126,
+          "totalTokens": 1293,
+          "cacheReadTokens": 640,
+          "reasoningTokens": null
+        },
+        "auxiliaryTitleRequests": 0,
+        "auxiliaryUsage": "not applicable"
+      },
+      "toolCalls": [
+        {
+          "seq": 14,
+          "callId": "call_00_ET_jtBIqmF323Y2ajYKKVPJ4008",
+          "name": "stm_hello",
+          "arguments": "{}"
+        },
+        {
+          "seq": 16,
+          "callId": "call_01_ET_Li5UgoRlwyjAmWQaoWLQ3790",
+          "name": "GetBias",
+          "arguments": "{}"
+        }
+      ],
+      "toolResult": {
+        "seq": 17,
+        "callId": "call_01_ET_Li5UgoRlwyjAmWQaoWLQ3790",
+        "text": "{\"role\":\"tool\",\"source\":{\"kind\":\"tool\",\"callId\":\"call_01_ET_Li5UgoRlwyjAmWQaoWLQ3790\"},\"toolCallId\":\"call_01_ET_Li5UgoRlwyjAmWQaoWLQ3790\",\"content\":[{\"type\":\"text\",\"text\":\"GetBias: 0.10000000149011612 V\"}],\"isError\":false,\"id\":\"bca72707-0bcc-4275-94be-341b1b350d2c\"}"
+      },
+      "toolCatalog": [
+        "GetBias",
+        "stm_hello"
+      ],
+      "independentBiasV": 0.10000000149011612,
+      "localEvidence": {
+        "recordsPath": "<DSH_HOME>/m4-dcd69260-6dff-4a61-b208-c8f8e558157d.sqlite",
+        "resultsPath": "<DSH_HOME>/m4-dcd69260-6dff-4a61-b208-c8f8e558157d.results.jsonl",
+        "sqliteAction": {
+          "action_type": "GetBias",
+          "status": "succeeded",
+          "tool_call_id": "call_01_ET_Li5UgoRlwyjAmWQaoWLQ3790"
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1793633250285,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0.10000000149011612
+            ]
+          }
+        ]
+      },
+      "finalText": "Both calls completed once, with no writes or shell actions.\n\n- **stm_hello:** dsh-spm 0.0.1 (built against dsh 0.2.1-rc.5)\n- **Measured bias:** **0.10000000149011612 V** (approximately 0.1 V)",
+      "processOutput": null,
+      "replayed": false,
+      "elapsedSeconds": 11.8,
+      "overlay": {
+        "closedRows": 20,
+        "includesToolWorkingDirectory": true,
+        "includesSessionLogUpload": true,
+        "composedTreeCheck": "ALL OK"
+      }
+    },
+    {
+      "version": 1,
+      "runId": "m4-a975093e-de8c-44d8-9365-a5ae84afa9b3",
+      "sessionId": "session-445cf98d-30d3-415f-a369-da8e0e303a3c",
+      "home": "B",
+      "stmBench": {
+        "commit": "cfd042949df6e436bdff944ab981935f43729e35",
+        "ports": "16751-16754"
+      },
+      "sessionLog": "sessions/session-445cf98d-30d3-415f-a369-da8e0e303a3c/session.v4.jsonl.zstd",
+      "reopenedAfterExit": true,
+      "model": {
+        "provider": "deepseek-official",
+        "model": "deepseek-flash"
+      },
+      "requestCount": 3,
+      "totalObservedModelRequests": 3,
+      "usage": {
+        "requests": [
+          {
+            "inputTokens": 148,
+            "outputTokens": 118,
+            "cacheReadTokens": 384,
+            "cacheWriteTokens": 0,
+            "totalTokens": 650
+          },
+          {
+            "inputTokens": 175,
+            "outputTokens": 30,
+            "cacheReadTokens": 512,
+            "cacheWriteTokens": 0,
+            "totalTokens": 717
+          },
+          {
+            "inputTokens": 231,
+            "outputTokens": 84,
+            "cacheReadTokens": 512,
+            "cacheWriteTokens": 0,
+            "totalTokens": 827
+          }
+        ],
+        "knownAgentTotals": {
+          "inputTokens": 554,
+          "outputTokens": 232,
+          "totalTokens": 2194,
+          "cacheReadTokens": 1408,
+          "reasoningTokens": null
+        },
+        "auxiliaryTitleRequests": 0,
+        "auxiliaryUsage": "not applicable"
+      },
+      "toolCalls": [
+        {
+          "seq": 14,
+          "callId": "call_00_AftVfhB4fw9wIZCOWgJi3006",
+          "name": "stm_hello",
+          "arguments": "{}"
+        },
+        {
+          "seq": 19,
+          "callId": "call_00_L4tGUPD5ZmtW925uw9t94626",
+          "name": "GetBias",
+          "arguments": "{}"
+        }
+      ],
+      "toolResult": {
+        "seq": 20,
+        "callId": "call_00_L4tGUPD5ZmtW925uw9t94626",
+        "text": "{\"role\":\"tool\",\"source\":{\"kind\":\"tool\",\"callId\":\"call_00_L4tGUPD5ZmtW925uw9t94626\"},\"toolCallId\":\"call_00_L4tGUPD5ZmtW925uw9t94626\",\"content\":[{\"type\":\"text\",\"text\":\"GetBias: 0.10000000149011612 V\"}],\"isError\":false,\"id\":\"41a803a7-f69a-493a-81f7-622c2ca0a812\"}"
+      },
+      "toolCatalog": [
+        "GetBias",
+        "stm_hello"
+      ],
+      "independentBiasV": 0.10000000149011612,
+      "localEvidence": {
+        "recordsPath": "<DSH_HOME>/m4-a975093e-de8c-44d8-9365-a5ae84afa9b3.sqlite",
+        "resultsPath": "<DSH_HOME>/m4-a975093e-de8c-44d8-9365-a5ae84afa9b3.results.jsonl",
+        "sqliteAction": {
+          "action_type": "GetBias",
+          "status": "succeeded",
+          "tool_call_id": "call_00_L4tGUPD5ZmtW925uw9t94626"
+        },
+        "instrumentCalls": [
+          {
+            "method": "Bias_Get",
+            "command": "Bias.Get",
+            "role": "main",
+            "args": [],
+            "at": 1793633273500,
+            "simulated": true,
+            "elapsedMs": 1,
+            "values": [
+              0.10000000149011612
+            ]
+          }
+        ]
+      },
+      "finalText": "Both calls completed successfully, once each:\n\n- **stm_hello**: dsh-spm 0.0.1（对应 dsh 0.2.1-rc.5）\n- **GetBias**: **0.10000000149011612 V** (≈ 0.1 V)\n\nThe measured bias is **0.1 V**. No writes or shell actions were performed.",
+      "processOutput": null,
+      "replayed": false,
+      "elapsedSeconds": 12.4,
+      "overlay": {
+        "closedRows": 20,
+        "includesToolWorkingDirectory": true,
+        "includesSessionLogUpload": true,
+        "composedTreeCheck": "ALL OK"
+      }
+    }
+  ],
+  "actualTotalModelRequests": 7,
+  "knownAgentTokenTotal": 4779,
+  "titleTokenUsage": "not applicable",
+  "usage": {
+    "sessions": 3,
+    "agentRequests": 7,
+    "inputTokens": 1851,
+    "outputTokens": 496,
+    "cacheReadTokens": 2432,
+    "totalTokens": 4779,
+    "definition": "totalTokens = inputTokens + outputTokens + cacheReadTokens as reported per request; inputTokens excludes cache reads",
+    "sessionSeconds": 47.3
+  },
+  "attempts": {
+    "A-1": 1,
+    "B-1": 1,
+    "B-cfd-1": 1,
+    "retries": 0
+  },
+  "note": "Native session/event and instrument evidence retained; credentials are absent. Automatic title requests were disabled in every session, so there is no auxiliary usage. The model was asked to call stm_hello once and GetBias once; the call sequence was the same in all three sessions."
+}

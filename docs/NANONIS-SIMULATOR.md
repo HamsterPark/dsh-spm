@@ -117,4 +117,4 @@ node scripts/native-session.ts --install-dir $profileDir --dsh-home $dshHome --p
 
 这些记录对应当时的 Windows 与 Generic 5e / RT Release 15016。它们不证明其他 Nanonis 版本、跨平台、完整图像采集／导出、专用 STM 前端、npm 发布或真实仪器行为。视觉线束开关（`--visual`）在这些记录之后加入，不在其范围内。原始会话和数据库路径属于验收机器；仓库保存摘要及关联结果。
 
-受管 STM-Bench 的双 home 验收属于此前 `8c510e…` 包，不扩展到这里的 `b5a7ab…` 包。重新构建即使沿用同一 tarball 文件名，也应按新哈希记录自己的验收结果。
+受管 STM-Bench 的双 home 验收分别属于 `8c510e…`（2026-09-21）和 `b8f7b3…`（2026-11-02）两个包，都不扩展到这里的 `b5a7ab…` 包。重新构建即使沿用同一 tarball 文件名，也应按新哈希记录自己的验收结果。

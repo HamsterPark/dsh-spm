@@ -1,0 +1,553 @@
+{
+  "date": "2026-11-02",
+  "dates": {
+    "install": "2026-11-01",
+    "nonModel": "2026-11-02",
+    "model": "2026-11-02",
+    "integration": "2026-11-02"
+  },
+  "scope": "Managed STM-Bench entry only. The Nanonis entry is not part of this record.",
+  "artifact": {
+    "path": "<repo>/artifacts/dsh-spm-0.0.1.tgz",
+    "sha256": "b8f7b39a926ee1310a09786ee82c9a5f0314e1c985f30544b8d25cda8b7fb79e",
+    "builtFromCommit": "6030b9a49cfa76f5cc3dd642775a760c60adb878",
+    "worktree": "clean",
+    "rebuiltDuringRound": false,
+    "provenance": {
+      "inputs": 304,
+      "compiledWorkspaceFiles": 297,
+      "bundleSourceFiles": 7,
+      "externalDependencies": {
+        "@deepseek-ai/cordis": "4.0.5",
+        "@deepseek-ai/dsh-host-webserver": "0.2.1-rc.5",
+        "@deepseek-ai/dsh-system-prompt": "0.2.1-rc.5",
+        "@deepseek-ai/dsh-tools": "0.2.1-rc.5"
+      }
+    }
+  },
+  "masterRelation": {
+    "masterCommit": "879a6cd4a70b11ce8e83ea3533a366ad13c23ac8",
+    "commitsSinceBuild": 8,
+    "changedFiles": 10,
+    "changedFilesAreInputs": 0,
+    "changedPaths": [
+      "CI workflow, AGENTS.md and three docs, spec/deviations.md",
+      "four integration test files (packages/**/integration/*.test.ts)"
+    ],
+    "provenanceInputsIdentical": "304/304: after a forced full rebuild at the master commit every input file hashes to the value recorded in the provenance; the 7 tracked sources are the same git blob in both commits and the 297 compiled files have identical sources",
+    "otherInputsIdentical": [
+      "cordis.minimal.patch.yml",
+      "bundle package.json",
+      "scripts/build-minimal.ts and its local imports",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml"
+    ],
+    "conclusion": "The package built from the master commit has the same inputs as the accepted package. Tarball bytes were not rebuilt or compared."
+  },
+  "environment": {
+    "node": "v24.14.0",
+    "pnpm": "11.7.0",
+    "platform": "win32/x64",
+    "os": "Windows 11 build 26100",
+    "dsh": "0.2.1-rc.5",
+    "cordis": "4.0.5",
+    "python": "3.13.13",
+    "numpy": "2.4.4",
+    "scipy": "1.17.1",
+    "pyyaml": "6.0.3",
+    "vitest": "4.1.11",
+    "simulatorRoot": "<STMSIM_ROOT>",
+    "isolation": "Every command that starts dsh or a repository script ran with the home, agents and temporary directories redirected to a scratch location."
+  },
+  "dsh": {
+    "version": "0.2.1-rc.5",
+    "packagesPerInstall": 296,
+    "vendor": {
+      "@deepseek-ai/cordis": [
+        "4.0.5"
+      ],
+      "@deepseek-ai/cordis-plugin-group": [
+        "1.0.5"
+      ],
+      "@deepseek-ai/cordis-plugin-include": [
+        "1.0.10"
+      ],
+      "@deepseek-ai/cordis-plugin-loader": [
+        "1.0.6"
+      ],
+      "@deepseek-ai/cordis-plugin-timer": [
+        "1.1.7"
+      ],
+      "@deepseek-ai/cosmokit": [
+        "1.8.6"
+      ],
+      "@deepseek-ai/libreoffice-kit": [
+        "0.1.5"
+      ],
+      "@deepseek-ai/node-addon-system": [
+        "0.1.2"
+      ],
+      "@deepseek-ai/schemastery": [
+        "3.18.5"
+      ]
+    }
+  },
+  "stmBench": {
+    "m3m4": {
+      "primary": {
+        "commit": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+        "tree": "bff925edf83f1d6714cceea107791ee4cb9dc5b9",
+        "equalsPublicRootCommit": true,
+        "usedFor": [
+          "home A: values, failure, inspect",
+          "home B: values",
+          "model sessions A-1 and B-1"
+        ]
+      },
+      "additional": {
+        "commit": "cfd042949df6e436bdff944ab981935f43729e35",
+        "tree": "896403e062b4ff05240b77229935ba0d2f312096",
+        "usedFor": [
+          "home B: values",
+          "model session B-cfd-1"
+        ]
+      },
+      "cloneStatusAfterEveryRun": "git status --porcelain --ignored empty"
+    },
+    "integration": {
+      "commits": {
+        "5a21f19": {
+          "commit": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+          "tree": "bff925edf83f1d6714cceea107791ee4cb9dc5b9"
+        },
+        "4a0014b": {
+          "commit": "4a0014b640b41cbf4dfdf68dbd34631ff71b1691",
+          "tree": "5d504fd3367e7bb68c56b86e384d83cca526555d"
+        },
+        "cfd0429": {
+          "commit": "cfd042949df6e436bdff944ab981935f43729e35",
+          "tree": "896403e062b4ff05240b77229935ba0d2f312096"
+        }
+      },
+      "relation": {
+        "5a21f19_to_4a0014b": "22 stmsim files changed",
+        "4a0014b_to_cfd0429": [
+          "stmsim/physics/scanner.py",
+          "stmsim/physics/world.py"
+        ],
+        "commandRegistrySha256IdenticalOnAllThree": true,
+        "commandRegistrySha256": "deec4ba4991f3cbefe2ff3fb57390d0a3ca2dd14e63668bba00b5ef1e15f5a39"
+      },
+      "driverCode": {
+        "beforeFixes": "6030b9a49cfa76f5cc3dd642775a760c60adb878",
+        "afterFixes": "a085624ba23ec106a91943fe94129898acd84222",
+        "afterFixesNote": "differs from the build commit by four integration test files only; all are ancestors of the master commit"
+      },
+      "beforeFixes": {
+        "5a21f19": {
+          "files": 22,
+          "suites": 69,
+          "tests": 118,
+          "passed": 116,
+          "failed": 2,
+          "exitCode": 1
+        },
+        "4a0014b": {
+          "files": 22,
+          "suites": 69,
+          "tests": 118,
+          "passed": 116,
+          "failed": 2,
+          "exitCode": 1
+        },
+        "cfd0429": {
+          "files": 22,
+          "suites": 69,
+          "tests": 118,
+          "passed": 116,
+          "failed": 2,
+          "exitCode": 1
+        },
+        "identicalRedSet": true,
+        "reds": [
+          {
+            "file": "packages/host/stm-skills/integration/lockin.test.ts",
+            "cause": "the two NeedModule probe verbs are not in the public simulator command registry, so the simulator answers \"command not recognized\"; the registry file is identical on all three commits",
+            "rerunAlone": "red twice with the identical message",
+            "sameRedOnEarlierCode": "public commit 44516c8 against 5a21f19"
+          },
+          {
+            "file": "packages/bundle/dsh-spm/integration/budgeted-call.test.ts",
+            "cause": "order dependence: the watchdog test withdraws the tip and never restores it; the budgeted-call test runs last and finds no tunnelling junction; green when run alone"
+          }
+        ]
+      },
+      "fixes": [
+        {
+          "commit": "86fdadb",
+          "change": "probe NeedModule with verbs the public registry knows; the NeedModule assertion is kept"
+        },
+        {
+          "commit": "47a90b2",
+          "change": "the watchdog test restores the Z feedback and waits for the current; the budgeted-call test establishes the junction itself; the Timeout assertion is unchanged"
+        },
+        {
+          "commit": "a085624",
+          "change": "new integration test that parses and archives .sxm/.dat files written by the simulator (4 tests)"
+        }
+      ],
+      "afterFixes": {
+        "5a21f19": {
+          "files": 23,
+          "suites": 72,
+          "tests": 122,
+          "passed": 122,
+          "failed": 0,
+          "exitCode": 0
+        },
+        "4a0014b": {
+          "files": 23,
+          "suites": 72,
+          "tests": 122,
+          "passed": 122,
+          "failed": 0,
+          "exitCode": 0
+        },
+        "cfd0429": {
+          "files": 23,
+          "suites": 72,
+          "tests": 122,
+          "passed": 122,
+          "failed": 0,
+          "exitCode": 0
+        },
+        "cfd0429ResultsCacheKept": {
+          "files": 23,
+          "suites": 72,
+          "tests": 122,
+          "passed": 122,
+          "failed": 0,
+          "exitCode": 0
+        },
+        "note": "Vitest orders files by its results cache. The three commits were each run with the cache cleared (same order); cfd0429 was run once more with the cache kept, which changes the file order. All green."
+      },
+      "newTest": {
+        "file": "packages/host/stm-skills/integration/stmsim-files.test.ts",
+        "tests": 4,
+        "greenOnAllThree": true,
+        "deliberateDefectsDetected": 3,
+        "pythonVsTypescriptReaders": "one simulator-written .sxm and .dat per commit read by the simulator reader and by this repository: no differences"
+      },
+      "ci": {
+        "job": "integration",
+        "os": "ubuntu-latest",
+        "python": "3.13",
+        "numpy": "2.4.4",
+        "scipy": "1.17.1",
+        "pyyaml": "6.0.3",
+        "stmBench": "cfd042949df6e436bdff944ab981935f43729e35",
+        "commit": "879a6cd4a70b11ce8e83ea3533a366ad13c23ac8",
+        "run": "https://github.com/HamsterPark/dsh-spm/actions/runs/41466763138",
+        "result": {
+          "files": 23,
+          "tests": 122,
+          "passed": 122,
+          "failed": 0
+        },
+        "buildCells": "4 of 4 passed (Windows and Ubuntu, Node 22.19 and 24)",
+        "requiredCheck": false
+      },
+      "pin": "The CI job pins cfd0429. Managed model sessions remain recorded on 5a21f19 (two) and cfd0429 (one); none was run on 4a0014b."
+    }
+  },
+  "homeA": {
+    "status": "passed",
+    "dshHome": "<DSH_HOME>",
+    "installDir": "<PROFILE_DIR>",
+    "ports": [
+      16611,
+      16612,
+      16613,
+      16614
+    ],
+    "stmBench": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+    "commands": {
+      "values": "node scripts/verify-minimal.ts values --install-dir <PROFILE_DIR> --dsh-home <DSH_HOME> --python <PYTHON> --simulator-root <STMSIM_ROOT> --ports 16611,16612,16613,16614 --records <PROFILE_DIR>/records.sqlite --results <PROFILE_DIR>/results.jsonl --evidence <PROFILE_DIR>/values.json",
+      "failure": "node scripts/verify-minimal.ts failure --install-dir <PROFILE_DIR> --dsh-home <DSH_HOME> --python <PYTHON> --simulator-root <STMSIM_ROOT> --ports 16611,16612,16613,16614 --records <PROFILE_DIR>/records.sqlite --results <PROFILE_DIR>/results.jsonl --evidence <PROFILE_DIR>/failure.json",
+      "inspect": "node scripts/verify-minimal.ts inspect --install-dir <PROFILE_DIR> --dsh-home <DSH_HOME> --records <PROFILE_DIR>/records.sqlite --results <PROFILE_DIR>/results.jsonl --evidence <PROFILE_DIR>/restart.json"
+    },
+    "comparisons": [
+      {
+        "callId": "minimal-9c2a5a33-8e0c-401f-abcd-da355a7046f7-1",
+        "requested": 0.125,
+        "direct": 0.125,
+        "tool": 0.125,
+        "unit": "V",
+        "absoluteError": 0
+      },
+      {
+        "callId": "minimal-9c2a5a33-8e0c-401f-abcd-da355a7046f7-2",
+        "requested": -0.375,
+        "direct": -0.375,
+        "tool": -0.375,
+        "unit": "V",
+        "absoluteError": 0
+      }
+    ],
+    "hello": "dsh-spm 0.0.1（对应 dsh 0.2.1-rc.5）",
+    "toolCatalog": [
+      "GetBias",
+      "stm_hello"
+    ],
+    "instrumentCalls": "Each success has exactly one successful main Bias_Get whose sole value matches the independent read.",
+    "disconnect": "One failed main Bias_Get contains managed_simulator_stopped and no finite success values; the tool result is a failure text with isError false (D-VMEM-5); SQLite and JSONL retain the same call id.",
+    "disconnectedResult": {
+      "isError": false,
+      "text": "[GetBias] failed: managed_simulator_stopped: 本插件拥有的 stmsim 已停止，拒绝连接替代监听者或返回旧状态。"
+    },
+    "restartRead": true,
+    "portsReleased": true,
+    "evidence": [
+      "<PROFILE_DIR>/values.json",
+      "<PROFILE_DIR>/failure.json",
+      "<PROFILE_DIR>/restart.json"
+    ]
+  },
+  "homeB": {
+    "status": "passed",
+    "dshHome": "<DSH_HOME>",
+    "installDir": "<PROFILE_DIR>",
+    "ports": [
+      16631,
+      16632,
+      16633,
+      16634
+    ],
+    "stmBench": "5a21f19537df97aef9b37c86fdbd7da54353e07f",
+    "command": "node scripts/verify-minimal.ts values --install-dir <PROFILE_DIR> --dsh-home <DSH_HOME> --python <PYTHON> --simulator-root <STMSIM_ROOT> --ports 16631,16632,16633,16634 --records <PROFILE_DIR>/records.sqlite --results <PROFILE_DIR>/results.jsonl --evidence <PROFILE_DIR>/values.json",
+    "comparisons": [
+      {
+        "callId": "minimal-08d4b107-ede6-403c-8512-36c0bd63f337-1",
+        "requested": 0.125,
+        "direct": 0.125,
+        "tool": 0.125,
+        "unit": "V",
+        "absoluteError": 0
+      },
+      {
+        "callId": "minimal-08d4b107-ede6-403c-8512-36c0bd63f337-2",
+        "requested": -0.375,
+        "direct": -0.375,
+        "tool": -0.375,
+        "unit": "V",
+        "absoluteError": 0
+      }
+    ],
+    "hello": "dsh-spm 0.0.1（对应 dsh 0.2.1-rc.5）",
+    "instrumentCalls": "Each success has exactly one successful main Bias_Get whose sole value matches the independent read.",
+    "portsReleased": true,
+    "evidence": "<PROFILE_DIR>/values.json",
+    "valuesOnCfd0429": {
+      "status": "passed",
+      "ports": [
+        16651,
+        16652,
+        16653,
+        16654
+      ],
+      "stmBench": "cfd042949df6e436bdff944ab981935f43729e35",
+      "driverScriptsCommit": "a085624ba23ec106a91943fe94129898acd84222",
+      "comparisons": [
+        {
+          "callId": "minimal-96cb95b2-6e77-43a9-8ef6-317026466689-1",
+          "requested": 0.125,
+          "direct": 0.125,
+          "tool": 0.125,
+          "unit": "V",
+          "absoluteError": 0
+        },
+        {
+          "callId": "minimal-96cb95b2-6e77-43a9-8ef6-317026466689-2",
+          "requested": -0.375,
+          "direct": -0.375,
+          "tool": -0.375,
+          "unit": "V",
+          "absoluteError": 0
+        }
+      ],
+      "hello": "dsh-spm 0.0.1（对应 dsh 0.2.1-rc.5）",
+      "portsReleased": true,
+      "evidence": "<PROFILE_DIR>/values-cfd.json"
+    }
+  },
+  "m0": {
+    "status": "passed",
+    "head": "6030b9a49cfa76f5cc3dd642775a760c60adb878",
+    "worktree": "clean",
+    "node": "24.14.0",
+    "pnpm": "11.7.0",
+    "build": "tsc -b passed",
+    "unitContract": {
+      "node24": {
+        "files": 190,
+        "tests": 8812
+      },
+      "node22RuntimeOnly": {
+        "node": "22.19.0",
+        "files": 190,
+        "tests": 8812,
+        "note": "same Node 24 build, tests executed on Node 22.19.0"
+      }
+    },
+    "ciOnBuildCommit": {
+      "cells": 4,
+      "allPassed": true,
+      "filesPerCell": 190,
+      "testsPerCell": 8812
+    },
+    "generatorChecks": "five generators in --check mode report no drift",
+    "hygiene": {
+      "scanned": 813,
+      "findings": 0,
+      "rules": "general rules only, no site list configured"
+    },
+    "upstreamVersionCheck": "locked 0.2.1-rc.5 equals latest and next",
+    "realHardwareConnections": 0
+  },
+  "m1": {
+    "status": "passed",
+    "installations": [
+      "<INSTALL_ROOT_A>",
+      "<INSTALL_ROOT_B>",
+      "<INSTALL_ROOT_N> (Nanonis entry, outside this record)"
+    ],
+    "copiedArtifactSha256": "b8f7b39a926ee1310a09786ee82c9a5f0314e1c985f30544b8d25cda8b7fb79e",
+    "dshVersion": "0.2.1-rc.5",
+    "explicitlyPinnedDshPackages": 296,
+    "actualDshPackages": 296,
+    "vendorPins": {
+      "@deepseek-ai/cordis": "4.0.5",
+      "@deepseek-ai/cordis-plugin-group": "1.0.5",
+      "@deepseek-ai/cordis-plugin-include": "1.0.10",
+      "@deepseek-ai/cordis-plugin-loader": "1.0.6",
+      "@deepseek-ai/cordis-plugin-timer": "1.1.7",
+      "@deepseek-ai/cosmokit": "1.8.6",
+      "@deepseek-ai/libreoffice-kit": "0.1.5",
+      "@deepseek-ai/node-addon-system": "0.1.2",
+      "@deepseek-ai/schemastery": "3.18.5"
+    },
+    "singleVersionCheck": {
+      "result": "ALL OK",
+      "comparedWithRepositoryPins": 36
+    },
+    "externalModuleIdentityChecks": [
+      "@deepseek-ai/cordis",
+      "@deepseek-ai/dsh-host-webserver",
+      "@deepseek-ai/dsh-system-prompt",
+      "@deepseek-ai/dsh-tools"
+    ],
+    "activationProbe": {
+      "script": "scripts/probe-compose.ts",
+      "rows": [
+        "mast-minimal-hello",
+        "mast-minimal-runtime"
+      ],
+      "stderrEmpty": true,
+      "versionWaiver": false,
+      "installs": 3
+    },
+    "copiedTarballOutsideRepository": true,
+    "homeBFirstAttempt": "failed while downloading dependencies (connection reset); retried once in a new directory"
+  },
+  "m4": {
+    "status": "passed",
+    "nativeEntrypoint": "installed dsh 0.2.1-rc.5 CLI with dsh-base+dsh-headless+dsh-spm",
+    "model": "deepseek-official/deepseek-flash",
+    "toolCatalog": [
+      "GetBias",
+      "stm_hello"
+    ],
+    "independentBiasV": [
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ],
+    "sessions": [
+      {
+        "home": "A",
+        "sessionId": "session-aff4b835-4d0c-4fbd-afe1-183df290bf9d",
+        "stmBench": "5a21f19537df97aef9b37c86fdbd7da54353e07f"
+      },
+      {
+        "home": "B",
+        "sessionId": "session-6a7140f9-dd17-4a2d-a95c-38f78809a934",
+        "stmBench": "5a21f19537df97aef9b37c86fdbd7da54353e07f"
+      },
+      {
+        "home": "B",
+        "sessionId": "session-445cf98d-30d3-415f-a369-da8e0e303a3c",
+        "stmBench": "cfd042949df6e436bdff944ab981935f43729e35"
+      }
+    ],
+    "agentRequests": 7,
+    "auxiliaryTitleRequests": 0,
+    "totalObservedRequests": 7,
+    "knownAgentTokens": 4779,
+    "auxiliaryTitleTokens": "not applicable",
+    "overlayRowsClosed": [
+      20,
+      20,
+      20
+    ],
+    "notes": [
+      "The acceptance overlay closes 19 tool and auxiliary rows and turns session-log upload off; the composed tree was re-dumped with each overlay and every closed row appears once and is closed.",
+      "Automatic title requests were disabled in every session; token fields retain native dsh accounting.",
+      "Driver scripts ran from the master commit; nothing under scripts/ or in the package sources differs from the build commit (only four integration test files changed)."
+    ],
+    "evidence": [
+      "<DSH_HOME>/model-A-1.json",
+      "<DSH_HOME>/model-B-1.json",
+      "<DSH_HOME>/model-B-cfd-1.json"
+    ],
+    "details": "minimal-model-20261102.json",
+    "restartRead": true,
+    "portsReleased": true
+  },
+  "attempts": {
+    "install": {
+      "homeA": 1,
+      "homeB": 2,
+      "thirdHome": 1,
+      "note": "the first attempt for home B failed while downloading dependencies; the third home belongs to the Nanonis entry"
+    },
+    "nonModel": {
+      "homeA.values": 1,
+      "homeA.failure": 1,
+      "homeA.inspect": 1,
+      "homeB.values": 1,
+      "homeB.valuesOnCfd0429": 1,
+      "reruns": 0
+    },
+    "model": {
+      "A-1": 1,
+      "B-1": 1,
+      "B-cfd-1": 1,
+      "retries": 0
+    },
+    "postRunEvidenceCheck": {
+      "firstPassRed": 1,
+      "cause": "assertion in the external check script expected an error flag on the disconnected result; the dispatcher returns a failure text with the flag unset (D-VMEM-5). The assertion was corrected and the unchanged evidence passed."
+    },
+    "activationCheckScript": {
+      "firstRunFailed": true,
+      "cause": "could not locate the YAML library in the pnpm layout; fixed and re-run on the three installs",
+      "activationProbeUnaffected": true
+    },
+    "integration": {
+      "fullRunsBeforeFixes": 3,
+      "fullRunsAfterFixes": 4,
+      "rerunsOfSingleRedItems": "at most two per item"
+    }
+  }
+}

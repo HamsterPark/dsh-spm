@@ -8,14 +8,14 @@
 
 以下步骤从仓库根目录在 PowerShell 中执行，建议先完成无模型验收，再运行需要密钥的模型验收。
 
-- Node 与 pnpm 版本要求见 [package.json](../package.json)。记录中的 Windows 环境为 Node 24.14.0、pnpm 11.7.0（当时安装的 dsh 是 `0.1.5-rc.2`、Cordis `4.0.2`）；现在安装脚本取 compat 的钉版——dsh `0.2.1-rc.5`、Cordis `4.0.5`，见 [scripts/dsh-pins.ts](../scripts/dsh-pins.ts)。
+- Node 与 pnpm 版本要求见 [package.json](../package.json)。记录中的 Windows 环境为 Node 24.14.0、pnpm 11.7.0（2026-09-21 的记录安装的是 dsh `0.1.5-rc.2`、Cordis `4.0.2`；2026-11-02 的记录是 dsh `0.2.1-rc.5`、Cordis `4.0.5`）；安装脚本取 compat 的钉版，现在就是后者，见 [scripts/dsh-pins.ts](../scripts/dsh-pins.ts)。
 - 另行准备 STM-Bench 源码及已安装其依赖的 Python 解释器；两者不包含在本仓库中。需要解释器的绝对路径，以及包含 `stmsim` 包的 STM-Bench 根目录。本指南的模型验收使用 `reference-stm` 配置。
 - 选择一个仓库之外、尚不存在的安装目录，以及四个未被占用的本地端口。下文目录是示例，先替换为自己的位置；不要在同一组端口上并行运行两轮验收。
 - 无需安装私有 MAST。构建和安装需要下载依赖；模型验收会发送真实模型请求，需要自行提供 DeepSeek 密钥。
 
-> **新包尚未验收**：下文「已记录的验收范围」里 2026-09-21 的记录，对应 dsh `0.1.5-rc.2` 下构建的包；本仓已升到 `0.2.1-rc.5`，**尚未对新包重做真实模型与模拟器验收**。在新记录出现之前，把新包视为「已构建、离线检查通过、未经真实会话验收」。
+> **验收记录对应的包**：下文「已记录的验收范围」有两份受管入口记录。2026-11-02 的记录对应构建自 `6030b9a`、dsh `0.2.1-rc.5` 的包（SHA256 以 `b8f7b39a` 开头），已做真实模型与模拟器验收；2026-09-21 的记录对应 dsh `0.1.5-rc.2` 下构建的旧包，只作历史。此后重建的包即使文件名相同，也须按自己的 SHA256 重新验收；在那之前，把它视为「已构建、未经真实会话验收」。
 
-历史首验使用 Python 3.13.13、STM-Bench 提交 `9e1acb3a9bb95188c53edfcd108050369fd44a3f`（发布前的本地提交，不在公开仓库里；公开仓库中内容相同的提交是根提交 `5a21f19537df97aef9b37c86fdbd7da54353e07f`，两者目录树哈希同为 `bff925edf83f1d6714cceea107791ee4cb9dc5b9`）的 `reference-stm` 配置。公开 main 此后已前进，模拟的物理行为有改动，兼容性应以实际验收结果为准。
+历史首验使用 Python 3.13.13、STM-Bench 提交 `9e1acb3a9bb95188c53edfcd108050369fd44a3f`（发布前的本地提交，不在公开仓库里；公开仓库中内容相同的提交是根提交 `5a21f19537df97aef9b37c86fdbd7da54353e07f`，两者目录树哈希同为 `bff925edf83f1d6714cceea107791ee4cb9dc5b9`）的 `reference-stm` 配置。公开 main 此后已前进，模拟的物理行为有改动，兼容性应以实际验收结果为准。2026-11-02 的重验收用同一个公开根提交 `5a21f19…` 做非模型验收和两次模型会话，另在 `cfd0429…`（当时的公开 main）上做了一次 `values` 和一次模型会话，均通过；其他提交（包括只做过源码集成测试的 `4a0014b…`）没有做过模型会话。
 
 ## 构建并安装到新目录
 
@@ -93,8 +93,10 @@ SQLite 的 `actions.tool_call_id` 对应 JSONL 的 `toolCallId`。JSONL 保存�
 
 ## 已记录的验收范围
 
-2026-09-21 的受管入口记录绑定包 SHA256 **`8c510e26598495385a20f8f0983310570a03328c5baa0c8c7a45e7db68b0735b`**：两个独立 Windows home 完成安装及真实模型读取；独立调度器另测偏压变化、断链失败和重开记录。详见 [实施交接](handoff/minimum-usable-20260921.md)、[安装与调度结果](handoff/minimal-acceptance-20260921.json) 和 [模型结果](handoff/minimal-model-20260921.json)。
+2026-11-02 的受管入口重验收绑定包 SHA256 **`b8f7b39a926ee1310a09786ee82c9a5f0314e1c985f30544b8d25cda8b7fb79e`**（构建自 `6030b9a`，dsh `0.2.1-rc.5`）：同一个包安装于两个独立 Windows home，各完成非模型验收（home A 含偏压读回、断链失败和重开记录，home B 含偏压读回）；三次真实模型读取，两次对 STM-Bench `5a21f19…`、一次对 `cfd0429…`，读数都与独立 TCP 回读一致。详见 [重验收交接](handoff/reacceptance-managed-20261102.md)、[安装与调度结果](handoff/minimal-acceptance-20261102.json) 和 [模型结果](handoff/minimal-model-20261102.json)。
 
-后续 Nanonis 原生入口使用另一个哈希为 `b5a7ab…` 的同名包；它的结果见另一份指南，不能与本次双 home 记录互换。原始会话和数据库路径指向验收机器，仓库保存的是摘要及关联结果。Windows 的这些结果不扩展为 Linux/macOS、完整客户端、npm 公开发布或真实仪器验收。
+2026-09-21 的受管入口记录（历史）绑定旧包 SHA256 **`8c510e26598495385a20f8f0983310570a03328c5baa0c8c7a45e7db68b0735b`**：两个独立 Windows home 完成安装及真实模型读取；独立调度器另测偏压变化、断链失败和重开记录。它对应 dsh `0.1.5-rc.2` 下构建的包，不代表当前代码。详见 [实施交接](handoff/minimum-usable-20260921.md)、[安装与调度结果](handoff/minimal-acceptance-20260921.json) 和 [模型结果](handoff/minimal-model-20260921.json)。
+
+Nanonis 原生入口的记录（2026-09-21）使用另一个哈希为 `b5a7ab…` 的同名包；它的结果见另一份指南，不能与上述受管记录互换。原始会话和数据库留在验收机器上，仓库保存的是摘要及关联结果。Windows 的这些结果不扩展为 Linux/macOS、完整客户端、npm 公开发布或真实仪器验收。
 
 源码集成测试另由 [开发指南](DEVELOPMENT.md) 说明；其 `STMSIM_PROFILE` 可选择外部模拟器配置，默认 `reference-stm`。本入口的设计范围见 [第一版计划](MINIMUM-USABLE-PLAN.md)。
